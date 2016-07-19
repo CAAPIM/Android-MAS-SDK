@@ -10,18 +10,18 @@ package com.ca.mas.core.auth.ble;
 
 /**
  * Represents a consent request for handling Session Sharing.
- * either {@link #proceed} or {@link #cancel} to set the authorize response
+ * Either {@link #proceed} or {@link #cancel} to set the authorize response
  * to the consent request.
  */
 public interface BluetoothLeConsentHandler {
 
     /**
-     * Proceed the Session Sharing authorization request.
+     * Starts the Session Sharing authorization request.
      */
     void proceed();
 
     /**
-     * Cancel the Session Sharing authorization request.
+     * Cancels the Session Sharing authorization request.
      */
     void cancel();
 }

@@ -1,0 +1,67 @@
+<!--
+  ~ Copyright (c) 2016 CA. All rights reserved.
+  ~
+  ~ This software may be modified and distributed under the terms
+  ~ of the MIT license.  See the LICENSE file for details.
+  ~
+  -->
+
+<LinearLayout
+    style="@style/Theme.Transparent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="@dimen/margin_med"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+    <LinearLayout
+        android:layout_width="240dp"
+        android:layout_height="300dp"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:background="@android:color/white">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/ca_logo"/>
+
+        <EditText
+            android:id="@+id/etxtname"
+            style="@style/editText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="4dp"
+            android:ems="10"
+            android:hint="User Name"
+            android:inputType="textPersonName"/>
+
+        <EditText
+            android:id="@+id/etxtpass"
+            style="@style/editText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="4dp"
+            android:ems="10"
+            android:hint="Enter Password"
+            android:inputType="textPassword"/>
+
+        <Button
+            android:id="@+id/btnlogin"
+            style="@style/buttonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="8dp"
+            android:minWidth="100dip"
+            android:text="Login"/>
+    </LinearLayout>
+</LinearLayout>

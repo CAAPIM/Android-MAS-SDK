@@ -1,0 +1,50 @@
+<!--
+  ~ Copyright (c) 2016 CA. All rights reserved.
+  ~
+  ~ This software may be modified and distributed under the terms
+  ~ of the MIT license.  See the LICENSE file for details.
+  ~
+  -->
+
+<resources>
+
+    <!-- ==== toolbar ==== -->
+    <dimen name="toolbar_height">40dp</dimen>
+    <!-- ==== toolbar end ==== -->
+
+    <!-- ==== margins ==== -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="margin_med">8dp</dimen>
+    <dimen name="margin_small">4dp</dimen>
+    <!-- ==== margins end ==== -->
+
+    <!-- ==== text definitions ==== -->
+    <dimen name="button_small_text">10sp</dimen>
+    <dimen name="title">16sp</dimen>
+    <dimen name="title_status">16sp</dimen>
+    <dimen name="status_size">15sp</dimen>
+    <!-- ==== text definitions end ==== -->
+
+    <!-- ==== widget sizes ==== -->
+    <dimen name="button_narrow_height">32dp</dimen>
+    <dimen name="button_narrow_divider">20dp</dimen>
+    <dimen name="pub_sub_button_width">108dp</dimen>
+    <dimen name="button_small_width">66dp</dimen>
+    <dimen name="button_width">92dp</dimen>
+    <dimen name="button_height">32dp</dimen>
+    <dimen name="edit_port_width">36dp</dimen>
+    <dimen name="edit_host_scheme">160dp</dimen>
+    <!-- ==== widget sizes end ==== -->
+
+    <!-- ==== text sizes ==== -->
+    <dimen name="button_text_size">13sp</dimen>
+    <dimen name="update_size">11sp</dimen>
+
+    <!-- Per the design guidelines, navigation drawers should be between 240dp and 320dp:
+         https://developer.android.com/design/patterns/navigation-drawer.html -->
+    <dimen name="navigation_drawer_width">240dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <!-- ==== text sizes end ==== -->
+
+</resources>

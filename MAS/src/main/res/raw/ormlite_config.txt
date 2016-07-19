@@ -1,0 +1,10 @@
+# Simple Key/Value Data Model
+# --table-start--
+dataClass=com.ca.mas.storage.els.els.KVData
+tableName=els_kv
+# 'key' is a string object used as the unique id
+fieldName=key
+# 'value' is an object used for the value
+fieldName=value
+# --table-end--
+#################################

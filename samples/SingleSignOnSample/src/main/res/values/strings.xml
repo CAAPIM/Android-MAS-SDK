@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (c) 2016 CA. All rights reserved.
+  ~
+  ~ This software may be modified and distributed under the terms
+  ~ of the MIT license.  See the LICENSE file for details.
+  ~
+  -->
+
+<resources>
+    <string name="app_name">Sample app</string>
+    <string name="sharedUserLabel">Example Org</string>
+    <string name="entBrowser">Enterprise Browser</string>
+    <string name="overflow">overflow</string>
+    <string name="back">back</string>
+    <string name="forward">forward</string>
+    <string name="action_settings">Settings</string>
+    <string name="pref_location">Use Location</string>
+    <string name="pref_phone">Use Phone</string>
+    <string name="app_settings">Settings</string>
+    <string name="scanQRCode">Scan QR Code</string>
+    <string name="clearUsers">Clear Users</string>
+
+    <string name="primary_gateway">Use Primary Gateway Config</string>
+    <string name="secondary_gateway">Use Secondary Gateway Config</string>
+
+    <!-- Begin : OTP Flow resource strings-->
+  <!--  <string name="selectChannelInstruction">Select the communication channel to receive the OTP.</string>  -->
+    <string name="otpChannelSelectionEmptyErrorMsg">You need to make a selection before an OTP can be delivered. </string>
+    <string name="otpAuthOtpEmptyErrorMsg">OTP text field is empty. Please enter the OTP.</string>
+    <string name="pleaseWaitGettingOtpProtectedData">Please wait. We are getting the OTP protected data</string>
+    <string name="otpDeliveryChannelsNotAvailableErrorMsg">OTP delivery channels are not available currently</string>
+    <string name="errorPleaseTryAgainErrorMsg"></string>
+    <string name="processing">Processing.... Please wait</string>
+
+    <string name="otpGenerated">The OTP is generated successfully.</string>
+    <string name="otpAuthFailed">Authentication failed due to an invalid OTP.</string>
+    <string name="otpExpired">The OTP has expired.</string>
+    <string name="otpMaxLimit">You have exceeded the maximum number of invalid attempts.  Please try after some time.</string>
+    <string name="otpUserSuspended">Your account is blocked. Try after some time.</string>
+    <string name="otpUnknownError">Internal server error.</string>
+
+    <string name="wait_message">Please wait. We are getting the OTP protected data</string>
+    <string name="try_again">Try Again</string>
+    <string name="home_screen">Home Screen</string>
+
+    <!-- End : OTP Flow resource strings-->
+    
+</resources>

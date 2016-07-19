@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (c) 2016 CA. All rights reserved.
+  ~
+  ~ This software may be modified and distributed under the terms
+  ~ of the MIT license.  See the LICENSE file for details.
+  ~
+  -->
+
+<GridView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/gridview"
+          android:layout_width="fill_parent"
+          android:layout_height="fill_parent"
+          android:columnWidth="100dp"
+          android:numColumns="auto_fit"
+          android:stretchMode="columnWidth"
+          android:gravity="center">
+</GridView>

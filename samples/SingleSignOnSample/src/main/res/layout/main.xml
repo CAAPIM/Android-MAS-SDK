@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2016 CA. All rights reserved.
+  ~
+  ~ This software may be modified and distributed under the terms
+  ~ of the MIT license.  See the LICENSE file for details.
+  ~
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/mainLayout"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+        >
+    <TextView
+            android:id="@+id/topLabel"
+            android:layout_weight="0"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="List Items to Begin"
+            />
+
+    <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="gone"
+            />
+
+    <ListView
+            android:id="@+id/itemList"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="2">
+        <Button
+            android:id="@+id/listItemsButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="fill_parent"
+            android:text="List Items"
+            />
+    </LinearLayout>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_weight="0"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/listOtpProtectedItemsButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="fill_parent"
+            android:text="Get OTP Protected Items"
+
+            />
+
+        <Button
+                android:id="@+id/logOutButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="fill_parent"
+                android:text="Log Out"
+                />
+    </LinearLayout>
+</LinearLayout>
+

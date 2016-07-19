@@ -1,0 +1,42 @@
+/*
+ * Copyright (c) 2016 CA. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion '23.0.2'
+
+    lintOptions {
+        abortOnError false
+    }
+
+    defaultConfig {
+        applicationId "com.ca.mas.sample.singlesignonsample"
+        minSdkVersion 19
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.google.zxing:android-integration:3.2.0'
+    compile project(':MAG')
+    compile project(':MAS')
+    compile project(':MASUI')
+}

@@ -1,0 +1,29 @@
+<!--
+  ~ Copyright (c) 2016 CA. All rights reserved.
+  ~
+  ~ This software may be modified and distributed under the terms
+  ~ of the MIT license.  See the LICENSE file for details.
+  ~
+  -->
+
+<resources>
+    <string name="app_name">masui</string>
+    <string name="user_name">Username</string>
+    <string name="enter_password">Password</string>
+    <string name="login">Login</string>
+    <string name="ca_logo">CA Logo</string>
+
+    <!-- Validate OTP-->
+    <string name="enter_otp">Enter the OTP</string>
+    <string name="verify_otp">Verify</string>
+
+    <!-- OTP Error Code Messages -->
+    <string name="errorCode140">This page is OTP protected. Please select the channel for OTP delivery.</string>
+    <string name="errorCode142">OTP provided is invalid.</string>
+    <string name="errorCode143">OTP provided has expired.</string>
+    <string name="errorCode144">OTP provided is invalid/expired and max retries have exceeded.</string>
+    <string name="errorCode145">New OTP transaction is requested but the user in barred/suspended state.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="select_delivery_channel">Select OTP Delivery Channel</string>
+</resources>

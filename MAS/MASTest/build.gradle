@@ -1,0 +1,89 @@
+/*
+ * Copyright (c) 2016 CA. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
+apply plugin: 'com.android.application'
+
+println '---------> executing testapp build.gradle'
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
+android {
+    compileSdkVersion 23
+    buildToolsVersion '23.0.2'
+    defaultConfig {
+        applicationId "com.ca.mas.sample.testapp"
+        minSdkVersion 19
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    /*
+    signingConfigs {
+        release {
+            storeFile file("keystore/samples.keystore.jks")
+            storePassword "7layer"
+            keyAlias "7layer"
+            keyPassword "7layer"
+        }
+    }
+    */
+    buildTypes {
+        /*
+        release {
+            signingConfig signingConfigs.release
+        }
+        */
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                def fileName = "android-testapp-${System.env.VERSION_NAME}.${System.env.VERSION_CODE}.apk"
+                output.outputFile = new File(outputFile.parent, fileName)
+            }
+        }
+    }
+    productFlavors {
+    }
+
+    android {
+        lintOptions {
+            abortOnError false
+        }
+    }
+
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile project(':MAS')
+    compile project(':MAG')
+
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.madgag:scprov-jdk15on:1.47.0.2'
+    compile 'com.madgag:sc-light-jdk15on:1.47.0.2'
+    compile 'com.android.support:design:23.2.1'
+
+    // Testing-only dependencies
+    // Force usage of support annotations in the test app, since it is internally used by the runner module.
+    androidTestCompile 'com.android.support:support-annotations:23.2.1'
+    androidTestCompile 'com.android.support.test:runner:0.4.1'
+    androidTestCompile 'com.android.support.test:rules:0.4.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
+}

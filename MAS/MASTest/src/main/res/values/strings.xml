@@ -1,0 +1,102 @@
+<!--
+  ~ Copyright (c) 2016 CA. All rights reserved.
+  ~
+  ~ This software may be modified and distributed under the terms
+  ~ of the MIT license.  See the LICENSE file for details.
+  ~
+  -->
+
+<resources>
+    <!-- ==== menu ==== -->
+    <string name="action_settings">Settings</string>
+    <string name="action_share">Share</string>
+    <string name="action_log">Log</string>
+    <string name="action_connect">Join</string>
+    <!-- ==== menu end ==== -->
+
+    <!-- ==== buttons ==== -->
+    <string name="connect">Connect</string>
+    <string name="secure_connect">TLS Connect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="publish">Send</string>
+    <string name="subscribe">Add</string>
+    <string name="unsubscribe">Remove</string>
+    <string name="send">Send</string>
+    <string name="clear">Clear</string>
+    <string name="cancel">Cancel</string>
+    <string name="done">Done</string>
+    <string name="join">Join the conversation</string>
+    <string name="leave">Leave</string>
+    <string name="button_id_list">All IDs</string>
+    <string name="button_user">By Id</string>
+    <string name="search">Search</string>
+    <string name="search_id">User Id</string>
+    <!-- ==== buttons end ==== -->
+
+    <!-- ==== headings ==== -->
+    <string name="app_name"><i>MAS Test Harness</i></string>
+    <string name="application_status">MAS Application Status</string>
+    <string name="mag_title">Mobile Appl Services - <b>Configuration</b></string>
+    <string name="connect_disconnect">Host</string>
+    <string name="pub_sub">Publish/Subscribe</string>
+    <string name="title_message">Message to send</string>
+    <string name="title_queue">Queue to connect to</string>
+    <string name="title_topic">Topic to subscribe to</string>
+    <string name="heading_scheme">Scheme</string>
+    <string name="heading_host">Host</string>
+    <string name="heading_port">Port</string>
+    <string name="heading_topic">Message to...</string>
+    <string name="heading_timeout">Timeout (sec)</string>
+    <string name="heading_qos">QoS</string>
+    <string name="configuration">Configuration</string>
+    <string name="title_search">Search</string>
+    <string name="title_user_select">Send To...</string>
+    <!-- ==== headings end ==== -->
+
+    <!-- ==== messages ==== -->
+    <string name="connect_success_message">Connect was successful.</string>
+    <string name="connect_fail_message">Connect has failed.</string>
+    <string name="disconnect_success_message">Disconnect was successful.</string>
+    <string name="disconnect_fail_message">Disconnect has failed.</string>
+    <string name="message_fail">The message was not understood.</string>
+    <string name="line_num">%s.</string>
+    <string name="empty_endpoint_msg">The host value cannot be null.</string>
+    <string name="field_not_empty">Field cannot be empty!</string>
+    <!-- ==== messages end ==== -->
+
+    <!-- ==== list arrays ==== -->
+    <string-array name="timeout_array">
+        <item>Infinity</item>
+        <item>10 secs</item>
+        <item>30 secs</item>
+        <item>60 secs</item>
+        <item>3 mins</item>
+    </string-array>
+
+    <string-array name="qos_array">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="identity_user_types">
+        <item>USER</item>
+        <item>DEVICE</item>
+        <item>APPLICATION</item>
+    </string-array>
+    <!-- ==== list arrays end ==== -->
+
+    <!-- ==== misc ==== -->
+    <string name="host_delim">://</string>
+    <string name="title_activity_splash">SplashActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_mastab_callback">MASTabCallbackActivity</string>
+    <string name="title_activity_mas">MASActivity</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_masnotification">MASNotificationActivity</string>
+    <string name="title_activity_mascallback">MASCallbackActivity</string>
+    <string name="title_activity_masnotif">MASNotifActivity</string>
+    <string name="title_activity_masbase">MASBaseActivity</string>
+
+</resources>

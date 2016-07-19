@@ -1,0 +1,87 @@
+<!--
+  ~ Copyright (c) 2016 CA. All rights reserved.
+  ~
+  ~ This software may be modified and distributed under the terms
+  ~ of the MIT license.  See the LICENSE file for details.
+  ~
+  -->
+
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="Theme.Material.Light.Dialog.NoMinWidth" parent="MyTheme.Base">
+        <item name="android:windowMinWidthMinor">0dip</item>
+        <item name="android:windowMinWidthMajor">0dip</item>
+    </style>
+
+    <style name="Theme.Transparent" parent="android:Theme">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <style name="MyTheme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">#2196F3</item>
+        <item name="colorPrimaryDark">#1976D2</item>
+        <item name="colorAccent">#AFA0AA</item>
+    </style>
+
+    <style name="buttonStyle">
+        <item name="android:background">#FAFAFAFA</item>
+        <item name="android:shadowColor">@android:color/holo_blue_dark</item>
+        <item name="android:textColor">@color/primary_dark_cyan</item>
+        <item name="android:textColorHighlight">@color/accent_gray</item>
+        <item name="android:textSize">@dimen/button_text_size</item>
+        <item name="android:gradientRadius">20</item>
+    </style>
+
+    <style name="editText">
+        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:textColorHint">@color/hint_gray</item>
+    </style>
+
+    <style name="textTitleStyle">
+        <item name="android:textColor">@color/primary_dark_cyan</item>
+        <item name="android:textSize">@dimen/title</item>
+        <item name="android:textStyle">bold|italic</item>
+    </style>
+
+    <style name="textSubtitleStyle">
+        <item name="android:textColor">@color/primary_dark_cyan</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="textHeadingStyle">
+        <item name="android:textColor">@color/primary_dark_cyan</item>
+        <item name="android:textSize">@dimen/button_text_size</item>
+    </style>
+
+    <style name="textRegularStyle">
+        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:textSize">@dimen/button_text_size</item>
+    </style>
+
+    <style name="textUpdateStyle">
+        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:textSize">@dimen/update_size</item>
+    </style>
+
+    <style name="textClickableStyle">
+        <item name="android:textColor">@color/material_blue_grey_800</item>
+        <item name="android:textSize">@dimen/button_text_size</item>
+    </style>
+
+    <style name="AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+    <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+</resources>

@@ -1,0 +1,91 @@
+<!--
+  ~ Copyright (c) 2016 CA. All rights reserved.
+  ~
+  ~ This software may be modified and distributed under the terms
+  ~ of the MIT license.  See the LICENSE file for details.
+  ~
+  -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center_horizontal|top"
+                android:layout_margin="10dp"
+                android:src="@drawable/ca" />
+
+            <GridLayout
+                android:id="@+id/socialLoginGridLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="10dp"></GridLayout>
+
+            <TextView
+                android:id="@+id/tvHeading"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Please select one of the below OTP delivery channels"
+                android:textStyle="bold"
+                android:padding="20dp"/>
+
+
+            <LinearLayout
+                android:id="@+id/llOtpChannels"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:padding="20dp">
+
+                    <Button
+                        android:id="@+id/btnsendotp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="30dp"
+
+                        android:minWidth="100dip"
+                        android:text="Send OTP" />
+
+                    <Button
+                        android:id="@+id/btnhome"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="30dp"
+                        android:minWidth="100dip"
+                        android:text="Home Screen" />
+                </LinearLayout>
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

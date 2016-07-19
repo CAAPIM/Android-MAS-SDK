@@ -8,7 +8,6 @@ Mobile SDK for [CA Mobile API Gateway][mag] and [CA Mobile App Services][mas.ca.
 To download the latest build, see the [releases][releases] page.
 For documentation, visit our [developer site][docs].
 
-
 ## How You Can Contribute
 
 Contributions are welcome and much appreciated. To learn more, see the [Contribution Guidelines][contributing].

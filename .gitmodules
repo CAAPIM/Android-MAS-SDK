@@ -1,3 +1,6 @@
 [submodule "MASUnit"]
 	path = MASUnit
 	url = https://github.com/CAAPIM/Android-MAS-Unit.git
+[submodule "Knox"]
+	path = Knox
+	url = https://github-isl-01.ca.com/MAS/Android-MAS-Knox.git

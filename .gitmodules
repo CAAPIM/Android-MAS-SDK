@@ -1,0 +1,3 @@
+[submodule "MASUnit"]
+	path = MASUnit
+	url = https://github.com/CAAPIM/Android-MAS-Unit.git

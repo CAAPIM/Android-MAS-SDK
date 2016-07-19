@@ -16,9 +16,12 @@ project(':MAGTest').projectDir = new File('MAG/MAGTest')
 project(':MASTest').projectDir = new File('MAS/MASTest')
 project(':SingleSignOnSample').projectDir = new File('samples/SingleSignOnSample')
 
-include ':MASUnit'
-include ':Knox', ':SmcControllerSample', ':SamsungLicenseActivationSample'
-project(':SmcControllerSample').projectDir = new File('Knox/samples/SmcControllerSample')
-project(':SamsungLicenseActivationSample').projectDir = new File('Knox/samples/SamsungLicenseActivationSample')
+//MASUnit
+//include ':MASUnit'
+
+//Knox
+//include ':Knox', ':SmcControllerSample', ':SamsungLicenseActivationSample'
+//project(':SmcControllerSample').projectDir = new File('Knox/samples/SmcControllerSample')
+//project(':SamsungLicenseActivationSample').projectDir = new File('Knox/samples/SamsungLicenseActivationSample')
 
 

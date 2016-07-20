@@ -15,6 +15,10 @@ import java.lang.reflect.Method;
 /**
  * Adapter that provides a common interface {@link com.ca.mas.core.security.KeyStore} for various
  * Android KeyStore implementations from API level 16 and up
+ *
+ * This class uses reflection to access the internal Android Keystore interface, this is not recommended to
+ * use android internal interface, will consider to rewrite this component using
+ * Android AccountManager.
  */
 public class KeyStoreAdapter implements KeyStore {
 

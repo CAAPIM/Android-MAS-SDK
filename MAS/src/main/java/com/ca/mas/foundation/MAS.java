@@ -9,6 +9,7 @@ package com.ca.mas.foundation;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.DialogFragment;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import com.ca.mas.foundation.notify.Callback;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.List;
@@ -67,8 +69,11 @@ public class MAS {
         ConfigurationManager.getInstance().setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
-                if (BuildConfig.DEBUG) {
-                    if (masAuthenticationLister == null) {
+                if (masAuthenticationLister == null) {
+                    DialogFragment df = getLoginFragment(requestId, new MASAuthenticationProviders(provider));
+                    if (df != null) {
+                        df.show(currentActivity.getFragmentManager(), "logonDialog");
+                    } else {
                         Log.w(TAG, MASUserLoginWithUserCredentialsListener.class + " is required for user authentication.");
                     }
                 }
@@ -128,6 +133,23 @@ public class MAS {
                 }
             }
         });
+    }
+
+    /**
+     * Return the MASLoginFragment from MASUI components if MASUI library is included in the classpath.
+     *
+     * @param requestID The request id
+     * @param providers Authentication Providers
+     * @return A DialogFragment to capture the user credentials or null if error.
+     */
+    private static DialogFragment getLoginFragment(long requestID, MASAuthenticationProviders providers) {
+
+        try {
+            Class c = Class.forName("com.ca.mas.ui.MASLoginFragment");
+            return (DialogFragment) c.getMethod("newInstance", long.class, MASAuthenticationProviders.class).invoke(null, requestID, providers);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

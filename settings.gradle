@@ -8,13 +8,16 @@
 
 include ':MAG', ':MAGTest', ':MASTest'
 
-include ':MAS',':MASUI'
+include ':MAS', ':MASUI'
 
+//Example App
 include ':SingleSignOnSample'
+include ':MASStorageSample'
 
 project(':MAGTest').projectDir = new File('MAG/MAGTest')
 project(':MASTest').projectDir = new File('MAS/MASTest')
 project(':SingleSignOnSample').projectDir = new File('samples/SingleSignOnSample')
+project(':MASStorageSample').projectDir = new File('samples/MASStorageSample')
 
 //MASUnit
 //include ':MASUnit'

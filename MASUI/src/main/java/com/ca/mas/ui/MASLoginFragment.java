@@ -149,8 +149,28 @@ public class MASLoginFragment extends DialogFragment {
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
                 params.setMargins(8, 8, 8, 8);
                 imageButton.setLayoutParams(params);
+                String identifier = p.getIdentifier();
                 imageButton.setBackgroundResource(getActivity().getResources().
-                        getIdentifier("drawable/" + p.getIdentifier(), null, getActivity().getPackageName()));
+                        getIdentifier("drawable/" + identifier, null, getActivity().getPackageName()));
+
+                switch (identifier) {
+                    case "enterprise":
+                        imageButton.setId(R.id.enterpriseIcon);
+                        break;
+                    case "facebook":
+                        imageButton.setId(R.id.facebookIcon);
+                        break;
+                    case "google":
+                        imageButton.setId(R.id.googleIcon);
+                        break;
+                    case "linkedin":
+                        imageButton.setId(R.id.linkedinIcon);
+                        break;
+                    case "salesforce":
+                        imageButton.setId(R.id.salesforceIcon);
+                        break;
+                }
+
                 if (providers.getIdp().equals("all") || providers.getIdp().equalsIgnoreCase(p.getIdentifier())) {
                     imageButton.setOnClickListener(new View.OnClickListener() {
                         @Override

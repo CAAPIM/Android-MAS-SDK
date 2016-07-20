@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+    <item name="enterpriseIcon" type="id"/>
+    <item name="facebookIcon" type="id"/>
+    <item name="googleIcon" type="id"/>
+    <item name="linkedinIcon" type="id"/>
+    <item name="salesforceIcon" type="id"/>
+</resources>

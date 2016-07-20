@@ -52,7 +52,7 @@ public class MAS {
     public static Context ctx;
     private static Activity currentActivity;
     private static boolean hasRegisteredActivityCallback;
-    private static MASAuthenticationListener masAuthenticationLister;
+    private static MASAuthenticationListener masAuthenticationListener;
 
     private static synchronized void init(@NonNull Context context) {
         stop();
@@ -69,23 +69,22 @@ public class MAS {
         ConfigurationManager.getInstance().setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
-                if (masAuthenticationLister == null) {
+                if (masAuthenticationListener == null) {
                     DialogFragment df = getLoginFragment(requestId, new MASAuthenticationProviders(provider));
                     if (df != null) {
                         df.show(currentActivity.getFragmentManager(), "logonDialog");
                     } else {
                         Log.w(TAG, MASUserLoginWithUserCredentialsListener.class + " is required for user authentication.");
                     }
-                }
-                if (masAuthenticationLister != null) {
-                    masAuthenticationLister.onAuthenticateRequest(currentActivity, requestId, new MASAuthenticationProviders(provider));
+                } else {
+                    masAuthenticationListener.onAuthenticateRequest(currentActivity, requestId, new MASAuthenticationProviders(provider));
                 }
             }
 
             @Override
             public void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler) {
-                if (masAuthenticationLister != null) {
-                    masAuthenticationLister.onOtpAuthenticateRequest(currentActivity, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
+                if (masAuthenticationListener != null) {
+                    masAuthenticationListener.onOtpAuthenticateRequest(currentActivity, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
                 }
             }
         });
@@ -307,7 +306,7 @@ public class MAS {
      * @param listener The user login listener to handle user authentication.
      */
     public static void setAuthenticationListener(MASAuthenticationListener listener) {
-        masAuthenticationLister = listener;
+        masAuthenticationListener = listener;
     }
 
     /**

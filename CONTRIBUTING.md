@@ -23,7 +23,7 @@ Follow these steps for pull requests:
 ### Contributor License Agreement ("CLA")
 To accept pull requests, submit a CLA. (Submitting a single CLA lets you work on any open source projects from CA, Inc.)
 
-Complete your CLA here: <https://www.clahub.com/agreements/CAAPIM/Android-MAS>
+Complete your CLA here: <https://www.clahub.com/agreements/CAAPIM/Android-MAS-SDK>
 
 ## Bugs
 We work hard to avoid them, but they still happen. If you're a CA customer, open an issue in our [Support Page][casupport], otherwise use GitHub issues.
@@ -50,5 +50,5 @@ By contributing to CA Mobile App Services SDK, you agree that your contributions
  [guidelines]: /GUIDELINES.md
  [community]: https://communities.ca.com/community/ca-api-management-community/content?filterID=contentstatus%5Bpublished%5D~category%5Bca-mobile-api-gateway%5D
  [license-link]: /LICENSE
- [cla]: https://www.clahub.com/agreements/CAAPIM/Android-MAS
+ [cla]: https://www.clahub.com/agreements/CAAPIM/Android-MAS-SDK
  [casupport]: https://support.ca.com/irj/portal/implsvcnewcase

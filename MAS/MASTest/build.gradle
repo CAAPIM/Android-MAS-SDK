@@ -27,23 +27,6 @@ android {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
-    /*
-    signingConfigs {
-        release {
-            storeFile file("keystore/samples.keystore.jks")
-            storePassword "7layer"
-            keyAlias "7layer"
-            keyPassword "7layer"
-        }
-    }
-    */
-    buildTypes {
-        /*
-        release {
-            signingConfig signingConfigs.release
-        }
-        */
-    }
     buildTypes {
         release {
             minifyEnabled false
@@ -75,15 +58,9 @@ dependencies {
     compile project(':MAS')
     compile project(':MAG')
 
-    compile 'com.android.support:appcompat-v7:23.2.1'
-    compile 'com.madgag:scprov-jdk15on:1.47.0.2'
-    compile 'com.madgag:sc-light-jdk15on:1.47.0.2'
-    compile 'com.android.support:design:23.2.1'
-
     // Testing-only dependencies
     // Force usage of support annotations in the test app, since it is internally used by the runner module.
     androidTestCompile 'com.android.support:support-annotations:23.2.1'
     androidTestCompile 'com.android.support.test:runner:0.4.1'
     androidTestCompile 'com.android.support.test:rules:0.4.1'
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
 }

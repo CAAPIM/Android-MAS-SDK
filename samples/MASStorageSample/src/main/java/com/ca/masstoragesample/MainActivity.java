@@ -8,6 +8,8 @@
 
 package com.ca.masstoragesample;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
@@ -17,17 +19,21 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASAuthenticationListener;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConstants;
+import com.ca.mas.foundation.MASOtpAuthenticationHandler;
+import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.storage.MASSecureLocalStorage;
 import com.ca.mas.storage.MASStorage;
+import com.ca.mas.ui.MASLoginFragment;
 
 public class MainActivity extends AppCompatActivity {
 
     private EditText title;
     private EditText content;
     private Button save;
-    private Button retrieve;
+    private Button open;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +43,22 @@ public class MainActivity extends AppCompatActivity {
         title = (EditText) findViewById(R.id.title);
         content = (EditText) findViewById(R.id.content);
         save = (Button) findViewById(R.id.save);
-        retrieve = (Button) findViewById(R.id.retrieve);
+        open = (Button) findViewById(R.id.open);
 
         MAS.start(this);
+
+        MAS.setAuthenticationListener(new MASAuthenticationListener() {
+            @Override
+            public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {
+                android.app.DialogFragment loginFragment = MASLoginFragment.newInstance(requestId, providers);
+                loginFragment.show(((Activity) context).getFragmentManager(), "logonDialog");
+            }
+
+            @Override
+            public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {
+                //Ignore for now
+            }
+        });
 
         final MASStorage storage = new MASSecureLocalStorage();
 
@@ -69,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        retrieve.setOnClickListener(new View.OnClickListener() {
+        open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 storage.findByKey(title.getText().toString(),

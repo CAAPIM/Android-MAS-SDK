@@ -63,8 +63,8 @@
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Retrieve"
-                android:id="@+id/retrieve"
+                android:text="Open"
+                android:id="@+id/open"
                 android:layout_gravity="right" />
         </LinearLayout>
     </LinearLayout>

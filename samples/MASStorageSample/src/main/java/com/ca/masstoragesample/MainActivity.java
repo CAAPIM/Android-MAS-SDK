@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016 CA. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
 package com.ca.masstoragesample;
 
 import android.os.Handler;
@@ -12,7 +20,6 @@ import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConstants;
 import com.ca.mas.storage.MASSecureLocalStorage;
-import com.ca.mas.storage.MASSecureStorage;
 import com.ca.mas.storage.MASStorage;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         retrieve = (Button) findViewById(R.id.retrieve);
 
         MAS.start(this);
+
         final MASStorage storage = new MASSecureLocalStorage();
 
         save.setOnClickListener(new View.OnClickListener() {
@@ -84,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
                         });
             }
         });
+
 
     }
 }

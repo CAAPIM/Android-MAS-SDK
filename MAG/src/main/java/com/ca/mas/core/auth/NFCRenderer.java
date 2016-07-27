@@ -62,13 +62,8 @@ public class NFCRenderer extends PollingRenderer {
     @Override
     public void onRenderCompleted() {
         adapter = NfcAdapter.getDefaultAdapter(context);
-        if (adapter == null) {
+        if (adapter == null || !adapter.isEnabled()) {
             onError(NFC_ERR, "NFC is not available", null);
-            return;
-        }
-
-        if (adapter.isEnabled()) {
-            onError(NFC_ERR, "NFC is not enabled", null);
             return;
         }
 

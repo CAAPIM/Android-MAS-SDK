@@ -15,12 +15,16 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyProperties;
+import android.support.test.InstrumentationRegistry;
 import android.test.ApplicationTestCase;
 import android.util.Base64;
 import android.util.Log;
 
 import com.ca.mas.storage.MASEncryptionProvider;
 import com.ca.mas.storage.DefaultEncryptionProvider;
+
+import org.junit.After;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -46,7 +50,10 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.security.auth.x500.X500Principal;
 
-public class EncryptionProviderTest extends ApplicationTestCase<Application> {
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.fail;
+
+public class EncryptionProviderTest {
 
     private static final String TAG="EncryptionProviderTest";
 
@@ -54,21 +61,13 @@ public class EncryptionProviderTest extends ApplicationTestCase<Application> {
      * The Encryption provider reference
      */
     MASEncryptionProvider encryptionProvider;
-    public EncryptionProviderTest(Class<Application> applicationClass) {
-        super(applicationClass);
-    }
-
-    public EncryptionProviderTest() {
-        super(Application.class);
-    }
 
     private static final String SYM_KEY="secret";
     private static final String ASYM_KEY_ALIAS = "ASYM_KEY";
     public static final String PREFS_NAME = "SECRET_PREFS";
 
-    @Override
+    @After
     protected void tearDown() throws Exception {
-        super.tearDown();
         Log.i(TAG,"inside tearDown");
         KeyStore ks=KeyStore.getInstance("AndroidKeyStore");
         ks.load(null);
@@ -81,7 +80,7 @@ public class EncryptionProviderTest extends ApplicationTestCase<Application> {
             Log.i(TAG, "deleted ASYM_KEY_ALIAS from KS");
         }
 
-        SharedPreferences sp=getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sp= InstrumentationRegistry.getTargetContext().getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
         if(sp.contains(SYM_KEY)){
             sp.edit().remove(SYM_KEY).apply();
@@ -93,9 +92,10 @@ public class EncryptionProviderTest extends ApplicationTestCase<Application> {
         }
     }
 
+    @Test
     public void testEncryptDecryptOperation(){
 
-        encryptionProvider=new DefaultEncryptionProvider(getContext());
+        encryptionProvider=new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
         try {
             String dataString="CA Technologies";
             byte[] data=dataString.getBytes("UTF-8");
@@ -118,6 +118,7 @@ public class EncryptionProviderTest extends ApplicationTestCase<Application> {
      */
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    @Test
     public void testUpgradeScenario(){
 
         Log.i(TAG,"Testing when an device upgrades from less than Android M to Android M or higher");
@@ -162,7 +163,7 @@ public class EncryptionProviderTest extends ApplicationTestCase<Application> {
         notAfter.add(Calendar.YEAR, 1);
 
         try {
-            keyPairGenerator.initialize(new KeyPairGeneratorSpec.Builder(getContext())
+            keyPairGenerator.initialize(new KeyPairGeneratorSpec.Builder(InstrumentationRegistry.getTargetContext().getApplicationContext())
                     .setAlias(ASYM_KEY_ALIAS)
                     .setEncryptionRequired()
                     .setSubject(
@@ -213,7 +214,7 @@ public class EncryptionProviderTest extends ApplicationTestCase<Application> {
 
         //-----Store the symmetric key in the local storage----------
 
-        SharedPreferences sharedpreferences=getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sharedpreferences=InstrumentationRegistry.getTargetContext().getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedpreferences.edit();
 
         String ss = Base64.encodeToString(keyEncrypt, Base64.DEFAULT);
@@ -223,7 +224,7 @@ public class EncryptionProviderTest extends ApplicationTestCase<Application> {
          //-----End of Store the symmetric key in the local storage ----------
 
 
-         encryptionProvider=new DefaultEncryptionProvider(getContext());
+         encryptionProvider=new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
 
 
 

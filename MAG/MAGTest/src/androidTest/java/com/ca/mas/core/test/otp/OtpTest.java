@@ -8,6 +8,7 @@
 package com.ca.mas.core.test.otp;
 
 import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.core.MAGResultReceiver;
@@ -26,6 +27,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.net.HttpURLConnection;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 
 /*
@@ -47,7 +51,7 @@ public class OtpTest extends BaseTest {
     */
     @Test
     public void otpPositiveFlowTest() throws Exception {
-        context = this.getContext();
+        context = InstrumentationRegistry.getTargetContext().getApplicationContext();
         final boolean success[] = {false, false};
         MAGRequest request = null;
         mobileSso.setMobileSsoListener(new MobileSsoListener() {
@@ -111,7 +115,7 @@ public class OtpTest extends BaseTest {
 
     @Test
     public void otpExpiredFlowTest() throws Exception {
-        context = this.getContext();
+        context = InstrumentationRegistry.getTargetContext().getApplicationContext();
         final int errorCode = 8000143;
         MAGRequest request = null;
         ssg.setDispatcher(new DefaultDispatcher() {
@@ -180,7 +184,7 @@ public class OtpTest extends BaseTest {
     */
     @Test
     public void otpUserSuspendedFlowTest() throws Exception {
-        context = this.getContext();
+        context = InstrumentationRegistry.getTargetContext().getApplicationContext();
         final int errorCode = 8000145;
         MAGRequest request = null;
         ssg.setDispatcher(new DefaultDispatcher() {
@@ -249,7 +253,7 @@ public class OtpTest extends BaseTest {
      */
     @Test
     public void otpServerErrorFlowTest() throws Exception {
-        context = this.getContext();
+        context = InstrumentationRegistry.getTargetContext().getApplicationContext();
         final int errorCode = 8000500;
         MAGRequest request = null;
         ssg.setDispatcher(new DefaultDispatcher() {
@@ -312,7 +316,7 @@ public class OtpTest extends BaseTest {
     */
     @Test
     public void otpUserBarredFlowTest() throws Exception {
-        context = this.getContext();
+        context = InstrumentationRegistry.getTargetContext().getApplicationContext();
         final boolean success[] = {false, false};
         MAGRequest request = null;
         ssg.setDispatcher(new DefaultDispatcher() {
@@ -384,7 +388,7 @@ public class OtpTest extends BaseTest {
     */
     @Test
     public void otpErrorGeneratingFlowTest() throws Exception {
-        context = this.getContext();
+        context = InstrumentationRegistry.getTargetContext().getApplicationContext();
         final boolean success[] = {false, false};
         MAGRequest request = null;
         ssg.setDispatcher(new DefaultDispatcher() {
@@ -453,7 +457,7 @@ public class OtpTest extends BaseTest {
    */
     @Test
     public void otpInternalServerErrorGeneratingFlowTest() throws Exception {
-        context = this.getContext();
+        context = InstrumentationRegistry.getTargetContext().getApplicationContext();
         final boolean success[] = {false, false};
         MAGRequest request = null;
         ssg.setDispatcher(new DefaultDispatcher() {
@@ -514,7 +518,7 @@ public class OtpTest extends BaseTest {
 
     //TODO @Test
     public void otpInvalidFlowTest() throws Exception {
-        context = this.getContext();
+        context = InstrumentationRegistry.getTargetContext().getApplicationContext();
         final int errorCode = 8000142;
         MAGRequest request = null;
         ssg.setDispatcher(new DefaultDispatcher() {

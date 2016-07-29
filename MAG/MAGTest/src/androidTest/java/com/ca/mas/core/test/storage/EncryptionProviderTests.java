@@ -40,8 +40,10 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.x500.X500Principal;
 
+import static junit.framework.Assert.assertEquals;
+
 @RunWith(AndroidJUnit4.class)
-public class EncryptionProviderTests extends AndroidTestCase {
+public class EncryptionProviderTests {
 
     public static final String TESTDATA = "testdata";
     public static final String AES_CBC_PKCS5_PADDING = "AES/CBC/PKCS5Padding";

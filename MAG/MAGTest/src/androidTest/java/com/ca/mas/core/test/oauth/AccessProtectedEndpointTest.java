@@ -34,6 +34,11 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.Date;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
+
 @RunWith(AndroidJUnit4.class)
 public class AccessProtectedEndpointTest extends BaseTest {
 

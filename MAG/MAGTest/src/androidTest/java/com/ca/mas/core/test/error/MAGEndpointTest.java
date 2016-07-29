@@ -35,6 +35,9 @@ import org.junit.runner.RunWith;
 
 import java.net.HttpURLConnection;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+
 @RunWith(AndroidJUnit4.class)
 public class MAGEndpointTest extends BaseTest {
 

@@ -24,8 +24,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
+
 @RunWith(AndroidJUnit4.class)
-public class AccountManagerStoreDataSourceTest extends AndroidTestCase {
+public class AccountManagerStoreDataSourceTest {
 
     private final String KEY = "KEY";
     private final String KEY2 = "KEY2";
@@ -34,10 +38,6 @@ public class AccountManagerStoreDataSourceTest extends AndroidTestCase {
 
     JSONObject param = null;
 
-    @Override
-    @Before
-    public void setUp() throws Exception {
-    }
 
     @After
     public void after() {

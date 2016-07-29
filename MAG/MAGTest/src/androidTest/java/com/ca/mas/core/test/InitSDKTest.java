@@ -27,8 +27,12 @@ import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URL;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
+
 @RunWith(AndroidJUnit4.class)
-public class InitSDKTest extends AndroidTestCase {
+public class InitSDKTest {
 
     private String config = "{\n" +
             "  \"server\": {\n" +

@@ -24,6 +24,10 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
+
 /**
  * KeyStoreStorage Tests.
  * Uses the @{link BaseStorageTests} to do some of the basic tests.
@@ -120,7 +124,7 @@ public class KeyStoreStorageTests extends BaseStorageTests {
     public void testInitStorageWithInValidClassName() {
         Log.d(TAG, "testInitStorageWithNilInput");
         try {
-            new MASStorageManager().getStorage("KeyStoreStorageTests", new Object[]{getContext(), true});
+            new MASStorageManager().getStorage("KeyStoreStorageTests", new Object[]{InstrumentationRegistry.getTargetContext().getApplicationContext(), true});
             fail("Failed to testInitStorageWithInValidClassName: Expected Exception ");
         } catch (StorageException e) {
             assertEquals(e.getCode(), StorageException.STORE_NOT_FOUND);

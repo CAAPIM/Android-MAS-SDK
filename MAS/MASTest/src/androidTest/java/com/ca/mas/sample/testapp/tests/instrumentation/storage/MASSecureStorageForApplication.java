@@ -20,6 +20,8 @@ import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 
+import static junit.framework.Assert.assertTrue;
+
 public class MASSecureStorageForApplication extends MASSecureStorageTests {
 
     @Override

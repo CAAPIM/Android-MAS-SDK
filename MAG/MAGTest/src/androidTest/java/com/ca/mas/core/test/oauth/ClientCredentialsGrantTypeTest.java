@@ -33,6 +33,11 @@ import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+
 @RunWith(AndroidJUnit4.class)
 public class ClientCredentialsGrantTypeTest extends BaseTest {
 

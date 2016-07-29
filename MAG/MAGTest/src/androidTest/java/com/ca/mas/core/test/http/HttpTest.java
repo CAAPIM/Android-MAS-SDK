@@ -33,8 +33,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+
 @RunWith(AndroidJUnit4.class)
-public class HttpTest extends AndroidTestCase {
+public class HttpTest {
 
     private static final String RESPONSE_DATA = "Expected Response Data";
     private static final String RESPONSE_HEADER_NAME = "headerName";

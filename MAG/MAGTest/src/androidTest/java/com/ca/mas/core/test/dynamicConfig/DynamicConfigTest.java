@@ -39,6 +39,11 @@ import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+
 @RunWith(AndroidJUnit4.class)
 public class DynamicConfigTest extends BaseTest {
 
@@ -156,6 +161,8 @@ public class DynamicConfigTest extends BaseTest {
             }
         }
     }
+
+
 
     @Test
     public void onlyDeregisterWithConnectedGateway() throws Exception {

@@ -31,6 +31,9 @@ import org.junit.runner.RunWith;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
+
 /**
  * Test Case Suite for MAS Identity User function(s)
  * <br>

@@ -32,6 +32,10 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+
 @RunWith(AndroidJUnit4.class)
 public class AuthorizationCodeFlowTest extends BaseTest {
 

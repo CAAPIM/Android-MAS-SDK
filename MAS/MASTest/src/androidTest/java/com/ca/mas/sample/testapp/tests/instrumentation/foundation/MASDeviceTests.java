@@ -17,6 +17,8 @@ import com.ca.mas.sample.testapp.tests.instrumentation.base.MASIntegrationBaseTe
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static junit.framework.Assert.assertTrue;
+
 @RunWith(AndroidJUnit4.class)
 public class MASDeviceTests extends MASIntegrationBaseTest {
 

@@ -23,6 +23,11 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+
 /**
  * Storage implementations can leverage some basis tests, that are already written by extending
  * this class instead of the  ApplicationTestCase and by overriding the setup() to initialize the
@@ -31,7 +36,7 @@ import java.util.ArrayList;
  * <p/>
  */
 @RunWith(AndroidJUnit4.class)
-public abstract class BaseStorageTests extends AndroidTestCase {
+public abstract class BaseStorageTests {
 
 
     private static final String TAG = BaseStorageTests.class.getCanonicalName();
@@ -51,7 +56,6 @@ public abstract class BaseStorageTests extends AndroidTestCase {
 
     @After
     public void tearDown() throws Exception {
-        super.tearDown();
         try {
             currentStorage.deleteAll();
         } catch (Exception e) {

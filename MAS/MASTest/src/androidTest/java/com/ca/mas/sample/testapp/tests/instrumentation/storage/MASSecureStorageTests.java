@@ -30,6 +30,8 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static junit.framework.Assert.assertTrue;
+
 @RunWith(AndroidJUnit4.class)
 public class MASSecureStorageTests extends MASIntegrationBaseTest {
 
@@ -43,7 +45,6 @@ public class MASSecureStorageTests extends MASIntegrationBaseTest {
 
     @After
     public void tearDown() throws Exception {
-        super.tearDown();
         MASSecureStorage mgr = new MASSecureStorage();
         final CountDownLatch countDownLatch = new CountDownLatch(keys.size());
         for (final String keyItem : keys) {

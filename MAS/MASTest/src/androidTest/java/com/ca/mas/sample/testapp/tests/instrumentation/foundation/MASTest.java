@@ -23,6 +23,8 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 
+import static junit.framework.Assert.assertTrue;
+
 public class MASTest extends MASIntegrationBaseTest {
 
     @Test

@@ -27,6 +27,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
+
 @RunWith(AndroidJUnit4.class)
 public class AccountManagerStorageTests extends BaseStorageTests {
 

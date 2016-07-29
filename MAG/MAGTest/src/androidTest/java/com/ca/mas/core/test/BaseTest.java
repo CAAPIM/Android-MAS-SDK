@@ -46,7 +46,7 @@ import java.util.concurrent.CountDownLatch;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 
 @RunWith(AndroidJUnit4.class)
-public abstract class BaseTest extends AndroidTestCase {
+public abstract class BaseTest {
 
     private static final String TAG = BaseTest.class.getCanonicalName();
     private static final String MSSO_CONFIG_JSON = "test_msso_config.json";
@@ -81,7 +81,6 @@ public abstract class BaseTest extends AndroidTestCase {
     @Before
     public void before() throws Exception {
         ConfigurationManager.getInstance().init(InstrumentationRegistry.getInstrumentation().getTargetContext());
-        setContext(InstrumentationRegistry.getInstrumentation().getTargetContext());
         ssg = new MockWebServer();
         if (initSDK()) {
             mobileSso = MobileSsoFactory.getInstance(InstrumentationRegistry.getInstrumentation().getTargetContext(), getConfig(useMockServer()));

@@ -35,6 +35,9 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.fail;
+
 public class MASConnectaTests extends MASIntegrationBaseTest {
     private static final String TAG = MASConnectaTests.class.getSimpleName();
     private static String TOPIC_NAME = "conectaTestTopic";

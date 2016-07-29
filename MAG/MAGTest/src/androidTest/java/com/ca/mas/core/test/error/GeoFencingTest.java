@@ -26,6 +26,8 @@ import org.junit.runner.RunWith;
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 
+import static junit.framework.Assert.assertTrue;
+
 @RunWith(AndroidJUnit4.class)
 public class GeoFencingTest extends BaseTest {
 

@@ -13,11 +13,13 @@ include ':MAS', ':MASUI'
 //Example App
 include ':SingleSignOnSample'
 include ':MASStorageSample'
+include ':MASAccessAPISample'
 
 project(':MAGTest').projectDir = new File('MAG/MAGTest')
 project(':MASTest').projectDir = new File('MAS/MASTest')
 project(':SingleSignOnSample').projectDir = new File('samples/SingleSignOnSample')
 project(':MASStorageSample').projectDir = new File('samples/MASStorageSample')
+project(':MASAccessAPISample').projectDir = new File('samples/MASAccessAPISample')
 
 //MASUnit
 //include ':MASUnit'

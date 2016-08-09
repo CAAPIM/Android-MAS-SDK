@@ -14,12 +14,14 @@ include ':MAS', ':MASUI'
 include ':SingleSignOnSample'
 include ':MASStorageSample'
 include ':MASAccessAPISample'
+include ':MASUserManagementSample'
 
 project(':MAGTest').projectDir = new File('MAG/MAGTest')
 project(':MASTest').projectDir = new File('MAS/MASTest')
 project(':SingleSignOnSample').projectDir = new File('samples/SingleSignOnSample')
 project(':MASStorageSample').projectDir = new File('samples/MASStorageSample')
 project(':MASAccessAPISample').projectDir = new File('samples/MASAccessAPISample')
+project(':MASUserManagementSample').projectDir = new File('samples/MASUserManagementSample')
 
 //MASUnit
 //include ':MASUnit'

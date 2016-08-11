@@ -71,9 +71,9 @@ public class GroupDetailFragment extends Fragment {
             RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.group_list);
             if (recyclerView != null) {
                 List<MASMember> members = mGroup.getMembers();
-                if (members != null && members.size() > 0) {
+                if (members != null) {
                     Activity activity = getActivity();
-                    mAdapter = new MemberRecyclerAdapter(activity, members);
+                    mAdapter = new MemberRecyclerAdapter(activity, members, mGroup.getOwner());
                     recyclerView.setAdapter(mAdapter);
                     recyclerView.addItemDecoration(new DividerDecoration(activity));
                 }
@@ -86,6 +86,8 @@ public class GroupDetailFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mAdapter.notifyDataSetChanged();
+        if (mAdapter != null) {
+            mAdapter.notifyDataSetChanged();
+        }
     }
 }

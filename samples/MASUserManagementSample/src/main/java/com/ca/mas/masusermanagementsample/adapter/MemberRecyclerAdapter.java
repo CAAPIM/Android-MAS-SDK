@@ -8,6 +8,7 @@ package com.ca.mas.masusermanagementsample.adapter;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.identity.group.MASMember;
+import com.ca.mas.identity.group.MASOwner;
 import com.ca.mas.masusermanagementsample.R;
 
 import java.util.List;
@@ -26,11 +28,13 @@ import java.util.List;
 public class MemberRecyclerAdapter extends RecyclerView.Adapter<MemberRecyclerAdapter.MASMemberViewHolder> {
     private final static String TAG = MemberRecyclerAdapter.class.getSimpleName();
     private final List<MASMember> mMembers;
+    private final MASOwner mOwner;
     private Activity mActivity;
 
-    public MemberRecyclerAdapter(Activity activity, List<MASMember> items) {
+    public MemberRecyclerAdapter(Activity activity, List<MASMember> items, MASOwner owner) {
         mMembers = items;
         mActivity = activity;
+        mOwner = owner;
     }
 
     @Override
@@ -52,6 +56,9 @@ public class MemberRecyclerAdapter extends RecyclerView.Adapter<MemberRecyclerAd
 
         holder.member = member;
         holder.contentView.setText(memberName);
+        if (memberName.equals(mOwner.getDisplay())) {
+            holder.contentView.setTypeface(null, Typeface.BOLD);
+        }
 
         String id = member.getValue();
         MASUser.getCurrentUser().getUserById(id, new MASCallback<MASUser>() {

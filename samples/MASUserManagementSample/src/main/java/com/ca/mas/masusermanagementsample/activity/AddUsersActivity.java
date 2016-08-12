@@ -4,16 +4,17 @@
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
  */
-package com.ca.mas.masusermanagementsample;
+
+package com.ca.mas.masusermanagementsample.activity;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -27,14 +28,16 @@ import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.group.MASMember;
 import com.ca.mas.identity.user.UserAttributes;
 import com.ca.mas.identity.util.IdentityConsts;
+import com.ca.mas.masusermanagementsample.R;
 import com.ca.mas.masusermanagementsample.adapter.DividerDecoration;
 import com.ca.mas.masusermanagementsample.adapter.UserRecyclerAdapter;
+import com.ca.mas.masusermanagementsample.mas.GroupsManager;
 
 import java.util.List;
 
-public class SearchActivity extends AppCompatActivity {
-    private static final String TAG = SearchActivity.class.getSimpleName();
-    private SearchView mSearchView;
+public class AddUsersActivity extends AppCompatActivity {
+    private static final String TAG = AddUsersActivity.class.getSimpleName();
+    private TextInputEditText mSearchView;
     private RecyclerView mRecyclerView;
     private Context mContext;
     private String mGroupName;
@@ -43,7 +46,7 @@ public class SearchActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search);
+        setContentView(R.layout.activity_add_users);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -62,9 +65,7 @@ public class SearchActivity extends AppCompatActivity {
 
         mContext = this;
         mGroupName = getIntent().getStringExtra(GroupDetailFragment.GROUP_NAME);
-        mSearchView = (SearchView) findViewById(R.id.searchView);
-        mSearchView.setIconifiedByDefault(false);
-
+        mSearchView = (TextInputEditText) findViewById(R.id.searchView);
         mRecyclerView = (RecyclerView) findViewById(R.id.searchResults);
     }
 
@@ -85,7 +86,7 @@ public class SearchActivity extends AppCompatActivity {
     private void searchForUser(UserAttributes attributes) {
         MASFilteredRequest request = new MASFilteredRequest(attributes.getAttributes(),
                 IdentityConsts.KEY_USER_ATTRIBUTES);
-        request.contains("userName", mSearchView.getQuery().toString());
+        request.contains("userName", mSearchView.getText().toString());
 
         MASUser.getCurrentUser().getUsersByFilter(request, new MASCallback<List<MASUser>>() {
             @Override

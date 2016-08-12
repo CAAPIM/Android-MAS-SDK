@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".GroupListActivity"
+            android:name=".activity.GroupListActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -25,16 +25,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".GroupDetailActivity"
+            android:name=".activity.GroupDetailActivity"
             android:label="@string/title_group_detail"
-            android:parentActivityName=".GroupListActivity"
+            android:parentActivityName=".activity.GroupListActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.ca.mas.masusermanagementsample.GroupListActivity"/>
+                android:value=".activity.GroupListActivity"/>
         </activity>
         <activity
-            android:name=".SearchActivity"
+            android:name=".activity.AddUsersActivity"
             android:label="@string/title_activity_search"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>

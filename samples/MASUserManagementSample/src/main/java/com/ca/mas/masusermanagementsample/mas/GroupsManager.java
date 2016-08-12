@@ -4,18 +4,15 @@
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
  */
-package com.ca.mas.masusermanagementsample;
+
+package com.ca.mas.masusermanagementsample.mas;
 
 import com.ca.mas.foundation.MASGroup;
 
 import java.util.Map;
 
-/**
- * Created by kunfe01 on 2016-08-05.
- */
 public enum GroupsManager {
     INSTANCE;
-
     private Map<String, MASGroup> mGroups;
 
     public void setGroups(Map<String, MASGroup> groups) {

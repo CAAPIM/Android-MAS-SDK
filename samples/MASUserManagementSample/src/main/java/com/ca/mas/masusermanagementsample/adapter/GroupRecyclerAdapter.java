@@ -16,8 +16,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ca.mas.foundation.MASGroup;
-import com.ca.mas.masusermanagementsample.GroupDetailActivity;
-import com.ca.mas.masusermanagementsample.GroupDetailFragment;
+import com.ca.mas.masusermanagementsample.activity.GroupDetailActivity;
+import com.ca.mas.masusermanagementsample.activity.GroupDetailFragment;
 import com.ca.mas.masusermanagementsample.R;
 
 import java.util.List;

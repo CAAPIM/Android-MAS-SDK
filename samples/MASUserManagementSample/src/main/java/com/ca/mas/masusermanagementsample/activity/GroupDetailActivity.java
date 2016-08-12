@@ -5,7 +5,7 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
-package com.ca.mas.masusermanagementsample;
+package com.ca.mas.masusermanagementsample.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +17,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.ca.mas.masusermanagementsample.R;
 
 /**
  * An activity representing a single Group detail screen. This
@@ -49,7 +51,7 @@ public class GroupDetailActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, SearchActivity.class);
+                Intent intent = new Intent(mContext, AddUsersActivity.class);
                 intent.putExtra(GroupDetailFragment.GROUP_NAME, mGroupName);
                 startActivity(intent);
             }

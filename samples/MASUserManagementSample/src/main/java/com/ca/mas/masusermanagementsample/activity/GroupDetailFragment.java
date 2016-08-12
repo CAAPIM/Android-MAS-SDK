@@ -4,7 +4,8 @@
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
  */
-package com.ca.mas.masusermanagementsample;
+
+package com.ca.mas.masusermanagementsample.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -17,8 +18,10 @@ import android.view.ViewGroup;
 
 import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.identity.group.MASMember;
+import com.ca.mas.masusermanagementsample.R;
 import com.ca.mas.masusermanagementsample.adapter.DividerDecoration;
 import com.ca.mas.masusermanagementsample.adapter.MemberRecyclerAdapter;
+import com.ca.mas.masusermanagementsample.mas.GroupsManager;
 
 import java.util.List;
 

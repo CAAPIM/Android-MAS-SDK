@@ -6,7 +6,7 @@
   -->
 
 <resources>
-    <string name="app_name">Group Directory</string>
+    <string name="app_name">Group Management</string>
     <string name="title_group_detail">Group Details</string>
     <string name="title_activity_search">Add Users</string>
 </resources>

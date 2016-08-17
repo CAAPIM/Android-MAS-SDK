@@ -156,7 +156,7 @@ public class AddUsersActivity extends AppCompatActivity {
             public void onError(Throwable e) {
                 group.removeMember(member);
                 Snackbar.make(mRecyclerView, "Failed to save member to group: " + e, Snackbar.LENGTH_SHORT)
-                        .show();;
+                        .show();
             }
         });
     }

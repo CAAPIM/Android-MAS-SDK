@@ -9,6 +9,8 @@ package com.ca.mas.masusermanagementsample.activity;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
@@ -69,50 +71,6 @@ public class AddUsersActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.searchResults);
     }
 
-    private void getUsers() {
-        MASUser.getCurrentUser().getUserMetaData(new MASCallback<UserAttributes>() {
-            @Override
-            public void onSuccess(UserAttributes result) {
-                searchForUser(result);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Log.e(TAG, "Failed to get user attributes: " + e);
-            }
-        });
-    }
-
-    private void searchForUser(UserAttributes attributes) {
-        MASFilteredRequest request = new MASFilteredRequest(attributes.getAttributes(),
-                IdentityConsts.KEY_USER_ATTRIBUTES);
-        request.contains("userName", mSearchView.getText().toString());
-
-        MASUser.getCurrentUser().getUsersByFilter(request, new MASCallback<List<MASUser>>() {
-            @Override
-            public void onSuccess(final List<MASUser> result) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        LinearLayoutManager llm = new LinearLayoutManager(mContext);
-                        llm.setOrientation(LinearLayoutManager.VERTICAL);
-                        mRecyclerView.setLayoutManager(llm);
-
-                        mResultList = result;
-                        UserRecyclerAdapter adapter = new UserRecyclerAdapter(result);
-                        mRecyclerView.setAdapter(adapter);
-                        mRecyclerView.addItemDecoration(new DividerDecoration(mContext));
-                    }
-                });
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Log.e(TAG, "Failed to search for users: " + e);
-            }
-        });
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -124,11 +82,51 @@ public class AddUsersActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.search_add_to_group:
-                getUsers();
+                MASUser.getCurrentUser().getUserMetaData(new MASCallback<UserAttributes>() {
+                    @Override
+                    public void onSuccess(UserAttributes result) {
+                        searchForUser(result);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "Failed to get user attributes: " + e);
+                    }
+                });
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void searchForUser(UserAttributes attributes) {
+        MASFilteredRequest request = new MASFilteredRequest(attributes.getAttributes(),
+                IdentityConsts.KEY_USER_ATTRIBUTES);
+        request.contains("userName", mSearchView.getText().toString());
+
+        MASUser.getCurrentUser().getUsersByFilter(request, new MASCallback<List<MASUser>>() {
+            @Override
+            public Handler getHandler() {
+                return new Handler(Looper.getMainLooper());
+            }
+
+            @Override
+            public void onSuccess(final List<MASUser> result) {
+                LinearLayoutManager llm = new LinearLayoutManager(mContext);
+                llm.setOrientation(LinearLayoutManager.VERTICAL);
+                mRecyclerView.setLayoutManager(llm);
+
+                mResultList = result;
+                UserRecyclerAdapter adapter = new UserRecyclerAdapter(result);
+                mRecyclerView.setAdapter(adapter);
+                mRecyclerView.addItemDecoration(new DividerDecoration(mContext));
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.e(TAG, "Failed to search for users: " + e);
+            }
+        });
     }
 
     private void save() {

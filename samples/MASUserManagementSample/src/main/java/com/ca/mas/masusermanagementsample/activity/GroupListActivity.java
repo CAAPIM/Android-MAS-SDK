@@ -23,7 +23,6 @@ import com.ca.mas.masusermanagementsample.R;
 import com.ca.mas.masusermanagementsample.adapter.DividerDecoration;
 import com.ca.mas.masusermanagementsample.adapter.GroupRecyclerAdapter;
 import com.ca.mas.masusermanagementsample.mas.GroupsManager;
-import com.ca.mas.masusermanagementsample.mas.LoginManager;
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,9 +47,8 @@ public class GroupListActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.group_list);
         assert mRecyclerView != null;
 
-        MAS.start(this, true);
-
-        LoginManager.INSTANCE.login(getUserCallback());
+        MAS.start(this);
+        MASUser.login("username", "password", getUserCallback());
     }
 
     private MASCallback<MASUser> getUserCallback() {

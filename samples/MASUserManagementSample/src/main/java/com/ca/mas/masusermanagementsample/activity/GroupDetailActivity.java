@@ -20,12 +20,6 @@ import android.view.View;
 
 import com.ca.mas.masusermanagementsample.R;
 
-/**
- * An activity representing a single Group detail screen. This
- * activity is only used narrow width devices. On tablet-size devices,
- * item details are presented side-by-side with a list of items
- * in a {@link GroupListActivity}.
- */
 public class GroupDetailActivity extends AppCompatActivity {
 
     private Context mContext;
@@ -39,7 +33,6 @@ public class GroupDetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
 
-        // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);

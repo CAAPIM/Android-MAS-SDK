@@ -25,18 +25,7 @@ import com.ca.mas.masusermanagementsample.mas.GroupsManager;
 
 import java.util.List;
 
-/**
- * A fragment representing a single Group detail screen.
- * This fragment is either contained in a {@link GroupListActivity}
- * in two-pane mode (on tablets) or a {@link GroupDetailActivity}
- * on handsets.
- */
 public class GroupDetailFragment extends Fragment {
-    private static final String TAG = GroupDetailFragment.class.getSimpleName();
-    /**
-     * The fragment argument representing the item ID that this fragment
-     * represents.
-     */
     public static final String GROUP_NAME = "group_name";
     private MASGroup mGroup;
     private MemberRecyclerAdapter mAdapter;

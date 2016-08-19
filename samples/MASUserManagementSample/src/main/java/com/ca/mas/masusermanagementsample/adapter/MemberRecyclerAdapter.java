@@ -63,7 +63,7 @@ public class MemberRecyclerAdapter extends RecyclerView.Adapter<MemberRecyclerAd
         String id = member.getValue();
         MASUser.getCurrentUser().getUserById(id, new MASCallback<MASUser>() {
             @Override
-            public void onSuccess(final MASUser result) {
+            public void onSuccess(MASUser result) {
                 final Bitmap thumbnail = result.getThumbnailImage();
 
                 mActivity.runOnUiThread(new Runnable() {
@@ -76,7 +76,7 @@ public class MemberRecyclerAdapter extends RecyclerView.Adapter<MemberRecyclerAd
 
             @Override
             public void onError(Throwable e) {
-                Log.e(TAG, "Failed to load the user.");
+                Log.e(TAG, "Failed to load the user: " + e.toString());
             }
         });
     }

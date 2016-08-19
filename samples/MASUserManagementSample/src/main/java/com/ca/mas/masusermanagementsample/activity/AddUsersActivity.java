@@ -111,7 +111,7 @@ public class AddUsersActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onSuccess(final List<MASUser> result) {
+            public void onSuccess(List<MASUser> result) {
                 LinearLayoutManager llm = new LinearLayoutManager(mContext);
                 llm.setOrientation(LinearLayoutManager.VERTICAL);
                 mRecyclerView.setLayoutManager(llm);

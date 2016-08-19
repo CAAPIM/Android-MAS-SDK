@@ -42,14 +42,13 @@ public class GroupDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments().containsKey(GROUP_NAME)) {
-            String groupId = getArguments().getString(GROUP_NAME);
-
-            mGroup = GroupsManager.INSTANCE.getGroupById(groupId);
+            String groupName = getArguments().getString(GROUP_NAME);
+            mGroup = GroupsManager.INSTANCE.getGroupById(groupName);
 
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
-                appBarLayout.setTitle(mGroup.getGroupName());
+                appBarLayout.setTitle(groupName);
             }
         }
     }

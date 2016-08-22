@@ -8,16 +8,19 @@
 
 package com.ca.mas.foundation.auth;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.net.http.SslCertificate;
 import android.net.http.SslError;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.SslErrorHandler;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebViewDatabase;
@@ -117,15 +120,27 @@ public abstract class MASSocialLogin {
                 MASSocialLogin.this.onError(msg, e);
             }
 
+            @TargetApi(Build.VERSION_CODES.N)
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                final Uri uri = request.getUrl();
+                return shouldOverrideUrlLoading(view, uri);
+            }
+
+            //For Android M and below
+            @SuppressWarnings("deprecation")
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                return shouldOverrideUrlLoading(view, Uri.parse(url));
+            }
+
+            private boolean shouldOverrideUrlLoading(WebView view, Uri url) {
                 //If the url match with the configured callback url, the redirect is ended and proceed the logon process
                 //by sending intent to the MssoService.
                 String redirectUri = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.PROP_AUTHORIZE_REDIRECT_URI);
-                if (url.startsWith(redirectUri)) {
-                    Uri b = Uri.parse(url);
+                if (url.toString().startsWith(redirectUri)) {
                     //look up for the authorization code from the response parameter.
-                    String code = b.getQueryParameter("code");
+                    String code = url.getQueryParameter("code");
                     Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, context, MssoService.class);
                     intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
                     intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, new AuthorizationCodeCredentials(code));
@@ -134,7 +149,7 @@ public abstract class MASSocialLogin {
                     return true;
                 }
                 //To proper redirect we have to load the view explicitly, instead of returning false.
-                view.loadUrl(url);
+                view.loadUrl(url.toString());
                 return true;
             }
         });

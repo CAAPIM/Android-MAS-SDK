@@ -107,6 +107,7 @@ public class MASEnterpriseWebApplicationActivity extends AppCompatActivity {
                             ad.show();
                         }
 
+                        @SuppressWarnings("deprecation")
                         @Override
                         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
                             return webViewClient.shouldInterceptRequest(view, url);

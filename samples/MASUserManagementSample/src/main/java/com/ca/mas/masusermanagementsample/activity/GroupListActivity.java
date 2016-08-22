@@ -54,7 +54,7 @@ public class GroupListActivity extends AppCompatActivity {
     private MASCallback<MASUser> getUserCallback() {
         return new MASCallback<MASUser>() {
             @Override
-            public void onSuccess(final MASUser user) {
+            public void onSuccess(MASUser user) {
                 MASGroup.newInstance().getAllGroups(user.getId(), getGroupsCallback());
             }
 

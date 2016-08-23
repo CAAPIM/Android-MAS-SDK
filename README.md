@@ -1,12 +1,12 @@
-# Mobile SDK for Android
+# Android Mobile SDK
+## for CA Mobile App Services and CA Mobile API Gateway
 
 ## Overview
-Mobile SDK for [CA Mobile API Gateway][mag] and [CA Mobile App Services][mas.ca.com].
+The Android Mobile SDK gives developers simple and secure access to the services of CA Mobile API Gateway and CA Mobile App Services. 
+For more information about our mobile products see [the website][mas.ca.com].
 
 ## Get Started
-
-To download the latest build, see the [releases][releases] page.
-For documentation, visit our [developer site][docs].
+Follow our step-by-step guide to [get started][get-started].
 
 ## How You Can Contribute
 

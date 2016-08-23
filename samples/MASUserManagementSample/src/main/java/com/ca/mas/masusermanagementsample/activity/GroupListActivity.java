@@ -14,7 +14,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
-import com.ca.mas.core.error.MAGError;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASGroup;
@@ -47,7 +46,7 @@ public class GroupListActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.group_list);
         assert mRecyclerView != null;
 
-        MAS.start(this);
+        MAS.start(this, true);
         MASUser.login("username", "password", getUserCallback());
     }
 
@@ -60,7 +59,7 @@ public class GroupListActivity extends AppCompatActivity {
 
             @Override
             public void onError(Throwable e) {
-                Log.e(TAG, e.toString());
+                Log.e(TAG + " getUserCallback()", e.toString());
             }
         };
     }
@@ -91,8 +90,7 @@ public class GroupListActivity extends AppCompatActivity {
 
             @Override
             public void onError(Throwable e) {
-                MAGError error = (MAGError) e;
-                Log.e(TAG, error.getMessage());
+                Log.e(TAG + " getGroupsCallback()", e.toString());
             }
         };
     }

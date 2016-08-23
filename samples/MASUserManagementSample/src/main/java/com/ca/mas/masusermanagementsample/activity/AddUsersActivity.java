@@ -124,7 +124,7 @@ public class AddUsersActivity extends AppCompatActivity {
 
             @Override
             public void onError(Throwable e) {
-                Log.e(TAG, "Failed to search for users: " + e);
+                Log.e(TAG + "getUsersByFilter()", e.toString());
             }
         });
     }

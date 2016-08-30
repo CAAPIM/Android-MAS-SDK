@@ -58,7 +58,8 @@ public class OtpAuthenticationHandler implements Parcelable {
      */
     public void deliver(String channel, MAGResultReceiver<Void> callback) {
         MobileSso mobileSso = MobileSsoFactory.getInstance();
-        URI otpDeliveryUrl = mobileSso.getURI(mobileSso.getPrefix() + OtpConstants.OTP_AUTH_URL);
+        //MAPI-1032 : Android SDK : Fix for prefixed server otp protected resource
+        URI otpDeliveryUrl = mobileSso.getURI(/*mobileSso.getPrefix() +*/ OtpConstants.OTP_AUTH_URL);
 
         MAGRequest request = new MAGRequest.MAGRequestBuilder(otpDeliveryUrl)
                 .header(OtpConstants.X_OTP_CHANNEL, channel)

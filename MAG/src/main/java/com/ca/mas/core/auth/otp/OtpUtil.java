@@ -12,11 +12,14 @@ import android.os.Parcel;
 
 import com.ca.mas.core.auth.otp.model.OtpResponseBody;
 import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
+import com.google.zxing.common.StringUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -179,6 +182,15 @@ public class OtpUtil {
             return true;
         }
         return false;
+    }
+
+    public static List<String> convertCommaSeparatedStringToList(String str) {
+        if (str == null ) {
+            return null;
+        }
+        String[] arr =  str.split(",");
+        return new ArrayList<String> (Arrays.asList(arr));
+
     }
 }
 

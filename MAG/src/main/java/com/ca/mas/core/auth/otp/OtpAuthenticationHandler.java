@@ -18,6 +18,7 @@ import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.MssoService;
+import com.ca.mas.core.service.MssoState;
 
 import java.net.URI;
 import java.util.List;
@@ -64,7 +65,7 @@ public class OtpAuthenticationHandler implements Parcelable {
         MAGRequest request = new MAGRequest.MAGRequestBuilder(otpDeliveryUrl)
                 .header(OtpConstants.X_OTP_CHANNEL, channel)
                 .header(OtpConstants.OTP_REQUESTID, Long.toString(requestId)).build();
-
+        MssoState.setUserSelectedOtpChannels(channel);
         mobileSso.processRequest(request, callback);
     }
 

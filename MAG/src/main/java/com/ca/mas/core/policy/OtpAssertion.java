@@ -26,6 +26,7 @@ import com.ca.mas.core.oauth.OAuthException;
 import com.ca.mas.core.policy.exceptions.MobileNumberInvalidException;
 import com.ca.mas.core.policy.exceptions.MobileNumberRequiredException;
 import com.ca.mas.core.policy.exceptions.OtpException;
+import com.ca.mas.core.service.MssoState;
 
 import java.io.IOException;
 import java.util.List;
@@ -48,6 +49,10 @@ class OtpAssertion implements MssoAssertion {
         if (otp != null && !"".equals(otp)) {
             request.getRequest().addHeader(OtpConstants.X_OTP, otp);
             mssoContext.setOtp(null);
+            /*MAPI-1033 : Add support caching of user selected OTP channels*/
+            if (MssoState.getUserSelectedOtpChannels() != null && !"".equals(MssoState.getUserSelectedOtpChannels())) {
+                request.getRequest().addHeader(OtpConstants.X_OTP_CHANNEL, MssoState.getUserSelectedOtpChannels());
+            }
         }
     }
 

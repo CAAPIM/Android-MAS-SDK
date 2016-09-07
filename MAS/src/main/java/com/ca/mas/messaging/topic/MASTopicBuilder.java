@@ -24,6 +24,7 @@ public class MASTopicBuilder {
     @MASMessagingSegment
     int mSegment = MASConstants.MAS_USER | MASConstants.MAS_APPLICATION;
     private String mCustomTopic;
+    private boolean mEnforceTopicStructure = true;
     private int mQos = MASConnectaClient.EXACTLY_ONCE;
 
     /**
@@ -84,15 +85,33 @@ public class MASTopicBuilder {
     }
 
     /**
+     * <b>Description:</b> Builder.
+     *
+     * @param enforce True to enforce topic structure which align to MAS Messaging protocol, false to allow free form of
+     *                topic structure, set the free form topic structure using {@link #setCustomTopic(String)},
+     *                other attributes which set using {@link #setUserId(String)}, {@link #setMessagingSegment(int)}
+     *                will be ignored.
+     *                By default, enforce topic structure is set to true.
+     *
+     * @return MASTopicBuilder the instance of this builder.
+     */
+    public MASTopicBuilder enforceTopicStructure(boolean enforce) {
+        mEnforceTopicStructure = enforce;
+        return this;
+    }
+
+    /**
      * Build the {@link MASTopic} instance
      */
     public MASTopic build() {
         if (mCustomTopic == null) {
             throw new IllegalArgumentException("Custom name is required");
         }
-        if (mUserId == null &&
-                (mSegment != MASConstants.MAS_APPLICATION)) {
-            throw new IllegalArgumentException("User id is required");
+        if (mEnforceTopicStructure) {
+            if (mUserId == null &&
+                    (mSegment != MASConstants.MAS_APPLICATION)) {
+                throw new IllegalArgumentException("User id is required");
+            }
         }
         return new MASTopic() {
 
@@ -103,8 +122,13 @@ public class MASTopicBuilder {
 
             @Override
             public String toString() {
-                String s = createTopic();
-                return s;
+                String topicStructure;
+                if (mEnforceTopicStructure) {
+                    topicStructure = createTopic();
+                } else {
+                    topicStructure = mCustomTopic;
+                }
+                return topicStructure;
             }
         };
     }

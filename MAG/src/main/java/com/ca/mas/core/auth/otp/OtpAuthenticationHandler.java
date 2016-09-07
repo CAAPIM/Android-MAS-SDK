@@ -14,7 +14,10 @@ import android.os.Parcelable;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSso;
+import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.MobileSsoFactory;
+import com.ca.mas.core.conf.ConfigurationManager;
+import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.MssoService;
@@ -48,6 +51,8 @@ public class OtpAuthenticationHandler implements Parcelable {
 
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
         intent.putExtra(MssoIntents.EXTRA_OTP_VALUE, otp);
+        String channelStr = OtpUtil.convertListToCommaSeparatedString(channels);
+        intent.putExtra (MssoIntents.EXTRA_OTP_SELECTED_CHANNELS, channelStr);
         context.startService(intent);
     }
 
@@ -60,13 +65,16 @@ public class OtpAuthenticationHandler implements Parcelable {
     public void deliver(String channel, MAGResultReceiver<Void> callback) {
         MobileSso mobileSso = MobileSsoFactory.getInstance();
         //MAPI-1032 : Android SDK : Fix for prefixed server otp protected resource
-        URI otpDeliveryUrl = mobileSso.getURI(/*mobileSso.getPrefix() +*/ OtpConstants.OTP_AUTH_URL);
+        String otpAuthUrl = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.AUTHENTICATE_OTP_PATH);
+        URI otpDeliveryUrl = mobileSso.getURI(/*mobileSso.getPrefix() +*/otpAuthUrl
+                );
 
         MAGRequest request = new MAGRequest.MAGRequestBuilder(otpDeliveryUrl)
                 .header(OtpConstants.X_OTP_CHANNEL, channel)
                 .header(OtpConstants.OTP_REQUESTID, Long.toString(requestId)).build();
-        MssoState.setUserSelectedOtpChannels(channel);
+        //MssoContext.setUserSelectedOtpChannels(channel);
         mobileSso.processRequest(request, callback);
+
     }
 
     public List<String> getChannels() {

@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -190,6 +191,22 @@ public class OtpUtil {
         }
         String[] arr =  str.split(",");
         return new ArrayList<String> (Arrays.asList(arr));
+
+    }
+
+    public static String convertListToCommaSeparatedString(List<String>  list) {
+        if (list == null || list.size() == 0) {
+            return null;
+        }
+        String result = "";
+        Iterator itr = list.iterator();
+        String next = (String)itr.next();
+        result = next;
+        while(itr.hasNext()) {
+            next = (String)itr.next();
+            result += (","+next);
+        }
+        return result;
 
     }
 }

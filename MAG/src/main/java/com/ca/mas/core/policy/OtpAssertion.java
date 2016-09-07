@@ -50,8 +50,9 @@ class OtpAssertion implements MssoAssertion {
             request.getRequest().addHeader(OtpConstants.X_OTP, otp);
             mssoContext.setOtp(null);
             /*MAPI-1033 : Add support caching of user selected OTP channels*/
-            if (MssoState.getUserSelectedOtpChannels() != null && !"".equals(MssoState.getUserSelectedOtpChannels())) {
-                request.getRequest().addHeader(OtpConstants.X_OTP_CHANNEL, MssoState.getUserSelectedOtpChannels());
+            if (mssoContext.getOtpSelectedDeliveryChannels() != null
+                    && !"".equals(mssoContext.getOtpSelectedDeliveryChannels() )) {
+                request.getRequest().addHeader(OtpConstants.X_OTP_CHANNEL, mssoContext.getOtpSelectedDeliveryChannels() );
             }
         }
     }

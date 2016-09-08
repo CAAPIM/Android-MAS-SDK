@@ -53,7 +53,7 @@ import java.util.List;
 /**
  * <p>The <b>MASUser</b> interface is a core interface used to represent a user in the system,
  * as well as an Identity Management definition used in the interaction with SCIM.</p>
- *
+ * <p/>
  * <p>The <b>MASUser</b> interface contains the common attribute <a href="https://tools.ietf.org/html/rfc7643#section-4.1">user</a>
  * which is the container for all of the other SCIM values, whether single or multi-valued.
  * SCIM provides a resource type for "User" resources.  The core schema for "User" is identified using the following schema URI:
@@ -127,6 +127,12 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                 current = createMASUser();
                 // Retrieve the user profile
                 MASUser.login(null);
+            }
+        } else {
+            if (!MobileSsoFactory.getInstance().isLogin()) {
+                //The user's session has been removed,
+                //may perform device de-registration or resetLocally
+                current = null;
             }
         }
         return current;
@@ -528,7 +534,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
     /**
      * <p>Logs off an already authenticated user via an asynchronous request.</p>
-     *
+     * <p/>
      * This will invoke {@link Callback#onSuccess(MASCallback, Object)} upon a successful result.
      *
      * @param callback The Callback that receives the results. On a successful completion, the user

@@ -115,10 +115,7 @@ public class MssoService extends IntentService {
 
     private void onOtpObtained(Bundle extras, MssoRequest request) {
         String otp = extras.getString(MssoIntents.EXTRA_OTP_VALUE);
-        String otpSelectedChannels = extras.getString(MssoIntents.EXTRA_OTP_SELECTED_CHANNELS);
-
         request.getMssoContext().setOtp(otp);
-        request.getMssoContext().setOtpSelectedDeliveryChannels(otpSelectedChannels);
 
         boolean originalRequestProcessed = false;
         ArrayList<MssoRequest> requests = new ArrayList<MssoRequest>(activeRequests.values());
@@ -257,14 +254,15 @@ public class MssoService extends IntentService {
                         mobileSsoListener.onOtpAuthenticationRequest(new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), false));
                 } else if (OtpResponseHeaders.X_CA_ERROR.OTP_INVALID == otpResponseHeaders.getErrorCode()) {
                     /*MAPI-1033 : Add support caching of user selected OTP channels*/
-                    List<String> userSelectedChannelsFromStore = null;
-                    if (mssoContext != null && mssoContext.getOtpSelectedDeliveryChannels() != null && !"".equals(mssoContext.getOtpSelectedDeliveryChannels()))
-                        userSelectedChannelsFromStore = OtpUtil.convertCommaSeparatedStringToList(mssoContext.getOtpSelectedDeliveryChannels());
-
-                    mobileSsoListener.onOtpAuthenticationRequest(new OtpAuthenticationHandler(request.getId(), userSelectedChannelsFromStore/*otpResponseHeaders.getChannels()*/, true));
+                    OtpAuthenticationHandler otpHandler = new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), true);
+                    if (mssoContext != null && mssoContext.getOtpSelectedDeliveryChannels() != null && !"".equals(mssoContext.getOtpSelectedDeliveryChannels())){
+                        String userSelectedChannels = mssoContext.getOtpSelectedDeliveryChannels();
+                        otpHandler.setUserSelectedChannels(userSelectedChannels);
+                    }
+                    mobileSsoListener.onOtpAuthenticationRequest(otpHandler );
                 }
                 return false;
-                }
+            }
             Log.e(TAG, e.getMessage(), e);
             requestFinished(request);
             respondError(receiver, getErrorCode(e), new MAGError(e));

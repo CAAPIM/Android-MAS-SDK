@@ -45,6 +45,14 @@ class OtpAssertion implements MssoAssertion {
 
     @Override
     public void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
+
+        if (request.getRequest().getHeaders() != null && request.getRequest().getHeaders().get(OtpConstants.DELIVER_OTP_FLAG) != null) {
+            List<String> selectedOtpChannels = (request.getRequest().getHeaders().get(OtpConstants.X_OTP_CHANNEL));
+            String selectedOtpChannelsStr = OtpUtil.convertListToCommaSeparatedString(selectedOtpChannels);
+            mssoContext.setOtpSelectedDeliveryChannels(selectedOtpChannelsStr);
+            request.getRequest().getHeaders().remove(OtpConstants.DELIVER_OTP_FLAG);
+        }
+
         String otp = mssoContext.getOtp();
         if (otp != null && !"".equals(otp)) {
             request.getRequest().addHeader(OtpConstants.X_OTP, otp);
@@ -55,6 +63,7 @@ class OtpAssertion implements MssoAssertion {
                 request.getRequest().addHeader(OtpConstants.X_OTP_CHANNEL, mssoContext.getOtpSelectedDeliveryChannels() );
             }
         }
+
     }
 
     @Override

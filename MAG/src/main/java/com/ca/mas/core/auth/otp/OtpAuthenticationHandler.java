@@ -34,6 +34,8 @@ public class OtpAuthenticationHandler implements Parcelable {
     private List<String> channels;
     private boolean isInvalidOtp;
 
+    private String userSelectedChannels;
+
     public OtpAuthenticationHandler(long requestId, List<String> channels, boolean isInvalidOtp) {
         this.requestId = requestId;
         this.channels = channels;
@@ -51,8 +53,8 @@ public class OtpAuthenticationHandler implements Parcelable {
 
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
         intent.putExtra(MssoIntents.EXTRA_OTP_VALUE, otp);
-        String channelStr = OtpUtil.convertListToCommaSeparatedString(channels);
-        intent.putExtra (MssoIntents.EXTRA_OTP_SELECTED_CHANNELS, channelStr);
+        if (userSelectedChannels != null && !"".equals(userSelectedChannels))
+            intent.putExtra (MssoIntents.EXTRA_OTP_SELECTED_CHANNELS, userSelectedChannels);
         context.startService(intent);
     }
 
@@ -71,7 +73,8 @@ public class OtpAuthenticationHandler implements Parcelable {
 
         MAGRequest request = new MAGRequest.MAGRequestBuilder(otpDeliveryUrl)
                 .header(OtpConstants.X_OTP_CHANNEL, channel)
-                .header(OtpConstants.OTP_REQUESTID, Long.toString(requestId)).build();
+                .header(OtpConstants.OTP_REQUESTID, Long.toString(requestId))
+                .header(OtpConstants.DELIVER_OTP_FLAG, Boolean.TRUE.toString()).build();
         //MssoContext.setUserSelectedOtpChannels(channel);
         mobileSso.processRequest(request, callback);
 
@@ -90,6 +93,14 @@ public class OtpAuthenticationHandler implements Parcelable {
      */
     public void cancel() {
         MobileSsoFactory.getInstance().cancelRequest(requestId);
+    }
+
+    public String getUserSelectedChannels() {
+        return userSelectedChannels;
+    }
+
+    public void setUserSelectedChannels(String userSelectedChannels) {
+        this.userSelectedChannels = userSelectedChannels;
     }
 
     @Override

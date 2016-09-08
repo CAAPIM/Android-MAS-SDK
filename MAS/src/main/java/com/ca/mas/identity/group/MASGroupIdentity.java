@@ -5,6 +5,7 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
+
 package com.ca.mas.identity.group;
 
 import com.ca.mas.foundation.MASCallback;

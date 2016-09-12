@@ -131,10 +131,9 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                 MASUser.login(null);
             }
         } else {
-            if (!MobileSsoFactory.getInstance().isDeviceRegistered()) {
+            if (!MobileSsoFactory.getInstance().isLogin()) {
                 //The user's session has been removed,
                 //may perform device de-registration or resetLocally
-                //Should check for persisted user profile instead.
                 current = null;
             }
         }

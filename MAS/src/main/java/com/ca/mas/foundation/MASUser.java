@@ -18,6 +18,7 @@ import android.util.Log;
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
@@ -130,9 +131,10 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                 MASUser.login(null);
             }
         } else {
-            if (!MobileSsoFactory.getInstance().isLogin()) {
+            if (!MobileSsoFactory.getInstance().isDeviceRegistered()) {
                 //The user's session has been removed,
                 //may perform device de-registration or resetLocally
+                //Should check for persisted user profile instead.
                 current = null;
             }
         }

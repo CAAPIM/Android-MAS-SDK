@@ -11,11 +11,13 @@ package com.ca.mas.core.policy;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.auth.otp.OtpConstants;
 import com.ca.mas.core.auth.otp.OtpUtil;
 import com.ca.mas.core.auth.otp.model.OtpResponseBody;
 import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
 import com.ca.mas.core.client.ServerClient;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGException;
@@ -46,11 +48,11 @@ class OtpAssertion implements MssoAssertion {
     @Override
     public void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
 
-        if (request.getRequest().getHeaders() != null && request.getRequest().getHeaders().get(OtpConstants.DELIVER_OTP_FLAG) != null) {
+        String otpAuthUrl = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.AUTHENTICATE_OTP_PATH);
+        if (otpAuthUrl != null && otpAuthUrl.equals(request.getRequest().getURL())) {
             List<String> selectedOtpChannels = (request.getRequest().getHeaders().get(OtpConstants.X_OTP_CHANNEL));
             String selectedOtpChannelsStr = OtpUtil.convertListToCommaSeparatedString(selectedOtpChannels);
             mssoContext.setOtpSelectedDeliveryChannels(selectedOtpChannelsStr);
-            request.getRequest().getHeaders().remove(OtpConstants.DELIVER_OTP_FLAG);
         }
 
         String otp = mssoContext.getOtp();

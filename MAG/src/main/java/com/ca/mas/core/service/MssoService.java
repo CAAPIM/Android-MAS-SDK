@@ -251,14 +251,14 @@ public class MssoService extends IntentService {
 
             if (mobileSsoListener != null) {
                 if (OtpResponseHeaders.X_OTP_VALUE.REQUIRED.equals(otpResponseHeaders.getxOtpValue())) {
-                        mobileSsoListener.onOtpAuthenticationRequest(new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), false));
+                        mobileSsoListener.onOtpAuthenticationRequest(new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), false, null));
                 } else if (OtpResponseHeaders.X_CA_ERROR.OTP_INVALID == otpResponseHeaders.getErrorCode()) {
                     /*MAPI-1033 : Add support caching of user selected OTP channels*/
-                    OtpAuthenticationHandler otpHandler = new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), true);
+                    String userSelectedChannels = null;
                     if (mssoContext != null && mssoContext.getOtpSelectedDeliveryChannels() != null && !"".equals(mssoContext.getOtpSelectedDeliveryChannels())){
-                        String userSelectedChannels = mssoContext.getOtpSelectedDeliveryChannels();
-                        otpHandler.setUserSelectedChannels(userSelectedChannels);
+                        userSelectedChannels = mssoContext.getOtpSelectedDeliveryChannels();
                     }
+                    OtpAuthenticationHandler otpHandler = new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), true, userSelectedChannels );
                     mobileSsoListener.onOtpAuthenticationRequest(otpHandler );
                 }
                 return false;

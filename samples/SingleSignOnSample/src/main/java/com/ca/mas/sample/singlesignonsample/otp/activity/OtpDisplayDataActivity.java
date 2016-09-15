@@ -87,7 +87,7 @@ public class OtpDisplayDataActivity extends FragmentActivity implements View.OnC
         disableButtons();
         activity = this;
         MobileSso mobileSso = MobileSsoFactory.getInstance(this);
-        otpProductListDownloadUri = mobileSso.getURI(mobileSso.getPrefix() + OTP_PROTECTED_URL);
+        otpProductListDownloadUri = mobileSso.getURI(/*mobileSso.getPrefix() + */OTP_PROTECTED_URL);
 
         final MASRequest request = new MASRequest.MASRequestBuilder(otpProductListDownloadUri).build();
 

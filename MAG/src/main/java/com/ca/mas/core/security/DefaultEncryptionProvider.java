@@ -6,7 +6,7 @@
  *
  */
 
-package com.ca.mas.storage;
+package com.ca.mas.core.security;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -31,7 +31,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 
-public class DefaultEncryptionProvider implements MASEncryptionProvider {
+public class DefaultEncryptionProvider implements EncryptionProvider {
 
     private KeyStorageProvider ksp;
 

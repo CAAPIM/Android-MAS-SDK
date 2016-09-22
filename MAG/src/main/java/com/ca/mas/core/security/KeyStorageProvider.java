@@ -6,7 +6,7 @@
  *
  */
 
-package com.ca.mas.storage;
+package com.ca.mas.core.security;
 
 import javax.crypto.SecretKey;
 

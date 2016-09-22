@@ -4,10 +4,12 @@
 - OTP now works when MAG is configured with an instance modifier.  [MAPI-1032]
 
 ### New features
-- 
+
+None.
 
 ### Deprecated methods
-- 
+
+None. 
 
 
 

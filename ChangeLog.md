@@ -2,18 +2,17 @@
 
 ### Bug fixes
 - OTP now works when MAG is configured with an instance modifier.  [MAPI-1032]
-- Provide sample application for MASStorage [MCT-352]
-- Adding IDs to dynamic social login icons [MCT-353]
-- Provide sample application for MAS Messaging [MCT-373]
-- Provide sample application for MAS User Management [MCT-374]
-- Android N Support. [MCT-377]
-- Provide sample application for Access API with Geolocation and OTP [MCT-379]
 - MASMessage objects cannot be empty. [MCT-475]
 - MASUser.getCurrentUser should return null after device de-registration. [MCT-472]
 
 ### New features
 
-None.
+- Provide sample application for MASStorage [MCT-352]
+- Adding IDs to dynamic social login icons [MCT-353]
+- Provide sample application for MAS Messaging [MCT-373]
+- Provide sample application for MAS User Management [MCT-374]
+- Provide sample application for Access API with Geolocation and OTP [MCT-379]
+- Android N Support. [MCT-377]
 
 ### Deprecated methods
 

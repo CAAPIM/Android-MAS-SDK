@@ -41,6 +41,8 @@ public class OtpAuthenticationHandler implements Parcelable {
         this.channels = channels;
         this.isInvalidOtp = isInvalidOtp;
         this.userSelectedChannels = userSelectedChannels;
+        if (channels == null && userSelectedChannels != null && !"".equals(userSelectedChannels))
+            this.channels = OtpUtil.convertCommaSeparatedStringToList(userSelectedChannels);
     }
 
     /**

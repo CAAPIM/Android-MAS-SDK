@@ -36,11 +36,6 @@ public class MAGHttpClient {
         sslSocketFactory = (new MAGSocketFactory(context)).createSSLSocketFactory();
     }
 
-    public MAGHttpClient(Context context, ConfigurationProvider configurationProvider) {
-        sslSocketFactory = (new MAGSocketFactory(context, configurationProvider)).createSSLSocketFactory();
-    }
-
-
     public MAGHttpClient() {
     }
 

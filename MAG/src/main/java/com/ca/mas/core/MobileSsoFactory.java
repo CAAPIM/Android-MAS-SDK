@@ -168,7 +168,7 @@ public final class MobileSsoFactory {
             }
 
             ConfigurationManager.getInstance().activate(config);
-            mobileSso.set(createMobileSso(context, ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider()));
+            mobileSso.set(createMobileSso(context));
 
             if (isSwitching) {
                 LocalBroadcastManager.getInstance(context).sendBroadcastSync(new Intent(MAGConstants.AFTER_GATEWAY_SWITCH));
@@ -195,10 +195,10 @@ public final class MobileSsoFactory {
         }
     }
 
-    private static MobileSso createMobileSso(Context context, ConfigurationProvider configurationProvider) {
+    private static MobileSso createMobileSso(Context context) {
         final Context applicationContext = context.getApplicationContext();
         final MssoContext mssoContext = MssoContext.newContext();
-        mssoContext.init(applicationContext, configurationProvider);
+        mssoContext.init(applicationContext);
         mssoContext.initPolicyManager();
 
         final MssoClient mssoClient = new MssoClient(mssoContext, applicationContext);

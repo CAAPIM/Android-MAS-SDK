@@ -12,6 +12,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoConfig;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoException;
 import com.ca.mas.core.datasource.DataSource;
@@ -32,9 +33,9 @@ public class StorageProvider {
     private Context context;
     private StorageConfig mStorageConfig;
 
-    public StorageProvider(Context context, ConfigurationProvider configurationProvider) {
-        this.configurationProvider = configurationProvider;
-        this.context = context;
+    public StorageProvider(Context context) {
+        this.configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
+        this.context = context.getApplicationContext();
         mStorageConfig =new StorageConfig(configurationProvider);
     }
 

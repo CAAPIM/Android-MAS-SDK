@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.client.ServerClient;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.creds.Credentials;
 import com.ca.mas.core.datasource.DataSourceException;
@@ -57,7 +58,6 @@ import java.util.Date;
 public class MssoContext {
 
     private static final String TAG = "MssoContext";
-    private static final String MSSO_CONFIG = "msso_config.json";
 
     /**
      * Maximum number of RetryRequestExceptions to honor before giving up.
@@ -106,16 +106,6 @@ public class MssoContext {
     }
 
     /**
-     * Check if this context has been initialized.  The context must be initialized before it can be used.
-     *
-     * @return true if this context has been initialized.
-     * false if initialization is required.
-     */
-    public boolean isInitialized() {
-        return configurationProvider != null;
-    }
-
-    /**
      * Initialize the context.
      * <p/>
      * This method must be called before the context can be used for the first time.
@@ -130,15 +120,13 @@ public class MssoContext {
      *                              The context must have a lifetime at least as long as this MssoContext.
      *                              Typically this means you should not pass an Activity as the context unless you
      *                              plan to close this MssoContext when the activity is destroyed.
-     * @param configurationProvider the configuration provider that will be used to obtain application configuration information such
-     *                              as client secrets, token server URLs, and trusted certificates.  Required.
      * @throws MssoException if the token store cannot be prepared
      */
-    public void init(Context context, ConfigurationProvider configurationProvider) throws MssoException {
+    public void init(Context context) throws MssoException {
         this.context = context;
-        this.configurationProvider = configurationProvider;
+        this.configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
 
-        StorageProvider storageProvider = new StorageProvider(context, configurationProvider);
+        StorageProvider storageProvider = new StorageProvider(context);
         if (!storageProvider.hasValidStore()) {
             throw new MssoException("No valid Data Source was provided");
         }
@@ -294,7 +282,7 @@ public class MssoContext {
         if (client != null)
             return client;
 
-        client = new MAGHttpClient(context, configurationProvider) {
+        client = new MAGHttpClient(context) {
             @Override
             protected void onConnectionObtained(HttpURLConnection connection) {
                 super.onConnectionObtained(connection);

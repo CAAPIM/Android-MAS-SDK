@@ -257,5 +257,11 @@ public class AccountManagerStoreDataSource<K, V> implements DataSource<K, V> {
         //nothing to do
     }
 
+    public AccountManagerStorage getStorage() {
+        return storage;
+    }
 
+    public DataConverter getConverter() {
+        return converter;
+    }
 }

@@ -55,7 +55,7 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
     private SharedPreferences sharedpreferences;
     private static final String AES = "AES";
     private static final String TAG = KeyStoreKeyStorageProvider.class.getCanonicalName();
-    private static final String ASYM_KEY_ALIAS = "ASYM_KEY";
+    protected static final String ASYM_KEY_ALIAS = "ASYM_KEY";
 
     /**
      * Constructor to KeyStorageProvider
@@ -277,7 +277,7 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
      * @throws BadPaddingException
      * @throws IllegalBlockSizeException
      */
-    private SecretKey decryptSecretKey(byte[] encryptedSecretKey, PrivateKey privateKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    protected SecretKey decryptSecretKey(byte[] encryptedSecretKey, PrivateKey privateKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         Cipher cipher = Cipher.getInstance(RSA_ECB_PKCS1_PADDING);
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         byte[] decryptedSecretkey = cipher.doFinal(encryptedSecretKey);
@@ -287,11 +287,11 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
     /**
      * This method stores the encrypted SecretKey in the locally, using SharedPreferences
      *
-     * @param alias:             the alias to store the Key against
+     * @param alias :             the alias to store the Key against
      * @param encryptedSecretkey
      * @return : true or false
      */
-    private boolean storeSecretKeyLocally(String alias, byte[] encryptedSecretkey) {
+    protected boolean storeSecretKeyLocally(String alias, byte[] encryptedSecretkey) {
         sharedpreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedpreferences.edit();
         String stringToSave = Base64.encodeToString(encryptedSecretkey, Base64.DEFAULT);
@@ -303,10 +303,10 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
     /**
      * This method returns the Secretkey which is stored locally, in this case from the SharedPrefernces
      *
-     * @param alias: the alias against which to find the key
+     * @param alias : the alias against which to find the key
      * @return: the Secretkey
      */
-    private SecretKey getSecretKeyLocally(String alias) {
+    protected SecretKey getSecretKeyLocally(String alias) {
         sharedpreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         byte[] encryptedSecretKey;
         String sretrieve = sharedpreferences.getString(alias, "default");
@@ -348,10 +348,10 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
     /**
      * This method checks whether the encrypted secretKey is stored locally or not
      *
-     * @param alias: the alias against which to store the key against
+     * @param alias : the alias against which to store the key against
      * @return: true or false
      */
-    private boolean containsSecretkeyLocally(String alias) {
+    protected boolean containsSecretkeyLocally(String alias) {
         sharedpreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         return sharedpreferences.contains(alias);
 
@@ -360,10 +360,10 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
     /**
      * This method deletes the key from the local storage
      *
-     * @param alias: the alias to find the key
+     * @param alias : the alias to find the key
      * @return: true or false
      */
-    private boolean deleteSecretKeyLocally(String alias) {
+    protected boolean deleteSecretKeyLocally(String alias) {
         sharedpreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.remove(alias);

@@ -20,7 +20,6 @@ import android.util.Log;
 
 import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
-import com.ca.mas.storage.MASEncryptionProvider;
 
 import org.junit.After;
 import org.junit.Test;

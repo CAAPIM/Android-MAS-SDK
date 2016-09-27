@@ -3,9 +3,10 @@
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
+ *
  */
 
-package com.ca.mas.masusermanagementsample.activity;
+package com.ca.mas.masmessagingsample.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -18,10 +19,10 @@ import android.view.ViewGroup;
 
 import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.identity.group.MASMember;
-import com.ca.mas.masusermanagementsample.R;
-import com.ca.mas.masusermanagementsample.adapter.DividerDecoration;
-import com.ca.mas.masusermanagementsample.adapter.MemberRecyclerAdapter;
-import com.ca.mas.masusermanagementsample.mas.GroupsManager;
+import com.ca.mas.masmessagingsample.R;
+import com.ca.mas.masmessagingsample.adapter.DividerDecoration;
+import com.ca.mas.masmessagingsample.adapter.MemberRecyclerAdapter;
+import com.ca.mas.masmessagingsample.mas.DataManager;
 
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class GroupDetailFragment extends Fragment {
 
         if (getArguments().containsKey(GROUP_NAME)) {
             String groupName = getArguments().getString(GROUP_NAME);
-            mGroup = GroupsManager.INSTANCE.getGroupById(groupName);
+            mGroup = DataManager.INSTANCE.getGroupById(groupName);
 
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
@@ -64,7 +65,8 @@ public class GroupDetailFragment extends Fragment {
                 List<MASMember> members = mGroup.getMembers();
                 if (members != null) {
                     Activity activity = getActivity();
-                    mAdapter = new MemberRecyclerAdapter(activity, members, mGroup.getOwner());
+                    MemberRecyclerAdapter.GroupDetailMessageListener listener = (MemberRecyclerAdapter.GroupDetailMessageListener) activity;
+                    mAdapter = new MemberRecyclerAdapter(listener, activity, members, mGroup.getOwner());
                     recyclerView.setAdapter(mAdapter);
                     recyclerView.addItemDecoration(new DividerDecoration(activity));
                 }

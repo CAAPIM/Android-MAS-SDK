@@ -3,33 +3,35 @@
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
+ *
  */
 
-package com.ca.mas.masusermanagementsample.activity;
+package com.ca.mas.masmessagingsample.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.foundation.MASUser;
-import com.ca.mas.masusermanagementsample.R;
-import com.ca.mas.masusermanagementsample.adapter.DividerDecoration;
-import com.ca.mas.masusermanagementsample.adapter.GroupRecyclerAdapter;
-import com.ca.mas.masusermanagementsample.mas.GroupsManager;
+import com.ca.mas.masmessagingsample.R;
+import com.ca.mas.masmessagingsample.adapter.DividerDecoration;
+import com.ca.mas.masmessagingsample.adapter.GroupRecyclerAdapter;
+import com.ca.mas.masmessagingsample.mas.DataManager;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GroupListActivity extends AppCompatActivity {
+public class GroupListActivity extends BaseActivity {
 
     private final String TAG = GroupListActivity.class.getSimpleName();
     private Context mContext;
@@ -38,7 +40,7 @@ public class GroupListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_list);
+        setContentView(R.layout.activity_list);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -57,6 +59,18 @@ public class GroupListActivity extends AppCompatActivity {
             @Override
             public void onSuccess(MASUser user) {
                 MASGroup.newInstance().getAllGroups(user.getId(), getGroupsCallback());
+
+                user.startListeningToMyMessages(new MASCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void result) {
+                        Log.i(TAG, "");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, e.toString());
+                    }
+                });
             }
 
             @Override
@@ -77,7 +91,7 @@ public class GroupListActivity extends AppCompatActivity {
                         groupsMap.put(id, group);
                     }
 
-                    GroupsManager.INSTANCE.setGroups(groupsMap);
+                    DataManager.INSTANCE.setGroups(groupsMap);
                 }
 
                 runOnUiThread(new Runnable() {
@@ -103,6 +117,18 @@ public class GroupListActivity extends AppCompatActivity {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.search_main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.main_inbox:
+                Intent intent = new Intent(this, MessageListActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

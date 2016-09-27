@@ -3,33 +3,37 @@
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
+ *
  */
-
-package com.ca.mas.masusermanagementsample.activity;
+package com.ca.mas.masmessagingsample.activity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.ca.mas.masusermanagementsample.R;
+import com.ca.mas.masmessagingsample.R;
+import com.ca.mas.masmessagingsample.adapter.MemberRecyclerAdapter;
 
-public class GroupDetailActivity extends AppCompatActivity {
-
+public class GroupDetailActivity extends BaseActivity implements MemberRecyclerAdapter.GroupDetailMessageListener {
     private Context mContext;
     private String mGroupName;
+    private CoordinatorLayout mContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_detail);
         mContext = this;
+
+        mContainer = (CoordinatorLayout) findViewById(R.id.container);
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
 
@@ -89,4 +93,10 @@ public class GroupDetailActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void showMessage(String text) {
+        Snackbar.make(mContainer, text, Snackbar.LENGTH_SHORT).show();
+    }
+
 }

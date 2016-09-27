@@ -227,7 +227,13 @@ public abstract class MASMessage implements MASPayload {
                         contentEnc = MessagingConsts.DEFAULT_BASE64_ENCODING;
                     }
                     jobj.put(ConnectaConsts.KEY_CONTENT_ENCODING, contentEnc);
-                    jobj.put(ConnectaConsts.KEY_PAYLOAD, new String(Base64.encode(getPayload(), Base64.NO_WRAP)));
+
+                    byte[] payload = getPayload();
+                    if (payload != null && payload.length > 0) {
+                        jobj.put(ConnectaConsts.KEY_PAYLOAD, new String(Base64.encode(payload, Base64.NO_WRAP)));
+                    } else {
+                        throw new MASException("Parameter cannot be empty or null.");
+                    }
                 } catch (JSONException je) {
                     throw new MASException(je);
                 }

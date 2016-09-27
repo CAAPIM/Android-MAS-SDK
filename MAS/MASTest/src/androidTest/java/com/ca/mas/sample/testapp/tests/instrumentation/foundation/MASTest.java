@@ -11,6 +11,7 @@ package com.ca.mas.sample.testapp.tests.instrumentation.foundation;
 
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASRequestBody;
 import com.ca.mas.foundation.MASResponse;
@@ -54,6 +55,37 @@ public class MASTest extends MASIntegrationBaseTest {
 
         assertTrue(result[0]);
     }
+
+    @Test
+    public void testAccessUserInfo() throws Exception {
+
+        String userinfoEndPoint = MASConfiguration.getCurrentConfiguration().getEndpointPath("mas.url.user_info");
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(userinfoEndPoint))
+                .build();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+
+            @Override
+            public void onSuccess(MASResponse<JSONObject> response) {
+                if (HttpURLConnection.HTTP_OK == response.getResponseCode()) {
+                    JSONObject j = response.getBody().getContent();
+                    result[0] = true;
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                latch.countDown();
+            }
+        });
+        await(latch);
+
+        assertTrue(result[0]);
+    }
+
+
 
     @Test
     public void testInvokeWithPostJSON() throws Exception {

@@ -3,9 +3,10 @@
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
+ *
  */
 
-package com.ca.mas.masusermanagementsample.activity;
+package com.ca.mas.masmessagingsample.activity;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -14,7 +15,6 @@ import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -30,14 +30,14 @@ import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.group.MASMember;
 import com.ca.mas.identity.user.UserAttributes;
 import com.ca.mas.identity.util.IdentityConsts;
-import com.ca.mas.masusermanagementsample.R;
-import com.ca.mas.masusermanagementsample.adapter.DividerDecoration;
-import com.ca.mas.masusermanagementsample.adapter.UserRecyclerAdapter;
-import com.ca.mas.masusermanagementsample.mas.GroupsManager;
+import com.ca.mas.masmessagingsample.R;
+import com.ca.mas.masmessagingsample.adapter.DividerDecoration;
+import com.ca.mas.masmessagingsample.adapter.UserRecyclerAdapter;
+import com.ca.mas.masmessagingsample.mas.DataManager;
 
 import java.util.List;
 
-public class AddUsersActivity extends AppCompatActivity {
+public class AddUsersActivity extends BaseActivity {
     private static final String TAG = AddUsersActivity.class.getSimpleName();
     private TextInputEditText mSearchView;
     private RecyclerView mRecyclerView;
@@ -130,7 +130,7 @@ public class AddUsersActivity extends AppCompatActivity {
     }
 
     private void save() {
-        MASGroup group = GroupsManager.INSTANCE.getGroupById(mGroupName);
+        MASGroup group = DataManager.INSTANCE.getGroupById(mGroupName);
         if (group != null) {
             if (mResultList != null && mResultList.size() > 0) {
                 for (MASUser user : mResultList) {

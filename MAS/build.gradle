@@ -1,4 +1,3 @@
-//noinspection GradleCompatible
 /*
  * Copyright (c) 2016 CA. All rights reserved.
  *
@@ -7,6 +6,7 @@
  *
  */
 
+//noinspection GradleCompatible
 // In order to build messaging using gradle 2 environment variables must be exportedd
 // 1. prefix - this is the aar prefix, for example 'android'
 // 2. versionName - this is the v.r.m formatted version name as used in the AndroidManifest.xml.
@@ -22,12 +22,12 @@ repositories {
 }
 android {
     compileSdkVersion 24
-    buildToolsVersion '24.0.1'
+    buildToolsVersion '24.0.2'
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 24
-        versionCode 13
-        versionName "1.3"
+        versionCode 12
+        versionName "1.2"
     }
 
     lintOptions {
@@ -64,7 +64,7 @@ task javadoc(type: Javadoc) {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:24.1.1'
+    compile 'com.android.support:appcompat-v7:24.2.1'
     compile project(':MAG')
 }
 

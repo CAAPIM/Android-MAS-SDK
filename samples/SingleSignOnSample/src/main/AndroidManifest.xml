@@ -55,7 +55,7 @@
 
         <!-- OTP Flow BEGIN-->
         <activity
-            android:name=".otp.activity.OtpDisplayDataActivity"
+            android:name="com.ca.mas.sample.singlesignonsample.otp.activity.OtpDisplayDataActivity"
             android:exported="false"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"

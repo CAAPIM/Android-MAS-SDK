@@ -3,8 +3,9 @@
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
+ *
  */
-package com.ca.mas.masusermanagementsample.adapter;
+package com.ca.mas.masmessagingsample.adapter;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -13,7 +14,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.ca.mas.masusermanagementsample.R;
+import com.ca.mas.masmessagingsample.R;
 
 public class DividerDecoration extends RecyclerView.ItemDecoration {
     private Drawable mDivider;

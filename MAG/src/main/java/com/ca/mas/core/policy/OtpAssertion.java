@@ -49,7 +49,11 @@ class OtpAssertion implements MssoAssertion {
     public void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
 
         String otpAuthUrl = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.AUTHENTICATE_OTP_PATH);
-        if (otpAuthUrl != null && otpAuthUrl.equals(request.getRequest().getURL().toString())) {
+        if (otpAuthUrl != null &&
+                request != null && request.getRequest() != null && request.getRequest().getURL() != null &&
+                request.getRequest().getURL().getPath() != null &&
+                request.getRequest().getURL().getPath().endsWith(otpAuthUrl)
+                ) {
             List<String> selectedOtpChannels = (request.getRequest().getHeaders().get(OtpConstants.X_OTP_CHANNEL));
             String selectedOtpChannelsStr = OtpUtil.convertListToCommaSeparatedString(selectedOtpChannels);
             mssoContext.setOtpSelectedDeliveryChannels(selectedOtpChannelsStr);

@@ -76,6 +76,10 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public byte[] encrypt(byte[] data) {
+        if( data == null ){
+            return null;
+        }
+
         byte[] encryptedData;
         try {
             SecretKey secretKey = ksp.getKey(KEY_ALIAS);

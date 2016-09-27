@@ -25,23 +25,14 @@ public class SecureAccountManagerStoreDataSource<K, V> extends AccountManagerSto
 
     @Override
     public void put(K key, V value) {
-        put(key, value, null);
+        byte[] encryptedValue = encryptionProvider.encrypt( getValueBytes(value) );
+        super.put(key, (V) encryptedValue);
     }
 
     @Override
     public void put(K key, V value, DataSourceCallback callback) {
-        byte[] valueBytes = getValueBytes(value);
-
-        if (valueBytes != null) {
-            // Encrypt
-            valueBytes = encryptionProvider.encrypt(valueBytes);
-        }
-
-        if( callback == null ){
-            super.put(key, (V) valueBytes);
-        } else {
-            super.put(key, (V) valueBytes, callback);
-        }
+        byte[] encryptedValue = encryptionProvider.encrypt( getValueBytes(value) );
+        super.put(key, (V) encryptedValue, callback);
     }
 
     @Override
@@ -61,14 +52,12 @@ public class SecureAccountManagerStoreDataSource<K, V> extends AccountManagerSto
      * @return byte array of given object if object is instance of byte[] or String, null otherwise.
      */
     private byte[] getValueBytes(V value) {
-        byte[] bytes;
+        byte[] bytes = null;
 
         if (value instanceof byte[]) {
             bytes = (byte[]) value;
         } else if (value instanceof String) {
             bytes = ((String) value).getBytes();
-        } else {
-            bytes = null;
         }
 
         return bytes;

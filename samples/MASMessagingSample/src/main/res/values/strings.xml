@@ -3,10 +3,14 @@
   ~
   ~ This software may be modified and distributed under the terms
   ~ of the MIT license.  See the LICENSE file for details.
+  ~
   -->
 
 <resources>
     <string name="app_name">Group Management</string>
     <string name="title_group_detail">Group Details</string>
     <string name="title_activity_search">Add Users</string>
+    <string name="title_inbox">Inbox</string>
+    <string name="title_send_message">Send a message</string>
+    <string name="button_send">Send</string>
 </resources>

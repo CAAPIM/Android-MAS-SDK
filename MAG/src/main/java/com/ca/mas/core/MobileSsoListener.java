@@ -5,6 +5,7 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
+
 package com.ca.mas.core;
 
 import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;

@@ -142,19 +142,6 @@ public class MainActivity extends AppCompatActivity {
                         .header("action", "Buy").build();
 
 
-               MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
-
-                   @Override
-                   public void onSuccess(MASResponse<JSONObject> result) {
-
-                   }
-
-                   @Override
-                   public void onError(Throwable e) {
-
-                   }
-               }) ;
-
                 MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
 
                     @Override
@@ -173,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Throwable e) {
-
+                        status.setText(e.getMessage());
                     }
                 });
             }

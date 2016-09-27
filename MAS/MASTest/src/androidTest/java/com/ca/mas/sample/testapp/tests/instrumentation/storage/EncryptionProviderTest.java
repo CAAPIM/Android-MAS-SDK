@@ -9,19 +9,17 @@
 package com.ca.mas.sample.testapp.tests.instrumentation.storage;
 
 import android.annotation.TargetApi;
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyProperties;
 import android.support.test.InstrumentationRegistry;
-import android.test.ApplicationTestCase;
 import android.util.Base64;
 import android.util.Log;
 
-import com.ca.mas.storage.MASEncryptionProvider;
 import com.ca.mas.storage.DefaultEncryptionProvider;
+import com.ca.mas.storage.MASEncryptionProvider;
 
 import org.junit.After;
 import org.junit.Test;
@@ -67,7 +65,7 @@ public class EncryptionProviderTest {
     public static final String PREFS_NAME = "SECRET_PREFS";
 
     @After
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         Log.i(TAG,"inside tearDown");
         KeyStore ks=KeyStore.getInstance("AndroidKeyStore");
         ks.load(null);

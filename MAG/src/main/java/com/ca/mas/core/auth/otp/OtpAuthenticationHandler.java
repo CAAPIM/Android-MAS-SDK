@@ -5,6 +5,7 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
+
 package com.ca.mas.core.auth.otp;
 
 import android.content.Context;
@@ -69,16 +70,15 @@ public class OtpAuthenticationHandler implements Parcelable {
      */
     public void deliver(String channel, MAGResultReceiver<Void> callback) {
         MobileSso mobileSso = MobileSsoFactory.getInstance();
+
         //MAPI-1032 : Android SDK : Fix for prefixed server otp protected resource
         String otpAuthUrl = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.AUTHENTICATE_OTP_PATH);
         URI otpDeliveryUrl = mobileSso.getURI(/*mobileSso.getPrefix() +*/otpAuthUrl
                 );
-
         MAGRequest request = new MAGRequest.MAGRequestBuilder(otpDeliveryUrl)
                 .header(OtpConstants.X_OTP_CHANNEL, channel)
                 .header(OtpConstants.OTP_REQUESTID, Long.toString(requestId))
                 .build();
-        //MssoContext.setUserSelectedOtpChannels(channel);
         mobileSso.processRequest(request, callback);
 
     }

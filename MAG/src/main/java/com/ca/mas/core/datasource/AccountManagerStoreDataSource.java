@@ -120,10 +120,7 @@ public class AccountManagerStoreDataSource<K, V> implements DataSource<K, V> {
                     throw exception;
                 }
             } else {
-                if (converter != null) {
-                    return (V) converter.convert(key, (byte[]) result.getData());
-                }
-                return (V) result.getData();
+                return getData(key, result);
             }
         } catch (StorageException e) {
             throw new DataSourceException(e);
@@ -140,11 +137,8 @@ public class AccountManagerStoreDataSource<K, V> implements DataSource<K, V> {
                     if (result.getStatus() == StorageResult.StorageOperationStatus.FAILURE) {
                         callback.onError(new DataSourceError(((StorageException) result.getData())));
                     } else {
-                        if (converter != null) {
-                            callback.onSuccess(converter.convert(key, (byte[]) result.getData()));
-                        } else {
-                            callback.onSuccess(result.getData());
-                        }
+                        V data = getData(key, result);
+                        callback.onSuccess(data);
                     }
                 }
             });
@@ -255,6 +249,13 @@ public class AccountManagerStoreDataSource<K, V> implements DataSource<K, V> {
     @Override
     public void unlock() {
         //nothing to do
+    }
+
+    protected V getData(K key, StorageResult result) {
+        if (converter != null) {
+            return (V) converter.convert(key, (byte[]) result.getData());
+        }
+        return (V) result.getData();
     }
 
     public AccountManagerStorage getStorage() {

@@ -3,7 +3,7 @@ package com.ca.mas.core.datasource;
 import android.content.Context;
 
 import com.ca.mas.core.security.DefaultEncryptionProvider;
-import com.ca.mas.core.security.SecureKeyStoreKeyStorageProvider;
+import com.ca.mas.core.security.AccountManagerKeyStorageProvider;
 import com.ca.mas.core.storage.StorageException;
 import com.ca.mas.core.storage.StorageResult;
 import com.ca.mas.core.storage.StorageResultReceiver;
@@ -20,85 +20,39 @@ public class SecureAccountManagerStoreDataSource<K, V> extends AccountManagerSto
 
     public SecureAccountManagerStoreDataSource(Context context, JSONObject param, DataConverter converter) {
         super(context, param, converter);
-        encryptionProvider = new DefaultEncryptionProvider(context, new SecureKeyStoreKeyStorageProvider(context));
+        encryptionProvider = new DefaultEncryptionProvider(context, new AccountManagerKeyStorageProvider(context));
     }
 
     @Override
     public void put(K key, V value) {
-        byte[] valueBytes = getValueBytes(value);
-
-        if (valueBytes == null) {
-            // No need to encrypt
-            super.put(key, value);
-        } else {
-            // Encrypt
-            byte[] encryptedValue = encryptionProvider.encrypt(valueBytes);
-            super.put(key, (V) encryptedValue);
-        }
+        put(key, value, null);
     }
 
     @Override
     public void put(K key, V value, DataSourceCallback callback) {
         byte[] valueBytes = getValueBytes(value);
 
-        if (valueBytes == null) {
-            // No need to encrypt
-            super.put(key, value, callback);
-        } else {
+        if (valueBytes != null) {
             // Encrypt
-            byte[] encryptedValue = encryptionProvider.encrypt(valueBytes);
-            super.put(key, (V) encryptedValue, callback);
+            valueBytes = encryptionProvider.encrypt(valueBytes);
+        }
+
+        if( callback == null ){
+            super.put(key, (V) valueBytes);
+        } else {
+            super.put(key, (V) valueBytes, callback);
         }
     }
 
     @Override
-    public V get(K key) {
-        try {
-            StorageResult result = null;
-            result = getStorage().readData((String) key);
-            if (result.getStatus() == StorageResult.StorageOperationStatus.FAILURE) {
-                StorageException exception = (StorageException) result.getData();
-                if (exception.getCode() == StorageException.READ_DATA_NOT_FOUND) {
-                    return null;
-                } else {
-                    throw exception;
-                }
-            } else {
-                V encryptedValue = (V) result.getData();
-                byte[] decryptedValue = encryptionProvider.decrypt( (byte[]) encryptedValue );
-                if( getConverter() != null ){
-                    V converted = (V) getConverter().convert(key, decryptedValue);
-                    return converted;
-                } else {
-                    return (V) decryptedValue;
-                }
-            }
-        } catch (StorageException e) {
-            throw new DataSourceException(e);
-        }
-    }
-
-    @Override
-    public void get(final K key, final DataSourceCallback callback) {
-        try {
-            getStorage().readData((String) key, new StorageResultReceiver(callback.getHandler()) {
-                @Override
-                public void onReceiveResult(StorageResult result) {
-                    if (result.getStatus() == StorageResult.StorageOperationStatus.FAILURE) {
-                        callback.onError(new DataSourceError(((StorageException) result.getData())));
-                    } else {
-                        byte[] encryptedData = (byte[]) result.getData();
-                        byte[] decryptedData = encryptionProvider.decrypt(encryptedData);
-                        if (getConverter() != null) {
-                            callback.onSuccess(getConverter().convert(key, decryptedData));
-                        } else {
-                            callback.onSuccess(decryptedData);
-                        }
-                    }
-                }
-            });
-        } catch (StorageException e) {
-            throw new DataSourceException(e);
+    protected V getData(K key, StorageResult result) {
+        V encryptedValue = (V) result.getData();
+        byte[] decryptedValue = encryptionProvider.decrypt( (byte[]) encryptedValue );
+        if( getConverter() != null ){
+            V converted = (V) getConverter().convert(key, decryptedValue);
+            return converted;
+        } else {
+            return (V) decryptedValue;
         }
     }
 

@@ -10,6 +10,7 @@ package com.ca.mas.core.test;
 
 import com.ca.mas.core.test.datasource.AccountManagerStoreDataSourceTest;
 import com.ca.mas.core.test.datasource.KeystoreDataSourceTest;
+import com.ca.mas.core.test.datasource.SecureAccountManagerStoreDataSourceTest;
 import com.ca.mas.core.test.dynamicConfig.DynamicConfigTest;
 import com.ca.mas.core.test.error.GeoFencingTest;
 import com.ca.mas.core.test.error.JWTValidationTest;
@@ -39,6 +40,7 @@ import org.junit.runners.Suite;
         AuthenticationTest.class,
         KeystoreDataSourceTest.class,
         AccountManagerStoreDataSourceTest.class,
+        SecureAccountManagerStoreDataSourceTest.class,
         JWTValidationTest.class,
         MAGEndpointTest.class,
         OAuthEndpointTest.class,

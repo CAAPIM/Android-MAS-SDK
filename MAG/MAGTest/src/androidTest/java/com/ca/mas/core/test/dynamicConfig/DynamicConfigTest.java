@@ -29,6 +29,9 @@ import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.service.AuthenticationProvider;
+import com.ca.mas.core.store.ClientCredentialContainer;
+import com.ca.mas.core.store.OAuthTokenContainer;
+import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.test.BaseTest;
 
 import org.json.JSONException;
@@ -41,6 +44,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
@@ -303,6 +307,57 @@ public class DynamicConfigTest extends BaseTest {
                 getConfig(useMockServer(), "msso_config_dynamic_test.json"));
 
         countDownLatch.await();
+
+    }
+
+    @Test
+    public void testClientUpdate() throws Exception {
+        //Connect to Gateway1
+        mobileSso = MobileSsoFactory.getInstance(InstrumentationRegistry.getInstrumentation().getTargetContext(),
+                getConfig(useMockServer(), "test_msso_config.json"));
+        mobileSso.setMobileSsoListener(new MobileSsoListener() {
+            @Override
+            public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
+
+                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
+                    @Override
+                    public void onSuccess(MAGResponse response) {
+                    }
+
+                    @Override
+                    public void onError(MAGError error) {
+                    }
+
+                    @Override
+                    public void onRequestCancelled() {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler) {
+
+            }
+        });
+        MAGRequest request = new MAGRequest.MAGRequestBuilder(getURI("/protected/resource/products?operation=listProducts")).build();
+        processRequest(request);
+
+        //Client updated
+        mobileSso = MobileSsoFactory.getInstance(InstrumentationRegistry.getInstrumentation().getTargetContext(),
+                getConfig(useMockServer(), "test_msso_config2.json"));
+
+        StorageProvider sp = new StorageProvider(InstrumentationRegistry.getInstrumentation().getTargetContext(),
+                ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider());
+        ClientCredentialContainer cc = sp.createClientCredentialContainer();
+        assertNull(cc.getMasterClientId());
+        assertNull(cc.getClientId());
+        assertNull(cc.getClientSecret());
+
+        OAuthTokenContainer oAuthTokenContainer = sp.createOAuthTokenContainer();
+        assertNull(oAuthTokenContainer.getAccessToken());
+        assertNull(oAuthTokenContainer.getRefreshToken());
+        assertNull(oAuthTokenContainer.getGrantedScope());
 
     }
 

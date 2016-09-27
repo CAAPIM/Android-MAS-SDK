@@ -9,12 +9,17 @@
 package com.ca.mas.core.conf;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.ca.mas.core.MobileSsoListener;
+import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.oauth.GrantProvider;
+import com.ca.mas.core.store.ClientCredentialContainer;
+import com.ca.mas.core.store.OAuthTokenContainer;
+import com.ca.mas.core.store.StorageProvider;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,7 +50,10 @@ public class ConfigurationManager {
 
     private static ConfigurationManager instance = new ConfigurationManager();
 
+    private List<ConfigurationListener> configurationListeners = new ArrayList<>();
+
     private ConfigurationManager() {
+        configurationListeners.add(new ClientChangeListener());
     }
 
     public static ConfigurationManager getInstance() {
@@ -140,6 +148,9 @@ public class ConfigurationManager {
     public void activate(JSONObject jsonObject) {
         try {
             this.connectedGatewayConfigurationProvider = create(jsonObject);
+            for (ConfigurationListener c: configurationListeners) {
+                c.onUpdated(context, connectedGatewayConfigurationProvider);
+            }
         } catch (JSONException e) {
             throw new MAGRuntimeException(MAGErrorCode.FAILED_JSON_VALIDATION, e);
         }
@@ -357,6 +368,42 @@ public class ConfigurationManager {
 
     public void setDefaultGrantProvider(GrantProvider defaultGrantProvider) {
         this.defaultGrantProvider = defaultGrantProvider;
+    }
+
+    /**
+     * For any client id change, we consider there is an update of the client,
+     * clean up the stored client id, client secret, and tokens.
+     */
+    private static class ClientChangeListener implements ConfigurationListener {
+
+        private static final String TAG = ClientChangeListener.class.getCanonicalName();
+
+        @Override
+        public void onUpdated(Context context, ConfigurationProvider provider) {
+            StorageProvider sp = new StorageProvider(context, provider);
+            ClientCredentialContainer container = sp.createClientCredentialContainer();
+            try {
+                String masterClientId = container.getMasterClientId();
+                //The masterClientId may be null due to SDK upgrade.
+                if (masterClientId == null || !masterClientId.equals(provider.getClientId())) {
+                    container.clear();
+                    OAuthTokenContainer oAuthTokenContainer = sp.createOAuthTokenContainer();
+                    oAuthTokenContainer.clear();
+                    ;
+                }
+            } catch (DataSourceException e) {
+                //Unable to access the datasource, ignore.
+                Log.w(TAG, e.toString(), e);
+
+            }
+        }
+    }
+
+    /**
+     * Listener to listen for configuration update
+     */
+    private interface ConfigurationListener {
+        void onUpdated(Context context, ConfigurationProvider provider);
     }
 
 }

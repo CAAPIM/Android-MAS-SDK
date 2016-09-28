@@ -5,12 +5,10 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.foundation;
 
 import android.content.AsyncTaskLoader;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -18,11 +16,10 @@ import android.util.Log;
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
-import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.foundation.util.FoundationUtil;
@@ -36,6 +33,7 @@ import com.ca.mas.identity.user.MASPhone;
 import com.ca.mas.identity.user.MASPhoto;
 import com.ca.mas.identity.user.MASUserIdentity;
 import com.ca.mas.identity.user.ScimUser;
+import com.ca.mas.identity.user.ScimUserRepository;
 import com.ca.mas.identity.user.User;
 import com.ca.mas.identity.user.UserAttributes;
 import com.ca.mas.identity.user.UserIdentityManager;
@@ -45,12 +43,13 @@ import com.ca.mas.messaging.MASMessenger;
 import com.ca.mas.messaging.topic.MASTopic;
 import com.ca.mas.messaging.topic.MASTopicBuilder;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * <p>The <b>MASUser</b> interface is a core interface used to represent a user in the system,
@@ -62,6 +61,17 @@ import java.util.List;
  * "urn:ietf:params:scim:schemas:core:2.0:User". See the <a href="https://tools.ietf.org/html/rfc7643#section-8.2">Full User Representation</a> for the complete format.</p>
  */
 public abstract class MASUser implements MASTransformable, MASMessenger, MASUserIdentity, ScimUser {
+
+    private static List<UserRepository> userRepositories = new ArrayList<>();
+
+    static {
+        //For Social Login, the scim endpoint should failed and fallback to /userinfo
+        //Try to get the scim profile first then the userinfo, order in the list is important
+        userRepositories = new ArrayList<>();
+        userRepositories.add(new ScimUserRepository());
+        userRepositories.add(new UserInfoRepository());
+    }
+
     protected static final String TAG = MASUser.class.getSimpleName();
     private static MASUser current;
 
@@ -90,30 +100,18 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
      * in {@link MASUser#getCurrentUser()} being populated from the endpoint.
      */
     public static void login(final MASCallback<MASUser> callback) {
-        final MobileSso mobileSso = FoundationUtil.getMobileSso();
-        String s = FoundationUtil.getUserInfo().toString();
 
-        MAGRequest magRequest = new MAGRequest.MAGRequestBuilder(Uri.parse(s))
-                .responseBody(MAGResponseBody.jsonBody())
-                .password()
-                .build();
-
-        mobileSso.processRequest(magRequest, new MASResultReceiver<JSONObject>(Callback.getHandler(callback)) {
+        final MASUser user = createMASUser();
+        user.requestUserInfo(new MASCallback<Void>() {
             @Override
-            public void onSuccess(final MAGResponse<JSONObject> response) {
-                try {
-                    current = createMASUser();
-                    current.populate(response.getBody().getContent());
-                    Callback.onSuccess(callback, MASUser.getCurrentUser());
-                } catch (JSONException je) {
-                    onError(new MAGError(je));
-                }
+            public void onSuccess(Void result) {
+                current = user;
+                Callback.onSuccess(callback, current);
             }
 
             @Override
-            public void onError(MAGError error) {
-                current = null;
-                Callback.onError(callback, error);
+            public void onError(Throwable e) {
+                Callback.onError(callback, e);
             }
         });
     }
@@ -127,8 +125,8 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
         if (current == null) {
             if (MobileSsoFactory.getInstance().isLogin()) {
                 current = createMASUser();
-                // Retrieve the user profile
-                MASUser.login(null);
+                //Update the user profile
+                current.requestUserInfo(null);
             }
         } else {
             if (!MobileSsoFactory.getInstance().isLogin()) {
@@ -141,14 +139,12 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
     }
 
     private static MASUser createMASUser() {
+
         return new MASUser() {
-            private String mSub;
-            private String mPrefUserName;
-            private String mPicture;
-            private String mEmail;
-            private String mPhoneNumber;
-            private MASAddress address;
-            private ScimUser scimUser = new User();
+
+            private TokenManager tokenManager = new StorageProvider(MAS.getContext()).createTokenManager();
+
+            private ScimUser scimUser = getLocalUserProfile();
 
             @Override
             public boolean isAuthenticated() {
@@ -162,9 +158,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
             @Override
             public String getUserName() {
-                if (scimUser.getUserName() == null) {
-                    return mPrefUserName;
-                }
                 return scimUser.getUserName();
             }
 
@@ -215,45 +208,17 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
             @Override
             public List<MASAddress> getAddressList() {
-                if (scimUser == null) {
-                    List<MASAddress> list = new ArrayList<>();
-                    list.add(address);
-                    return list;
-                } else {
-                    return scimUser.getAddressList();
-                }
+                return scimUser.getAddressList();
             }
 
             @Override
             public List<MASEmail> getEmailList() {
-                if (scimUser == null) {
-                    List<MASEmail> list = new ArrayList<>();
-                    list.add(new MASEmail() {
-                        @Override
-                        public String getValue() {
-                            return mEmail;
-                        }
-                    });
-                    return list;
-                } else {
-                    return scimUser.getEmailList();
-                }
+                return scimUser.getEmailList();
             }
 
             @Override
             public List<MASPhone> getPhoneList() {
-                if (scimUser.getPhoneList() == null) {
-                    List<MASPhone> phoneList = new ArrayList<>();
-                    phoneList.add(new MASPhone() {
-                        @Override
-                        public String getValue() {
-                            return mPhoneNumber;
-                        }
-                    });
-                    return phoneList;
-                } else {
-                    return scimUser.getPhoneList();
-                }
+                return scimUser.getPhoneList();
             }
 
             @Override
@@ -263,18 +228,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
             @Override
             public List<MASPhoto> getPhotoList() {
-                if (scimUser.getPhotoList() == null) {
-                    List<MASPhoto> phoneList = new ArrayList<>();
-                    phoneList.add(new MASPhoto() {
-                        @Override
-                        public String getValue() {
-                            return mPicture;
-                        }
-                    });
-                    return phoneList;
-                } else {
-                    return scimUser.getPhotoList();
-                }
+                return scimUser.getPhotoList();
             }
 
             @Override
@@ -293,10 +247,12 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
             }
 
             @Override
+            public JSONObject getSource() {
+                return scimUser.getSource();
+            }
+
+            @Override
             public String getId() {
-                if (scimUser.getId() == null) {
-                    return mPrefUserName;
-                }
                 return scimUser.getId();
             }
 
@@ -317,45 +273,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
             @Override
             public void populate(@NonNull JSONObject jsonObject) throws JSONException {
-                if (jsonObject.has(IdentityConsts.KEY_MY_SUB)) {
-                    mSub = jsonObject.optString(IdentityConsts.KEY_MY_SUB, IdentityConsts.EMPTY);
-                    mPrefUserName = jsonObject.optString(IdentityConsts.KEY_MY_PREF_UNAME, IdentityConsts.EMPTY);
-                    mPicture = jsonObject.optString(IdentityConsts.KEY_MY_PICTURE, IdentityConsts.EMPTY);
-                    mEmail = jsonObject.optString(IdentityConsts.KEY_MY_EMAIL, IdentityConsts.EMPTY);
-                    mPhoneNumber = jsonObject.optString(IdentityConsts.KEY_MY_PHONE, IdentityConsts.EMPTY);
-
-                    JSONObject addrObj = jsonObject.optJSONObject(IdentityConsts.KEY_MY_ADDRESS);
-                    if (addrObj != null) {
-                        String streetAddr = addrObj.optString(IdentityConsts.KEY_MY_STREET_ADDR, IdentityConsts.EMPTY);
-                        String locality = addrObj.optString(IdentityConsts.KEY_MY_LOCALITY, IdentityConsts.EMPTY);
-                        String region = addrObj.optString(IdentityConsts.KEY_MY_REGION, IdentityConsts.EMPTY);
-                        String postalCode = addrObj.optString(IdentityConsts.KEY_MY_POSTAL_CODE, IdentityConsts.EMPTY);
-                        String country = addrObj.optString(IdentityConsts.KEY_MY_COUNTRY, IdentityConsts.EMPTY);
-                        address = new MASAddress(streetAddr, locality, region, country, postalCode);
-                    }
-
-                    // Optional when populated
-                    UserIdentityManager.getInstance().getUserById(mPrefUserName, new MASCallback<MASUser>() {
-                        @Override
-                        public void onSuccess(MASUser object) {
-                            scimUser = object;
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            Log.w(TAG, "SCIM Module is not installed on Server, please check your SCIM setting.");
-                        }
-                    });
-                } else {
-                    if (jsonObject.has(IdentityConsts.KEY_RESOURCES)) {
-                        JSONArray jsonArray = jsonObject.getJSONArray(IdentityConsts.KEY_RESOURCES);
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            // Extract the object from the JSONArray
-                            JSONObject arrElem = jsonArray.getJSONObject(i);
-                            scimUser.populate(arrElem);
-                        }
-                    }
-                }
+                throw new UnsupportedOperationException();
             }
 
             @Override
@@ -531,17 +449,66 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
             public Bitmap getThumbnailImage() {
                 return UserIdentityManager.getInstance().getUserThumbnailImage(this);
             }
+
+            public void requestUserInfo(MASCallback<Void> callback) {
+                LinkedList<UserRepository> repositories = new LinkedList<>(userRepositories);
+                fetch(repositories, callback, null);
+            }
+
+            private void fetch(final LinkedList<UserRepository> repositories, final MASCallback<Void> callback, Throwable e) {
+                UserRepository f;
+                try {
+                    f = repositories.pop();
+                } catch (NoSuchElementException nse) {
+                    Callback.onError(callback, e);
+                    return;
+                }
+                f.findByUsername(getUserName(), new MASCallback<ScimUser>() {
+                    @Override
+                    public void onSuccess(ScimUser result) {
+                        scimUser = result;
+
+                        try {
+                            JSONObject source = scimUser.getSource();
+                            source.remove(IdentityConsts.KEY_PASSWORD);
+                            tokenManager.saveUserProfile(source.toString());
+                        } catch (Exception e) {
+                            Log.w(TAG, "Unable to persist user profile to local store.", e);
+                        }
+                        Callback.onSuccess(callback, null);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        fetch(repositories, callback, e);
+                    }
+                });
+            }
+
+            private ScimUser getLocalUserProfile() {
+                User user = new User();
+                try {
+                    String userProfile = tokenManager.getUserProfile();
+                    if (userProfile != null) {
+                        user.populate(new JSONObject(userProfile));
+                    }
+                } catch (Exception e) {
+                    Log.w(TAG, "Failed to populate MASUser from local store", e);
+                }
+                return user;
+            }
         };
     }
 
-    /**
-     * <p>Logs off an already authenticated user via an asynchronous request.</p>
-     * <p/>
-     * This will invoke {@link Callback#onSuccess(MASCallback, Object)} upon a successful result.
-     *
-     * @param callback The Callback that receives the results. On a successful completion, the user
-     *                 available via {@link MASUser#getCurrentUser()} will be updated with the new information.
-     */
+        /**
+         * <p>Logs off an already authenticated user via an asynchronous request.</p>
+         * <p/>
+         * This will invoke {@link Callback#onSuccess(MASCallback, Object)} upon a successful result.
+         *
+         * @param callback The Callback that receives the results. On a successful completion, the user
+         *                 available via {@link MASUser#getCurrentUser()} will be updated with the new information.
+         */
+
     public abstract void logout(final MASCallback<Void> callback);
 
     /**
@@ -553,4 +520,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
      * Determines if this user instance is the current authenticated user.
      */
     public abstract boolean isCurrentUser();
+
+    public abstract void requestUserInfo(MASCallback<Void> callback);
 }

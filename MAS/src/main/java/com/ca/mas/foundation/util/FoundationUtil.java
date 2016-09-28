@@ -9,18 +9,14 @@
 package com.ca.mas.foundation.util;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.NonNull;
 
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.core.MobileSso;
-import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.conf.ConfigurationProvider;
-import com.ca.mas.foundation.MAS;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,14 +35,13 @@ public class FoundationUtil {
      *
      * @return URI - Of the form [host]/openid/connect/v1/userinfo.
      */
-    public static URI getUserInfo() {
-        MobileSso mobileSso = FoundationUtil.getMobileSso();
+    public static Uri getUserInfo() {
         String userInfo = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider()
                 .getProperty(FoundationConsts.KEY_CONFIG_USER_INFO);
         if (userInfo == null) {
             userInfo = "/openid/connect/v1/userinfo";
         }
-        return mobileSso.getURI(userInfo);
+        return new Uri.Builder().path(userInfo).build();
     }
 
     /**

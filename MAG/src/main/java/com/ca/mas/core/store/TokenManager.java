@@ -22,10 +22,10 @@ public interface TokenManager extends TokenProvider {
     /**
      * Save the specified client username to the persistent store.
      *
-     * @param username the username to save.  Required.
+     * @param userProfile the user profile to save.  Required.
      * @throws TokenStoreException if there is a problem saving to the persistent store
      */
-    void saveUsername(String username) throws TokenStoreException;
+    void saveUserProfile(String userProfile) throws TokenStoreException;
 
     /**
      * Save the specified server-assigned device identifier string.
@@ -75,6 +75,14 @@ public interface TokenManager extends TokenProvider {
      * @throws TokenStoreException if there is a problem deleting from the persistent store
      */
     void deleteIdToken() throws TokenStoreException;
+
+    /**
+     * Delete any saved user profile from the persistent store.
+     *
+     * @throws TokenStoreException if there is a problem deleting from the persistent store
+     */
+    void deleteUserProfile() throws TokenStoreException;
+
 
     /**
      * Delete shared objects from the persistent store which associate withe the current connected gateway.

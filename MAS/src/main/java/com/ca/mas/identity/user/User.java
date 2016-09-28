@@ -16,14 +16,12 @@ import com.ca.mas.foundation.MASTransformable;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.util.FoundationConsts;
 import com.ca.mas.identity.util.IdentityConsts;
-import com.ca.mas.identity.util.IdentityUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -49,6 +47,7 @@ public class User implements ScimUser {
     private String mPassword;
     private MASMeta mMeta;
     private long mCardinality;
+    private JSONObject mSource;
 
     private final List<MASAddress> mAddressList;
     private final List<MASEmail> mEmailList;
@@ -72,7 +71,79 @@ public class User implements ScimUser {
     }
 
     @Override
-    public void populate(@NonNull JSONObject jsonObject) throws JSONException {
+    public void populate(@NonNull final JSONObject jsonObject) throws JSONException {
+
+        this.mSource = jsonObject;
+
+        if (jsonObject.has(IdentityConsts.KEY_MY_SUB)) {
+            //Map the OPENID userinfo to Scim definition
+            //Should verify the sub with the id_token
+            mUserName = jsonObject.optString(IdentityConsts.KEY_MY_PREF_UNAME, IdentityConsts.EMPTY);
+            final String photo = jsonObject.optString(IdentityConsts.KEY_MY_PICTURE, null);
+            if (photo != null) {
+                mPhotoList.add(new MASPhoto() {
+                    @Override
+                    public String getValue() {
+                        return photo;
+                    }
+                });
+            }
+
+            final String email = jsonObject.optString(IdentityConsts.KEY_MY_EMAIL, null);
+            if (email != null) {
+                mEmailList.add(new MASEmail() {
+                    @Override
+                    public String getValue() {
+                        return email;
+                    }
+                });
+            }
+
+            final String phone = jsonObject.optString(IdentityConsts.KEY_MY_PHONE, null);
+            if (phone != null) {
+                mPhoneList.add(new MASPhone() {
+                    @Override
+                    public String getValue() {
+                        return phone;
+                    }
+                });
+            }
+
+            final String givenName = jsonObject.optString(IdentityConsts.KEY_MY_GIVEN_NAME, null);
+            final String familyName = jsonObject.optString(IdentityConsts.KEY_MY_FAMILY_NAME, null);
+            final String middleName = jsonObject.optString(IdentityConsts.KEY_MY_MIDDLE_NAME, null);
+            mName = new MASName() {
+                @Override
+                public String getGivenName() {
+                    return givenName;
+                }
+
+                @Override
+                public String getFamilyName() {
+                    return familyName;
+                }
+
+                @Override
+                public String getMiddleName() {
+                    return middleName;
+                }
+            };
+
+            JSONObject addrObj = jsonObject.optJSONObject(IdentityConsts.KEY_MY_ADDRESS);
+            if (addrObj != null) {
+                String streetAddr = addrObj.optString(IdentityConsts.KEY_MY_STREET_ADDR, IdentityConsts.EMPTY);
+                String locality = addrObj.optString(IdentityConsts.KEY_MY_LOCALITY, IdentityConsts.EMPTY);
+                String region = addrObj.optString(IdentityConsts.KEY_MY_REGION, IdentityConsts.EMPTY);
+                String postalCode = addrObj.optString(IdentityConsts.KEY_MY_POSTAL_CODE, IdentityConsts.EMPTY);
+                String country = addrObj.optString(IdentityConsts.KEY_MY_COUNTRY, IdentityConsts.EMPTY);
+                MASAddress address = new MASAddress(streetAddr, locality, region, country, postalCode);
+                mAddressList.add(address);
+            }
+
+            return;
+        }
+
+        //SCIM definition
         mId = jsonObject.optString(IdentityConsts.KEY_ID);
         mExternalId = jsonObject.optString(IdentityConsts.KEY_EXTERNAL_ID);
         mUserName = jsonObject.optString(IdentityConsts.KEY_USERNAME);
@@ -190,139 +261,7 @@ public class User implements ScimUser {
 
     @Override
     public JSONObject getAsJSONObject() throws JSONException {
-        JSONObject jobj = new JSONObject();
-        JSONArray schemaArray = new JSONArray();
-        schemaArray.put(IdentityConsts.SCHEMA_USER);
-        jobj.put(IdentityConsts.KEY_SCHEMAS, schemaArray);
-        jobj.put(IdentityConsts.KEY_ID, mId);
-        jobj.put(IdentityConsts.KEY_EXTERNAL_ID, mExternalId);
-        jobj.put(IdentityConsts.KEY_USERNAME, mUserName);
-        jobj.put(IdentityConsts.KEY_DISPLAY_NAME, mDisplayName);
-        jobj.put(IdentityConsts.KEY_NICK_NAME, mNickName);
-        jobj.put(IdentityConsts.KEY_PROFILE_URL, mProfileUrl);
-        jobj.put(IdentityConsts.KEY_USER_TYPE, mUserType);
-        jobj.put(IdentityConsts.KEY_TITLE, mTitle);
-        jobj.put(IdentityConsts.KEY_PREFERRED_LANG, mPreferredLanguage);
-        jobj.put(IdentityConsts.KEY_LOCALE, mLocale);
-        jobj.put(IdentityConsts.KEY_TIMEZONE, mTimeZone);
-        jobj.put(IdentityConsts.KEY_PASSWORD, mPassword);
-        jobj.put(IdentityConsts.KEY_ACTIVE, mIsActive);
-
-        // create the meta data object if it doesn't exist
-        if (mMeta == null) {
-            final Date now = new Date();
-
-            mMeta = new MASMeta() {
-                @Override
-                public String getResourceType() {
-                    return ResourceType.User.toString();
-                }
-
-                @Override
-                public String getCreated() {
-                    if (TextUtils.isEmpty(mId)) {
-                        return IdentityUtil.getMetaDateString(now);
-                    }
-                    return null;
-                }
-
-                @Override
-                public String getLastModified() {
-                    return IdentityUtil.getMetaDateString(now);
-                }
-
-                @Override
-                public String getVersion() {
-                    return null;
-                }
-
-                @Override
-                public String getLocation() {
-                    return null;
-                }
-
-                @Override
-                public void populate(@NonNull JSONObject jobj) throws JSONException {
-
-                }
-
-                @Override
-                public JSONObject getAsJSONObject() throws JSONException {
-                    return null;
-                }
-            };
-        }
-        jobj.put(IdentityConsts.KEY_META, mMeta.getAsJSONObject());
-
-        if (mName != null) {
-            // name
-            jobj.put(IdentityConsts.KEY_NAME, mName.getAsJSONObject());
-        }
-
-        // addresses
-        JSONArray jarr = new JSONArray();
-        for (MASAddress a : mAddressList) {
-            jarr.put(a);
-        }
-        if (jarr.length() > 0) {
-            jobj.put(IdentityConsts.KEY_ADDRS, jarr);
-        }
-
-        // phone
-        jarr = new JSONArray();
-        for (MASPhone p : mPhoneList) {
-            jarr.put(p);
-        }
-        if (jarr.length() > 0) {
-            jobj.put(IdentityConsts.KEY_PHONE_NUMBERS, jarr);
-        }
-
-        // email
-        jarr = new JSONArray();
-        for (MASEmail e : mEmailList) {
-            jarr.put(e);
-        }
-        if (jarr.length() > 0) {
-            jobj.put(IdentityConsts.KEY_EMAILS, jarr);
-        }
-
-        // ims
-        jarr = new JSONArray();
-        for (MASIms i : mImsList) {
-            jarr.put(i);
-        }
-        if (jarr.length() > 0) {
-            jobj.put(IdentityConsts.KEY_IMS, jarr);
-        }
-
-        // photos
-        jarr = new JSONArray();
-        for (MASPhoto p : mPhotoList) {
-            jarr.put(p);
-        }
-        if (jarr.length() > 0) {
-            jobj.put(IdentityConsts.KEY_PHOTOS, jarr);
-        }
-
-        // x509certs
-        jarr = new JSONArray();
-        for (X509Cert x : mCertList) {
-            jarr.put(x);
-        }
-        if (jarr.length() > 0) {
-            jobj.put(IdentityConsts.KEY_X509CERTS, jarr);
-        }
-
-        // groups
-        jarr = new JSONArray();
-        for (MASGroup g : mGroupList) {
-            jarr.put(g);
-        }
-        if (jarr.length() > 0) {
-            jobj.put(IdentityConsts.KEY_GROUPS, jarr);
-        }
-
-        return jobj;
+        return mSource;
     }
 
     // --------- ScimIdentifiable ----------------------------------------------
@@ -455,6 +394,10 @@ public class User implements ScimUser {
     @Override
     public MASName getName() {
         return mName;
+    }
+
+    public JSONObject getSource() {
+        return mSource;
     }
 
 }

@@ -389,7 +389,6 @@ public class ConfigurationManager {
                     container.clear();
                     OAuthTokenContainer oAuthTokenContainer = sp.createOAuthTokenContainer();
                     oAuthTokenContainer.clear();
-                    ;
                 }
             } catch (DataSourceException e) {
                 //Unable to access the datasource, ignore.

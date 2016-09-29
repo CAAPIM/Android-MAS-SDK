@@ -39,16 +39,6 @@ public class StorageProvider {
         mStorageConfig =new StorageConfig(configurationProvider);
     }
 
-    /**
-     *
-     * @param context
-     */
-    public StorageProvider(Context context) {
-        this.configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
-        this.context = context.getApplicationContext();
-        mStorageConfig =new StorageConfig(configurationProvider);
-    }
-
     public StorageProvider(Context context) {
         this(context, ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider());
     }

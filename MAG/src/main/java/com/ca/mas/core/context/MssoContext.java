@@ -624,10 +624,9 @@ public class MssoContext {
      * Check if the user has already been logon.
      *
      * @return true if the id token has been acquired and stored in the the device. false if the id token is not available.
+     * For SSO disabled, id token is not issued by the server, check access token and refresh token instead.
      */
     public boolean isLogin() {
-        //Should check for persisted User profile, however, there is no user profile is persisted in this version
-        //will enhance to persist user profile.
         return getIdToken() != null ||
                 (!isSsoEnabled() && getAccessToken() != null && getRefreshToken() != null);
     }

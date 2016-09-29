@@ -49,6 +49,10 @@ public class StorageProvider {
         mStorageConfig =new StorageConfig(configurationProvider);
     }
 
+    public StorageProvider(Context context) {
+        this(context, ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider());
+    }
+
     /**
      * Return the {@link TokenManager} that manage the share tokens and certificate.
      *

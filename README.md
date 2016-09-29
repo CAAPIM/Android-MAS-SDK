@@ -23,6 +23,7 @@ of the MIT license. See the [LICENSE][license-link] file for details.
  [mas.ca.com]: http://mas.ca.com/
  [docs]: http://mas.ca.com/docs/
  [blog]: http://mas.ca.com/blog/
+ [get-started]: http://mas.ca.com/get-started
 
  [releases]: ../../releases
  [contributing]: /CONTRIBUTING.md

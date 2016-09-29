@@ -107,7 +107,7 @@ public abstract class ServerClient {
 
     }
 
-    public static int findErrorCode(MAGResponse response) throws IOException {
+    public static int findErrorCode(MAGResponse response) {
         if (response.getResponseCode() != HttpURLConnection.HTTP_BAD_METHOD) {
 
             Map<String, List<String>> headers = response.getHeaders();

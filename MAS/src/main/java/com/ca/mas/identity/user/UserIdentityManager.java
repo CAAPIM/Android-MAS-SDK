@@ -8,7 +8,6 @@
 
 package com.ca.mas.identity.user;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -24,7 +23,6 @@ import com.ca.mas.foundation.MASResultReceiver;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.foundation.util.FoundationConsts;
-import com.ca.mas.foundation.web.MASWebServiceClient;
 import com.ca.mas.foundation.web.WebServiceClient;
 import com.ca.mas.foundation.web.WebServiceRequest;
 import com.ca.mas.identity.common.MASFilteredRequest;
@@ -277,6 +275,11 @@ public class UserIdentityManager {
             }
 
             @Override
+            public void requestUserInfo(MASCallback<Void> callback) {
+                new UserNotAuthenticatedException();
+            }
+
+            @Override
             public String getUserName() {
                 return scimUser.getUserName();
             }
@@ -364,6 +367,11 @@ public class UserIdentityManager {
             @Override
             public MASName getName() {
                 return scimUser.getName();
+            }
+
+            @Override
+            public JSONObject getSource() {
+                return scimUser.getSource();
             }
 
             @Override

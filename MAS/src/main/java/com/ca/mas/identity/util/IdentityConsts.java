@@ -72,6 +72,7 @@ public class IdentityConsts extends FoundationConsts {
     public static final String KEY_MY_SUB = "sub";
     public static final String KEY_MY_GIVEN_NAME = "given_name";
     public static final String KEY_MY_FAMILY_NAME = "family_name";
+    public static final String KEY_MY_MIDDLE_NAME = "middle_name";
     public static final String KEY_MY_PREF_UNAME = "preferred_username";
     public static final String KEY_MY_PICTURE = "picture";
     public static final String KEY_MY_EMAIL = "email";

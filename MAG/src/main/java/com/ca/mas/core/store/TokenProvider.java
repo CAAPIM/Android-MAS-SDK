@@ -22,9 +22,9 @@ public interface TokenProvider {
     /**
      * Get the persistent client username, if available.
      *
-     * @return the username, or null if a username has not been saved.
+     * @return the user profile, or null if a user profile has not been saved.
      */
-    String getUsername();
+    String getUserProfile();
 
     /**
      * Get the device identifier assigned to this device by the token server when the device was registered, or null.

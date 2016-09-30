@@ -9,12 +9,9 @@
 package com.ca.mas.core.io.ssl;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 
-import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.cert.TrustedCertificateConfiguration;
-import com.ca.mas.core.conf.ConfigurationProvider;
-import com.ca.mas.core.context.MssoException;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.io.http.SingleKeyX509KeyManager;
 import com.ca.mas.core.io.http.TrustedCertificateConfigurationTrustManager;
 import com.ca.mas.core.store.StorageProvider;
@@ -39,41 +36,22 @@ public class MAGSocketFactory {
     private X509Certificate[] clientCertChain = null;
 
     /**
-     * Convenient method to create an HTTP client Factory, similar to {@link MAGSocketFactory}, it retrieves the trustConfig, clientCertPrivateKey
+     * Create an SocketFactory factory that will create clients that trust the specified server certs and that use the specified client cert
+     * for client cert authentication.
+
+     * it retrieves the trustConfig, clientCertPrivateKey
      * and clientCertChain from the {@link com.ca.mas.core.store.TokenManager}
      */
-    public MAGSocketFactory(Context context) {
-        this(context, MobileSsoFactory.getInstance(context).getConfigurationProvider());
-    }
 
-    public MAGSocketFactory(Context context, ConfigurationProvider configurationProvider) {
-        this.trustConfig = configurationProvider;
-        StorageProvider storageProvider = new StorageProvider(context, configurationProvider);
-        if(!storageProvider.hasValidStore()){
-            throw new MssoException("No valid Data Source was provided");
-        }
+    public MAGSocketFactory(Context context) {
+        this.trustConfig = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
+        StorageProvider storageProvider = new StorageProvider(context);
         TokenManager tokenManager = storageProvider.createTokenManager();
         KeyPair keyPair = tokenManager.getClientKeyPair();
         if (keyPair != null) {
             clientCertPrivateKey = keyPair.getPrivate();
         }
         clientCertChain = tokenManager.getClientCertificateChain();
-    }
-
-    /**
-     * Create an SocketFactory factory that will create clients that trust the specified server certs and that use the specified client cert
-     * for client cert authentication.
-     *
-     * @param trustConfig          configuration describing server certificates to trust. Required.
-     * @param clientCertPrivateKey client certificate private key for mutual auth, or null.
-     * @param clientCertChain      client certificate chain for mutual auth, or null.
-     */
-    public MAGSocketFactory(@NonNull TrustedCertificateConfiguration trustConfig,
-                            PrivateKey clientCertPrivateKey,
-                            X509Certificate[] clientCertChain) {
-        this.trustConfig = trustConfig;
-        this.clientCertPrivateKey = clientCertPrivateKey;
-        this.clientCertChain = clientCertChain;
     }
 
     public SSLSocketFactory createSSLSocketFactory() {

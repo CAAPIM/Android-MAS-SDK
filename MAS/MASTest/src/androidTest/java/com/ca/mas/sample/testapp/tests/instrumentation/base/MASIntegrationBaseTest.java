@@ -84,7 +84,7 @@ public abstract class MASIntegrationBaseTest {
 
     }
 
-    protected static String getUsername(){
+    protected static String getUsername() {
         return "sarek";
     }
 

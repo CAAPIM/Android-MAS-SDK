@@ -23,7 +23,7 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-public class KeystoreDataSource<K,V> implements DataSource<K, V> {
+public class KeystoreDataSource<K, V> implements DataSource<K, V> {
 
     public static final String TAG = "KeystoreDataSource";
     public static final String SHARE = "share";
@@ -40,7 +40,7 @@ public class KeystoreDataSource<K,V> implements DataSource<K, V> {
 
         try {
             if (param != null) {
-                share = param.optBoolean(SHARE,false);
+                share = param.optBoolean(SHARE, false);
             }
             storage = (KeyStoreStorage) new MASStorageManager().getStorage(KeyStoreStorage.class,
                     new Object[]{context, share});
@@ -59,7 +59,7 @@ public class KeystoreDataSource<K,V> implements DataSource<K, V> {
                 result = storage.writeOrUpdateData((String) key, (byte[]) value);
             } else if (value instanceof String) {
                 result = storage.writeOrUpdateString((String) key, (String) value);
-            } else if ( value == null) {
+            } else if (value == null) {
                 remove(key);
                 return;
             } else {
@@ -77,7 +77,7 @@ public class KeystoreDataSource<K,V> implements DataSource<K, V> {
     public void put(K key, V value, final DataSourceCallback callback) {
         try {
             if (value instanceof byte[]) {
-                storage.writeOrUpdateData((String)key, (byte[]) value, new StorageResultReceiver(callback.getHandler()) {
+                storage.writeOrUpdateData((String) key, (byte[]) value, new StorageResultReceiver(callback.getHandler()) {
                     @Override
                     public void onReceiveResult(StorageResult result) {
                         if (result.getStatus() == StorageResult.StorageOperationStatus.FAILURE) {
@@ -88,7 +88,7 @@ public class KeystoreDataSource<K,V> implements DataSource<K, V> {
                     }
                 });
             } else if (value instanceof String) {
-                storage.writeOrUpdateString((String)key, (String) value, new StorageResultReceiver(callback.getHandler()) {
+                storage.writeOrUpdateString((String) key, (String) value, new StorageResultReceiver(callback.getHandler()) {
                     @Override
                     public void onReceiveResult(StorageResult result) {
                         if (result.getStatus() == StorageResult.StorageOperationStatus.FAILURE) {
@@ -112,7 +112,7 @@ public class KeystoreDataSource<K,V> implements DataSource<K, V> {
     public V get(K key) {
         try {
             StorageResult result = null;
-            result = storage.readData((String)key);
+            result = storage.readData((String) key);
             if (result.getStatus() == StorageResult.StorageOperationStatus.FAILURE) {
                 StorageException exception = (StorageException) result.getData();
                 if (exception.getCode() == StorageException.READ_DATA_NOT_FOUND) {
@@ -204,7 +204,7 @@ public class KeystoreDataSource<K,V> implements DataSource<K, V> {
     @Override
     public void removeAll(Object filter, final DataSourceCallback callback) {
         try {
-            storage.deleteAll( new StorageResultReceiver(callback.getHandler()) {
+            storage.deleteAll(new StorageResultReceiver(callback.getHandler()) {
                 @Override
                 public void onReceiveResult(StorageResult result) {
                     if (result.getStatus() == StorageResult.StorageOperationStatus.FAILURE) {
@@ -268,9 +268,9 @@ public class KeystoreDataSource<K,V> implements DataSource<K, V> {
         try {
             result = storage.readString(KeystoreDataSource.class.getCanonicalName());
             if (result.getStatus() != StorageResult.StorageOperationStatus.SUCCESS) {
-                if(((StorageException)result.getData()).getCode()!= StorageException.STORE_NOT_UNLOCKED){
+                if (((StorageException) result.getData()).getCode() != StorageException.STORE_NOT_UNLOCKED) {
                     return true;
-                }else{
+                } else {
                     return false;
                 }
 
@@ -283,7 +283,8 @@ public class KeystoreDataSource<K,V> implements DataSource<K, V> {
 
     @Override
     public void unlock() {
-        try{
+
+        try {
             Intent intent;
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                 intent = new Intent("android.credentials.UNLOCK");
@@ -293,8 +294,8 @@ public class KeystoreDataSource<K,V> implements DataSource<K, V> {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
 
-        }catch (Exception e){
-            Log.w(TAG,"Exception @ bootProvider execute in application layer.");
+        } catch (Exception e) {
+            Log.w(TAG, "Exception @ bootProvider execute in application layer.");
             throw new DataSourceException("Error unlocking KeyStore storage", e);
         }
     }

@@ -12,6 +12,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.ca.mas.core.client.ServerClient;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.creds.Credentials;
 import com.ca.mas.core.datasource.DataSourceException;
@@ -126,18 +127,13 @@ public class MssoContext {
      *                              The context must have a lifetime at least as long as this MssoContext.
      *                              Typically this means you should not pass an Activity as the context unless you
      *                              plan to close this MssoContext when the activity is destroyed.
-     * @param configurationProvider the configuration provider that will be used to obtain application configuration information such
-     *                              as client secrets, token server URLs, and trusted certificates.  Required.
      * @throws MssoException if the token store cannot be prepared
      */
-    public void init(Context context, ConfigurationProvider configurationProvider) throws MssoException {
+    public void init(Context context) throws MssoException {
         this.context = context;
-        this.configurationProvider = configurationProvider;
+        this.configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
 
         StorageProvider storageProvider = new StorageProvider(context, configurationProvider);
-        if (!storageProvider.hasValidStore()) {
-            throw new MssoException("No valid Data Source was provided");
-        }
 
         if (tokenManager == null) {
             tokenManager = storageProvider.createTokenManager();
@@ -289,7 +285,7 @@ public class MssoContext {
         if (client != null)
             return client;
 
-        client = new MAGHttpClient(context, configurationProvider) {
+        client = new MAGHttpClient(context) {
             @Override
             protected void onConnectionObtained(HttpURLConnection connection) {
                 super.onConnectionObtained(connection);

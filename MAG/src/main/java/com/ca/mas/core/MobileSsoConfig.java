@@ -292,11 +292,9 @@ public interface MobileSsoConfig {
 
 
     /**
-     * String.  URL suffix for client credentials endpoint.
+     * String.  URL suffix for authenticate otp endpoint.
      * Used with {@link #PROP_TOKEN_URI_PREFIX} to build the URL to request for
-     * client credentials.
-     * <p/>
-     * If not specified, will default to "/connect/client/initialize".
+     * otp generation and delivery.
      */
     String AUTHENTICATE_OTP_PATH = "msso.url.auth_otp";
 

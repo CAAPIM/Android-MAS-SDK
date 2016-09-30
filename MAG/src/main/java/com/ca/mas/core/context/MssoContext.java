@@ -103,6 +103,16 @@ public class MssoContext {
     }
 
     /**
+     * Check if this context has been initialized.  The context must be initialized before it can be used.
+     *
+     * @return true if this context has been initialized.
+     * false if initialization is required.
+     */
+    public boolean isInitialized() {
+        return configurationProvider != null;
+    }
+
+    /**
      * Initialize the context.
      * <p/>
      * This method must be called before the context can be used for the first time.
@@ -123,10 +133,7 @@ public class MssoContext {
         this.context = context;
         this.configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
 
-        StorageProvider storageProvider = new StorageProvider(context);
-        if (!storageProvider.hasValidStore()) {
-            throw new MssoException("No valid Data Source was provided");
-        }
+        StorageProvider storageProvider = new StorageProvider(context, configurationProvider);
 
         if (tokenManager == null) {
             tokenManager = storageProvider.createTokenManager();

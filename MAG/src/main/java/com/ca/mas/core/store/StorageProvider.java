@@ -16,6 +16,7 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoException;
 import com.ca.mas.core.datasource.DataSource;
+import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.datasource.DataSourceFactory;
 import com.ca.mas.core.datasource.KeystoreDataSource;
 import com.ca.mas.core.datasource.StringDataConverter;
@@ -35,8 +36,8 @@ public class StorageProvider {
 
     public StorageProvider(Context context, ConfigurationProvider configurationProvider) {
         this.configurationProvider = configurationProvider;
-        this.context = context.getApplicationContext();
-        mStorageConfig =new StorageConfig(configurationProvider);
+        this.context = context;
+        mStorageConfig = new StorageConfig(configurationProvider);
     }
 
     public StorageProvider(Context context) {
@@ -56,7 +57,7 @@ public class StorageProvider {
                 params = new JSONObject(mStorageConfig.getStorageConfig().toString());
                 params.put(StorageConfig.PROP_SHARE_STATUS, Boolean.TRUE);
             } catch (JSONException e) {
-                Log.w(TAG,"failed to set sharing property "+e);
+                Log.w(TAG, "failed to set sharing property " + e);
             }
             DataSource storage = DataSourceFactory.getStorage(context, mStorageConfig.getStorageClass(), params, null);
             return new DefaultTokenManager(storage);
@@ -103,19 +104,19 @@ public class StorageProvider {
         } catch (Exception e) {
             throw new MssoException(e);
         }
-   }
+    }
 
     /**
      * Checks if the Storage provider has a valid store to work with.
-     * @return
+     *
+     * @return True the storage is ready to use, False when the storage is not ready to use.
      */
-    public boolean hasValidStore() throws  MssoException{
-        try{
-            DataSource temp = DataSourceFactory.getStorage(context, mStorageConfig.getStorageClass(), mStorageConfig.getStorageConfig(), new StringDataConverter());
-            return temp != null;
-        }catch (Exception e){
-            Log.e(TAG,"Error instantiating storage: "+e);
-            throw new MssoException("No valid Data Source was provided:",e);
+    public boolean hasValidStore() {
+        DataSource temp = DataSourceFactory.getStorage(context, mStorageConfig.getStorageClass(), mStorageConfig.getStorageConfig(), new StringDataConverter());
+        if (temp != null && temp.isReady()) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -123,24 +124,23 @@ public class StorageProvider {
     /**
      * The SDK's Storage Configuration. say
      * {@code
-     *  "storage": {
-     *      "class": "<Canonical name of the Storage class>",
-     *      "share": "true/false"
-     *      "bootprovider": "com.com.ca.mas.AStorageBootProvider"
-     *  }
+     * "storage": {
+     * "class": "<Canonical name of the Storage class>",
+     * "share": "true/false"
+     * "bootprovider": "com.com.ca.mas.AStorageBootProvider"
      * }
-     *
+     * }
+     * <p/>
      * Responsibility:
      * - Parses the storage configuration from the JSON configuration file
      * - Validates the storage
      * - Falls back to the default, if there is no valid Storage configuration.
-     *
      */
     private static class StorageConfig {
 
         private String TAG = "StorageConfig";
         protected Class storageClass;
-        protected JSONObject storageConfig= new JSONObject();
+        protected JSONObject storageConfig = new JSONObject();
 
         /**
          * Common config properties expected for DataSource. Storage specif properties should be defined
@@ -149,23 +149,21 @@ public class StorageProvider {
         public static String PROP_STORAGE_CLASS = "class";
         public static final String PROP_SHARE_STATUS = "share";
 
-        public StorageConfig(ConfigurationProvider configurationProvider){
+        public StorageConfig(ConfigurationProvider configurationProvider) {
 
             JSONObject storageJson = configurationProvider.getProperty(MobileSsoConfig.PROP_STORAGE);
-            if(storageJson==null){
-                Log.i(TAG,"No storage configuration found in JSON config, falling back to DEFAULT ");
+            if (storageJson == null) {
+                Log.i(TAG, "No storage configuration found in JSON config, falling back to DEFAULT ");
                 storageClass = KeystoreDataSource.class;
-                JSONObject defConfig = new JSONObject();
-                storageConfig =defConfig;
-            }else{
+                storageConfig = new JSONObject();
+            } else {
                 try {
-                    storageClass  = Class.forName(""+storageJson.get(PROP_STORAGE_CLASS));
-                    //TODO read additional properties for the storage and sets the storageConfig bundle
+                    storageClass = Class.forName("" + storageJson.get(PROP_STORAGE_CLASS));
                     storageConfig = storageJson;
                 } catch (ClassNotFoundException e) {
-                    Log.w(TAG, String.format("Provided Storage configuration %s cannot be found ", storageJson.toString()));
+                    throw new DataSourceException(String.format("Provided Storage configuration %s cannot be found ", storageJson.toString()), e);
                 } catch (JSONException e) {
-                    Log.w(TAG,"invalid storage config");
+                    throw new DataSourceException("Invalid Storage Config" , e);
                 }
             }
 

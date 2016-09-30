@@ -12,7 +12,6 @@ import android.content.Context;
 
 import com.ca.mas.core.cert.TrustedCertificateConfiguration;
 import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.context.MssoException;
 import com.ca.mas.core.io.http.SingleKeyX509KeyManager;
 import com.ca.mas.core.io.http.TrustedCertificateConfigurationTrustManager;
 import com.ca.mas.core.store.StorageProvider;
@@ -39,13 +38,14 @@ public class MAGSocketFactory {
     /**
      * Create an SocketFactory factory that will create clients that trust the specified server certs and that use the specified client cert
      * for client cert authentication.
+
+     * it retrieves the trustConfig, clientCertPrivateKey
+     * and clientCertChain from the {@link com.ca.mas.core.store.TokenManager}
      */
+
     public MAGSocketFactory(Context context) {
         this.trustConfig = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
         StorageProvider storageProvider = new StorageProvider(context);
-        if (!storageProvider.hasValidStore()) {
-            throw new MssoException("No valid Data Source was provided");
-        }
         TokenManager tokenManager = storageProvider.createTokenManager();
         KeyPair keyPair = tokenManager.getClientKeyPair();
         if (keyPair != null) {

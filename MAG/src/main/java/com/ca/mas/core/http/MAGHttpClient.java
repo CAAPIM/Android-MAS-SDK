@@ -13,7 +13,6 @@ import android.os.Build;
 import android.util.Log;
 
 import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.io.ssl.MAGSocketFactory;
 
 import java.io.IOException;
@@ -23,7 +22,6 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLProtocolException;
 import javax.net.ssl.SSLSocketFactory;
 
 public class MAGHttpClient {
@@ -33,8 +31,9 @@ public class MAGHttpClient {
     private SSLSocketFactory sslSocketFactory;
 
     public MAGHttpClient(Context context) {
-        sslSocketFactory = (new MAGSocketFactory(context)).createSSLSocketFactory();
+        sslSocketFactory = new MAGSocketFactory(context).createSSLSocketFactory();
     }
+
 
     public MAGHttpClient() {
     }

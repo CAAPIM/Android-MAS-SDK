@@ -10,6 +10,7 @@ package com.ca.mas.core.policy;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.auth.otp.OtpConstants;
@@ -49,10 +50,10 @@ class OtpAssertion implements MssoAssertion {
     public void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
 
         String otpAuthUrl = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.AUTHENTICATE_OTP_PATH);
-        if (otpAuthUrl != null &&
-                request != null && request.getRequest() != null && request.getRequest().getURL() != null &&
-                request.getRequest().getURL().getPath() != null &&
-                request.getRequest().getURL().getPath().endsWith(otpAuthUrl)
+        String requestPath = getRequestPath(request);
+        if (!TextUtils.isEmpty(otpAuthUrl) &&
+                !TextUtils.isEmpty(requestPath) &&
+                requestPath.endsWith(otpAuthUrl)
                 ) {
             List<String> selectedOtpChannels = (request.getRequest().getHeaders().get(OtpConstants.X_OTP_CHANNEL));
             String selectedOtpChannelsStr = OtpUtil.convertListToCommaSeparatedString(selectedOtpChannels);
@@ -101,4 +102,12 @@ class OtpAssertion implements MssoAssertion {
     public void close() {
     }
 
+    private String getRequestPath(RequestInfo request) {
+        if (request != null && request.getRequest() != null && request.getRequest().getURL() != null &&
+                request.getRequest().getURL().getPath() != null
+                ) {
+            return request.getRequest().getURL().getPath();
+        }
+        return null;
+    }
 }

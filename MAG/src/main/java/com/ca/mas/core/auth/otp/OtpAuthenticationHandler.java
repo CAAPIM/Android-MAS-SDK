@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSso;
@@ -42,7 +43,7 @@ public class OtpAuthenticationHandler implements Parcelable {
         this.channels = channels;
         this.isInvalidOtp = isInvalidOtp;
         this.userSelectedChannels = userSelectedChannels;
-        if (channels == null && userSelectedChannels != null && !"".equals(userSelectedChannels))
+        if (channels == null && !TextUtils.isEmpty(userSelectedChannels))
             this.channels = OtpUtil.convertCommaSeparatedStringToList(userSelectedChannels);
     }
 
@@ -57,7 +58,7 @@ public class OtpAuthenticationHandler implements Parcelable {
 
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
         intent.putExtra(MssoIntents.EXTRA_OTP_VALUE, otp);
-        if (userSelectedChannels != null && !"".equals(userSelectedChannels))
+        if (!TextUtils.isEmpty(userSelectedChannels))
             intent.putExtra (MssoIntents.EXTRA_OTP_SELECTED_CHANNELS, userSelectedChannels);
         context.startService(intent);
     }

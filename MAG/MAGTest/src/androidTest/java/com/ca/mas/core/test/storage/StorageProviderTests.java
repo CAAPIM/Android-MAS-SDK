@@ -13,7 +13,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.core.MobileSsoFactory;
-import com.ca.mas.core.context.MssoException;
+import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.test.BaseTest;
 
@@ -113,7 +113,7 @@ public class StorageProviderTests extends BaseTest {
             mobileSso = MobileSsoFactory.getInstance(ctx,configO);
             fail("SDk instantiation should have failed, since there is no valid store");
         }catch (Exception e){
-            assertTrue(e instanceof MssoException);
+            assertTrue(e instanceof DataSourceException);
         }
     }
 
@@ -125,7 +125,7 @@ public class StorageProviderTests extends BaseTest {
             mobileSso = MobileSsoFactory.getInstance(ctx,configO);
             fail("SDk instantiation should have failed, since storage configuration did not have a valid class attribute");
         }catch (Exception e){
-            assertTrue(e instanceof MssoException);
+            assertTrue(e instanceof DataSourceException);
         }
     }
 

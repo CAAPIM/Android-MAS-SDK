@@ -74,7 +74,7 @@ class OtpAssertion implements MssoAssertion {
     }
 
     @Override
-    public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGServerException{
+    public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGServerException {
 
         //Check if status code is 400, 401 or 403
         int statusCode = response.getResponseCode();
@@ -85,12 +85,8 @@ class OtpAssertion implements MssoAssertion {
             otpResponseHeaders.setHttpStatusCode(statusCode);
 
             if (OtpResponseHeaders.X_OTP_VALUE.REQUIRED == otpResponseHeaders.getxOtpValue()
-                    || OtpResponseHeaders.X_CA_ERROR.OTP_INVALID == otpResponseHeaders.getErrorCode()){
-                int errorCode = 0;
-                try {
-                    errorCode = ServerClient.findErrorCode(response);
-                } catch (IOException e){
-                }
+                    || OtpResponseHeaders.X_CA_ERROR.OTP_INVALID == otpResponseHeaders.getErrorCode()) {
+                int errorCode = ServerClient.findErrorCode(response);
                 OtpResponseBody body = OtpUtil.parseOtpResponseBody(response.getBody().getContent().toString());
                 throw new OtpException(errorCode, statusCode, response.getBody().getContentType(), body.getErrorDescription(),
                         otpResponseHeaders);

@@ -11,7 +11,6 @@ package com.ca.mas.core.context;
 import android.content.Context;
 import android.util.Log;
 
-import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.creds.Credentials;
@@ -57,7 +56,6 @@ import java.util.Date;
 public class MssoContext {
 
     private static final String TAG = "MssoContext";
-    private static final String MSSO_CONFIG = "msso_config.json";
 
     /**
      * Maximum number of RetryRequestExceptions to honor before giving up.
@@ -75,8 +73,6 @@ public class MssoContext {
 
     private String deviceId;
     private String deviceName;
-
-    private MobileSsoListener mobileSsoListener;
 
     private volatile MAGHttpClient magHttpClient;
 
@@ -489,13 +485,15 @@ public class MssoContext {
             throw new IllegalStateException("MssoContext not initialized, no token manager");
         final IdToken idToken = getIdToken();
 
+        Exception exception = null;
+
 
         try {
             if (isSsoEnabled()) {
                 try {
                     tokenManager.deleteIdToken();
                 } catch (TokenStoreException e) {
-                    throw new MssoException(e);
+                    exception = e;
                 }
 
                 String clientId = getClientId();
@@ -508,11 +506,27 @@ public class MssoContext {
                     }
                 }
             }
+
             try {
                 privateTokens.clear();
             } catch (DataSourceException e) {
-                throw new MssoException(e);
+                if (exception != null) {
+                    exception = e;
+                }
             }
+
+            try {
+                tokenManager.deleteUserProfile();
+            } catch (TokenStoreException e) {
+                if (exception != null) {
+                    exception = e;
+                }
+            }
+
+            if (exception != null) {
+                throw new MssoException(exception);
+            }
+
         } finally {
             setCredentials(null);
             resetHttpClient();
@@ -613,10 +627,9 @@ public class MssoContext {
      * Check if the user has already been logon.
      *
      * @return true if the id token has been acquired and stored in the the device. false if the id token is not available.
+     * For SSO disabled, id token is not issued by the server, check access token and refresh token instead.
      */
     public boolean isLogin() {
-        //Should check for persisted User profile, however, there is no user profile is persisted in this version
-        //will enhance to persist user profile.
         return getIdToken() != null ||
                 (!isSsoEnabled() && getAccessToken() != null && getRefreshToken() != null);
     }

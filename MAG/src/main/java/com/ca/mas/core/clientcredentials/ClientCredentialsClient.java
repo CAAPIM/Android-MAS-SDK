@@ -47,7 +47,7 @@ public class ClientCredentialsClient extends ServerClient {
         super(mssoContext);
     }
 
-    public ClientCredentials getClientCredentials(@NonNull String clientId,
+    public ClientCredentials getClientCredentials(@NonNull String masterClientId,
                                                   String nonce,
                                                   @NonNull String deviceId) throws ClientCredentialsException, ClientCredentialsServerException {
 
@@ -56,7 +56,7 @@ public class ClientCredentialsClient extends ServerClient {
         MAGRequest request = null;
         try {
             List<Pair<String, String>> form = new ArrayList<>();
-            form.add(new Pair<String, String>(ServerClient.CLIENT_ID, clientId));
+            form.add(new Pair<String, String>(ServerClient.CLIENT_ID, masterClientId));
             form.add(new Pair<String, String>(NONCE, nonce));
 
             request = new MAGRequest.MAGRequestBuilder(tokenUri.toURL())
@@ -84,10 +84,10 @@ public class ClientCredentialsClient extends ServerClient {
                 throw ServerClient.createServerException(response, ClientCredentialsServerException.class);
             }
             final JSONObject jsonObject = response.getBody().getContent();
-            final String returnClientId = jsonObject.getString(CLIENT_ID);
-            final String clientSecret = jsonObject.getString(CLIENT_SECRET);
-            final Long clientExpiration = jsonObject.getLong(CLIENT_EXPIRATION);
-            return new ClientCredentials(returnClientId, clientSecret, clientExpiration);
+            final String slaveClientId = jsonObject.getString(CLIENT_ID);
+            final String slaveClientSecret = jsonObject.getString(CLIENT_SECRET);
+            final Long slaveClientExpiration = jsonObject.getLong(CLIENT_EXPIRATION);
+            return new ClientCredentials(masterClientId, slaveClientId, slaveClientSecret, slaveClientExpiration);
 
         } catch (JSONException e) {
             throw new ClientCredentialsException(MAGErrorCode.APPLICATION_INVALID, e);

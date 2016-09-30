@@ -12,6 +12,8 @@ import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.foundation.MASTransformable;
 import com.ca.mas.identity.ScimIdentifiable;
 
+import org.json.JSONObject;
+
 import java.util.List;
 
 public interface ScimUser extends ScimIdentifiable, MASTransformable {
@@ -141,5 +143,11 @@ public interface ScimUser extends ScimIdentifiable, MASTransformable {
      * @return MASName the user's name object. Could be null.
      */
     MASName getName();
+
+    /**
+     * Retrieve the JSON source which use to populate this object.
+     * @return The json source to populate the object.
+     */
+    JSONObject getSource();
 
 }

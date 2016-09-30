@@ -37,7 +37,7 @@ public class DefaultTokenManager implements TokenManager {
 
     private static final String TAG = DefaultTokenManager.class.getSimpleName();
 
-    static final String MSSO_USERNAME = "msso.username";
+    static final String MSSO_USER_PROFILE = "msso.userProfile";
     static final String MSSO_MAG_IDENTIFIER = "msso.magIdentifier";
     static final String MSSO_CLIENT_CERT_PRIVATE_KEY = "msso.clientCertPrivateKey";
     static final String MSSO_CLIENT_CERT_PUBLIC_KEY = "msso.clientCertPublicKey";
@@ -52,8 +52,8 @@ public class DefaultTokenManager implements TokenManager {
     }
 
     @Override
-    public void saveUsername(String username) throws TokenStoreException {
-        storeSecureItem(MSSO_USERNAME, username.getBytes(Charsets.UTF8));
+    public void saveUserProfile(String userProfile) throws TokenStoreException {
+        storeSecureItem(MSSO_USER_PROFILE, userProfile.getBytes(Charsets.UTF8));
     }
 
     @Override
@@ -85,9 +85,14 @@ public class DefaultTokenManager implements TokenManager {
     }
 
     @Override
+    public void deleteUserProfile() throws TokenStoreException {
+        deleteSecureItem(MSSO_USER_PROFILE);
+    }
+
+    @Override
     public void clear() throws TokenStoreException {
         deleteIdToken();
-        deleteSecureItem(MSSO_USERNAME);
+        deleteUserProfile();
         deleteSecureItem(MSSO_CLIENT_CERT_PRIVATE_KEY);
         deleteSecureItem(MSSO_CLIENT_CERT_PUBLIC_KEY);
         deleteSecureItem(MSSO_CLIENT_CERT_CHAIN);
@@ -109,12 +114,12 @@ public class DefaultTokenManager implements TokenManager {
     }
 
     @Override
-    public String getUsername() {
+    public String getUserProfile() {
         try {
-            byte[] usernameBytes = retrieveSecureItem(MSSO_USERNAME);
-            if (usernameBytes == null)
+            byte[] userProfileBytes = retrieveSecureItem(MSSO_USER_PROFILE);
+            if (userProfileBytes == null)
                 return null;
-            return new String(usernameBytes, Charsets.UTF8);
+            return new String(userProfileBytes, Charsets.UTF8);
 
         } catch (TokenStoreException e) {
             Log.e(TAG, "Unable to access client username: " + e.getMessage(), e);

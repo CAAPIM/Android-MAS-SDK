@@ -11,12 +11,14 @@ package com.ca.mas.core.policy;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.clientcredentials.ClientCredentialsClient;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.http.MAGResponse;
+import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.token.ClientCredentials;
@@ -24,6 +26,8 @@ import com.ca.mas.core.token.ClientCredentials;
 import java.util.UUID;
 
 public class ClientCredentialAssertion implements MssoAssertion {
+
+    public static final String INVALID_CLIENT_CREDENTIALS_ERROR_CODE_SUFFIX = "201";
     private TokenManager tokenManager;
 
     @Override
@@ -67,7 +71,16 @@ public class ClientCredentialAssertion implements MssoAssertion {
 
     @Override
     public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGStateException {
-        //Nothing to do here
+        int errorCode = ServerClient.findErrorCode(response);
+        if (errorCode == -1) {
+            return;
+        }
+        String s = Integer.toString(errorCode);
+        if (s.endsWith(INVALID_CLIENT_CREDENTIALS_ERROR_CODE_SUFFIX)) {
+            mssoContext.clearAccessToken();
+            mssoContext.clearClientCredentials();
+            throw new RetryRequestException("Client is rejected by server");
+        }
     }
 
     @Override

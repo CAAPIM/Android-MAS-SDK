@@ -89,7 +89,7 @@ public abstract class MASIntegrationBaseTest {
     }
 
     protected static String getPassword() {
-        return "7layer";
+        return "StRonG5^)";
     }
 
     protected static void await(CountDownLatch latch) throws InterruptedException {

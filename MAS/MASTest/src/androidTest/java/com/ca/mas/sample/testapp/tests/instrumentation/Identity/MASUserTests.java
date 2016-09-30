@@ -14,6 +14,8 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.text.TextUtils;
 
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.identity.common.MASFilteredRequest;
@@ -24,6 +26,9 @@ import com.ca.mas.identity.util.IdentityUtil;
 import com.ca.mas.messaging.util.MessagingConsts;
 import com.ca.mas.sample.testapp.tests.instrumentation.base.MASIntegrationBaseTest;
 
+import junit.framework.Assert;
+
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +36,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
 
@@ -42,6 +48,74 @@ import static junit.framework.Assert.fail;
 public class MASUserTests extends MASIntegrationBaseTest {
 
     UserAttributes userAttribs = null;
+
+    @Test
+    public void testPersistUserProfile() throws Exception {
+        Assert.assertNotNull(MASUser.getCurrentUser());
+        StorageProvider sp = new StorageProvider( InstrumentationRegistry.getInstrumentation().getTargetContext());
+        TokenManager tm = sp.createTokenManager();
+        String storedUserProfile = tm.getUserProfile();
+        Assert.assertNotNull(storedUserProfile);
+        JSONObject source = new JSONObject(storedUserProfile);
+        assertEquals(getUsername(), source.getString("userName"));
+
+        MASUser user = MASUser.getCurrentUser();
+        assertEquals(user.getPhoneList().size(), 1);
+        assertEquals(getUsername(), user.getUserName());
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        //Switch user and make sure the persisted user is the new user.
+        MASUser.login("admin", "7layer", new MASCallback<MASUser>() {
+            @Override
+            public void onSuccess(MASUser user) {
+                latch.countDown();
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                latch.countDown();
+            }
+        });
+
+        try {
+            await(latch);
+            user = MASUser.getCurrentUser();
+            assertEquals("admin", user.getUserName());
+            storedUserProfile = tm.getUserProfile();
+            Assert.assertNotNull(storedUserProfile);
+            JSONObject source2 = new JSONObject(storedUserProfile);
+            assertEquals("admin", source2.getString("userName"));
+
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        final CountDownLatch latch2 = new CountDownLatch(1);
+        //Resume the original login user
+        MASUser.login(getUsername(), getPassword(), new MASCallback<MASUser>() {
+            @Override
+            public void onSuccess(MASUser user) {
+                latch2.countDown();
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                latch2.countDown();
+            }
+        });
+
+        try {
+            await(latch2);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+
+
+
+    }
 
     /**
      * Gets the user MetaData and stores it in memory for the rest of the tests.

@@ -14,6 +14,8 @@ public interface ClientCredentialContainer {
 
     void saveClientCredentials(ClientCredentials clientCredentials);
 
+    String getMasterClientId();
+
     String getClientId();
 
     String getClientSecret();

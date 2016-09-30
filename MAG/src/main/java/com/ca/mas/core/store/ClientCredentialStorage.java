@@ -17,6 +17,7 @@ import com.ca.mas.core.token.ClientCredentials;
 public class ClientCredentialStorage implements ClientCredentialContainer {
 
     enum KEY {
+        PREF_MASTER_CLIENT_ID,
         PREF_CLIENT_ID,
         PREF_CLIENT_SECRET,
         PREF_CLIENT_EXPIRE_TIME
@@ -31,10 +32,16 @@ public class ClientCredentialStorage implements ClientCredentialContainer {
     @Override
     public void saveClientCredentials(ClientCredentials clientCredentials) {
         if (clientCredentials != null) {
+            storage.put(getKey(KEY.PREF_MASTER_CLIENT_ID.name()), clientCredentials.getMasterClientId());
             storage.put(getKey(KEY.PREF_CLIENT_ID.name()), clientCredentials.getClientId());
             storage.put(getKey(KEY.PREF_CLIENT_SECRET.name()), clientCredentials.getClientSecret());
             storage.put(getKey(KEY.PREF_CLIENT_EXPIRE_TIME.name()), Long.toString(clientCredentials.getClientExpiration()));
         }
+    }
+
+    @Override
+    public String getMasterClientId() {
+        return storage.get(getKey(KEY.PREF_MASTER_CLIENT_ID.name()));
     }
 
     @Override

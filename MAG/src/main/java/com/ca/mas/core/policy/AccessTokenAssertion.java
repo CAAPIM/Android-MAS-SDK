@@ -78,15 +78,10 @@ class AccessTokenAssertion implements MssoAssertion {
 
     @Override
     public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGException {
-        int errorCode = 0;
-        try {
-            errorCode = ServerClient.findErrorCode(response);
+        int errorCode = ServerClient.findErrorCode(response);
             if (errorCode == -1) {
                 return;
             }
-        } catch (IOException e) {
-            throw new OAuthException(MAGErrorCode.UNKNOWN, e);
-        }
         String s = Integer.toString(errorCode);
         if (s.endsWith(TOKEN_EXPIRED_ERROR_CODE_SUFFIX)) {
             mssoContext.clearAccessToken();

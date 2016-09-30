@@ -81,41 +81,12 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
          * Since this is Android M or higher, we can directly store a symmetric Key into the Android KeyStore
          */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
             storeKeyToKeystore(alias, key);
         } else {
-            Calendar notAfter = Calendar.getInstance();
-            notAfter.add(Calendar.YEAR, 1);
 
-            KeyPairGenerator keyPairGenerator;
+            java.security.KeyStore ks;
             try {
-                keyPairGenerator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, ANDROID_KEY_STORE);
-            } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-                Log.e(TAG, "Error while instantiating KeyPairGenerator", e);
-                throw new RuntimeException("Error while instantiating KeyPairGenerator", e);
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-
-                //Generating an asymmetric key
-                try {
-                    keyPairGenerator.initialize(new KeyPairGeneratorSpec.Builder(context)
-                            .setAlias(ASYM_KEY_ALIAS)
-                            .setEncryptionRequired()
-                            .setSubject(
-                                    new X500Principal(String.format("CN=%s, OU=%s", ASYM_KEY_ALIAS, "com.ca")))
-                            .setSerialNumber(BigInteger.ONE)
-                            .setStartDate(new Date())
-                            .setEndDate(notAfter.getTime())
-                            .build());
-                } catch (InvalidAlgorithmParameterException | NullPointerException e) {
-                    Log.e(TAG, "Error while instantiating KeyPairGenerator", e);
-                    throw new RuntimeException("Error while instantiating KeyPairGenerator", e);
-                }
-            }
-            keyPairGenerator.generateKeyPair(); //This is important, dont remove
-            KeyStore ks;
-            try {
-                ks = KeyStore.getInstance(ANDROID_KEY_STORE);
+                ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
 
             } catch (KeyStoreException e) {
                 Log.e(TAG, "Error while instantiating Android KeyStore instance", e);
@@ -127,14 +98,53 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
                 Log.e(TAG, "Error while loading Android KeyStore instance", e);
                 throw new RuntimeException("Error while instantiating Android KeyStore", e);
             }
-            KeyStore.Entry entry;
+            java.security.KeyStore.Entry entry;
             try {
                 entry = ks.getEntry(ASYM_KEY_ALIAS, null);
             } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException e) {
                 Log.e(TAG, "Error while getting entry from Android KeyStore", e);
                 throw new RuntimeException("Error while getting entry from Android KeyStore", e);
             }
-            PublicKey publicKey = ((KeyStore.PrivateKeyEntry) entry).getCertificate().getPublicKey();
+
+            Calendar notAfter = Calendar.getInstance();
+            notAfter.add(Calendar.YEAR, 1);
+
+            if (entry == null) {
+                KeyPairGenerator keyPairGenerator;
+                try {
+                    keyPairGenerator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, ANDROID_KEY_STORE);
+                } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+                    Log.e(TAG, "Error while instantiating KeyPairGenerator", e);
+                    throw new RuntimeException("Error while instantiating KeyPairGenerator", e);
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+
+                    //Generating an asymmetric key
+                    try {
+                        keyPairGenerator.initialize(new KeyPairGeneratorSpec.Builder(context)
+                                .setAlias(ASYM_KEY_ALIAS)
+                                .setEncryptionRequired()
+                                .setSubject(
+                                        new X500Principal(String.format("CN=%s, OU=%s", ASYM_KEY_ALIAS, "com.ca")))
+                                .setSerialNumber(BigInteger.ONE)
+                                .setStartDate(new Date())
+                                .setEndDate(notAfter.getTime())
+                                .build());
+                    } catch (InvalidAlgorithmParameterException | NullPointerException e) {
+                        Log.e(TAG, "Error while instantiating KeyPairGenerator", e);
+                        throw new RuntimeException("Error while instantiating KeyPairGenerator", e);
+                    }
+                }
+                keyPairGenerator.generateKeyPair(); //This is important, don't remove
+
+                try {
+                    entry = ks.getEntry(ASYM_KEY_ALIAS, null);
+                } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException e) {
+                    Log.e(TAG, "Error while getting entry from Android KeyStore", e);
+                    throw new RuntimeException("Error while getting entry from Android KeyStore", e);
+                }
+            }
+            PublicKey publicKey = ((java.security.KeyStore.PrivateKeyEntry) entry).getCertificate().getPublicKey();
 
             try {
                 byte[] encryptedSecretkey = encryptSecretKey(key, publicKey);
@@ -143,10 +153,7 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
                 Log.e(TAG, "Error while encrypting SecretKey", e);
                 throw new RuntimeException("Error while encrypting SecretKey", e);
             }
-
-
         }
-
     }
 
     /**
@@ -393,7 +400,6 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                 .build();
-
 
 
         try {

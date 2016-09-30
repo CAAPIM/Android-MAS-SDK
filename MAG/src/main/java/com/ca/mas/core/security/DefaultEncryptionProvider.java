@@ -51,10 +51,9 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
 
     public DefaultEncryptionProvider(Context ctx, KeyStorageProvider keyStorageProvider) {
         ksp = keyStorageProvider;
-        boolean temp = ksp.containsKey(KEY_ALIAS);
+        boolean hasSecureKey = ksp.containsKey(KEY_ALIAS);
 
-        if (!temp) {
-
+        if (!hasSecureKey) {
             KeyGenerator keyGenerator = new DefaultKeyGenerator(ALGORITHM, KEY_SIZE);
             SecretKey sk;
             try {

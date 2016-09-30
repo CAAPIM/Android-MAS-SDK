@@ -73,35 +73,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             storeKeyToKeystore(alias, key);
         } else {
-            Calendar notAfter = Calendar.getInstance();
-            notAfter.add(Calendar.YEAR, 1);
 
-            KeyPairGenerator keyPairGenerator;
-            try {
-                keyPairGenerator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, ANDROID_KEY_STORE);
-            } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-                Log.e(TAG, "Error while instantiating KeyPairGenerator", e);
-                throw new RuntimeException("Error while instantiating KeyPairGenerator", e);
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-
-                //Generating an asymmetric key
-                try {
-                    keyPairGenerator.initialize(new KeyPairGeneratorSpec.Builder(context)
-                            .setAlias(ASYM_KEY_ALIAS)
-                            .setEncryptionRequired()
-                            .setSubject(
-                                    new X500Principal(String.format("CN=%s, OU=%s", ASYM_KEY_ALIAS, "com.ca")))
-                            .setSerialNumber(BigInteger.ONE)
-                            .setStartDate(new Date())
-                            .setEndDate(notAfter.getTime())
-                            .build());
-                } catch (InvalidAlgorithmParameterException | NullPointerException e) {
-                    Log.e(TAG, "Error while instantiating KeyPairGenerator", e);
-                    throw new RuntimeException("Error while instantiating KeyPairGenerator", e);
-                }
-            }
-            keyPairGenerator.generateKeyPair(); //This is important, don't remove
             java.security.KeyStore ks;
             try {
                 ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
@@ -122,6 +94,45 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
             } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException e) {
                 Log.e(TAG, "Error while getting entry from Android KeyStore", e);
                 throw new RuntimeException("Error while getting entry from Android KeyStore", e);
+            }
+
+            Calendar notAfter = Calendar.getInstance();
+            notAfter.add(Calendar.YEAR, 1);
+
+            if (entry == null) {
+                KeyPairGenerator keyPairGenerator;
+                try {
+                    keyPairGenerator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, ANDROID_KEY_STORE);
+                } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+                    Log.e(TAG, "Error while instantiating KeyPairGenerator", e);
+                    throw new RuntimeException("Error while instantiating KeyPairGenerator", e);
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+
+                    //Generating an asymmetric key
+                    try {
+                        keyPairGenerator.initialize(new KeyPairGeneratorSpec.Builder(context)
+                                .setAlias(ASYM_KEY_ALIAS)
+                                .setEncryptionRequired()
+                                .setSubject(
+                                        new X500Principal(String.format("CN=%s, OU=%s", ASYM_KEY_ALIAS, "com.ca")))
+                                .setSerialNumber(BigInteger.ONE)
+                                .setStartDate(new Date())
+                                .setEndDate(notAfter.getTime())
+                                .build());
+                    } catch (InvalidAlgorithmParameterException | NullPointerException e) {
+                        Log.e(TAG, "Error while instantiating KeyPairGenerator", e);
+                        throw new RuntimeException("Error while instantiating KeyPairGenerator", e);
+                    }
+                }
+                keyPairGenerator.generateKeyPair(); //This is important, don't remove
+
+                try {
+                    entry = ks.getEntry(ASYM_KEY_ALIAS, null);
+                } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException e) {
+                    Log.e(TAG, "Error while getting entry from Android KeyStore", e);
+                    throw new RuntimeException("Error while getting entry from Android KeyStore", e);
+                }
             }
             PublicKey publicKey = ((java.security.KeyStore.PrivateKeyEntry) entry).getCertificate().getPublicKey();
 
@@ -197,33 +208,37 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
 
     @Override
     public boolean containsKey(String alias) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !containsSecretKeyLocally(alias)) {
-            java.security.KeyStore ks;
+        boolean hasSecureKey = containsSecretKeyLocally(alias);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-            try {
-                ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
-            } catch (KeyStoreException e) {
-                Log.e(TAG, "Error while instantiating Android KeyStore");
-                return false;
-            }
-            try {
-                ks.load(null);
-            } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
-                Log.e(TAG, "Error while instantiating Android KeyStore");
-                return false;
-            }
-            try {
-                return ks.containsAlias(alias);
-            } catch (KeyStoreException e) {
-                Log.e(TAG, "Error in  containsAlias function");
-                return false;
+            if (!hasSecureKey) {
+                //This is not an upgrade from Android M- to M or M+. it is using Android M on first install.
+                java.security.KeyStore ks;
+
+                try {
+                    ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
+                } catch (KeyStoreException e) {
+                    Log.e(TAG, "Error while instantiating Android KeyStore");
+                    return false;
+                }
+                try {
+                    ks.load(null);
+                } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
+                    Log.e(TAG, "Error while instantiating Android KeyStore");
+                    return false;
+                }
+                try {
+                    return ks.containsAlias(alias);
+                } catch (KeyStoreException e) {
+                    Log.e(TAG, "Error in  containsAlias function");
+                    return false;
+                }
+            } else {
+                //This is an upgrade from Android M- to M or M+
+                return true;
             }
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && containsSecretKeyLocally(alias))
-                return true;
-            else {
-                return containsSecretKeyLocally(alias);
-            }
+            return hasSecureKey;
         }
     }
 

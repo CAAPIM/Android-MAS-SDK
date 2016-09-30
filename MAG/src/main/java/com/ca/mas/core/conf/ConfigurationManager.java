@@ -53,6 +53,7 @@ public class ConfigurationManager {
     private List<ConfigurationListener> configurationListeners = new ArrayList<>();
 
     private ConfigurationManager() {
+        configurationListeners.add(new DataSourceVerificationListener());
         configurationListeners.add(new ClientChangeListener());
     }
 
@@ -148,7 +149,7 @@ public class ConfigurationManager {
     public void activate(JSONObject jsonObject) {
         try {
             this.connectedGatewayConfigurationProvider = create(jsonObject);
-            for (ConfigurationListener c: configurationListeners) {
+            for (ConfigurationListener c : configurationListeners) {
                 c.onUpdated(context, connectedGatewayConfigurationProvider);
             }
         } catch (JSONException e) {
@@ -187,7 +188,7 @@ public class ConfigurationManager {
             return new JSONObject(jsonConfig.toString());
         } catch (IOException e) {
             throw new MAGRuntimeException(MAGErrorCode.FAILED_FILE_NOT_FOUND, e);
-        } catch (JSONException e ) {
+        } catch (JSONException e) {
             throw new MAGRuntimeException(MAGErrorCode.INVALID_JSON, e);
         } finally {
             if (in != null) {
@@ -394,6 +395,19 @@ public class ConfigurationManager {
                 //Unable to access the datasource, ignore.
                 Log.w(TAG, e.toString(), e);
 
+            }
+        }
+    }
+
+    private static class DataSourceVerificationListener implements ConfigurationListener {
+
+        @Override
+        public void onUpdated(Context context, ConfigurationProvider provider) {
+            StorageProvider sp = new StorageProvider(context, provider);
+            if (!sp.hasValidStore()) {
+                throw new DataSourceException("Failed to access the secure device storage, " +
+                        "please verify the storage configuration, and make sure the device " +
+                        "has Secure lock screen setup.");
             }
         }
     }

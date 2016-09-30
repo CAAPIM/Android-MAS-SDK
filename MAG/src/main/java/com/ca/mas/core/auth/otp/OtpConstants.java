@@ -25,6 +25,8 @@ public class OtpConstants {
 
     public static final String OTP_REQUESTID = "requestID";
 
-    public static final String OTP_AUTH_URL = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.AUTHENTICATE_OTP_PATH);
+    //public static final String OTP_AUTH_URL = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.AUTHENTICATE_OTP_PATH);
     public static final String IS_INVALID_OTP = "IS_INVALID_OTP";
+
+    /*public static final String DELIVER_OTP_FLAG = "DELIVER_OTP_FLAG";*/
 }

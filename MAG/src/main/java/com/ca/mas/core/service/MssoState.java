@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Holds flag variables indicating various things.
  */
-class MssoState {
+public class MssoState {
     private static final AtomicBoolean expectingUnlock = new AtomicBoolean(false);
 
     static boolean isExpectedUnlock() {

@@ -80,12 +80,14 @@ public class MssoContext {
     private volatile Credentials credentials;
     private String otp;
 
+    private String otpSelectedDeliveryChannels;
 
     /**
      * Retain the container description.  If this app is not running in a container,
      * the value will be "".  If it is, then values include "-knox1", "-knox100", "-knox101"
      */
     protected String containerDescription = null;
+
 
     private MssoContext() {
     }
@@ -165,7 +167,6 @@ public class MssoContext {
         policyManager.init(context);
     }
 
-
     /**
      * Shut down the context.
      * <p/>
@@ -176,6 +177,8 @@ public class MssoContext {
             policyManager.close();
         }
     }
+
+
 
     public String getOtp() {
         return otp;
@@ -391,7 +394,6 @@ public class MssoContext {
         return privateTokens.getRefreshToken();
     }
 
-
     /**
      * Get the configuration provider.
      *
@@ -400,6 +402,7 @@ public class MssoContext {
     public ConfigurationProvider getConfigurationProvider() {
         return configurationProvider;
     }
+
 
     /**
      * Add an access token to the specified outbound request, transmit it to the target server, and return
@@ -683,6 +686,14 @@ public class MssoContext {
      */
     private String generateDeviceId() {
         return (new DeviceIdentifier(context)).toString();
+    }
+
+    public String getOtpSelectedDeliveryChannels() {
+        return otpSelectedDeliveryChannels;
+    }
+
+    public void setOtpSelectedDeliveryChannels(String otpSelectedDeliveryChannels) {
+        this.otpSelectedDeliveryChannels = otpSelectedDeliveryChannels;
     }
 }
 

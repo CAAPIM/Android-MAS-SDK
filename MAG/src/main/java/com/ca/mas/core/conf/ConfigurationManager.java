@@ -53,7 +53,6 @@ public class ConfigurationManager {
     private List<ConfigurationListener> configurationListeners = new ArrayList<>();
 
     private ConfigurationManager() {
-        configurationListeners.add(new DataSourceVerificationListener());
         configurationListeners.add(new ClientChangeListener());
     }
 
@@ -382,32 +381,21 @@ public class ConfigurationManager {
         @Override
         public void onUpdated(Context context, ConfigurationProvider provider) {
             StorageProvider sp = new StorageProvider(context, provider);
-            ClientCredentialContainer container = sp.createClientCredentialContainer();
-            try {
-                String masterClientId = container.getMasterClientId();
-                //The masterClientId may be null due to SDK upgrade.
-                if (masterClientId == null || !masterClientId.equals(provider.getClientId())) {
-                    container.clear();
-                    OAuthTokenContainer oAuthTokenContainer = sp.createOAuthTokenContainer();
-                    oAuthTokenContainer.clear();
-                }
-            } catch (DataSourceException e) {
-                //Unable to access the datasource, ignore.
-                Log.w(TAG, e.toString(), e);
 
-            }
-        }
-    }
-
-    private static class DataSourceVerificationListener implements ConfigurationListener {
-
-        @Override
-        public void onUpdated(Context context, ConfigurationProvider provider) {
-            StorageProvider sp = new StorageProvider(context, provider);
             if (!sp.hasValidStore()) {
-                throw new DataSourceException("Failed to access the secure device storage, " +
+                Log.w(TAG, "Failed to access the secure device storage, " +
                         "please verify the storage configuration, and make sure the device " +
                         "has Secure lock screen setup.");
+                return;
+            }
+
+            ClientCredentialContainer container = sp.createClientCredentialContainer();
+            String masterClientId = container.getMasterClientId();
+            //The masterClientId may be null due to SDK upgrade.
+            if (masterClientId == null || !masterClientId.equals(provider.getClientId())) {
+                container.clear();
+                OAuthTokenContainer oAuthTokenContainer = sp.createOAuthTokenContainer();
+                oAuthTokenContainer.clear();
             }
         }
     }

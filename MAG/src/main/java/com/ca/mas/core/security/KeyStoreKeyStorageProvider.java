@@ -25,10 +25,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.x500.X500Principal;
 
-/**
- * Created by kalsa12 on 2016-09-26.
- */
-
 public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
     private static final String TAG = KeyStoreKeyStorageProvider.class.getCanonicalName();
 

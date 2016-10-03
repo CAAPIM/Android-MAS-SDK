@@ -4,15 +4,9 @@ import android.content.Context;
 
 import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.AccountManagerKeyStorageProvider;
-import com.ca.mas.core.storage.StorageException;
 import com.ca.mas.core.storage.StorageResult;
-import com.ca.mas.core.storage.StorageResultReceiver;
 
 import org.json.JSONObject;
-
-/**
- * Created by kalsa12 on 2016-09-21.
- */
 
 public class SecureAccountManagerStoreDataSource<K, V> extends AccountManagerStoreDataSource<K, V> {
 

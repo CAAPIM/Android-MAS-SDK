@@ -258,11 +258,7 @@ public class AccountManagerStoreDataSource<K, V> implements DataSource<K, V> {
         return (V) result.getData();
     }
 
-    public AccountManagerStorage getStorage() {
-        return storage;
-    }
-
-    public DataConverter getConverter() {
+    protected DataConverter getConverter() {
         return converter;
     }
 }

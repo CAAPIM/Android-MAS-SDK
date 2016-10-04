@@ -19,11 +19,9 @@ import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.MssoService;
-import com.ca.mas.core.service.MssoState;
 
 import java.net.URI;
 import java.util.List;

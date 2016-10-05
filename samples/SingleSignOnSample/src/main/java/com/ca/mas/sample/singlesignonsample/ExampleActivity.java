@@ -57,7 +57,7 @@ import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 import com.ca.mas.ui.MASEnterpriseBrowserFragment;
 import com.ca.mas.ui.MASLoginFragment;
-import com.ca.mas.ui.otp.MASOtpSelectDeliveryChannelFragment;
+import com.ca.mas.ui.otp.MASOtpDialogFragment;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -127,7 +127,7 @@ public class ExampleActivity extends AppCompatActivity {
             @Override
             public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {
                 //Should not trigger this if other then OtpResponseHeaders.X_CA_ERROR.GENERATED or OtpResponseHeaders.X_CA_ERROR.REQUIRED.
-                android.app.DialogFragment otpFragment = MASOtpSelectDeliveryChannelFragment.newInstance(handler);
+                android.app.DialogFragment otpFragment = MASOtpDialogFragment.newInstance(handler);
                 otpFragment.show(((Activity) context).getFragmentManager(), "OTPDialog");
             }
         });

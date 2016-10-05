@@ -22,7 +22,7 @@ import com.ca.mas.ui.R;
 
 /**
  * Sample to show a Otp authentication dialog as a Fragment
- * Deprecated: use MASOtpDialogFragment.
+ * Deprecated: use {@link MASOtpDialogFragment}
  */
 @Deprecated
 public class MASOtpAuthFragment extends DialogFragment {

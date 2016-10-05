@@ -32,7 +32,7 @@ import java.util.List;
 
 /**
  * Sample to show a select otp delivery channel dialog as a Fragment
- * Deprecated: use MASOtpDialogFragment.
+ * Deprecated: use {@link MASOtpDialogFragment}
  */
 @Deprecated
 public class MASOtpSelectDeliveryChannelFragment extends DialogFragment {

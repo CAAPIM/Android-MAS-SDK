@@ -9,6 +9,7 @@
 package com.ca.mas.core.context;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.ca.mas.core.client.ServerClient;
@@ -48,7 +49,7 @@ import java.util.Date;
  * <p/>
  * The context must be configured and initialized before it can be used.
  * <p/>
- * The {@link #executeRequest(MAGRequest)} method will process an outbound
+ * The {@link #executeRequest(Bundle, MAGRequest)} method will process an outbound
  * web API request.  This may take a long time and involve multiple round trips to the token server, and should not
  * be executed on the UI thread.
  * To simplify running remote calls in the background from an Activity, the MssoClient and HttpResponseFragment
@@ -78,9 +79,6 @@ public class MssoContext {
     private volatile MAGHttpClient magHttpClient;
 
     private volatile Credentials credentials;
-    private String otp;
-
-    private String otpSelectedDeliveryChannels;
 
     /**
      * Retain the container description.  If this app is not running in a container,
@@ -125,10 +123,10 @@ public class MssoContext {
      * <p/>
      * If the device name has not already been set, this method will set it to android.os.Build.MODEL.
      *
-     * @param context               a context, for accessing system services such as telephony and location.  Required.
-     *                              The context must have a lifetime at least as long as this MssoContext.
-     *                              Typically this means you should not pass an Activity as the context unless you
-     *                              plan to close this MssoContext when the activity is destroyed.
+     * @param context a context, for accessing system services such as telephony and location.  Required.
+     *                The context must have a lifetime at least as long as this MssoContext.
+     *                Typically this means you should not pass an Activity as the context unless you
+     *                plan to close this MssoContext when the activity is destroyed.
      * @throws MssoException if the token store cannot be prepared
      */
     public void init(Context context) throws MssoException {
@@ -176,16 +174,6 @@ public class MssoContext {
         if (policyManager != null) {
             policyManager.close();
         }
-    }
-
-
-
-    public String getOtp() {
-        return otp;
-    }
-
-    public void setOtp(String otp) {
-        this.otp = otp;
     }
 
     /**
@@ -416,8 +404,8 @@ public class MssoContext {
      *                           (for example, if a username and password must be provided, or if the token store needs to be unlocked).
      * @throws IOException       if there is an error communicating with the target server.
      */
-    public MAGResponse executeRequest(MAGRequest request) throws Exception {
-        RequestInfo requestInfo = new RequestInfo(this, request);
+    public MAGResponse executeRequest(Bundle extra, MAGRequest request) throws Exception {
+        RequestInfo requestInfo = new RequestInfo(this, request, extra);
         MAGInternalRequest internalRequest = requestInfo.getRequest();
 
         MAGStateException lastError = null;
@@ -688,12 +676,5 @@ public class MssoContext {
         return (new DeviceIdentifier(context)).toString();
     }
 
-    public String getOtpSelectedDeliveryChannels() {
-        return otpSelectedDeliveryChannels;
-    }
-
-    public void setOtpSelectedDeliveryChannels(String otpSelectedDeliveryChannels) {
-        this.otpSelectedDeliveryChannels = otpSelectedDeliveryChannels;
-    }
 }
 

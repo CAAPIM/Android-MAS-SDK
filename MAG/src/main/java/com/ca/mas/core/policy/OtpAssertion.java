@@ -9,31 +9,19 @@
 package com.ca.mas.core.policy;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
-import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.auth.otp.OtpConstants;
 import com.ca.mas.core.auth.otp.OtpUtil;
 import com.ca.mas.core.auth.otp.model.OtpResponseBody;
 import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
 import com.ca.mas.core.client.ServerClient;
-import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
-import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.oauth.OAuthException;
-import com.ca.mas.core.policy.exceptions.MobileNumberInvalidException;
-import com.ca.mas.core.policy.exceptions.MobileNumberRequiredException;
 import com.ca.mas.core.policy.exceptions.OtpException;
-import com.ca.mas.core.service.MssoState;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A policy that checks for OTP flow related error codes and status in the response.
@@ -49,28 +37,19 @@ class OtpAssertion implements MssoAssertion {
     @Override
     public void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
 
-        String otpAuthUrl = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.AUTHENTICATE_OTP_PATH);
-        String requestPath = getRequestPath(request);
-        if (!TextUtils.isEmpty(otpAuthUrl) &&
-                !TextUtils.isEmpty(requestPath) &&
-                requestPath.endsWith(otpAuthUrl)
-                ) {
-            List<String> selectedOtpChannels = (request.getRequest().getHeaders().get(OtpConstants.X_OTP_CHANNEL));
-            String selectedOtpChannelsStr = OtpUtil.convertListToCommaSeparatedString(selectedOtpChannels);
-            mssoContext.setOtpSelectedDeliveryChannels(selectedOtpChannelsStr);
-        }
-
-        String otp = mssoContext.getOtp();
-        if (otp != null && !"".equals(otp)) {
-            request.getRequest().addHeader(OtpConstants.X_OTP, otp);
-            mssoContext.setOtp(null);
-            /*MAPI-1033 : Add support caching of user selected OTP channels*/
-            if (mssoContext.getOtpSelectedDeliveryChannels() != null
-                    && !"".equals(mssoContext.getOtpSelectedDeliveryChannels() )) {
-                request.getRequest().addHeader(OtpConstants.X_OTP_CHANNEL, mssoContext.getOtpSelectedDeliveryChannels() );
+        //When receive OTP
+        Bundle extra = request.getExtra();
+        if (extra != null) {
+            String otp = extra.getString(OtpConstants.X_OTP);
+            if (otp != null ) {
+                request.getRequest().addHeader(OtpConstants.X_OTP, otp);
+                extra.remove(OtpConstants.X_OTP);
+            }
+            String selectedChannels = extra.getString(OtpConstants.X_OTP_CHANNEL);
+            if (selectedChannels != null) {
+                request.getRequest().addHeader(OtpConstants.X_OTP_CHANNEL, otp);
             }
         }
-
     }
 
     @Override
@@ -98,12 +77,4 @@ class OtpAssertion implements MssoAssertion {
     public void close() {
     }
 
-    private String getRequestPath(RequestInfo request) {
-        if (request != null && request.getRequest() != null && request.getRequest().getURL() != null &&
-                request.getRequest().getURL().getPath() != null
-                ) {
-            return request.getRequest().getURL().getPath();
-        }
-        return null;
-    }
 }

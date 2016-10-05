@@ -18,7 +18,7 @@ import android.util.Log;
 import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
-import com.ca.mas.core.auth.otp.OtpUtil;
+import com.ca.mas.core.auth.otp.OtpConstants;
 import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
 import com.ca.mas.core.clientcredentials.ClientCredentialsException;
 import com.ca.mas.core.clientcredentials.ClientCredentialsServerException;
@@ -53,7 +53,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -114,27 +113,12 @@ public class MssoService extends IntentService {
     }
 
     private void onOtpObtained(Bundle extras, MssoRequest request) {
-        String otp = extras.getString(MssoIntents.EXTRA_OTP_VALUE);
-        request.getMssoContext().setOtp(otp);
-
-        boolean originalRequestProcessed = false;
-        ArrayList<MssoRequest> requests = new ArrayList<MssoRequest>(activeRequests.values());
-        for (MssoRequest mssoRequest : requests) {
-            if (request == mssoRequest) {
-                originalRequestProcessed = true;
-                mssoRequest.getMssoContext().setOtp(otp);
-            }
-            if (!onProcessRequest(mssoRequest)) {
-                // Stop servicing queue now
-                break;
-            }
-        }
-
-
-        // Ensure we make at least one request to process the original request
-        if (!originalRequestProcessed)
-            onProcessRequest(request);
-
+        Bundle bundle = new Bundle();
+        bundle.putString(OtpConstants.X_OTP, extras.getString(MssoIntents.EXTRA_OTP_VALUE));
+        bundle.putString(OtpConstants.X_OTP_CHANNEL, extras.getString(MssoIntents.EXTRA_OTP_SELECTED_CHANNELS));
+        //associate the otp and selected channels to the request
+        request.setExtra(bundle);
+        onProcessRequest(request);
     }
 
     private void onCredentialsObtained(Bundle extras, MssoRequest request) {
@@ -196,13 +180,13 @@ public class MssoService extends IntentService {
      * @return true if the request was handled to completion (requestFinished() was called)
      * false if an activity was started (requestFinished() not called, request still pending)
      */
-    private boolean onProcessRequest(MssoRequest request) {
+    private boolean onProcessRequest(final MssoRequest request) {
         ResultReceiver receiver = request.getResultReceiver();
         boolean expectingUnlock = false;
 
         MssoContext mssoContext = request.getMssoContext();
         try {
-            MAGResponse magResponse = mssoContext.executeRequest(request.getRequest());
+            MAGResponse magResponse = mssoContext.executeRequest(request.getExtra(), request.getRequest());
 
             // Success. Move to response queue and send success notification.
             if (requestFinished(request)) {
@@ -253,12 +237,13 @@ public class MssoService extends IntentService {
                 if (OtpResponseHeaders.X_OTP_VALUE.REQUIRED.equals(otpResponseHeaders.getxOtpValue())) {
                         mobileSsoListener.onOtpAuthenticationRequest(new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), false, null));
                 } else if (OtpResponseHeaders.X_CA_ERROR.OTP_INVALID == otpResponseHeaders.getErrorCode()) {
-                    /*MAPI-1033 : Add support caching of user selected OTP channels*/
-                    String userSelectedChannels = null;
-                    if (mssoContext != null && mssoContext.getOtpSelectedDeliveryChannels() != null && !"".equals(mssoContext.getOtpSelectedDeliveryChannels())){
-                        userSelectedChannels = mssoContext.getOtpSelectedDeliveryChannels();
+                    Bundle extra = request.getExtra();
+                    String selectedChannels = null;
+                    if (extra != null) {
+                        selectedChannels = extra.getString(OtpConstants.X_OTP_CHANNEL);
                     }
-                    OtpAuthenticationHandler otpHandler = new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), true, userSelectedChannels );
+
+                    OtpAuthenticationHandler otpHandler = new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), true, selectedChannels );
                     mobileSsoListener.onOtpAuthenticationRequest(otpHandler );
                 }
                 return false;

@@ -8,6 +8,7 @@
 
 package com.ca.mas.core.service;
 
+import android.os.Bundle;
 import android.os.ResultReceiver;
 
 import com.ca.mas.core.context.MssoContext;
@@ -26,6 +27,8 @@ class MssoRequest {
     private final MssoContext mssoContext;
     private MAGRequest request;
     private final ResultReceiver resultReceiver;
+    //Extra data for the request
+    private Bundle extra;
 
     public MssoRequest(Object creator, MssoContext mssoContext, MAGRequest request, ResultReceiver resultReceiver) {
         this.id = nextRequestId.incrementAndGet();
@@ -55,4 +58,11 @@ class MssoRequest {
         return creator;
     }
 
+    public void setExtra(Bundle extra) {
+        this.extra = extra;
+    }
+
+    public Bundle getExtra() {
+        return extra;
+    }
 }

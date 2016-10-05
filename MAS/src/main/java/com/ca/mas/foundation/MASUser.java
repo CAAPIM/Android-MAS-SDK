@@ -500,14 +500,14 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
         };
     }
 
-        /**
-         * <p>Logs off an already authenticated user via an asynchronous request.</p>
-         * <p/>
-         * This will invoke {@link Callback#onSuccess(MASCallback, Object)} upon a successful result.
-         *
-         * @param callback The Callback that receives the results. On a successful completion, the user
-         *                 available via {@link MASUser#getCurrentUser()} will be updated with the new information.
-         */
+    /**
+     * <p>Logs off an already authenticated user via an asynchronous request.</p>
+     * <p/>
+     * This will invoke {@link Callback#onSuccess(MASCallback, Object)} upon a successful result.
+     *
+     * @param callback The Callback that receives the results. On a successful completion, the user
+     *                 will be logout from the Application.
+     */
 
     public abstract void logout(final MASCallback<Void> callback);
 
@@ -521,5 +521,11 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
      */
     public abstract boolean isCurrentUser();
 
+    /**
+     * Requesting userInfo for the MASUser object
+     *
+     * @param callback The Callback that receives the results. On a successful completion, the user
+     *                 available via {@link MASUser#getCurrentUser()} will be updated with the new information.
+     */
     public abstract void requestUserInfo(MASCallback<Void> callback);
 }

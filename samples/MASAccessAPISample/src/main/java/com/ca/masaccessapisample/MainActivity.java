@@ -13,12 +13,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -35,8 +35,7 @@ import com.ca.mas.foundation.MASRequestBody;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.ui.MASLoginFragment;
-import com.ca.mas.ui.otp.MASOtpSelectDeliveryChannelFragment;
-
+import com.ca.mas.ui.otp.MASOtpDialogFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -95,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {
-                android.app.DialogFragment otpFragment = MASOtpSelectDeliveryChannelFragment.newInstance(handler);
+                android.app.DialogFragment otpFragment = MASOtpDialogFragment.newInstance(handler);
                 otpFragment.show(((Activity) context).getFragmentManager(), "OTPDialog");
             }
         });

@@ -5,7 +5,6 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.ui.otp;
 
 import android.app.Activity;
@@ -31,26 +30,24 @@ import com.ca.mas.ui.listener.MASFragmentAttachDismissListener;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Sample to show a select otp delivery channel dialog as a Fragment
+ * Deprecated: use {@link MASOtpDialogFragment}
  */
+@Deprecated
 public class MASOtpSelectDeliveryChannelFragment extends DialogFragment {
-
     private static final String TAG = MASOtpSelectDeliveryChannelFragment.class.getCanonicalName();
     private static final String HANDLER = "handle";
     private MASOtpAuthenticationHandler handler;
-
     String errorMessage = "Request Cancelled";
-    boolean isRequestProcessing=false;
+    boolean isRequestProcessing = false;
 
     /**
-     * Use this factory method to create a new instance of
-     * this fragment
+     * Use this factory method to create a new instance of this fragment
+     *
      * @return A new instance of fragment MASOtpSelectDeliveryChannelFragment.
      */
     public static MASOtpSelectDeliveryChannelFragment newInstance(MASOtpAuthenticationHandler handler) {
-
         MASOtpSelectDeliveryChannelFragment fragment = new MASOtpSelectDeliveryChannelFragment();
         Bundle args = new Bundle();
         args.putParcelable(HANDLER, handler);
@@ -78,13 +75,12 @@ public class MASOtpSelectDeliveryChannelFragment extends DialogFragment {
                 otpAuthFragment.show(getActivity().getFragmentManager(), "OTPDialog");
                 dismiss();
             }
-    }
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_otp_select_delivery_channels, container, false);
         LinearLayout llOtpChannels = (LinearLayout) view.findViewById(R.id.llOtpChannels);
@@ -94,41 +90,39 @@ public class MASOtpSelectDeliveryChannelFragment extends DialogFragment {
             channels.add("EMAIL");
         }
         final List<String> otpChannelsFinal = channels;
-        LinearLayout llCheckboxContainer=new TableLayout(getActivity());
-        llCheckboxContainer.setPadding(100,0,0,0);
-        final CheckBox[] cbChannels=new CheckBox[channels.size()];
-        for(int i=0;i<channels.size();i++){
-            cbChannels[i]= new CheckBox(getActivity());
-           // cbChannels[i].set
+        LinearLayout llCheckboxContainer = new TableLayout(getActivity());
+        llCheckboxContainer.setPadding(100, 0, 0, 0);
+        final CheckBox[] cbChannels = new CheckBox[channels.size()];
+        for (int i = 0; i < channels.size(); i++) {
+            cbChannels[i] = new CheckBox(getActivity());
+            // cbChannels[i].set
             cbChannels[i].setText(channels.get(i));
-            llCheckboxContainer.addView(cbChannels[i],i);
+            llCheckboxContainer.addView(cbChannels[i], i);
         }
-        llOtpChannels.addView(llCheckboxContainer,0);
+        llOtpChannels.addView(llCheckboxContainer, 0);
 
         Button btnsendotp = (Button) view.findViewById(R.id.btnsendotp);
         btnsendotp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                String channel ="";
-                isRequestProcessing=true;
-                if (otpChannelsFinal.size() == 1 ){
+                String channel = "";
+                isRequestProcessing = true;
+                if (otpChannelsFinal.size() == 1) {
                     channel = otpChannelsFinal.get(0);
                 } else {
-                    for(int i=0;i<otpChannelsFinal.size();i++){
-                        if(cbChannels[i].isChecked()){
-                            if(channel.isEmpty()){
-                                channel=(String)cbChannels[i].getText();
-                            }
-                            else{
-                                channel=channel+","+cbChannels[i].getText();
+                    for (int i = 0; i < otpChannelsFinal.size(); i++) {
+                        if (cbChannels[i].isChecked()) {
+                            if (channel.isEmpty()) {
+                                channel = (String) cbChannels[i].getText();
+                            } else {
+                                channel = channel + "," + cbChannels[i].getText();
                             }
                         }
                     }
                 }
 
                 handler.deliver(channel, new MASCallback<Void>() {
-
                     @Override
                     public void onSuccess(Void result) {
                         DialogFragment otpAuthFragment = MASOtpAuthFragment.newInstance(handler);
@@ -138,12 +132,12 @@ public class MASOtpSelectDeliveryChannelFragment extends DialogFragment {
 
                     @Override
                     public void onError(Throwable e) {
-                        isRequestProcessing=false;
+                        isRequestProcessing = false;
                         Activity activity = getActivity();
                         if (activity instanceof MASErrorMessageListener) {
                             String errorMessage = "OTP delivery failure";
-                            if (e instanceof MAGServerException ) {
-                                int errorCode = ((MAGServerException)e).getErrorCode();
+                            if (e instanceof MAGServerException) {
+                                int errorCode = ((MAGServerException) e).getErrorCode();
                                 String errorCodeString = Integer.toString(errorCode);
                                 if (errorCodeString.endsWith("140")) {
                                     errorMessage = getResources().getString(R.string.errorCode140);
@@ -164,53 +158,47 @@ public class MASOtpSelectDeliveryChannelFragment extends DialogFragment {
                     }
                 });
             }
-
         });
         Button btnCancel = (Button) view.findViewById(R.id.btnCancel);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 handler.cancel();
-                isRequestProcessing=false;
+                isRequestProcessing = false;
                 dismiss();
             }
         });
         return view;
     }
 
-
     @Override
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
         Activity activity = getActivity();
-        if(activity instanceof MASFragmentAttachDismissListener)
-            ((MASFragmentAttachDismissListener)activity).handleDialogOpen(activity);
-
+        if (activity instanceof MASFragmentAttachDismissListener)
+            ((MASFragmentAttachDismissListener) activity).handleDialogOpen(activity);
     }
-
 
     @Override
     public void onPause() {
         super.onPause();
         Activity activity = getActivity();
-        if(activity instanceof MASFragmentAttachDismissListener)
-            ((MASFragmentAttachDismissListener)activity).handleDialogClose(activity,isRequestProcessing);
-
+        if (activity instanceof MASFragmentAttachDismissListener)
+            ((MASFragmentAttachDismissListener) activity).handleDialogClose(activity, isRequestProcessing);
     }
 
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
         Activity activity = getActivity();
-        if(activity instanceof MASFragmentAttachDismissListener)
-            ((MASFragmentAttachDismissListener)activity).handleDialogClose(activity,isRequestProcessing);
-        if(activity instanceof MASErrorMessageListener)
-            ((MASErrorMessageListener)activity).getErrorMessage(errorMessage);
+        if (activity instanceof MASFragmentAttachDismissListener)
+            ((MASFragmentAttachDismissListener) activity).handleDialogClose(activity, isRequestProcessing);
+        if (activity instanceof MASErrorMessageListener)
+            ((MASErrorMessageListener) activity).getErrorMessage(errorMessage);
     }
 }

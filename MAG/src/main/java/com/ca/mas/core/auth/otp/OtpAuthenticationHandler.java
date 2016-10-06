@@ -19,11 +19,9 @@ import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.MssoService;
-import com.ca.mas.core.service.MssoState;
 
 import java.net.URI;
 import java.util.List;
@@ -35,16 +33,15 @@ public class OtpAuthenticationHandler implements Parcelable {
     private long requestId;
     private List<String> channels;
     private boolean isInvalidOtp;
+    private String selectedChannels;
 
-    private String userSelectedChannels;
+    public OtpAuthenticationHandler(long requestId, List<String> channels, boolean isInvalidOtp, String selectedChannels) {
 
-    public OtpAuthenticationHandler(long requestId, List<String> channels, boolean isInvalidOtp, String userSelectedChannels) {
         this.requestId = requestId;
         this.channels = channels;
         this.isInvalidOtp = isInvalidOtp;
-        this.userSelectedChannels = userSelectedChannels;
-        if (channels == null && !TextUtils.isEmpty(userSelectedChannels))
-            this.channels = OtpUtil.convertCommaSeparatedStringToList(userSelectedChannels);
+        this.selectedChannels = selectedChannels;
+
     }
 
     /**
@@ -54,31 +51,29 @@ public class OtpAuthenticationHandler implements Parcelable {
      * @param otp     the OTP to be validated
      */
     public void proceed(Context context, String otp) {
-        Intent intent = new Intent(MssoIntents.ACTION_VALIDATE_OTP, null,context, MssoService.class);
+        Intent intent = new Intent(MssoIntents.ACTION_VALIDATE_OTP, null, context, MssoService.class);
 
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
         intent.putExtra(MssoIntents.EXTRA_OTP_VALUE, otp);
-        if (!TextUtils.isEmpty(userSelectedChannels))
-            intent.putExtra (MssoIntents.EXTRA_OTP_SELECTED_CHANNELS, userSelectedChannels);
+        intent.putExtra(MssoIntents.EXTRA_OTP_SELECTED_CHANNELS, selectedChannels);
         context.startService(intent);
     }
 
     /**
      * Proceed to invoke server to deliver the OTP to the given delivery channel.
      *
-     * @param channel  the name of the delivery channel
+     * @param channels  the name of the delivery channel
      * @param callback the callback for delivering a success or error
      */
-    public void deliver(String channel, MAGResultReceiver<Void> callback) {
+    public void deliver(String channels, MAGResultReceiver<Void> callback) {
+        this.selectedChannels = channels;
         MobileSso mobileSso = MobileSsoFactory.getInstance();
 
         //MAPI-1032 : Android SDK : Fix for prefixed server otp protected resource
         String otpAuthUrl = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.AUTHENTICATE_OTP_PATH);
-        URI otpDeliveryUrl = mobileSso.getURI(/*mobileSso.getPrefix() +*/otpAuthUrl
-                );
+        URI otpDeliveryUrl = mobileSso.getURI(otpAuthUrl);
         MAGRequest request = new MAGRequest.MAGRequestBuilder(otpDeliveryUrl)
-                .header(OtpConstants.X_OTP_CHANNEL, channel)
-                .header(OtpConstants.OTP_REQUESTID, Long.toString(requestId))
+                .header(OtpConstants.X_OTP_CHANNEL, channels)
                 .build();
         mobileSso.processRequest(request, callback);
 
@@ -116,11 +111,15 @@ public class OtpAuthenticationHandler implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(this.requestId);
         dest.writeStringList(this.channels);
+        dest.writeByte(this.isInvalidOtp ? (byte) 1 : (byte) 0);
+        dest.writeString(this.selectedChannels);
     }
 
     protected OtpAuthenticationHandler(Parcel in) {
         this.requestId = in.readLong();
         this.channels = in.createStringArrayList();
+        this.isInvalidOtp = in.readByte() != 0;
+        this.selectedChannels = in.readString();
     }
 
     public static final Creator<OtpAuthenticationHandler> CREATOR = new Creator<OtpAuthenticationHandler>() {

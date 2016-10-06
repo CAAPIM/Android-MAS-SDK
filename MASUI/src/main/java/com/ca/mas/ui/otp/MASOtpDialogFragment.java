@@ -173,7 +173,7 @@ public class MASOtpDialogFragment extends DialogFragment {
         builder.setView(view)
                 .setTitle(R.string.select_delivery_channel)
                 // Will set in onStart() instead
-                .setPositiveButton(invalidOtp ? R.string.verify_otp : R.string.send_otp, null)
+                .setPositiveButton(invalidOtp ? R.string.verify_otp : R.string.request_otp, null)
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

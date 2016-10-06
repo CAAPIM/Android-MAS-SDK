@@ -15,7 +15,7 @@
 
     <!-- Validate OTP-->
     <string name="enter_otp">Enter the OTP</string>
-    <string name="send_otp">Send OTP</string>
+    <string name="request_otp">Request OTP</string>
     <string name="verify_otp">Verify</string>
     <string name="cancel">Cancel</string>
 

@@ -196,7 +196,7 @@ public class LocalStoreDataSource implements DataSource<LocalStoreKey, LocalStor
             selection.append(" =? ");
             selectionArgs.add(key.getKey());
         }
-        if (selection.length() != 0) {
+        if (selection.length() != 0 && key.getSegment() != null) {
             selection.append(" AND ");
         }
         if (key.getSegment() != null) {
@@ -204,7 +204,7 @@ public class LocalStoreDataSource implements DataSource<LocalStoreKey, LocalStor
             selection.append(" =? ");
             selectionArgs.add(Integer.toString(key.getSegment()));
         }
-        if (selection.length() != 0) {
+        if (selection.length() != 0 && key.getCreatedBy() != null) {
             selection.append(" AND ");
         }
         if (key.getCreatedBy() != null) {

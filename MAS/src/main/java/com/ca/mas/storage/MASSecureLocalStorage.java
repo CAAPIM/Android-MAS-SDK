@@ -12,6 +12,7 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.ca.mas.core.BuildConfig;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.datasource.DataSourceFactory;
@@ -68,6 +69,9 @@ public class MASSecureLocalStorage extends AbstractMASStorage {
                     byte[] encryptedData = data;
                     if (encProvider != null) {
                         encryptedData = encProvider.encrypt(data);
+                    }
+                    if (segment == MASConstants.MAS_APPLICATION) {
+                        s = context.getPackageName();
                     }
                     dataSource.put(new Key(key, segment, s), new LocalStoreEntity(relevantM.getTypeAsString(), encryptedData));
                     Callback.onSuccess(callback, null);
@@ -173,7 +177,7 @@ public class MASSecureLocalStorage extends AbstractMASStorage {
                 execute(function, callback);
                 break;
             case MASConstants.MAS_APPLICATION:
-                execute(function, ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getClientId());
+                execute(function, (String)null);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported storage segment");

@@ -18,8 +18,8 @@ import android.support.test.InstrumentationRegistry;
 import android.util.Base64;
 import android.util.Log;
 
-import com.ca.mas.storage.DefaultEncryptionProvider;
-import com.ca.mas.storage.MASEncryptionProvider;
+import com.ca.mas.core.security.DefaultEncryptionProvider;
+import com.ca.mas.core.security.EncryptionProvider;
 
 import org.junit.After;
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class EncryptionProviderTest {
     /**
      * The Encryption provider reference
      */
-    MASEncryptionProvider encryptionProvider;
+    EncryptionProvider encryptionProvider;
 
     private static final String SYM_KEY="secret";
     private static final String ASYM_KEY_ALIAS = "ASYM_KEY";

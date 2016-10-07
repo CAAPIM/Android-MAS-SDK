@@ -10,7 +10,6 @@ package com.ca.mas.core.test.datasource;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.AndroidTestCase;
 
 import com.ca.mas.core.datasource.AccountManagerStoreDataSource;
 import com.ca.mas.core.datasource.DataConverter;
@@ -20,7 +19,6 @@ import com.ca.mas.core.datasource.StringDataConverter;
 
 import org.json.JSONObject;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -49,25 +47,21 @@ public class AccountManagerStoreDataSourceTest {
 
     @Test
     public void testReadWriteString() {
-
-        DataSource<String, String> d = DataSourceFactory.getStorage(InstrumentationRegistry.getTargetContext(),
-                AccountManagerStoreDataSource.class, param, new StringDataConverter());
+        DataSource<String, String> d = (DataSource<String, String>) getDataSource(new StringDataConverter());
         d.put(KEY, VALUE);
         assertEquals(VALUE, d.get(KEY));
     }
 
     @Test
     public void testReadWriteByteArray() {
-        DataSource<String, byte[]> d = DataSourceFactory.getStorage(InstrumentationRegistry.getTargetContext(),
-                AccountManagerStoreDataSource.class, param, null);
+        DataSource<String, byte[]> d = (DataSource<String, byte[]>) getDataSource( null );
         d.put(KEY, VALUE.getBytes());
         assertEquals(VALUE, new String(d.get(KEY)));
     }
 
     @Test
     public void testReadWriteGeneric() {
-        DataSource<String, Object> d = DataSourceFactory.getStorage(InstrumentationRegistry.getTargetContext(),
-                AccountManagerStoreDataSource.class, param, new DataConverter() {
+        DataSource<String, Object> d = (DataSource<String, Object>) getDataSource(new DataConverter() {
             @Override
             public Object convert(Object key, byte[] value) {
                 if (key.equals(KEY)) {
@@ -77,6 +71,7 @@ public class AccountManagerStoreDataSourceTest {
                 }
             }
         });
+
         d.put(KEY, VALUE);
         d.put(KEY2, VALUE2.getBytes());
         assertEquals(VALUE, d.get(KEY));
@@ -85,8 +80,8 @@ public class AccountManagerStoreDataSourceTest {
 
     @Test
     public void testGetKeys() {
-        DataSource<String, Object> d = DataSourceFactory.getStorage(InstrumentationRegistry.getTargetContext(),
-                AccountManagerStoreDataSource.class, param, null);
+        DataSource<String, Object> d = (DataSource<String, Object>) getDataSource(null);
+
         d.put(KEY, VALUE);
         d.put(KEY2, VALUE2.getBytes());
         assertTrue(d.getKeys((String)null).contains(KEY));
@@ -95,13 +90,14 @@ public class AccountManagerStoreDataSourceTest {
 
     @Test
     public void testRemove() {
-        DataSource<String, Object> d = DataSourceFactory.getStorage(InstrumentationRegistry.getTargetContext(),
-                AccountManagerStoreDataSource.class, param, null);
+        DataSource<String, Object> d = (DataSource<String, Object>) getDataSource(null);
         d.put(KEY, VALUE);
         d.remove(KEY);
         assertNull(d.get(KEY));
     }
 
-
-
+    protected DataSource<?, ?> getDataSource(DataConverter dataConverter){
+        return DataSourceFactory.getStorage(InstrumentationRegistry.getTargetContext(),
+                AccountManagerStoreDataSource.class, param, dataConverter);
+    }
 }

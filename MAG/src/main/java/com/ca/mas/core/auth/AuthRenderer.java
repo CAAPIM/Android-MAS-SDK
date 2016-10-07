@@ -101,7 +101,7 @@ public abstract class AuthRenderer {
 
 
         try {
-            final StorageProvider sp = new StorageProvider(context, MobileSsoFactory.getInstance(context).getConfigurationProvider());
+            final StorageProvider sp = new StorageProvider(context);
             MAGRequest request = new MAGRequest.MAGRequestBuilder(new URL(provider.getPollUrl()))
                     .responseBody(MAGResponseBody.jsonBody())
                     .build();

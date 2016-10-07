@@ -19,6 +19,8 @@ import com.ca.mas.core.datasource.DataSourceFactory;
 import com.ca.mas.core.datasource.LocalStoreDataSource;
 import com.ca.mas.core.datasource.LocalStoreEntity;
 import com.ca.mas.core.datasource.LocalStoreKey;
+import com.ca.mas.core.security.DefaultEncryptionProvider;
+import com.ca.mas.core.security.EncryptionProvider;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
@@ -35,13 +37,13 @@ public class MASSecureLocalStorage extends AbstractMASStorage {
 
     private DataSource<LocalStoreKey, LocalStoreEntity> dataSource;
     private Context context;
-    private MASEncryptionProvider encProvider;
+    private EncryptionProvider encProvider;
 
     public MASSecureLocalStorage() {
         this(new DefaultEncryptionProvider(MAS.getContext()));
     }
 
-    public MASSecureLocalStorage(MASEncryptionProvider encryptionProvider) {
+    public MASSecureLocalStorage(EncryptionProvider encryptionProvider) {
 
         this.context = MAS.getContext();
 
@@ -166,7 +168,7 @@ public class MASSecureLocalStorage extends AbstractMASStorage {
         }, segment, callback);
     }
 
-    private void setEncryptionProvider(@NonNull MASEncryptionProvider provider) {
+    private void setEncryptionProvider(@NonNull EncryptionProvider provider) {
         encProvider = provider;
     }
 

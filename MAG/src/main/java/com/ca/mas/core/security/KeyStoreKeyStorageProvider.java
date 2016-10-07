@@ -6,31 +6,21 @@
  *
  */
 
-package com.ca.mas.storage;
+package com.ca.mas.core.security;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyProperties;
 import android.security.keystore.KeyProtection;
 import android.support.annotation.NonNull;
-import android.util.Base64;
 import android.util.Log;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.KeyPairGenerator;
+import java.security.*;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.util.Calendar;
 import java.util.Date;
@@ -43,28 +33,32 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.x500.X500Principal;
 
-class KeyStoreKeyStorageProvider implements KeyStorageProvider {
-    public static final String ANDROID_KEY_STORE = "AndroidKeyStore";
+public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
+    private static final String TAG = KeyStoreKeyStorageProvider.class.getCanonicalName();
+
     //"RSA/ECB/PKCS1Padding" actually doesn't implement ECB mode encryption.
     // It should have been called "RSA/None/PKCS1Padding" as it can only be used to
     // encrypt a single block of plaintext (The secret key)
     // This may be naming mistake.
-    public static final String RSA_ECB_PKCS1_PADDING = "RSA/ECB/PKCS1PADDING";
-    public static final String PREFS_NAME = "SECRET_PREFS";
-    private Context context;
-    private SharedPreferences sharedpreferences;
-    private static final String AES = "AES";
-    private static final String TAG = KeyStoreKeyStorageProvider.class.getCanonicalName();
-    private static final String ASYM_KEY_ALIAS = "ASYM_KEY";
 
-    /**
-     * Constructor to KeyStorageProvider
-     *
-     * @param ctx : requires context of the calling application
-     */
+    public static final String ANDROID_KEY_STORE = "AndroidKeyStore";
+    protected static final String ASYM_KEY_ALIAS = "ASYM_KEY";
+    public static final String RSA_ECB_PKCS1_PADDING = "RSA/ECB/PKCS1PADDING";
+    private static final String AES = "AES";
+
+    private Context context;
+
     public KeyStoreKeyStorageProvider(@NonNull Context ctx) {
         context = ctx.getApplicationContext();
     }
+
+    abstract boolean storeSecretKeyLocally(String alias, byte[] encryptedSecretKey);
+
+    abstract boolean containsSecretKeyLocally(String alias);
+
+    abstract boolean deleteSecretKeyLocally(String alias);
+
+    abstract byte[] getEncryptedSecretKey(String alias);
 
     /**
      * This method stores the SecretKey in safe location.
@@ -165,10 +159,10 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
     @Override
     public SecretKey getKey(String alias) {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !containsSecretkeyLocally(alias)) {
-            KeyStore ks;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !containsSecretKeyLocally(alias)) {
+            java.security.KeyStore ks;
             try {
-                ks = KeyStore.getInstance("AndroidKeyStore");
+                ks = java.security.KeyStore.getInstance("AndroidKeyStore");
             } catch (KeyStoreException e) {
                 Log.e(TAG, "Error while instantiating Android KeyStore instance", e);
                 throw new RuntimeException("Error while instantiating Android KeyStore instance", e);
@@ -181,8 +175,7 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
             }
             SecretKey sk;
             try {
-
-                KeyStore.SecretKeyEntry entry = (KeyStore.SecretKeyEntry) ks.getEntry(alias, null);
+                java.security.KeyStore.SecretKeyEntry entry = (java.security.KeyStore.SecretKeyEntry) ks.getEntry(alias, null);
                 sk = entry.getSecretKey();
             } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException | NullPointerException e) {
                 Log.e(TAG, "Error while getting entry from Android KeyStore", e);
@@ -199,7 +192,7 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
              * SecretKey is deleted from local store.
              * Now the secretKey is only present in the Keystore.
              */
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && containsSecretkeyLocally(alias)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && containsSecretKeyLocally(alias)) {
 
                 //Get SecretKey from local store
                 SecretKey key = getSecretKeyLocally(alias);
@@ -212,135 +205,80 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
                 //return the secretKey from the its new place, the KeyStore
                 return getKey(alias);
             } else {
-
                 return getSecretKeyLocally(alias);
             }
-
         }
-
-
     }
 
     @Override
     public boolean containsKey(String alias) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !containsSecretkeyLocally(alias)) {
+        boolean hasSecureKey = containsSecretKeyLocally(alias);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-            KeyStore ks;
-            try {
-                ks = KeyStore.getInstance(ANDROID_KEY_STORE);
-            } catch (KeyStoreException e) {
-                Log.e(TAG, "Error while instantiating Android KeyStore");
-                return false;
-            }
-            try {
-                ks.load(null);
-            } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
-                Log.e(TAG, "Error while instantiating Android KeyStore");
-                return false;
-            }
-            try {
-                return ks.containsAlias(alias);
-            } catch (KeyStoreException e) {
-                Log.e(TAG, "Error in  containsAlias function");
-                return false;
+            if (!hasSecureKey) {
+                //This is not an upgrade from Android M- to M or M+. it is using Android M on first install.
+                java.security.KeyStore ks;
+
+                try {
+                    ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
+                } catch (KeyStoreException e) {
+                    Log.e(TAG, "Error while instantiating Android KeyStore");
+                    return false;
+                }
+                try {
+                    ks.load(null);
+                } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
+                    Log.e(TAG, "Error while instantiating Android KeyStore");
+                    return false;
+                }
+                try {
+                    return ks.containsAlias(alias);
+                } catch (KeyStoreException e) {
+                    Log.e(TAG, "Error in  containsAlias function");
+                    return false;
+                }
+            } else {
+                //This is an upgrade from Android M- to M or M+
+                return true;
             }
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && containsSecretkeyLocally(alias))
-                return true;
-            else {
-                return containsSecretkeyLocally(alias);
-            }
+            return hasSecureKey;
         }
-
-    }
-
-    /**
-     * This method encrypts the SecretKey with asymmetric Key
-     *
-     * @param key:       the SecretKey to encrypt
-     * @param publicKey: The public key part of the asymmetric Key
-     * @return byte[]: the EncryptedKey
-     * @throws InvalidKeyException
-     * @throws BadPaddingException
-     * @throws IllegalBlockSizeException
-     * @throws NoSuchPaddingException
-     * @throws NoSuchAlgorithmException
-     */
-    private byte[] encryptSecretKey(SecretKey key, PublicKey publicKey) throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException {
-        Cipher cipher = Cipher.getInstance(RSA_ECB_PKCS1_PADDING);
-        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-        return cipher.doFinal(key.getEncoded());
-    }
-
-    /**
-     * This method decrypts the encrypted SecretKey
-     *
-     * @param encryptedSecretKey
-     * @param privateKey:        the private Key part of the asymmetric Key
-     * @return Secretkey
-     * @throws NoSuchPaddingException
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeyException
-     * @throws BadPaddingException
-     * @throws IllegalBlockSizeException
-     */
-    private SecretKey decryptSecretKey(byte[] encryptedSecretKey, PrivateKey privateKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        Cipher cipher = Cipher.getInstance(RSA_ECB_PKCS1_PADDING);
-        cipher.init(Cipher.DECRYPT_MODE, privateKey);
-        byte[] decryptedSecretkey = cipher.doFinal(encryptedSecretKey);
-        return new SecretKeySpec(decryptedSecretkey, AES);
-    }
-
-    /**
-     * This method stores the encrypted SecretKey in the locally, using SharedPreferences
-     *
-     * @param alias:             the alias to store the Key against
-     * @param encryptedSecretkey
-     * @return : true or false
-     */
-    private boolean storeSecretKeyLocally(String alias, byte[] encryptedSecretkey) {
-        sharedpreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        String stringToSave = Base64.encodeToString(encryptedSecretkey, Base64.DEFAULT);
-        editor.putString(alias, stringToSave);
-        editor.apply();
-        return true;
     }
 
     /**
      * This method returns the Secretkey which is stored locally, in this case from the SharedPrefernces
      *
-     * @param alias: the alias against which to find the key
+     * @param alias : the alias against which to find the key
      * @return: the Secretkey
      */
-    private SecretKey getSecretKeyLocally(String alias) {
-        sharedpreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        byte[] encryptedSecretKey;
-        String sretrieve = sharedpreferences.getString(alias, "default");
-        encryptedSecretKey = Base64.decode(sretrieve, Base64.DEFAULT);
+    protected SecretKey getSecretKeyLocally(String alias) {
+        byte[] encryptedSecretKey = getEncryptedSecretKey(alias);
         KeyStore ks;
+
         try {
             ks = KeyStore.getInstance(ANDROID_KEY_STORE);
         } catch (KeyStoreException e) {
             Log.e(TAG, "Error while instantiating Android KeyStore");
             throw new RuntimeException("Error while instantiating Android KeyStore", e);
         }
+
         try {
             ks.load(null);
         } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
             Log.e(TAG, "Error while instantiating Android KeyStore");
             throw new RuntimeException("Error while instantiating Android KeyStore", e);
         }
+
         KeyStore.Entry entry;
         PrivateKey privateKey;
+
         try {
             entry = ks.getEntry(ASYM_KEY_ALIAS, null);
             privateKey = ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
         } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException | NullPointerException e) {
-
             Log.e(TAG, "Error while retrieving aysmmetric key from keystore", e);
             throw new RuntimeException("Error while retrieving aysmmetric key from keystore", e);
-
         }
 
         try {
@@ -349,33 +287,6 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
             Log.e(TAG, "Error while decrypting SecretKey", e);
             throw new RuntimeException("Error while  decrypting SecretKey", e);
         }
-
-    }
-
-    /**
-     * This method checks whether the encrypted secretKey is stored locally or not
-     *
-     * @param alias: the alias against which to store the key against
-     * @return: true or false
-     */
-    private boolean containsSecretkeyLocally(String alias) {
-        sharedpreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return sharedpreferences.contains(alias);
-
-    }
-
-    /**
-     * This method deletes the key from the local storage
-     *
-     * @param alias: the alias to find the key
-     * @return: true or false
-     */
-    private boolean deleteSecretKeyLocally(String alias) {
-        sharedpreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.remove(alias);
-        editor.apply();
-        return true;
     }
 
     /**
@@ -387,9 +298,9 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
      */
     @TargetApi(Build.VERSION_CODES.M)
     private boolean storeKeyToKeystore(String alias, SecretKey key) {
-        KeyStore ks;
+        java.security.KeyStore ks;
         try {
-            ks = KeyStore.getInstance("AndroidKeyStore");
+            ks = java.security.KeyStore.getInstance("AndroidKeyStore");
             ks.load(null);
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
             Log.e(TAG, "Error instantiating Android keyStore");
@@ -437,5 +348,46 @@ class KeyStoreKeyStorageProvider implements KeyStorageProvider {
             Log.e(TAG, "Error deleting a key Android keyStore");
             throw new RuntimeException("Error deleting a key Android keyStore", e);
         }
+    }
+
+    /**
+     * This method encrypts the SecretKey with asymmetric Key
+     *
+     * @param key:       the SecretKey to encrypt
+     * @param publicKey: The public key part of the asymmetric Key
+     * @return byte[]: the EncryptedKey
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws IllegalBlockSizeException
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     */
+    private byte[] encryptSecretKey(SecretKey key, PublicKey publicKey) throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException {
+        Cipher cipher = Cipher.getInstance(RSA_ECB_PKCS1_PADDING);
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return cipher.doFinal(key.getEncoded());
+    }
+
+    /**
+     * This method decrypts the encrypted SecretKey
+     *
+     * @param encryptedSecretKey
+     * @param privateKey:        the private Key part of the asymmetric Key
+     * @return Secretkey
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws IllegalBlockSizeException
+     */
+    protected SecretKey decryptSecretKey(byte[] encryptedSecretKey, PrivateKey privateKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        Cipher cipher = Cipher.getInstance(RSA_ECB_PKCS1_PADDING);
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] decryptedSecretkey = cipher.doFinal(encryptedSecretKey);
+        return new SecretKeySpec(decryptedSecretkey, AES);
+    }
+
+    public Context getContext() {
+        return context;
     }
 }

@@ -8,17 +8,9 @@
 
 package com.ca.mas.storage;
 
-public interface MASEncryptionProvider {
+import com.ca.mas.core.security.EncryptionProvider;
 
-    /**
-     * @param plaintext bytes to encrypt
-     * @return encrypted data
-     */
-    byte[] encrypt(byte[] plaintext);
+public interface MASEncryptionProvider extends EncryptionProvider{
 
-    /**
-     * @param encryptedData bytes to decrypt
-     * @return decrypted data
-     */
-    byte[] decrypt(byte[] encryptedData);
+
 }

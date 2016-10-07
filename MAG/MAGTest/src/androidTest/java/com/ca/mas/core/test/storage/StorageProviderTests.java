@@ -56,7 +56,7 @@ public class StorageProviderTests extends BaseTest {
         try {
             mobileSso = MobileSsoFactory.getInstance(InstrumentationRegistry.getInstrumentation().getTargetContext(),
                     getConfig(useMockServer(), "test_msso_config.json"));
-            StorageProvider sp = new StorageProvider(InstrumentationRegistry.getInstrumentation().getTargetContext(),mobileSso.getConfigurationProvider());
+            StorageProvider sp = new StorageProvider(InstrumentationRegistry.getInstrumentation().getTargetContext());
             assertTrue(sp.hasValidStore());
         }catch (Exception e){
             fail("Did not expect an exception as the default Keystore Storage should have been used. ");
@@ -70,7 +70,7 @@ public class StorageProviderTests extends BaseTest {
             Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
             JSONObject configO = createMockConfig(ctx,TYPE_KEYSTORE);
             mobileSso = MobileSsoFactory.getInstance(ctx,configO);
-            StorageProvider sp = new StorageProvider(InstrumentationRegistry.getInstrumentation().getTargetContext(),mobileSso.getConfigurationProvider());
+            StorageProvider sp = new StorageProvider(InstrumentationRegistry.getInstrumentation().getTargetContext());
             assertTrue(sp.hasValidStore());
         }catch (Exception e){
             fail("Did not expect an exception for the supported Keystore Storage ");
@@ -83,7 +83,7 @@ public class StorageProviderTests extends BaseTest {
             Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
             JSONObject configO = createMockConfig(ctx,TYPE_AMS);
             mobileSso = MobileSsoFactory.getInstance(ctx,configO);
-            StorageProvider sp = new StorageProvider(InstrumentationRegistry.getInstrumentation().getTargetContext(),mobileSso.getConfigurationProvider());
+            StorageProvider sp = new StorageProvider(InstrumentationRegistry.getInstrumentation().getTargetContext());
             assertTrue(sp.hasValidStore());
         }catch (Exception e){
             fail("Did not expect an exception for the supported ELS Storage ");

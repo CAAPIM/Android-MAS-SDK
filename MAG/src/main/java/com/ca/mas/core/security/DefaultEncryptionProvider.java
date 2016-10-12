@@ -36,13 +36,13 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
     private KeyStorageProvider ksp;
 
 
-    private static final String KEY_ALIAS = "secret";
+    public static final String KEY_ALIAS = "secret";
     private static final String ALGORITHM = "AES";
     private static final int KEY_SIZE = 256;
     public static final String TAG = DefaultEncryptionProvider.class.getCanonicalName();
-    public static final String AES_GCM_NO_PADDING = "AES/GCM/NoPadding";
-    public static final String HMAC_SHA256 = "HmacSHA256";
-    public static final int IV_LENGTH = 12;
+    private static final String AES_GCM_NO_PADDING = "AES/GCM/NoPadding";
+    private static final String HMAC_SHA256 = "HmacSHA256";
+    private static final int IV_LENGTH = 12;
 
 
     public DefaultEncryptionProvider(@NonNull Context ctx) {
@@ -75,7 +75,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public byte[] encrypt(byte[] data) {
-        if( data == null ){
+        if (data == null) {
             return null;
         }
 
@@ -110,6 +110,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             byte[] mac = computeMac(KEY_ALIAS, encryptedData);
             encryptedData = concatArrays(mac, iv, encryptedData);
         } catch (Exception e) {
+            throwIfUserNotAuthenticated(e);
             Log.e(TAG, "inside exception of encrypt function: ", e);
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -166,8 +167,22 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             return cipher.doFinal(encryptedData);
 
         } catch (Exception e) {
+            throwIfUserNotAuthenticated(e);
             Log.e(TAG, "Error while decrypting an cipher instance", e);
             throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    private void throwIfUserNotAuthenticated(Exception e) {
+        if (e != null) {
+            try {
+                Class<?> smClass = Class.forName("android.security.KeyStoreException");
+                if (smClass.isInstance(e.getCause())) {
+                    throw new UserNotAuthenticatedException(e.getCause().getMessage());
+                }
+            } catch (ClassNotFoundException e1) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
         }
     }
 

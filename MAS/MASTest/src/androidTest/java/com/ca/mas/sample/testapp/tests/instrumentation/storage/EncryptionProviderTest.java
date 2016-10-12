@@ -14,12 +14,15 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyProperties;
+import android.support.annotation.RequiresApi;
 import android.support.test.InstrumentationRegistry;
 import android.util.Base64;
 import android.util.Log;
 
 import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
+import com.ca.mas.core.security.LockableKeyStorageProvider;
+import com.ca.mas.core.security.UserNotAuthenticatedException;
 
 import org.junit.After;
 import org.junit.Test;
@@ -49,59 +52,60 @@ import javax.crypto.SecretKey;
 import javax.security.auth.x500.X500Principal;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 public class EncryptionProviderTest {
 
-    private static final String TAG="EncryptionProviderTest";
+    private static final String TAG = "EncryptionProviderTest";
 
     /**
      * The Encryption provider reference
      */
     EncryptionProvider encryptionProvider;
 
-    private static final String SYM_KEY="secret";
+    private static final String SYM_KEY = "secret";
     private static final String ASYM_KEY_ALIAS = "ASYM_KEY";
     public static final String PREFS_NAME = "SECRET_PREFS";
 
     @After
     public void tearDown() throws Exception {
-        Log.i(TAG,"inside tearDown");
-        KeyStore ks=KeyStore.getInstance("AndroidKeyStore");
+        Log.i(TAG, "inside tearDown");
+        KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
         ks.load(null);
-        if(ks.containsAlias(SYM_KEY)){
+        if (ks.containsAlias(SYM_KEY)) {
             ks.deleteEntry(SYM_KEY);
             Log.i(TAG, "deleted SYM_KEY from KS");
         }
-        if(ks.containsAlias(ASYM_KEY_ALIAS)){
+        if (ks.containsAlias(ASYM_KEY_ALIAS)) {
             ks.deleteEntry(ASYM_KEY_ALIAS);
             Log.i(TAG, "deleted ASYM_KEY_ALIAS from KS");
         }
 
-        SharedPreferences sp= InstrumentationRegistry.getTargetContext().getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sp = InstrumentationRegistry.getTargetContext().getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
-        if(sp.contains(SYM_KEY)){
+        if (sp.contains(SYM_KEY)) {
             sp.edit().remove(SYM_KEY).apply();
             Log.i(TAG, "deleted SYM_KEY from SP");
         }
-        if(sp.contains(ASYM_KEY_ALIAS)){
+        if (sp.contains(ASYM_KEY_ALIAS)) {
             sp.edit().remove(ASYM_KEY_ALIAS).apply();
             Log.i(TAG, "deleted ASYM_KEY_ALIAS from SP");
         }
     }
 
     @Test
-    public void testEncryptDecryptOperation(){
+    public void testEncryptDecryptOperation() {
 
-        encryptionProvider=new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
+        encryptionProvider = new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
         try {
-            String dataString="CA Technologies";
-            byte[] data=dataString.getBytes("UTF-8");
-            byte[] encryptedData=encryptionProvider.encrypt(data);
-            Log.i(TAG,"Encrypted Data: "+ Base64.encodeToString(encryptedData, Base64.DEFAULT));
-            byte[] decryptedData=encryptionProvider.decrypt(encryptedData);
-            String result=new  String(decryptedData,"UTF-8");
-            assertEquals("Decrypting"+dataString+": ",dataString,result);
+            String dataString = "CA Technologies";
+            byte[] data = dataString.getBytes("UTF-8");
+            byte[] encryptedData = encryptionProvider.encrypt(data);
+            Log.i(TAG, "Encrypted Data: " + Base64.encodeToString(encryptedData, Base64.DEFAULT));
+            byte[] decryptedData = encryptionProvider.decrypt(encryptedData);
+            String result = new String(decryptedData, "UTF-8");
+            assertEquals("Decrypting" + dataString + ": ", dataString, result);
         } catch (Exception e) {
             Log.e(TAG, "Error while encrypting/decrypting data", e);
             fail("Error while encrypting/decrypting");
@@ -117,22 +121,22 @@ public class EncryptionProviderTest {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Test
-    public void testUpgradeScenario(){
+    public void testUpgradeScenario() {
 
-        Log.i(TAG,"Testing when an device upgrades from less than Android M to Android M or higher");
-        String ASYM_KEY_ALIAS="ASYM_KEY";
+        Log.i(TAG, "Testing when an device upgrades from less than Android M to Android M or higher");
+        String ASYM_KEY_ALIAS = "ASYM_KEY";
         String PREFS_NAME = "SECRET_PREFS";
-        String SYM_KEY_ALIAS="secret";
+        String SYM_KEY_ALIAS = "secret";
 
 
         KeyStore ks = null;
         try {
             ks = KeyStore.getInstance("AndroidKeyStore");
             ks.load(null);
-            boolean val=ks.containsAlias(SYM_KEY_ALIAS);
+            boolean val = ks.containsAlias(SYM_KEY_ALIAS);
             assertEquals("Symmetric key is not present in keyStore ", false, val);
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-            Log.e(TAG,"Error while getting data keystore",e);
+            Log.e(TAG, "Error while getting data keystore", e);
             fail("Error while getting data keystore");
         }
 
@@ -145,7 +149,7 @@ public class EncryptionProviderTest {
             fail("Error while instantiating KeyGenerator");
         }
         kg.init(256);
-        SecretKey sk= kg.generateKey();
+        SecretKey sk = kg.generateKey();
 
         //---------------End of Generate a symmetric key-------------
 
@@ -173,7 +177,7 @@ public class EncryptionProviderTest {
         } catch (InvalidAlgorithmParameterException e) {
             fail("Error while instantiating KeyGenerator");
         }
-        KeyPair keyPair=keyPairGenerator.genKeyPair();
+        KeyPair keyPair = keyPairGenerator.genKeyPair();
 
         //--------End of Generate an asymmetric key and store in the Keystore--------
 
@@ -186,7 +190,7 @@ public class EncryptionProviderTest {
             ks = KeyStore.getInstance("AndroidKeyStore");
             ks.load(null);
             entry = ks.getEntry(ASYM_KEY_ALIAS, null);
-            publicKey=((KeyStore.PrivateKeyEntry) entry).getCertificate().getPublicKey();
+            publicKey = ((KeyStore.PrivateKeyEntry) entry).getCertificate().getPublicKey();
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | UnrecoverableEntryException e) {
             fail("Error in keystore operation");
         }
@@ -201,10 +205,10 @@ public class EncryptionProviderTest {
         } catch (InvalidKeyException e) {
             fail("Error in cipher operation");
         }
-        byte[] keyEncrypt=null;
+        byte[] keyEncrypt = null;
 
         try {
-            keyEncrypt= cipher.doFinal(sk.getEncoded());
+            keyEncrypt = cipher.doFinal(sk.getEncoded());
         } catch (IllegalBlockSizeException | BadPaddingException e) {
             fail("Error in cipher operation");
         }
@@ -212,44 +216,81 @@ public class EncryptionProviderTest {
 
         //-----Store the symmetric key in the local storage----------
 
-        SharedPreferences sharedpreferences=InstrumentationRegistry.getTargetContext().getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sharedpreferences = InstrumentationRegistry.getTargetContext().getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedpreferences.edit();
 
         String ss = Base64.encodeToString(keyEncrypt, Base64.DEFAULT);
         editor.putString(SYM_KEY_ALIAS, ss);
         editor.commit();
 
-         //-----End of Store the symmetric key in the local storage ----------
+        //-----End of Store the symmetric key in the local storage ----------
 
 
-         encryptionProvider=new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
-
+        encryptionProvider = new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
 
 
         //Now test assertions----------
 
         try {
-            String dataString="CA Technologies";
-            byte[] data=dataString.getBytes("UTF-8");
-            byte[] encryptedData=encryptionProvider.encrypt(data);
-            Log.i(TAG,"Encrypted Data: "+ Base64.encodeToString(encryptedData, Base64.DEFAULT));
+            String dataString = "CA Technologies";
+            byte[] data = dataString.getBytes("UTF-8");
+            byte[] encryptedData = encryptionProvider.encrypt(data);
+            Log.i(TAG, "Encrypted Data: " + Base64.encodeToString(encryptedData, Base64.DEFAULT));
 
             //Check if the key is now present in the Keystore or not
             try {
-                boolean val= ks.containsAlias(SYM_KEY_ALIAS);
-                assertEquals("Symmetric key is present in keyStore",true,val);
+                boolean val = ks.containsAlias(SYM_KEY_ALIAS);
+                assertEquals("Symmetric key is present in keyStore", true, val);
             } catch (KeyStoreException e) {
                 Log.e(TAG, "Error while getting data keystore", e);
                 fail("Error while getting data keystore");
             }
 
 
-            byte[] decryptedData=encryptionProvider.decrypt(encryptedData);
-            String result=new  String(decryptedData,"UTF-8");
-            assertEquals("Decrypting"+dataString+": ",dataString,result);
+            byte[] decryptedData = encryptionProvider.decrypt(encryptedData);
+            String result = new String(decryptedData, "UTF-8");
+            assertEquals("Decrypting" + dataString + ": ", dataString, result);
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, "Error while encrypting/decrypting data", e);
             fail("Error while encrypting/decrypting data");
         }
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Test
+    public void testLockableKeyStorageProvider() throws Exception {
+
+        LockableKeyStorageProvider lockableKeyStorageProvider = new LockableKeyStorageProvider("KEY_SUFFIX");
+        lockableKeyStorageProvider.removeKey(DefaultEncryptionProvider.KEY_ALIAS);
+
+        encryptionProvider = new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext(), lockableKeyStorageProvider);
+        String dataString = "CA Technologies";
+        byte[] data = dataString.getBytes("UTF-8");
+        byte[] encryptedData = encryptionProvider.encrypt(data);
+        Log.i(TAG, "Encrypted Data: " + Base64.encodeToString(encryptedData, Base64.DEFAULT));
+        byte[] decryptedData = encryptionProvider.decrypt(encryptedData);
+        String result = new String(decryptedData, "UTF-8");
+        assertEquals("Decrypting" + dataString + ": ", dataString, result);
+
+        //Lock the key
+        lockableKeyStorageProvider.lock();
+
+        //Should failed after lock
+        try {
+            encryptionProvider.decrypt(encryptedData);
+            fail();
+        } catch (Exception e) {
+            assertTrue(e instanceof UserNotAuthenticatedException);
+        }
+
+        try {
+            encryptionProvider.encrypt(data);
+            fail();
+        } catch (Exception e) {
+            assertTrue(e instanceof UserNotAuthenticatedException);
+        }
+        lockableKeyStorageProvider.removeKey(DefaultEncryptionProvider.KEY_ALIAS);
+
+    }
+
 }

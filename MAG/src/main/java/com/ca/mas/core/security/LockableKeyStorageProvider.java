@@ -16,19 +16,16 @@ import javax.crypto.SecretKey;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 
-
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class LockableKeyStorageProvider implements KeyStorageProvider {
-
     private static final String TAG = LockableKeyStorageProvider.class.getCanonicalName();
     public static final String ANDROID_KEY_STORE = "AndroidKeyStore";
     private SecretKey secretKey;
     private String suffix;
 
     public LockableKeyStorageProvider(@NonNull String suffix) {
-         this.suffix = suffix;
+        this.suffix = suffix;
     }
-
 
     @Override
     public void storeKey(String alias, SecretKey sk) {
@@ -48,7 +45,6 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
                 .setUserAuthenticationRequired(true)
                 .setUserAuthenticationValidityDurationSeconds(-1)
                 .build();
-
 
         try {
             this.secretKey = sk;
@@ -76,7 +72,6 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
             } else {
                 return entry.getSecretKey();
             }
-
         } catch (Exception e) {
             Log.e(TAG, "Error while getting SecretKey", e);
             throw new RuntimeException(e);
@@ -103,7 +98,7 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
 
     public void lock() {
         if (secretKey != null) {
-            if (secretKey instanceof Destroyable){
+            if (secretKey instanceof Destroyable) {
                 Destroyable destroyable = (Destroyable) secretKey;
                 try {
                     destroyable.destroy();
@@ -124,5 +119,4 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
             Log.e(TAG, "Error while delete SecretKey", e);
         }
     }
-
 }

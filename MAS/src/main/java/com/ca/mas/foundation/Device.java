@@ -8,6 +8,8 @@
 
 package com.ca.mas.foundation;
 
+import android.annotation.TargetApi;
+
 import com.ca.mas.foundation.auth.MASProximityLoginBLEPeripheralListener;
 
 /**
@@ -64,4 +66,28 @@ public interface Device {
      * Stops the device acting as a bluetooth peripheral.
      */
     void stopAsBluetoothPeripheral();
+
+    /**
+     * Locks the current device.
+     * This will remove the access and refresh tokens, as well as the user profile.
+     * The ID_TOKEN will then be moved to the fingerprint protected shared KeyStore.
+     * @return
+     */
+    @TargetApi(23)
+    void lock(MASCallback<Void> callback);
+
+    /**
+     * Triggers the OS level unlock and captures the unlock result.
+     * Unlocks the ID_TOKEN from the KeyStore and places it back into the keychain,
+     * removes the locked ID_TOKEN, and then indicates if the device is unlocked.
+     * @return
+     */
+    @TargetApi(23)
+    void unlock(MASCallback<Void> callback);
+
+    /**
+     * Checks to see if the device has a locked ID_TOKEN.
+     * @return
+     */
+    boolean isLocked();
 }

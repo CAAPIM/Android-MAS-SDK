@@ -37,18 +37,21 @@ public class JWTValidation {
     }
 
     public static boolean isIdTokenExpired(@NonNull IdToken idToken) {
-        IdTokenDef tokenDef = new IdTokenDef(idToken);
-        try {
-            JSONObject jsonObject = tokenDef.getPayloadAsJSONObject();
-            String expireDateString = jsonObject.getString(EXP);
-            if (Long.valueOf(expireDateString) < new Date().getTime() / 1000) {
+        if (idToken.getType().equals(IdToken.JWT_DEFAULT)) {
+            IdTokenDef tokenDef = new IdTokenDef(idToken);
+            try {
+                JSONObject jsonObject = tokenDef.getPayloadAsJSONObject();
+                String expireDateString = jsonObject.getString(EXP);
+                if (Long.valueOf(expireDateString) < new Date().getTime() / 1000) {
+                    return true;
+                }
+                return false;
+            } catch (JSONException e) {
+                //Assume the token is expired.
                 return true;
             }
-            return false;
-        } catch (JSONException e) {
-            //Assume the token is expired.
-            return true;
         }
+        return false;
     }
 
     public static boolean validateIdToken(IdToken idToken, String deviceIdentifier, String clientId, String clientSecret) throws JWTValidationException {

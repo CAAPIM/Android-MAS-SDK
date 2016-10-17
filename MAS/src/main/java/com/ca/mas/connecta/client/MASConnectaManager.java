@@ -49,6 +49,7 @@ public class MASConnectaManager implements MASConnectaClient {
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             ConnectaService.ServiceBinder masBinder = (ConnectaService.ServiceBinder) iBinder;
             mMASTransportService = masBinder.getService();
+
             if (mMASTransportService != null) {
                 mMASTransportService.setConnectOptions(mConnectOptions);
                 mMASTransportService.connect(new MASCallback<Void>() {
@@ -115,7 +116,14 @@ public class MASConnectaManager implements MASConnectaClient {
 
     @Override
     public synchronized void connect(MASCallback<Void> callback) {
+        connect(null, null, callback);
+    }
 
+    public synchronized void connect(String hostname, MASCallback<Void> callback) {
+        connect(hostname, null, callback);
+    }
+
+    public synchronized void connect(String hostname, Integer portNumber, MASCallback<Void> callback) {
         if (isConnected()) {
             Callback.onSuccess(callback, null);
             return;
@@ -123,9 +131,11 @@ public class MASConnectaManager implements MASConnectaClient {
         if (mMASTransportService == null) {
             connectCallback = callback;
             Intent intent = new Intent(mContext, ConnectaService.class);
+            intent.putExtra(ConnectaService.EXTRA_HOSTNAME, hostname);
+            intent.putExtra(ConnectaService.EXTRA_PORT_NUMBER, portNumber);
             mContext.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         } else {
-            mMASTransportService.connect(callback);
+            mMASTransportService.connect(hostname, portNumber, callback);
         }
     }
 
@@ -138,7 +148,6 @@ public class MASConnectaManager implements MASConnectaClient {
 
     @Override
     public void subscribe(@NonNull final MASTopic masTopic, final MASCallback<Void> callback) {
-
         connectAndExecute(new Functions.NullaryVoid() {
             @Override
             public void call() {
@@ -244,6 +253,9 @@ public class MASConnectaManager implements MASConnectaClient {
     @Override
     public void setConnectOptions(ConnectOptions connectOptions) {
         mConnectOptions = connectOptions;
+        if (mMASTransportService != null) {
+            mMASTransportService.setConnectOptions(connectOptions);
+        }
     }
 
     @Override

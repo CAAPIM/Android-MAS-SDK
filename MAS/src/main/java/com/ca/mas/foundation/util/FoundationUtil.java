@@ -115,6 +115,14 @@ public class FoundationUtil {
         return scheme + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH + host + FoundationConsts.COLON + port;
     }
 
+    public static String getBrokerUrl(Context context) throws IllegalStateException {
+        return getBrokerUrl(context, null, null);
+    }
+
+    public static String getBrokerUrl(Context context, String hostname) throws IllegalStateException {
+        return getBrokerUrl(context, hostname, null);
+    }
+
     /**
      * <b>Pre-Conditions</b> The MAG SDK has to be initialized prior to calling this method.<br>
      * <b>Description</b> This method takes the information found in the ConfigurationProvider and
@@ -124,12 +132,20 @@ public class FoundationUtil {
      * @return String of the form 'ssl://host.com:8883'
      * @throws IllegalStateException
      */
-    public static String getBrokerUrl(Context context) throws IllegalStateException {
+    public static String getBrokerUrl(Context context, String hostname, Integer portNumber) throws IllegalStateException {
+        if( hostname == null ){
+            hostname = getHost();
+        }
+
+        if(portNumber == null){
+            portNumber = ConnectaConsts.DEBUG_MQTT ? ConnectaConsts.TCP_MESSAGING_PORT : ConnectaConsts.SSL_MESSAGING_PORT;
+        }
+
         if (ConnectaConsts.DEBUG_MQTT) {
-            return (ConnectaConsts.TCP_MESSAGING_SCHEME + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH) + getHost() + FoundationConsts.COLON + ConnectaConsts.TCP_MESSAGING_PORT;
+            return (ConnectaConsts.TCP_MESSAGING_SCHEME + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH) + hostname + FoundationConsts.COLON + portNumber;
 
         } else {
-            return (ConnectaConsts.SSL_MESSAGING_SCHEME + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH) + getHost() + FoundationConsts.COLON + ConnectaConsts.SSL_MESSAGING_PORT;
+            return (ConnectaConsts.SSL_MESSAGING_SCHEME + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH) + hostname + FoundationConsts.COLON + portNumber;
         }
     }
 

@@ -126,7 +126,7 @@ public abstract class MASDevice implements Device {
                             // Move the ID token from the Keychain to the fingerprint protected shared Keystore
                             Parcel idTokenParcel = Parcel.obtain();
                             idToken.writeToParcel(idTokenParcel, 0);
-                            byte[] idTokenBytes = idTokenParcel.createByteArray();
+                            byte[] idTokenBytes = idTokenParcel.marshall();
 
                             DefaultEncryptionProvider encryptionProvider = new DefaultEncryptionProvider(MAS.getContext(), mKeyStoreProvider);
                             byte[] encryptedData = encryptionProvider.encrypt(idTokenBytes);
@@ -144,7 +144,7 @@ public abstract class MASDevice implements Device {
                                 callback.onError(new MASException("Failed to delete ID token."));
                             }
 
-                            mKeyStoreProvider.lock();
+//                            mKeyStoreProvider.lock();
                             idTokenParcel.recycle();
 
                             callback.onSuccess(null);
@@ -181,7 +181,8 @@ public abstract class MASDevice implements Device {
                         try {
                             // Decrypt the encrypted ID token
                             byte[] decryptedData = encryptionProvider.decrypt(secureIdToken);
-                            parcel.readByteArray(decryptedData);
+                            parcel.unmarshall(decryptedData, 0, decryptedData.length);
+                            parcel.setDataPosition(0);
 
                             IdToken token = IdToken.CREATOR.createFromParcel(parcel);
                             try {

@@ -20,7 +20,7 @@ import javax.security.auth.Destroyable;
 public class LockableKeyStorageProvider implements KeyStorageProvider {
     private static final String TAG = LockableKeyStorageProvider.class.getCanonicalName();
     public static final String ANDROID_KEY_STORE = "AndroidKeyStore";
-    private SecretKey secretKey;
+    private static SecretKey secretKey;
     private String suffix;
 
     public LockableKeyStorageProvider(@NonNull String suffix) {

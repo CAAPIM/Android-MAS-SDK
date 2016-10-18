@@ -133,20 +133,18 @@ public class FoundationUtil {
      * @throws IllegalStateException
      */
     public static String getBrokerUrl(Context context, String hostname, Integer portNumber) throws IllegalStateException {
+        String messagingScheme = ConnectaConsts.TCP_MESSAGING_SCHEME;
         if( hostname == null ){
             hostname = getHost();
+            // No hostname provided, connecting to gateway, use ssl
+            messagingScheme = ConnectaConsts.SSL_MESSAGING_SCHEME;
         }
 
         if(portNumber == null){
-            portNumber = ConnectaConsts.DEBUG_MQTT ? ConnectaConsts.TCP_MESSAGING_PORT : ConnectaConsts.SSL_MESSAGING_PORT;
+            portNumber = ConnectaConsts.SSL_MESSAGING_PORT;
         }
 
-        if (ConnectaConsts.DEBUG_MQTT) {
-            return (ConnectaConsts.TCP_MESSAGING_SCHEME + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH) + hostname + FoundationConsts.COLON + portNumber;
-
-        } else {
-            return (ConnectaConsts.SSL_MESSAGING_SCHEME + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH) + hostname + FoundationConsts.COLON + portNumber;
-        }
+        return (messagingScheme + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH) + hostname + FoundationConsts.COLON + portNumber;
     }
 
 

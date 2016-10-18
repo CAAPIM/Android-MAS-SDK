@@ -19,17 +19,13 @@ import android.util.Log;
 import com.ca.mas.R;
 import com.ca.mas.connecta.client.ConnectOptions;
 import com.ca.mas.connecta.client.ConnectaException;
-import com.ca.mas.connecta.client.MASConnectaListener;
 import com.ca.mas.connecta.client.MASConnectaClient;
-import com.ca.mas.connecta.util.ConnectaConsts;
+import com.ca.mas.connecta.client.MASConnectaListener;
 import com.ca.mas.connecta.util.ConnectaUtil;
 import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.request.internal.StateRequest;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASException;
-import com.ca.mas.foundation.MASResultReceiver;
 import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
@@ -66,8 +62,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
 
     private static String TAG = ConnectaService.class.getSimpleName();
 
-    public static final String EXTRA_HOSTNAME = "com.ca.mas.connecta.serviceprovider.ConnectaService.EXTRA_HOSTNAME";
-    public static final String EXTRA_PORT_NUMBER = "com.ca.mas.connecta.serviceprovider.ConnectaService.EXTRA_PORT_NUMBER";
+    public static String EXTRA_CLIENT_ID = "com.ca.mas.connecta.serviceprovider.ConnectaService.EXTRA_CLIENT_ID";
 
     /**
      * <p><b>mMqttClient</b> is the only instance variable the references the Mqtt implementation library.</p>
@@ -78,23 +73,11 @@ public class ConnectaService extends Service implements MASConnectaClient {
     private MessageBroadcaster mMessageBroadcaster;
     private MASConnectaListener connectaListener;
 
-    private String hostname;
-    private Integer portNumber;
-
     private final IBinder mBinder = new ServiceBinder();
+    private String clientId;
 
     public void setConnectaListener(MASConnectaListener connectaListener) {
         this.connectaListener = connectaListener;
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        hostname = intent.getStringExtra(EXTRA_HOSTNAME);
-        portNumber = intent.getIntExtra(EXTRA_PORT_NUMBER, -1);
-        if( portNumber == -1 ){
-            portNumber = null;
-        }
-        return mBinder;
     }
 
     /**
@@ -112,28 +95,18 @@ public class ConnectaService extends Service implements MASConnectaClient {
         }
     }
 
-    public void connect( String hostname, Integer portNumber, MASCallback<Void> callback ){
-        this.hostname = hostname;
-        this.portNumber = portNumber;
-        connect(callback);
+    @Override
+    public IBinder onBind(Intent intent) {
+        clientId = intent.getStringExtra(EXTRA_CLIENT_ID);
+        return mBinder;
     }
 
     @Override
     public void connect(final MASCallback<Void> callback) {
-        if (ConnectaConsts.DEBUG_MQTT) {
-            debugConnect(callback);
-            return;
-        }
         try {
             mMessageBroadcaster = new MessageBroadcaster(this);
             Log.d(TAG, "CONNECTA: connect()");
-
-            if (mConnectOptions == null) {
-                // If connect options have not been set
-                mConnectOptions = new ConnectOptions();
-            }
-
-            mConnectOptions.initConnectOptions(this, mTimeOutInMillis, new MASCallback<Map<String, Object>>() {
+            MASCallback<Map<String, Object>> masCallback = new MASCallback<Map<String, Object>>() {
                 @Override
                 public Handler getHandler() {
                     return Callback.getHandler(callback);
@@ -160,51 +133,32 @@ public class ConnectaService extends Service implements MASConnectaClient {
                 public void onError(Throwable error) {
                     Callback.onError(callback, error);
                 }
-            });
+            };
+
+            if (mConnectOptions == null) {
+                // If connect options have not been set
+                mConnectOptions = new ConnectOptions();
+                mConnectOptions.initConnectOptions(this, mTimeOutInMillis, masCallback);
+            } else {
+                // ConnectOptions have been set
+                mConnectOptions.setConnectionTimeout(ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(this), mTimeOutInMillis).getConnectionTimeout());
+                Log.d(TAG, "CONNECTA: onSuccess()");
+                initMqttClient();
+                mMqttClient.connect(mConnectOptions);
+                if (!mMqttClient.isConnected()) {
+                    Callback.onError(callback, new ConnectaException("Not connected to message broker!"));
+                    return;
+                }
+                Callback.onSuccess(callback, null);
+            }
         } catch (Exception e) {
             Log.e(TAG, "" + e.getMessage());
             Callback.onError(callback, e);
         }
     }
 
-    private void debugConnect(final MASCallback<Void> callback) {
-        try {
-            mMessageBroadcaster = new MessageBroadcaster(this);
-            Log.d(TAG, "CONNECTA: connect()");
-
-            if( mConnectOptions == null ){
-                mConnectOptions = new ConnectOptions();
-            }
-
-            mConnectOptions.initConnectNonSecure(this, mTimeOutInMillis, new MASResultReceiver<MqttConnectOptions>(Callback.getHandler(callback)) {
-                @Override
-                public void onSuccess(final MAGResponse<MqttConnectOptions> response) {
-                    try {
-                        Log.d(TAG, "CONNECTA: onSuccess()");
-                        initMqttClient(null);
-                        mMqttClient.connect(response.getBody().getContent());
-                        if (!mMqttClient.isConnected()) {
-                            Callback.onError(callback, new ConnectaException("Not connected to message broker!"));
-                            return;
-                        }
-                        if (callback != null) {
-                            callback.onSuccess(null);
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "" + e.getMessage());
-                        Callback.onError(callback, e);
-                    }
-                }
-
-                @Override
-                public void onError(MAGError error) {
-                    Callback.onError(callback, error);
-                }
-            });
-        } catch (Exception e) {
-            Log.e(TAG, "" + e.getMessage());
-            Callback.onError(callback, e);
-        }
+    private void initMqttClient() throws MASException, MqttException {
+        initMqttClient(null);
     }
 
     /*
@@ -214,14 +168,20 @@ public class ConnectaService extends Service implements MASConnectaClient {
 
         // we use a UUID instead of the device ID so there are no restrictions
         // on the number of unique connections that can be made.
-        String clientId = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getClientId();
-        String brokerClientId = ConnectaUtil.getMqttClientId(clientId, deviceId);
+        String brokerClientId;
+        if (this.clientId == null) {
+            this.clientId = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getClientId();
+            brokerClientId = ConnectaUtil.getMqttClientId(clientId, deviceId);
+        } else {
+            brokerClientId = this.clientId;
+        }
+
         Log.d(TAG, "CONNECTA: clientId: " + clientId);
         Log.d(TAG, "CONNECTA: brokerClientId: " + brokerClientId);
 
         final MemoryPersistence memoryPersistence = new MemoryPersistence();
 
-        String brokerUrl = ConnectaUtil.getBrokerUrl(getApplicationContext(), hostname, portNumber);
+        String brokerUrl = ConnectaUtil.getBrokerUrl(getApplicationContext(), mConnectOptions.getHostname(), mConnectOptions.getPortNumber());
         Log.d(TAG, "CONNECTA: brokerUrl: " + brokerUrl);
 
         mMqttClient = new MqttClient(brokerUrl, brokerClientId, memoryPersistence);
@@ -287,7 +247,6 @@ public class ConnectaService extends Service implements MASConnectaClient {
             Callback.onError(callback, new ConnectaException(getResources().getString(R.string.could_not_disconnect)));
         }
     }
-
 
     @Override
     public void subscribe(@NonNull MASTopic masTopic, MASCallback<Void> callback) {

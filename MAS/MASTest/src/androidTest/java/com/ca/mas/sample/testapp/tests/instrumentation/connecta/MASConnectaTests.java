@@ -17,8 +17,8 @@ import android.support.test.rule.ActivityTestRule;
 import android.util.Base64;
 import android.util.Log;
 
+import com.ca.mas.connecta.client.ConnectOptions;
 import com.ca.mas.connecta.client.MASConnectaManager;
-import com.ca.mas.connecta.serviceprovider.ConnectaService;
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASException;
@@ -30,12 +30,12 @@ import com.ca.mas.messaging.util.MessagingConsts;
 import com.ca.mas.sample.testapp.MainActivity;
 import com.ca.mas.sample.testapp.tests.instrumentation.base.MASIntegrationBaseTest;
 
-import java.util.concurrent.CountDownLatch;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+
+import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
@@ -71,8 +71,14 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
                 }
             });*/
 
+            ConnectOptions connectOptions = new ConnectOptions();
+            connectOptions.setHostname("mosquitto.org");
+            connectOptions.setPortNumber(1883);
 
-            MASConnectaManager.getInstance().connect("mosquitto.org", 1883, new MASCallback<Void>() {
+            MASConnectaManager masConnectaManager = MASConnectaManager.getInstance();
+            masConnectaManager.setConnectOptions(connectOptions);
+            masConnectaManager.setClientId("clientIadf78asdf8dsf8sda7f8sdaf87s8f7dd");
+            masConnectaManager.connect(new MASCallback<Void>() {
                 @Override
                 public void onSuccess(Void object) {
                     result[0] = true;
@@ -87,16 +93,17 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
                 }
             });
 
-
             latch.await();
             if (!(boolean) result[0]) {
                 Log.w(TAG, "initConnecta onError: " + result[1]);
                 fail("Reason: " + result[1]);
             }
+
         } catch (Throwable t) {
             Log.w(TAG, "initConnecta error: ", t);
             fail("" + t);
         }
+
     }
 
     @Test
@@ -113,19 +120,6 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
             masMessage.setContentType(MessagingConsts.MT_TEXT_PLAIN);
             masMessage.setPayload("Android Studio test message".getBytes());
 
-            // Subscribing to a topic
-        /*
-        MASConnectaManager.getInstance().subscribe(topic, new MASCallback<Void>() {
-            @Override
-            public void onSuccess(Void object) {
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                fail("" + e);
-            }
-        });
-*/
             // Send a message to a given topic
             MASConnectaManager.getInstance().publish(topic, masMessage, new MASCallback<Void>() {
                 @Override

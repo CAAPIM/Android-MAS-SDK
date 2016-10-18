@@ -39,6 +39,7 @@ public class MASConnectaManager implements MASConnectaClient {
     private ConnectOptions mConnectOptions;
     private MASConnectaListener connectaListener;
     private MASCallback<Void> connectCallback;
+    private String clientId;
 
     /*
     This service connection uses IPC Binder to load the MQTT library specific service to perform Mqtt operations.
@@ -116,14 +117,6 @@ public class MASConnectaManager implements MASConnectaClient {
 
     @Override
     public synchronized void connect(MASCallback<Void> callback) {
-        connect(null, null, callback);
-    }
-
-    public synchronized void connect(String hostname, MASCallback<Void> callback) {
-        connect(hostname, null, callback);
-    }
-
-    public synchronized void connect(String hostname, Integer portNumber, MASCallback<Void> callback) {
         if (isConnected()) {
             Callback.onSuccess(callback, null);
             return;
@@ -131,11 +124,10 @@ public class MASConnectaManager implements MASConnectaClient {
         if (mMASTransportService == null) {
             connectCallback = callback;
             Intent intent = new Intent(mContext, ConnectaService.class);
-            intent.putExtra(ConnectaService.EXTRA_HOSTNAME, hostname);
-            intent.putExtra(ConnectaService.EXTRA_PORT_NUMBER, portNumber);
+            intent.putExtra(ConnectaService.EXTRA_CLIENT_ID, clientId);
             mContext.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         } else {
-            mMASTransportService.connect(hostname, portNumber, callback);
+            mMASTransportService.connect(callback);
         }
     }
 
@@ -268,4 +260,7 @@ public class MASConnectaManager implements MASConnectaClient {
         return mTimeOutInMillis;
     }
 
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
 }

@@ -14,7 +14,6 @@ import com.ca.mas.connecta.util.ConnectaUtil;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.io.ssl.MAGSocketFactory;
 import com.ca.mas.core.request.internal.StateRequest;
 import com.ca.mas.foundation.MASCallback;
@@ -26,7 +25,6 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.SSLSocketFactory;
@@ -39,8 +37,12 @@ public class ConnectOptions extends MqttConnectOptions {
 
     private static String TAG = ConnectOptions.class.getSimpleName();
 
+    private String hostname;
+    private Integer portNumber;
+
+    /*
     public void initConnectNonSecure(final Context context, final long timeOutInMillis, final MASResultReceiver<MqttConnectOptions> result) {
-        final MqttConnectOptions connectOptions = ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(context), timeOutInMillis);
+        final MqttConnectOptions connectOptions = ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(context, hostname, portNumber), timeOutInMillis);
 
         result.onSuccess(new MAGResponse<MqttConnectOptions>() {
             @Override
@@ -68,7 +70,7 @@ public class ConnectOptions extends MqttConnectOptions {
                 };
             }
         });
-    }
+    }*/
 
     public void initConnectOptions(final Context context, final long timeOutInMillis, final MASCallback<Map<String, Object>> callback) {
 
@@ -116,5 +118,21 @@ public class ConnectOptions extends MqttConnectOptions {
 
     private void retrieveOauthToken(final MASResultReceiver<JSONObject> result) {
         MobileSsoFactory.getInstance().processRequest(new StateRequest(), result);
+    }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public Integer getPortNumber() {
+        return portNumber;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    public void setPortNumber(Integer portNumber) {
+        this.portNumber = portNumber;
     }
 }

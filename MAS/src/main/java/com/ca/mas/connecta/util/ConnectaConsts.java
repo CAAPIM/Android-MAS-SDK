@@ -15,11 +15,6 @@ import com.ca.mas.foundation.util.FoundationConsts;
  */
 public class ConnectaConsts extends FoundationConsts {
 
-    /**
-     * Setting this to true will change the MQTT interactions to non-secure.
-     */
-    public static boolean DEBUG_MQTT = true;
-
     public static int SSL_MESSAGING_PORT = 8883;
     public static String SSL_MESSAGING_SCHEME = "ssl";
 

@@ -422,6 +422,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                         try {
                             MobileSsoFactory.getInstance().logout(true);
                             Callback.onSuccess(callback, null);
+                            tokenManager.deleteSecureIdToken();
                         } catch (Exception e) {
                             Callback.onError(callback, e);
                         }

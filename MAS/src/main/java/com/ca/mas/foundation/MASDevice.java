@@ -17,7 +17,9 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.core.security.DefaultEncryptionProvider;
+import com.ca.mas.core.security.FingerprintListener;
 import com.ca.mas.core.security.LockableKeyStorageProvider;
+import com.ca.mas.core.security.UserNotAuthenticatedException;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
@@ -49,20 +51,22 @@ public abstract class MASDevice implements Device {
                 @Override
                 public void deregister(final MASCallback<Void> callback) {
                     final MobileSso mobileSso = MobileSsoFactory.getInstance();
-                    if (mobileSso.isDeviceRegistered()) {
-                        if (mobileSso != null) {
-                            Thread t = new Thread(new Runnable() {
-                                public void run() {
-                                    try {
-                                        mobileSso.removeDeviceRegistration();
-                                        Callback.onSuccess(callback, null);
-                                    } catch (Exception e) {
-                                        Callback.onError(callback, e);
+                    if (mobileSso != null && mobileSso.isDeviceRegistered()) {
+                        Thread t = new Thread(new Runnable() {
+                            public void run() {
+                                try {
+                                    mobileSso.removeDeviceRegistration();
+                                    TokenManager manager = createTokenManager();
+                                    if (manager.getSecureIdToken() != null) {
+                                        manager.deleteSecureIdToken();
                                     }
+                                    Callback.onSuccess(callback, null);
+                                } catch (Exception e) {
+                                    Callback.onError(callback, e);
                                 }
-                            });
-                            t.start();
-                        }
+                            }
+                        });
+                        t.start();
                     } else {
                         Callback.onError(callback, new IllegalStateException("Device is not registered"));
                     }
@@ -97,18 +101,23 @@ public abstract class MASDevice implements Device {
                 @Override
                 @TargetApi(23)
                 public void lock(MASCallback<Void> callback) {
-                    if (!isLocked()) {
+                    MASUser currentUser = MASUser.getCurrentUser();
+                    if (currentUser == null || !currentUser.isAuthenticated()) {
+                        callback.onError(new MASException("No currently authenticated user."));
+                    } else if (isLocked()) {
+                        callback.onError(new MASException("Device is already locked."));
+                    } else {
                         // Remove access and refresh tokens
 //                        MssoContext context = MssoContext.newContext();
 //                        context.clearAccessToken();
                         TokenManager keyChainManager = createTokenManager();
 
                         // Remove persisted user profile
-                        try {
-                            keyChainManager.deleteUserProfile();
-                        } catch (TokenStoreException e) {
-                            callback.onError(e);
-                        }
+//                        try {
+//                            keyChainManager.deleteUserProfile();
+//                        } catch (TokenStoreException e) {
+//                            callback.onError(e);
+//                        }
 
                         // Validate that the ID token is not expired
                         IdToken idToken = keyChainManager.getIdToken();
@@ -142,18 +151,14 @@ public abstract class MASDevice implements Device {
                         } else {
                             callback.onError(new MASException("ID token is expired."));
                         }
-                    } else {
-                        callback.onError(new MASException("Device is already locked."));
                     }
                 }
 
                 @Override
                 @TargetApi(23)
-                public void unlock(MASCallback<Void> callback) {
-//                Context context = MAS.getContext();
+                public void unlock(FingerprintListener listener, MASCallback<Void> callback) {
 //                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 //                    FingerprintManager manager = context.getSystemService(FingerprintManager.class);
-//
 //                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
 //                        // Fingerprint permission not provided
 //                    } else if (!manager.isHardwareDetected()) {
@@ -171,29 +176,36 @@ public abstract class MASDevice implements Device {
                         byte[] secureIdToken = keyChainManager.getSecureIdToken();
 
                         DefaultEncryptionProvider encryptionProvider = new DefaultEncryptionProvider(MAS.getContext(), mKeyStoreProvider);
-                        // Decrypt the encrypted ID token
-                        byte[] decryptedData = encryptionProvider.decrypt(secureIdToken);
                         // Read the decrypted data, reconstruct it as a Parcel, then as an IdToken
                         Parcel parcel = Parcel.obtain();
-                        parcel.readByteArray(decryptedData);
-
-                        IdToken token = IdToken.CREATOR.createFromParcel(parcel);
                         try {
-                            // Save the unlocked ID token
-                            keyChainManager.saveIdToken(token);
-                        } catch (TokenStoreException e) {
-                            callback.onError(new MASException("Failed to save ID token."));
-                        }
+                            // Decrypt the encrypted ID token
+                            byte[] decryptedData = encryptionProvider.decrypt(secureIdToken);
+                            parcel.readByteArray(decryptedData);
 
-                        try {
-                            // Remove the locked ID token
-                            keyChainManager.deleteSecureIdToken();
-                        } catch (TokenStoreException e) {
-                            callback.onError(new MASException("Failed to delete encrypt ID token."));
-                        }
+                            IdToken token = IdToken.CREATOR.createFromParcel(parcel);
+                            try {
+                                // Save the unlocked ID token
+                                keyChainManager.saveIdToken(token);
+                            } catch (TokenStoreException e) {
+                                callback.onError(new MASException("Failed to save ID token."));
+                            }
 
-                        // Indicate the device is unlocked
-                        callback.onSuccess(null);
+                            try {
+                                // Remove the locked ID token
+                                keyChainManager.deleteSecureIdToken();
+                            } catch (TokenStoreException e) {
+                                callback.onError(new MASException("Failed to delete encrypt ID token."));
+                            }
+
+                            // Indicate the device is unlocked
+                            callback.onSuccess(null);
+                        } catch (Exception e) {
+                            if (e instanceof UserNotAuthenticatedException) {
+                                // Listener activity to trigger fingerprint
+                                listener.triggerDeviceUnlock();
+                            }
+                        }
                     } else {
                         callback.onError(new MASException("Device is already unlocked."));
                     }
@@ -203,7 +215,7 @@ public abstract class MASDevice implements Device {
                 @TargetApi(23)
                 public boolean isLocked() {
                     TokenManager keyChainManager = createTokenManager();
-                    return keyChainManager.getSecureIdToken() == null;
+                    return keyChainManager.getSecureIdToken() != null;
                 }
             };
         }

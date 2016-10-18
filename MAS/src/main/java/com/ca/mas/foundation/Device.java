@@ -10,6 +10,7 @@ package com.ca.mas.foundation;
 
 import android.annotation.TargetApi;
 
+import com.ca.mas.core.security.FingerprintListener;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEPeripheralListener;
 
 /**
@@ -83,7 +84,7 @@ public interface Device {
      * @return
      */
     @TargetApi(23)
-    void unlock(MASCallback<Void> callback);
+    void unlock(FingerprintListener listener, MASCallback<Void> callback);
 
     /**
      * Checks to see if the device has a locked ID_TOKEN.

@@ -43,15 +43,15 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                 .setUserAuthenticationRequired(true)
-                .setUserAuthenticationValidityDurationSeconds(-1)
+                .setUserAuthenticationValidityDurationSeconds(30)
                 .build();
 
         try {
             this.secretKey = sk;
             ks.setEntry(getKeyName(alias), new KeyStore.SecretKeyEntry(sk), kp);
         } catch (KeyStoreException e) {
-            Log.e(TAG, "Error setting entry into Android keyStore");
-            throw new RuntimeException("Error setting entry into Android keyStore", e);
+            Log.e(TAG, "Error setting entry into Android KeyStore: " + e);
+            throw new RuntimeException("Error setting entry into Android KeyStore", e);
         }
     }
 

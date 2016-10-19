@@ -618,6 +618,12 @@ public class MssoContext {
                 (!isSsoEnabled() && getAccessToken() != null && getRefreshToken() != null);
     }
 
+    public String getUserProfile() {
+        return tokenManager != null
+                ? tokenManager.getUserProfile()
+                : null;
+    }
+
     /**
      * Logoff the App by clear the access token.
      *

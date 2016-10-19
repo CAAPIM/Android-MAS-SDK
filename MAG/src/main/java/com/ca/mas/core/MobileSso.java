@@ -151,6 +151,13 @@ public interface MobileSso {
     boolean isLogin();
 
     /**
+     * Retrieve the cached user profile.
+     *
+     * @return The user profile that has bee acquireda and cached, or null if empty
+     */
+    String getUserProfile();
+
+    /**
      * Logs off the App by removing cached access token. This forces the next request to obtain a new access token.
      */
     @Deprecated

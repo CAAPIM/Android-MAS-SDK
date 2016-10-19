@@ -30,47 +30,12 @@ import java.util.Map;
 import javax.net.ssl.SSLSocketFactory;
 
 /**
- * <i>ConnectOptions</i> is the interface to the  <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html">MqttConnectOptions</a>
+ * <i>MASConnectOptions</i> is the interface to the  <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html">MqttConnectOptions</a>
  * class. This class uses the MAG SSLSocketFactory to create a mutually authenticated connection with the Mqtt broker.
  */
-public class ConnectOptions extends MqttConnectOptions {
+public class MASConnectOptions extends MqttConnectOptions {
 
-    private static String TAG = ConnectOptions.class.getSimpleName();
-
-    private String hostname;
-    private Integer portNumber;
-
-    /*
-    public void initConnectNonSecure(final Context context, final long timeOutInMillis, final MASResultReceiver<MqttConnectOptions> result) {
-        final MqttConnectOptions connectOptions = ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(context, hostname, portNumber), timeOutInMillis);
-
-        result.onSuccess(new MAGResponse<MqttConnectOptions>() {
-            @Override
-            public Map<String, List<String>> getHeaders() {
-                return null;
-            }
-
-            @Override
-            public int getResponseCode() {
-                return 0;
-            }
-
-            @Override
-            public String getResponseMessage() {
-                return null;
-            }
-
-            @Override
-            public MAGResponseBody<MqttConnectOptions> getBody() {
-                return new MAGResponseBody<MqttConnectOptions>() {
-                    @Override
-                    public MqttConnectOptions getContent() {
-                        return connectOptions;
-                    }
-                };
-            }
-        });
-    }*/
+    private static String TAG = MASConnectOptions.class.getSimpleName();
 
     public void initConnectOptions(final Context context, final long timeOutInMillis, final MASCallback<Map<String, Object>> callback) {
 
@@ -88,7 +53,7 @@ public class ConnectOptions extends MqttConnectOptions {
 
                 Map<String, Object> info = new HashMap<>();
                 info.put(StateRequest.DEVICE_ID, jobj.optString(StateRequest.DEVICE_ID));
-                info.put(ConnectOptions.class.getName(), connectOptions);
+                info.put(MASConnectOptions.class.getName(), connectOptions);
 
                 Callback.onSuccess(callback, info);
             }
@@ -118,21 +83,5 @@ public class ConnectOptions extends MqttConnectOptions {
 
     private void retrieveOauthToken(final MASResultReceiver<JSONObject> result) {
         MobileSsoFactory.getInstance().processRequest(new StateRequest(), result);
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public Integer getPortNumber() {
-        return portNumber;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public void setPortNumber(Integer portNumber) {
-        this.portNumber = portNumber;
     }
 }

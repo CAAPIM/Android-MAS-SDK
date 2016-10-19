@@ -36,7 +36,7 @@ public class MASConnectaManager implements MASConnectaClient {
     private static MASConnectaManager instance = new MASConnectaManager();
     private ConnectaService mMASTransportService;
     private long mTimeOutInMillis;
-    private ConnectOptions mConnectOptions;
+    private MASConnectOptions mConnectOptions;
     private MASConnectaListener connectaListener;
     private MASCallback<Void> connectCallback;
     private String clientId;
@@ -52,6 +52,8 @@ public class MASConnectaManager implements MASConnectaClient {
             mMASTransportService = masBinder.getService();
 
             if (mMASTransportService != null) {
+                mMASTransportService.setClientId(clientId);
+                mMASTransportService.setTimeOutInMillis(getTimeOutInMillis());
                 mMASTransportService.setConnectOptions(mConnectOptions);
                 mMASTransportService.connect(new MASCallback<Void>() {
 
@@ -124,7 +126,6 @@ public class MASConnectaManager implements MASConnectaClient {
         if (mMASTransportService == null) {
             connectCallback = callback;
             Intent intent = new Intent(mContext, ConnectaService.class);
-            intent.putExtra(ConnectaService.EXTRA_CLIENT_ID, clientId);
             mContext.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         } else {
             mMASTransportService.connect(callback);
@@ -203,6 +204,10 @@ public class MASConnectaManager implements MASConnectaClient {
         });
     }
 
+    public void publish(@NonNull final MASTopic masTopic, @NonNull final String message, final MASCallback<Void> callback) {
+        publish(masTopic, message.getBytes(), callback);
+    }
+
     @Override
     public void publish(@NonNull final MASTopic masTopic, @NonNull final byte[] message, final MASCallback<Void> callback) {
 
@@ -243,7 +248,7 @@ public class MASConnectaManager implements MASConnectaClient {
     }
 
     @Override
-    public void setConnectOptions(ConnectOptions connectOptions) {
+    public void setConnectOptions(MASConnectOptions connectOptions) {
         mConnectOptions = connectOptions;
         if (mMASTransportService != null) {
             mMASTransportService.setConnectOptions(connectOptions);
@@ -260,6 +265,7 @@ public class MASConnectaManager implements MASConnectaClient {
         return mTimeOutInMillis;
     }
 
+    @Override
     public void setClientId(String clientId) {
         this.clientId = clientId;
     }

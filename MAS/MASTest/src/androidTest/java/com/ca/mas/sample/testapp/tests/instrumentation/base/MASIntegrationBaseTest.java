@@ -35,10 +35,10 @@ public abstract class MASIntegrationBaseTest {
     @BeforeClass
     public static void beforeClass() {
         MAS.start(InstrumentationRegistry.getInstrumentation().getTargetContext(), true);
-
+/*
         final CountDownLatch latch = new CountDownLatch(1);
         final boolean[] result = {false};
-/*
+
         MASUser.login(getUsername(), getPassword(), new MASCallback<MASUser>() {
             @Override
             public void onSuccess(MASUser user) {

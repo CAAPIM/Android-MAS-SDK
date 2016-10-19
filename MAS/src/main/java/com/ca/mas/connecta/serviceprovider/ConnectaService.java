@@ -17,7 +17,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.R;
-import com.ca.mas.connecta.client.ConnectOptions;
+import com.ca.mas.connecta.client.MASConnectOptions;
 import com.ca.mas.connecta.client.ConnectaException;
 import com.ca.mas.connecta.client.MASConnectaClient;
 import com.ca.mas.connecta.client.MASConnectaListener;
@@ -62,14 +62,12 @@ public class ConnectaService extends Service implements MASConnectaClient {
 
     private static String TAG = ConnectaService.class.getSimpleName();
 
-    public static String EXTRA_CLIENT_ID = "com.ca.mas.connecta.serviceprovider.ConnectaService.EXTRA_CLIENT_ID";
-
     /**
      * <p><b>mMqttClient</b> is the only instance variable the references the Mqtt implementation library.</p>
      */
     private MqttClient mMqttClient;
     private long mTimeOutInMillis;
-    private ConnectOptions mConnectOptions;
+    private MASConnectOptions mConnectOptions;
     private MessageBroadcaster mMessageBroadcaster;
     private MASConnectaListener connectaListener;
 
@@ -97,7 +95,6 @@ public class ConnectaService extends Service implements MASConnectaClient {
 
     @Override
     public IBinder onBind(Intent intent) {
-        clientId = intent.getStringExtra(EXTRA_CLIENT_ID);
         return mBinder;
     }
 
@@ -117,7 +114,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
                     try {
                         Log.d(TAG, "CONNECTA: onSuccess()");
                         initMqttClient((String) result.get(StateRequest.DEVICE_ID));
-                        mMqttClient.connect((MqttConnectOptions) result.get(ConnectOptions.class.getName()));
+                        mMqttClient.connect((MqttConnectOptions) result.get(MASConnectOptions.class.getName()));
                         if (!mMqttClient.isConnected()) {
                             Callback.onError(callback, new ConnectaException("Not connected to message broker!"));
                             return;
@@ -137,10 +134,10 @@ public class ConnectaService extends Service implements MASConnectaClient {
 
             if (mConnectOptions == null) {
                 // If connect options have not been set
-                mConnectOptions = new ConnectOptions();
+                mConnectOptions = new MASConnectOptions();
                 mConnectOptions.initConnectOptions(this, mTimeOutInMillis, masCallback);
             } else {
-                // ConnectOptions have been set
+                // MASConnectOptions have been set
                 mConnectOptions.setConnectionTimeout(ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(this), mTimeOutInMillis).getConnectionTimeout());
                 Log.d(TAG, "CONNECTA: onSuccess()");
                 initMqttClient();
@@ -181,7 +178,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
 
         final MemoryPersistence memoryPersistence = new MemoryPersistence();
 
-        String brokerUrl = ConnectaUtil.getBrokerUrl(getApplicationContext(), mConnectOptions.getHostname(), mConnectOptions.getPortNumber());
+        String brokerUrl = ConnectaUtil.getBrokerUrl(getApplicationContext(), mConnectOptions);
         Log.d(TAG, "CONNECTA: brokerUrl: " + brokerUrl);
 
         mMqttClient = new MqttClient(brokerUrl, brokerClientId, memoryPersistence);
@@ -228,7 +225,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
     }
 
     @Override
-    public void setConnectOptions(ConnectOptions connectOptions) {
+    public void setConnectOptions(MASConnectOptions connectOptions) {
         mConnectOptions = connectOptions;
     }
 
@@ -320,4 +317,8 @@ public class ConnectaService extends Service implements MASConnectaClient {
         return mTimeOutInMillis;
     }
 
+    @Override
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
 }

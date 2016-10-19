@@ -17,7 +17,7 @@ import android.support.test.rule.ActivityTestRule;
 import android.util.Base64;
 import android.util.Log;
 
-import com.ca.mas.connecta.client.ConnectOptions;
+import com.ca.mas.connecta.client.MASConnectOptions;
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.foundation.MASCallback;
@@ -71,13 +71,12 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
                 }
             });*/
 
-            ConnectOptions connectOptions = new ConnectOptions();
-            connectOptions.setHostname("mosquitto.org");
-            connectOptions.setPortNumber(1883);
+            MASConnectOptions connectOptions = new MASConnectOptions();
+            connectOptions.setServerURIs(new String[]{"tcp://mosquitto.org:1883"});
 
             MASConnectaManager masConnectaManager = MASConnectaManager.getInstance();
             masConnectaManager.setConnectOptions(connectOptions);
-            masConnectaManager.setClientId("clientIadf78asdf8dsf8sda7f8sdaf87s8f7dd");
+            //masConnectaManager.setClientId("clientIadf78asdf8dsf8sda7f8sdaf87s8f7dd");
             masConnectaManager.connect(new MASCallback<Void>() {
                 @Override
                 public void onSuccess(Void object) {

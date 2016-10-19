@@ -118,12 +118,19 @@ public interface MASConnectaClient {
 
     /**
      * <b>Pre-Condition:</b> None.<br>
-     * <b>Description:</b> Set the connect options for this client connection. The <i>ConnectOptions</i> class
+     * <b>Description:</b> Set the connect options for this client connection. The <i>MASConnectOptions</i> class
      * is an extension of MqttConnectionOptions. The purpose of this is to retain the flexibility to change
      * Mqtt providers in the future. Any implementation of connect options from any provider should be
-     * extended using {@link ConnectOptions}.
+     * extended using {@link MASConnectOptions}.
      *
      * @param connectOptions
      */
-    void setConnectOptions(ConnectOptions connectOptions);
+    void setConnectOptions(MASConnectOptions connectOptions);
+
+    /**
+     * <b>Pre-Condition:</b> None.<br>
+     * <b>Description:</b> Set the client ID for this connection.
+     * @param clientId
+     */
+    void setClientId(String clientId);
 }

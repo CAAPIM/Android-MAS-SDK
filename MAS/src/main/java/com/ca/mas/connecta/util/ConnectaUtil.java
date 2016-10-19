@@ -42,12 +42,16 @@ public class ConnectaUtil extends FoundationUtil {
      * @return the formatted clientId
      */
     public static String getMqttClientId(String clientId, String deviceId) {
+        String mqttClientId = deviceId +
+                ConnectaConsts.CLIENT_ID_SEP +
+                clientId;
 
-        return deviceId +
-                ConnectaConsts.CLIENT_ID_SEP +
-                clientId +
-                ConnectaConsts.CLIENT_ID_SEP +
-                MASUser.getCurrentUser().getUserName();
+        if( MASUser.getCurrentUser() != null ){
+            // If user is logged in, get username to put in clientId
+            mqttClientId += ConnectaConsts.CLIENT_ID_SEP + MASUser.getCurrentUser().getUserName();
+        }
+
+        return mqttClientId;
     }
 
     /**

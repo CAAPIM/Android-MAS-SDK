@@ -26,6 +26,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.net.ssl.SSLSocketFactory;
 
@@ -83,5 +84,16 @@ public class MASConnectOptions extends MqttConnectOptions {
 
     private void retrieveOauthToken(final MASResultReceiver<JSONObject> result) {
         MobileSsoFactory.getInstance().processRequest(new StateRequest(), result);
+    }
+
+    @Override
+    public Properties getDebug() {
+        Properties p = super.getDebug();
+        String s = "";
+        if( getServerURIs() != null && getServerURIs().length > 0 ){
+            s = getServerURIs()[0];
+        }
+        p.put("ServerURI", s);
+        return p;
     }
 }

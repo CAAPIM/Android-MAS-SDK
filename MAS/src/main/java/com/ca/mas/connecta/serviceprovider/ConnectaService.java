@@ -137,7 +137,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
                 mConnectOptions = new MASConnectOptions();
                 mConnectOptions.initConnectOptions(this, mTimeOutInMillis, masCallback);
             } else {
-                // MASConnectOptions have been set
+                // MASConnectOptions has been set
                 mConnectOptions.setConnectionTimeout(ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(this), mTimeOutInMillis).getConnectionTimeout());
                 Log.d(TAG, "CONNECTA: onSuccess()");
                 initMqttClient();
@@ -167,9 +167,11 @@ public class ConnectaService extends Service implements MASConnectaClient {
         // on the number of unique connections that can be made.
         String brokerClientId;
         if (this.clientId == null) {
+            // Client ID was not set, generate one
             this.clientId = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getClientId();
             brokerClientId = ConnectaUtil.getMqttClientId(clientId, deviceId);
         } else {
+            // Client ID was set, use it
             brokerClientId = this.clientId;
         }
 

@@ -100,11 +100,11 @@ public abstract class MASDevice implements Device {
 
                 @Override
                 @TargetApi(23)
-                public void lock(MASCallback<Void> callback) {
+                public void lockSession(MASCallback<Void> callback) {
                     MASUser currentUser = MASUser.getCurrentUser();
                     if (currentUser == null || !currentUser.isAuthenticated()) {
                         callback.onError(new MASException("No currently authenticated user."));
-                    } else if (isLocked()) {
+                    } else if (isSessionLocked()) {
                         callback.onError(new MASException("Device is already locked."));
                     } else {
                         // Remove access and refresh tokens
@@ -156,7 +156,7 @@ public abstract class MASDevice implements Device {
 
                 @Override
                 @TargetApi(23)
-                public void unlock(FingerprintListener listener, MASCallback<Void> callback) {
+                public void unlockSession(FingerprintListener listener, MASCallback<Void> callback) {
 //                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 //                    FingerprintManager manager = context.getSystemService(FingerprintManager.class);
 //                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
@@ -169,7 +169,7 @@ public abstract class MASDevice implements Device {
 ////                            manager.authenticate();
 //                    }
 //                }
-                    if (isLocked()) {
+                    if (isSessionLocked()) {
                         TokenManager keyChainManager = createTokenManager();
 
                         // Unlock the ID token from the Keystore and places the decrypted ID token back to the Keychain
@@ -199,6 +199,8 @@ public abstract class MASDevice implements Device {
                                 callback.onError(new MASException("Failed to delete encrypt ID token."));
                             }
 
+                            // Delete the previously generated key after successfully decrypting
+                            mKeyStoreProvider.removeKey(DefaultEncryptionProvider.KEY_ALIAS);
                             // Indicate the device is unlocked
                             callback.onSuccess(null);
                         } catch (Exception e) {
@@ -215,7 +217,7 @@ public abstract class MASDevice implements Device {
 
                 @Override
                 @TargetApi(23)
-                public boolean isLocked() {
+                public boolean isSessionLocked() {
                     TokenManager keyChainManager = createTokenManager();
                     return keyChainManager.getSecureIdToken() != null;
                 }

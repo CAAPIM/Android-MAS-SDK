@@ -75,7 +75,7 @@ public interface Device {
      * @return
      */
     @TargetApi(23)
-    void lock(MASCallback<Void> callback);
+    void lockSession(MASCallback<Void> callback);
 
     /**
      * Triggers the OS level unlock and captures the unlock result.
@@ -84,11 +84,11 @@ public interface Device {
      * @return
      */
     @TargetApi(23)
-    void unlock(FingerprintListener listener, MASCallback<Void> callback);
+    void unlockSession(FingerprintListener listener, MASCallback<Void> callback);
 
     /**
      * Checks to see if the device has a locked ID_TOKEN.
      * @return
      */
-    boolean isLocked();
+    boolean isSessionLocked();
 }

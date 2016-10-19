@@ -19,7 +19,7 @@ import javax.security.auth.Destroyable;
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class LockableKeyStorageProvider implements KeyStorageProvider {
     private static final String TAG = LockableKeyStorageProvider.class.getCanonicalName();
-    public static final String ANDROID_KEY_STORE = "AndroidKeyStore";
+    private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
     private SecretKey secretKey;
     private String suffix;
 
@@ -29,49 +29,42 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
 
     @Override
     public void storeKey(String alias, SecretKey sk) {
-
-        java.security.KeyStore ks;
+        KeyStore ks;
         try {
-            ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
+            ks = KeyStore.getInstance(ANDROID_KEY_STORE);
             ks.load(null);
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-            Log.e(TAG, "Error instantiating Android keyStore");
-            throw new RuntimeException("Error instantiating Android keyStore", e);
+            Log.e(TAG, "Error instantiating Android KeyStore.", e);
+            throw new RuntimeException("Error instantiating Android KeyStore.", e);
         }
 
         KeyProtection kp = new KeyProtection.Builder(KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                 .setUserAuthenticationRequired(true)
-                .setUserAuthenticationValidityDurationSeconds(30)
+                .setUserAuthenticationValidityDurationSeconds(5)
                 .build();
 
         try {
             this.secretKey = sk;
             ks.setEntry(getKeyName(alias), new KeyStore.SecretKeyEntry(sk), kp);
         } catch (KeyStoreException e) {
-            Log.e(TAG, "Error setting entry into Android KeyStore: " + e);
-            throw new RuntimeException("Error setting entry into Android KeyStore", e);
+            Log.e(TAG, "Error setting entry into Android KeyStore.", e);
+            throw new RuntimeException("Error setting entry into Android KeyStore.", e);
         }
     }
 
     @Override
     public SecretKey getKey(String alias) {
-
         if (secretKey != null) {
             return secretKey;
         }
 
-        java.security.KeyStore ks;
         try {
-            ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
+            KeyStore ks = KeyStore.getInstance(ANDROID_KEY_STORE);
             ks.load(null);
-            java.security.KeyStore.SecretKeyEntry entry = (java.security.KeyStore.SecretKeyEntry) ks.getEntry(getKeyName(alias), null);
-            if (entry == null) {
-                return null;
-            } else {
-                return entry.getSecretKey();
-            }
+            KeyStore.SecretKeyEntry entry = (KeyStore.SecretKeyEntry) ks.getEntry(getKeyName(alias), null);
+            return entry == null ? null : entry.getSecretKey();
         } catch (Exception e) {
             Log.e(TAG, "Error while getting SecretKey", e);
             throw new RuntimeException(e);
@@ -80,10 +73,8 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
 
     @Override
     public boolean containsKey(String alias) {
-        KeyStore ks;
-
         try {
-            ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
+            KeyStore ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
             ks.load(null);
             return ks.containsAlias(getKeyName(alias));
         } catch (Exception e) {
@@ -97,22 +88,20 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
     }
 
     public void lock() {
-        if (secretKey != null) {
-            if (secretKey instanceof Destroyable) {
-                Destroyable destroyable = (Destroyable) secretKey;
-                try {
-                    destroyable.destroy();
-                } catch (DestroyFailedException e) {
-                    Log.e(TAG, "Could not destroy key");
-                }
+        if (secretKey != null && secretKey instanceof Destroyable) {
+            Destroyable destroyable = (Destroyable) secretKey;
+            try {
+                destroyable.destroy();
+            } catch (DestroyFailedException e) {
+                Log.e(TAG, "Could not destroy key");
             }
-            secretKey = null;
         }
+        secretKey = null;
     }
 
     public void removeKey(String alias) {
         try {
-            KeyStore ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
+            KeyStore ks = KeyStore.getInstance(ANDROID_KEY_STORE);
             ks.load(null);
             ks.deleteEntry(getKeyName(alias));
         } catch (Exception e) {

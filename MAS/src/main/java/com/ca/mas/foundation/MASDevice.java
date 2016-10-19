@@ -144,7 +144,7 @@ public abstract class MASDevice implements Device {
                                 callback.onError(new MASException("Failed to delete ID token."));
                             }
 
-//                            mKeyStoreProvider.lock();
+                            mKeyStoreProvider.lock();
                             idTokenParcel.recycle();
 
                             callback.onSuccess(null);
@@ -202,7 +202,8 @@ public abstract class MASDevice implements Device {
                             // Indicate the device is unlocked
                             callback.onSuccess(null);
                         } catch (Exception e) {
-                            if (e instanceof UserNotAuthenticatedException) {
+                            if (e instanceof UserNotAuthenticatedException
+                                    || e.getCause() instanceof android.security.keystore.UserNotAuthenticatedException) {
                                 // Listener activity to trigger fingerprint
                                 listener.triggerDeviceUnlock();
                             }

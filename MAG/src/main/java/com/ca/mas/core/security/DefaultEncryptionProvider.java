@@ -5,7 +5,6 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.security;
 
 import android.annotation.TargetApi;
@@ -32,10 +31,7 @@ import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 
 public class DefaultEncryptionProvider implements EncryptionProvider {
-
     private KeyStorageProvider ksp;
-
-
     public static final String KEY_ALIAS = "secret";
     private static final String ALGORITHM = "AES";
     private static final int KEY_SIZE = 256;
@@ -43,7 +39,6 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
     private static final String AES_GCM_NO_PADDING = "AES/GCM/NoPadding";
     private static final String HMAC_SHA256 = "HmacSHA256";
     private static final int IV_LENGTH = 12;
-
 
     public DefaultEncryptionProvider(@NonNull Context ctx) {
         this(ctx, new SharedPreferencesKeyStorageProvider(ctx));
@@ -103,7 +98,6 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
                 }
 
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivParams);
-
             }
 
             encryptedData = cipher.doFinal(data);
@@ -160,12 +154,10 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             ivParams = new IvParameterSpec(iv);
         }
 
-
         try {
             SecretKey secretKey = ksp.getKey(KEY_ALIAS);
             cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParams);
             return cipher.doFinal(encryptedData);
-
         } catch (Exception e) {
             throwIfUserNotAuthenticated(e);
             Log.e(TAG, "Error while decrypting an cipher instance", e);
@@ -185,7 +177,6 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             }
         }
     }
-
 
     /**
      * Computes the mac signature for the encrypted array

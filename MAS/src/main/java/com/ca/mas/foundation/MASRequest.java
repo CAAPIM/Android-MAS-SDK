@@ -26,7 +26,16 @@ import java.util.Map;
  */
 public interface MASRequest extends MAGRequest {
 
+    /**
+     * Notify the {@link MASCallback#onError(Throwable)} when the request is cancelled by {@link MAS#cancelRequest(long)}.
+     * @return True to invoke {@link MASCallback#onError(Throwable)} with {@link com.ca.mas.foundation.MAS.RequestCancelledException} when the request is cancelled by
+     * {@link MAS#cancelRequest(long)}. Default is false.
+     */
+    boolean notifyOnCancel();
+
     class MASRequestBuilder extends MAGRequestBuilder {
+
+        private boolean notifyOnCancel = false;
 
         public MASRequestBuilder(URI uri) {
             super(ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(uri.toString()));
@@ -92,9 +101,20 @@ public interface MASRequest extends MAGRequest {
             return (MASRequestBuilder) super.connectionListener(listener);
         }
 
+        public MASRequestBuilder notifyOnCancel() {
+            this.notifyOnCancel = true;
+            return this;
+        }
+
+
         public MASRequest build() {
             final MAGRequest request = super.build();
             return new MASRequest() {
+
+                @Override
+                public boolean notifyOnCancel() {
+                    return notifyOnCancel;
+                }
 
                 @Override
                 public URL getURL() {

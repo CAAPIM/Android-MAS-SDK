@@ -18,7 +18,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
-import com.ca.mas.core.BuildConfig;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.MobileSsoListener;
@@ -214,6 +213,7 @@ public class MAS {
      * @return The request ID.
      */
     public static <T> long invoke(final MASRequest request, final MASCallback<MASResponse<T>> callback) {
+
         return MobileSsoFactory.getInstance().processRequest(request, new MAGResultReceiver<T>(Callback.getHandler(callback)) {
             @Override
             public void onSuccess(final MAGResponse<T> response) {
@@ -254,9 +254,15 @@ public class MAS {
 
             @Override
             public void onRequestCancelled() {
-
+                if (request.notifyOnCancel()) {
+                    Callback.onError(callback, new RequestCancelledException());
+                }
             }
         });
+    }
+
+    public static class RequestCancelledException extends Exception {
+
     }
 
     /**

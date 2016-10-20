@@ -10,6 +10,7 @@ package com.ca.mas.foundation;
 import android.annotation.TargetApi;
 import android.content.AsyncTaskLoader;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
@@ -23,6 +24,7 @@ import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.FingerprintListener;
 import com.ca.mas.core.security.LockableKeyStorageProvider;
+import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.security.UserNotAuthenticatedException;
 import com.ca.mas.core.store.OAuthTokenContainer;
 import com.ca.mas.core.store.StorageProvider;
@@ -64,6 +66,7 @@ import java.util.NoSuchElementException;
 import static android.provider.ContactsContract.CommonDataKinds.StructuredName.SUFFIX;
 import static com.ca.mas.foundation.MASDevice.createStorageProvider;
 import static com.ca.mas.foundation.MASDevice.createTokenManager;
+import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN;
 
 /**
  * <p>The <b>MASUser</b> interface is a core interface used to represent a user in the system,
@@ -75,8 +78,6 @@ import static com.ca.mas.foundation.MASDevice.createTokenManager;
  * "urn:ietf:params:scim:schemas:core:2.0:User". See the <a href="https://tools.ietf.org/html/rfc7643#section-8.2">Full User Representation</a> for the complete format.</p>
  */
 public abstract class MASUser implements MASTransformable, MASMessenger, MASUserIdentity, ScimUser {
-    private static final String STRING_DEVICE_ALREADY_UNLOCKED = "The device is already unlocked.";
-    private static final String STRING_FAILED_TO_DELETE_SECURE_TOKEN = "Failed to delete encrypt ID token.";
     private static List<UserRepository> userRepositories = new ArrayList<>();
 
     static {
@@ -440,7 +441,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                         try {
                             MobileSsoFactory.getInstance().logout(true);
                             Callback.onSuccess(callback, null);
-                            tokenManager.deleteSecureIdToken();
                         } catch (Exception e) {
                             Callback.onError(callback, e);
                         }
@@ -520,111 +520,111 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
             @Override
             @TargetApi(23)
             public void lockSession(MASCallback<Void> callback) {
-                MASUser currentUser = MASUser.getCurrentUser();
-                if (currentUser == null || !currentUser.isAuthenticated()) {
-                    callback.onError(new MASException("No currently authenticated user."));
-                } else if (isSessionLocked()) {
-                    callback.onError(new MASException("Device is already locked."));
-                } else {
-                    // Remove access and refresh tokens
-                    StorageProvider storageProvider = createStorageProvider();
-                    OAuthTokenContainer container = storageProvider.createOAuthTokenContainer();
-                    container.clearAll();
-
-                    // Validate that the ID token is not expired
-                    TokenManager keyChainManager = createTokenManager();
-                    IdToken idToken = keyChainManager.getIdToken();
-                    boolean isTokenExpired = JWTValidation.isIdTokenExpired(idToken);
-                    if (!isTokenExpired) {
-                        // Move the ID token from the Keychain to the fingerprint protected shared Keystore
-                        Parcel idTokenParcel = Parcel.obtain();
-                        idToken.writeToParcel(idTokenParcel, 0);
-                        byte[] idTokenBytes = idTokenParcel.marshall();
-
-                        DefaultEncryptionProvider encryptionProvider = new DefaultEncryptionProvider(MAS.getContext(), mKeyStoreProvider);
-                        byte[] encryptedData = encryptionProvider.encrypt(idTokenBytes);
-                        // Save the encrypted token
-                        try {
-                            keyChainManager.saveSecureIdToken(encryptedData);
-                        } catch (TokenStoreException e) {
-                            callback.onError(new MASException("Could not save encrypted ID token."));
-                        }
-
-                        // Remove the unencrypted token
-                        try {
-                            keyChainManager.deleteIdToken();
-                        } catch (TokenStoreException e) {
-                            callback.onError(new MASException("Failed to delete ID token."));
-                        }
-
-                        mKeyStoreProvider.lock();
-                        idTokenParcel.recycle();
-
-                        callback.onSuccess(null);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    MASUser currentUser = MASUser.getCurrentUser();
+                    if (currentUser == null || !currentUser.isAuthenticated()) {
+                        callback.onError(new SecureLockException(MASFoundationStrings.USER_NOT_CURRENTLY_AUTHENTICATED));
+                    } else if (isSessionLocked()) {
+                        callback.onError(new SecureLockException(MASFoundationStrings.SECURE_LOCK_SESSION_ALREADY_LOCKED));
                     } else {
-                        callback.onError(new MASException("ID token is expired."));
+                        // Remove access and refresh tokens
+                        StorageProvider storageProvider = createStorageProvider();
+                        OAuthTokenContainer container = storageProvider.createOAuthTokenContainer();
+                        container.clearAll();
+
+                        // Validate that the ID token is not expired
+                        TokenManager keyChainManager = createTokenManager();
+                        IdToken idToken = keyChainManager.getIdToken();
+                        boolean isTokenExpired = JWTValidation.isIdTokenExpired(idToken);
+                        if (!isTokenExpired) {
+                            // Move the ID token from the Keychain to the fingerprint protected shared Keystore
+                            Parcel idTokenParcel = Parcel.obtain();
+                            idToken.writeToParcel(idTokenParcel, 0);
+                            byte[] idTokenBytes = idTokenParcel.marshall();
+
+                            // Delete any previously generated key due to improper closure
+                            if (mKeyStoreProvider.getKey(DefaultEncryptionProvider.KEY_ALIAS) != null) {
+                                mKeyStoreProvider.removeKey(DefaultEncryptionProvider.KEY_ALIAS);
+                            }
+                            DefaultEncryptionProvider encryptionProvider = new DefaultEncryptionProvider(MAS.getContext(), mKeyStoreProvider);
+                            byte[] encryptedData = encryptionProvider.encrypt(idTokenBytes);
+                            // Save the encrypted token
+                            try {
+                                keyChainManager.saveSecureIdToken(encryptedData);
+                            } catch (TokenStoreException e) {
+                                callback.onError(new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_SECURE_ID_TOKEN, e));
+                            }
+
+                            // Remove the unencrypted token
+                            try {
+                                keyChainManager.deleteIdToken();
+                            } catch (TokenStoreException e) {
+                                callback.onError(new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_ID_TOKEN, e));
+                            }
+
+                            mKeyStoreProvider.lock();
+                            idTokenParcel.recycle();
+
+                            callback.onSuccess(null);
+                        } else {
+                            callback.onError(new SecureLockException(MASFoundationStrings.TOKEN_ID_EXPIRED));
+                        }
                     }
+                } else {
+                    callback.onError(new IllegalAccessException(MASFoundationStrings.API_TARGET_EXCEPTION));
                 }
             }
 
             @Override
             @TargetApi(23)
             public void unlockSession(FingerprintListener listener, MASCallback<Void> callback) {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                    FingerprintManager manager = context.getSystemService(FingerprintManager.class);
-//                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
-//                        // Fingerprint permission not provided
-//                    } else if (!manager.isHardwareDetected()) {
-//                        // Fingerprint hardware not provided
-//                    } else if (!manager.hasEnrolledFingerprints()) {
-//                        // User hasn't enrolled any fingerprints to authenticate with
-//                    } else {
-////                            manager.authenticate();
-//                    }
-//                }
-                if (isSessionLocked()) {
-                    TokenManager keyChainManager = createTokenManager();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (isSessionLocked()) {
+                        TokenManager keyChainManager = createTokenManager();
 
-                    // Unlock the ID token from the Keystore and places the decrypted ID token back to the Keychain
-                    byte[] secureIdToken = keyChainManager.getSecureIdToken();
+                        // Unlock the ID token from the Keystore and places the decrypted ID token back to the Keychain
+                        byte[] secureIdToken = keyChainManager.getSecureIdToken();
 
-                    DefaultEncryptionProvider encryptionProvider = new DefaultEncryptionProvider(MAS.getContext(), mKeyStoreProvider);
-                    // Read the decrypted data, reconstruct it as a Parcel, then as an IdToken
-                    Parcel parcel = Parcel.obtain();
-                    try {
-                        // Decrypt the encrypted ID token
-                        byte[] decryptedData = encryptionProvider.decrypt(secureIdToken);
-                        parcel.unmarshall(decryptedData, 0, decryptedData.length);
-                        parcel.setDataPosition(0);
-
-                        IdToken token = IdToken.CREATOR.createFromParcel(parcel);
+                        DefaultEncryptionProvider encryptionProvider = new DefaultEncryptionProvider(MAS.getContext(), mKeyStoreProvider);
+                        // Read the decrypted data, reconstruct it as a Parcel, then as an IdToken
+                        Parcel parcel = Parcel.obtain();
                         try {
-                            // Save the unlocked ID token
-                            keyChainManager.saveIdToken(token);
-                        } catch (TokenStoreException e) {
-                            callback.onError(new MASException("Failed to save ID token."));
-                        }
+                            // Decrypt the encrypted ID token
+                            byte[] decryptedData = encryptionProvider.decrypt(secureIdToken);
+                            parcel.unmarshall(decryptedData, 0, decryptedData.length);
+                            parcel.setDataPosition(0);
 
-                        try {
-                            // Remove the locked ID token
-                            keyChainManager.deleteSecureIdToken();
-                        } catch (TokenStoreException e) {
-                            callback.onError(new MASException("Failed to delete encrypt ID token."));
-                        }
+                            IdToken token = IdToken.CREATOR.createFromParcel(parcel);
+                            try {
+                                // Save the unlocked ID token
+                                keyChainManager.saveIdToken(token);
+                            } catch (TokenStoreException e) {
+                                callback.onError(new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_ID_TOKEN, e));
+                            }
 
-                        // Delete the previously generated key after successfully decrypting
-                        mKeyStoreProvider.removeKey(DefaultEncryptionProvider.KEY_ALIAS);
-                        // Indicate the device is unlocked
-                        callback.onSuccess(null);
-                    } catch (Exception e) {
-                        if (e instanceof UserNotAuthenticatedException
-                                || e.getCause() instanceof android.security.keystore.UserNotAuthenticatedException) {
-                            // Listener activity to trigger fingerprint
-                            listener.triggerDeviceUnlock();
+                            try {
+                                // Remove the locked ID token
+                                keyChainManager.deleteSecureIdToken();
+                            } catch (TokenStoreException e) {
+                                callback.onError(new SecureLockException(SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN, e));
+                            }
+
+                            // Delete the previously generated key after successfully decrypting
+                            mKeyStoreProvider.removeKey(DefaultEncryptionProvider.KEY_ALIAS);
+                            // Indicate the device is unlocked
+                            callback.onSuccess(null);
+                        } catch (Exception e) {
+                            if (e instanceof UserNotAuthenticatedException
+                                    || e.getCause() instanceof android.security.keystore.UserNotAuthenticatedException) {
+                                // Listener activity to trigger fingerprint
+                                listener.triggerDeviceUnlock();
+                            }
                         }
+                    } else {
+                        callback.onError(new MASException(MASFoundationStrings.SECURE_LOCK_SESSION_ALREADY_UNLOCKED));
                     }
                 } else {
-                    callback.onError(new MASException(STRING_DEVICE_ALREADY_UNLOCKED));
+                    callback.onError(new IllegalAccessException(MASFoundationStrings.API_TARGET_EXCEPTION));
                 }
             }
 
@@ -637,14 +637,14 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
             @Override
             public void removeSessionLock(MASCallback<Void> callback) {
                 if (!isSessionLocked()) {
-                    callback.onError(new MASException(STRING_DEVICE_ALREADY_UNLOCKED));
+                    callback.onError(new SecureLockException(MASFoundationStrings.SECURE_LOCK_SESSION_ALREADY_UNLOCKED));
                 }
 
                 try {
                     TokenManager keyChainManager = createTokenManager();
                     keyChainManager.deleteSecureIdToken();
                 } catch (TokenStoreException e) {
-                    callback.onError(new MASException(STRING_FAILED_TO_DELETE_SECURE_TOKEN));
+                    callback.onError(new SecureLockException(SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN, e));
                 }
             }
         };
@@ -687,7 +687,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
     public abstract void lockSession(MASCallback<Void> callback);
 
     /**
-     * Triggers the OS level unlock and captures the unlock result.
+     * Triggers the Android unlock and captures the unlock result.
      * Unlocks the ID_TOKEN from the KeyStore and places it back into the keychain,
      * removes the locked ID_TOKEN, and then indicates if the device is unlocked.
      */

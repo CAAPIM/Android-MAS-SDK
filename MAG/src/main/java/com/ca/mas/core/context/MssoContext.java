@@ -480,6 +480,12 @@ public class MssoContext {
                     exception = e;
                 }
 
+                try {
+                    tokenManager.deleteSecureIdToken();
+                } catch (TokenStoreException e) {
+                    exception = e;
+                }
+
                 String clientId = getClientId();
 
                 if (contactServer && idToken != null && clientId != null) {

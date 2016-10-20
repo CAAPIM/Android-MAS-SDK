@@ -35,7 +35,7 @@ public abstract class MASIntegrationBaseTest {
     @BeforeClass
     public static void beforeClass() {
         MAS.start(InstrumentationRegistry.getInstrumentation().getTargetContext(), true);
-/*
+
         final CountDownLatch latch = new CountDownLatch(1);
         final boolean[] result = {false};
 
@@ -60,12 +60,11 @@ public abstract class MASIntegrationBaseTest {
         } catch (InterruptedException e) {
             fail();
         }
-*/
+
     }
 
     @AfterClass
     public static void afterClass() {
-/*
         MASDevice masDevice = MASDevice.getCurrentDevice();
         final CountDownLatch latch = new CountDownLatch(1);
         masDevice.deregister(new MASCallback<Void>() {
@@ -83,7 +82,6 @@ public abstract class MASIntegrationBaseTest {
             latch.await(TIMEOUT, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
         }
-*/
     }
 
     protected static String getUsername() {

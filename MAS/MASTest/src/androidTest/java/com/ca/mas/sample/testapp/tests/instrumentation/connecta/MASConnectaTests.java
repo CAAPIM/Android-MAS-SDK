@@ -55,29 +55,8 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
             final Object[] result = {false, "unknown"};
             final Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
             MASConnectaManager.getInstance().start(ctx);
-/*
+
             MASConnectaManager.getInstance().connect(new MASCallback<Void>() {
-                @Override
-                public void onSuccess(Void object) {
-                    result[0] = true;
-                    latch.countDown();
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    result[0] = false;
-                    result[1] = "Error in Connecta.connect " + e;
-                    latch.countDown();
-                }
-            });*/
-
-            MASConnectOptions connectOptions = new MASConnectOptions();
-            connectOptions.setServerURIs(new String[]{"tcp://mosquitto.org:1883"});
-
-            MASConnectaManager masConnectaManager = MASConnectaManager.getInstance();
-            masConnectaManager.setConnectOptions(connectOptions);
-            //masConnectaManager.setClientId("clientIadf78asdf8dsf8sda7f8sdaf87s8f7dd");
-            masConnectaManager.connect(new MASCallback<Void>() {
                 @Override
                 public void onSuccess(Void object) {
                     result[0] = true;
@@ -103,47 +82,6 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
             fail("" + t);
         }
 
-    }
-
-    @Test
-    public void testAlignPubSub() {
-        try {
-            final CountDownLatch latch = new CountDownLatch(1);
-            final Object[] result = {false, "unknown"};
-
-            //setup topic
-            MASTopic topic = new MASTopicBuilder().setCustomTopic("test").enforceTopicStructure(false).build();
-
-            //setup message
-            MASMessage masMessage = MASMessage.newInstance();
-            masMessage.setContentType(MessagingConsts.MT_TEXT_PLAIN);
-            masMessage.setPayload("Android Studio test message".getBytes());
-
-            // Send a message to a given topic
-            MASConnectaManager.getInstance().publish(topic, masMessage, new MASCallback<Void>() {
-                @Override
-                public void onSuccess(Void object) {
-                    result[0] = true;
-                    latch.countDown();
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    result[0] = false;
-                    result[1] = "" + e.getMessage();
-                    fail("" + e);
-                    latch.countDown();
-                }
-            });
-
-            latch.await();
-            if (!(boolean) result[0]) {
-                Log.w(TAG, "testAlignPubSub onError: " + result[1]);
-                fail("Reason: " + result[1]);
-            }
-        } catch (InterruptedException e) {
-            fail("" + e);
-        }
     }
 
     @Test

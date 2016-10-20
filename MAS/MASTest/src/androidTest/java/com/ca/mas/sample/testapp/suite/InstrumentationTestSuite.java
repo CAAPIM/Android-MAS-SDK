@@ -9,6 +9,7 @@
 package com.ca.mas.sample.testapp.suite;
 
 import com.ca.mas.sample.testapp.tests.instrumentation.Identity.MASUserTests;
+import com.ca.mas.sample.testapp.tests.instrumentation.connecta.MASConnectaPublicBrokerTests;
 import com.ca.mas.sample.testapp.tests.instrumentation.connecta.MASConnectaTests;
 import com.ca.mas.sample.testapp.tests.instrumentation.foundation.MASApplicationTest;
 import com.ca.mas.sample.testapp.tests.instrumentation.foundation.MASConfigurationTest;
@@ -32,6 +33,7 @@ import org.junit.runners.Suite;
         {
                 MASDeviceTests.class,
                 MASConnectaTests.class,
+                MASConnectaPublicBrokerTests.class,
 
                 MASSecureStorageTests.class,
                 MASSecureStorageForUserApplication.class,

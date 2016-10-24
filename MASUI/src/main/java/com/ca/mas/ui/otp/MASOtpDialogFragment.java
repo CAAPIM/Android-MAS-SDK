@@ -47,25 +47,22 @@ import java.util.List;
  */
 public class MASOtpDialogFragment extends DialogFragment {
     private static final String HANDLER = MASOtpDialogFragment.class.getSimpleName() + "handler";
-    private static final String LOGO_ID = MASOtpDialogFragment.class.getSimpleName() +  "logoId";
-    private static final String LOGO_IMAGE = MASOtpDialogFragment.class.getSimpleName() +  "logoImage";
-
+    private static final String LOGO_ID = MASOtpDialogFragment.class.getSimpleName() + "logoId";
+    private static final String LOGO_IMAGE = MASOtpDialogFragment.class.getSimpleName() + "logoImage";
     private boolean mIsRequestProcessing = false;
     private String mErrorMessage = "Request cancelled.";
-
     private MASOtpAuthenticationHandler mHandler;
-
     private AlertDialog mDialog;
     private LinearLayout mChannelsContainer;
     private TextInputLayout mOtpTextInputLayout;
     private TextInputEditText mOtpTextInputEditText;
     private CheckBox[] mCheckBoxes;
     private ContentLoadingProgressBar mProgressBar;
-
     private List<String> mChannels;
 
     /**
      * Creates a dialog with the default CA logo.
+     *
      * @param handler The authentication handler
      * @return A dialog
      */
@@ -77,8 +74,9 @@ public class MASOtpDialogFragment extends DialogFragment {
 
     /**
      * Creates a dialog with a custom logo from a Bitmap.
+     *
      * @param handler The authentication handler
-     * @param logo A bitmap logo
+     * @param logo    A bitmap logo
      * @return A dialog
      */
     public static MASOtpDialogFragment newInstance(MASOtpAuthenticationHandler handler, Bitmap logo) {
@@ -90,6 +88,7 @@ public class MASOtpDialogFragment extends DialogFragment {
 
     /**
      * Creates a dialog with a custom logo from a drawable resource ID.
+     *
      * @param handler The authentication handler
      * @param logoRes A drawable resource for the logo
      * @return A dialog
@@ -206,6 +205,7 @@ public class MASOtpDialogFragment extends DialogFragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                v.setEnabled(false);
                 String channel = "";
                 mIsRequestProcessing = true;
                 if (channels != null) {

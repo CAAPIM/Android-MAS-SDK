@@ -21,6 +21,7 @@ import android.util.Log;
 
 import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
+import com.ca.mas.core.security.KeyStorageProvider;
 import com.ca.mas.core.security.LockableKeyStorageProvider;
 import com.ca.mas.core.security.UserNotAuthenticatedException;
 
@@ -39,8 +40,11 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -49,6 +53,9 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.x500.X500Principal;
 
 import static junit.framework.Assert.assertEquals;
@@ -292,5 +299,99 @@ public class EncryptionProviderTest {
         lockableKeyStorageProvider.removeKey(DefaultEncryptionProvider.KEY_ALIAS);
 
     }
+
+    @Test
+    public void testAppPINLock() throws Exception {
+        //Encrypt the passcode
+        final byte[] salt = new byte[12];
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.nextBytes(salt);
+        final SecretKey passcode = generateKey("1234".toCharArray(), salt);
+
+        //Encrypt the encrypted passcode
+        EncryptionProvider ep = new DefaultEncryptionProvider(InstrumentationRegistry.getInstrumentation().getTargetContext()) {
+            @Override
+            protected String getKeyAlias() {
+                return "com.ca.mas.key.pin";
+            }
+        };
+        byte[] encryptedPasscode = ep.encrypt(passcode.getEncoded());
+        //Store the encrypted Passcode in share keychain
+
+
+        //Decrypt the encrypted passcode
+        byte[] decryptedPasscode = ep.decrypt(encryptedPasscode);
+        final SecretKey passcode2 = new SecretKeySpec(decryptedPasscode, "PBKDF2WithHmacSHA1");
+
+
+        //Encrypt the ID TOKEN with passcode
+        EncryptionProvider pinKeyEP = new DefaultEncryptionProvider(InstrumentationRegistry.getInstrumentation().getTargetContext(), new KeyStorageProvider() {
+            @Override
+            public void storeKey(String alias, SecretKey sk) {
+            }
+
+            @Override
+            public SecretKey getKey(String alias) {
+                return passcode2;
+            }
+
+            @Override
+            public boolean containsKey(String alias) {
+                return true;
+            }
+        });
+
+        byte[] encyptedIdToken = pinKeyEP.encrypt("This is the id token".getBytes());
+        byte[] encryptedIdTokenWithIV = new byte[salt.length + encyptedIdToken.length];
+        System.arraycopy(salt, 0, encryptedIdTokenWithIV, 0, salt.length);
+        System.arraycopy(encyptedIdToken, 0, encryptedIdTokenWithIV, salt.length, encyptedIdToken.length);
+        //store the encryptedIdTokenWithIV
+
+        //Decrypt the IDToken
+        byte[] iv2 = new byte[12];
+        System.arraycopy(encryptedIdTokenWithIV, 0, iv2, 0, iv2.length);
+
+        final SecretKey secretKey2 = generateKey("1234".toCharArray(), iv2);
+        EncryptionProvider ep2 = new DefaultEncryptionProvider(InstrumentationRegistry.getInstrumentation().getTargetContext(), new KeyStorageProvider() {
+
+            @Override
+            public void storeKey(String alias, SecretKey sk) {
+            }
+
+            @Override
+            public SecretKey getKey(String alias) {
+                return secretKey2;
+            }
+
+            @Override
+            public boolean containsKey(String alias) {
+                return true;
+            }
+
+        });
+
+
+        byte[] decrypt = ep2.decrypt(encyptedIdToken);
+
+        assertEquals(new String(decrypt), "This is the id token");
+
+    }
+
+    public SecretKey generateKey(char[] passphraseOrPin, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        // Number of PBKDF2 hardening rounds to use. Larger values increase
+        // computation time. You should select a value that causes computation
+        // to take >100ms.
+        final int iterations = 1000;
+
+        // Generate a 256-bit key
+        final int outputKeyLength = 256;
+
+        SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        KeySpec keySpec = new PBEKeySpec(passphraseOrPin, salt, iterations, outputKeyLength);
+        SecretKey secretKey = secretKeyFactory.generateSecret(keySpec);
+        return secretKey;
+    }
+
+
 
 }

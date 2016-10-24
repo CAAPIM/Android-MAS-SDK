@@ -46,18 +46,25 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
 
     public DefaultEncryptionProvider(Context ctx, KeyStorageProvider keyStorageProvider) {
         ksp = keyStorageProvider;
-        boolean hasSecureKey = ksp.containsKey(KEY_ALIAS);
+        boolean hasSecureKey = ksp.containsKey(getKeyAlias());
 
         if (!hasSecureKey) {
-            KeyGenerator keyGenerator = new DefaultKeyGenerator(ALGORITHM, KEY_SIZE);
-            SecretKey sk;
-            try {
-                sk = keyGenerator.generateKey();
-            } catch (NoSuchAlgorithmException e) {
-                Log.e(TAG, "Error while generating key");
-                throw new RuntimeException(e.getMessage(), e);
-            }
-            ksp.storeKey(KEY_ALIAS, sk);
+            SecretKey sk = generateKey();
+            ksp.storeKey(getKeyAlias(), sk);
+        }
+    }
+
+    protected String getKeyAlias() {
+        return KEY_ALIAS;
+    }
+
+    protected SecretKey generateKey() {
+        KeyGenerator keyGenerator = new DefaultKeyGenerator(ALGORITHM, KEY_SIZE);
+        try {
+            return keyGenerator.generateKey();
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG, "Error while generating key");
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -76,7 +83,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
 
         byte[] encryptedData;
         try {
-            SecretKey secretKey = ksp.getKey(KEY_ALIAS);
+            SecretKey secretKey = ksp.getKey(getKeyAlias());
             Cipher cipher = Cipher.getInstance(AES_GCM_NO_PADDING);
 
             byte[] iv;
@@ -101,7 +108,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             }
 
             encryptedData = cipher.doFinal(data);
-            byte[] mac = computeMac(KEY_ALIAS, encryptedData);
+            byte[] mac = computeMac(getKeyAlias(), encryptedData);
             encryptedData = concatArrays(mac, iv, encryptedData);
         } catch (Exception e) {
             throwIfUserNotAuthenticated(e);
@@ -139,7 +146,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
 
         byte[] iv = getArraySubset(encryptedData, macLength, ivlength);
         encryptedData = getArraySubset(encryptedData, macLength + ivlength, encryptedDataLength);
-        byte[] mac = computeMac(KEY_ALIAS, encryptedData);
+        byte[] mac = computeMac(getKeyAlias(), encryptedData);
 
         if (!Arrays.equals(mac, macFromMessage)) {
             Log.e(TAG, "MAC signature could not be verified");
@@ -155,7 +162,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
         }
 
         try {
-            SecretKey secretKey = ksp.getKey(KEY_ALIAS);
+            SecretKey secretKey = ksp.getKey(getKeyAlias());
             cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParams);
             return cipher.doFinal(encryptedData);
         } catch (Exception e) {

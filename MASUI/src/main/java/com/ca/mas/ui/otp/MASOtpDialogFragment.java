@@ -88,6 +88,7 @@ public class MASOtpDialogFragment extends DialogFragment {
 
     /**
      * Creates a dialog with a custom logo from a drawable resource ID.
+     * The drawable should be located inside an appropriate DPI folder.
      *
      * @param handler The authentication handler
      * @param logoRes A drawable resource for the logo

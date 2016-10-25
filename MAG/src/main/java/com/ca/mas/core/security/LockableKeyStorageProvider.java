@@ -1,15 +1,23 @@
+/*
+ * Copyright (c) 2016 CA. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
 package com.ca.mas.core.security;
 
 import android.os.Build;
 import android.security.keystore.KeyProperties;
 import android.security.keystore.KeyProtection;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import java.io.IOException;
-import java.security.*;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
 import javax.crypto.SecretKey;

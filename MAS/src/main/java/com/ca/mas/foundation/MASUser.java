@@ -23,7 +23,7 @@ import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
-import com.ca.mas.core.security.FingerprintListener;
+import com.ca.mas.core.security.SessionUnlockListener;
 import com.ca.mas.core.security.LockableKeyStorageProvider;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.OAuthTokenContainer;
@@ -572,7 +572,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
             @Override
             @TargetApi(23)
-            public void unlockSession(FingerprintListener listener, MASCallback<Void> callback) {
+            public void unlockSession(SessionUnlockListener listener, MASCallback<Void> callback) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (isSessionLocked()) {
                         TokenManager keyChainManager = createTokenManager();
@@ -697,7 +697,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
      * removes the locked ID_TOKEN, and then indicates if the device is unlocked.
      */
     @TargetApi(23)
-    public abstract void unlockSession(FingerprintListener listener, MASCallback<Void> callback);
+    public abstract void unlockSession(SessionUnlockListener listener, MASCallback<Void> callback);
 
     /**
      * Checks to see if the device has a locked ID token.

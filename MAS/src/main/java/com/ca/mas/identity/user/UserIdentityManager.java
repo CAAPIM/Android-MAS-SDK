@@ -15,7 +15,7 @@ import android.text.TextUtils;
 
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.security.FingerprintListener;
+import com.ca.mas.core.security.SessionUnlockListener;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASException;
@@ -471,7 +471,7 @@ public class UserIdentityManager {
             }
 
             @Override
-            public void unlockSession(FingerprintListener listener, MASCallback<Void> callback) {
+            public void unlockSession(SessionUnlockListener listener, MASCallback<Void> callback) {
                 throw new UserNotAuthenticatedException();
             }
 

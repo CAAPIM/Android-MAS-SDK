@@ -27,6 +27,7 @@ import com.ca.mas.core.request.internal.StateRequest;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.notify.Callback;
+import com.ca.mas.foundation.util.FoundationUtil;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
 
@@ -162,12 +163,14 @@ public class ConnectaService extends Service implements MASConnectaClient {
     Called once the secure socket factory has been created to perform the Mqtt initialization.
      */
     private void initMqttClient(String deviceId) throws MASException, MqttException {
+        String brokerUrl = ConnectaUtil.getBrokerUrl(getApplicationContext(), mConnectOptions);
+        Log.d(TAG, "CONNECTA: brokerUrl: " + brokerUrl);
 
         // we use a UUID instead of the device ID so there are no restrictions
         // on the number of unique connections that can be made.
         String brokerClientId;
-        if (this.clientId == null) {
-            // Client ID was not set, generate one
+        if (this.clientId == null || brokerUrl.contains(FoundationUtil.getHost())) {
+            // Client ID was not set, or if connecting to the gateway, generate a client id
             this.clientId = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getClientId();
             brokerClientId = ConnectaUtil.getMqttClientId(clientId, deviceId);
         } else {
@@ -180,8 +183,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
 
         final MemoryPersistence memoryPersistence = new MemoryPersistence();
 
-        String brokerUrl = ConnectaUtil.getBrokerUrl(getApplicationContext(), mConnectOptions);
-        Log.d(TAG, "CONNECTA: brokerUrl: " + brokerUrl);
+
 
         mMqttClient = new MqttClient(brokerUrl, brokerClientId, memoryPersistence);
         mMqttClient.setCallback(

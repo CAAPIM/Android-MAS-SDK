@@ -31,6 +31,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASOtpAuthenticationHandler;
@@ -54,6 +55,7 @@ public class MASOtpDialogFragment extends DialogFragment {
     private MASOtpAuthenticationHandler mHandler;
     private AlertDialog mDialog;
     private LinearLayout mChannelsContainer;
+    private TextView mErrorTextView;
     private TextInputLayout mOtpTextInputLayout;
     private TextInputEditText mOtpTextInputEditText;
     private CheckBox[] mCheckBoxes;
@@ -130,6 +132,7 @@ public class MASOtpDialogFragment extends DialogFragment {
 
         mChannelsContainer = (LinearLayout) view.findViewById(R.id.channelsContainer);
         mProgressBar = (ContentLoadingProgressBar) view.findViewById(R.id.progressBar);
+        mErrorTextView = (TextView) view.findViewById(R.id.errorTextView);
         ImageView logoView = (ImageView) view.findViewById(R.id.logoImageView);
         mOtpTextInputLayout = (TextInputLayout) view.findViewById(R.id.otpTextInputLayout);
         mOtpTextInputEditText = (TextInputEditText) view.findViewById(R.id.otpEditText);
@@ -161,7 +164,7 @@ public class MASOtpDialogFragment extends DialogFragment {
                 mChannels.add("Email");
             } else {
                 for (int i = 0; i < mChannels.size(); i++) {
-                    CheckBox cb = new CheckBox(getActivity());
+                    CheckBox cb = (CheckBox) View.inflate(getActivity(), R.layout.view_checkbox, null);
                     cb.setText(mChannels.get(i));
                     cb.setTextSize(16);
                     mCheckBoxes[i] = cb;
@@ -267,7 +270,21 @@ public class MASOtpDialogFragment extends DialogFragment {
             public void onError(Throwable e) {
                 mIsRequestProcessing = false;
                 mHandler.cancel();
-                dismiss();
+
+                final Button positiveButton = mDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                positiveButton.setEnabled(true);
+
+                mProgressBar.hide();
+                mProgressBar.setVisibility(View.GONE);
+                mChannelsContainer.setVisibility(View.VISIBLE);
+                mErrorTextView.setVisibility(View.VISIBLE);
+                mErrorTextView.setText(e.getLocalizedMessage());
+                mErrorTextView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mErrorTextView.setVisibility(View.GONE);
+                    }
+                }, 2000);
             }
         };
     }

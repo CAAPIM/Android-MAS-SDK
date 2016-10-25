@@ -28,10 +28,10 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASOtpAuthenticationHandler;
 import com.ca.mas.ui.R;
@@ -47,25 +47,22 @@ import java.util.List;
  */
 public class MASOtpDialogFragment extends DialogFragment {
     private static final String HANDLER = MASOtpDialogFragment.class.getSimpleName() + "handler";
-    private static final String LOGO_ID = MASOtpDialogFragment.class.getSimpleName() +  "logoId";
-    private static final String LOGO_IMAGE = MASOtpDialogFragment.class.getSimpleName() +  "logoImage";
-
+    private static final String LOGO_ID = MASOtpDialogFragment.class.getSimpleName() + "logoId";
+    private static final String LOGO_IMAGE = MASOtpDialogFragment.class.getSimpleName() + "logoImage";
     private boolean mIsRequestProcessing = false;
     private String mErrorMessage = "Request cancelled.";
-
     private MASOtpAuthenticationHandler mHandler;
-
     private AlertDialog mDialog;
     private LinearLayout mChannelsContainer;
     private TextInputLayout mOtpTextInputLayout;
     private TextInputEditText mOtpTextInputEditText;
     private CheckBox[] mCheckBoxes;
     private ContentLoadingProgressBar mProgressBar;
-
     private List<String> mChannels;
 
     /**
      * Creates a dialog with the default CA logo.
+     *
      * @param handler The authentication handler
      * @return A dialog
      */
@@ -77,8 +74,9 @@ public class MASOtpDialogFragment extends DialogFragment {
 
     /**
      * Creates a dialog with a custom logo from a Bitmap.
+     *
      * @param handler The authentication handler
-     * @param logo A bitmap logo
+     * @param logo    A bitmap logo
      * @return A dialog
      */
     public static MASOtpDialogFragment newInstance(MASOtpAuthenticationHandler handler, Bitmap logo) {
@@ -90,6 +88,8 @@ public class MASOtpDialogFragment extends DialogFragment {
 
     /**
      * Creates a dialog with a custom logo from a drawable resource ID.
+     * The drawable should be located inside an appropriate DPI folder.
+     *
      * @param handler The authentication handler
      * @param logoRes A drawable resource for the logo
      * @return A dialog
@@ -191,13 +191,23 @@ public class MASOtpDialogFragment extends DialogFragment {
         AlertDialog d = (AlertDialog) getDialog();
         if (d != null) {
             // We override this in onStart() due to AlertDialog dismissing on positive button clicks
-            Button positiveButton = d.getButton(DialogInterface.BUTTON_POSITIVE);
+            final Button positiveButton = d.getButton(DialogInterface.BUTTON_POSITIVE);
             if (!mHandler.isInvalidOtp()) {
+                positiveButton.setEnabled(false);
                 positiveButton.setOnClickListener(sendOtpListener(mCheckBoxes, mChannels));
             } else {
                 positiveButton.setOnClickListener(verifyOtpListener());
                 positiveButton.setEnabled(false);
                 mOtpTextInputEditText.addTextChangedListener(otpTextWatcher(positiveButton));
+            }
+
+            for (CheckBox cb : mCheckBoxes) {
+                cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        positiveButton.setEnabled(isRequestOtpButtonEnabled());
+                    }
+                });
             }
         }
     }
@@ -206,6 +216,7 @@ public class MASOtpDialogFragment extends DialogFragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                v.setEnabled(false);
                 String channel = "";
                 mIsRequestProcessing = true;
                 if (channels != null) {
@@ -251,29 +262,10 @@ public class MASOtpDialogFragment extends DialogFragment {
                 mOtpTextInputEditText.addTextChangedListener(otpTextWatcher(positiveButton));
             }
 
+            // The caller should handle the error codes described in http://mas.ca.com/docs/android/1.2.00/guides/#sdk-exceptions
             @Override
             public void onError(Throwable e) {
                 mIsRequestProcessing = false;
-                Activity activity = getActivity();
-                if (activity instanceof MASErrorMessageListener) {
-                    String errorMessage = "OTP delivery failure";
-                    if (e instanceof MAGServerException) {
-                        int errorCode = ((MAGServerException) e).getErrorCode();
-                        String errorCodeString = Integer.toString(errorCode);
-                        if (errorCodeString.endsWith("140")) {
-                            errorMessage = getResources().getString(R.string.errorCode140);
-                        } else if (errorCodeString.endsWith("142")) {
-                            errorMessage = getResources().getString(R.string.errorCode142);
-                        } else if (errorCodeString.endsWith("143")) {
-                            errorMessage = getResources().getString(R.string.errorCode143);
-                        } else if (errorCodeString.endsWith("144")) {
-                            errorMessage = getResources().getString(R.string.errorCode144);
-                        } else if (errorCodeString.endsWith("145")) {
-                            errorMessage = getResources().getString(R.string.errorCode145);
-                        }
-                    }
-                    ((MASErrorMessageListener) activity).getErrorMessage(errorMessage);
-                }
                 mHandler.cancel();
                 dismiss();
             }
@@ -350,5 +342,14 @@ public class MASOtpDialogFragment extends DialogFragment {
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
         mHandler.cancel();
+    }
+
+    private boolean isRequestOtpButtonEnabled() {
+        for (CheckBox cb : mCheckBoxes) {
+            if (cb.isChecked()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

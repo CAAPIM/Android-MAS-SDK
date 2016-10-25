@@ -28,10 +28,10 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASOtpAuthenticationHandler;
 import com.ca.mas.ui.R;
@@ -191,13 +191,23 @@ public class MASOtpDialogFragment extends DialogFragment {
         AlertDialog d = (AlertDialog) getDialog();
         if (d != null) {
             // We override this in onStart() due to AlertDialog dismissing on positive button clicks
-            Button positiveButton = d.getButton(DialogInterface.BUTTON_POSITIVE);
+            final Button positiveButton = d.getButton(DialogInterface.BUTTON_POSITIVE);
             if (!mHandler.isInvalidOtp()) {
+                positiveButton.setEnabled(false);
                 positiveButton.setOnClickListener(sendOtpListener(mCheckBoxes, mChannels));
             } else {
                 positiveButton.setOnClickListener(verifyOtpListener());
                 positiveButton.setEnabled(false);
                 mOtpTextInputEditText.addTextChangedListener(otpTextWatcher(positiveButton));
+            }
+
+            for (CheckBox cb : mCheckBoxes) {
+                cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        positiveButton.setEnabled(isRequestOtpButtonEnabled());
+                    }
+                });
             }
         }
     }
@@ -252,29 +262,10 @@ public class MASOtpDialogFragment extends DialogFragment {
                 mOtpTextInputEditText.addTextChangedListener(otpTextWatcher(positiveButton));
             }
 
+            // The caller should handle the error codes described in http://mas.ca.com/docs/android/1.2.00/guides/#sdk-exceptions
             @Override
             public void onError(Throwable e) {
                 mIsRequestProcessing = false;
-                Activity activity = getActivity();
-                if (activity instanceof MASErrorMessageListener) {
-                    String errorMessage = "OTP delivery failure";
-                    if (e instanceof MAGServerException) {
-                        int errorCode = ((MAGServerException) e).getErrorCode();
-                        String errorCodeString = Integer.toString(errorCode);
-                        if (errorCodeString.endsWith("140")) {
-                            errorMessage = getResources().getString(R.string.errorCode140);
-                        } else if (errorCodeString.endsWith("142")) {
-                            errorMessage = getResources().getString(R.string.errorCode142);
-                        } else if (errorCodeString.endsWith("143")) {
-                            errorMessage = getResources().getString(R.string.errorCode143);
-                        } else if (errorCodeString.endsWith("144")) {
-                            errorMessage = getResources().getString(R.string.errorCode144);
-                        } else if (errorCodeString.endsWith("145")) {
-                            errorMessage = getResources().getString(R.string.errorCode145);
-                        }
-                    }
-                    ((MASErrorMessageListener) activity).getErrorMessage(errorMessage);
-                }
                 mHandler.cancel();
                 dismiss();
             }
@@ -351,5 +342,14 @@ public class MASOtpDialogFragment extends DialogFragment {
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
         mHandler.cancel();
+    }
+
+    private boolean isRequestOtpButtonEnabled() {
+        for (CheckBox cb : mCheckBoxes) {
+            if (cb.isChecked()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

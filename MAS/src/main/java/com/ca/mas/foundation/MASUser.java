@@ -22,10 +22,10 @@ import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.security.DefaultEncryptionProvider;
+import com.ca.mas.core.security.EncryptionProvider;
 import com.ca.mas.core.security.FingerprintListener;
 import com.ca.mas.core.security.LockableKeyStorageProvider;
 import com.ca.mas.core.security.SecureLockException;
-import com.ca.mas.core.security.UserNotAuthenticatedException;
 import com.ca.mas.core.store.OAuthTokenContainer;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
@@ -63,7 +63,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static android.provider.ContactsContract.CommonDataKinds.StructuredName.SUFFIX;
 import static com.ca.mas.foundation.MASDevice.createStorageProvider;
 import static com.ca.mas.foundation.MASDevice.createTokenManager;
 import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN;
@@ -78,6 +77,7 @@ import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_D
  * "urn:ietf:params:scim:schemas:core:2.0:User". See the <a href="https://tools.ietf.org/html/rfc7643#section-8.2">Full User Representation</a> for the complete format.</p>
  */
 public abstract class MASUser implements MASTransformable, MASMessenger, MASUserIdentity, ScimUser {
+    private static final String SESSION_LOCK_ALIAS = "com.ca.mas.SESSION_LOCK";
     private static List<UserRepository> userRepositories = new ArrayList<>();
 
     static {
@@ -153,17 +153,12 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
         return current;
     }
 
-    @TargetApi(23)
-    private static LockableKeyStorageProvider initializeKeyStoreProvider() {
-        return new LockableKeyStorageProvider(SUFFIX);
-    }
-
     private static MASUser createMASUser() {
 
         return new MASUser() {
             private TokenManager tokenManager = new StorageProvider(MAS.getContext()).createTokenManager();
             private ScimUser scimUser = getLocalUserProfile();
-            private LockableKeyStorageProvider mKeyStoreProvider = initializeKeyStoreProvider();
+            private LockableKeyStorageProvider mKeyStoreProvider = new LockableKeyStorageProvider();
 
             @Override
             public boolean isAuthenticated() {
@@ -543,10 +538,10 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             byte[] idTokenBytes = idTokenParcel.marshall();
 
                             // Delete any previously generated key due to improper closure
-                            if (mKeyStoreProvider.getKey(DefaultEncryptionProvider.KEY_ALIAS) != null) {
-                                mKeyStoreProvider.removeKey(DefaultEncryptionProvider.KEY_ALIAS);
+                            if (mKeyStoreProvider.getKey(SESSION_LOCK_ALIAS) != null) {
+                                mKeyStoreProvider.removeKey(SESSION_LOCK_ALIAS);
                             }
-                            DefaultEncryptionProvider encryptionProvider = new DefaultEncryptionProvider(MAS.getContext(), mKeyStoreProvider);
+                            EncryptionProvider encryptionProvider = getSessionLockEncryptionProvider();
                             byte[] encryptedData = encryptionProvider.encrypt(idTokenBytes);
                             // Save the encrypted token
                             try {
@@ -585,7 +580,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                         // Unlock the ID token from the Keystore and places the decrypted ID token back to the Keychain
                         byte[] secureIdToken = keyChainManager.getSecureIdToken();
 
-                        DefaultEncryptionProvider encryptionProvider = new DefaultEncryptionProvider(MAS.getContext(), mKeyStoreProvider);
+                        EncryptionProvider encryptionProvider = getSessionLockEncryptionProvider();
                         // Read the decrypted data, reconstruct it as a Parcel, then as an IdToken
                         Parcel parcel = Parcel.obtain();
                         try {
@@ -610,14 +605,15 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             }
 
                             // Delete the previously generated key after successfully decrypting
-                            mKeyStoreProvider.removeKey(DefaultEncryptionProvider.KEY_ALIAS);
+                            mKeyStoreProvider.removeKey(SESSION_LOCK_ALIAS);
                             // Indicate the device is unlocked
                             callback.onSuccess(null);
                         } catch (Exception e) {
-                            if (e instanceof UserNotAuthenticatedException
-                                    || e.getCause() instanceof android.security.keystore.UserNotAuthenticatedException) {
+                            if (e.getCause() != null && e.getCause() instanceof android.security.keystore.UserNotAuthenticatedException) {
                                 // Listener activity to trigger fingerprint
                                 listener.triggerDeviceUnlock();
+                            } else {
+                                callback.onError(e);
                             }
                         }
                     } else {
@@ -646,6 +642,15 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                 } catch (TokenStoreException e) {
                     callback.onError(new SecureLockException(SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN, e));
                 }
+            }
+
+            private EncryptionProvider getSessionLockEncryptionProvider() {
+                return new DefaultEncryptionProvider(MAS.getContext(), mKeyStoreProvider) {
+                    @Override
+                    protected String getKeyAlias() {
+                        return SESSION_LOCK_ALIAS;
+                    }
+                };
             }
         };
     }

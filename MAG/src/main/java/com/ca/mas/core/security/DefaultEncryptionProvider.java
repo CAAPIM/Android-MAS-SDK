@@ -111,7 +111,6 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             byte[] mac = computeMac(getKeyAlias(), encryptedData);
             encryptedData = concatArrays(mac, iv, encryptedData);
         } catch (Exception e) {
-            throwIfUserNotAuthenticated(e);
             Log.e(TAG, "inside exception of encrypt function: ", e);
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -166,22 +165,8 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParams);
             return cipher.doFinal(encryptedData);
         } catch (Exception e) {
-            throwIfUserNotAuthenticated(e);
             Log.e(TAG, "Error while decrypting an cipher instance", e);
             throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private void throwIfUserNotAuthenticated(Exception e) {
-        if (e != null) {
-            try {
-                Class<?> smClass = Class.forName("android.security.KeyStoreException");
-                if (smClass.isInstance(e.getCause())) {
-                    throw new UserNotAuthenticatedException(e.getCause().getMessage());
-                }
-            } catch (ClassNotFoundException e1) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
         }
     }
 

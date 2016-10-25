@@ -21,11 +21,6 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
     private static final String TAG = LockableKeyStorageProvider.class.getCanonicalName();
     private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
     private SecretKey secretKey;
-    private String suffix;
-
-    public LockableKeyStorageProvider(@NonNull String suffix) {
-        this.suffix = suffix;
-    }
 
     @Override
     public void storeKey(String alias, SecretKey sk) {
@@ -47,7 +42,7 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
 
         try {
             this.secretKey = sk;
-            ks.setEntry(getKeyName(alias), new KeyStore.SecretKeyEntry(sk), kp);
+            ks.setEntry(alias, new KeyStore.SecretKeyEntry(sk), kp);
         } catch (KeyStoreException e) {
             Log.e(TAG, "Error setting entry into Android KeyStore.", e);
             throw new RuntimeException("Error setting entry into Android KeyStore.", e);
@@ -63,7 +58,7 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
         try {
             KeyStore ks = KeyStore.getInstance(ANDROID_KEY_STORE);
             ks.load(null);
-            KeyStore.SecretKeyEntry entry = (KeyStore.SecretKeyEntry) ks.getEntry(getKeyName(alias), null);
+            KeyStore.SecretKeyEntry entry = (KeyStore.SecretKeyEntry) ks.getEntry(alias, null);
             return entry == null ? null : entry.getSecretKey();
         } catch (Exception e) {
             Log.e(TAG, "Error while getting SecretKey", e);
@@ -76,15 +71,11 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
         try {
             KeyStore ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
             ks.load(null);
-            return ks.containsAlias(getKeyName(alias));
+            return ks.containsAlias(alias);
         } catch (Exception e) {
             Log.e(TAG, "Error while getting SecretKey", e);
             return false;
         }
-    }
-
-    private String getKeyName(String alias) {
-        return alias + suffix;
     }
 
     public void lock() {
@@ -103,7 +94,7 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
         try {
             KeyStore ks = KeyStore.getInstance(ANDROID_KEY_STORE);
             ks.load(null);
-            ks.deleteEntry(getKeyName(alias));
+            ks.deleteEntry(alias);
         } catch (Exception e) {
             Log.e(TAG, "Error while delete SecretKey", e);
         }

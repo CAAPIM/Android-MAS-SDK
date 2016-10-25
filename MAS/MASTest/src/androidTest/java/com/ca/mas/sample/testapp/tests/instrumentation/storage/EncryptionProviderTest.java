@@ -14,6 +14,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyProperties;
+import android.security.keystore.UserNotAuthenticatedException;
 import android.support.annotation.RequiresApi;
 import android.support.test.InstrumentationRegistry;
 import android.util.Base64;
@@ -23,7 +24,6 @@ import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
 import com.ca.mas.core.security.KeyStorageProvider;
 import com.ca.mas.core.security.LockableKeyStorageProvider;
-import com.ca.mas.core.security.UserNotAuthenticatedException;
 
 import org.junit.After;
 import org.junit.Test;
@@ -267,10 +267,17 @@ public class EncryptionProviderTest {
     @Test
     public void testLockableKeyStorageProvider() throws Exception {
 
-        LockableKeyStorageProvider lockableKeyStorageProvider = new LockableKeyStorageProvider("KEY_SUFFIX");
-        lockableKeyStorageProvider.removeKey(DefaultEncryptionProvider.KEY_ALIAS);
+        final String alias = "MY_KEY_ALIAS";
 
-        encryptionProvider = new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext(), lockableKeyStorageProvider);
+        LockableKeyStorageProvider lockableKeyStorageProvider = new LockableKeyStorageProvider();
+        lockableKeyStorageProvider.removeKey(alias);
+
+        encryptionProvider = new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext(), lockableKeyStorageProvider) {
+            @Override
+            protected String getKeyAlias() {
+                return alias;
+            }
+        };
         String dataString = "CA Technologies";
         byte[] data = dataString.getBytes("UTF-8");
         byte[] encryptedData = encryptionProvider.encrypt(data);
@@ -287,16 +294,16 @@ public class EncryptionProviderTest {
             encryptionProvider.decrypt(encryptedData);
             fail();
         } catch (Exception e) {
-            assertTrue(e instanceof UserNotAuthenticatedException);
+            assertTrue(e.getCause() instanceof UserNotAuthenticatedException);
         }
 
         try {
             encryptionProvider.encrypt(data);
             fail();
         } catch (Exception e) {
-            assertTrue(e instanceof UserNotAuthenticatedException);
+            assertTrue(e.getCause() instanceof UserNotAuthenticatedException);
         }
-        lockableKeyStorageProvider.removeKey(DefaultEncryptionProvider.KEY_ALIAS);
+        lockableKeyStorageProvider.removeKey(alias);
 
     }
 

@@ -5,6 +5,7 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
+
 package com.ca.mas.core.security;
 
 public class SecureLockException extends RuntimeException {

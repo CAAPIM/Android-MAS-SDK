@@ -32,7 +32,7 @@ import javax.security.auth.Destroyable;
 
 public class DefaultEncryptionProvider implements EncryptionProvider {
     private KeyStorageProvider ksp;
-    public static final String KEY_ALIAS = "secret";
+    private static final String KEY_ALIAS = "secret";
     private static final String ALGORITHM = "AES";
     private static final int KEY_SIZE = 256;
     public static final String TAG = DefaultEncryptionProvider.class.getCanonicalName();
@@ -58,7 +58,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
         return KEY_ALIAS;
     }
 
-    protected SecretKey generateKey() {
+    private SecretKey generateKey() {
         KeyGenerator keyGenerator = new DefaultKeyGenerator(ALGORITHM, KEY_SIZE);
         try {
             return keyGenerator.generateKey();
@@ -154,7 +154,6 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
 
         AlgorithmParameterSpec ivParams;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-
             ivParams = new GCMParameterSpec(128, iv);
         } else {
             ivParams = new IvParameterSpec(iv);

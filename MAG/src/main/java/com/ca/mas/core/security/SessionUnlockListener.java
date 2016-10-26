@@ -7,8 +7,6 @@
  */
 package com.ca.mas.core.security;
 
-import android.content.Context;
-
 /**
  * This listener should be implemented by the Activity or
  * Fragment in charge of launching the KEYGUARD_SERVICE intent.
@@ -42,5 +40,5 @@ import android.content.Context;
  * }</pre>
  */
 public interface SessionUnlockListener {
-    void triggerDeviceUnlock(Context context);
+    void triggerDeviceUnlock();
 }

@@ -5,12 +5,15 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.foundation;
 
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
+import com.ca.mas.core.conf.ConfigurationManager;
+import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.DeviceIdentifier;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEPeripheralListener;
 import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.foundation.util.FoundationUtil;
@@ -19,7 +22,6 @@ import com.ca.mas.foundation.util.FoundationUtil;
  * <p>The <b>MASDevice</b> class is a local representation of device data.</p>
  */
 public abstract class MASDevice implements Device {
-
     private static MASDevice current;
 
     private MASDevice() {
@@ -31,20 +33,22 @@ public abstract class MASDevice implements Device {
                 @Override
                 public void deregister(final MASCallback<Void> callback) {
                     final MobileSso mobileSso = MobileSsoFactory.getInstance();
-                    if (mobileSso.isDeviceRegistered()) {
-                        if (mobileSso != null) {
-                            Thread t = new Thread(new Runnable() {
-                                public void run() {
-                                    try {
-                                        mobileSso.removeDeviceRegistration();
-                                        Callback.onSuccess(callback, null);
-                                    } catch (Exception e) {
-                                        Callback.onError(callback, e);
+                    if (mobileSso != null && mobileSso.isDeviceRegistered()) {
+                        Thread t = new Thread(new Runnable() {
+                            public void run() {
+                                try {
+                                    mobileSso.removeDeviceRegistration();
+                                    TokenManager manager = createTokenManager();
+                                    if (manager.getSecureIdToken() != null) {
+                                        manager.deleteSecureIdToken();
                                     }
+                                    Callback.onSuccess(callback, null);
+                                } catch (Exception e) {
+                                    Callback.onError(callback, e);
                                 }
-                            });
-                            t.start();
-                        }
+                            }
+                        });
+                        t.start();
                     } else {
                         Callback.onError(callback, new IllegalStateException("Device is not registered"));
                     }
@@ -79,4 +83,15 @@ public abstract class MASDevice implements Device {
         }
         return current;
     }
+
+    static StorageProvider createStorageProvider() {
+        ConfigurationProvider configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
+        StorageProvider storageProvider = new StorageProvider(MAS.getContext(), configurationProvider);
+        return storageProvider;
+    }
+
+    static TokenManager createTokenManager() {
+        return createStorageProvider().createTokenManager();
+    }
+
 }

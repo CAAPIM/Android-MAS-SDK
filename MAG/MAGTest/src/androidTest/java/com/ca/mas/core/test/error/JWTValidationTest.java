@@ -21,10 +21,12 @@ import com.ca.mas.core.request.internal.OAuthTokenRequest;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.test.BaseTest;
 import com.ca.mas.core.test.DefaultDispatcher;
+import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.token.JWTExpiredException;
 import com.ca.mas.core.token.JWTInvalidAUDException;
 import com.ca.mas.core.token.JWTInvalidAZPException;
 import com.ca.mas.core.token.JWTInvalidSignatureException;
+import com.ca.mas.core.token.JWTValidation;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 
 import org.junit.Before;
@@ -35,6 +37,7 @@ import java.net.HttpURLConnection;
 import java.util.Date;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
@@ -308,6 +311,20 @@ public class JWTValidationTest extends BaseTest {
         processRequest(new OAuthTokenRequest());
         assertTrue(result[0]);
         assertEquals(HttpURLConnection.HTTP_OK, response.getResponseCode());
+
+    }
+
+    @Test
+    public void testExpiredToken() throws Exception {
+
+        IdToken idToken = new IdToken("eyJ0eXAiOiJKV1QiLA0KICJhbGciOiJIUzI1NiJ9.ewogImV4cCI6IDE0MDA3OTQ2MjEsCiAiYXpwIjogImQ5YjM4YjIyLTE0YTItNDU3My04MGI3LWI5NWRlOTJiMThoZSIsCiAic3ViIjogIngiLAogImF1ZCI6ICI4Mjk4YmM1MS1mMjQyLTRjNmQtYjU0Ny1kMWQ4ZTg1MTljYjQiLAogImlzcyI6ICJodHRwOi8vbS5sYXllcjd0ZWNoLmNvbS9jb25uZWN0IiwKICJpYXQiOiAxNDAwNzk0NjIxCn0.H4Yvz9d-uzoWGWeshgYTFLm110B1M1pb63vrwrJsIIg", "urn:ietf:params:oauth:grant-type:jwt-bearer");
+        assertTrue(JWTValidation.isIdTokenExpired(idToken));
+
+
+        idToken = new IdToken("eyJ0eXAiOiJKV1QiLA0KICJhbGciOiJIUzI1NiJ9.ewogImV4cCI6IDI0MDA4Nzg1OTEsCiAiYXpwIjogInRlc3QtZGV2aWNlIiwKICJzdWIiOiAieCIsCiAiYXVkIjogImR1bW15IiwKICJpc3MiOiAiaHR0cDovL20ubGF5ZXI3dGVjaC5jb20vY29ubmVjdCIsCiAiaWF0IjogMTQwMDg3ODU5MQp9.zenKvXlhDtpXym_auPCbukBiVqr3rqZrcoeDyfsvftA", "urn:ietf:params:oauth:grant-type:jwt-bearer");
+        assertFalse(JWTValidation.isIdTokenExpired(idToken));
+
+
 
     }
 }

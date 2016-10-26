@@ -480,6 +480,12 @@ public class MssoContext {
                     exception = e;
                 }
 
+                try {
+                    tokenManager.deleteSecureIdToken();
+                } catch (TokenStoreException e) {
+                    exception = e;
+                }
+
                 String clientId = getClientId();
 
                 if (contactServer && idToken != null && clientId != null) {
@@ -616,6 +622,12 @@ public class MssoContext {
     public boolean isLogin() {
         return getIdToken() != null ||
                 (!isSsoEnabled() && getAccessToken() != null && getRefreshToken() != null);
+    }
+
+    public String getUserProfile() {
+        return tokenManager != null
+                ? tokenManager.getUserProfile()
+                : null;
     }
 
     /**

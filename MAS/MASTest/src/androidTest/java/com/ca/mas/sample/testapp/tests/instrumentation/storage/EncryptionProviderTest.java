@@ -14,12 +14,16 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyProperties;
+import android.security.keystore.UserNotAuthenticatedException;
+import android.support.annotation.RequiresApi;
 import android.support.test.InstrumentationRegistry;
 import android.util.Base64;
 import android.util.Log;
 
 import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
+import com.ca.mas.core.security.KeyStorageProvider;
+import com.ca.mas.core.security.LockableKeyStorageProvider;
 
 import org.junit.After;
 import org.junit.Test;
@@ -36,8 +40,11 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -46,62 +53,66 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.x500.X500Principal;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 public class EncryptionProviderTest {
 
-    private static final String TAG="EncryptionProviderTest";
+    private static final String TAG = "EncryptionProviderTest";
 
     /**
      * The Encryption provider reference
      */
     EncryptionProvider encryptionProvider;
 
-    private static final String SYM_KEY="secret";
+    private static final String SYM_KEY = "secret";
     private static final String ASYM_KEY_ALIAS = "ASYM_KEY";
     public static final String PREFS_NAME = "SECRET_PREFS";
 
     @After
     public void tearDown() throws Exception {
-        Log.i(TAG,"inside tearDown");
-        KeyStore ks=KeyStore.getInstance("AndroidKeyStore");
+        Log.i(TAG, "inside tearDown");
+        KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
         ks.load(null);
-        if(ks.containsAlias(SYM_KEY)){
+        if (ks.containsAlias(SYM_KEY)) {
             ks.deleteEntry(SYM_KEY);
             Log.i(TAG, "deleted SYM_KEY from KS");
         }
-        if(ks.containsAlias(ASYM_KEY_ALIAS)){
+        if (ks.containsAlias(ASYM_KEY_ALIAS)) {
             ks.deleteEntry(ASYM_KEY_ALIAS);
             Log.i(TAG, "deleted ASYM_KEY_ALIAS from KS");
         }
 
-        SharedPreferences sp= InstrumentationRegistry.getTargetContext().getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sp = InstrumentationRegistry.getTargetContext().getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
-        if(sp.contains(SYM_KEY)){
+        if (sp.contains(SYM_KEY)) {
             sp.edit().remove(SYM_KEY).apply();
             Log.i(TAG, "deleted SYM_KEY from SP");
         }
-        if(sp.contains(ASYM_KEY_ALIAS)){
+        if (sp.contains(ASYM_KEY_ALIAS)) {
             sp.edit().remove(ASYM_KEY_ALIAS).apply();
             Log.i(TAG, "deleted ASYM_KEY_ALIAS from SP");
         }
     }
 
     @Test
-    public void testEncryptDecryptOperation(){
+    public void testEncryptDecryptOperation() {
 
-        encryptionProvider=new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
+        encryptionProvider = new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
         try {
-            String dataString="CA Technologies";
-            byte[] data=dataString.getBytes("UTF-8");
-            byte[] encryptedData=encryptionProvider.encrypt(data);
-            Log.i(TAG,"Encrypted Data: "+ Base64.encodeToString(encryptedData, Base64.DEFAULT));
-            byte[] decryptedData=encryptionProvider.decrypt(encryptedData);
-            String result=new  String(decryptedData,"UTF-8");
-            assertEquals("Decrypting"+dataString+": ",dataString,result);
+            String dataString = "CA Technologies";
+            byte[] data = dataString.getBytes("UTF-8");
+            byte[] encryptedData = encryptionProvider.encrypt(data);
+            Log.i(TAG, "Encrypted Data: " + Base64.encodeToString(encryptedData, Base64.DEFAULT));
+            byte[] decryptedData = encryptionProvider.decrypt(encryptedData);
+            String result = new String(decryptedData, "UTF-8");
+            assertEquals("Decrypting" + dataString + ": ", dataString, result);
         } catch (Exception e) {
             Log.e(TAG, "Error while encrypting/decrypting data", e);
             fail("Error while encrypting/decrypting");
@@ -117,22 +128,22 @@ public class EncryptionProviderTest {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Test
-    public void testUpgradeScenario(){
+    public void testUpgradeScenario() {
 
-        Log.i(TAG,"Testing when an device upgrades from less than Android M to Android M or higher");
-        String ASYM_KEY_ALIAS="ASYM_KEY";
+        Log.i(TAG, "Testing when an device upgrades from less than Android M to Android M or higher");
+        String ASYM_KEY_ALIAS = "ASYM_KEY";
         String PREFS_NAME = "SECRET_PREFS";
-        String SYM_KEY_ALIAS="secret";
+        String SYM_KEY_ALIAS = "secret";
 
 
         KeyStore ks = null;
         try {
             ks = KeyStore.getInstance("AndroidKeyStore");
             ks.load(null);
-            boolean val=ks.containsAlias(SYM_KEY_ALIAS);
+            boolean val = ks.containsAlias(SYM_KEY_ALIAS);
             assertEquals("Symmetric key is not present in keyStore ", false, val);
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-            Log.e(TAG,"Error while getting data keystore",e);
+            Log.e(TAG, "Error while getting data keystore", e);
             fail("Error while getting data keystore");
         }
 
@@ -145,7 +156,7 @@ public class EncryptionProviderTest {
             fail("Error while instantiating KeyGenerator");
         }
         kg.init(256);
-        SecretKey sk= kg.generateKey();
+        SecretKey sk = kg.generateKey();
 
         //---------------End of Generate a symmetric key-------------
 
@@ -173,7 +184,7 @@ public class EncryptionProviderTest {
         } catch (InvalidAlgorithmParameterException e) {
             fail("Error while instantiating KeyGenerator");
         }
-        KeyPair keyPair=keyPairGenerator.genKeyPair();
+        KeyPair keyPair = keyPairGenerator.genKeyPair();
 
         //--------End of Generate an asymmetric key and store in the Keystore--------
 
@@ -186,7 +197,7 @@ public class EncryptionProviderTest {
             ks = KeyStore.getInstance("AndroidKeyStore");
             ks.load(null);
             entry = ks.getEntry(ASYM_KEY_ALIAS, null);
-            publicKey=((KeyStore.PrivateKeyEntry) entry).getCertificate().getPublicKey();
+            publicKey = ((KeyStore.PrivateKeyEntry) entry).getCertificate().getPublicKey();
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | UnrecoverableEntryException e) {
             fail("Error in keystore operation");
         }
@@ -201,10 +212,10 @@ public class EncryptionProviderTest {
         } catch (InvalidKeyException e) {
             fail("Error in cipher operation");
         }
-        byte[] keyEncrypt=null;
+        byte[] keyEncrypt = null;
 
         try {
-            keyEncrypt= cipher.doFinal(sk.getEncoded());
+            keyEncrypt = cipher.doFinal(sk.getEncoded());
         } catch (IllegalBlockSizeException | BadPaddingException e) {
             fail("Error in cipher operation");
         }
@@ -212,44 +223,182 @@ public class EncryptionProviderTest {
 
         //-----Store the symmetric key in the local storage----------
 
-        SharedPreferences sharedpreferences=InstrumentationRegistry.getTargetContext().getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sharedpreferences = InstrumentationRegistry.getTargetContext().getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedpreferences.edit();
 
         String ss = Base64.encodeToString(keyEncrypt, Base64.DEFAULT);
         editor.putString(SYM_KEY_ALIAS, ss);
         editor.commit();
 
-         //-----End of Store the symmetric key in the local storage ----------
+        //-----End of Store the symmetric key in the local storage ----------
 
 
-         encryptionProvider=new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
-
+        encryptionProvider = new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
 
 
         //Now test assertions----------
 
         try {
-            String dataString="CA Technologies";
-            byte[] data=dataString.getBytes("UTF-8");
-            byte[] encryptedData=encryptionProvider.encrypt(data);
-            Log.i(TAG,"Encrypted Data: "+ Base64.encodeToString(encryptedData, Base64.DEFAULT));
+            String dataString = "CA Technologies";
+            byte[] data = dataString.getBytes("UTF-8");
+            byte[] encryptedData = encryptionProvider.encrypt(data);
+            Log.i(TAG, "Encrypted Data: " + Base64.encodeToString(encryptedData, Base64.DEFAULT));
 
             //Check if the key is now present in the Keystore or not
             try {
-                boolean val= ks.containsAlias(SYM_KEY_ALIAS);
-                assertEquals("Symmetric key is present in keyStore",true,val);
+                boolean val = ks.containsAlias(SYM_KEY_ALIAS);
+                assertEquals("Symmetric key is present in keyStore", true, val);
             } catch (KeyStoreException e) {
                 Log.e(TAG, "Error while getting data keystore", e);
                 fail("Error while getting data keystore");
             }
 
 
-            byte[] decryptedData=encryptionProvider.decrypt(encryptedData);
-            String result=new  String(decryptedData,"UTF-8");
-            assertEquals("Decrypting"+dataString+": ",dataString,result);
+            byte[] decryptedData = encryptionProvider.decrypt(encryptedData);
+            String result = new String(decryptedData, "UTF-8");
+            assertEquals("Decrypting" + dataString + ": ", dataString, result);
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, "Error while encrypting/decrypting data", e);
             fail("Error while encrypting/decrypting data");
         }
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Test
+    public void testLockableKeyStorageProvider() throws Exception {
+
+        final String alias = "MY_KEY_ALIAS";
+
+        LockableKeyStorageProvider lockableKeyStorageProvider = new LockableKeyStorageProvider();
+        lockableKeyStorageProvider.removeKey(alias);
+
+        encryptionProvider = new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext(), lockableKeyStorageProvider) {
+            @Override
+            protected String getKeyAlias() {
+                return alias;
+            }
+        };
+        String dataString = "CA Technologies";
+        byte[] data = dataString.getBytes("UTF-8");
+        byte[] encryptedData = encryptionProvider.encrypt(data);
+        Log.i(TAG, "Encrypted Data: " + Base64.encodeToString(encryptedData, Base64.DEFAULT));
+        byte[] decryptedData = encryptionProvider.decrypt(encryptedData);
+        String result = new String(decryptedData, "UTF-8");
+        assertEquals("Decrypting" + dataString + ": ", dataString, result);
+
+        //Lock the key
+        lockableKeyStorageProvider.lock();
+
+        //Should failed after lock
+        try {
+            encryptionProvider.decrypt(encryptedData);
+            fail();
+        } catch (Exception e) {
+            assertTrue(e.getCause() instanceof UserNotAuthenticatedException);
+        }
+
+        try {
+            encryptionProvider.encrypt(data);
+            fail();
+        } catch (Exception e) {
+            assertTrue(e.getCause() instanceof UserNotAuthenticatedException);
+        }
+        lockableKeyStorageProvider.removeKey(alias);
+
+    }
+
+    @Test
+    public void testAppPINLock() throws Exception {
+        //Encrypt the passcode
+        final byte[] salt = new byte[12];
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.nextBytes(salt);
+        final SecretKey passcode = generateKey("1234".toCharArray(), salt);
+
+        //Encrypt the encrypted passcode
+        EncryptionProvider ep = new DefaultEncryptionProvider(InstrumentationRegistry.getInstrumentation().getTargetContext()) {
+            @Override
+            protected String getKeyAlias() {
+                return "com.ca.mas.key.pin";
+            }
+        };
+        byte[] encryptedPasscode = ep.encrypt(passcode.getEncoded());
+        //Store the encrypted Passcode in share keychain
+
+
+        //Decrypt the encrypted passcode
+        byte[] decryptedPasscode = ep.decrypt(encryptedPasscode);
+        final SecretKey passcode2 = new SecretKeySpec(decryptedPasscode, "PBKDF2WithHmacSHA1");
+
+
+        //Encrypt the ID TOKEN with passcode
+        EncryptionProvider pinKeyEP = new DefaultEncryptionProvider(InstrumentationRegistry.getInstrumentation().getTargetContext(), new KeyStorageProvider() {
+            @Override
+            public void storeKey(String alias, SecretKey sk) {
+            }
+
+            @Override
+            public SecretKey getKey(String alias) {
+                return passcode2;
+            }
+
+            @Override
+            public boolean containsKey(String alias) {
+                return true;
+            }
+        });
+
+        byte[] encyptedIdToken = pinKeyEP.encrypt("This is the id token".getBytes());
+        byte[] encryptedIdTokenWithIV = new byte[salt.length + encyptedIdToken.length];
+        System.arraycopy(salt, 0, encryptedIdTokenWithIV, 0, salt.length);
+        System.arraycopy(encyptedIdToken, 0, encryptedIdTokenWithIV, salt.length, encyptedIdToken.length);
+        //store the encryptedIdTokenWithIV
+
+        //Decrypt the IDToken
+        byte[] iv2 = new byte[12];
+        System.arraycopy(encryptedIdTokenWithIV, 0, iv2, 0, iv2.length);
+
+        final SecretKey secretKey2 = generateKey("1234".toCharArray(), iv2);
+        EncryptionProvider ep2 = new DefaultEncryptionProvider(InstrumentationRegistry.getInstrumentation().getTargetContext(), new KeyStorageProvider() {
+
+            @Override
+            public void storeKey(String alias, SecretKey sk) {
+            }
+
+            @Override
+            public SecretKey getKey(String alias) {
+                return secretKey2;
+            }
+
+            @Override
+            public boolean containsKey(String alias) {
+                return true;
+            }
+
+        });
+
+
+        byte[] decrypt = ep2.decrypt(encyptedIdToken);
+
+        assertEquals(new String(decrypt), "This is the id token");
+
+    }
+
+    public SecretKey generateKey(char[] passphraseOrPin, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        // Number of PBKDF2 hardening rounds to use. Larger values increase
+        // computation time. You should select a value that causes computation
+        // to take >100ms.
+        final int iterations = 1000;
+
+        // Generate a 256-bit key
+        final int outputKeyLength = 256;
+
+        SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        KeySpec keySpec = new PBEKeySpec(passphraseOrPin, salt, iterations, outputKeyLength);
+        SecretKey secretKey = secretKeyFactory.generateSecret(keySpec);
+        return secretKey;
+    }
+
+
+
 }

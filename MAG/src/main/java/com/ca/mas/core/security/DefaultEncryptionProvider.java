@@ -5,7 +5,6 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.security;
 
 import android.annotation.TargetApi;
@@ -32,18 +31,14 @@ import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 
 public class DefaultEncryptionProvider implements EncryptionProvider {
-
     private KeyStorageProvider ksp;
-
-
     private static final String KEY_ALIAS = "secret";
     private static final String ALGORITHM = "AES";
     private static final int KEY_SIZE = 256;
     public static final String TAG = DefaultEncryptionProvider.class.getCanonicalName();
-    public static final String AES_GCM_NO_PADDING = "AES/GCM/NoPadding";
-    public static final String HMAC_SHA256 = "HmacSHA256";
-    public static final int IV_LENGTH = 12;
-
+    private static final String AES_GCM_NO_PADDING = "AES/GCM/NoPadding";
+    private static final String HMAC_SHA256 = "HmacSHA256";
+    private static final int IV_LENGTH = 12;
 
     public DefaultEncryptionProvider(@NonNull Context ctx) {
         this(ctx, new SharedPreferencesKeyStorageProvider(ctx));
@@ -51,18 +46,25 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
 
     public DefaultEncryptionProvider(Context ctx, KeyStorageProvider keyStorageProvider) {
         ksp = keyStorageProvider;
-        boolean hasSecureKey = ksp.containsKey(KEY_ALIAS);
+        boolean hasSecureKey = ksp.containsKey(getKeyAlias());
 
         if (!hasSecureKey) {
-            KeyGenerator keyGenerator = new DefaultKeyGenerator(ALGORITHM, KEY_SIZE);
-            SecretKey sk;
-            try {
-                sk = keyGenerator.generateKey();
-            } catch (NoSuchAlgorithmException e) {
-                Log.e(TAG, "Error while generating key");
-                throw new RuntimeException(e.getMessage(), e);
-            }
-            ksp.storeKey(KEY_ALIAS, sk);
+            SecretKey sk = generateKey();
+            ksp.storeKey(getKeyAlias(), sk);
+        }
+    }
+
+    protected String getKeyAlias() {
+        return KEY_ALIAS;
+    }
+
+    private SecretKey generateKey() {
+        KeyGenerator keyGenerator = new DefaultKeyGenerator(ALGORITHM, KEY_SIZE);
+        try {
+            return keyGenerator.generateKey();
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG, "Error while generating key");
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -75,13 +77,13 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public byte[] encrypt(byte[] data) {
-        if( data == null ){
+        if (data == null) {
             return null;
         }
 
         byte[] encryptedData;
         try {
-            SecretKey secretKey = ksp.getKey(KEY_ALIAS);
+            SecretKey secretKey = ksp.getKey(getKeyAlias());
             Cipher cipher = Cipher.getInstance(AES_GCM_NO_PADDING);
 
             byte[] iv;
@@ -103,11 +105,10 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
                 }
 
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivParams);
-
             }
 
             encryptedData = cipher.doFinal(data);
-            byte[] mac = computeMac(KEY_ALIAS, encryptedData);
+            byte[] mac = computeMac(getKeyAlias(), encryptedData);
             encryptedData = concatArrays(mac, iv, encryptedData);
         } catch (Exception e) {
             Log.e(TAG, "inside exception of encrypt function: ", e);
@@ -144,7 +145,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
 
         byte[] iv = getArraySubset(encryptedData, macLength, ivlength);
         encryptedData = getArraySubset(encryptedData, macLength + ivlength, encryptedDataLength);
-        byte[] mac = computeMac(KEY_ALIAS, encryptedData);
+        byte[] mac = computeMac(getKeyAlias(), encryptedData);
 
         if (!Arrays.equals(mac, macFromMessage)) {
             Log.e(TAG, "MAC signature could not be verified");
@@ -153,24 +154,20 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
 
         AlgorithmParameterSpec ivParams;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-
             ivParams = new GCMParameterSpec(128, iv);
         } else {
             ivParams = new IvParameterSpec(iv);
         }
 
-
         try {
-            SecretKey secretKey = ksp.getKey(KEY_ALIAS);
+            SecretKey secretKey = ksp.getKey(getKeyAlias());
             cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParams);
             return cipher.doFinal(encryptedData);
-
         } catch (Exception e) {
             Log.e(TAG, "Error while decrypting an cipher instance", e);
             throw new RuntimeException(e.getMessage(), e);
         }
     }
-
 
     /**
      * Computes the mac signature for the encrypted array

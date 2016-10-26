@@ -5,7 +5,6 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.store;
 
 import android.support.annotation.NonNull;
@@ -36,15 +35,14 @@ import java.security.cert.X509Certificate;
 public class DefaultTokenManager implements TokenManager {
 
     private static final String TAG = DefaultTokenManager.class.getSimpleName();
-
-    static final String MSSO_USER_PROFILE = "msso.userProfile";
-    static final String MSSO_MAG_IDENTIFIER = "msso.magIdentifier";
-    static final String MSSO_CLIENT_CERT_PRIVATE_KEY = "msso.clientCertPrivateKey";
-    static final String MSSO_CLIENT_CERT_PUBLIC_KEY = "msso.clientCertPublicKey";
-    static final String MSSO_CLIENT_CERT_CHAIN = "msso.clientCertChain";
-    static final String MSSO_ID_TOKEN = "msso.idToken";
-    static final String MSSO_ID_TOKEN_TYPE = "msso.idTokenType";
-
+    private static final String MSSO_USER_PROFILE = "msso.userProfile";
+    private static final String MSSO_MAG_IDENTIFIER = "msso.magIdentifier";
+    private static final String MSSO_CLIENT_CERT_PRIVATE_KEY = "msso.clientCertPrivateKey";
+    private static final String MSSO_CLIENT_CERT_PUBLIC_KEY = "msso.clientCertPublicKey";
+    private static final String MSSO_CLIENT_CERT_CHAIN = "msso.clientCertChain";
+    private static final String MSSO_ID_TOKEN = "msso.idToken";
+    private static final String MSSO_ID_TOKEN_TYPE = "msso.idTokenType";
+    private static final String MSSO_SECURE_ID_TOKEN = "msso.secureIdToken";
     protected DataSource<String, byte[]> storage;
 
     public DefaultTokenManager(@NonNull DataSource storage) {
@@ -85,6 +83,16 @@ public class DefaultTokenManager implements TokenManager {
     }
 
     @Override
+    public void saveSecureIdToken(byte[] idToken) throws TokenStoreException {
+        storeSecureItem(MSSO_SECURE_ID_TOKEN, idToken);
+    }
+
+    @Override
+    public void deleteSecureIdToken() throws TokenStoreException {
+        deleteSecureItem(MSSO_SECURE_ID_TOKEN);
+    }
+
+    @Override
     public void deleteUserProfile() throws TokenStoreException {
         deleteSecureItem(MSSO_USER_PROFILE);
     }
@@ -108,7 +116,7 @@ public class DefaultTokenManager implements TokenManager {
     public boolean isTokenStoreReady() {
         return storage.isReady();
     }
-    
+
     public DataSource getTokenStore() {
         return storage;
     }
@@ -120,7 +128,6 @@ public class DefaultTokenManager implements TokenManager {
             if (userProfileBytes == null)
                 return null;
             return new String(userProfileBytes, Charsets.UTF8);
-
         } catch (TokenStoreException e) {
             Log.e(TAG, "Unable to access client username: " + e.getMessage(), e);
             return null;
@@ -134,7 +141,6 @@ public class DefaultTokenManager implements TokenManager {
             if (identBytes == null)
                 return null;
             return new String(identBytes, Charsets.UTF8);
-
         } catch (TokenStoreException e) {
             Log.e(TAG, "Unable to access client device identifier: " + e.getMessage(), e);
             return null;
@@ -154,7 +160,6 @@ public class DefaultTokenManager implements TokenManager {
             PublicKey publicKey = KeyUtils.decodeRsaPublicKey(publicBytes);
             PrivateKey privateKey = KeyUtils.decodeRsaPrivateKey(privateBytes);
             return new KeyPair(publicKey, privateKey);
-
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "Unable to decode client cert key pair: " + e.getMessage(), e);
             return null;
@@ -183,7 +188,6 @@ public class DefaultTokenManager implements TokenManager {
                 return null;
 
             return CertUtils.decodeCertificateChain(bytes);
-
         } catch (TokenStoreException e) {
             Log.e(TAG, "Unable to access client cert chain: " + e.getMessage(), e);
             return null;
@@ -206,9 +210,18 @@ public class DefaultTokenManager implements TokenManager {
             }
 
             return new IdToken(idToken, idTokenType);
-
         } catch (TokenStoreException e) {
-            Log.e(TAG, "Unable to access id token: " + e.getMessage(), e);
+            Log.e(TAG, "Unable to access ID token: " + e.getMessage(), e);
+            return null;
+        }
+    }
+
+    @Override
+    public byte[] getSecureIdToken() {
+        try {
+            return retrieveSecureItem(MSSO_SECURE_ID_TOKEN);
+        } catch (TokenStoreException e) {
+            Log.e(TAG, "Unable to retrieve encrypted ID token: " + e.getMessage(), e);
             return null;
         }
     }

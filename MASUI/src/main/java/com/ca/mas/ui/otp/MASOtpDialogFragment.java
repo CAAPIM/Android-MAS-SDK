@@ -284,7 +284,7 @@ public class MASOtpDialogFragment extends DialogFragment {
                     public void run() {
                         mErrorTextView.setVisibility(View.GONE);
                     }
-                }, 2000);
+                }, 5000);
             }
         };
     }

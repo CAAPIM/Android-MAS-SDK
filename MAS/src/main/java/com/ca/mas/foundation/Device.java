@@ -64,4 +64,5 @@ public interface Device {
      * Stops the device acting as a bluetooth peripheral.
      */
     void stopAsBluetoothPeripheral();
+
 }

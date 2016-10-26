@@ -73,4 +73,11 @@ public interface TokenProvider {
      */
     IdToken getIdToken();
 
+    /**
+     * Get the encrypted OAuth ID token, if available.
+     *
+     * @return the encrypted ID token, or null if one has not yet been saved.
+     */
+    byte[] getSecureIdToken();
+
 }

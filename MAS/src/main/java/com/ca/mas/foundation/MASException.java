@@ -37,4 +37,14 @@ public class MASException extends Exception {
     public MASException(Throwable throwable) {
         super(throwable);
     }
+
+    /**
+     * <b>Description:</b> Convenience constructor.
+     *
+     * @param detailMessage - free form message.
+     * @param throwable - the prior exception.
+     */
+    public MASException(String detailMessage, Throwable throwable) {
+        super(detailMessage, throwable);
+    }
 }

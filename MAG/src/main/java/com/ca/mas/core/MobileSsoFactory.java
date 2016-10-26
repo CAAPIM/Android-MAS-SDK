@@ -239,6 +239,11 @@ public final class MobileSsoFactory {
             }
 
             @Override
+            public String getUserProfile() {
+                return mssoContext.getUserProfile();
+            }
+
+            @Override
             public void logoffApp() {
                 mssoContext.logoffApp();
             }

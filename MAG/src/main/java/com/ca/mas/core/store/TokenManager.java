@@ -77,6 +77,23 @@ public interface TokenManager extends TokenProvider {
     void deleteIdToken() throws TokenStoreException;
 
     /**
+     * Save the specified encrypted ID token to the persistent store.
+     * <p/>
+     * Any existing ID token in the store will be replaced.
+     *
+     * @param idToken the new ID token.  Required.
+     * @throws TokenStoreException if there is a problem saving to the persistent store
+     */
+    void saveSecureIdToken(byte[] idToken) throws TokenStoreException;
+
+    /**
+     * Delete any saved encrypted ID token from the persistent store.
+     *
+     * @throws TokenStoreException if there is a problem deleting from the persistent store
+     */
+    void deleteSecureIdToken() throws TokenStoreException;
+
+    /**
      * Delete any saved user profile from the persistent store.
      *
      * @throws TokenStoreException if there is a problem deleting from the persistent store

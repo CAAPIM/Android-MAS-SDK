@@ -12,6 +12,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 
+import com.ca.mas.connecta.client.MASConnectOptions;
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
@@ -115,6 +116,10 @@ public class FoundationUtil {
         return scheme + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH + host + FoundationConsts.COLON + port;
     }
 
+    public static String getBrokerUrl( Context context ) throws IllegalStateException {
+        return getBrokerUrl(context, null);
+    }
+
     /**
      * <b>Pre-Conditions</b> The MAG SDK has to be initialized prior to calling this method.<br>
      * <b>Description</b> This method takes the information found in the ConfigurationProvider and
@@ -124,10 +129,10 @@ public class FoundationUtil {
      * @return String of the form 'ssl://host.com:8883'
      * @throws IllegalStateException
      */
-    public static String getBrokerUrl(Context context) throws IllegalStateException {
-        if (ConnectaConsts.DEBUG_MQTT) {
-            return (ConnectaConsts.TCP_MESSAGING_SCHEME + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH) + getHost() + FoundationConsts.COLON + ConnectaConsts.TCP_MESSAGING_PORT;
-
+    public static String getBrokerUrl(Context context, MASConnectOptions connectOptions) throws IllegalStateException {
+        if (connectOptions != null && connectOptions.getServerURIs() != null && connectOptions.getServerURIs().length > 0) {
+            // If MASConnectOptions have been set and server URIs have been set
+            return connectOptions.getServerURIs()[0];
         } else {
             return (ConnectaConsts.SSL_MESSAGING_SCHEME + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH) + getHost() + FoundationConsts.COLON + ConnectaConsts.SSL_MESSAGING_PORT;
         }

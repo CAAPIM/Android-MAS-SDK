@@ -36,9 +36,10 @@ public class MASConnectaManager implements MASConnectaClient {
     private static MASConnectaManager instance = new MASConnectaManager();
     private ConnectaService mMASTransportService;
     private long mTimeOutInMillis;
-    private ConnectOptions mConnectOptions;
+    private MASConnectOptions mConnectOptions;
     private MASConnectaListener connectaListener;
     private MASCallback<Void> connectCallback;
+    private String clientId;
 
     /*
     This service connection uses IPC Binder to load the MQTT library specific service to perform Mqtt operations.
@@ -49,7 +50,10 @@ public class MASConnectaManager implements MASConnectaClient {
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             ConnectaService.ServiceBinder masBinder = (ConnectaService.ServiceBinder) iBinder;
             mMASTransportService = masBinder.getService();
+
             if (mMASTransportService != null) {
+                mMASTransportService.setClientId(clientId);
+                mMASTransportService.setTimeOutInMillis(getTimeOutInMillis());
                 mMASTransportService.setConnectOptions(mConnectOptions);
                 mMASTransportService.connect(new MASCallback<Void>() {
 
@@ -115,7 +119,6 @@ public class MASConnectaManager implements MASConnectaClient {
 
     @Override
     public synchronized void connect(MASCallback<Void> callback) {
-
         if (isConnected()) {
             Callback.onSuccess(callback, null);
             return;
@@ -138,7 +141,6 @@ public class MASConnectaManager implements MASConnectaClient {
 
     @Override
     public void subscribe(@NonNull final MASTopic masTopic, final MASCallback<Void> callback) {
-
         connectAndExecute(new Functions.NullaryVoid() {
             @Override
             public void call() {
@@ -202,6 +204,10 @@ public class MASConnectaManager implements MASConnectaClient {
         });
     }
 
+    public void publish(@NonNull final MASTopic masTopic, @NonNull final String message, final MASCallback<Void> callback) {
+        publish(masTopic, message.getBytes(), callback);
+    }
+
     @Override
     public void publish(@NonNull final MASTopic masTopic, @NonNull final byte[] message, final MASCallback<Void> callback) {
 
@@ -242,8 +248,11 @@ public class MASConnectaManager implements MASConnectaClient {
     }
 
     @Override
-    public void setConnectOptions(ConnectOptions connectOptions) {
+    public void setConnectOptions(MASConnectOptions connectOptions) {
         mConnectOptions = connectOptions;
+        if (mMASTransportService != null) {
+            mMASTransportService.setConnectOptions(connectOptions);
+        }
     }
 
     @Override
@@ -256,4 +265,8 @@ public class MASConnectaManager implements MASConnectaClient {
         return mTimeOutInMillis;
     }
 
+    @Override
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
 }

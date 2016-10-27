@@ -197,7 +197,13 @@ public abstract class MASMessage implements MASPayload {
                         ver = MessagingConsts.DEFAULT_VERSION;
                     }
                     jobj.put(ConnectaConsts.KEY_VERSION, ver);
-                    jobj.put(ConnectaConsts.KEY_SENDER_ID, MASUser.getCurrentUser().getId());
+
+                    MASUser masUser = MASUser.getCurrentUser();
+                    String id = "";
+                    if(masUser != null){
+                        id = masUser.getId();
+                    }
+                    jobj.put(ConnectaConsts.KEY_SENDER_ID, id);
 
                     String senderType = getSenderType();
                     if(TextUtils.isEmpty(senderType)) {
@@ -207,7 +213,7 @@ public abstract class MASMessage implements MASPayload {
 
                     String dispName = getDisplayName();
                     if(TextUtils.isEmpty(dispName)) {
-                        dispName = MASUser.getCurrentUser().getId();
+                        dispName = id;
                     }
                     jobj.put(ConnectaConsts.KEY_DISPLAY_NAME, dispName);
                     long sentTime = getSentTime();

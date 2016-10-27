@@ -17,6 +17,7 @@ import android.support.test.rule.ActivityTestRule;
 import android.util.Base64;
 import android.util.Log;
 
+import com.ca.mas.connecta.client.MASConnectOptions;
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.foundation.MASCallback;
@@ -29,12 +30,12 @@ import com.ca.mas.messaging.util.MessagingConsts;
 import com.ca.mas.sample.testapp.MainActivity;
 import com.ca.mas.sample.testapp.tests.instrumentation.base.MASIntegrationBaseTest;
 
-import java.util.concurrent.CountDownLatch;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+
+import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
@@ -54,6 +55,7 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
             final Object[] result = {false, "unknown"};
             final Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
             MASConnectaManager.getInstance().start(ctx);
+
             MASConnectaManager.getInstance().connect(new MASCallback<Void>() {
                 @Override
                 public void onSuccess(Void object) {
@@ -68,15 +70,18 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
                     latch.countDown();
                 }
             });
+
             latch.await();
             if (!(boolean) result[0]) {
                 Log.w(TAG, "initConnecta onError: " + result[1]);
                 fail("Reason: " + result[1]);
             }
+
         } catch (Throwable t) {
             Log.w(TAG, "initConnecta error: ", t);
             fail("" + t);
         }
+
     }
 
     @Test

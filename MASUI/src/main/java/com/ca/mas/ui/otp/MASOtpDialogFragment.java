@@ -204,13 +204,15 @@ public class MASOtpDialogFragment extends DialogFragment {
                 mOtpTextInputEditText.addTextChangedListener(otpTextWatcher(positiveButton));
             }
 
-            for (CheckBox cb : mCheckBoxes) {
-                cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        positiveButton.setEnabled(isRequestOtpButtonEnabled());
-                    }
-                });
+            if (mCheckBoxes != null) {
+                for (CheckBox cb : mCheckBoxes) {
+                    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            positiveButton.setEnabled(isRequestOtpButtonEnabled());
+                        }
+                    });
+                }
             }
         }
     }

@@ -40,7 +40,7 @@ public abstract class MASSessionUnlockCallback<T> extends MASCallback<T> {
      * }
      * =============================================================================================
      */
-    @TargetApi(21)
+    @TargetApi(23)
     public abstract void onUserAuthenticationRequired();
 
 }

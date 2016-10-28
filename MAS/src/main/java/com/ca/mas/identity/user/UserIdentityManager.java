@@ -15,12 +15,12 @@ import android.text.TextUtils;
 
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.security.SessionUnlockListener;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.foundation.MASResultReceiver;
+import com.ca.mas.foundation.MASSessionUnlockCallback;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.foundation.util.FoundationConsts;
@@ -471,7 +471,7 @@ public class UserIdentityManager {
             }
 
             @Override
-            public void unlockSession(SessionUnlockListener listener, MASCallback<Void> callback) {
+            public void unlockSession(MASSessionUnlockCallback<Void> callback) {
                 throw new UserNotAuthenticatedException();
             }
 

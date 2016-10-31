@@ -472,11 +472,6 @@ public class UserIdentityManager {
             }
 
             @Override
-            public void lockSessionWithActivity(Context context, MASCallback<Void> callback) {
-                throw new UserNotAuthenticatedException();
-            }
-
-            @Override
             public void unlockSession(MASSessionUnlockCallback<Void> callback) {
                 throw new UserNotAuthenticatedException();
             }

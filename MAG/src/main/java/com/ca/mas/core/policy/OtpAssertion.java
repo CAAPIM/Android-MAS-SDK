@@ -47,7 +47,7 @@ class OtpAssertion implements MssoAssertion {
             }
             String selectedChannels = extra.getString(OtpConstants.X_OTP_CHANNEL);
             if (selectedChannels != null) {
-                request.getRequest().addHeader(OtpConstants.X_OTP_CHANNEL, otp);
+                request.getRequest().addHeader(OtpConstants.X_OTP_CHANNEL, selectedChannels);
             }
         }
     }

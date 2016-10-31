@@ -9,8 +9,6 @@ package com.ca.mas.foundation;
 
 import android.annotation.TargetApi;
 import android.content.AsyncTaskLoader;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Handler;
@@ -518,10 +516,10 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
             public void lockSession(MASCallback<Void> callback) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     MASUser currentUser = MASUser.getCurrentUser();
-                    if (currentUser == null || !currentUser.isAuthenticated()) {
-                        callback.onError(new SecureLockException(MASFoundationStrings.USER_NOT_CURRENTLY_AUTHENTICATED));
+                    if (currentUser == null) {
+                        Callback.onError(callback, new SecureLockException(MASFoundationStrings.USER_NOT_CURRENTLY_AUTHENTICATED));
                     } else if (isSessionLocked()) {
-                        callback.onSuccess(null);
+                        Callback.onSuccess(callback, null);
                     } else {
                         // Remove access and refresh tokens
                         StorageProvider storageProvider = createStorageProvider();
@@ -548,26 +546,26 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             try {
                                 keyChainManager.saveSecureIdToken(encryptedData);
                             } catch (TokenStoreException e) {
-                                callback.onError(new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_SECURE_ID_TOKEN, e));
+                                Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_SECURE_ID_TOKEN, e));
                             }
 
                             // Remove the unencrypted token
                             try {
                                 keyChainManager.deleteIdToken();
                             } catch (TokenStoreException e) {
-                                callback.onError(new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_ID_TOKEN, e));
+                                Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_ID_TOKEN, e));
                             }
 
                             mKeyStoreProvider.lock();
                             idTokenParcel.recycle();
 
-                            callback.onSuccess(null);
+                            Callback.onSuccess(callback, null);
                         } else {
-                            callback.onError(new SecureLockException(MASFoundationStrings.TOKEN_ID_EXPIRED));
+                            Callback.onError(callback, new SecureLockException(MASFoundationStrings.TOKEN_ID_EXPIRED));
                         }
                     }
                 } else {
-                    callback.onError(new IllegalAccessException(MASFoundationStrings.API_TARGET_EXCEPTION));
+                    Callback.onError(callback,new IllegalAccessException(MASFoundationStrings.API_TARGET_EXCEPTION));
                 }
             }
 
@@ -595,33 +593,35 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                                 // Save the unlocked ID token
                                 keyChainManager.saveIdToken(token);
                             } catch (TokenStoreException e) {
-                                callback.onError(new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_ID_TOKEN, e));
+                                Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_ID_TOKEN, e));
                             }
 
                             try {
                                 // Remove the locked ID token
                                 keyChainManager.deleteSecureIdToken();
                             } catch (TokenStoreException e) {
-                                callback.onError(new SecureLockException(SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN, e));
+                                Callback.onError(callback, new SecureLockException(SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN, e));
                             }
 
                             // Delete the previously generated key after successfully decrypting
                             mKeyStoreProvider.removeKey(SESSION_LOCK_ALIAS);
                             // Indicate the device is unlocked
-                            callback.onSuccess(null);
+                            Callback.onSuccess(callback, null);
                         } catch (Exception e) {
                             if (e.getCause() != null && e.getCause() instanceof android.security.keystore.UserNotAuthenticatedException) {
                                 // Listener activity to trigger fingerprint
-                                callback.onUserAuthenticationRequired();
+                                if (callback != null) {
+                                    callback.onUserAuthenticationRequired();
+                                }
                             } else {
-                                callback.onError(e);
+                                Callback.onError(callback, e);
                             }
                         }
                     } else {
-                        callback.onSuccess(null);
+                        Callback.onSuccess(callback, null);
                     }
                 } else {
-                    callback.onError(new IllegalAccessException(MASFoundationStrings.API_TARGET_EXCEPTION));
+                    Callback.onError(callback, new IllegalAccessException(MASFoundationStrings.API_TARGET_EXCEPTION));
                 }
             }
 
@@ -634,15 +634,15 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
             @Override
             public void removeSessionLock(MASCallback<Void> callback) {
                 if (!isSessionLocked()) {
-                    callback.onError(new SecureLockException(MASFoundationStrings.SECURE_LOCK_SESSION_ALREADY_UNLOCKED));
+                    Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_SESSION_ALREADY_UNLOCKED));
                 }
 
                 try {
                     TokenManager keyChainManager = createTokenManager();
                     keyChainManager.deleteSecureIdToken();
-                    callback.onSuccess(null);
+                    Callback.onSuccess(callback, null);
                 } catch (TokenStoreException e) {
-                    callback.onError(new SecureLockException(SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN, e));
+                    Callback.onError(callback, new SecureLockException(SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN, e));
                 }
             }
 

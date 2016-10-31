@@ -9,6 +9,8 @@ package com.ca.mas.foundation;
 
 import android.annotation.TargetApi;
 import android.content.AsyncTaskLoader;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Handler;
@@ -519,7 +521,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                     if (currentUser == null || !currentUser.isAuthenticated()) {
                         callback.onError(new SecureLockException(MASFoundationStrings.USER_NOT_CURRENTLY_AUTHENTICATED));
                     } else if (isSessionLocked()) {
-                        callback.onError(new SecureLockException(MASFoundationStrings.SECURE_LOCK_SESSION_ALREADY_LOCKED));
+                        callback.onSuccess(null);
                     } else {
                         // Remove access and refresh tokens
                         StorageProvider storageProvider = createStorageProvider();
@@ -616,7 +618,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             }
                         }
                     } else {
-                        callback.onError(new MASException(MASFoundationStrings.SECURE_LOCK_SESSION_ALREADY_UNLOCKED));
+                        callback.onSuccess(null);
                     }
                 } else {
                     callback.onError(new IllegalAccessException(MASFoundationStrings.API_TARGET_EXCEPTION));
@@ -638,6 +640,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                 try {
                     TokenManager keyChainManager = createTokenManager();
                     keyChainManager.deleteSecureIdToken();
+                    callback.onSuccess(null);
                 } catch (TokenStoreException e) {
                     callback.onError(new SecureLockException(SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN, e));
                 }

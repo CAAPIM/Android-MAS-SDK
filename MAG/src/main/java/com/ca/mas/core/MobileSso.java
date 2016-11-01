@@ -13,6 +13,7 @@ import android.os.ResultReceiver;
 import com.ca.mas.core.auth.ble.BluetoothLePeripheralCallback;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.http.MAGRequest;
+import com.ca.mas.core.service.AuthenticationProvider;
 
 import java.net.URI;
 
@@ -222,5 +223,12 @@ public interface MobileSso {
      * @return the prefix configured for MAG
      */
     String getPrefix();
+
+
+    /**
+     * Retrieves the Authentication Providers from the server.
+     * Authentication providers will not be retrieved if the user is already authenticated.
+     */
+    AuthenticationProvider getAuthenticationProvider() throws Exception;
 
 }

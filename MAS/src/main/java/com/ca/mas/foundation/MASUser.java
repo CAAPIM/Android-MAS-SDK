@@ -564,13 +564,10 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             Callback.onError(callback, new SecureLockException(MASFoundationStrings.TOKEN_ID_EXPIRED));
                         }
                     }
-                } else {
-                    Callback.onError(callback,new IllegalAccessException(MASFoundationStrings.API_TARGET_EXCEPTION));
                 }
             }
 
             @Override
-            @TargetApi(23)
             public void unlockSession(MASSessionUnlockCallback<Void> callback) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (isSessionLocked()) {

@@ -8,7 +8,6 @@
 
 package com.ca.mas.identity.user;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -468,11 +467,6 @@ public class UserIdentityManager {
 
             @Override
             public void lockSession(MASCallback<Void> callback) {
-                throw new UserNotAuthenticatedException();
-            }
-
-            @Override
-            public void lockSessionWithActivity(Context context, MASCallback<Void> callback) {
                 throw new UserNotAuthenticatedException();
             }
 

@@ -9,8 +9,6 @@ package com.ca.mas.foundation;
 
 import android.annotation.TargetApi;
 import android.content.AsyncTaskLoader;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Handler;
@@ -516,15 +514,9 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
             @Override
             @TargetApi(23)
             public void lockSession(MASCallback<Void> callback) {
-                lockSessionWithActivity(null, callback);
-            }
-
-            @Override
-            @TargetApi(23)
-            public void lockSessionWithActivity(Context context, MASCallback<Void> callback) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     MASUser currentUser = MASUser.getCurrentUser();
-                    if (currentUser == null || !currentUser.isAuthenticated()) {
+                    if (currentUser == null) {
                         Callback.onError(callback, new SecureLockException(MASFoundationStrings.USER_NOT_CURRENTLY_AUTHENTICATED));
                     } else if (isSessionLocked()) {
                         Callback.onSuccess(callback, null);
@@ -568,11 +560,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             idTokenParcel.recycle();
 
                             Callback.onSuccess(callback, null);
-
-                            if (context != null) {
-                                Intent i = new Intent("MASUI.intent.action.SessionUnlock");
-                                context.startActivity(i);
-                            }
                         } else {
                             Callback.onError(callback, new SecureLockException(MASFoundationStrings.TOKEN_ID_EXPIRED));
                         }
@@ -702,14 +689,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
      */
     @TargetApi(23)
     public abstract void lockSession(MASCallback<Void> callback);
-
-    /**
-     * Locks the current device and invokes a UI blocking screen.
-     * This will remove the access and refresh tokens, as well as the user profile.
-     * The ID token will then be moved to the fingerprint protected shared KeyStore.
-     */
-    @TargetApi(23)
-    public abstract void lockSessionWithActivity(Context context, MASCallback<Void> callback);
 
     /**
      * Triggers the Android unlock and captures the unlock result.

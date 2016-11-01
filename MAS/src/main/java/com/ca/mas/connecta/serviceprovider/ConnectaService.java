@@ -280,8 +280,12 @@ public class ConnectaService extends Service implements MASConnectaClient {
     @Override
     public void publish(@NonNull MASTopic masTopic, @NonNull MASMessage message, MASCallback<Void> callback) {
         try {
+            MqttMessage mqttMessage = new MqttMessage();
             byte[] bytes = message.createJSONStringFromMASMessage(getApplicationContext()).getBytes();
-            publish(masTopic, bytes, callback);
+            mqttMessage.setPayload(bytes);
+            mqttMessage.setQos(message.getQos());
+            mqttMessage.setRetained(message.isRetained());
+            publish(masTopic, mqttMessage, callback);
         } catch (MASException me) {
             Callback.onError(callback, me);
         }
@@ -291,6 +295,10 @@ public class ConnectaService extends Service implements MASConnectaClient {
         MqttMessage mqttMessage = new MqttMessage();
         mqttMessage.setPayload(message);
         mqttMessage.setQos(topic.getQos());
+        publish(topic, mqttMessage, callback);
+    }
+
+    private void publish(@NonNull MASTopic topic, @NonNull MqttMessage mqttMessage, MASCallback<Void> callback) {
         if (isConnected()) {
             try {
                 mMqttClient.publish(topic.toString(), mqttMessage);

@@ -14,11 +14,14 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.foundation.MASException;
+import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.web.WebServiceRequest;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.ca.mas.identity.util.IdentityUtil;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +41,7 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
     String mQueryCondition;
     List<String> mQueryComponents;
     WebServiceRequest mWebServiceRequest;
+    MASRequest mMasRequest;
     protected List<String> mAttributes;
     protected List<String> mExcludedAttributes;
     private List<String> mEntityAttributes;
@@ -244,6 +248,69 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
         return mWebServiceRequest;
     }
 
+    @Override
+    public MASRequest create(@NonNull Context context, Integer in) {
+        // another request...
+        if (mMasRequest != null) {
+            return mMasRequest;
+        }
+
+        mQueryComponents = new ArrayList<>();
+        StringBuilder fullUrl = new StringBuilder();
+        if(mFilterType.equals(IdentityConsts.KEY_USER_ATTRIBUTES)) {
+            fullUrl.append(IdentityUtil.getUserPath(context));
+        }
+        if(mFilterType.equals(IdentityConsts.KEY_GROUP_ATTRIBUTES)) {
+            fullUrl.append(IdentityUtil.getGroupPath(context));
+        }
+
+        if(!TextUtils.isEmpty(mQueryCondition)) {
+            mQueryComponents.add(mQueryCondition);
+        }
+
+        if (!TextUtils.isEmpty(mSortUri)) {
+            mQueryComponents.add(mSortUri);
+        }
+
+        if (mAttributes != null) {
+            // find the query string
+            mQueryComponents.add(createNormalizedAttributes(mAttributes, IdentityConsts.KEY_ATTRIBUTES));
+        }
+
+        if(mExcludedAttributes != null) {
+            // find the query string
+            mQueryComponents.add(createNormalizedAttributes(mExcludedAttributes, IdentityConsts.KEY_EXCLUDED_ATTRIBUTES));
+        }
+
+        // Only add the pagination if this request requires paging.
+        // This is added right at the end.
+        if (mIsPaging) {
+            String pagFilter = getPaginationFilter();
+            if (pagFilter != null) {
+                mQueryComponents.add(pagFilter);
+            }
+        }
+
+        if(mQueryComponents.size()>0){
+            fullUrl.append(IdentityConsts.QM);
+        }
+
+        for (int i = 0; i < mQueryComponents.size(); i++) {
+            fullUrl.append(mQueryComponents.get(i));
+            if (i < mQueryComponents.size() - 1) {
+                fullUrl.append(IdentityConsts.AMP);
+            }
+        }
+
+
+        String encUrl = fullUrl.toString().replaceAll(" ", IdentityConsts.ENC_SPACE);
+        encUrl = encUrl.replaceAll("\"", IdentityConsts.ENC_DOUBLE_QUOTE);
+        Log.d(TAG, "Encoded URL: " + encUrl);
+        //mWebServiceRequest = new WebServiceRequest(Uri.parse(encUrl));
+        mMasRequest = new MASRequest.MASRequestBuilder(Uri.parse(encUrl)).build();
+        return mMasRequest;
+    }
+
     private String createNormalizedAttributes(List<String> attrs, String key) {
         List<String> normalizedAttributes = IdentityUtil.normalizeAttributes(attrs, mEntityAttributes);
         StringBuilder sb = new StringBuilder();
@@ -292,6 +359,43 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
         String encUrl = fullUrl.toString().replaceAll(" ", IdentityConsts.ENC_SPACE);
         encUrl = encUrl.replaceAll("\"", IdentityConsts.ENC_DOUBLE_QUOTE);
         mWebServiceRequest.setUri(Uri.parse(encUrl));
+        return true;
+    }
+
+    public boolean hasNextNew(){
+        if (!mIsPaging) {
+            return false;
+        }
+
+        StringBuilder fullUrl = new StringBuilder();
+        String url = mMasRequest.getURL().toString();
+        int index = url.indexOf(IdentityConsts.QM);
+        if (index > -1) {
+            String sub = url.substring(0, index);
+            fullUrl.append(sub);
+        } else {
+            return true;
+        }
+        fullUrl.append(IdentityConsts.QM);
+
+        String pagFilter = getPaginationFilter();
+
+        for (int i = 0; i < mQueryComponents.size(); i++) {
+            String comp = mQueryComponents.get(i);
+            if (comp.startsWith(MASPagination.PAGE_START_EXP)) {
+                fullUrl.append(pagFilter);
+            } else {
+                fullUrl.append(comp);
+            }
+            if (i < mQueryComponents.size() - 1) {
+                fullUrl.append(IdentityConsts.AMP);
+            }
+        }
+
+        String encUrl = fullUrl.toString().replaceAll(" ", IdentityConsts.ENC_SPACE);
+        encUrl = encUrl.replaceAll("\"", IdentityConsts.ENC_DOUBLE_QUOTE);
+        //mWebServiceRequest.setUri(Uri.parse(encUrl));
+        mMasRequest = new MASRequest.MASRequestBuilder(Uri.parse(encUrl)).build();
         return true;
     }
 

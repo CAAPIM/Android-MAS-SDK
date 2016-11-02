@@ -118,6 +118,10 @@ public class IdentityUtil extends FoundationUtil {
         return getUrl(context, IdentityConsts.SCIM_SCHEMAS);
     }
 
+    public static String getSchemasPath(Context context){
+        return getPath(context, IdentityConsts.SCIM_SCHEMAS);
+    }
+
     /**
      * <b>Pre-Conditions:</b> The msso_config must be parsed.<br>
      * <b>Description:</b> This helper method returns the User's URI as defined in the msso_config.json endpoint description.
@@ -127,6 +131,10 @@ public class IdentityUtil extends FoundationUtil {
      */
     public static String getUserUrl(Context context) {
         return getUrl(context, IdentityConsts.SCIM_USERS);
+    }
+
+    public static String getUserPath(Context context) {
+        return getPath(context, IdentityConsts.SCIM_USERS);
     }
 
     /**
@@ -173,6 +181,10 @@ public class IdentityUtil extends FoundationUtil {
         return getUrl(context, IdentityConsts.SCIM_GROUPS);
     }
 
+    public static String getGroupPath(Context context) {
+        return getPath(context, IdentityConsts.SCIM_GROUPS);
+    }
+
     /*
     Creates the general URL used by SCIM. This method attaches the provider described in the
     msso_config.json file.
@@ -191,6 +203,22 @@ public class IdentityUtil extends FoundationUtil {
             sb.append(entity);
         }
         Log.d(TAG, "get URL: " + sb.toString());
+        return sb.toString();
+    }
+
+    private static String getPath(Context context, String entity) {
+        StringBuilder sb = new StringBuilder();
+        String scimPath = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider()
+                .getProperty(FoundationConsts.KEY_CONFIG_SCIM_PATH);
+        if (scimPath == null) {
+            scimPath = "/SCIM/MAS/v2";
+        }
+        sb.append(scimPath);
+        if (!TextUtils.isEmpty(entity)) {
+            sb.append(FoundationConsts.FSLASH);
+            sb.append(entity);
+        }
+        Log.d(TAG, "get Path: " + sb.toString());
         return sb.toString();
     }
 

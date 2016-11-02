@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class WebServiceClient implements MASWebServiceClient {
 
-    private static String TAG = WebServiceClient.class.getSimpleName();
+    private static String TAG = "WebServiceClient";
     private final Context mContext;
 
     /**

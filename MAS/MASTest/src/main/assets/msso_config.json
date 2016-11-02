@@ -1,25 +1,25 @@
 {
   "server": {
-    "hostname": "mobile-staging-mysql.l7tech.com",
+    "hostname": "mag-autotest-oracle.l7tech.com",
     "port": 8443,
-    "prefix": "",
+    "prefix": "oracle",
     "server_certs": [
       [
         "-----BEGIN CERTIFICATE-----",
-        "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",
+        "MIIDFzCCAf+gAwIBAgIJAKHD8BblBsqFMA0GCSqGSIb3DQEBDAUAMCkxJzAlBgNVBAMTHm1hZy1h",
+        "dXRvdGVzdC1vcmFjbGUubDd0ZWNoLmNvbTAeFw0xNTA5MjkyMTA5MDhaFw0yNTA5MjYyMTA5MDha",
+        "MCkxJzAlBgNVBAMTHm1hZy1hdXRvdGVzdC1vcmFjbGUubDd0ZWNoLmNvbTCCASIwDQYJKoZIhvcN",
+        "AQEBBQADggEPADCCAQoCggEBAL/qA8Ds17KNQcj7rcOw8+xaSQMK5cd4Ej+np62FtkyyNW3hzxhd",
+        "LLaU5CqAkjoo99yvqBHqKi0v7NIebRkRNtCNybfRNu0qXYzbDsIQu5dYzB1TPLu4j1/s/eoe4d7r",
+        "XGiGXOljGa9m+Njv/1r4WnRN4+RYnjqNcHLSBdr2D4f/d/T0j4oUKZSO8z9Z6Of7HELEzZaNgxAs",
+        "EMqmx9EV1bku/Ep9aN0ugR0IhY32uPh5MH3g9Yj8aifzyyf1IFauv+5rghlDUDe8phtNRHhCV5o2",
+        "iHffH/BJVaLTqyl2n8y+d/oVQSuWf/ldJsbYAPpe+eJJbO1a4Ur5mZtNgKz7Nf0CAwEAAaNCMEAw",
+        "HQYDVR0OBBYEFLzY9oCGEbblnhqhskDfEOSdVdhxMB8GA1UdIwQYMBaAFLzY9oCGEbblnhqhskDf",
+        "EOSdVdhxMA0GCSqGSIb3DQEBDAUAA4IBAQBElc3/XpA+eVWuvfSUy+Y4tMjGwnYgc7NpLZx4FAvW",
+        "vLiCOVhEQ5xBUiqAS/PdwW5Pu/OEwsJX3tuB3It1lyoBnHEr3U5a2tfuO0KV03bgMg7rBVgLBOVI",
+        "0CRIgspfvWdT0p6Js8ksu7KWPpwMfGf1jZykKef4niM85DEgjCP6pBg8EHk4gp8T8xO7TIqOJZeZ",
+        "+pjLyDtv7j69p7WP9+heQ/UDm0KyfAx6MaAHHneXSbuQihHMJmvPREOKYgVfonB2NyMJbNBaMrlH",
+        "KVpRvsMNDWbAgWvi6IDrjyq3i1fL5S82W7NlgLpoZWKTWtuBRKSc6NGW49T5x71InWKOixQ9",
         "-----END CERTIFICATE-----"
       ]
     ]
@@ -36,7 +36,7 @@
         {
           "client_id": "3f27bb4f-b5aa-458b-962b-14d352b7977c",
           "client_secret": "",
-          "scope": "openid msso phone profile address email msso_register msso_client_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups abc$abc",
+          "scope": "openid msso phone profile address email msso_client_register msso_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups",
           "redirect_uri": "https://android.ssosdk.ca.com/android",
           "environment": "Android",
           "status": "ENABLED",
@@ -60,7 +60,7 @@
   },
   "mas": {
     "scim-path": "/SCIM/MAS/v2",
-    "mas-storage-path": "/MASS/v1/Client"
+    "mas-storage-path": "/oracle/MASS/v1/Client"
   },
   "mag": {
     "system_endpoints": {

@@ -12,6 +12,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.ca.mas.foundation.MASException;
+import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.web.WebServiceRequest;
 
 import java.util.List;
@@ -97,6 +98,14 @@ public interface MASFilteredRequestBuilder {
      * @return WebServiceRequest
      */
     WebServiceRequest create(@NonNull Context context);
+
+    /**
+     * TODO put in doc from old method
+     * @param context
+     * @param in
+     * @return
+     */
+    MASRequest create(@NonNull Context context, Integer in);
 
     /**
      * <b>Description:</b> This method applies the filter <i>attribute <b>eq</b> filterValue</i>.

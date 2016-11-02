@@ -29,8 +29,6 @@ import java.util.Map;
  */
 public class WebServiceRequest {
 
-    private static String TAG = WebServiceRequest.class.getSimpleName();
-
     private Uri mUri;
     private String mUserName;
     private String mPassword;

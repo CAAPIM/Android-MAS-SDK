@@ -20,6 +20,7 @@ public class MASFoundationStrings {
     public static final String TOKEN_ID_EXPIRED = "ID token is expired.";
 
     // Secure lock strings
+    public static final String SECURE_LOCK_SESSION_CURRENTLY_LOCKED = "The session is currently locked.";
     public static final String SECURE_LOCK_SESSION_ALREADY_LOCKED = "The session is already locked.";
     public static final String SECURE_LOCK_SESSION_ALREADY_UNLOCKED = "The session is already unlocked.";
     public static final String SECURE_LOCK_FAILED_TO_SAVE_ID_TOKEN = "Failed to save ID token.";

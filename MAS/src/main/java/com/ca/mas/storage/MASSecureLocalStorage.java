@@ -12,8 +12,6 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.ca.mas.core.BuildConfig;
-import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.datasource.DataSourceFactory;
 import com.ca.mas.core.datasource.LocalStoreDataSource;
@@ -21,10 +19,12 @@ import com.ca.mas.core.datasource.LocalStoreEntity;
 import com.ca.mas.core.datasource.LocalStoreKey;
 import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
+import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConstants;
+import com.ca.mas.foundation.MASFoundationStrings;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.notify.Callback;
 
@@ -191,10 +191,13 @@ public class MASSecureLocalStorage extends AbstractMASStorage {
      */
     private void execute(final Functions.UnaryVoid<String> function, final MASCallback callback) {
         if (MASUser.getCurrentUser() != null && MASUser.getCurrentUser().getUserName() != null) {
-            execute(function, MASUser.getCurrentUser().getUserName());
+            if (!MASUser.getCurrentUser().isSessionLocked()) {
+                execute(function, MASUser.getCurrentUser().getUserName());
+            } else {
+                Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_SESSION_CURRENTLY_LOCKED));
+            }
         } else {
             MASUser.login(new MASCallback<MASUser>() {
-
                 @Override
                 public void onSuccess(MASUser result) {
                     execute(function, result.getUserName());
@@ -205,7 +208,6 @@ public class MASSecureLocalStorage extends AbstractMASStorage {
                     Callback.onError(callback, e);
                 }
             });
-
         }
     }
 

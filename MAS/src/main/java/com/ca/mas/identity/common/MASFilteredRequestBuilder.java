@@ -9,6 +9,7 @@
 package com.ca.mas.identity.common;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.ca.mas.foundation.MASException;
@@ -91,11 +92,11 @@ public interface MASFilteredRequestBuilder {
     MASFilteredRequestBuilder setExcludedAttributes(List<String> excludedAttributes) throws MASException;
 
     /**
-     * <b>Description:</b> The MASRequest is created based on the supplied filter(s).
+     * <b>Description:</b> The Uri for the request is created based on the supplied filter(s).
      * @param context
      * @return
      */
-    MASRequest create(@NonNull Context context);
+    Uri createUri(@NonNull Context context);
 
     /**
      * <b>Description:</b> This method applies the filter <i>attribute <b>eq</b> filterValue</i>.
@@ -179,8 +180,8 @@ public interface MASFilteredRequestBuilder {
     /**
      * <b>Description:</b> This method applies the filter <i>lhs <b>[and|or|not]</b> rhs</i>.
      *  @param logical One of the Logical operators - and, or, not.
-     * @param lhs     A fully formed MASRequest. This is expected to be the output of a <i>create</i> method call.
-     * @param rhs     A fully formed MASRequest. This is expected to be the output of a <i>create</i> method call.
+     * @param lhs     A fully formed MASRequest. This is expected to use the Uri from the <i>createUri</i> method call.
+     * @param rhs     A fully formed MASRequest. This is expected to use the Uri from the <i>createUri</i> method call.
      */
     MASFilteredRequestBuilder createCompoundExpression(Logical logical, MASRequest lhs, MASRequest rhs);
 

@@ -72,8 +72,8 @@ public class UserIdentityManager {
 
     // -------------------- USERS ---------------------------------------------
     public void getUsersByFilter(final MASFilteredRequest filteredRequest, final MASCallback<List<MASUser>> callback) {
-        MASRequest masRequest = filteredRequest.create(MAS.getContext());
-        masRequest = new MASRequest.MASRequestBuilder(masRequest.getURL())
+        Uri uri = filteredRequest.createUri(MAS.getContext());
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(uri)
                 .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
                 .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
                 .responseBody(MAGResponseBody.jsonBody())
@@ -188,8 +188,8 @@ public class UserIdentityManager {
     Helper method for retrieving users when paging is involved.
      */
     private void getUsers(final MASFilteredRequest filteredRequest, final List<MASUser> masUsers, final MASCallback<List<MASUser>> callback) throws MASException {
-        MASRequest masRequest = filteredRequest.create(MAS.getContext());
-        masRequest = new MASRequest.MASRequestBuilder(masRequest.getURL())
+        Uri uri = filteredRequest.createUri(MAS.getContext());
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(uri)
                 .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
                 .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
                 .responseBody(MAGResponseBody.jsonBody())

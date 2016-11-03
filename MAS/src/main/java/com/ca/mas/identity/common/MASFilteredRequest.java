@@ -37,7 +37,7 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
     String mSortUri;
     String mQueryCondition;
     List<String> mQueryComponents;
-    MASRequest mMasRequest;
+    private Uri uri;
     protected List<String> mAttributes;
     protected List<String> mExcludedAttributes;
     private List<String> mEntityAttributes;
@@ -183,10 +183,10 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
     }
 
     @Override
-    public MASRequest create(@NonNull Context context) {
+    public Uri createUri(@NonNull Context context) {
         // another request...
-        if (mMasRequest != null) {
-            return mMasRequest;
+        if (uri != null) {
+            return uri;
         }
 
         mQueryComponents = new ArrayList<>();
@@ -240,8 +240,8 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
         String encUrl = fullUrl.toString().replaceAll(" ", IdentityConsts.ENC_SPACE);
         encUrl = encUrl.replaceAll("\"", IdentityConsts.ENC_DOUBLE_QUOTE);
         Log.d(TAG, "Encoded URL: " + encUrl);
-        mMasRequest = new MASRequest.MASRequestBuilder(Uri.parse(encUrl)).build();
-        return mMasRequest;
+        uri = Uri.parse(encUrl);
+        return uri;
     }
 
     private String createNormalizedAttributes(List<String> attrs, String key) {
@@ -265,7 +265,7 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
         }
 
         StringBuilder fullUrl = new StringBuilder();
-        String url = mMasRequest.getURL().toString();
+        String url = uri.toString();
         int index = url.indexOf(IdentityConsts.QM);
         if (index > -1) {
             String sub = url.substring(0, index);
@@ -291,7 +291,7 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
 
         String encUrl = fullUrl.toString().replaceAll(" ", IdentityConsts.ENC_SPACE);
         encUrl = encUrl.replaceAll("\"", IdentityConsts.ENC_DOUBLE_QUOTE);
-        mMasRequest = new MASRequest.MASRequestBuilder(Uri.parse(encUrl)).build();
+        uri = Uri.parse(encUrl);
         return true;
     }
 

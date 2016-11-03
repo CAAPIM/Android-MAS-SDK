@@ -136,8 +136,8 @@ public class GroupIdentityManager implements MASGroupIdentity {
 
     @Override
     public void getGroupsByFilter(final MASFilteredRequest filteredRequest, final MASCallback<List<MASGroup>> callback) {
-        MASRequest masRequest = filteredRequest.create(MAS.getContext());
-        masRequest = new MASRequest.MASRequestBuilder(masRequest.getURL())
+        Uri uri = filteredRequest.createUri(MAS.getContext());
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(uri)
                 .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
                 .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
                 .responseBody(MAGResponseBody.jsonBody())
@@ -334,8 +334,8 @@ public class GroupIdentityManager implements MASGroupIdentity {
     }
 
     private void getGroups(final MASFilteredRequest filteredRequest, final List<MASGroup> container, final MASCallback<List<MASGroup>> callback) throws MASException {
-        MASRequest masRequest = filteredRequest.create(MAS.getContext());
-        masRequest = new MASRequest.MASRequestBuilder(masRequest.getURL())
+        Uri uri = filteredRequest.createUri(MAS.getContext());
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(uri)
                 .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
                 .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
                 .responseBody(MAGResponseBody.jsonBody())

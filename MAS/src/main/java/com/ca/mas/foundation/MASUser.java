@@ -433,8 +433,12 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                     @Override
                     public Object loadInBackground() {
                         try {
-                            MobileSsoFactory.getInstance().logout(true);
-                            Callback.onSuccess(callback, null);
+                            if (!isSessionLocked()) {
+                                MobileSsoFactory.getInstance().logout(true);
+                                Callback.onSuccess(callback, null);
+                            } else {
+                                Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_SESSION_CURRENTLY_LOCKED));
+                            }
                         } catch (Exception e) {
                             Callback.onError(callback, e);
                         }

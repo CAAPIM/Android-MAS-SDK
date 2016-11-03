@@ -9,17 +9,18 @@
 package com.ca.mas.identity.common;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.ca.mas.foundation.MASException;
-import com.ca.mas.foundation.web.WebServiceRequest;
+import com.ca.mas.foundation.MASRequest;
 
 import java.util.List;
 
 /**
  * <p><b>MASFilteredRequestBuilder</b> defines all of the SCIM operations that are available for SCIM queries. Each Operator type is represented
  * by a specific method that requires only the attribute(s) and the value in order to create a well-formed representation of the
- * {@link  com.ca.mas.foundation.web.WebServiceRequest} serviceable by the SCIM server implementation.</p>
+ * {@link  MASRequest} serviceable by the SCIM server implementation.</p>
  */
 public interface MASFilteredRequestBuilder {
 
@@ -91,12 +92,11 @@ public interface MASFilteredRequestBuilder {
     MASFilteredRequestBuilder setExcludedAttributes(List<String> excludedAttributes) throws MASException;
 
     /**
-     * <b>Description:</b> The WebServiceRequest is created based on the supplied filter(s).
-     *
+     * <b>Description:</b> The Uri for the request is created based on the supplied filter(s).
      * @param context
-     * @return WebServiceRequest
+     * @return
      */
-    WebServiceRequest create(@NonNull Context context);
+    Uri createUri(@NonNull Context context);
 
     /**
      * <b>Description:</b> This method applies the filter <i>attribute <b>eq</b> filterValue</i>.
@@ -179,12 +179,11 @@ public interface MASFilteredRequestBuilder {
 
     /**
      * <b>Description:</b> This method applies the filter <i>lhs <b>[and|or|not]</b> rhs</i>.
-     *
-     * @param logical One of the Logical operators - and, or, not.
-     * @param lhs     A fully formed WebServiceRequest. This is expected to be the output of a <i>create</i> method call.
-     * @param rhs     A fully formed WebServiceRequest. This is expected to be the output of a <i>create</i> method call.
+     *  @param logical One of the Logical operators - and, or, not.
+     * @param lhs     A fully formed MASRequest. This is expected to use the Uri from the <i>createUri</i> method call.
+     * @param rhs     A fully formed MASRequest. This is expected to use the Uri from the <i>createUri</i> method call.
      */
-    MASFilteredRequestBuilder createCompoundExpression(MASFilteredRequest.Logical logical, WebServiceRequest lhs, WebServiceRequest rhs);
+    MASFilteredRequestBuilder createCompoundExpression(Logical logical, MASRequest lhs, MASRequest rhs);
 
     /**
      * <b>Description:</b> This method applies the filter <i>sortBy = attribute&sortOrder=ascending</i> .

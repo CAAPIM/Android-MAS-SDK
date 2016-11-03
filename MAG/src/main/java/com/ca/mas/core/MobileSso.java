@@ -15,6 +15,8 @@ import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.service.AuthenticationProvider;
 
+import org.json.JSONObject;
+
 import java.net.URI;
 
 /**
@@ -58,7 +60,7 @@ public interface MobileSso {
      * @param password       The password to authenticate with
      * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
      */
-    void authenticate(String username, char[] password, ResultReceiver resultReceiver);
+    void authenticate(String username, char[] password, MAGResultReceiver<JSONObject> resultReceiver);
 
     /**
      * Sets the {@link MobileSsoListener} that will receive various notifications and requests for MAG Client.

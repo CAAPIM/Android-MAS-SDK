@@ -29,6 +29,7 @@ import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.registration.RegistrationClient;
 import com.ca.mas.core.request.MAGInternalRequest;
 import com.ca.mas.core.request.internal.LocalRequest;
+import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.ClientCredentialContainer;
 import com.ca.mas.core.store.OAuthTokenContainer;
 import com.ca.mas.core.store.StorageProvider;
@@ -471,6 +472,11 @@ public class MssoContext {
 
         Exception exception = null;
 
+        //Not allow to logout if the session is locked.
+        byte[] secureIdToken =  tokenManager.getSecureIdToken();
+        if (secureIdToken != null) {
+            throw new SecureLockException("The session is currently locked.");
+        }
 
         try {
             if (isSsoEnabled()) {

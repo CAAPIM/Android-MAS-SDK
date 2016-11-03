@@ -320,7 +320,7 @@ public final class MobileSsoFactory {
             }
 
             @Override
-            public void authenticate(String username, char[] password, ResultReceiver resultReceiver) {
+            public void authenticate(String username, char[] password, MAGResultReceiver<JSONObject> resultReceiver) {
                 mssoClient.authenticate(username, password, resultReceiver);
             }
 

@@ -8,6 +8,7 @@
 package com.ca.mas.ui;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +23,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -29,6 +32,7 @@ import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASSessionUnlockCallback;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.auth.MASAuthenticationProvider;
+import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.foundation.auth.MASProximityLogin;
 import com.ca.mas.foundation.auth.MASProximityLoginBLE;
 import com.ca.mas.foundation.auth.MASProximityLoginBLECentralListener;
@@ -36,26 +40,22 @@ import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 
 public class MASSessionUnlockActivity extends AppCompatActivity {
-
     private static final String TAG = MASSessionUnlockActivity.class.getCanonicalName();
-
     private static final String REQUEST_ID = "REQUEST_ID";
     private static final String PROVIDER = "PROVIDER";
     private long mRequestId;
     private Context mContext;
+    private Activity mActivity;
     private Button mFingerprintButton;
     private Button mCredentialsButton;
-
     private EditText mUsernameEditText;
     private EditText mPasswordEditText;
     private TextInputLayout mUsernameLayout;
     private TextInputLayout mPasswordLayout;
-
     private MASAuthenticationProvider mProvider;
     private MASProximityLogin mQRCode;
     private MASProximityLogin mNFC;
     private MASProximityLogin mBLE;
-
     private final static int FINGERPRINT_REQUEST_CODE = 1000;
 
     @Override
@@ -66,24 +66,25 @@ public class MASSessionUnlockActivity extends AppCompatActivity {
 //        if (currentUser != null && currentUser.isSessionLocked()) {
 //            inflateUserLoginScreen();
 //        } else {
-            setContentView(R.layout.activity_session_unlock_login);
+        setContentView(R.layout.activity_session_unlock_login);
 
-            mContext = this;
-            mFingerprintButton = (Button) findViewById(R.id.buttonFingerprintSignIn);
-            mCredentialsButton = (Button) findViewById(R.id.buttonStandardSignIn);
+        mContext = this;
+        mActivity = this;
+        mFingerprintButton = (Button) findViewById(R.id.buttonFingerprintSignIn);
+        mCredentialsButton = (Button) findViewById(R.id.buttonStandardSignIn);
 
-            mFingerprintButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    unlock();
-                }
-            });
-            mCredentialsButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    inflateUserLoginScreen();
-                }
-            });
+        mFingerprintButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unlock();
+            }
+        });
+        mCredentialsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                inflateUserLoginScreen();
+            }
+        });
 //        }
     }
 
@@ -131,74 +132,84 @@ public class MASSessionUnlockActivity extends AppCompatActivity {
         // Proximity Login component
         final LinearLayout qr = (LinearLayout) findViewById(R.id.layoutQRCode);
 
-//        // QR code Proximity Login
-//        mQRCode = generateQRCode(qr);
-//        boolean init = mQRCode.init(this, mRequestId, providers);
-//        if (init) {
-//            qr.addView(mQRCode.render());
-//            mQRCode.start();
-//        }
-//
-//        // NFC Proximity Login
-//        mNFC = nfc();
-//        init = mNFC.init(this, mRequestId, providers);
-//        if (init) {
-//            mNFC.start();
-//        }
-//
-//        // BLE Proximity Login
-//        mBLE = ble();
-//        init = mBLE.init(this, mRequestId, providers);
-//        if (init) {
-//            mBLE.start();
-//        }
-//
-//        //Social Login
-//        GridLayout socialLoginLayout = (GridLayout) findViewById(R.id.socialLoginGridLayout);
-//
-//        for (final MASAuthenticationProvider p : providers.getProviders()) {
-//            if (!p.isProximityLogin()) {
-//                ImageButton imageButton = new ImageButton(this);
-//                GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-//                params.setMargins(8, 8, 8, 8);
-//                imageButton.setLayoutParams(params);
-//                String identifier = p.getIdentifier();
-//                imageButton.setBackgroundResource(getResources().
-//                        getIdentifier("drawable/" + identifier, null, getPackageName()));
-//
-//                switch (identifier) {
-//                    case "enterprise":
-//                        imageButton.setId(R.id.enterpriseIcon);
-//                        break;
-//                    case "facebook":
-//                        imageButton.setId(R.id.facebookIcon);
-//                        break;
-//                    case "google":
-//                        imageButton.setId(R.id.googleIcon);
-//                        break;
-//                    case "linkedin":
-//                        imageButton.setId(R.id.linkedinIcon);
-//                        break;
-//                    case "salesforce":
-//                        imageButton.setId(R.id.salesforceIcon);
-//                        break;
-//                }
-//
-//                if (providers.getIdp().equals("all") || providers.getIdp().equalsIgnoreCase(p.getIdentifier())) {
-//                    imageButton.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            MASSocialLoginFragment.newInstance(mRequestId, p).show(getFragmentManager(), "logonDialog");
-//                            finish();
-//                        }
-//                    });
-//                } else {
-//                    imageButton.setClickable(false);
-//                    imageButton.setEnabled(false);
-//                }
-//                socialLoginLayout.addView(imageButton);
-//            }
-//        }
+        MASAuthenticationProviders.getAuthenticationProviders(new MASCallback<MASAuthenticationProviders>() {
+            @Override
+            public void onSuccess(MASAuthenticationProviders providers) {
+                // QR code Proximity Login
+                mQRCode = generateQRCode(qr);
+                boolean init = mQRCode.init(mActivity, mRequestId, providers);
+                if (init) {
+                    qr.addView(mQRCode.render());
+                    mQRCode.start();
+                }
+
+                // NFC Proximity Login
+                mNFC = nfc();
+                init = mNFC.init(mActivity, mRequestId, providers);
+                if (init) {
+                    mNFC.start();
+                }
+
+                // BLE Proximity Login
+                mBLE = ble();
+                init = mBLE.init(mActivity, mRequestId, providers);
+                if (init) {
+                    mBLE.start();
+                }
+
+                //Social Login
+                GridLayout socialLoginLayout = (GridLayout) findViewById(R.id.socialLoginGridLayout);
+
+                for (final MASAuthenticationProvider p : providers.getProviders()) {
+                    if (!p.isProximityLogin()) {
+                        ImageButton imageButton = new ImageButton(mContext);
+                        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                        params.setMargins(8, 8, 8, 8);
+                        imageButton.setLayoutParams(params);
+                        String identifier = p.getIdentifier();
+                        imageButton.setBackgroundResource(getResources().
+                                getIdentifier("drawable/" + identifier, null, getPackageName()));
+
+                        switch (identifier) {
+                            case "enterprise":
+                                imageButton.setId(R.id.enterpriseIcon);
+                                break;
+                            case "facebook":
+                                imageButton.setId(R.id.facebookIcon);
+                                break;
+                            case "google":
+                                imageButton.setId(R.id.googleIcon);
+                                break;
+                            case "linkedin":
+                                imageButton.setId(R.id.linkedinIcon);
+                                break;
+                            case "salesforce":
+                                imageButton.setId(R.id.salesforceIcon);
+                                break;
+                        }
+
+                        if (providers.getIdp().equals("all") || providers.getIdp().equalsIgnoreCase(p.getIdentifier())) {
+                            imageButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    MASSocialLoginFragment.newInstance(mRequestId, p).show(getFragmentManager(), "logonDialog");
+                                    finish();
+                                }
+                            });
+                        } else {
+                            imageButton.setClickable(false);
+                            imageButton.setEnabled(false);
+                        }
+                        socialLoginLayout.addView(imageButton);
+                    }
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        });
     }
 
     private MASProximityLoginQRCode generateQRCode(final LinearLayout qrContainer) {
@@ -220,6 +231,7 @@ public class MASSessionUnlockActivity extends AppCompatActivity {
             }
         };
     }
+
     private MASProximityLoginNFC nfc() {
         return new MASProximityLoginNFC() {
             @Override

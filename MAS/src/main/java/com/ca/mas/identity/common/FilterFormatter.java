@@ -10,14 +10,14 @@ package com.ca.mas.identity.common;
 
 import android.support.annotation.NonNull;
 
-import com.ca.mas.foundation.web.WebServiceRequest;
+import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.identity.util.IdentityConsts;
 
 /**
  * <p><b>FileFormatter</b> is a helper class for creating SCIM Identity Management expressions for querying.</p>
- * <p>NOTE: The constructor <i>FilterFormatter(@NonNull MASFilteredRequest.Logical logical, @NonNull WebServiceRequest lhs, @NonNull WebServiceRequest rhs)</i>
- * is for future use. The current server side implementation does not support the logical operators but once supported, two {@link com.ca.mas.foundation.web.WebServiceRequest}s can be combined
- * using AND, OR, or NOT to create a single {@link com.ca.mas.foundation.web.WebServiceRequest} representing a complex SCIM Identity Management query.</p>
+ * <p>NOTE: The constructor <i>FilterFormatter(@NonNull MASFilteredRequest.Logical logical, @NonNull MASRequest lhs, @NonNull MASRequest rhs)</i>
+ * is for future use. The current server side implementation does not support the logical operators but once supported, two {@link MASRequest}s can be combined
+ * using AND, OR, or NOT to create a single {@link MASRequest} representing a complex SCIM Identity Management query.</p>
  */
 class FilterFormatter {
 
@@ -30,15 +30,14 @@ class FilterFormatter {
 
     /**
      * <b>Description:</b> Convenience constructor.
-     *
-     * @param logical operators AND, OR, or NOT
+     *  @param logical operators AND, OR, or NOT
      * @param lhs     the left hand side of the expression.
      * @param rhs     the right hand side of the expression.
      */
-    FilterFormatter(@NonNull MASFilteredRequest.Logical logical, @NonNull WebServiceRequest lhs, @NonNull WebServiceRequest rhs) {
+    FilterFormatter(@NonNull MASFilteredRequest.Logical logical, MASRequest lhs, MASRequest rhs) {
         mLogical = logical;
-        mLhs = lhs.getUri().getQuery();
-        mRhs = rhs.getUri().getQuery();
+        mLhs = lhs.getURL().getQuery();
+        mRhs = rhs.getURL().getQuery();
     }
 
     /**

@@ -43,7 +43,7 @@ import java.util.List;
 /**
  * <p><b>UserIdentityManager</b> handles all of the interaction between the client and the SCIM provider. This class is a
  * representation of a SCIM user, listens for WebService callbacks from SCIM requests.
- * <p>This class listens for WebService response through the {@link com.ca.mas.foundation.web.MASWebServiceClient} interface
+ * <p>This class listens for MASRequest response through the {@link MAS#invoke(MASRequest, MASCallback)} method.
  * Before responding to the caller this class will do the following;</p>
  * <p><b>onSuccess</b>
  * <ol>
@@ -72,7 +72,7 @@ public class UserIdentityManager {
 
     // -------------------- USERS ---------------------------------------------
     public void getUsersByFilter(final MASFilteredRequest filteredRequest, final MASCallback<List<MASUser>> callback) {
-        MASRequest masRequest = filteredRequest.create(MAS.getContext(), null);
+        MASRequest masRequest = filteredRequest.create(MAS.getContext());
         masRequest = new MASRequest.MASRequestBuilder(masRequest.getURL())
                 .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
                 .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
@@ -188,7 +188,7 @@ public class UserIdentityManager {
     Helper method for retrieving users when paging is involved.
      */
     private void getUsers(final MASFilteredRequest filteredRequest, final List<MASUser> masUsers, final MASCallback<List<MASUser>> callback) throws MASException {
-        MASRequest masRequest = filteredRequest.create(MAS.getContext(), null);
+        MASRequest masRequest = filteredRequest.create(MAS.getContext());
         masRequest = new MASRequest.MASRequestBuilder(masRequest.getURL())
                 .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
                 .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
@@ -257,7 +257,7 @@ public class UserIdentityManager {
                     container.add(createMASUser(ident));
                 }
 
-                if (filteredRequest.hasNextNew()) {
+                if (filteredRequest.hasNext()) {
                     getUsers(filteredRequest, container, callback);
                 } else {
                     Callback.onSuccess(callback, container);

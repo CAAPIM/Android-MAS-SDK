@@ -11,8 +11,6 @@ package com.ca.mas.identity.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -118,6 +116,12 @@ public class IdentityUtil extends FoundationUtil {
         return getUrl(context, IdentityConsts.SCIM_SCHEMAS);
     }
 
+    /**
+     * <b>Description:</b> Create and return the path component of a URI of the form
+     * /SCIM/MAS/v2/Schemas
+     * @param context
+     * @return String the schemas path.
+     */
     public static String getSchemasPath(Context context){
         return getPath(context, IdentityConsts.SCIM_SCHEMAS);
     }
@@ -133,6 +137,12 @@ public class IdentityUtil extends FoundationUtil {
         return getUrl(context, IdentityConsts.SCIM_USERS);
     }
 
+    /**
+     * <b>Pre-Conditions:</b> The msso_config must be parsed.<br>
+     * <b>Description:</b> This helper method returns the User's URI as defined in the msso_config.json endpoint description.
+     * @param context the Android runtime environment.
+     * @return String the formatted URI for accessing Users, ex: SCIM/[provider]/v2/Users.
+     */
     public static String getUserPath(Context context) {
         return getPath(context, IdentityConsts.SCIM_USERS);
     }
@@ -206,6 +216,12 @@ public class IdentityUtil extends FoundationUtil {
         return sb.toString();
     }
 
+    /**
+     * Like {@link #getUrl(Context, String)} but only returns the path component of the URL.
+     * @param context
+     * @param entity
+     * @return
+     */
     private static String getPath(Context context, String entity) {
         StringBuilder sb = new StringBuilder();
         String scimPath = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider()

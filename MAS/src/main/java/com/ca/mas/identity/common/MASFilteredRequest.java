@@ -14,14 +14,11 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.MASRequest;
-import com.ca.mas.foundation.web.WebServiceRequest;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.ca.mas.identity.util.IdentityUtil;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +37,6 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
     String mSortUri;
     String mQueryCondition;
     List<String> mQueryComponents;
-    WebServiceRequest mWebServiceRequest;
     MASRequest mMasRequest;
     protected List<String> mAttributes;
     protected List<String> mExcludedAttributes;
@@ -158,7 +154,7 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
     }
 
     @Override
-    public MASFilteredRequestBuilder createCompoundExpression(@NonNull Logical logical, @NonNull WebServiceRequest lhs, WebServiceRequest rhs) {
+    public MASFilteredRequestBuilder createCompoundExpression(@NonNull Logical logical, MASRequest lhs, MASRequest rhs) {
         FilterFormatter filterFormatter = new FilterFormatter(logical, lhs, rhs);
         mQueryCondition = filterFormatter.toString();
         return this;
@@ -187,69 +183,7 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
     }
 
     @Override
-    public WebServiceRequest create(@NonNull Context context) {
-        // another request...
-        if (mWebServiceRequest != null) {
-            return mWebServiceRequest;
-        }
-
-        mQueryComponents = new ArrayList<>();
-        StringBuilder fullUrl = new StringBuilder();
-        if(mFilterType.equals(IdentityConsts.KEY_USER_ATTRIBUTES)) {
-            fullUrl.append(IdentityUtil.getUserUrl(context));
-        }
-        if(mFilterType.equals(IdentityConsts.KEY_GROUP_ATTRIBUTES)) {
-            fullUrl.append(IdentityUtil.getGroupUrl(context));
-        }
-
-        if(!TextUtils.isEmpty(mQueryCondition)) {
-            mQueryComponents.add(mQueryCondition);
-        }
-
-        if (!TextUtils.isEmpty(mSortUri)) {
-            mQueryComponents.add(mSortUri);
-        }
-
-        if (mAttributes != null) {
-            // find the query string
-            mQueryComponents.add(createNormalizedAttributes(mAttributes, IdentityConsts.KEY_ATTRIBUTES));
-        }
-
-        if(mExcludedAttributes != null) {
-            // find the query string
-            mQueryComponents.add(createNormalizedAttributes(mExcludedAttributes, IdentityConsts.KEY_EXCLUDED_ATTRIBUTES));
-        }
-
-        // Only add the pagination if this request requires paging.
-        // This is added right at the end.
-        if (mIsPaging) {
-            String pagFilter = getPaginationFilter();
-            if (pagFilter != null) {
-                mQueryComponents.add(pagFilter);
-            }
-        }
-
-        if(mQueryComponents.size()>0){
-            fullUrl.append(IdentityConsts.QM);
-        }
-
-        for (int i = 0; i < mQueryComponents.size(); i++) {
-            fullUrl.append(mQueryComponents.get(i));
-            if (i < mQueryComponents.size() - 1) {
-                fullUrl.append(IdentityConsts.AMP);
-            }
-        }
-
-
-        String encUrl = fullUrl.toString().replaceAll(" ", IdentityConsts.ENC_SPACE);
-        encUrl = encUrl.replaceAll("\"", IdentityConsts.ENC_DOUBLE_QUOTE);
-        Log.d(TAG, "Encoded URL: " + encUrl);
-        mWebServiceRequest = new WebServiceRequest(Uri.parse(encUrl));
-        return mWebServiceRequest;
-    }
-
-    @Override
-    public MASRequest create(@NonNull Context context, Integer in) {
+    public MASRequest create(@NonNull Context context) {
         // another request...
         if (mMasRequest != null) {
             return mMasRequest;
@@ -306,7 +240,6 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
         String encUrl = fullUrl.toString().replaceAll(" ", IdentityConsts.ENC_SPACE);
         encUrl = encUrl.replaceAll("\"", IdentityConsts.ENC_DOUBLE_QUOTE);
         Log.d(TAG, "Encoded URL: " + encUrl);
-        //mWebServiceRequest = new WebServiceRequest(Uri.parse(encUrl));
         mMasRequest = new MASRequest.MASRequestBuilder(Uri.parse(encUrl)).build();
         return mMasRequest;
     }
@@ -326,43 +259,7 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
     }
 
     @Override
-    public boolean hasNext() {
-        if (!mIsPaging) {
-            return false;
-        }
-
-        StringBuilder fullUrl = new StringBuilder();
-        String url = mWebServiceRequest.getUri().toString();
-        int index = url.indexOf(IdentityConsts.QM);
-        if (index > -1) {
-            String sub = url.substring(0, index);
-            fullUrl.append(sub);
-        } else {
-            return true;
-        }
-        fullUrl.append(IdentityConsts.QM);
-
-        String pagFilter = getPaginationFilter();
-
-        for (int i = 0; i < mQueryComponents.size(); i++) {
-            String comp = mQueryComponents.get(i);
-            if (comp.startsWith(MASPagination.PAGE_START_EXP)) {
-                fullUrl.append(pagFilter);
-            } else {
-                fullUrl.append(comp);
-            }
-            if (i < mQueryComponents.size() - 1) {
-                fullUrl.append(IdentityConsts.AMP);
-            }
-        }
-
-        String encUrl = fullUrl.toString().replaceAll(" ", IdentityConsts.ENC_SPACE);
-        encUrl = encUrl.replaceAll("\"", IdentityConsts.ENC_DOUBLE_QUOTE);
-        mWebServiceRequest.setUri(Uri.parse(encUrl));
-        return true;
-    }
-
-    public boolean hasNextNew(){
+    public boolean hasNext(){
         if (!mIsPaging) {
             return false;
         }
@@ -394,7 +291,6 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
 
         String encUrl = fullUrl.toString().replaceAll(" ", IdentityConsts.ENC_SPACE);
         encUrl = encUrl.replaceAll("\"", IdentityConsts.ENC_DOUBLE_QUOTE);
-        //mWebServiceRequest.setUri(Uri.parse(encUrl));
         mMasRequest = new MASRequest.MASRequestBuilder(Uri.parse(encUrl)).build();
         return true;
     }

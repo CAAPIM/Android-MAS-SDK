@@ -38,6 +38,8 @@ public class SecureLockAssertion implements MssoAssertion {
     public void processRequest(MssoContext mssoContext, RequestInfo request) throws SecureLockException {
         byte[] secureToken = tokenManager.getSecureIdToken();
         if (secureToken != null) {
+            //Clear the access tokens for
+            mssoContext.clearAccessToken();
             throw new SecureLockException("The session is currently locked.");
         }
     }

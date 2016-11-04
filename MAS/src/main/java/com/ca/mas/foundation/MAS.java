@@ -360,8 +360,8 @@ public class MAS {
      * by the time this method executes, a response notification will never occur,
      * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set;
      */
-    public static void cancelAllRequest() {
-        MobileSsoFactory.getInstance().cancelAllRequest();
+    public static void cancelAllRequests() {
+        MobileSsoFactory.getInstance().cancelAllRequests();
     }
 
     /**

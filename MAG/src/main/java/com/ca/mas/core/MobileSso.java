@@ -85,11 +85,11 @@ public interface MobileSso {
     void cancelRequest(long requestId);
 
     /**
-     * Cancels all request. If the response notification has not already been delivered
-     * by the time this method executes, a response notification will never occur.
+     * Cancels all requests. If the response notification has not already been delivered
+     * by the time this method executes, response notification will never occur.
      *
      */
-    void cancelAllRequest();
+    void cancelAllRequests();
 
 
     /**

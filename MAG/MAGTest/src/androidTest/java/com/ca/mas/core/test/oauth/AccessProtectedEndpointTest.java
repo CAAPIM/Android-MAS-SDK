@@ -138,7 +138,7 @@ public class AccessProtectedEndpointTest extends BaseTest {
             ssg.takeRequest(); //register request
             ssg.takeRequest(); //access token
         }
-        mobileSso.cancelAllRequest();
+        mobileSso.cancelAllRequests();
         ssg.takeRequest(); //The slow response
         countDownLatch.await();
         assertTrue(result[0]);

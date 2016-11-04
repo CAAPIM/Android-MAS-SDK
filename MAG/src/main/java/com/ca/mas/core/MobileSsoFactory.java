@@ -332,7 +332,7 @@ public final class MobileSsoFactory {
             }
 
             @Override
-            public void cancelAllRequest() {
+            public void cancelAllRequests() {
                 mssoClient.cancelAll();
             }
         };

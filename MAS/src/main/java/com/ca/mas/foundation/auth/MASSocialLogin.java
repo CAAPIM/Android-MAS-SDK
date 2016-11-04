@@ -32,6 +32,7 @@ import com.ca.mas.core.creds.AuthorizationCodeCredentials;
 import com.ca.mas.core.io.http.TrustedCertificateConfigurationTrustManager;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.MssoService;
+import com.ca.mas.foundation.MAS;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.Certificate;
@@ -112,11 +113,7 @@ public abstract class MASSocialLogin {
 
             private void onError(final String msg, Exception e) {
                 webView.clearSslPreferences();
-
-                Intent intent = new Intent(MssoIntents.ACTION_CANCEL_REQUEST, null, context, MssoService.class);
-                intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-                context.startService(intent);
-
+                MAS.cancelRequest(requestId);
                 MASSocialLogin.this.onError(msg, e);
             }
 

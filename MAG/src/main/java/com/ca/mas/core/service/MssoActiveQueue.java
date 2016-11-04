@@ -10,37 +10,44 @@ package com.ca.mas.core.service;
 
 import com.ca.mas.core.util.Functions;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Represents pending outbound requests.
+ * Represents pending active requests.
  */
-class MssoRequestQueue {
+class MssoActiveQueue {
 
-    private static final MssoRequestQueue INSTANCE = new MssoRequestQueue();
+    private static final MssoActiveQueue INSTANCE = new MssoActiveQueue();
 
     // Input queue
-    private final Map<Long, MssoRequest> inboundRequests = new LinkedHashMap<Long, MssoRequest>();
+    private final Map<Long, MssoRequest> activeRequests = Collections.synchronizedMap(new LinkedHashMap<Long, MssoRequest>());
 
-    private MssoRequestQueue() {
+    private MssoActiveQueue() {
     }
 
-    public static MssoRequestQueue getInstance() {
+    public static MssoActiveQueue getInstance() {
         return INSTANCE;
     }
 
-    synchronized void addRequest(MssoRequest request) {
-        inboundRequests.put(request.getId(), request);
+    Collection<MssoRequest> getAllRequest() {
+        return activeRequests.values();
     }
 
-    synchronized MssoRequest getRequest(long requestId) {
-        return inboundRequests.get(requestId);
+    void addRequest(MssoRequest request) {
+        activeRequests.put(request.getId(), request);
     }
 
-    synchronized MssoRequest takeRequest(long requestId) {
-        return inboundRequests.remove(requestId);
+    MssoRequest getRequest(long requestId) {
+        return activeRequests.get(requestId);
+    }
+
+    MssoRequest takeRequest(long requestId) {
+        return activeRequests.remove(requestId);
     }
 
     /**
@@ -49,7 +56,7 @@ class MssoRequestQueue {
      * @param predicate a predicate to check whether a given request should be removed.  Required.
      */
     synchronized void removeMatching(Functions.Unary<Boolean, MssoRequest> predicate) {
-        Iterator<MssoRequest> it = inboundRequests.values().iterator();
+        Iterator<MssoRequest> it = activeRequests.values().iterator();
         while (it.hasNext()) {
             MssoRequest mssoRequest = it.next();
             if (predicate.call(mssoRequest)) {

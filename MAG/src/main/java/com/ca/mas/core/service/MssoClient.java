@@ -138,11 +138,17 @@ public class MssoClient {
      * @param requestId the request ID to cancel.
      */
     public void cancelRequest(long requestId) {
-        MssoRequestQueue.getInstance().takeRequest(requestId);
+        MssoRequest request = null;
         MssoResponseQueue.getInstance().takeResponse(requestId);
-        Intent intent = new Intent(MssoIntents.ACTION_CANCEL_REQUEST, null, sysContext, MssoService.class);
-        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-        sysContext.startService(intent);
+        request = MssoRequestQueue.getInstance().takeRequest(requestId);
+        if (request == null) {
+            request = MssoActiveQueue.getInstance().takeRequest(requestId);
+        }
+        if (request != null) {
+            if (request.getResultReceiver() != null) {
+                request.getResultReceiver().send(MssoIntents.RESULT_CODE_ERR_CANCELED, null);
+            }
+        }
     }
 
     /**
@@ -159,6 +165,13 @@ public class MssoClient {
             @Override
             public Boolean call(MssoResponse mssoResponse) {
                 return mssoResponse.getRequest().getCreator() == MssoClient.this;
+            }
+        });
+
+        MssoActiveQueue.getInstance().removeMatching(new Functions.Unary<Boolean, MssoRequest>() {
+            @Override
+            public Boolean call(MssoRequest mssoRequest) {
+                return mssoRequest.getCreator() == MssoClient.this;
             }
         });
     }

@@ -30,9 +30,6 @@ public interface MssoIntents {
     /** An Intent with this action is used by a Display otp protected data activity to send otp information back to the MssoService.  Fired by Display otp protected data activity .  Handled by MssoService. */
     String ACTION_VALIDATE_OTP = "com.ca.mas.core.service.action.VALIDATE_OTP";
 
-    /** An Intent with this can be sent to the MssoService to indicate that a request should be canceled.  Fired by logon dialog activity.  Handled by MssoService. */
-    String ACTION_CANCEL_REQUEST = "com.ca.mas.core.service.action.CANCEL_REQUEST";
-
     /** An Intent with this can be sent to the App to indicate that a webview should be rendered. Fired by clicking the App Icon in the enterprise browser */
     String ACTION_RENDER_WEBVIEW = "com.ca.mas.core.service.action.RENDER_WEBVIEW";
 

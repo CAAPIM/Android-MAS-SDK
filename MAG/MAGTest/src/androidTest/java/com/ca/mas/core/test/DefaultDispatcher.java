@@ -20,6 +20,7 @@ public class DefaultDispatcher extends Dispatcher {
     public static final String CONNECT_DEVICE_REGISTER = "/connect/device/register";
     public static final String CONNECT_CLIENT_INITIALIZE = "/connect/client/initialize";
     public static final String AUTH_OAUTH_V2_TOKEN = "/auth/oauth/v2/token";
+    public static final String PROTECTED_RESOURCE_SLOW = "/protected/resource/slow";
     public static final String PROTECTED_RESOURCE_PRODUCTS = "/protected/resource/products";
     public static final String TEST_NO_CONTENT = "/testNoContent";
     public static final String AUTH_OAUTH_V2_AUTHORIZE = "/auth/oauth/v2/authorize";
@@ -51,6 +52,9 @@ public class DefaultDispatcher extends Dispatcher {
         } else if (request.getPath().contains(AUTH_OAUTH_V2_TOKEN)){
             return retrieveTokenResponse();
         } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS)) {
+            return secureServiceResponse();
+        } else if (request.getPath().contains(PROTECTED_RESOURCE_SLOW)) {
+            Thread.sleep(1000);
             return secureServiceResponse();
         } else if (request.getPath().contains(TEST_NO_CONTENT)) {
             return secureServiceResponse();

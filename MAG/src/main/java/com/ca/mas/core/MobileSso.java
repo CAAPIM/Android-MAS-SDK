@@ -77,12 +77,20 @@ public interface MobileSso {
     void processPendingRequests();
 
     /**
-     * Cancels the specified request ID. If the response notification has not already been delivered (or is not already in progress)
+     * Cancels the specified request ID. If the response notification has not already been delivered
      * by the time this method executes, a response notification will never occur for the specified request ID.
      *
      * @param requestId the request ID to cancel.
      */
     void cancelRequest(long requestId);
+
+    /**
+     * Cancels all request. If the response notification has not already been delivered
+     * by the time this method executes, a response notification will never occur.
+     *
+     */
+    void cancelAllRequest();
+
 
     /**
      * <p>Log out the current user and all SSO apps on this device, leaving the device registered, and

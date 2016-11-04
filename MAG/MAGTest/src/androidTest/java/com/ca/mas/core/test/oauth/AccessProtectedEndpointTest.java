@@ -11,11 +11,14 @@ package com.ca.mas.core.test.oauth;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.datasource.DataSourceFactory;
 import com.ca.mas.core.datasource.KeystoreDataSource;
+import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGRequest;
+import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.request.internal.OAuthTokenRequest;
 import com.ca.mas.core.store.PrivateTokenStorage;
 import com.ca.mas.core.test.BaseTest;
@@ -33,6 +36,7 @@ import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -65,6 +69,83 @@ public class AccessProtectedEndpointTest extends BaseTest {
             assertTrue(s.contains("grant_type=" + getIdTokenType()));
         }
     }
+
+    @Test
+    public void testAccessProtectedEndpointCancelOnExecutingRequest() throws URISyntaxException, InterruptedException, IOException {
+        MAGRequest request = new MAGRequest.MAGRequestBuilder(getURI("/protected/resource/slow")).password().build();
+
+        final boolean[] result = {false};
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        long requestID = mobileSso.processRequest(request, new MAGResultReceiver() {
+            @Override
+            public void onSuccess(MAGResponse response) {
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onError(MAGError error) {
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onRequestCancelled() {
+                result[0] = true;
+                countDownLatch.countDown();
+            }
+        });
+        Thread.sleep(100);
+        if (useMockServer()) {
+            ssg.takeRequest(); //Authorize Request
+            ssg.takeRequest(); //Client Credentials Request
+            ssg.takeRequest(); //register request
+            ssg.takeRequest(); //access token
+        }
+        mobileSso.cancelRequest(requestID);
+        ssg.takeRequest(); //The slow response
+        countDownLatch.await();
+        assertTrue(result[0]);
+
+
+    }
+
+    @Test
+    public void testAccessProtectedEndpointCancelAllOnExecutingRequest() throws URISyntaxException, InterruptedException, IOException {
+        MAGRequest request = new MAGRequest.MAGRequestBuilder(getURI("/protected/resource/slow")).password().build();
+
+        final boolean[] result = {false};
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        long requestID = mobileSso.processRequest(request, new MAGResultReceiver() {
+            @Override
+            public void onSuccess(MAGResponse response) {
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onError(MAGError error) {
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onRequestCancelled() {
+                result[0] = true;
+                countDownLatch.countDown();
+            }
+        });
+        Thread.sleep(100);
+        if (useMockServer()) {
+            ssg.takeRequest(); //Authorize Request
+            ssg.takeRequest(); //Client Credentials Request
+            ssg.takeRequest(); //register request
+            ssg.takeRequest(); //access token
+        }
+        mobileSso.cancelAllRequest();
+        ssg.takeRequest(); //The slow response
+        countDownLatch.await();
+        assertTrue(result[0]);
+
+
+    }
+
 
     @Test
     public void testAccessProtectedEndpointWithOverrideScope() throws URISyntaxException, InterruptedException, IOException {

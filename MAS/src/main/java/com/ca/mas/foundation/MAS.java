@@ -345,12 +345,23 @@ public class MAS {
     }
 
     /**
-     * Cancels the request from the queue.
+     * Cancels the specified request ID. If the response notification has not already been delivered
+     * by the time this method executes, a response notification will never occur for the specified request ID
+     * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set;
      *
-     * @param requestID The request id to be cancelled.
+     * @param requestId the request ID to cancel.
      */
-    public static void cancelRequest(long requestID) {
-        MobileSsoFactory.getInstance().cancelRequest(requestID);
+    public static void cancelRequest(long requestId) {
+        MobileSsoFactory.getInstance().cancelRequest(requestId);
+    }
+
+    /**
+     * Cancels all request. If the response notification has not already been delivered
+     * by the time this method executes, a response notification will never occur,
+     * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set;
+     */
+    public static void cancelAllRequest() {
+        MobileSsoFactory.getInstance().cancelAllRequest();
     }
 
     /**

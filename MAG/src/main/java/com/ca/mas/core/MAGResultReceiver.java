@@ -57,9 +57,7 @@ public abstract class MAGResultReceiver<T> extends ResultReceiver {
                         onError(new MAGError(new IllegalStateException("Received result included an invalid request ID")));
                     } else {
                         MAGResponse<T> response = MssoClient.takeMAGResponse(requestId);
-                        if (response == null) {
-                            onError(new MAGError(new IllegalStateException("No response")));
-                        } else {
+                        if (response != null) {
                             int responseCode = response.getResponseCode();
                             if (responseCode < HttpURLConnection.HTTP_OK || responseCode >= HttpURLConnection.HTTP_MULT_CHOICE) {
                                 onError(new MAGError(response.getResponseMessage(), new TargetApiException(response)));

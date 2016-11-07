@@ -7,45 +7,54 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/email_login_form"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:gravity="center"
+              android:layout_margin="@dimen/activity_horizontal_margin"
               android:background="@color/white"
+              android:gravity="center"
               android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/email_login_form"
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="18dp"
+        android:src="@drawable/ca_logo"/>
+
+    <TextView
+        android:id="@+id/textFingerprintSignIn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/activity_horizontal_margin"
-        android:orientation="vertical">
+        android:textAlignment="center"
+        android:text="@string/fingerprint_sign_in"
+        android:textSize="18sp"/>
 
-        <Button
-            android:id="@+id/buttonFingerprintSignIn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:background="@drawable/button_session_unlock"
-            android:fontFamily="sans-serif-light"
-            android:minHeight="48dp"
-            android:text="@string/fingerprint_sign_in"
-            android:textAllCaps="false"
-            android:textSize="18sp"/>
+    <!--<Button-->
+    <!--android:id="@+id/buttonFingerprintSignIn"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginLeft="16dp"-->
+    <!--android:layout_marginRight="16dp"-->
+    <!--android:background="@drawable/button_session_unlock"-->
+    <!--android:fontFamily="sans-serif-light"-->
+    <!--android:minHeight="48dp"-->
+    <!--android:text="@string/fingerprint_sign_in"-->
+    <!--android:textAllCaps="false"-->
+    <!--android:textSize="18sp"/>-->
 
-        <Button
-            android:id="@+id/buttonStandardSignIn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="18dp"
-            android:background="@drawable/button_session_unlock"
-            android:fontFamily="sans-serif-light"
-            android:minHeight="48dp"
-            android:text="@string/standard_sign_in"
-            android:textAllCaps="false"
-            android:textSize="18sp"/>
+    <!--<Button-->
+    <!--android:id="@+id/buttonStandardSignIn"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginLeft="16dp"-->
+    <!--android:layout_marginRight="16dp"-->
+    <!--android:layout_marginTop="18dp"-->
+    <!--android:background="@drawable/button_session_unlock"-->
+    <!--android:fontFamily="sans-serif-light"-->
+    <!--android:minHeight="48dp"-->
+    <!--android:text="@string/standard_sign_in"-->
+    <!--android:textAllCaps="false"-->
+    <!--android:textSize="18sp"-->
+    <!--android:visibility="gone"/>-->
 
-    </LinearLayout>
 </LinearLayout>

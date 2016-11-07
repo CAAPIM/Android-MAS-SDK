@@ -8,4 +8,5 @@
 
 <resources>
     <string name="app_name">Session Unlock</string>
+    <string name="protected_info">Log in to view protected information.</string>
 </resources>

@@ -22,6 +22,7 @@ import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.CredentialRequiredException;
+import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
 import com.ca.mas.core.registration.DeviceRegistrationAwaitingActivationException;
 import com.ca.mas.core.registration.RegistrationClient;
@@ -66,6 +67,7 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
             if (tokenManager != null) {
                 // Check if client certificate is expired
                 Calendar cal = Calendar.getInstance();
+                //cal.add(Calendar.YEAR, 5);
                 Date date = cal.getTime();
                 X509Certificate[] clientCerts = tokenManager.getClientCertificateChain();
                 if (clientCerts != null && clientCerts.length > 0) {
@@ -74,8 +76,19 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
                         certificate.checkValidity(date);
                     } catch (CertificateExpiredException | CertificateNotYetValidException e) {
                         if (e instanceof CertificateExpiredException) {
-                            // Client certificate expired
-                            renewDevice(mssoContext);
+                            // Client certificate expired, try to renew
+                            try {
+                                renewDevice(mssoContext);
+                            } catch (Exception e1){
+                                if (e1 instanceof RegistrationException) {
+                                    // Network error
+                                    throw e1;
+                                } else {
+                                    // Other error, try re-registration
+                                    mssoContext.destroyPersistentTokens();
+                                    throw new RetryRequestException(e1);
+                                }
+                            }
                         }
                     }
                 }

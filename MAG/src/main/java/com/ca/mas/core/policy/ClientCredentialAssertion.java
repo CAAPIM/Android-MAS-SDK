@@ -40,10 +40,7 @@ public class ClientCredentialAssertion implements MssoAssertion {
     @Override
     public void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
 
-        if (!tokenManager.isTokenStoreReady())
-            throw new TokenStoreUnavailableException();
-
-        String configuredClientSecret = mssoContext.getConfigurationProvider().getClientSecret();
+       String configuredClientSecret = mssoContext.getConfigurationProvider().getClientSecret();
         String configuredClientId = mssoContext.getConfigurationProvider().getClientId();
 
         if (configuredClientSecret != null && configuredClientSecret.trim().length() > 0) {

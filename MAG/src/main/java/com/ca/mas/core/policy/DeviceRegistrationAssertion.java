@@ -21,7 +21,6 @@ import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.util.KeyUtils;
 import com.ca.mas.core.policy.exceptions.CredentialRequiredException;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
 import com.ca.mas.core.registration.DeviceRegistrationAwaitingActivationException;
@@ -30,9 +29,15 @@ import com.ca.mas.core.registration.RegistrationException;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
 import com.ca.mas.core.token.IdToken;
+import com.ca.mas.core.util.KeyUtils;
 
 import java.security.KeyPair;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Ensures that the device is registered.
@@ -58,6 +63,23 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
     @Override
     public void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
         if (mssoContext.isDeviceRegistered()) {
+            if (tokenManager != null) {
+                // Check if client certificate is expired
+                Calendar cal = Calendar.getInstance();
+                Date date = cal.getTime();
+                X509Certificate[] clientCerts = tokenManager.getClientCertificateChain();
+                if (clientCerts != null && clientCerts.length > 0) {
+                    X509Certificate certificate = clientCerts[0];
+                    try {
+                        certificate.checkValidity(date);
+                    } catch (CertificateExpiredException | CertificateNotYetValidException e) {
+                        if (e instanceof CertificateExpiredException) {
+                            // Client certificate expired
+                            renewDevice(mssoContext);
+                        }
+                    }
+                }
+            }
             return;
         }
 
@@ -76,6 +98,17 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
     @Override
     public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGStateException {
         // Nothing to do here
+    }
+
+    private void renewDevice(MssoContext mssoContext) throws MAGException, MAGServerException {
+        try {
+            X509Certificate[] certificates = new RegistrationClient(mssoContext).renewDevice();
+            tokenManager.saveClientCertificateChain(certificates);
+        } catch (TokenStoreException e){
+            throw new TokenStoreUnavailableException(e);
+        }
+
+        mssoContext.resetHttpClient();
     }
 
     private void registerDevice(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {

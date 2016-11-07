@@ -45,6 +45,7 @@ public class DefaultConfiguration implements ConfigurationProvider {
         put(PROP_TOKEN_URL_SUFFIX_REQUEST_TOKEN, "/auth/oauth/v2/token");
         put(PROP_TOKEN_URL_SUFFIX_REQUEST_TOKEN_SSO, "/auth/oauth/v2/token");
         put(PROP_TOKEN_URL_SUFFIX_REGISTER_DEVICE, "/connect/device/register");
+        put(PROP_TOKEN_URL_SUFFIX_RENEW_DEVICE, "/connect/device/renew");
         put(PROP_TOKEN_URL_SUFFIX_REGISTER_DEVICE_CLIENT, "/connect/device/register/client");
         put(PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT, "/connect/session/logout");
         put(PROP_TOKEN_URL_SUFFIX_REMOVE_DEVICE_X509, "/connect/device/remove");

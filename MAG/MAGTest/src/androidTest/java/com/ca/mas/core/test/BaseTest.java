@@ -92,14 +92,17 @@ public abstract class BaseTest {
                     mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
                         @Override
                         public void onSuccess(MAGResponse response) {
+
                         }
 
                         @Override
                         public void onError(MAGError error) {
+
                         }
 
                         @Override
                         public void onRequestCancelled() {
+
                         }
                     });
                 }
@@ -188,8 +191,10 @@ public abstract class BaseTest {
         endpoints = o.getJSONObject("mag").getJSONObject("system_endpoints");
         e = endpoints.getString("device_register_endpoint_path");
         endpoints.put("device_register_endpoint_path", "http://" + host + ":" + port + prefix + e);
-        e = endpoints.getString("device_register_client_endpoint_path");
-        endpoints.put("device_register_client_endpoint_path", "http://" + host + ":" + port + prefix + e);
+        e = endpoints.getString("device_renew_endpoint_path");
+        endpoints.put("device_renew_endpoint_path", "http://" + host + ":" + port + prefix + e);
+        e = endpoints.getString("device_client_register_endpoint_path");
+        endpoints.put("device_client_register_endpoint_path", "http://" + host + ":" + port + prefix + e);
         e = endpoints.getString("device_remove_endpoint_path");
         endpoints.put("device_remove_endpoint_path", "http://" + host + ":" + port + prefix + e);
         e = endpoints.getString("client_credential_init_endpoint_path");

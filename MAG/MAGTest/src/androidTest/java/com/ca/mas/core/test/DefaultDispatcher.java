@@ -25,6 +25,7 @@ public class DefaultDispatcher extends Dispatcher {
     public static final String TEST_NO_CONTENT = "/testNoContent";
     public static final String AUTH_OAUTH_V2_AUTHORIZE = "/auth/oauth/v2/authorize";
     public static final String CONNECT_DEVICE_REGISTER_CLIENT = "/connect/device/register/client";
+    public static final String CONNECT_DEVICE_RENEW = "/connect/device/renew";
     public static final String CONNECT_DEVICE_REMOVE = "/connect/device/remove";
     public static final String CONNECT_SESSION_LOGOUT = "/connect/session/logout";
     public static final String OTP_PROTECTED_URL="/otpProtected";
@@ -62,13 +63,15 @@ public class DefaultDispatcher extends Dispatcher {
             return authorizeResponse();
         } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER_CLIENT)) {
             return registerDeviceResponse();
+        } else if (request.getPath().contains(CONNECT_DEVICE_RENEW)) {
+            return renewDeviceResponse();
         } else if (request.getPath().contains(CONNECT_SESSION_LOGOUT)) {
             return logout();
         } else if (request.getPath().contains(CONNECT_DEVICE_REMOVE)) {
             return deRegister();
-        }else if(request.getPath().contains(OTP_PROTECTED_URL)){
+        } else if (request.getPath().contains(OTP_PROTECTED_URL)) {
             String xOtp = request.getHeader("X-OTP");
-            if (xOtp == null ) {
+            if (xOtp == null) {
                 return otpMissingHeader();
             } else {
                 return otpProtectedResponse();
@@ -127,6 +130,14 @@ public class DefaultDispatcher extends Dispatcher {
                 .setHeader("id-token", "dummy-idToken")
                 .setHeader("id-token-type", "dummy-idTokenType")
                 .setBody(cert);
+
+    }
+
+    protected MockResponse renewDeviceResponse() {
+        //Mock response for device renew
+        return new MockResponse()
+                .setResponseCode(200)
+                .setHeader("mag-identifier", "test-device");
 
     }
 

@@ -210,6 +210,27 @@ public class RegistrationClient extends ServerClient {
         };
     }
 
+    public X509Certificate[] renewDevice() throws RegistrationException {
+        final URI tokenUri = mssoContext.getConfigurationProvider().getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RENEW_DEVICE);
+
+        MAGRequest.MAGRequestBuilder builder = new MAGRequest.MAGRequestBuilder(tokenUri);
+        builder.header(CERT_FORMAT, PEM);
+        builder.put(MAGRequestBody.stringBody(""));
+
+        MAGHttpClient httpClient = mssoContext.getMAGHttpClient();
+
+        final MAGResponse response;
+        try {
+            response = httpClient.execute(builder.build());
+        } catch (IOException e) {
+            throw new RegistrationException(MAGErrorCode.DEVICE_NOT_REGISTERED, "Unable to post to register_device: " + e.getMessage(), e);
+        }
+        Log.d(TAG, "renew_device response code: " + response.getResponseCode());
+        byte[] chainBytes = response.getBody().getRawContent();
+        final X509Certificate[] chain = CertUtils.decodeCertificateChain(chainBytes);
+        return chain;
+    }
+
     private static DeviceStatus findDeviceStatus(MAGResponse response) throws RegistrationException {
         final DeviceStatus deviceStatus;
         List<String> headers = (List<String>) response.getHeaders().get(DEVICE_STATUS);

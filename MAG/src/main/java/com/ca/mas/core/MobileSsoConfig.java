@@ -183,6 +183,14 @@ public interface MobileSsoConfig {
     String PROP_TOKEN_URL_SUFFIX_REGISTER_DEVICE = "msso.url.register_device";
 
     /**
+     * String.  URL suffix for token server's renew_device endpoint.
+     * Used with {@link #PROP_TOKEN_URI_PREFIX} to build the URL to renew the device if client certificate has expired.
+     * <p/>
+     * If not specified, will default to "/connect/device/renew".
+     */
+    String PROP_TOKEN_URL_SUFFIX_RENEW_DEVICE = "msso.url.renew_device";
+
+    /**
      * String.  URL suffix for token server's register_device_client endpoint.
      * Used with {@link #PROP_TOKEN_URI_PREFIX} to build the URL to register the device the first time it is used.
      * <p/>

@@ -216,7 +216,7 @@ public class RegistrationClient extends ServerClient {
 
         MAGRequest.MAGRequestBuilder builder = new MAGRequest.MAGRequestBuilder(tokenUri);
         builder.header(CERT_FORMAT, PEM);
-        builder.put(MAGRequestBody.stringBody(""));
+        builder.put(null);
 
         MAGHttpClient httpClient = mssoContext.getMAGHttpClient();
 
@@ -231,7 +231,7 @@ public class RegistrationClient extends ServerClient {
 
         Log.d(TAG, "renew_device response code: " + response.getResponseCode());
         int responseCode = response.getResponseCode();
-        if( responseCode != 200 ){
+        if( responseCode != HttpURLConnection.HTTP_OK ){
             throw new RetryRequestException(errorMessage);
         }
         byte[] chainBytes = response.getBody().getRawContent();

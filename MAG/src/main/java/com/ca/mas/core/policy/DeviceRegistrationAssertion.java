@@ -50,6 +50,9 @@ import java.util.Date;
  * TokenStoreUnavailableException will be thrown if the device needs to be unlocked.
  */
 public class DeviceRegistrationAssertion implements MssoAssertion {
+
+    private static final int DAYS_BEFORE_EXPIRE = 30;
+
     private TokenManager tokenManager;
 
     @Override
@@ -63,36 +66,31 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
 
     @Override
     public void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
-        if (mssoContext.isDeviceRegistered()) {
-            if (tokenManager != null) {
+        X509Certificate[] clientCerts = tokenManager.getClientCertificateChain();
+        if (clientCerts != null && clientCerts.length > 0) {
+            // Device is registered
+            X509Certificate certificate = clientCerts[0];
+            try {
                 // Check if client certificate is expired
                 Calendar cal = Calendar.getInstance();
                 //cal.add(Calendar.YEAR, 5);
+                cal.add(Calendar.DAY_OF_YEAR, DAYS_BEFORE_EXPIRE);
                 Date date = cal.getTime();
-                X509Certificate[] clientCerts = tokenManager.getClientCertificateChain();
-                if (clientCerts != null && clientCerts.length > 0) {
-                    X509Certificate certificate = clientCerts[0];
+                certificate.checkValidity(date);
+            } catch (CertificateExpiredException | CertificateNotYetValidException e) {
+                if (e instanceof CertificateExpiredException) {
+                    // Client certificate expired, try to renew
                     try {
-                        certificate.checkValidity(date);
-                    } catch (CertificateExpiredException | CertificateNotYetValidException e) {
-                        if (e instanceof CertificateExpiredException) {
-                            // Client certificate expired, try to renew
-                            try {
-                                renewDevice(mssoContext);
-                            } catch (Exception e1){
-                                if (e1 instanceof RegistrationException) {
-                                    // Network error
-                                    throw e1;
-                                } else {
-                                    // Other error, try re-registration
-                                    mssoContext.destroyPersistentTokens();
-                                    throw new RetryRequestException(e1);
-                                }
-                            }
-                        }
+                        renewDevice(mssoContext);
+                    } catch (TokenStoreException e1) {
+                        throw new TokenStoreUnavailableException(e1);
+                    } catch (RetryRequestException e1) {
+                        mssoContext.destroyPersistentTokens();
+                        throw e1;
                     }
                 }
             }
+
             return;
         }
 
@@ -113,14 +111,9 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
         // Nothing to do here
     }
 
-    private void renewDevice(MssoContext mssoContext) throws MAGException, MAGServerException {
-        try {
-            X509Certificate[] certificates = new RegistrationClient(mssoContext).renewDevice();
-            tokenManager.saveClientCertificateChain(certificates);
-        } catch (TokenStoreException e){
-            throw new TokenStoreUnavailableException(e);
-        }
-
+    private void renewDevice(MssoContext mssoContext) throws RegistrationException, RetryRequestException, TokenStoreException {
+        X509Certificate[] certificates = new RegistrationClient(mssoContext).renewDevice();
+        tokenManager.saveClientCertificateChain(certificates);
         mssoContext.resetHttpClient();
     }
 

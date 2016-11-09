@@ -8,302 +8,70 @@
 package com.ca.mas.ui;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.LayoutRes;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
+import android.view.View;
+import android.widget.TextView;
 
 import com.ca.mas.foundation.MASSessionUnlockCallback;
 import com.ca.mas.foundation.MASUser;
-import com.ca.mas.foundation.auth.MASAuthenticationProvider;
-import com.ca.mas.foundation.auth.MASProximityLogin;
 
 @TargetApi(23)
 public class MASSessionUnlockActivity extends AppCompatActivity {
-    private static final String TAG = MASSessionUnlockActivity.class.getCanonicalName();
-    private static final String REQUEST_ID = "REQUEST_ID";
-    private static final String PROVIDER = "PROVIDER";
-    private long mRequestId;
-    private Context mContext;
-    private Activity mActivity;
 
-    // TODO: will only be used when the server team supports logout without an ID token
-//    private Button mFingerprintButton;
-//    private Button mCredentialsButton;
-//    private EditText mUsernameEditText;
-//    private EditText mPasswordEditText;
-//    private TextInputLayout mUsernameLayout;
-//    private TextInputLayout mPasswordLayout;
-    private MASAuthenticationProvider mProvider;
-    private MASProximityLogin mQRCode;
-    private MASProximityLogin mNFC;
-    private MASProximityLogin mBLE;
-    private final static int FINGERPRINT_REQUEST_CODE = 1000;
+    public final static int SESSION_UNLOCK_CODE = 0x1000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_session_unlock_login);
-
-        mContext = this;
-        mActivity = this;
-//        mFingerprintButton = (Button) findViewById(R.id.buttonFingerprintSignIn);
-//        mCredentialsButton = (Button) findViewById(R.id.buttonStandardSignIn);
-//
-//        mFingerprintButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                unlock();
-//            }
-//        });
-//        mCredentialsButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                inflateUserLoginScreen();
-//            }
-//        });
+        setContentView(getLayoutId());
 
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                finish();
-                KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-                Intent intent = keyguardManager.createConfirmDeviceCredentialIntent("", "Please provide your credentials.");
-                if (intent != null) {
-                    startActivityForResult(intent, FINGERPRINT_REQUEST_CODE);
-                }
+                launchKeyguardIntent();
             }
-        }, 1000);
-    }
+        }, getAuthenticationScreenDelay());
 
-    private void unlock() {
-    }
-
-//    private void inflateUserLoginScreen() {
-//        setContentView(R.layout.activity_login);
-//
-//        mUsernameEditText = (TextInputEditText) findViewById(R.id.editTextUsername);
-//        mPasswordEditText = (TextInputEditText) findViewById(R.id.editTextPassword);
-//        mUsernameLayout = (TextInputLayout) findViewById(R.id.layoutUsername);
-//        mPasswordLayout = (TextInputLayout) findViewById(R.id.layoutPassword);
-//
-//        Button button = (Button) findViewById(R.id.buttonLogin);
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                String username = mUsernameEditText.getText().toString();
-//                String password = mPasswordEditText.getText().toString();
-//
-//                MASUser.login(username, password, new MASCallback<MASUser>() {
-//                    @Override
-//                    public Handler getHandler() {
-//                        return new Handler(Looper.getMainLooper());
-//                    }
-//
-//                    @Override
-//                    public void onSuccess(MASUser result) {
-//                        finish();
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        Toast.makeText(mContext, "Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//            }
-//        });
-//
-//        // Proximity Login component
-//        final LinearLayout qr = (LinearLayout) findViewById(R.id.layoutQRCode);
-//
-//        MASAuthenticationProviders.getAuthenticationProviders(new MASCallback<MASAuthenticationProviders>() {
-//            @Override
-//            public void onSuccess(MASAuthenticationProviders providers) {
-//                // QR code Proximity Login
-//                mQRCode = generateQRCode(qr);
-//                boolean init = mQRCode.init(mActivity, mRequestId, providers);
-//                if (init) {
-//                    qr.addView(mQRCode.render());
-//                    mQRCode.start();
-//                }
-//
-//                // NFC Proximity Login
-//                mNFC = nfc();
-//                init = mNFC.init(mActivity, mRequestId, providers);
-//                if (init) {
-//                    mNFC.start();
-//                }
-//
-//                // BLE Proximity Login
-//                mBLE = ble();
-//                init = mBLE.init(mActivity, mRequestId, providers);
-//                if (init) {
-//                    mBLE.start();
-//                }
-//
-//                //Social Login
-//                GridLayout socialLoginLayout = (GridLayout) findViewById(R.id.socialLoginGridLayout);
-//
-//                for (final MASAuthenticationProvider p : providers.getProviders()) {
-//                    if (!p.isProximityLogin()) {
-//                        ImageButton imageButton = new ImageButton(mContext);
-//                        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-//                        params.setMargins(8, 8, 8, 8);
-//                        imageButton.setLayoutParams(params);
-//                        String identifier = p.getIdentifier();
-//                        imageButton.setBackgroundResource(getResources().
-//                                getIdentifier("drawable/" + identifier, null, getPackageName()));
-//
-//                        switch (identifier) {
-//                            case "enterprise":
-//                                imageButton.setId(R.id.enterpriseIcon);
-//                                break;
-//                            case "facebook":
-//                                imageButton.setId(R.id.facebookIcon);
-//                                break;
-//                            case "google":
-//                                imageButton.setId(R.id.googleIcon);
-//                                break;
-//                            case "linkedin":
-//                                imageButton.setId(R.id.linkedinIcon);
-//                                break;
-//                            case "salesforce":
-//                                imageButton.setId(R.id.salesforceIcon);
-//                                break;
-//                        }
-//
-//                        if (providers.getIdp().equals("all") || providers.getIdp().equalsIgnoreCase(p.getIdentifier())) {
-//                            imageButton.setOnClickListener(new View.OnClickListener() {
-//                                @Override
-//                                public void onClick(View v) {
-//                                    MASSocialLoginFragment.newInstance(mRequestId, p).show(getFragmentManager(), "logonDialog");
-//                                    finish();
-//                                }
-//                            });
-//                        } else {
-//                            imageButton.setClickable(false);
-//                            imageButton.setEnabled(false);
-//                        }
-//                        socialLoginLayout.addView(imageButton);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onError(Throwable e) {
-//
-//            }
-//        });
-//    }
-//
-//    private MASProximityLoginQRCode generateQRCode(final LinearLayout qrContainer) {
-//        return new MASProximityLoginQRCode() {
-//            @Override
-//            public void onError(int errorCode, final String m, Exception e) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        qrContainer.removeAllViews();
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            protected void onAuthCodeReceived(String code) {
-//                super.onAuthCodeReceived(code);
-//                finish();
-//            }
-//        };
-//    }
-//
-//    private MASProximityLoginNFC nfc() {
-//        return new MASProximityLoginNFC() {
-//            @Override
-//            public void onError(int errorCode, final String m, Exception e) {
-//                Log.i(TAG, m);
-//            }
-//
-//            @Override
-//            protected void onAuthCodeReceived(String code) {
-//                super.onAuthCodeReceived(code);
-//                finish();
-//            }
-//        };
-//    }
-//
-//    private MASProximityLoginBLE ble() {
-//        // Prepare callback to receive status update
-//        MASProximityLoginBLECentralListener callback = new MASProximityLoginBLECentralListener() {
-//            @Override
-//            public void onStatusUpdate(int state) {
-//                switch (state) {
-//                    case MASProximityLoginBLECentralListener.BLE_STATE_SCAN_STARTED:
-//                        Log.i(TAG, "Scan Started");
-//                        break;
-//                    case MASProximityLoginBLECentralListener.BLE_STATE_SCAN_STOPPED:
-//                        Log.i(TAG, "Scan Stopped");
-//                        break;
-//                    case MASProximityLoginBLECentralListener.BLE_STATE_DEVICE_DETECTED:
-//                        Log.i(TAG, "Device detected");
-//                        break;
-//                    case MASProximityLoginBLECentralListener.BLE_STATE_CONNECTED:
-//                        Log.i(TAG, "Connected to Gatt Server");
-//                        break;
-//                    case MASProximityLoginBLECentralListener.BLE_STATE_DISCONNECTED:
-//                        Log.i(TAG, "Disconnected from Gatt Server");
-//                        break;
-//                    case MASProximityLoginBLECentralListener.BLE_STATE_SERVICE_DISCOVERED:
-//                        Log.i(TAG, "Service Discovered");
-//                        break;
-//                    case MASProximityLoginBLECentralListener.BLE_STATE_CHARACTERISTIC_FOUND:
-//                        Log.i(TAG, "Characteristic Found");
-//                        break;
-//                    case MASProximityLoginBLECentralListener.BLE_STATE_CHARACTERISTIC_WRITTEN:
-//                        Log.i(TAG, "Writing data to Characteristic... ");
-//                        break;
-//                    case MASProximityLoginBLECentralListener.BLE_STATE_AUTH_SUCCEEDED:
-//                        Log.i(TAG, "Auth Succeeded");
-//                        break;
-//                    case MASProximityLoginBLECentralListener.BLE_STATE_AUTH_FAILED:
-//                        Log.i(TAG, "Auth Failed");
-//                        break;
-//                }
-//            }
-//        };
-//
-//        return new MASProximityLoginBLE(callback) {
-//            @Override
-//            public void onError(int errorCode, final String m, Exception e) {
-//                Log.i(TAG, m);
-//            }
-//
-//            @Override
-//            protected void onAuthCodeReceived(String code) {
-//                super.onAuthCodeReceived(code);
-//                finish();
-//            }
-//        };
-//    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == FINGERPRINT_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                MASUser.getCurrentUser().unlockSession(getUnlockCallback());
+        View container = findViewById(R.id.container);
+        container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                launchKeyguardIntent();
             }
+        });
+
+        TextView emailTextView = (TextView) findViewById(R.id.text_user_email);
+        MASUser currentUser = MASUser.getCurrentUser();
+        if (emailTextView != null && currentUser != null) {
+            emailTextView.setText(currentUser.getUserName());
         }
     }
 
-    private MASSessionUnlockCallback<Void> getUnlockCallback() {
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == getFingerprintRequestCode()) {
+            if (resultCode == RESULT_OK) {
+                onAuthenticationSuccess();
+            } else if (resultCode == RESULT_CANCELED) {
+                onAuthenticationCancelled();
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public MASSessionUnlockCallback<Void> getUnlockCallback() {
         return new MASSessionUnlockCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
+                setResult(getResultCode());
                 finish();
             }
 
@@ -314,35 +82,85 @@ public class MASSessionUnlockActivity extends AppCompatActivity {
             @Override
             @TargetApi(23)
             public void onUserAuthenticationRequired() {
-                KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-                Intent intent = keyguardManager.createConfirmDeviceCredentialIntent("", "Please provide your credentials.");
-                if (intent != null) {
-                    startActivityForResult(intent, FINGERPRINT_REQUEST_CODE);
-                }
+                launchKeyguardIntent();
             }
         };
     }
 
-//    @Override
-//    protected void onDestroy() {
-//        stopProximity();
-//        super.onDestroy();
-//    }
-
-    private void stopProximity() {
-        if (mQRCode != null) {
-            mQRCode.stop();
-        }
-        if (mNFC != null) {
-            mNFC.stop();
-        }
-        if (mBLE != null) {
-            mBLE.stop();
+    private void launchKeyguardIntent() {
+        KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        Intent intent = keyguardManager.createConfirmDeviceCredentialIntent(getAuthenticationTitle(),
+                getAuthenticationDescription());
+        if (intent != null) {
+            startActivityForResult(intent, getFingerprintRequestCode());
         }
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return keyCode == KeyEvent.KEYCODE_BACK || super.onKeyDown(keyCode, event);
+    }
+
+    /**
+     * Layout ID of the screen to be shown before the system authentication screen.
+     * @return
+     */
+    @LayoutRes
+    protected int getLayoutId() {
+        return R.layout.activity_session_unlock_login;
+    }
+
+    /**
+     * Value for the authentication screen title.
+     * @return
+     */
+    protected String getAuthenticationTitle() {
+        return "Confirm your pattern";
+    }
+
+    /**
+     * Value for the authentication screen description.
+     * @return
+     */
+    protected String getAuthenticationDescription() {
+        return "Please provide your credentials.";
+    }
+
+    /**
+     * Called when a user successfully authenticates.
+     */
+    protected void onAuthenticationSuccess() {
+        MASUser.getCurrentUser().unlockSession(getUnlockCallback());
+    }
+
+    /**
+     * Called when a user cancels the authentication screen.
+     */
+    protected void onAuthenticationCancelled() {
+
+    }
+
+    /**
+     * The delay between showing the splash image before the authentication screen appears.
+     * @return
+     */
+    protected int getAuthenticationScreenDelay() {
+        return 1000;
+    }
+
+    /**
+     * The ID for retrieving fingerprint results.
+     * @return
+     */
+    protected int getFingerprintRequestCode() {
+        return SESSION_UNLOCK_CODE;
+    }
+
+    /**
+     * The ID for startActivityForResult() results.
+     * @return
+     */
+    protected int getResultCode() {
+        return SESSION_UNLOCK_CODE;
     }
 }

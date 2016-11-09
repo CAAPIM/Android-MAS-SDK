@@ -13,8 +13,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -44,10 +45,14 @@ public class SessionUnlockSampleActivity extends AppCompatActivity {
     private Context mContext;
     private RelativeLayout mContainer;
     private Button mLoginButton;
-    private Button mLogoutButton;
+    private TextInputLayout mUsernameInputLayout;
+    private TextInputEditText mUsernameEditText;
+    private TextInputLayout mPasswordInputLayout;
+    private TextInputEditText mPasswordEditText;
     private Switch mLockSwitch;
     private TextView mProtectedContent;
-    private FloatingActionButton mLockButton;
+
+    private int RESULT_CODE = 0x1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,41 +70,53 @@ public class SessionUnlockSampleActivity extends AppCompatActivity {
 
         mContext = this;
         mContainer = (RelativeLayout) findViewById(R.id.container);
-        mLockButton = (FloatingActionButton) findViewById(R.id.fab);
+        mUsernameEditText = (TextInputEditText) findViewById(R.id.edit_text_username);
+        mUsernameInputLayout = (TextInputLayout) findViewById(R.id.text_input_layout_username);
+        mPasswordEditText = (TextInputEditText) findViewById(R.id.edit_text_password);
+        mPasswordInputLayout = (TextInputLayout) findViewById(R.id.text_input_layout_password);
         mLoginButton = (Button) findViewById(R.id.login_button);
-        mLogoutButton = (Button) findViewById(R.id.logout_button);
         mLockSwitch = (Switch) findViewById(R.id.checkbox_lock);
         mProtectedContent = (TextView) findViewById(R.id.data_text_view);
 
-        MAS.start(this, true);
+        mLoginButton.setOnClickListener(getLoginListener());
 
-        mLoginButton.setOnClickListener(new View.OnClickListener() {
+        MAS.start(this, true);
+    }
+
+    private View.OnClickListener getLoginListener() {
+        return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MASUser.login("admin", "7layer", getLoginCallback());
-            }
-        });
+                String username = mUsernameEditText.getEditableText().toString();
+                String password = mPasswordEditText.getEditableText().toString();
 
-        mLogoutButton.setOnClickListener(new View.OnClickListener() {
+                MASUser.login(username, password, getLoginCallback());
+            }
+        };
+    }
+
+    private View.OnClickListener getLogoutListener() {
+        return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 MASUser.getCurrentUser().logout(getLogoutCallback());
             }
-        });
+        };
     }
 
     private MASCallback<MASUser> getLoginCallback() {
         return new MASCallback<MASUser>() {
             @Override
             public void onSuccess(MASUser user) {
-                mLockButton.setOnClickListener(getLockButtonListener());
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mLockButton.setVisibility(View.VISIBLE);
                         mLockSwitch.setVisibility(View.VISIBLE);
-                        mLoginButton.setEnabled(false);
-                        mLogoutButton.setEnabled(true);
+                        mLoginButton.setText("Log out");
+                        mLoginButton.setOnClickListener(getLogoutListener());
+
+                        mUsernameInputLayout.setVisibility(View.GONE);
+                        mPasswordInputLayout.setVisibility(View.GONE);
                     }
                 });
 
@@ -122,11 +139,13 @@ public class SessionUnlockSampleActivity extends AppCompatActivity {
 
             @Override
             public void onSuccess(Void result) {
-                mLockButton.setVisibility(View.GONE);
                 mLockSwitch.setVisibility(View.GONE);
-                mLogoutButton.setEnabled(false);
-                mLoginButton.setEnabled(true);
+                mLoginButton.setText("Log in");
+                mLoginButton.setOnClickListener(getLoginListener());
                 mProtectedContent.setText(R.string.protected_info);
+
+                mUsernameInputLayout.setVisibility(View.VISIBLE);
+                mPasswordInputLayout.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -168,52 +187,36 @@ public class SessionUnlockSampleActivity extends AppCompatActivity {
 
                     mProtectedContent.setText(objectString);
                 } catch (JSONException e) {
-
+                    Log.e(TAG, e.getMessage());
                 }
             }
 
             @Override
             public void onError(Throwable e) {
+                Log.e(TAG, e.getMessage());
             }
         });
     }
 
-    private View.OnClickListener getLockButtonListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MASUser.getCurrentUser().lockSession(getLockCallback());
-            }
-        };
-    }
-
-    private MASCallback<Void> getLockCallback() {
-        return new MASCallback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                if (mLockSwitch.isChecked()) {
-                    launchLockActivity();
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-        };
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RESULT_CODE) {
+            mLockSwitch.setChecked(false);
+        }
     }
 
     @Override
-    protected void onPause() {
+    protected void onResume() {
+        super.onResume();
         if (mLockSwitch.getVisibility() == View.VISIBLE && mLockSwitch.isChecked()) {
             launchLockActivity();
         }
-        super.onPause();
     }
 
     private void launchLockActivity() {
         Intent i = new Intent("MASUI.intent.action.SessionUnlock");
-        startActivity(i);
+        startActivityForResult(i, RESULT_CODE);
     }
 
     private static List<String> parseProductListJson(JSONObject json) throws JSONException {

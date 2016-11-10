@@ -8,11 +8,17 @@
 
 package com.ca.mas.foundation.auth;
 
+import android.content.AsyncTaskLoader;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.Provider;
+import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASUser;
+import com.ca.mas.foundation.notify.Callback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +43,38 @@ public class MASAuthenticationProviders implements Parcelable {
         }
         idp = provider == null ? null : provider.getIdp();
 
+    }
+
+    /**
+     *
+     * Retrieves the MASAuthenticationProviders from the server.
+     * <emp>Important</emp> Authentication providers will not be retrieved if the user is already authenticated.
+     *
+     * @param callback Notify caller for the result.
+     */
+    public static void getAuthenticationProviders(final MASCallback<MASAuthenticationProviders> callback) {
+        if (MASUser.getCurrentUser() == null || !MASUser.getCurrentUser().isAuthenticated()) {
+            new AsyncTaskLoader<Object>(MAS.getContext()) {
+                @Override
+                protected void onStartLoading() {
+                    super.onStartLoading();
+                    forceLoad();
+                }
+
+                @Override
+                public Object loadInBackground() {
+                    try {
+                        AuthenticationProvider ap = MobileSsoFactory.getInstance().getAuthenticationProvider();
+                        Callback.onSuccess(callback, new MASAuthenticationProviders(ap));
+                    } catch (Exception e) {
+                        Callback.onError(callback, e);
+                    }
+                    return null;
+                }
+            }.startLoading();
+        } else {
+            Callback.onSuccess(callback, null);
+        }
     }
 
     public List<MASAuthenticationProvider> getProviders() {

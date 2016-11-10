@@ -8,15 +8,25 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.ca.mas.ui">
+          package="com.ca.mas.ui">
 
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
         android:supportsRtl="true">
 
-        <activity android:name=".MASEnterpriseWebApplicationActivity"
+        <activity
+            android:name=".MASEnterpriseWebApplicationActivity"
             android:theme="@style/Theme.AppCompat.Light">
+        </activity>
+
+        <activity
+            android:name=".MASSessionUnlockActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="MASUI.intent.action.SessionUnlock"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
     </application>
 

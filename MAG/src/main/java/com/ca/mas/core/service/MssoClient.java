@@ -12,17 +12,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.ResultReceiver;
-import android.util.Log;
 
+import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.creds.Credentials;
 import com.ca.mas.core.creds.PasswordCredentials;
+import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
 import com.ca.mas.core.util.Functions;
-
-import java.util.List;
 
 /**
  * Encapsulates use of the MssoService.
@@ -79,7 +78,7 @@ public class MssoClient {
      * @param password       The password to log in with
      * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
      */
-    public void authenticate(final String username, final char[] password, ResultReceiver resultReceiver) {
+    public void authenticate(final String username, final char[] password, final MAGResultReceiver resultReceiver) {
 
         final MssoRequest mssoRequest = new MssoRequest(this, mssoContext, new AuthenticateRequest(), resultReceiver);
         MssoRequestQueue.getInstance().addRequest(mssoRequest);
@@ -95,8 +94,9 @@ public class MssoClient {
             protected Void doInBackground(Void... params) {
                 try {
                     mssoContext.logout(true);
-                } catch (Exception ignore) {
-                    Log.w(TAG, ignore);
+                } catch (Exception e) {
+                    resultReceiver.onError(new MAGError(e));
+                    return null;
                 }
                 sysContext.startService(intent);
                 return null;

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2016 CA. All rights reserved.
+  ~
+  ~ This software may be modified and distributed under the terms
+  ~ of the MIT license.  See the LICENSE file for details.
+  ~
+  -->
+
+<resources>
+    <color name="colorPrimary">#37586F</color>
+    <color name="colorPrimaryDark">#22465E</color>
+    <color name="colorAccent">#1C5248</color>
+    <color name="dividerColor">#ACB3B3</color>
+    <color name="white">#FFFFFF</color>
+
+    <color name="lightBlue">#00aeef</color>
+
+    <color name="success">#43A047</color>
+    <color name="successDark">#1B5E20</color>
+    <color name="error">#F44336</color>
+    <color name="errorDark">#B71C1C</color>
+</resources>

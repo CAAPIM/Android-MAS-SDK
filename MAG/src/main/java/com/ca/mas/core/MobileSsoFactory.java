@@ -25,6 +25,8 @@ import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.core.http.MAGRequest;
+import com.ca.mas.core.oauth.OAuthClient;
+import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.MssoClient;
 import com.ca.mas.core.service.MssoIntents;
 
@@ -195,7 +197,7 @@ public final class MobileSsoFactory {
         }
     }
 
-    private static MobileSso createMobileSso(Context context) {
+    private static MobileSso createMobileSso(final Context context) {
         final Context applicationContext = context.getApplicationContext();
         final MssoContext mssoContext = MssoContext.newContext();
         mssoContext.init(applicationContext);
@@ -313,7 +315,12 @@ public final class MobileSsoFactory {
             }
 
             @Override
-            public void authenticate(String username, char[] password, ResultReceiver resultReceiver) {
+            public AuthenticationProvider getAuthenticationProvider() throws Exception {
+                return new OAuthClient(mssoContext).getSocialPlatformProvider(applicationContext);
+            }
+
+            @Override
+            public void authenticate(String username, char[] password, MAGResultReceiver<JSONObject> resultReceiver) {
                 mssoClient.authenticate(username, password, resultReceiver);
             }
 

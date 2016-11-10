@@ -8,15 +8,12 @@
 
 package com.ca.mas.core.test;
 
-import android.os.ResultReceiver;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
-import com.ca.mas.core.auth.otp.model.OtpResponseBody;
-import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.request.internal.OAuthTokenRequest;
@@ -24,6 +21,7 @@ import com.ca.mas.core.service.AuthenticationProvider;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -270,7 +268,7 @@ public class AuthenticationTest extends BaseTest {
 
         final MAGError[] result = new MAGError[1];
 
-        mobileSso.authenticate(getUsername(), "invalid".toCharArray(), new MAGResultReceiver<MAGResponse>() {
+        mobileSso.authenticate(getUsername(), "invalid".toCharArray(), new MAGResultReceiver<JSONObject>() {
 
             @Override
             public void onSuccess(MAGResponse response) {
@@ -301,11 +299,43 @@ public class AuthenticationTest extends BaseTest {
 
     @Test(expected = NullPointerException.class)
     public void authenticateTestWithNullUsername() {
-        mobileSso.authenticate(null, getPassword(), new ResultReceiver(null));
+        mobileSso.authenticate(null, getPassword(), new MAGResultReceiver<JSONObject>(null) {
+
+            @Override
+            public void onSuccess(MAGResponse<JSONObject> response) {
+
+            }
+
+            @Override
+            public void onError(MAGError error) {
+
+            }
+
+            @Override
+            public void onRequestCancelled() {
+
+            }
+        });
     }
 
     @Test(expected = NullPointerException.class)
     public void authenticateTestWithNullPassword() {
-        mobileSso.authenticate(getUsername(), null, new ResultReceiver(null));
+        mobileSso.authenticate(getUsername(), null, new MAGResultReceiver<JSONObject>(null) {
+
+            @Override
+            public void onSuccess(MAGResponse<JSONObject> response) {
+
+            }
+
+            @Override
+            public void onError(MAGError error) {
+
+            }
+
+            @Override
+            public void onRequestCancelled() {
+
+            }
+        });
     }
 }

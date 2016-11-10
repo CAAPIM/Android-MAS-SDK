@@ -38,6 +38,7 @@ import org.junit.runners.Suite;
         AuthorizationCodeFlowTest.class,
         TokenTest.class,
         AuthenticationTest.class,
+        RenewDeviceTest.class,
         KeystoreDataSourceTest.class,
         AccountManagerStoreDataSourceTest.class,
         SecureAccountManagerStoreDataSourceTest.class,

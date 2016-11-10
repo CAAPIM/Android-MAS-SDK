@@ -52,6 +52,8 @@ public class ConfigurationManager {
 
     private List<ConfigurationListener> configurationListeners = new ArrayList<>();
 
+    private int daysToExpire = 30;
+
     private ConfigurationManager() {
         configurationListeners.add(new ClientChangeListener());
     }
@@ -407,4 +409,11 @@ public class ConfigurationManager {
         void onUpdated(Context context, ConfigurationProvider provider);
     }
 
+    public int getDaysToExpire() {
+        return daysToExpire;
+    }
+
+    public void setDaysToExpire(int daysToExpire) {
+        this.daysToExpire = daysToExpire;
+    }
 }

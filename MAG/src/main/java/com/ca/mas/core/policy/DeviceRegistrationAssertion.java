@@ -11,7 +11,10 @@ package com.ca.mas.core.policy;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.ca.mas.core.MobileSso;
+import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.cert.CertUtils;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.context.MssoException;
@@ -51,8 +54,6 @@ import java.util.Date;
  */
 public class DeviceRegistrationAssertion implements MssoAssertion {
 
-    private static final int DAYS_BEFORE_EXPIRE = 30;
-
     private TokenManager tokenManager;
 
     @Override
@@ -74,7 +75,7 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
                 // Check if client certificate is expired
                 Calendar cal = Calendar.getInstance();
                 //cal.add(Calendar.YEAR, 5);
-                cal.add(Calendar.DAY_OF_YEAR, DAYS_BEFORE_EXPIRE);
+                cal.add(Calendar.DAY_OF_YEAR, ConfigurationManager.getInstance().getDaysToExpire());
                 Date date = cal.getTime();
                 certificate.checkValidity(date);
             } catch (CertificateExpiredException | CertificateNotYetValidException e) {

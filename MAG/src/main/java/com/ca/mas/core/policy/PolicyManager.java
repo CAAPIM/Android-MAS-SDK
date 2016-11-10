@@ -16,7 +16,6 @@ import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.policy.exceptions.SecureLockAssertion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +43,7 @@ public class PolicyManager {
             }
         }
         //Default Policy setting
+        policies.add(new StorageReadyAssertion());
         policies.add(new SecureLockAssertion());
         policies.add(new ClientCredentialAssertion());
         policies.add(new DeviceRegistrationAssertion());

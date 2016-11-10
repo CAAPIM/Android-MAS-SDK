@@ -337,6 +337,11 @@ public final class MobileSsoFactory {
             public void cancelRequest(long requestId) {
                 mssoClient.cancelRequest(requestId);
             }
+
+            @Override
+            public void cancelAllRequests() {
+                mssoClient.cancelAll();
+            }
         };
     }
 

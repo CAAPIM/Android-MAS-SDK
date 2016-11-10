@@ -5,7 +5,7 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-package com.ca.mas.core.policy.exceptions;
+package com.ca.mas.core.policy;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

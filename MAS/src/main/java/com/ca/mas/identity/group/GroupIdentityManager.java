@@ -13,17 +13,17 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.http.MAGResponse;
+import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.MASGroup;
-import com.ca.mas.foundation.MASResultReceiver;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASRequestBody;
+import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.foundation.util.FoundationConsts;
-import com.ca.mas.foundation.web.WebServiceClient;
-import com.ca.mas.foundation.web.WebServiceRequest;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.common.MASFilteredRequestBuilder;
 import com.ca.mas.identity.util.IdentityConsts;
@@ -58,25 +58,27 @@ public class GroupIdentityManager implements MASGroupIdentity {
 
     @Override
     public void getGroupById(String id, final MASCallback<MASGroup> callback) {
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(IdentityUtil.getGroupPath(MAS.getContext())
+                + FoundationConsts.FSLASH + id))
+                .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
+                .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
+                .responseBody(MAGResponseBody.jsonBody())
+                .get()
+                .build();
 
-        WebServiceRequest request = new WebServiceRequest();
-        request.setUri(Uri.parse(IdentityUtil.getGroupUrl(MAS.getContext()) + FoundationConsts.FSLASH + id));
-        request.addHeader(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT);
-        request.addHeader(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE);
-        WebServiceClient webServiceClient = new WebServiceClient(MAS.getContext());
-        webServiceClient.get(request, new MASResultReceiver<JSONObject>(Callback.getHandler(callback)) {
+        MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
             @Override
-            public void onError(MAGError error) {
-                Callback.onError(callback, error);
-            }
-
-            @Override
-            public void onSuccess(final MAGResponse<JSONObject> response) {
+            public void onSuccess(MASResponse<JSONObject> result) {
                 try {
-                    Callback.onSuccess(callback, processGroupById(response.getBody().getContent()));
+                    Callback.onSuccess(callback, processGroupById(result.getBody().getContent()));
                 } catch (JSONException je) {
                     onError(new MAGError(je));
                 }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Callback.onError(callback, e);
             }
         });
     }
@@ -134,55 +136,61 @@ public class GroupIdentityManager implements MASGroupIdentity {
 
     @Override
     public void getGroupsByFilter(final MASFilteredRequest filteredRequest, final MASCallback<List<MASGroup>> callback) {
-        WebServiceRequest request = filteredRequest.create(MAS.getContext());
-        request.addHeader(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT);
-        request.addHeader(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE);
-        WebServiceClient webServiceClient = new WebServiceClient(MAS.getContext());
-        webServiceClient.get(request, new MASResultReceiver<JSONObject>(Callback.getHandler(callback)) {
-            @Override
-            public void onError(MAGError error) {
-                Callback.onError(callback, error);
-            }
+        Uri uri = filteredRequest.createUri(MAS.getContext());
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(uri)
+                .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
+                .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
+                .responseBody(MAGResponseBody.jsonBody())
+                .get()
+                .build();
 
+        MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
             @Override
-            public void onSuccess(final MAGResponse<JSONObject> response) {
+            public void onSuccess(MASResponse<JSONObject> result) {
                 try {
                     List<MASGroup> container = new ArrayList<>();
-                    processGroupsByFilter(filteredRequest, response.getBody().getContent(), container, callback);
+                    JSONObject jsonObject = result.getBody().getContent();
+                    processGroupsByFilter(filteredRequest, jsonObject, container, callback);
                 } catch (Exception e) {
                     onError(new MAGError(e));
                 }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Callback.onError(callback, e);
             }
         });
     }
 
     private void createAdHocGroup(MASGroup group, final MASCallback<MASGroup> callback) {
-        WebServiceRequest request = new WebServiceRequest();
-        request.setUri(Uri.parse(IdentityUtil.getGroupUrl(MAS.getContext())));
-        request.addHeader(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT);
-        request.addHeader(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE);
         try {
-            request.setBody(group.getAsJSONObject());
-            WebServiceClient webServiceClient = new WebServiceClient(MAS.getContext());
-            webServiceClient.post(request, new MASResultReceiver<JSONObject>(Callback.getHandler(callback)) {
-                @Override
-                public void onError(MAGError error) {
-                    Callback.onError(callback, error);
-                }
+            MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(IdentityUtil.getGroupPath(MAS.getContext())))
+                    .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
+                    .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
+                    .responseBody(MAGResponseBody.jsonBody())
+                    .post(MASRequestBody.jsonBody(group.getAsJSONObject()))
+                    .build();
 
+            MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
                 @Override
-                public void onSuccess(final MAGResponse<JSONObject> response) {
+                public void onSuccess(MASResponse<JSONObject> result) {
                     MASGroup group = MASGroup.newInstance();
                     try {
-                        group.populate(response.getBody().getContent());
+                        group.populate(result.getBody().getContent());
                         Callback.onSuccess(callback, group);
                     } catch (JSONException je) {
                         onError(new MAGError(je));
                     }
                 }
+
+                @Override
+                public void onError(Throwable e) {
+                    Callback.onError(callback, e);
+                }
             });
-        } catch (JSONException je) {
-            Callback.onError(callback, je);
+        } catch (JSONException e) {
+            Callback.onError(callback, e);
         }
     }
 
@@ -191,22 +199,24 @@ public class GroupIdentityManager implements MASGroupIdentity {
     }
 
     public void deleteAdHocGroup(MASGroup group, final MASCallback<Void> callback) {
-        WebServiceRequest request = new WebServiceRequest();
-        request.setUri(Uri.parse(IdentityUtil.getGroupUrl(MAS.getContext()) + IdentityConsts.FSLASH + group.getId()));
-        request.addHeader(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT);
-        request.addHeader(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE);
         try {
-            request.setBody(group.getAsJSONObject());
-            WebServiceClient webServiceClient = new WebServiceClient(MAS.getContext());
-            webServiceClient.delete(request, new MASResultReceiver<JSONObject>(Callback.getHandler(callback)) {
+            String url = IdentityUtil.getGroupPath(MAS.getContext()) + IdentityConsts.FSLASH + group.getId();
+            MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(url))
+                    .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
+                    .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
+                    .responseBody(MAGResponseBody.jsonBody())
+                    .delete(MASRequestBody.jsonBody(group.getAsJSONObject()))
+                    .build();
+
+            MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
                 @Override
-                public void onError(MAGError error) {
-                    Callback.onError(callback, error);
+                public void onSuccess(MASResponse<JSONObject> result) {
+                    Callback.onSuccess(callback, null);
                 }
 
                 @Override
-                public void onSuccess(final MAGResponse<JSONObject> response) {
-                    Callback.onSuccess(callback, null);
+                public void onError(Throwable e) {
+                    Callback.onError(callback, e);
                 }
             });
         } catch (JSONException e) {
@@ -216,25 +226,26 @@ public class GroupIdentityManager implements MASGroupIdentity {
 
     @Override
     public void getGroupMetaData(final MASCallback<GroupAttributes> callback) {
-        String schemaUrl = IdentityUtil.getSchemasUrl(MAS.getContext()) + FoundationConsts.FSLASH;
-        // if we already have group attributes then no call is made.
-        //  retrieve all of the meta-data for this identity manager
-        WebServiceRequest request = new WebServiceRequest();
-        request.setUri(Uri.parse(schemaUrl + IdentityConsts.SCHEMA_GROUP));
-        WebServiceClient webServiceClient = new WebServiceClient(MAS.getContext());
-        webServiceClient.get(request, new MASResultReceiver<JSONObject>(Callback.getHandler(callback)) {
-            @Override
-            public void onError(MAGError error) {
-                Callback.onError(callback, error);
-            }
+        String schemaPath = IdentityUtil.getSchemasPath(MAS.getContext()) + FoundationConsts.FSLASH;
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(schemaPath
+                + IdentityConsts.SCHEMA_GROUP))
+                .responseBody(MAGResponseBody.jsonBody())
+                .get()
+                .build();
 
+        MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
             @Override
-            public void onSuccess(final MAGResponse<JSONObject> response) {
+            public void onSuccess(MASResponse<JSONObject> result) {
                 try {
-                    Callback.onSuccess(callback, doPopulateAttributes(response.getBody().getContent()));
+                    Callback.onSuccess(callback, doPopulateAttributes(result.getBody().getContent()));
                 } catch (MASException me) {
                     onError(new MAGError(me));
                 }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Callback.onError(callback, e);
             }
         });
     }
@@ -269,32 +280,33 @@ public class GroupIdentityManager implements MASGroupIdentity {
 
     private void groupUpdate(final MASGroup group, final MASCallback<MASGroup> callback) {
         try {
-            WebServiceRequest request = new WebServiceRequest();
-            String updateUrl = IdentityUtil.getGroupUrl(MAS.getContext()) + FoundationConsts.FSLASH + group.getId();
-            request.setUri(Uri.parse(updateUrl));
-            request.addHeader(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT);
-            request.addHeader(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE);
-            request.setBody(group.getAsJSONObject());
-            WebServiceClient webServiceClient = new WebServiceClient(MAS.getContext());
-            webServiceClient.put(request, new MASResultReceiver<JSONObject>(Callback.getHandler(callback)) {
-                @Override
-                public void onError(MAGError error) {
-                    Callback.onError(callback, error);
-                }
+            String updateUrl = IdentityUtil.getGroupPath(MAS.getContext()) + FoundationConsts.FSLASH + group.getId();
+            MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(updateUrl))
+                    .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
+                    .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
+                    .responseBody(MAGResponseBody.jsonBody())
+                    .put(MASRequestBody.jsonBody(group.getAsJSONObject()))
+                    .build();
 
+            MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
                 @Override
-                public void onSuccess(final MAGResponse<JSONObject> response) {
+                public void onSuccess(MASResponse<JSONObject> result) {
                     try {
                         MASGroup updated = MASGroup.newInstance();
-                        updated.populate(response.getBody().getContent());
+                        updated.populate(result.getBody().getContent());
                         Callback.onSuccess(callback, updated);
                     } catch (JSONException je) {
                         onError(new MAGError(je));
                     }
                 }
+
+                @Override
+                public void onError(Throwable e) {
+                    Callback.onError(callback, e);
+                }
             });
-        } catch (JSONException je) {
-            Callback.onError(callback, je);
+        } catch (JSONException e) {
+            Callback.onError(callback, e);
         }
     }
 
@@ -322,25 +334,27 @@ public class GroupIdentityManager implements MASGroupIdentity {
     }
 
     private void getGroups(final MASFilteredRequest filteredRequest, final List<MASGroup> container, final MASCallback<List<MASGroup>> callback) throws MASException {
+        Uri uri = filteredRequest.createUri(MAS.getContext());
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(uri)
+                .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
+                .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
+                .responseBody(MAGResponseBody.jsonBody())
+                .get()
+                .build();
 
-        final WebServiceRequest request = filteredRequest.create(MAS.getContext());
-        request.addHeader(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT);
-        request.addHeader(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE);
-        WebServiceClient webServiceClient = new WebServiceClient(MAS.getContext());
-
-        webServiceClient.get(request, new MASResultReceiver<JSONObject>() {
+        MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
             @Override
-            public void onError(MAGError error) {
-                Callback.onError(callback, error);
-            }
-
-            @Override
-            public void onSuccess(final MAGResponse<JSONObject> response) {
+            public void onSuccess(MASResponse<JSONObject> result) {
                 try {
-                    processGroupsByFilter(filteredRequest, response.getBody().getContent(), container, callback);
+                    processGroupsByFilter(filteredRequest, result.getBody().getContent(), container, callback);
                 } catch (Exception e) {
                     Callback.onError(callback, e);
                 }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Callback.onError(callback, e);
             }
         });
 

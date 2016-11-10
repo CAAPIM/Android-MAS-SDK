@@ -61,7 +61,7 @@ import java.util.Map;
  */
 public class MssoService extends IntentService {
     private static final String TAG = MssoService.class.getName();
-    private static final Map<Long, MssoRequest> activeRequests = Collections.synchronizedMap(new LinkedHashMap<Long, MssoRequest>());
+
 
     public MssoService() {
         super("MssoService");
@@ -104,9 +104,6 @@ public class MssoService extends IntentService {
         else if (MssoIntents.ACTION_VALIDATE_OTP.equals(action)) {
             onOtpObtained(extras, request);
             return;
-        } else if (MssoIntents.ACTION_CANCEL_REQUEST.equals(action)) {
-            onCancelRequest(request);
-            return;
         }
 
         Log.e(TAG, "Ignoring intent with unrecognized action " + action);
@@ -133,7 +130,7 @@ public class MssoService extends IntentService {
             moveToFirst(request);
         }
 
-        final ArrayList<MssoRequest> requests = new ArrayList<MssoRequest>(activeRequests.values());
+        final ArrayList<MssoRequest> requests = new ArrayList<MssoRequest>(MssoActiveQueue.getInstance().getAllRequest());
         for (MssoRequest mssoRequest : requests) {
             if (request == mssoRequest)
                 originalRequestProcessed = true;
@@ -150,29 +147,23 @@ public class MssoService extends IntentService {
 
 
     private void moveToFirst(MssoRequest request) {
-        activeRequests.remove(request.getId());
-        ArrayList<MssoRequest> requests = new ArrayList<MssoRequest>(activeRequests.values());
-        activeRequests.put(request.getId(), request);
+        MssoActiveQueue.getInstance().takeRequest(request.getId());
+        ArrayList<MssoRequest> requests = new ArrayList<>(MssoActiveQueue.getInstance().getAllRequest());
+        MssoActiveQueue.getInstance().addRequest(request);
         for (MssoRequest r : requests) {
-            activeRequests.remove(r.getId());
-            activeRequests.put(r.getId(), r);
+            MssoActiveQueue.getInstance().takeRequest(r.getId());
+            MssoActiveQueue.getInstance().addRequest(r);
         }
     }
 
     private void onProcessAllPendingRequests() {
-        final Collection<MssoRequest> requests = new ArrayList<MssoRequest>(activeRequests.values());
+        final Collection<MssoRequest> requests = new ArrayList<>(MssoActiveQueue.getInstance().getAllRequest());
         for (MssoRequest mssoRequest : requests) {
             if (!onProcessRequest(mssoRequest)) {
                 // Stop servicing queue now
                 break;
             }
         }
-    }
-
-    private void onCancelRequest(MssoRequest request) {
-        ResultReceiver receiver = request.getResultReceiver();
-        requestFinished(request);
-        respondError(receiver, MssoIntents.RESULT_CODE_ERR_CANCELED, request.getId(), "Request was canceled");
     }
 
     /**
@@ -235,7 +226,7 @@ public class MssoService extends IntentService {
 
             if (mobileSsoListener != null) {
                 if (OtpResponseHeaders.X_OTP_VALUE.REQUIRED.equals(otpResponseHeaders.getxOtpValue())) {
-                        mobileSsoListener.onOtpAuthenticationRequest(new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), false, null));
+                    mobileSsoListener.onOtpAuthenticationRequest(new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), false, null));
                 } else if (OtpResponseHeaders.X_CA_ERROR.OTP_INVALID == otpResponseHeaders.getErrorCode()) {
                     Bundle extra = request.getExtra();
                     String selectedChannels = null;
@@ -243,8 +234,8 @@ public class MssoService extends IntentService {
                         selectedChannels = extra.getString(OtpConstants.X_OTP_CHANNEL);
                     }
 
-                    OtpAuthenticationHandler otpHandler = new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), true, selectedChannels );
-                    mobileSsoListener.onOtpAuthenticationRequest(otpHandler );
+                    OtpAuthenticationHandler otpHandler = new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), true, selectedChannels);
+                    mobileSsoListener.onOtpAuthenticationRequest(otpHandler);
                 }
                 return false;
             }
@@ -320,17 +311,17 @@ public class MssoService extends IntentService {
     private MssoRequest takeActiveRequest(long requestId) {
         MssoRequest request = MssoRequestQueue.getInstance().takeRequest(requestId);
         if (request != null) {
-            activeRequests.put(requestId, request);
+            MssoActiveQueue.getInstance().addRequest(request);
             return request;
         }
 
-        request = activeRequests.get(requestId);
+        request = MssoActiveQueue.getInstance().getRequest(requestId);
         // TODO check if another service thread is already processing this request, if we later give the service more than one thread
         return request;
     }
 
-    private boolean  requestFinished(MssoRequest request) {
-        return null != activeRequests.remove(request.getId());
+    private boolean requestFinished(MssoRequest request) {
+        return null != MssoActiveQueue.getInstance().takeRequest(request.getId());
     }
 
     private void startObtainCredentialsActivity(MssoRequest request, AuthenticationProvider authProvider) {
@@ -355,13 +346,6 @@ public class MssoService extends IntentService {
         Bundle resultData = new Bundle();
         resultData.putSerializable(MssoIntents.RESULT_ERROR, error);
         resultData.putString(MssoIntents.RESULT_ERROR_MESSAGE, error.getMessage());
-        receiver.send(resultCode, resultData);
-    }
-
-    private void respondError(ResultReceiver receiver, int resultCode, long requestId, String errorMessage) {
-        Bundle resultData = new Bundle();
-        resultData.putString(MssoIntents.RESULT_ERROR_MESSAGE, errorMessage);
-        resultData.putLong(MssoIntents.RESULT_REQUEST_ID, requestId);
         receiver.send(resultCode, resultData);
     }
 

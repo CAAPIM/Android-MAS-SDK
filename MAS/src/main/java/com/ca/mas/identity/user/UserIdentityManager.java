@@ -8,25 +8,23 @@
 
 package com.ca.mas.identity.user;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.http.MAGResponse;
+import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.MASGroup;
-import com.ca.mas.foundation.MASResultReceiver;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASSessionUnlockCallback;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.foundation.util.FoundationConsts;
-import com.ca.mas.foundation.web.WebServiceClient;
-import com.ca.mas.foundation.web.WebServiceRequest;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.ca.mas.identity.util.IdentityUtil;
@@ -37,13 +35,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * <p><b>UserIdentityManager</b> handles all of the interaction between the client and the SCIM provider. This class is a
  * representation of a SCIM user, listens for WebService callbacks from SCIM requests.
- * <p>This class listens for WebService response through the {@link com.ca.mas.foundation.web.MASWebServiceClient} interface
+ * <p>This class listens for MASRequest response through the {@link MAS#invoke(MASRequest, MASCallback)} method.
  * Before responding to the caller this class will do the following;</p>
  * <p><b>onSuccess</b>
  * <ol>
@@ -72,75 +72,85 @@ public class UserIdentityManager {
 
     // -------------------- USERS ---------------------------------------------
     public void getUsersByFilter(final MASFilteredRequest filteredRequest, final MASCallback<List<MASUser>> callback) {
-        final WebServiceRequest request = filteredRequest.create(MAS.getContext());
-        WebServiceClient webServiceClient = new WebServiceClient(MAS.getContext());
+        Uri uri = filteredRequest.createUri(MAS.getContext());
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(uri)
+                .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
+                .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
+                .responseBody(MAGResponseBody.jsonBody())
+                .get()
+                .build();
 
-        request.addHeader(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT);
-        request.addHeader(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE);
-        webServiceClient.get(request, new MASResultReceiver<JSONObject>(Callback.getHandler(callback)) {
+        MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
             @Override
-            public void onError(MAGError error) {
-                Callback.onError(callback, error);
-            }
-
-            @Override
-            public void onSuccess(final MAGResponse<JSONObject> response) {
+            public void onSuccess(MASResponse<JSONObject> result) {
                 try {
                     List<MASUser> container = new ArrayList<>();
-                    processUsersByFilter(filteredRequest, response.getBody().getContent(), container, callback);
+                    processUsersByFilter(filteredRequest, result.getBody().getContent(), container, callback);
                 } catch (Exception je) {
                     onError(new MAGError(je));
                 }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Callback.onError(callback, e);
             }
         });
     }
 
     public void getUserById(String id, final MASCallback<MASUser> callback) {
-        WebServiceRequest request = new WebServiceRequest();
-        request.addHeader(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT);
-        request.addHeader(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE);
-        request.setUri(Uri.parse(IdentityUtil.getUserUrl(MAS.getContext()) + FoundationConsts.FSLASH + id));
-        WebServiceClient webServiceClient = new WebServiceClient(MAS.getContext());
-        webServiceClient.get(request, new MASResultReceiver<JSONObject>(Callback.getHandler(callback)) {
-            @Override
-            public void onError(MAGError error) {
-                Callback.onError(callback, error);
-            }
+        try {
+            MASRequest masRequest = new MASRequest.MASRequestBuilder(new URI(IdentityUtil.getUserPath(MAS.getContext())
+                    + FoundationConsts.FSLASH + id))
+                    .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
+                    .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
+                    .responseBody(MAGResponseBody.jsonBody())
+                    .get()
+                    .build();
 
-            @Override
-            public void onSuccess(final MAGResponse<JSONObject> response) {
-                try {
-                    Callback.onSuccess(callback, processUserById(response.getBody().getContent()));
-                } catch (Exception je) {
-                    onError(new MAGError(je));
+            MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
+                @Override
+                public void onSuccess(MASResponse<JSONObject> result) {
+                    try {
+                        Callback.onSuccess(callback, processUserById(result.getBody().getContent()));
+                    } catch (Exception je) {
+                        onError(new MAGError(je));
+                    }
                 }
-            }
-        });
+
+                @Override
+                public void onError(Throwable e) {
+                    Callback.onError(callback, e);
+                }
+            });
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     // --------- META-DATA ----------------------------------------------------
     public void getUserMetaData(final MASCallback<UserAttributes> callback) {
-        String schemaUrl = IdentityUtil.getSchemasUrl(MAS.getContext()) + FoundationConsts.FSLASH;
-        // this is a no-op if the user attributes exist.
+        String schemaPath = IdentityUtil.getSchemasPath(MAS.getContext()) + FoundationConsts.FSLASH;
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(schemaPath + IdentityConsts.SCHEMA_USER))
+                .responseBody(MAGResponseBody.jsonBody())
+                .get()
+                .build();
 
-        //  retrieve all of the meta-data for this identity manager
-        WebServiceRequest request = new WebServiceRequest();
-        request.setUri(Uri.parse(schemaUrl + IdentityConsts.SCHEMA_USER));
-        WebServiceClient webServiceClient = new WebServiceClient(MAS.getContext());
-        webServiceClient.get(request, new MASResultReceiver<JSONObject>(Callback.getHandler(callback)) {
+        MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
             @Override
-            public void onError(MAGError error) {
-                Callback.onError(callback, error);
+            public void onSuccess(MASResponse<JSONObject> result) {
+                try {
+                    JSONObject jsonObject = result.getBody().getContent();
+                    UserAttributes userAttributes = getAttributes(jsonObject);
+                    Callback.onSuccess(callback, userAttributes);
+                } catch (MASException e) {
+                    onError(new MAGError(e));
+                }
             }
 
             @Override
-            public void onSuccess(final MAGResponse<JSONObject> response) {
-                try {
-                    UserAttributes userAttributes = getAttributes(response.getBody().getContent());
-                    Callback.onSuccess(callback, userAttributes);
-                } catch (MASException me) {
-                    onError(new MAGError(me));
-                }
+            public void onError(Throwable e) {
+                Callback.onError(callback, e);
             }
         });
     }
@@ -178,28 +188,29 @@ public class UserIdentityManager {
     Helper method for retrieving users when paging is involved.
      */
     private void getUsers(final MASFilteredRequest filteredRequest, final List<MASUser> masUsers, final MASCallback<List<MASUser>> callback) throws MASException {
+        Uri uri = filteredRequest.createUri(MAS.getContext());
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(uri)
+                .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
+                .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
+                .responseBody(MAGResponseBody.jsonBody())
+                .get()
+                .build();
 
-        WebServiceRequest request = filteredRequest.create(MAS.getContext());
-        request.addHeader(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT);
-        request.addHeader(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE);
-
-        WebServiceClient webServiceClient = new WebServiceClient(MAS.getContext());
-        webServiceClient.get(request, new MASResultReceiver<JSONObject>(Callback.getHandler(callback)) {
+        MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
             @Override
-            public void onError(MAGError error) {
-                Callback.onError(callback, error);
-            }
-
-            @Override
-            public void onSuccess(final MAGResponse<JSONObject> response) {
+            public void onSuccess(MASResponse<JSONObject> result) {
                 try {
-                    processUsersByFilter(filteredRequest, response.getBody().getContent(), masUsers, callback);
+                    processUsersByFilter(filteredRequest, result.getBody().getContent(), masUsers, callback);
                 } catch (Exception e) {
                     Callback.onError(callback, e);
                 }
             }
-        });
 
+            @Override
+            public void onError(Throwable e) {
+                Callback.onError(callback, e);
+            }
+        });
     }
 
     /*

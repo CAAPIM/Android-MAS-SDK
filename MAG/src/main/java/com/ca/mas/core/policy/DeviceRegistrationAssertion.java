@@ -79,9 +79,6 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
     }
 
     private void registerDevice(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
-        // Ensure token store is available
-        if (!tokenManager.isTokenStoreReady())
-            throw new TokenStoreUnavailableException();
 
         // Ensure credentials are available
         Credentials creds = request.getRequest().getGrantProvider().getCredentials(mssoContext);

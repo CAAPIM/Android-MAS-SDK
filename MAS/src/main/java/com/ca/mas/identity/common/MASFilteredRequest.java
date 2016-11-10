@@ -15,7 +15,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.ca.mas.foundation.MASException;
-import com.ca.mas.foundation.web.WebServiceRequest;
+import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.ca.mas.identity.util.IdentityUtil;
 
@@ -37,7 +37,7 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
     String mSortUri;
     String mQueryCondition;
     List<String> mQueryComponents;
-    WebServiceRequest mWebServiceRequest;
+    private Uri uri;
     protected List<String> mAttributes;
     protected List<String> mExcludedAttributes;
     private List<String> mEntityAttributes;
@@ -154,7 +154,7 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
     }
 
     @Override
-    public MASFilteredRequestBuilder createCompoundExpression(@NonNull Logical logical, @NonNull WebServiceRequest lhs, WebServiceRequest rhs) {
+    public MASFilteredRequestBuilder createCompoundExpression(@NonNull Logical logical, MASRequest lhs, MASRequest rhs) {
         FilterFormatter filterFormatter = new FilterFormatter(logical, lhs, rhs);
         mQueryCondition = filterFormatter.toString();
         return this;
@@ -183,19 +183,19 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
     }
 
     @Override
-    public WebServiceRequest create(@NonNull Context context) {
+    public Uri createUri(@NonNull Context context) {
         // another request...
-        if (mWebServiceRequest != null) {
-            return mWebServiceRequest;
+        if (uri != null) {
+            return uri;
         }
 
         mQueryComponents = new ArrayList<>();
         StringBuilder fullUrl = new StringBuilder();
         if(mFilterType.equals(IdentityConsts.KEY_USER_ATTRIBUTES)) {
-            fullUrl.append(IdentityUtil.getUserUrl(context));
+            fullUrl.append(IdentityUtil.getUserPath(context));
         }
         if(mFilterType.equals(IdentityConsts.KEY_GROUP_ATTRIBUTES)) {
-            fullUrl.append(IdentityUtil.getGroupUrl(context));
+            fullUrl.append(IdentityUtil.getGroupPath(context));
         }
 
         if(!TextUtils.isEmpty(mQueryCondition)) {
@@ -240,8 +240,8 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
         String encUrl = fullUrl.toString().replaceAll(" ", IdentityConsts.ENC_SPACE);
         encUrl = encUrl.replaceAll("\"", IdentityConsts.ENC_DOUBLE_QUOTE);
         Log.d(TAG, "Encoded URL: " + encUrl);
-        mWebServiceRequest = new WebServiceRequest(Uri.parse(encUrl));
-        return mWebServiceRequest;
+        uri = Uri.parse(encUrl);
+        return uri;
     }
 
     private String createNormalizedAttributes(List<String> attrs, String key) {
@@ -259,13 +259,13 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
     }
 
     @Override
-    public boolean hasNext() {
+    public boolean hasNext(){
         if (!mIsPaging) {
             return false;
         }
 
         StringBuilder fullUrl = new StringBuilder();
-        String url = mWebServiceRequest.getUri().toString();
+        String url = uri.toString();
         int index = url.indexOf(IdentityConsts.QM);
         if (index > -1) {
             String sub = url.substring(0, index);
@@ -291,7 +291,7 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
 
         String encUrl = fullUrl.toString().replaceAll(" ", IdentityConsts.ENC_SPACE);
         encUrl = encUrl.replaceAll("\"", IdentityConsts.ENC_DOUBLE_QUOTE);
-        mWebServiceRequest.setUri(Uri.parse(encUrl));
+        uri = Uri.parse(encUrl);
         return true;
     }
 

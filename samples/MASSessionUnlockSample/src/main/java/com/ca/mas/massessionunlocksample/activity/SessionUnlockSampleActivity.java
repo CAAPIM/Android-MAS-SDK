@@ -51,7 +51,6 @@ public class SessionUnlockSampleActivity extends AppCompatActivity {
     private TextInputEditText mPasswordEditText;
     private Switch mLockSwitch;
     private TextView mProtectedContent;
-
     private int RESULT_CODE = 0x1000;
 
     @Override
@@ -99,7 +98,8 @@ public class SessionUnlockSampleActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MASUser.getCurrentUser().logout(getLogoutCallback());
+                MASUser currentUser = MASUser.getCurrentUser();
+                currentUser.logout(getLogoutCallback());
             }
         };
     }
@@ -111,12 +111,7 @@ public class SessionUnlockSampleActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mLockSwitch.setVisibility(View.VISIBLE);
-                        mLoginButton.setText("Log out");
-                        mLoginButton.setOnClickListener(getLogoutListener());
-
-                        mUsernameInputLayout.setVisibility(View.GONE);
-                        mPasswordInputLayout.setVisibility(View.GONE);
+                        onLogin();
                     }
                 });
 
@@ -125,9 +120,28 @@ public class SessionUnlockSampleActivity extends AppCompatActivity {
 
             @Override
             public void onError(Throwable e) {
-                Log.e(TAG + " getUserCallback()", e.toString());
+                Snackbar.make(mContainer, e.toString(), Snackbar.LENGTH_LONG).show();
             }
         };
+    }
+
+    private void onLogin() {
+        mLockSwitch.setVisibility(View.VISIBLE);
+        mLoginButton.setText("Log out");
+        mLoginButton.setOnClickListener(getLogoutListener());
+
+        mUsernameInputLayout.setVisibility(View.GONE);
+        mPasswordInputLayout.setVisibility(View.GONE);
+    }
+
+    private void onLogout() {
+        mLockSwitch.setVisibility(View.GONE);
+        mLoginButton.setText("Log in");
+        mLoginButton.setOnClickListener(getLoginListener());
+        mProtectedContent.setText(R.string.protected_info);
+
+        mUsernameInputLayout.setVisibility(View.VISIBLE);
+        mPasswordInputLayout.setVisibility(View.VISIBLE);
     }
 
     private MASCallback<Void> getLogoutCallback() {
@@ -139,13 +153,7 @@ public class SessionUnlockSampleActivity extends AppCompatActivity {
 
             @Override
             public void onSuccess(Void result) {
-                mLockSwitch.setVisibility(View.GONE);
-                mLoginButton.setText("Log in");
-                mLoginButton.setOnClickListener(getLoginListener());
-                mProtectedContent.setText(R.string.protected_info);
-
-                mUsernameInputLayout.setVisibility(View.VISIBLE);
-                mPasswordInputLayout.setVisibility(View.VISIBLE);
+                onLogout();
             }
 
             @Override
@@ -202,15 +210,30 @@ public class SessionUnlockSampleActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RESULT_CODE) {
-            mLockSwitch.setChecked(false);
+            Snackbar.make(mContainer, "Session unlocked.", Snackbar.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        if (mLockSwitch.isChecked()) {
+            MASUser currentUser = MASUser.getCurrentUser();
+            if (currentUser != null) {
+                currentUser.lockSession(null);
+            }
+        }
+        super.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mLockSwitch.getVisibility() == View.VISIBLE && mLockSwitch.isChecked()) {
+        MASUser currentUser = MASUser.getCurrentUser();
+        if (currentUser != null && currentUser.isSessionLocked()) {
             launchLockActivity();
+        } else if (currentUser != null && currentUser.isAuthenticated()) {
+            onLogin();
+            invokeApi();
         }
     }
 

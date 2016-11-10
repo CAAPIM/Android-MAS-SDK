@@ -21,12 +21,16 @@ import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 public interface MASAuthenticationListener {
 
     /**
-     * Notify the host application that a request to authenticate is triggered by the MAG authentication process.
+     * Notify the host application that a request to authenticate is triggered by the authentication process.
+     *
+     * @param context   The current Activity context
+     * @param requestId The request Id that trigger the authentication process
+     * @param providers The available Authentication providers, providers can be used for Social Login or Proximity Login
      */
     void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers);
 
     /**
-     * Notify the host application that a request to authenticate Otp is triggered by the MAG authentication process.
+     * Notify the host application that a request to authenticate Otp is triggered by the authentication process.
      */
     void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler);
 

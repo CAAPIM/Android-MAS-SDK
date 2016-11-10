@@ -79,6 +79,7 @@ public class User implements ScimUser {
             //Map the OPENID userinfo to Scim definition
             //Should verify the sub with the id_token
             mUserName = jsonObject.optString(IdentityConsts.KEY_MY_PREF_UNAME, IdentityConsts.EMPTY);
+            mId = mUserName;
             final String photo = jsonObject.optString(IdentityConsts.KEY_MY_PICTURE, null);
             if (photo != null) {
                 mPhotoList.add(new MASPhoto() {

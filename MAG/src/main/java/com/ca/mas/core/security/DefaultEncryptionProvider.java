@@ -164,7 +164,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParams);
             return cipher.doFinal(encryptedData);
         } catch (Exception e) {
-            Log.e(TAG, "Error while decrypting an cipher instance", e);
+            Log.i(TAG, "Error while decrypting an cipher instance", e);
             throw new RuntimeException(e.getMessage(), e);
         }
     }

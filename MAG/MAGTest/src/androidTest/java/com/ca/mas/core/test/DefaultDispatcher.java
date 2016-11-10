@@ -25,6 +25,7 @@ public class DefaultDispatcher extends Dispatcher {
     public static final String TEST_NO_CONTENT = "/testNoContent";
     public static final String AUTH_OAUTH_V2_AUTHORIZE = "/auth/oauth/v2/authorize";
     public static final String CONNECT_DEVICE_REGISTER_CLIENT = "/connect/device/register/client";
+    public static final String CONNECT_DEVICE_RENEW = "/connect/device/renew";
     public static final String CONNECT_DEVICE_REMOVE = "/connect/device/remove";
     public static final String CONNECT_SESSION_LOGOUT = "/connect/session/logout";
     public static final String OTP_PROTECTED_URL="/otpProtected";
@@ -62,13 +63,15 @@ public class DefaultDispatcher extends Dispatcher {
             return authorizeResponse();
         } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER_CLIENT)) {
             return registerDeviceResponse();
+        } else if (request.getPath().contains(CONNECT_DEVICE_RENEW)) {
+            return renewDeviceResponse();
         } else if (request.getPath().contains(CONNECT_SESSION_LOGOUT)) {
             return logout();
         } else if (request.getPath().contains(CONNECT_DEVICE_REMOVE)) {
             return deRegister();
-        }else if(request.getPath().contains(OTP_PROTECTED_URL)){
+        } else if (request.getPath().contains(OTP_PROTECTED_URL)) {
             String xOtp = request.getHeader("X-OTP");
-            if (xOtp == null ) {
+            if (xOtp == null) {
                 return otpMissingHeader();
             } else {
                 return otpProtectedResponse();
@@ -127,6 +130,27 @@ public class DefaultDispatcher extends Dispatcher {
                 .setHeader("id-token", "dummy-idToken")
                 .setHeader("id-token-type", "dummy-idTokenType")
                 .setBody(cert);
+
+    }
+
+    protected MockResponse renewDeviceResponse() {
+        String newCert = "-----BEGIN CERTIFICATE-----\n" +
+                "MIIB1jCCAT+gAwIBAgIJALn3WmxeOO1BMA0GCSqGSIb3DQEBBQUAMC0xCzAJBgNV\n" +
+                "BAYTAkdCMQ8wDQYDVQQHEwZMb25kb24xDTALBgNVBAMTBFRlc3QwHhcNMTYxMTA5\n" +
+                "MTc1NzUwWhcNMTYxMTE5MTc1NzUwWjAtMQswCQYDVQQGEwJHQjEPMA0GA1UEBxMG\n" +
+                "TG9uZG9uMQ0wCwYDVQQDEwRUZXN0MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKB\n" +
+                "gQC2YAu05vlOz9K5Ad2w3FpM6KugOWQyDpxgwBjBFIdMU1tuzxsXJQEV7c65X/em\n" +
+                "Evr45PJPJY07YaMGpZB9KHzxDDd2+9OMwo0aNz5qCGdd2pRYhz22+vUrJsSPLKub\n" +
+                "C8DLYKoQSGpICWeafvRzd8ewdmJaejmC2s/4s41IDr9gJwIDAQABMA0GCSqGSIb3\n" +
+                "DQEBBQUAA4GBADFnTzTDMOBPBHYh6keqBTBIVCtYGS9kfh8UvmAntXJ4OH27F4KP\n" +
+                "B9I5ebo8NIAaTjIXkZopj2fiaBt9BiWjVDJ4V6KOwZxaKWd2qpl2Jq64DuAPnuRH\n" +
+                "2I+2HIb9X36hs3BiwiJ8lTJjqrlXvXm1dBrosOog2obYC1EVkcDPJmLk\n" +
+                "-----END CERTIFICATE-----";
+        //Mock response for device renew
+        return new MockResponse()
+                .setResponseCode(200)
+                .setBody(newCert)
+                .setHeader("mag-identifier", "test-device");
 
     }
 

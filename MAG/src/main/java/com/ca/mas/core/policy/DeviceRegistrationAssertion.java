@@ -11,7 +11,10 @@ package com.ca.mas.core.policy;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.ca.mas.core.MobileSso;
+import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.cert.CertUtils;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.context.MssoException;
@@ -21,8 +24,8 @@ import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.util.KeyUtils;
 import com.ca.mas.core.policy.exceptions.CredentialRequiredException;
+import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
 import com.ca.mas.core.registration.DeviceRegistrationAwaitingActivationException;
 import com.ca.mas.core.registration.RegistrationClient;
@@ -30,9 +33,15 @@ import com.ca.mas.core.registration.RegistrationException;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
 import com.ca.mas.core.token.IdToken;
+import com.ca.mas.core.util.KeyUtils;
 
 import java.security.KeyPair;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Ensures that the device is registered.
@@ -44,6 +53,7 @@ import java.security.cert.CertificateException;
  * TokenStoreUnavailableException will be thrown if the device needs to be unlocked.
  */
 public class DeviceRegistrationAssertion implements MssoAssertion {
+
     private TokenManager tokenManager;
 
     @Override
@@ -57,7 +67,30 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
 
     @Override
     public void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
-        if (mssoContext.isDeviceRegistered()) {
+        X509Certificate[] clientCerts = tokenManager.getClientCertificateChain();
+        if (clientCerts != null && clientCerts.length > 0) {
+            // Device is registered
+            X509Certificate certificate = clientCerts[0];
+            try {
+                // Check if client certificate is expired
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.DAY_OF_YEAR, ConfigurationManager.getInstance().getDaysToExpire());
+                Date date = cal.getTime();
+                certificate.checkValidity(date);
+            } catch (CertificateExpiredException | CertificateNotYetValidException e) {
+                if (e instanceof CertificateExpiredException) {
+                    // Client certificate expired, try to renew
+                    try {
+                        renewDevice(mssoContext);
+                    } catch (TokenStoreException e1) {
+                        throw new TokenStoreUnavailableException(e1);
+                    } catch (RetryRequestException e1) {
+                        mssoContext.destroyPersistentTokens();
+                        throw e1;
+                    }
+                }
+            }
+
             return;
         }
 
@@ -76,6 +109,12 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
     @Override
     public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGStateException {
         // Nothing to do here
+    }
+
+    private void renewDevice(MssoContext mssoContext) throws RegistrationException, RetryRequestException, TokenStoreException {
+        X509Certificate[] certificates = new RegistrationClient(mssoContext).renewDevice();
+        tokenManager.saveClientCertificateChain(certificates);
+        mssoContext.resetHttpClient();
     }
 
     private void registerDevice(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {

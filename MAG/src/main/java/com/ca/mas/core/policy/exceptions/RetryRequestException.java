@@ -8,12 +8,16 @@
 
 package com.ca.mas.core.policy.exceptions;
 
+import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGStateException;
 
 /**
  * Exception thrown if a request should retried from the beginning.
  */
-public class RetryRequestException extends MAGStateException {
+public abstract class RetryRequestException extends MAGStateException {
+
+    public RetryRequestException() {
+    }
 
     public RetryRequestException(String message) {
         super(message);
@@ -22,4 +26,6 @@ public class RetryRequestException extends MAGStateException {
     public RetryRequestException(Throwable throwable) {
         super(throwable);
     }
+
+    public abstract void recover(MssoContext context) throws Exception;
 }

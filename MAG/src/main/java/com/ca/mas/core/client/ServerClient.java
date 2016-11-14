@@ -114,21 +114,13 @@ public abstract class ServerClient {
 
             if (headers != null) {
                 List<String> errorCodes = headers.get(X_CA_ERR);
-                if (errorCodes == null) {
+                if (errorCodes == null || errorCodes.size() == 0) {
                     return -1;
                 }
                 return Integer.parseInt(errorCodes.get(0));
             }
         }
         return -1;
-    }
-
-    protected String urlEncode(String s) throws MAGException {
-        try {
-            return s == null ? null : URLEncoder.encode(s, UTF_8);
-        } catch (UnsupportedEncodingException e) {
-            throw new MAGException(MAGErrorCode.UNKNOWN, e);
-        }
     }
 
     protected ServerResponse obtainServerResponseToPostedForm(MAGRequest request) throws MAGException, MAGServerException {

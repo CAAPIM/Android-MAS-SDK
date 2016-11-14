@@ -84,8 +84,12 @@ class AccessTokenAssertion implements MssoAssertion {
             }
         String s = Integer.toString(errorCode);
         if (s.endsWith(TOKEN_EXPIRED_ERROR_CODE_SUFFIX)) {
-            mssoContext.clearAccessToken();
-            throw new RetryRequestException("Access token rejected by server");
+            throw new RetryRequestException("Access token rejected by server") {
+                @Override
+                public void recover(MssoContext context) throws Exception {
+                    context.clearAccessToken();
+                }
+            };
         }
     }
 

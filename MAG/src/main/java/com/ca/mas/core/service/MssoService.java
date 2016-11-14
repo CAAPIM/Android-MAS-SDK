@@ -41,6 +41,7 @@ import com.ca.mas.core.registration.DeviceRegistrationAwaitingActivationExceptio
 import com.ca.mas.core.registration.RegistrationException;
 import com.ca.mas.core.registration.RegistrationServerException;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
+import com.ca.mas.core.store.TokenStoreException;
 import com.ca.mas.core.token.JWTExpiredException;
 import com.ca.mas.core.token.JWTInvalidAUDException;
 import com.ca.mas.core.token.JWTInvalidAZPException;

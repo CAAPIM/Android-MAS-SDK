@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.context.MssoContext;
@@ -21,6 +22,7 @@ import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
+import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.util.Functions;
 
 /**
@@ -94,9 +96,11 @@ public class MssoClient {
             protected Void doInBackground(Void... params) {
                 try {
                     mssoContext.logout(true);
-                } catch (Exception e) {
+                } catch (SecureLockException e) {
                     resultReceiver.onError(new MAGError(e));
                     return null;
+                } catch (Exception ignore) {
+                    Log.w(TAG, ignore);
                 }
                 sysContext.startService(intent);
                 return null;

@@ -95,7 +95,7 @@ public class PolicyManager {
      *                            the request cannot be processed in the current MSSO engine state (or should be retried).
      * @throws MAGException Exception occur in MAG Engine
      */
-    public void processResponse(RequestInfo request, MAGResponse response) throws MAGException , MAGStateException, MAGServerException{
+    public void processResponse(RequestInfo request, MAGResponse response) throws MAGException ,MAGServerException{
         // For now, we will serialize all policies
         synchronized (policySync) {
             for (MssoAssertion policy : policies) {

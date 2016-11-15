@@ -135,16 +135,20 @@ public class DefaultDispatcher extends Dispatcher {
 
     protected MockResponse renewDeviceResponse() {
         String newCert = "-----BEGIN CERTIFICATE-----\n" +
-                "MIIB1jCCAT+gAwIBAgIJALn3WmxeOO1BMA0GCSqGSIb3DQEBBQUAMC0xCzAJBgNV\n" +
-                "BAYTAkdCMQ8wDQYDVQQHEwZMb25kb24xDTALBgNVBAMTBFRlc3QwHhcNMTYxMTA5\n" +
-                "MTc1NzUwWhcNMTYxMTE5MTc1NzUwWjAtMQswCQYDVQQGEwJHQjEPMA0GA1UEBxMG\n" +
-                "TG9uZG9uMQ0wCwYDVQQDEwRUZXN0MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKB\n" +
-                "gQC2YAu05vlOz9K5Ad2w3FpM6KugOWQyDpxgwBjBFIdMU1tuzxsXJQEV7c65X/em\n" +
-                "Evr45PJPJY07YaMGpZB9KHzxDDd2+9OMwo0aNz5qCGdd2pRYhz22+vUrJsSPLKub\n" +
-                "C8DLYKoQSGpICWeafvRzd8ewdmJaejmC2s/4s41IDr9gJwIDAQABMA0GCSqGSIb3\n" +
-                "DQEBBQUAA4GBADFnTzTDMOBPBHYh6keqBTBIVCtYGS9kfh8UvmAntXJ4OH27F4KP\n" +
-                "B9I5ebo8NIAaTjIXkZopj2fiaBt9BiWjVDJ4V6KOwZxaKWd2qpl2Jq64DuAPnuRH\n" +
-                "2I+2HIb9X36hs3BiwiJ8lTJjqrlXvXm1dBrosOog2obYC1EVkcDPJmLk\n" +
+                "MIIDCjCCAfKgAwIBAgIIKzRkwk/TRDswDQYJKoZIhvcNAQEMBQAwIzEhMB8GA1UEAxMYYXdpdHJp\n" +
+                "c25hLWRlc2t0b3AuY2EuY29tMB4XDTEzMTEyNzE5MzkwOVoXDTE4MTEyNjE5MzkwOVowIzEhMB8G\n" +
+                "A1UEAxMYYXdpdHJpc25hLWRlc2t0b3AuY2EuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB\n" +
+                "CgKCAQEAoaCzdLbRhqt3T4ROTgOBD5gizxsJ/vhqmIpagXU+3OPhZocwf0FIVjvbrybkj8ZynTve\n" +
+                "p1cJsAmdkuX+w6m8ow2rAR/8BQnIaBD281gNqDCYXAGkguEZBbCQ2TvD4FZYnJZSmrE9PJtIe5pq\n" +
+                "DneOqaO0Kqj3sJpYIG11U8djio9UNAqTd0J9q5+fEMVle/QG0X0ro3MR30PaHIA7bpvISpjFZ0zD\n" +
+                "54rQc+85bOamg4aJFcfiNSMIaAYaFMi/peJLmW8Q4DZriAQSG6PIBcekMx1mi4tuXkSrr3P3ycKu\n" +
+                "bU0ePKnxckxWHygK42bQ5ClLuJeYNPxqHiBapZj2hwmzsQIDAQABo0IwQDAdBgNVHQ4EFgQUZddX\n" +
+                "bkxC+asQgSCSIViGKuGS2f4wHwYDVR0jBBgwFoAUZddXbkxC+asQgSCSIViGKuGS2f4wDQYJKoZI\n" +
+                "hvcNAQEMBQADggEBAHK/QdXrRROjKjxwU05wo1KZNRmi8jBsKF/ughCTqcUCDmEuskW/x9VCIm/r\n" +
+                "ZMFgOA3tou7vT0mX8gBds+95td+aNci1bcBBpiVIwiqOFhBrtbiAhYofgXtbcYchL9SRmIpek/3x\n" +
+                "BwBj5CBmaimOZsTLp6wqzLE4gpAdTMaU+RIlwq+uSUmKhQem6fSthGdWx5Ea9gwKuVi8PwSFCs/Q\n" +
+                "nwUfNnCvOTP8PtQgvmLsXeaFfy/lYK7iQp1CiwwXYpc3Xivv9A7DH7MqVSQZdtjDrRI2++1/1Yw9\n" +
+                "XoYtMDN0dQ5lBNIyJB5rWtCixZgfacHp538bMPMskLePU3dxNdCqhas=\n" +
                 "-----END CERTIFICATE-----";
         //Mock response for device renew
         return new MockResponse()

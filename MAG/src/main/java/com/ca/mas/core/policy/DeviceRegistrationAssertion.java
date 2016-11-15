@@ -11,8 +11,6 @@ package com.ca.mas.core.policy;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.ca.mas.core.MobileSso;
-import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.cert.CertUtils;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
@@ -25,7 +23,6 @@ import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.CredentialRequiredException;
-import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
 import com.ca.mas.core.registration.DeviceRegistrationAwaitingActivationException;
 import com.ca.mas.core.registration.RegistrationClient;
@@ -80,17 +77,9 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
             } catch (CertificateExpiredException | CertificateNotYetValidException e) {
                 if (e instanceof CertificateExpiredException) {
                     // Client certificate expired, try to renew
-                    try {
-                        renewDevice(mssoContext);
-                    } catch (TokenStoreException e1) {
-                        throw new TokenStoreUnavailableException(e1);
-                    } catch (RetryRequestException e1) {
-                        mssoContext.destroyPersistentTokens();
-                        throw e1;
-                    }
+                    throw new com.ca.mas.core.policy.exceptions.CertificateExpiredException(e);
                 }
             }
-
             return;
         }
 
@@ -109,12 +98,6 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
     @Override
     public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGStateException {
         // Nothing to do here
-    }
-
-    private void renewDevice(MssoContext mssoContext) throws RegistrationException, RetryRequestException, TokenStoreException {
-        X509Certificate[] certificates = new RegistrationClient(mssoContext).renewDevice();
-        tokenManager.saveClientCertificateChain(certificates);
-        mssoContext.resetHttpClient();
     }
 
     private void registerDevice(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {

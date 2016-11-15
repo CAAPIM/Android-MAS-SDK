@@ -18,9 +18,7 @@ import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.policy.exceptions.RetryRequestException;
-import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
-import com.ca.mas.core.store.TokenManager;
+import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.token.ClientCredentials;
 
 import java.util.UUID;
@@ -28,11 +26,9 @@ import java.util.UUID;
 public class ClientCredentialAssertion implements MssoAssertion {
 
     public static final String INVALID_CLIENT_CREDENTIALS_ERROR_CODE_SUFFIX = "201";
-    private TokenManager tokenManager;
 
     @Override
     public void init(@NonNull MssoContext mssoContext, @NonNull Context sysContext) {
-        tokenManager = mssoContext.getTokenManager();
         if (mssoContext.getConfigurationProvider() == null)
             throw new NullPointerException("ConfigurationProvider is null");
     }
@@ -74,9 +70,7 @@ public class ClientCredentialAssertion implements MssoAssertion {
         }
         String s = Integer.toString(errorCode);
         if (s.endsWith(INVALID_CLIENT_CREDENTIALS_ERROR_CODE_SUFFIX)) {
-            mssoContext.clearAccessToken();
-            mssoContext.clearClientCredentials();
-            throw new RetryRequestException("Client is rejected by server");
+            throw new InvalidClientCredentialException("Client is rejected by server");
         }
     }
 

@@ -22,6 +22,7 @@ import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGRequestBody;
 import com.ca.mas.core.http.MAGResponseBody;
+import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.request.MAGInternalRequest;
 import com.ca.mas.core.token.IdToken;
@@ -41,8 +42,6 @@ import java.util.List;
 public class OAuthTokenClient extends ServerClient {
 
     private static final int INVALID_CLIENT_CREDENTIALS = 3003201;
-    private static final int INVALID_RESOURCE_OWNER_CREDENTIALS = 3003202;
-
 
     public OAuthTokenClient(MssoContext mssoContext) {
         super(mssoContext);
@@ -100,11 +99,6 @@ public class OAuthTokenClient extends ServerClient {
         } catch (JSONException | MAGException e) {
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, e);
         } catch (MAGServerException e) {
-            if (e.getErrorCode() == INVALID_CLIENT_CREDENTIALS) {
-                mssoContext.clearClientCredentials();
-            } else if (e.getErrorCode() == INVALID_RESOURCE_OWNER_CREDENTIALS) {
-                throw new AuthenticationException(e);
-            }
             throw new OAuthServerException(e);
         }
 
@@ -151,10 +145,6 @@ public class OAuthTokenClient extends ServerClient {
         } catch (JSONException | MAGException e) {
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, e);
         } catch (MAGServerException e) {
-            if (e.getErrorCode() == INVALID_CLIENT_CREDENTIALS) {
-                mssoContext.clearClientCredentials();
-                throw new RetryRequestException(new OAuthServerException(e));
-            }
             throw new OAuthServerException(e);
         }
 
@@ -208,9 +198,9 @@ public class OAuthTokenClient extends ServerClient {
         } catch (JSONException | MAGException e) {
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, e);
         } catch (MAGServerException e) {
+            //Throw error to retry request instead of using the id_token
             if (e.getErrorCode() == INVALID_CLIENT_CREDENTIALS) {
-                mssoContext.clearClientCredentials();
-                throw new RetryRequestException(new OAuthServerException(e));
+                throw new InvalidClientCredentialException(e);
             }
             throw new OAuthServerException(e);
         }

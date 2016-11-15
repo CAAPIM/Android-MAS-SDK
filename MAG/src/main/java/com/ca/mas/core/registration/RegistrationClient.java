@@ -25,7 +25,6 @@ import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.io.IoUtils;
-import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.token.IdToken;
 
 import java.io.IOException;
@@ -211,33 +210,7 @@ public class RegistrationClient extends ServerClient {
         };
     }
 
-    public X509Certificate[] renewDevice() throws RegistrationException, RetryRequestException {
-        final URI tokenUri = mssoContext.getConfigurationProvider().getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RENEW_DEVICE);
 
-        MAGRequest.MAGRequestBuilder builder = new MAGRequest.MAGRequestBuilder(tokenUri);
-        builder.header(CERT_FORMAT, PEM);
-        builder.put(null);
-
-        MAGHttpClient httpClient = mssoContext.getMAGHttpClient();
-
-        final MAGResponse response;
-        String errorMessage = "Unable to renew device: ";
-        try {
-            response = httpClient.execute(builder.build());
-        } catch (IOException e) {
-            errorMessage += e.getMessage();
-            throw new RegistrationException(MAGErrorCode.DEVICE_NOT_RENEWED, errorMessage, e);
-        }
-
-        Log.d(TAG, "renew_device response code: " + response.getResponseCode());
-        int responseCode = response.getResponseCode();
-        if( responseCode != HttpURLConnection.HTTP_OK ){
-            throw new RetryRequestException(errorMessage);
-        }
-        byte[] chainBytes = response.getBody().getRawContent();
-        final X509Certificate[] chain = CertUtils.decodeCertificateChain(chainBytes);
-        return chain;
-    }
 
     private static DeviceStatus findDeviceStatus(MAGResponse response) throws RegistrationException {
         final DeviceStatus deviceStatus;

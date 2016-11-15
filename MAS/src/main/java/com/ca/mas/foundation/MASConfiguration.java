@@ -188,4 +188,12 @@ public class MASConfiguration {
     public String getEndpointPath(String key) {
         return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(key);
     }
+
+    public void setDaysToExpire(int numDays){
+        ConfigurationManager.getInstance().setDaysToExpire(numDays);
+    }
+
+    public int getDaysToExpire(){
+        return ConfigurationManager.getInstance().getDaysToExpire();
+    }
 }

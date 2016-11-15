@@ -12,12 +12,14 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.creds.Credentials;
 import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.error.MAGErrorCode;
+import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.http.MAGRequest;
@@ -25,6 +27,8 @@ import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.policy.PolicyManager;
 import com.ca.mas.core.policy.RequestInfo;
+import com.ca.mas.core.policy.exceptions.CertificateExpiredException;
+import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.registration.RegistrationClient;
 import com.ca.mas.core.request.MAGInternalRequest;
@@ -421,8 +425,11 @@ public class MssoContext {
                 }
                 policyManager.processResponse(requestInfo, response);
                 return response;
+            } catch (MAGServerException e ) {
+                rethrow(e);
             } catch (RetryRequestException e) {
                 lastError = e;
+                e.recover(this);
                 Log.d(TAG, "Attempting to retry request");
             }
         }
@@ -430,6 +437,25 @@ public class MssoContext {
             throw (Exception) lastError.getCause();
         }
         throw new IOException("Too many attempts, giving up: " + (lastError == null ? null : lastError.getMessage()));
+    }
+
+    /**
+     * Handle common server error defined under
+     * Git: MAS/Gateway-SK-MAG/blob/develop/apidoc/errorcodes/error_codes_overview.xml
+     */
+    private void rethrow(MAGServerException e) throws Exception {
+        int errorCode = e.getErrorCode();
+        String s = Integer.toString(errorCode);
+        if (s.endsWith("201")) { //Invalid client - The given client credentials were not valid
+            throw new InvalidClientCredentialException();
+        }
+        if (s.endsWith("202")) { //Invalid resource owner - The given resource owner credentials were not valid
+            throw new AuthenticationException(e);
+        }
+        if (s.endsWith("206")) { //Invalid client Certificate - The given client certificate has expired
+            throw new CertificateExpiredException(e);
+        }
+        throw e; //Cannot be handle on the client side, rethrow to caller
     }
 
     /**

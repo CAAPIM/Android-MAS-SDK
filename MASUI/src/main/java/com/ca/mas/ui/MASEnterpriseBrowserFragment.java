@@ -66,25 +66,7 @@ public class MASEnterpriseBrowserFragment extends DialogFragment {
         final GridView gridView = (GridView) view.findViewById(R.id.gridview);
 
         // Provide Application Launcher, launch Native App and Browser App
-        MASApplication.setApplicationLauncher(new MASApplication.MASApplicationLauncher() {
-            @Override
-            public void onWebAppLaunch(MASApplication application) {
-                if (application.getAuthUrl() != null) {
-                    try {
-                        if (!(new URL(application.getAuthUrl())).getHost().equals(MASConfiguration.getCurrentConfiguration().getGatewayHostName())) {
-                            Log.e(TAG, "This auth url is valid only for the host that has issued the access_token");
-                            return;
-                        }
-                    } catch (MalformedURLException e) {
-                        Log.e(TAG, "Invalid auth url", e);
-                        return;
-                    }
-                    Intent intent = new Intent(getActivity(), MASEnterpriseWebApplicationActivity.class);
-                    intent.putExtra(AUTH_URL, application.getAuthUrl());
-                    getActivity().startActivity(intent);
-                }
-            }
-        });
+        MASApplication.setApplicationLauncher(getApplicationLauncher());
 
         // Retrieve the Enterprise Applications
         MASApplication.retrieveEnterpriseApps(new MASCallback<List<MASApplication>>() {
@@ -154,5 +136,27 @@ public class MASEnterpriseBrowserFragment extends DialogFragment {
             }
             return imageView;
         }
+    }
+
+    protected MASApplication.MASApplicationLauncher getApplicationLauncher() {
+        return new MASApplication.MASApplicationLauncher() {
+            @Override
+            public void onWebAppLaunch(MASApplication application) {
+                if (application.getAuthUrl() != null) {
+                    try {
+                        if (!(new URL(application.getAuthUrl())).getHost().equals(MASConfiguration.getCurrentConfiguration().getGatewayHostName())) {
+                            Log.e(TAG, "This auth url is valid only for the host that has issued the access_token");
+                            return;
+                        }
+                    } catch (MalformedURLException e) {
+                        Log.e(TAG, "Invalid auth url", e);
+                        return;
+                    }
+                    Intent intent = new Intent(getActivity(), MASEnterpriseWebApplicationActivity.class);
+                    intent.putExtra(AUTH_URL, application.getAuthUrl());
+                    getActivity().startActivity(intent);
+                }
+            }
+        };
     }
 }

@@ -135,6 +135,7 @@ public class MASConnectaManager implements MASConnectaClient {
     @Override
     public void disconnect(MASCallback<Void> callback) {
         if (isConnected()) {
+            mConnectOptions = null;
             mMASTransportService.disconnect(callback);
         }
     }

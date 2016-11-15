@@ -133,11 +133,13 @@ public class ConnectaService extends Service implements MASConnectaClient {
                 }
             };
 
-            if (mConnectOptions == null) {
+            if ((mConnectOptions == null) || (mConnectOptions.getServerURIs() == null)) {
+                // For Gateway connection
                 // If connect options have not been set
                 mConnectOptions = new MASConnectOptions();
                 mConnectOptions.initConnectOptions(this, mTimeOutInMillis, masCallback);
             } else {
+                // For public broker connection
                 // MASConnectOptions has been set
                 mConnectOptions.setConnectionTimeout(ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(this), mTimeOutInMillis).getConnectionTimeout());
                 Log.d(TAG, "CONNECTA: onSuccess()");
@@ -235,11 +237,11 @@ public class ConnectaService extends Service implements MASConnectaClient {
 
     @Override
     public void disconnect(MASCallback<Void> callback) {
-
         if (isConnected()) {
             Log.d(TAG, "Client Disconnected.");
             try {
                 mMqttClient.disconnect();
+                mConnectOptions = null;
                 Callback.onSuccess(callback, null);
             } catch (Exception e) {
                 Callback.onError(callback, e);

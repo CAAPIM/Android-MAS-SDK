@@ -36,22 +36,29 @@ public class MASSessionUnlockActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                launchKeyguardIntent();
+                unlockDevice();
+
+                View container = findViewById(R.id.container);
+                container.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        unlockDevice();
+                    }
+                });
             }
         }, getAuthenticationScreenDelay());
-
-        View container = findViewById(R.id.container);
-        container.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                launchKeyguardIntent();
-            }
-        });
 
         TextView emailTextView = (TextView) findViewById(R.id.text_user_email);
         MASUser currentUser = MASUser.getCurrentUser();
         if (emailTextView != null && currentUser != null) {
             emailTextView.setText(currentUser.getUserName());
+        }
+    }
+
+    private void unlockDevice() {
+        MASUser user = MASUser.getCurrentUser();
+        if (user != null) {
+            user.unlockSession(getUnlockCallback());
         }
     }
 
@@ -137,7 +144,6 @@ public class MASSessionUnlockActivity extends AppCompatActivity {
      * Called when a user cancels the authentication screen.
      */
     protected void onAuthenticationCancelled() {
-
     }
 
     /**

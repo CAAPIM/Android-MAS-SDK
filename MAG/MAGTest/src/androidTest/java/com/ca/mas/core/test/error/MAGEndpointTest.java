@@ -23,6 +23,7 @@ import com.ca.mas.core.error.TargetApiException;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.http.MAGResponseBody;
+import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.request.internal.OAuthTokenRequest;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.test.BaseTest;
@@ -60,10 +61,7 @@ public class MAGEndpointTest extends BaseTest {
         });
 
         processRequest(new OAuthTokenRequest());
-        assertTrue(error.getCause() instanceof ClientCredentialsServerException);
-        assertEquals(expectedErrorCode, ((MAGServerException) error.getCause()).getErrorCode());
-        assertEquals(expectedErrorMessage, error.getMessage());
-
+        assertTrue(error.getCause() instanceof InvalidClientCredentialException);
     }
 
     @Test
@@ -113,10 +111,7 @@ public class MAGEndpointTest extends BaseTest {
         });
 
         processRequest(new OAuthTokenRequest());
-
-        assertEquals(expectedErrorCode, ((MAGServerException) registrationError[0].getCause()).getErrorCode());
-        assertEquals(expectedErrorMessage, registrationError[0].getMessage());
-
+        assertTrue(registrationError[0].getCause() instanceof InvalidClientCredentialException);
     }
 
     @Test

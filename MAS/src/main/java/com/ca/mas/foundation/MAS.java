@@ -381,6 +381,5 @@ public class MAS {
      * Stops the lifecycle of all MAS processes.
      */
     public static void stop() {
-        MASConnectaManager.getInstance().stop();
     }
 }

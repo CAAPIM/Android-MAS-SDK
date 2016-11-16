@@ -130,6 +130,13 @@ public class MASTopicBuilder {
                 }
                 return topicStructure;
             }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                return o.toString().equals(toString());
+            }
         };
     }
 
@@ -145,4 +152,5 @@ public class MASTopicBuilder {
                 throw new IllegalArgumentException("Messaging segment is not supported");
         }
     }
+
 }

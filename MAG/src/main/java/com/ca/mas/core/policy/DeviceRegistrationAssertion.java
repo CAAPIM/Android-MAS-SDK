@@ -71,7 +71,7 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
             try {
                 // Check if client certificate is expired
                 Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.DAY_OF_YEAR, ConfigurationManager.getInstance().getDaysToExpire());
+                cal.add(Calendar.DAY_OF_YEAR, ConfigurationManager.getInstance().getCertificateAdvancedRenewTimeframe());
                 Date date = cal.getTime();
                 certificate.checkValidity(date);
             } catch (CertificateExpiredException | CertificateNotYetValidException e) {

@@ -38,7 +38,14 @@ public class MASConnectOptions extends MqttConnectOptions {
 
     private static String TAG = MASConnectOptions.class.getSimpleName();
 
+    boolean isGatewayConnect = false;
+
+    public boolean isGatewayConnect() {
+        return isGatewayConnect;
+    }
+
     public void initConnectOptions(final Context context, final long timeOutInMillis, final MASCallback<Map<String, Object>> callback) {
+        isGatewayConnect = true;
 
         final MASResultReceiver<JSONObject> receiver = new MASResultReceiver<JSONObject>(Callback.getHandler(callback)) {
             @Override

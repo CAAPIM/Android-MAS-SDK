@@ -12,6 +12,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
@@ -490,6 +491,9 @@ public class MssoContext {
      *                       error access the data source.
      */
     public void logout(boolean contactServer) throws MssoException {
+
+        EventDispatcher.LOGOUT.notifyObservers();
+
         if (configurationProvider == null)
             throw new IllegalStateException("MssoContext not initialized, no configuration provider");
         if (tokenManager == null)
@@ -571,6 +575,7 @@ public class MssoContext {
      * @throws MssoException if there is an error while attempting to tell the token server to unregister this device.
      */
     public void removeDeviceRegistration() throws MssoException {
+        EventDispatcher.DE_REGISTER.notifyObservers();
         if (tokenManager == null)
             throw new IllegalStateException("MssoContext not initialized, no token manager");
         try {

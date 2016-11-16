@@ -9,11 +9,9 @@
 package com.ca.mas.core;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.ca.mas.core.auth.AuthResultReceiver;
 import com.ca.mas.core.auth.ble.BluetoothLePeripheral;
@@ -165,7 +163,7 @@ public final class MobileSsoFactory {
             boolean isSwitching = false;
 
             if (isSwitchGateway(config)) {
-                LocalBroadcastManager.getInstance(context).sendBroadcastSync(new Intent(MAGConstants.BEFORE_GATEWAY_SWITCH));
+                EventDispatcher.BEFORE_GATEWAY_SWITCH.notifyObservers();
                 isSwitching = true;
             }
 
@@ -173,7 +171,7 @@ public final class MobileSsoFactory {
             mobileSso.set(createMobileSso(context));
 
             if (isSwitching) {
-                LocalBroadcastManager.getInstance(context).sendBroadcastSync(new Intent(MAGConstants.AFTER_GATEWAY_SWITCH));
+                EventDispatcher.AFTER_GATEWAY_SWITCH.notifyObservers();
             }
 
             return mobileSso.get();
@@ -221,6 +219,7 @@ public final class MobileSsoFactory {
 
             @Override
             public void destroyAllPersistentTokens() {
+                EventDispatcher.RESET_LOCALLY.notifyObservers();
                 mssoContext.destroyAllPersistentTokens();
             }
 

@@ -207,7 +207,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
                     @Override
                     public void connectionLost(Throwable throwable) {
                         //Try to reconnect for gateway connect
-                        if (mConnectOptions.isGatewayConnect()) {
+                        if (mConnectOptions.isGateway()) {
                             mConnectOptions = null;
                             connect(null);
                         }

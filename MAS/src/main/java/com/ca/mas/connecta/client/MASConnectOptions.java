@@ -36,16 +36,17 @@ import javax.net.ssl.SSLSocketFactory;
  */
 public class MASConnectOptions extends MqttConnectOptions {
 
-    private static String TAG = MASConnectOptions.class.getSimpleName();
+    boolean isGateway = false;
 
-    boolean isGatewayConnect = false;
-
-    public boolean isGatewayConnect() {
-        return isGatewayConnect;
+    /**
+     * @return True if connect option is target to gateway
+     */
+    public boolean isGateway() {
+        return isGateway;
     }
 
     public void initConnectOptions(final Context context, final long timeOutInMillis, final MASCallback<Map<String, Object>> callback) {
-        isGatewayConnect = true;
+        isGateway = true;
 
         final MASResultReceiver<JSONObject> receiver = new MASResultReceiver<JSONObject>(Callback.getHandler(callback)) {
             @Override

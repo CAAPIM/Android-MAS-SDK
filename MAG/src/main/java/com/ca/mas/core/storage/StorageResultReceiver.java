@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Log;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 
 /**
@@ -20,8 +22,6 @@ import android.util.Log;
  * <p/>
  */
 public class StorageResultReceiver {
-
-    private static final String TAG = StorageResultReceiver.class.getCanonicalName();
 
     private final ResultReceiver receiver;
 
@@ -36,7 +36,7 @@ public class StorageResultReceiver {
                 try {
                     StorageResultReceiver.this.onReceiveResult(result);
                 } catch (Exception e) {
-                    Log.w(TAG, "Error in Application code " + e);
+                    if (DEBUG) Log.e(TAG, "Error in Storage Callback",  e);
                 }
             }
         };

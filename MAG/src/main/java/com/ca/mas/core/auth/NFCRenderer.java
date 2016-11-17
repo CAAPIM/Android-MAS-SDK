@@ -25,12 +25,13 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.UUID;
 
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 /**
  * NFC for cross device session sharing
  */
 public class NFCRenderer extends PollingRenderer {
-
-    private static final String TAG = NFCRenderer.class.getCanonicalName();
 
     /**
      * Error when NFC is not available
@@ -76,6 +77,8 @@ public class NFCRenderer extends PollingRenderer {
             listener = new ListenerThread();
             listener.start();
         } catch (Exception e) {
+            if (DEBUG) Log.w(TAG,
+                    "Failed to start Bluetooth Service, will use polling for NFC notification", e);
             onError(BLUETOOTH_ERR, "Unable to start Bluetooth Service", e);
         }
 
@@ -91,22 +94,22 @@ public class NFCRenderer extends PollingRenderer {
             jsonObject.put(UUID, uuid.toString());
             jsonObject.put(PROVIDER_URL, provider.getUrl().toString());
             jsonObject.put(ADDRESS, address);
+            // Register callback
+            adapter.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
+
+                @Override
+                public NdefMessage createNdefMessage(NfcEvent event) {
+                    return new NdefMessage(
+                            new NdefRecord[]{NdefRecord.createMime(
+                                    "application/vnd.com.ca.mas.core.beam", jsonObject.toString().getBytes())
+                            });
+                }
+
+            }, (Activity) context);
         } catch (JSONException e) {
-            Log.e(TAG, "Failed to create JSON message.", e);
+            if (DEBUG) Log.e(TAG, "Failed to set NFC Push Message Callback", e);
         }
 
-        // Register callback
-        adapter.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
-
-            @Override
-            public NdefMessage createNdefMessage(NfcEvent event) {
-                return new NdefMessage(
-                        new NdefRecord[]{NdefRecord.createMime(
-                                "application/vnd.com.ca.mas.core.beam", jsonObject.toString().getBytes())
-                        });
-            }
-
-        }, (Activity) context);
 
         super.onRenderCompleted();
     }
@@ -121,8 +124,8 @@ public class NFCRenderer extends PollingRenderer {
         if (listener != null) {
             listener.cancel();
         }
-        if (adapter != null ) {
-            adapter.setNdefPushMessageCallback(null, ((Activity)context));
+        if (adapter != null) {
+            adapter.setNdefPushMessageCallback(null, ((Activity) context));
         }
     }
 
@@ -162,14 +165,16 @@ public class NFCRenderer extends PollingRenderer {
                     try {
                         socket.close();
                     } catch (IOException e) {
-                        Log.d(TAG, "Failed to close Socket: " +  e.getMessage());
+                        if (DEBUG) Log.d(TAG,
+                                "Failed to close BlueTooth Socket: " + e.getMessage());
                     }
                 }
                 if (serverSocket != null) {
                     try {
                         serverSocket.close();
                     } catch (IOException e) {
-                        Log.d(TAG, "Failed to close ServerSocket: " +  e.getMessage());
+                        if (DEBUG) Log.d(TAG,
+                                "Failed to close BlueTooth ServerSocket: " + e.getMessage());
                     }
                 }
 
@@ -181,7 +186,8 @@ public class NFCRenderer extends PollingRenderer {
                 try {
                     serverSocket.close();
                 } catch (IOException e) {
-                    Log.d(TAG, "Failed to close ServerSocket: " +  e.getMessage());
+                    if (DEBUG) Log.d(TAG,
+                            "Failed to close BlueTooth ServerSocket: " + e.getMessage());
                 }
             }
         }

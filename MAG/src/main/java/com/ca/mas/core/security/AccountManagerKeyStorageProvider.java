@@ -20,14 +20,16 @@ import com.ca.mas.core.datasource.DataSourceFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class AccountManagerKeyStorageProvider extends KeyStoreKeyStorageProvider {
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
-    private static final String TAG = AccountManagerKeyStorageProvider.class.getCanonicalName();
+public class AccountManagerKeyStorageProvider extends KeyStoreKeyStorageProvider {
 
     private DataSource<String, byte[]> storage;
 
     /**
      * Constructor
+     *
      * @param ctx
      */
     public AccountManagerKeyStorageProvider(@NonNull Context ctx) {
@@ -36,15 +38,14 @@ public class AccountManagerKeyStorageProvider extends KeyStoreKeyStorageProvider
         try {
             params.put("share", Boolean.TRUE);
         } catch (JSONException e) {
-            Log.w(TAG, "Failed to set sharing property " + e);
+            if (DEBUG) Log.w(TAG, "Failed to set sharing property " + e);
         }
 
         storage = DataSourceFactory.getStorage(ctx, AccountManagerStoreDataSource.class, params, null);
     }
 
     /**
-     *
-     * @param alias The alias to store the key against.
+     * @param alias              The alias to store the key against.
      * @param encryptedSecretkey The encrypted secret key to store.
      * @return
      */
@@ -55,7 +56,6 @@ public class AccountManagerKeyStorageProvider extends KeyStoreKeyStorageProvider
     }
 
     /**
-     *
      * @param alias The alias for the required secret key.
      * @return
      */
@@ -66,7 +66,6 @@ public class AccountManagerKeyStorageProvider extends KeyStoreKeyStorageProvider
     }
 
     /**
-     *
      * @param alias
      * @return True if the secret key associated with given alias exists, false otherwise.
      */
@@ -78,6 +77,7 @@ public class AccountManagerKeyStorageProvider extends KeyStoreKeyStorageProvider
 
     /**
      * Delete the secret key locally.
+     *
      * @param alias
      * @return
      */

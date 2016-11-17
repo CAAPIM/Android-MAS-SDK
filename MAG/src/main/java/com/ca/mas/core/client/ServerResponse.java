@@ -8,8 +8,6 @@
 
 package com.ca.mas.core.client;
 
-import android.util.Log;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -21,7 +19,6 @@ import org.json.JSONTokener;
  * or a JSON error response from the register_device method.
  */
 public class ServerResponse {
-    private static final String TAG = ServerResponse.class.getCanonicalName();
 
     protected int status;
     protected int errorCode;
@@ -55,7 +52,6 @@ public class ServerResponse {
         if (got instanceof JSONObject) {
             this.parsed = (JSONObject) got;
         } else {
-            Log.d(TAG, "JSON response was not of type JSONObject: type=" + got.getClass());
             throw new JSONException("JSON response did not contain a JSON object");
         }
     }

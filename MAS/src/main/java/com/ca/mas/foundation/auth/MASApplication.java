@@ -35,6 +35,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.ca.mas.core.MAG.DEBUG;
+
 /**
  * The Enterprise browser manages a trusted group of enterprise approved applications on a device.
  * Applications within this trusted group can be accessed through single sign-on.
@@ -211,7 +213,7 @@ public abstract class MASApplication {
             try {
                 MAS.getContext().startActivity(intent);
             } catch (ActivityNotFoundException e) {
-                Log.e(TAG, e.getMessage(), e);
+                if (DEBUG) Log.e(TAG, e.getMessage(), e);
                 throw e;
             }
         }

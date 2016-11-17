@@ -17,7 +17,7 @@ import com.ca.mas.core.policy.RequestInfo;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.TokenManager;
 
-public class SecureLockAssertion implements MssoAssertion {
+class SecureLockAssertion implements MssoAssertion {
     private TokenManager tokenManager;
 
     @Override

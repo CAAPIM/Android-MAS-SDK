@@ -17,7 +17,6 @@ import android.support.test.rule.ActivityTestRule;
 import android.util.Base64;
 import android.util.Log;
 
-import com.ca.mas.connecta.client.MASConnectOptions;
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.foundation.MASCallback;
@@ -177,9 +176,8 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
     }
 
     @Test
-    public void testSendEmptyMessage() {
+    public void testSendEmptyMessage() throws Exception {
 
-        try {
             MASUser user = MASUser.getCurrentUser();
 
             //setup topic
@@ -188,10 +186,7 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
             //setup message
             MASMessage masMessage = MASMessage.newInstance();
 
-            sendMessageToTopic(topic, masMessage, false);
-        } catch (Exception e) {
-            fail("" + e);
-        }
+            sendMessageToTopic(topic, masMessage, true);
     }
 
     @Ignore
@@ -219,10 +214,7 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
     }
 
     @Test
-    public void testSendMessageToNullTopic() {
-
-        try {
-            MASUser user = MASUser.getCurrentUser();
+    public void testSendMessageToNullTopic() throws Exception {
 
             //setup topic
             MASTopic topic = null;
@@ -233,10 +225,6 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
             masMessage.setPayload("test".getBytes());
 
             sendMessageToTopic(topic, masMessage, true);
-            fail("Expected a Null Exception ");
-        } catch (Exception e) {
-            Log.i(TAG, "Exception " + e);
-        }
     }
 
     @Ignore

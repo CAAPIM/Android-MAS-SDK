@@ -33,8 +33,6 @@ import java.util.Set;
 
 public class MASSecureLocalStorage extends AbstractMASStorage {
 
-    private static final String TAG = MASSecureLocalStorage.class.getCanonicalName();
-
     private DataSource<LocalStoreKey, LocalStoreEntity> dataSource;
     private Context context;
     private EncryptionProvider encProvider;

@@ -15,6 +15,8 @@ import com.ca.mas.core.storage.StorageException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * Factory that creates the the Storage instance.
@@ -72,8 +74,6 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class MASStorageManager {
 
-    private static final String TAG = MASStorageManager.class.getCanonicalName();
-
 
     /**
      * Types of storage.
@@ -118,7 +118,7 @@ public class MASStorageManager {
             return getStorage((Class<? extends Storage>) Class.forName(className), options);
         } catch (ClassNotFoundException e) {
             String msg = "Error instantiating the requested Storage - " + className + " reason: " + e;
-            Log.e(TAG, msg);
+            if (DEBUG) Log.e(TAG, msg);
             throw new StorageException(msg, null, StorageException.STORE_NOT_FOUND);
         }
     }
@@ -149,12 +149,12 @@ public class MASStorageManager {
 
         }catch (InvocationTargetException in) {
             String msg = "Error instantiating the requested Storage - " + c.getCanonicalName() + " reason: " + in;
-            Log.e(TAG, msg);
+            if (DEBUG) Log.e(TAG, msg);
             throw (StorageException) ((InvocationTargetException) in).getTargetException();
         }
         catch (Exception e) {
             String msg = "Error instantiating the requested Storage - " + c.getName() + " reason: " + e;
-            Log.e(TAG, msg);
+            if (DEBUG) Log.e(TAG, msg);
             throw new StorageException(msg, null, StorageException.STORE_NOT_FOUND);
         }
     }

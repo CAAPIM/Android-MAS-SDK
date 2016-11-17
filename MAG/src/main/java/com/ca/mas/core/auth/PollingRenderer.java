@@ -18,7 +18,8 @@ import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 /**
  * Poll MAG periodically for the Authorization Code
  */
@@ -26,7 +27,6 @@ public abstract class PollingRenderer extends AuthRenderer {
 
     //Error for invalid session ID or Poll URL
     public static final int INVALID_SESSION_ID_OR_POLL_URL = 10;
-    private static final String TAG = PollingRenderer.class.getCanonicalName();
 
     /**
      * Error due to errors occurred during request for auth code.
@@ -102,7 +102,7 @@ public abstract class PollingRenderer extends AuthRenderer {
 
             @Override
             public void run() {
-                Log.d(TAG, "Poll Auth code from Server");
+                if (DEBUG) Log.d(TAG, "Polling Authorization code from Server");
                 if (pollCount[0]++ < maxPollCount) {
                     proceed();
                 } else {

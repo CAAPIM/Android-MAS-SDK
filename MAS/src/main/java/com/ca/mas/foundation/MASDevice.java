@@ -7,6 +7,7 @@
  */
 package com.ca.mas.foundation;
 
+import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.conf.ConfigurationManager;

@@ -15,22 +15,24 @@ import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.ca.mas.connecta.serviceprovider.ConnectaService;
 import com.ca.mas.core.util.Functions;
+import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
 
+import java.util.Observable;
+import java.util.Observer;
+
 /**
  * <p>The <b>MASConnectaManager</b> is the implementation of the {@link com.ca.mas.connecta.client.MASConnectaClient}.
  * The MASConnectaManager implementation used to interface between the messaging transport and the proprietary Android service that leverages the Mqtt library.</p>
  */
-public class MASConnectaManager implements MASConnectaClient {
-
-    // this is public so it can be used as an external identifier for the class
-    private static String TAG = MASConnectaManager.class.getSimpleName();
+public class MASConnectaManager implements MASConnectaClient, Observer {
 
     private Context mContext;
     private static MASConnectaManager instance = new MASConnectaManager();
@@ -96,6 +98,10 @@ public class MASConnectaManager implements MASConnectaClient {
     };
 
     private MASConnectaManager() {
+        EventDispatcher.LOGOUT.addObserver(this);
+        EventDispatcher.DE_REGISTER.addObserver(this);
+        EventDispatcher.RESET_LOCALLY.addObserver(this);
+        EventDispatcher.BEFORE_GATEWAY_SWITCH.addObserver(this);
     }
 
     public static MASConnectaManager getInstance() {
@@ -135,6 +141,7 @@ public class MASConnectaManager implements MASConnectaClient {
     @Override
     public void disconnect(MASCallback<Void> callback) {
         if (isConnected()) {
+            mConnectOptions = null;
             mMASTransportService.disconnect(callback);
         }
     }
@@ -268,5 +275,10 @@ public class MASConnectaManager implements MASConnectaClient {
     @Override
     public void setClientId(String clientId) {
         this.clientId = clientId;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        disconnect(null);
     }
 }

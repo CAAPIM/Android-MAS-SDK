@@ -42,13 +42,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 /**
  * BluetoothLe for cross device session sharing
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class BluetoothLeCentralRenderer extends PollingRenderer {
-
-    private static final String TAG = BluetoothLeCentralRenderer.class.getCanonicalName();
 
     /**
      * Maximum bytes that can send with bluetooth characteristic
@@ -169,14 +170,18 @@ public class BluetoothLeCentralRenderer extends PollingRenderer {
 
     private void startScan() {
 
+        if (DEBUG) Log.d(TAG, "Start BLE Scanning...");
+
         scanCallback = new ScanCallback() {
             @Override
             public synchronized void onScanResult(int callbackType, ScanResult result) {
                 callback.onStatusUpdate(BluetoothLeCentralCallback.BLE_STATE_DEVICE_DETECTED);
-                Log.d(TAG, "Rssi: " + result.getRssi());
+                if (DEBUG) Log.d(TAG,
+                        "BLE advertisement has been found with Rssi: " + result.getRssi());
                 if (result.getRssi() > rssi) {
                     if (scanner != null) {
                         stopScan();
+                        if (DEBUG) Log.d(TAG, "Start process BLE session sharing.");
                         startProcess(result.getDevice());
                     }
                 }
@@ -295,7 +300,7 @@ public class BluetoothLeCentralRenderer extends PollingRenderer {
 
     private List<byte[]> splitArray(byte[] items, int max) {
         List<byte[]> result = new ArrayList<byte[]>();
-        if (items ==null || items.length == 0) {
+        if (items == null || items.length == 0) {
             return result;
         }
         int from = 0;
@@ -331,7 +336,7 @@ public class BluetoothLeCentralRenderer extends PollingRenderer {
             jsonObject.putOpt(BluetoothLe.DEVICE_NAME, Build.MODEL);
             return jsonObject.toString().getBytes();
         } catch (JSONException e) {
-            Log.e(TAG, e.getMessage(), e);
+            if (DEBUG) Log.e(TAG, e.getMessage(), e);
         }
         return null;
     }

@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * Holds information about an MSSO request while it is waiting to be processed.
  */
 class MssoRequest {
-    private static final String TAG = "MssoRequest".getClass().getName();
     private static final AtomicLong nextRequestId = new AtomicLong();
     private final long id;
     private final Object creator;

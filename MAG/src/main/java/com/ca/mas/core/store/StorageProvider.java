@@ -23,13 +23,14 @@ import com.ca.mas.core.datasource.StringDataConverter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * Utility class to retrieve the Storage interface.
  */
 public class StorageProvider {
 
-    private static String TAG = "StorageProvider";
     private ConfigurationProvider configurationProvider;
     private Context context;
     private StorageConfig mStorageConfig;
@@ -57,7 +58,7 @@ public class StorageProvider {
                 params = new JSONObject(mStorageConfig.getStorageConfig().toString());
                 params.put(StorageConfig.PROP_SHARE_STATUS, Boolean.TRUE);
             } catch (JSONException e) {
-                Log.w(TAG, "failed to set sharing property " + e);
+                if (DEBUG) Log.w(TAG, "failed to set sharing property " + e);
             }
             DataSource storage = DataSourceFactory.getStorage(context, mStorageConfig.getStorageClass(), params, null);
             return new DefaultTokenManager(storage);
@@ -138,7 +139,6 @@ public class StorageProvider {
      */
     private static class StorageConfig {
 
-        private String TAG = "StorageConfig";
         protected Class storageClass;
         protected JSONObject storageConfig = new JSONObject();
 
@@ -153,7 +153,7 @@ public class StorageProvider {
 
             JSONObject storageJson = configurationProvider.getProperty(MobileSsoConfig.PROP_STORAGE);
             if (storageJson == null) {
-                Log.i(TAG, "No storage configuration found in JSON config, falling back to DEFAULT ");
+                if (DEBUG) Log.d(TAG, "No storage configuration found in JSON config, falling back to DEFAULT ");
                 storageClass = KeystoreDataSource.class;
                 storageConfig = new JSONObject();
             } else {

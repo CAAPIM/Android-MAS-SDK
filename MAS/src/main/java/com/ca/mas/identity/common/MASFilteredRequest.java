@@ -22,13 +22,14 @@ import com.ca.mas.identity.util.IdentityUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 /**
  * <p><b>MASFilteredRequest</b> describes the APIs for user's to specify scim filters. This interface would be the backing set of APIs
  * so that an application developer could provide a simple query system for identity management.</p>
  */
 public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPagination {
-
-    private static String TAG = MASFilteredRequest.class.getSimpleName();
 
     private int mStartIndex;
     private int mCount;
@@ -239,7 +240,7 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
 
         String encUrl = fullUrl.toString().replaceAll(" ", IdentityConsts.ENC_SPACE);
         encUrl = encUrl.replaceAll("\"", IdentityConsts.ENC_DOUBLE_QUOTE);
-        Log.d(TAG, "Encoded URL: " + encUrl);
+        if (DEBUG) Log.d(TAG, "Encoded URL: " + encUrl);
         uri = Uri.parse(encUrl);
         return uri;
     }

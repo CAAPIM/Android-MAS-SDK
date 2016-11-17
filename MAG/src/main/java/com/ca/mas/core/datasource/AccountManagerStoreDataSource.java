@@ -25,7 +25,6 @@ import java.util.List;
  */
 public class AccountManagerStoreDataSource<K, V> implements DataSource<K, V> {
 
-    public static final String TAG = AccountManagerStoreDataSource.class.getCanonicalName();
     public static final String SHARE = "share";
 
     private AccountManagerStorage storage;

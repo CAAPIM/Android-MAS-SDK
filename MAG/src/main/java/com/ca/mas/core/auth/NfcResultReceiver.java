@@ -22,12 +22,14 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.util.UUID;
 
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 /**
  * The default NFC result receiver. To avoid polling the MAG, this receiver will notify
  * the session request device after it successfully authenticates the user session.
  */
 public class NfcResultReceiver extends AuthResultReceiver {
-    private static final String TAG = NfcResultReceiver.class.getCanonicalName();
 
     /**
      * Create a new ResultReceive to receive results.
@@ -53,13 +55,13 @@ public class NfcResultReceiver extends AuthResultReceiver {
         if (resultCode == MssoIntents.RESULT_CODE_SUCCESS) {
             try {
                 if (json == null) {
-                    Log.w(TAG, "A Json message is expected for NFCResultReceiver.");
+                    if (DEBUG) Log.w(TAG, "A Json message is expected for NFCResultReceiver.");
                     return;
                 }
                 uuid = json.getString(NFCRenderer.UUID);
                 address = json.getString(NFCRenderer.ADDRESS);
             } catch (JSONException e) {
-                Log.w(TAG, "Invalid Json message: " + e.getMessage());
+                if (DEBUG) Log.w(TAG, "Invalid Json message from NFC Session Sharing", e);
                 return;
             }
             BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
@@ -73,13 +75,15 @@ public class NfcResultReceiver extends AuthResultReceiver {
                     socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString(uuid));
                     socket.connect();
                 } catch (Exception e) {
-                    Log.d(TAG, "Failed to send acknowledgement to Bluetooth Server. " + e.getMessage());
+                    if (DEBUG) Log.d(TAG,
+                            "Failed to send acknowledgement to NFC Bluetooth Service. " + e.getMessage());
                 } finally {
                     if (socket != null) {
                         try {
                             socket.close();
                         } catch (IOException e) {
-                            Log.d(TAG, "Failed to close Socket. " + e.getMessage());
+                            if (DEBUG) Log.d(TAG,
+                                    "Failed to close NFC Bluetooth Service Socket. " + e.getMessage());
                         }
                     }
                 }

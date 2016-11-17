@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.ca.mas.core.conf.Config.HOSTNAME;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 public class ConfigurationManager {
 
@@ -149,6 +151,8 @@ public class ConfigurationManager {
     public void activate(JSONObject jsonObject) {
         try {
             this.connectedGatewayConfigurationProvider = create(jsonObject);
+            if (DEBUG) Log.d(TAG,
+                    String.format("Activate configuration: %s", jsonObject.toString(4)));
             for (ConfigurationListener c : configurationListeners) {
                 c.onUpdated(context, connectedGatewayConfigurationProvider);
             }

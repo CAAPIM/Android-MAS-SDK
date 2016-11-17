@@ -33,14 +33,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 /**
  * <p><b>IdentityUtil</b> implements helper methods used in creating {@link <a href="https://tools.ietf.org/html/rfc7644">SCIM</a>} URIs,
  * retreiving users and groups that have been retrieved via web service calls to SCIM, and for formatting date strings. Usages of
  * this class follow the static format of 'IdentityUtil.&lt;method name&gt;.</p>
  */
 public class IdentityUtil extends FoundationUtil {
-
-    private static final String TAG = IdentityUtil.class.getSimpleName();
 
     public static final Map<String, JSONObject> SCHEMA_MAP = new HashMap<>();
 
@@ -212,7 +213,7 @@ public class IdentityUtil extends FoundationUtil {
             sb.append(FoundationConsts.FSLASH);
             sb.append(entity);
         }
-        Log.d(TAG, "get URL: " + sb.toString());
+        if (DEBUG) Log.d(TAG, "SCIM URL" + sb.toString());
         return sb.toString();
     }
 
@@ -234,7 +235,7 @@ public class IdentityUtil extends FoundationUtil {
             sb.append(FoundationConsts.FSLASH);
             sb.append(entity);
         }
-        Log.d(TAG, "get Path: " + sb.toString());
+        if (DEBUG) Log.d(TAG, "SCIM URL Path: " + sb.toString());
         return sb.toString();
     }
 

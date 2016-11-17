@@ -28,7 +28,6 @@ import com.ca.mas.core.policy.exceptions.OtpException;
  * Throws OtpException if found.
  */
 class OtpAssertion implements MssoAssertion {
-    private static final String TAG = OtpAssertion.class.getName();
 
     @Override
     public void init(@NonNull MssoContext mssoContext, @NonNull Context sysContext) {

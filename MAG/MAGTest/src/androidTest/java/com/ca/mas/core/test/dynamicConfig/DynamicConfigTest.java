@@ -16,6 +16,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MAGConstants;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSso;
@@ -40,6 +41,8 @@ import org.junit.runner.RunWith;
 
 import java.net.HttpURLConnection;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
@@ -144,7 +147,7 @@ public class DynamicConfigTest extends BaseTest {
 
             @Override
             public void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler) {
-                
+
             }
         });
         request = new MAGRequest.MAGRequestBuilder(getURI("/protected/resource/products?operation=listProducts")).build();
@@ -159,13 +162,12 @@ public class DynamicConfigTest extends BaseTest {
         List<String> keys = keystoreDataSource.getKeys(null);
         assertTrue(!keys.isEmpty());
 
-        for (String k: keystoreDataSource.getKeys(null)) {
+        for (String k : keystoreDataSource.getKeys(null)) {
             if (!k.contains(server1.toString()) && !k.contains(server2.toString())) {
                 fail();
             }
         }
     }
-
 
 
     @Test
@@ -245,7 +247,7 @@ public class DynamicConfigTest extends BaseTest {
         List<String> keys = keystoreDataSource.getKeys(null);
         assertTrue(!keys.isEmpty());
 
-        for (String k: keystoreDataSource.getKeys(null)) {
+        for (String k : keystoreDataSource.getKeys(null)) {
             //Failed if keychain contains gateway2 data.
             if (k.contains(gateway2.toString())) {
                 fail();
@@ -286,20 +288,19 @@ public class DynamicConfigTest extends BaseTest {
 
         final CountDownLatch countDownLatch = new CountDownLatch(2);
 
-        LocalBroadcastManager.getInstance(InstrumentationRegistry.getInstrumentation().getTargetContext()).registerReceiver(new BroadcastReceiver() {
+        EventDispatcher.BEFORE_GATEWAY_SWITCH.addObserver(new Observer() {
             @Override
-            public void onReceive(Context context, Intent intent) {
+            public void update(Observable o, Object arg) {
                 countDownLatch.countDown();
             }
-        }, new IntentFilter(MAGConstants.BEFORE_GATEWAY_SWITCH));
+        });
 
-        LocalBroadcastManager.getInstance(InstrumentationRegistry.getInstrumentation().getTargetContext()).registerReceiver(new BroadcastReceiver() {
+        EventDispatcher.AFTER_GATEWAY_SWITCH.addObserver(new Observer() {
             @Override
-            public void onReceive(Context context, Intent intent) {
+            public void update(Observable o, Object arg) {
                 countDownLatch.countDown();
             }
-        }, new IntentFilter(MAGConstants.AFTER_GATEWAY_SWITCH));
-
+        });
 
         MobileSsoFactory.getInstance(InstrumentationRegistry.getInstrumentation().getTargetContext(), true);
 

@@ -41,7 +41,6 @@ import com.ca.mas.core.registration.DeviceRegistrationAwaitingActivationExceptio
 import com.ca.mas.core.registration.RegistrationException;
 import com.ca.mas.core.registration.RegistrationServerException;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
-import com.ca.mas.core.store.TokenStoreException;
 import com.ca.mas.core.token.JWTExpiredException;
 import com.ca.mas.core.token.JWTInvalidAUDException;
 import com.ca.mas.core.token.JWTInvalidAZPException;
@@ -52,16 +51,15 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * An IntentService that receives outbound HTTP requests encoded into Intents and returns the eventual responses
  * via a ResultReceiver.
  */
 public class MssoService extends IntentService {
-    private static final String TAG = MssoService.class.getName();
 
 
     public MssoService() {
@@ -72,13 +70,13 @@ public class MssoService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         String action = intent.getAction();
         if (action == null) {
-            Log.e(TAG, "Intent did not contain an action");
+            if (DEBUG) Log.w(TAG, "Intent did not contain an action");
             return;
         }
 
         Bundle extras = intent.getExtras();
         if (extras == null || !extras.containsKey(MssoIntents.EXTRA_REQUEST_ID)) {
-            Log.e(TAG, "Intent did not contain extras that included a request ID");
+            if (DEBUG) Log.w(TAG, "Intent did not contain extras that included a request ID");
             return;
         }
 
@@ -90,7 +88,7 @@ public class MssoService extends IntentService {
 
         MssoRequest request = takeActiveRequest(requestId);
         if (request == null) {
-            Log.d(TAG, "Request ID not found, assuming request is canceled or already processed");
+            if (DEBUG) Log.d(TAG, "Request ID not found, assuming request is canceled or already processed");
             return;
         }
 
@@ -107,7 +105,7 @@ public class MssoService extends IntentService {
             return;
         }
 
-        Log.e(TAG, "Ignoring intent with unrecognized action " + action);
+        if (DEBUG) Log.w(TAG, "Ignoring intent with unrecognized action " + action);
     }
 
     private void onOtpObtained(Bundle extras, MssoRequest request) {
@@ -192,6 +190,7 @@ public class MssoService extends IntentService {
             return true;
 
         } catch (CredentialRequiredException e) {
+            if (DEBUG) Log.d(TAG, "Request for user credential");
             //Notify listener
             MobileSsoListener mobileSsoListener = ConfigurationManager.getInstance().getMobileSsoListener();
             try {
@@ -199,12 +198,12 @@ public class MssoService extends IntentService {
                 if (mobileSsoListener != null) {
                     mobileSsoListener.onAuthenticateRequest(request.getId(), authProvider);
                 } else {
-                    startObtainCredentialsActivity(request, authProvider);
+                    if (DEBUG) Log.w(TAG, "No Authentication listener is registered");
                 }
                 // Keep request pending, will revisit after CREDENTIALS_OBTAINED
                 return false;
             } catch (OAuthException | OAuthServerException e1) {
-                Log.e(TAG, e1.getMessage(), e1);
+                if (DEBUG) Log.e(TAG, e1.getMessage(), e1);
                 requestFinished(request);
                 respondError(request.getResultReceiver(), MssoIntents.RESULT_CODE_ERR_AUTHORIZE, new MAGError(e1));
                 return true;
@@ -240,13 +239,13 @@ public class MssoService extends IntentService {
                 }
                 return false;
             }
-            Log.e(TAG, e.getMessage(), e);
+            if (DEBUG) Log.e(TAG, e.getMessage(), e);
             requestFinished(request);
             respondError(receiver, getErrorCode(e), new MAGError(e));
             return true;
 
         } catch (Throwable t) {
-            Log.e(TAG, t.getMessage(), t);
+            if (DEBUG) Log.e(TAG, t.getMessage(), t);
             requestFinished(request);
             respondError(receiver, getErrorCode(t), new MAGError(t));
             return true;
@@ -323,24 +322,6 @@ public class MssoService extends IntentService {
 
     private boolean requestFinished(MssoRequest request) {
         return null != MssoActiveQueue.getInstance().takeRequest(request.getId());
-    }
-
-    private void startObtainCredentialsActivity(MssoRequest request, AuthenticationProvider authProvider) {
-
-        try {
-            Intent intent = new Intent(MssoIntents.ACTION_OBTAIN_CREDENTIALS);
-            intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, request.getId());
-
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setPackage(getBaseContext().getPackageName());
-
-            intent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, authProvider);
-            startActivity(intent);
-
-        } catch (ActivityNotFoundException e) {
-            Log.d(TAG, e.getMessage());
-        }
-
     }
 
     private void respondError(ResultReceiver receiver, int resultCode, MAGError error) {

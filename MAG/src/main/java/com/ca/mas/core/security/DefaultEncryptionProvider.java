@@ -29,13 +29,14 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 public class DefaultEncryptionProvider implements EncryptionProvider {
     private KeyStorageProvider ksp;
     private static final String KEY_ALIAS = "secret";
     private static final String ALGORITHM = "AES";
     private static final int KEY_SIZE = 256;
-    public static final String TAG = DefaultEncryptionProvider.class.getCanonicalName();
     private static final String AES_GCM_NO_PADDING = "AES/GCM/NoPadding";
     private static final String HMAC_SHA256 = "HmacSHA256";
     private static final int IV_LENGTH = 12;
@@ -63,7 +64,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
         try {
             return keyGenerator.generateKey();
         } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "Error while generating key");
+            if (DEBUG) Log.e(TAG, "Error while generating key");
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -111,7 +112,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             byte[] mac = computeMac(getKeyAlias(), encryptedData);
             encryptedData = concatArrays(mac, iv, encryptedData);
         } catch (Exception e) {
-            Log.e(TAG, "inside exception of encrypt function: ", e);
+            if (DEBUG) Log.e(TAG, "inside exception of encrypt function: ", e);
             throw new RuntimeException(e.getMessage(), e);
         }
         return encryptedData;
@@ -128,7 +129,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
         try {
             cipher = Cipher.getInstance(AES_GCM_NO_PADDING);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            Log.e(TAG, "Error while getting an cipher instance", e);
+            if (DEBUG) Log.e(TAG, "Error while getting an cipher instance", e);
             throw new RuntimeException("Error while getting an cipher instance", e);
         }
 
@@ -137,7 +138,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
         try {
             macLength = Mac.getInstance(HMAC_SHA256).getMacLength();
         } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "Error while instantiating MAC", e);
+            if (DEBUG) Log.e(TAG, "Error while instantiating MAC", e);
             throw new RuntimeException("Error while instantiating MAC", e);
         }
         int encryptedDataLength = encryptedData.length - ivlength - macLength;
@@ -148,7 +149,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
         byte[] mac = computeMac(getKeyAlias(), encryptedData);
 
         if (!Arrays.equals(mac, macFromMessage)) {
-            Log.e(TAG, "MAC signature could not be verified");
+            if (DEBUG) Log.e(TAG, "MAC signature could not be verified");
             throw new RuntimeException("MAC signature could not be verified");
         }
 
@@ -164,7 +165,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParams);
             return cipher.doFinal(encryptedData);
         } catch (Exception e) {
-            Log.i(TAG, "Error while decrypting an cipher instance", e);
+            if (DEBUG) Log.i(TAG, "Error while decrypting an cipher instance", e);
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -185,7 +186,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             hm.init(secretKey);
             return hm.doFinal(cipherText);
         } catch (NoSuchAlgorithmException | InvalidKeyException | UnsupportedEncodingException e) {
-            Log.e(TAG, "Error while calculating signature", e);
+            if (DEBUG) Log.e(TAG, "Error while calculating signature", e);
             throw new RuntimeException("Error while calculating signature", e);
         } finally {
             destroyKey(secretKey);
@@ -229,7 +230,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             try {
                 destroyable.destroy();
             } catch (DestroyFailedException e) {
-                Log.e(TAG, "Could not destroy key");
+                if (DEBUG) Log.e(TAG, "Could not destroy key");
             }
         }
     }

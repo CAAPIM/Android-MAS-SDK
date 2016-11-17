@@ -15,8 +15,6 @@ import android.util.Base64;
 
 class SharedPreferencesKeyStorageProvider extends KeyStoreKeyStorageProvider {
 
-    private static final String TAG = SharedPreferencesKeyStorageProvider.class.getCanonicalName();
-
     public static final String PREFS_NAME = "SECRET_PREFS";
     private SharedPreferences sharedpreferences;
 

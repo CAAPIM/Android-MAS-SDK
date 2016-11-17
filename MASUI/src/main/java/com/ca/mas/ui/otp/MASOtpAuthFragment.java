@@ -26,7 +26,6 @@ import com.ca.mas.ui.R;
  */
 @Deprecated
 public class MASOtpAuthFragment extends DialogFragment {
-    private static final String TAG = MASOtpAuthFragment.class.getCanonicalName();
     private static final String HANDLER = "handle";
     private MASOtpAuthenticationHandler handler;
     String errorMessage = "Request Cancelled";

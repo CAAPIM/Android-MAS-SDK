@@ -29,8 +29,6 @@ import java.util.List;
  */
 public class User implements ScimUser {
 
-    protected static final String TAG = User.class.getSimpleName();
-
     protected String mId;
     private String mExternalId;
     protected MASName mName;

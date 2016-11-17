@@ -18,6 +18,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
+import com.ca.mas.core.MAG;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.MobileSsoListener;
@@ -35,11 +36,13 @@ import com.ca.mas.foundation.notify.Callback;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * The top level MAS object represents the Mobile App Services SDK in its entirety.
@@ -48,7 +51,7 @@ import java.util.Map;
  * can be found and utilized.
  */
 public class MAS {
-    private static final String TAG = MAS.class.getCanonicalName();
+
     public static Context ctx;
     private static Activity currentActivity;
     private static boolean hasRegisteredActivityCallback;
@@ -74,7 +77,7 @@ public class MAS {
                     if (df != null) {
                         df.show(currentActivity.getFragmentManager(), "logonDialog");
                     } else {
-                        Log.w(TAG, MASUserLoginWithUserCredentialsListener.class + " is required for user authentication.");
+                        if (DEBUG) Log.w(TAG, MASUserLoginWithUserCredentialsListener.class.getSimpleName() + " is required for user authentication.");
                     }
                 } else {
                     masAuthenticationListener.onAuthenticateRequest(currentActivity, requestId, new MASAuthenticationProviders(provider));
@@ -149,6 +152,13 @@ public class MAS {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Turn on debug mode
+     */
+    public static void debug() {
+        MAG.DEBUG = true;
     }
 
     /**
@@ -381,6 +391,5 @@ public class MAS {
      * Stops the lifecycle of all MAS processes.
      */
     public static void stop() {
-        MASConnectaManager.getInstance().stop();
     }
 }

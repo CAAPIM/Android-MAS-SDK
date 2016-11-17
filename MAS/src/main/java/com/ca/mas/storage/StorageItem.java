@@ -18,6 +18,9 @@ import com.ca.mas.foundation.MASTransformable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 /**
  * <p><b>StorageItem</b> is a class that contains 3 components;
  * <ul>
@@ -53,8 +56,6 @@ import org.json.JSONObject;
  */
 class StorageItem implements MASTransformable {
 
-    private static String TAG = StorageItem.class.getSimpleName();
-
     private StorageKey storageKey;
 
     //Data part
@@ -78,7 +79,7 @@ class StorageItem implements MASTransformable {
 
     @Override
     public void populate(@NonNull JSONObject jobj) throws JSONException {
-        Log.d(TAG, "Raw Storage Item: " + jobj.toString());
+        if (DEBUG) Log.d(TAG, "Raw Storage Item: " + jobj.toString());
         // outer
         if (storageKey == null) {
             storageKey = new StorageKey();

@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">Pub/Sub</string>
+    <string name="button_connect_to_mag">Connect to MAG</string>
+    <string name="connection_divider_text">OR</string>
+    <string name="connection_custom_connection_title">Connect to public broker</string>
+    <string name="connection_custom_connection_hostname">tcp://mybroker.com:1883</string>
+    <string name="connection_custom_connection_keep_alive_interval">Keep alive (s)</string>
+    <string name="connection_custom_connection_keep_alive_interval_default_value">60</string>
+    <string name="connection_custom_connection_clean_session">Clean Session</string>
+    <string name="connection_custom_connection_username">username</string>
+    <string name="connection_custom_connection_password">password</string>
+    <string name="connection_custom_connection_client_id">Client ID</string>
+    <string name="connection_custom_connection_will_topic">Will topic</string>
+    <string name="connection_custom_connection_will_message">Will message</string>
+    <string name="connection_custom_connection_will_qos">Will QoS</string>
+    <string name="connection_custom_connection_will_retain">Retain</string>
+    <string name="button_connection_custom_connect">Connect</string>
+    <string name="nav_drawer_subcribe_to_topic">Add Subscription</string>
+    <string name="subscribe_to_topic_edit_text_topic_name">Topic name</string>
+
+    <string-array name="qos_options">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string name="title_activity_pub_sub">PubSubActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="fragment_subscribe_button_subscribe">Subscribe</string>
+</resources>

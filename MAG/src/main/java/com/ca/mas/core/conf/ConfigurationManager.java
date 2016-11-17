@@ -12,7 +12,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoListener;
-import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.core.http.MAGRequest;
@@ -54,7 +53,7 @@ public class ConfigurationManager {
 
     private List<ConfigurationListener> configurationListeners = new ArrayList<>();
 
-    private int daysToExpire = 30;
+    private int certificateAdvancedRenewTimeframe = 30;
 
     private ConfigurationManager() {
         configurationListeners.add(new ClientChangeListener());
@@ -413,11 +412,11 @@ public class ConfigurationManager {
         void onUpdated(Context context, ConfigurationProvider provider);
     }
 
-    public int getDaysToExpire() {
-        return daysToExpire;
+    public int getCertificateAdvancedRenewTimeframe() {
+        return certificateAdvancedRenewTimeframe;
     }
 
-    public void setDaysToExpire(int daysToExpire) {
-        this.daysToExpire = daysToExpire;
+    public void setCertificateAdvancedRenewTimeframe(int certificateAdvancedRenewTimeframe) {
+        this.certificateAdvancedRenewTimeframe = certificateAdvancedRenewTimeframe;
     }
 }

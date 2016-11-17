@@ -11,7 +11,6 @@ package com.ca.mas.foundation;
 import android.content.Context;
 
 import com.ca.mas.core.MobileSsoConfig;
-import com.ca.mas.core.auth.otp.OtpConstants;
 import com.ca.mas.core.conf.Config;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.foundation.util.FoundationConsts;
@@ -189,11 +188,11 @@ public class MASConfiguration {
         return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(key);
     }
 
-    public void setDaysToExpire(int numDays){
-        ConfigurationManager.getInstance().setDaysToExpire(numDays);
+    public void setCertificateAdvancedRenewTimeframe(int numDays){
+        ConfigurationManager.getInstance().setCertificateAdvancedRenewTimeframe(numDays);
     }
 
-    public int getDaysToExpire(){
-        return ConfigurationManager.getInstance().getDaysToExpire();
+    public int getCertificateAdvancedRenewTimeframe(){
+        return ConfigurationManager.getInstance().getCertificateAdvancedRenewTimeframe();
     }
 }

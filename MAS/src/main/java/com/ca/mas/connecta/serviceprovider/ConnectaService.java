@@ -38,6 +38,9 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import static com.ca.mas.core.MAG.DEBUG;
@@ -72,6 +75,8 @@ public class ConnectaService extends Service implements MASConnectaClient {
     private MASConnectaListener connectaListener;
     private final IBinder mBinder = new ServiceBinder();
     private String clientId;
+
+    private List<MASTopic> subscribedTopic = Collections.synchronizedList(new ArrayList<MASTopic>());
 
     public void setConnectaListener(MASConnectaListener connectaListener) {
         this.connectaListener = connectaListener;
@@ -117,6 +122,11 @@ public class ConnectaService extends Service implements MASConnectaClient {
                         if (!mMqttClient.isConnected()) {
                             Callback.onError(callback, new ConnectaException("Not connected to message broker!"));
                             return;
+                        } else {
+                            //Once reconnected, re-subscribe the topic
+                            for (MASTopic topic: subscribedTopic) {
+                                subscribe(topic, null);
+                            }
                         }
                         Callback.onSuccess(callback, null);
                     } catch (Exception e) {
@@ -131,11 +141,13 @@ public class ConnectaService extends Service implements MASConnectaClient {
                 }
             };
 
-            if (mConnectOptions == null) {
+            if ((mConnectOptions == null) || (mConnectOptions.getServerURIs() == null)) {
+                // For Gateway connection
                 // If connect options have not been set
                 mConnectOptions = new MASConnectOptions();
                 mConnectOptions.initConnectOptions(this, mTimeOutInMillis, masCallback);
             } else {
+                // For public broker connection
                 // MASConnectOptions has been set
                 mConnectOptions.setConnectionTimeout(ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(this), mTimeOutInMillis).getConnectionTimeout());
                 if (DEBUG) Log.d(TAG, "CONNECTA: onSuccess()");
@@ -148,7 +160,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
                 Callback.onSuccess(callback, null);
             }
         } catch (Exception e) {
-            if (DEBUG) Log.e(TAG, e.getMessage());
+            if (DEBUG) Log.e(TAG, e.getMessage(), e);
             Callback.onError(callback, e);
         }
     }
@@ -161,6 +173,9 @@ public class ConnectaService extends Service implements MASConnectaClient {
     Called once the secure socket factory has been created to perform the Mqtt initialization.
      */
     private void initMqttClient(String deviceId) throws MASException, MqttException {
+        if (mMqttClient != null) {
+            return;
+        }
         String brokerUrl = ConnectaUtil.getBrokerUrl(getApplicationContext(), mConnectOptions);
         if (DEBUG) Log.d(TAG, "CONNECTA: brokerUrl: " + brokerUrl);
 
@@ -186,6 +201,11 @@ public class ConnectaService extends Service implements MASConnectaClient {
                     @Override
                     public void connectionLost(Throwable throwable) {
                         if (DEBUG) Log.d(TAG, "Connections was lost: " + throwable.getMessage() + ", " + throwable.getCause());
+                        //Try to reconnect for gateway connect
+                        if (mConnectOptions.isGateway()) {
+                            mConnectOptions = null;
+                            connect(null);
+                        }
                         if (connectaListener != null) {
                             connectaListener.onConnectionLost();
                         }
@@ -229,10 +249,12 @@ public class ConnectaService extends Service implements MASConnectaClient {
 
     @Override
     public void disconnect(MASCallback<Void> callback) {
+        subscribedTopic.clear();
         if (isConnected()) {
             if (DEBUG) Log.d(TAG, "MQTT Client Disconnected.");
             try {
                 mMqttClient.disconnect();
+                mConnectOptions = null;
                 Callback.onSuccess(callback, null);
             } catch (Exception e) {
                 Callback.onError(callback, e);
@@ -247,6 +269,9 @@ public class ConnectaService extends Service implements MASConnectaClient {
         if (isConnected()) {
             try {
                 mMqttClient.subscribe(masTopic.toString(), masTopic.getQos());
+                if (!subscribedTopic.contains(masTopic)) {
+                    subscribedTopic.add(masTopic);
+                }
                 Callback.onSuccess(callback, null);
             } catch (Exception e) {
                 Callback.onError(callback, e);
@@ -261,6 +286,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
         if (isConnected()) {
             try {
                 mMqttClient.unsubscribe(topic.toString());
+                subscribedTopic.remove(topic);
                 Callback.onSuccess(callback, null);
             } catch (Exception e) {
                 Callback.onError(callback, e);

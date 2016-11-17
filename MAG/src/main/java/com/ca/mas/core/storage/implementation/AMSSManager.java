@@ -103,7 +103,7 @@ public class AMSSManager {
                 xrp.next();
             }
         } catch (XmlPullParserException | IOException e) {
-            if (DEBUG) Log.e(TAG,"getAccountType failed to read from  "+fileName+": reason - "+e);
+            if (DEBUG) Log.e(TAG,"getAccountType failed to read from " + fileName + ", reason: " + e);
         }
         return acc_type;
     }

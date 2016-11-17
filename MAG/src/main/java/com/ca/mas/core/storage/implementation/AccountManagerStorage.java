@@ -25,14 +25,11 @@ import java.util.Arrays;
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
-
 /***
  * Android Account based storage implementation. This leverages the {@link android.accounts.AccountManager}
  * to store key value pairs in the Android Accounts Database (inside the "extras" table).
- *
  */
 public class AccountManagerStorage extends Storage {
-
 
     /**
      * Limits for key/value
@@ -40,7 +37,6 @@ public class AccountManagerStorage extends Storage {
     private static final int SQLITE_MAX_LENGTH = 1000000000;
     private static final int MAX_DATA_SIZE = SQLITE_MAX_LENGTH;
     private static final int MAX_KEY_SIZE = SQLITE_MAX_LENGTH;
-
 
     /**
      * Column name for the key-index
@@ -58,7 +54,6 @@ public class AccountManagerStorage extends Storage {
      */
     private Context mContext;
 
-
     /**
      * Handle to the class responsible to marshaling and unmarshaling the key index.
      */
@@ -67,7 +62,6 @@ public class AccountManagerStorage extends Storage {
     /**
      * AMS Manager
      */
-
     private AMSSManager accountManager;
 
     /**
@@ -76,8 +70,8 @@ public class AccountManagerStorage extends Storage {
      * @param options Array of Objects
      *                First object: Context
      *                (Optional) Second: boolean value indicating shared or private space
-     * @throws StorageException if any of the mandatory inputs are
-     *                                                     invalid/null or if the initialization of storage fails.
+     * @throws StorageException if any of the mandatory inputs are invalid/null
+     *                          or if the initialization of storage fails.
      */
     protected AccountManagerStorage(Object options) throws StorageException {
         super(options);
@@ -105,7 +99,6 @@ public class AccountManagerStorage extends Storage {
             accountManager = AMSSManager.getInstance(mContext);
 
             mFormatter = new AccountIndexFormatter();
-
         } catch (StorageException bubble) {
             throw bubble;
         } catch (Exception e) {
@@ -124,40 +117,32 @@ public class AccountManagerStorage extends Storage {
         StorageException returnException = null;
         validateInputs(key, value);
         try {
-
-
-            byte[] keyBytes = (mPrefix + key).getBytes("UTF-8");
+            byte[] keyBytes = (mPrefix + key).getBytes(UTF8);
             String encodedKey = Base64.encodeToString(keyBytes, Base64.DEFAULT);
             String data = readAccountData(mContext, encodedKey);
 
             switch (option) {
-                case 0:// write
-
+                case 0://write
                     if (data != null) {
                         returnException = new StorageException(StorageException.WRITE_DATA_ALREADY_EXISTS);
                     }
                     break;
-
                 case 1://update
                     if (data == null) {
                         returnException = new StorageException(StorageException.READ_DATA_NOT_FOUND);
                     }
                     break;
-
                 case 2://write or update
                 default:
                     break;
-
             }
 
             if (returnException == null) {
-
                 String encodedValue = Base64.encodeToString(value, Base64.DEFAULT);
                 writeAccountData(mContext, encodedKey, encodedValue);
             }
-
         } catch (Exception e) {
-            if (DEBUG) Log.e(TAG, "Error Writing data ", e);
+            if (DEBUG) Log.e(TAG, "Error writing data ", e);
             returnException = new StorageException(StorageException.OPERATION_FAILED);
         }
         if (returnException != null) {
@@ -179,21 +164,14 @@ public class AccountManagerStorage extends Storage {
     @Override
     public void writeData(String key, byte[] value, StorageResultReceiver callback) throws StorageException {
         StorageResult result = writeData(key, value);
-        if (callback != null) {
-            try {
-                callback.send(result);
-            } catch (Exception e) {
-                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
-            }
-
-        }
+        notifyCallback(callback, result);
     }
 
     @Override
     public StorageResult writeString(String key, String value) throws StorageException {
         validateInputs(key, value);
         try {
-            StorageResult result = writeData(key, value.getBytes("UTF-8"), 0);
+            StorageResult result = writeData(key, value.getBytes(UTF8), 0);
             result.setType(StorageResult.StorageOperationType.WRITE_STRING);
             return result;
         } catch (UnsupportedEncodingException e) {
@@ -204,19 +182,11 @@ public class AccountManagerStorage extends Storage {
     @Override
     public void writeString(String key, String value, StorageResultReceiver callback) throws StorageException {
         StorageResult result = writeString(key, value);
-        if (callback != null) {
-            try {
-                callback.send(result);
-            } catch (Exception e) {
-                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
-            }
-
-        }
+        notifyCallback(callback, result);
     }
 
     @Override
     public StorageResult readData(String key) throws StorageException {
-
         StorageResult returnValue = new StorageResult(StorageResult.StorageOperationType.READ);
         StorageException returnException = null;
         if (key == null) {
@@ -227,28 +197,27 @@ public class AccountManagerStorage extends Storage {
         }
 
         try {
-            byte[] keyBytes = (mPrefix + key).getBytes("UTF-8");
+            byte[] keyBytes = (mPrefix + key).getBytes(UTF8);
             String encodedKey = Base64.encodeToString(keyBytes, Base64.DEFAULT);
             String data = readAccountData(mContext, encodedKey);
             if (data == null) {
                 returnException = new StorageException(StorageException.READ_DATA_NOT_FOUND);
             } else {
-                byte[] retrievedData = Base64.decode(data.getBytes("UTF-8"), Base64.DEFAULT);
+                byte[] retrievedData = Base64.decode(data.getBytes(UTF8), Base64.DEFAULT);
                 if (retrievedData == null) {
                     returnException = new StorageException(StorageException.OPERATION_FAILED);
                 } else {
                     returnValue.setData(retrievedData);
                 }
             }
-
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Error Writing data ", e);
             returnException = new StorageException(StorageException.OPERATION_FAILED);
         }
+
         if (returnException != null) {
             returnValue.setStatus(StorageResult.StorageOperationStatus.FAILURE);
             returnValue.setData(returnException);
-
         } else {
             returnValue.setStatus(StorageResult.StorageOperationStatus.SUCCESS);
         }
@@ -258,14 +227,7 @@ public class AccountManagerStorage extends Storage {
     @Override
     public void readData(String key, StorageResultReceiver callback) throws StorageException {
         StorageResult result = readData(key);
-        if (callback != null) {
-            try {
-                callback.send(result);
-            } catch (Exception e) {
-                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
-            }
-
-        }
+        notifyCallback(callback, result);
     }
 
     @Override
@@ -279,7 +241,7 @@ public class AccountManagerStorage extends Storage {
         StorageResult returnValue = readData(key);
         if (returnValue.getStatus() != StorageResult.StorageOperationStatus.FAILURE) {
             try {
-                returnValue.setData(new String((byte[]) returnValue.getData(), "UTF-8"));
+                returnValue.setData(new String((byte[]) returnValue.getData(), UTF8));
             } catch (UnsupportedEncodingException e) {
                 if (DEBUG) Log.w(TAG, "UTF-8 decoding of the data failed, reverting to system default");
                 returnValue.setData(new String((byte[]) returnValue.getData()));
@@ -287,20 +249,12 @@ public class AccountManagerStorage extends Storage {
         }
         returnValue.setType(StorageResult.StorageOperationType.READ_STRING);
         return returnValue;
-
     }
 
     @Override
     public void readString(String key, StorageResultReceiver callback) throws StorageException {
         StorageResult result = readString(key);
-        if (callback != null) {
-            try {
-                callback.send(result);
-            } catch (Exception e) {
-                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
-            }
-
-        }
+        notifyCallback(callback, result);
     }
 
     @Override
@@ -313,21 +267,14 @@ public class AccountManagerStorage extends Storage {
     @Override
     public void updateData(String key, byte[] value, StorageResultReceiver callback) throws StorageException {
         StorageResult result = updateData(key, value);
-        if (callback != null) {
-            try {
-                callback.send(result);
-            } catch (Exception e) {
-                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
-            }
-
-        }
+        notifyCallback(callback, result);
     }
 
     @Override
     public StorageResult updateString(String key, String value) throws StorageException {
         validateInputs(key,value);
         try {
-            StorageResult result = writeData(key, value.getBytes("UTF-8"), 1);
+            StorageResult result = writeData(key, value.getBytes(UTF8), 1);
             result.setType(StorageResult.StorageOperationType.UPDATE_STRING);
             return result;
         } catch (UnsupportedEncodingException e) {
@@ -338,14 +285,7 @@ public class AccountManagerStorage extends Storage {
     @Override
     public void updateString(String key, String value, StorageResultReceiver callback) throws StorageException {
         StorageResult result = updateString(key, value);
-        if (callback != null) {
-            try {
-                callback.send(result);
-            } catch (Exception e) {
-                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
-            }
-
-        }
+        notifyCallback(callback, result);
     }
 
     @Override
@@ -353,27 +293,19 @@ public class AccountManagerStorage extends Storage {
         StorageResult result = writeData(key, value, 2);
         result.setType(StorageResult.StorageOperationType.WRITE_OR_UPDATE);
         return result;
-
     }
 
     @Override
     public void writeOrUpdateData(String key, byte[] value, StorageResultReceiver callback) throws StorageException {
         StorageResult result = writeOrUpdateData(key, value);
-        if (callback != null) {
-            try {
-                callback.send(result);
-            } catch (Exception e) {
-                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
-            }
-
-        }
+        notifyCallback(callback, result);
     }
 
     @Override
     public StorageResult writeOrUpdateString(String key, String value) throws StorageException {
         validateInputs(key, value);
         try {
-            StorageResult result = writeOrUpdateData(key, value.getBytes("UTF-8"));
+            StorageResult result = writeOrUpdateData(key, value.getBytes(UTF8));
             result.setType(StorageResult.StorageOperationType.WRITE_OR_UPDATE_STRING);
             return result;
         } catch (UnsupportedEncodingException e) {
@@ -384,20 +316,11 @@ public class AccountManagerStorage extends Storage {
     @Override
     public void writeOrUpdateString(String key, String value, StorageResultReceiver callback) throws StorageException {
         StorageResult result = writeOrUpdateString(key, value);
-        if (callback != null) {
-            try {
-                callback.send(result);
-            } catch (Exception e) {
-                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
-            }
-
-        }
+        notifyCallback(callback, result);
     }
 
     @Override
     public StorageResult deleteData(String key) throws StorageException {
-
-
         StorageResult returnValue = new StorageResult(StorageResult.StorageOperationType.DELETE);
         StorageException returnException = null;
         if (key == null) {
@@ -406,9 +329,9 @@ public class AccountManagerStorage extends Storage {
         if (key.length() > MAX_KEY_SIZE) {
             throw new StorageException(StorageException.KEYSTORE_KEY_SIZE_LIMIT_EXCEEDED);
         }
-        try {
 
-            byte[] keyBytes = (mPrefix + key).getBytes("UTF-8");
+        try {
+            byte[] keyBytes = (mPrefix + key).getBytes(UTF8);
             String encodedKey = Base64.encodeToString(keyBytes, Base64.DEFAULT);
             String data = readAccountData(mContext, encodedKey);
             if (data == null) {
@@ -416,15 +339,14 @@ public class AccountManagerStorage extends Storage {
             } else {
                 writeAccountData(mContext, encodedKey, null);
             }
-
         } catch (Exception e) {
-            if (DEBUG) Log.e(TAG, "Error Writing data ", e);
+            if (DEBUG) Log.e(TAG, "Error writing data ", e);
             returnException = new StorageException(StorageException.OPERATION_FAILED);
         }
+
         if (returnException != null) {
             returnValue.setStatus(StorageResult.StorageOperationStatus.FAILURE);
             returnValue.setData(returnException);
-
         } else {
             returnValue.setStatus(StorageResult.StorageOperationStatus.SUCCESS);
             returnValue.setData(key);
@@ -442,27 +364,13 @@ public class AccountManagerStorage extends Storage {
     @Override
     public void deleteData(String key, StorageResultReceiver callback) throws StorageException {
         StorageResult result = deleteData(key);
-        if (callback != null) {
-            try {
-                callback.send(result);
-            } catch (Exception e) {
-                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
-            }
-
-        }
+        notifyCallback(callback, result);
     }
 
     @Override
     public void deleteString(String key, StorageResultReceiver callback) throws StorageException {
         StorageResult result = deleteString(key);
-        if (callback != null) {
-            try {
-                callback.send(result);
-            } catch (Exception e) {
-                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
-            }
-
-        }
+        notifyCallback(callback, result);
     }
 
     @Override
@@ -494,9 +402,8 @@ public class AccountManagerStorage extends Storage {
             } else {
                 if (DEBUG) Log.i(TAG, "Deleted " + successCount + " entries ");
             }
-
         } catch (Exception e) {
-            if (DEBUG) Log.e(TAG,"deleteAll failed "+e);
+            if (DEBUG) Log.e(TAG, "deleteAll failed ", e);
             returnError = new StorageException(StorageException.OPERATION_FAILED);
         }
 
@@ -513,14 +420,7 @@ public class AccountManagerStorage extends Storage {
     @Override
     public void deleteAll(StorageResultReceiver callback) throws StorageException {
         StorageResult returnValue = deleteAll();
-        if (callback != null) {
-            try {
-                callback.send(returnValue);
-            } catch (Exception e) {
-                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
-            }
-
-        }
+        notifyCallback(callback, returnValue);
     }
 
     @Override
@@ -530,7 +430,7 @@ public class AccountManagerStorage extends Storage {
         ArrayList<String> keys = new ArrayList<>();
         try {
             String keyBlob = readAccountData(mContext, "lookup_index");
-            keys = mFormatter.unmarshel(keyBlob, true);
+            keys = mFormatter.unmarshal(keyBlob, true);
         } catch (Exception e) {
             returnError = new StorageException(StorageException.OPERATION_FAILED);
         }
@@ -548,26 +448,29 @@ public class AccountManagerStorage extends Storage {
     @Override
     public void getAllKeys(StorageResultReceiver callback) throws StorageException {
         StorageResult returnValue = getAllKeys();
-        if (callback != null) {
-            try {
-                callback.send(returnValue);
-            } catch (Exception e) {
-                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
-            }
-
-        }
+        notifyCallback(callback, returnValue);
     }
-
 
     //Utility methods
 
-    private void updateAccountKeyIndex(Context ctx, String key, String value) throws Exception {
+    private void notifyCallback(StorageResultReceiver callback, StorageResult result) {
+        if (callback == null && DEBUG) Log.w(TAG, "No AccountManagerStorage callback set.");
 
+        if (callback != null) {
+            try {
+                callback.send(result);
+            } catch (Exception e) {
+                if (DEBUG) Log.w(TAG, "AccountManagerStorage threw exception: ", e);
+            }
+        }
+    }
+
+    private void updateAccountKeyIndex(Context ctx, String key, String value) throws Exception {
         AccountManager am = AccountManager.get(ctx);
         Account account = accountManager.getAccount();
         String keyBlob = readAccountData(ctx, KEYINDEX_COLUMN_NAME);
         //ArrayList<String> keyList = keyBlob==null?new ArrayList<String>():new ArrayList<String>(Arrays.asList(keyBlob.split(ACCOUNT_KEY_SEPERATOR)));
-        ArrayList<String> keyList = mFormatter.unmarshel(keyBlob, false);
+        ArrayList<String> keyList = mFormatter.unmarshal(keyBlob, false);
         if (value == null) {
             //DELETE
             if (keyList.contains(key)) {
@@ -587,16 +490,13 @@ public class AccountManagerStorage extends Storage {
         AccountManager am = AccountManager.get(ctx);
         Account account = accountManager.getAccount();
         if (value == null) {//DELETE
-            updateAccountKeyIndex(ctx, encodedKey, value);
-            am.setUserData(account, encodedKey, value);
+            updateAccountKeyIndex(ctx, encodedKey, null);
+            am.setUserData(account, encodedKey, null);
         } else {//WRITE or UPDATE
             am.setUserData(account, encodedKey, value);
             updateAccountKeyIndex(ctx, encodedKey, value);
         }
-
-
     }
-
 
     private String readAccountData(Context ctx,String key) throws Exception {
         AccountManager am = AccountManager.get(ctx);
@@ -605,7 +505,7 @@ public class AccountManagerStorage extends Storage {
     }
 
     /**
-     * This methods checks for cases such as null or min and max length of the key and data
+     * This methods checks for cases such as null or min and max length of the key and data.
      *
      * @param key   the key to put in the store
      * @param value the value corresponding to the key to be put in the store
@@ -616,6 +516,7 @@ public class AccountManagerStorage extends Storage {
         if (key == null) {
             throw new StorageException(StorageException.INVALID_INPUT_KEY);
         }
+
         if (value == null) {
             throw new StorageException(StorageException.INVALID_INPUT_VALUE);
         }
@@ -626,7 +527,7 @@ public class AccountManagerStorage extends Storage {
 
         byte[] byteData;
         try {
-            byteData = value.getBytes("UTF-8");
+            byteData = value.getBytes(UTF8);
         } catch (UnsupportedEncodingException e) {
             throw new StorageException(StorageException.UNSUPPORTED_DATA);
         }
@@ -637,7 +538,7 @@ public class AccountManagerStorage extends Storage {
     }
 
     /**
-     * This methods checks for cases such as null or min and max length of the key and data
+     * This methods checks for cases such as null or min and max length of the key and data.
      *
      * @param key   the key to put in the store
      * @param value the value corresponding to the key to be put in the store
@@ -647,28 +548,23 @@ public class AccountManagerStorage extends Storage {
     private void validateInputs(String key, byte[] value) throws StorageException {
         if (key == null) {
             throw new StorageException(StorageException.INVALID_INPUT_KEY);
-        }
-
-        if (key.length() > MAX_KEY_SIZE) {
+        } else if (key.length() > MAX_KEY_SIZE) {
             throw new StorageException(StorageException.KEY_SIZE_LIMIT_EXCEEDED);
         }
 
         if (value == null) {
             throw new StorageException(StorageException.INVALID_INPUT_VALUE);
-        }
-        if (value.length > MAX_DATA_SIZE) {
+        } else if (value.length > MAX_DATA_SIZE) {
             throw new StorageException(StorageException.DATA_SIZE_LIMIT_EXCEEDED);
         }
-
     }
 
     /**
-     * Class responsible to marshaling and unmarshaling the key index
+     * Class responsible for marshalling and unmarshalling the key index.
      */
     private class AccountIndexFormatter {
 
-
-        private static final String ACCOUNT_KEY_SEPERATOR = ":";
+        private static final String ACCOUNT_KEY_SEPARATOR = ":";
 
         /**
          * String representation of the ArrayList<String>.
@@ -677,7 +573,6 @@ public class AccountManagerStorage extends Storage {
          * @return
          */
         private String marshal(ArrayList<String> items, boolean encode) {
-
             if (items == null || items.size() == 0) {
                 return "";
             }
@@ -686,16 +581,16 @@ public class AccountManagerStorage extends Storage {
                 for (String keyElement : items) {
                     String modifiedKey = keyElement;
                     if (encode) {
-                        modifiedKey = Base64.encodeToString((mPrefix + keyElement).getBytes("UTF-8"), Base64.DEFAULT);
+                        modifiedKey = Base64.encodeToString((mPrefix + keyElement).getBytes(UTF8), Base64.DEFAULT);
                     }
                     buff.append(modifiedKey);
-                    buff.append(ACCOUNT_KEY_SEPERATOR);
+                    buff.append(ACCOUNT_KEY_SEPARATOR);
                 }
                 String keyBlob = buff.toString();
-                keyBlob = keyBlob.endsWith(ACCOUNT_KEY_SEPERATOR) ? keyBlob.substring(0, keyBlob.length() - 1) : keyBlob;
+                keyBlob = keyBlob.endsWith(ACCOUNT_KEY_SEPARATOR) ? keyBlob.substring(0, keyBlob.length() - 1) : keyBlob;
                 return keyBlob;
             } catch (Exception e) {
-                if (DEBUG) Log.e(TAG, "Error in marshal " + e);
+                if (DEBUG) Log.e(TAG, "Error in marshal: " + e);
                 return "";
             }
         }
@@ -703,23 +598,22 @@ public class AccountManagerStorage extends Storage {
         /**
          * Creates ArrayList<String> out of the String blob.
          * @param blob
-         * @param decode if you want to just Base64 decoded the items
+         * @param decode if you want to Base64 decode the items
          * @return
          */
-        private ArrayList<String> unmarshel(String blob, boolean decode) {
-
+        private ArrayList<String> unmarshal(String blob, boolean decode) {
             ArrayList<String> keys = new ArrayList<>();
             if (blob == null || blob.length() == 0) {
                 return keys;
             }
 
             try {
-                ArrayList<String> temp = new ArrayList<String>(Arrays.asList(blob.split(ACCOUNT_KEY_SEPERATOR)));
-                if(decode) {
+                ArrayList<String> temp = new ArrayList<String>(Arrays.asList(blob.split(ACCOUNT_KEY_SEPARATOR)));
+                if (decode) {
                     for (String key : temp) {
-                        byte[] decodedData = Base64.decode(key.getBytes("UTF-8"), Base64.DEFAULT);
+                        byte[] decodedData = Base64.decode(key.getBytes(UTF8), Base64.DEFAULT);
                         if (decodedData != null) {
-                            String sanitizedKey = new String((byte[]) decodedData, "UTF-8");
+                            String sanitizedKey = new String((byte[]) decodedData, UTF8);
                             if (sanitizedKey.startsWith(mPrefix)) {
                                 keys.add(sanitizedKey.substring(mPrefix.length()));
                             }
@@ -727,18 +621,15 @@ public class AccountManagerStorage extends Storage {
                             if (DEBUG) Log.w(TAG, "Unable to process key retrieved from store");
                         }
                     }
-                }else {
-                    if (temp != null) {
-                        keys = temp;
-                    }
+                } else {
+                    keys = temp;
                 }
             } catch (UnsupportedEncodingException e) {
-                if (DEBUG) Log.e(TAG, "Error in unmarshal " + e);
+                if (DEBUG) Log.e(TAG, "Error in unmarshal: " + e);
             }
+
             return keys;
-
         }
-
     }
 
 }

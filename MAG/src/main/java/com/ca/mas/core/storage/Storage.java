@@ -32,6 +32,7 @@ import com.ca.mas.core.storage.implementation.MASStorageManager;
  * */
 public abstract class Storage {
 
+    protected static final String UTF8 = "UTF-8";
 
     /**
      * Initialize the storage.

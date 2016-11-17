@@ -10,6 +10,7 @@ package com.ca.mas.core.policy;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.ca.mas.core.cert.CertUtils;
 import com.ca.mas.core.conf.ConfigurationManager;
@@ -40,6 +41,9 @@ import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
 
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 /**
  * Ensures that the device is registered.
  * <p/>
@@ -49,7 +53,7 @@ import java.util.Date;
  * CredentialRequiredException will be thrown if the user needs to be prompted for credentials.
  * TokenStoreUnavailableException will be thrown if the device needs to be unlocked.
  */
-public class DeviceRegistrationAssertion implements MssoAssertion {
+class DeviceRegistrationAssertion implements MssoAssertion {
 
     private TokenManager tokenManager;
 
@@ -80,6 +84,8 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
                     throw new com.ca.mas.core.policy.exceptions.CertificateExpiredException(e);
                 }
             }
+            if (DEBUG) Log.d(TAG,
+                    String.format("Device is registered with identifier: %s", tokenManager.getMagIdentifier()));
             return;
         }
 
@@ -108,6 +114,8 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
             throw new CredentialRequiredException();
         if (!creds.isValid())
             throw new CredentialRequiredException();
+
+        if (DEBUG) Log.d(TAG, "Device registration process start");
 
         // Perform device registration
         KeyPair keyPair = tokenManager.getClientKeyPair();

@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 
-import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.creds.AuthorizationCodeCredentials;
 import com.ca.mas.core.creds.Credentials;
@@ -88,8 +87,7 @@ public abstract class AuthRenderer {
     protected abstract void onError(int code, String message, Exception e);
 
     /**
-     * Perform clean up for the renderer, this method will be invoked during
-     * {@link com.ca.mas.core.gui.AbstractLogonActivity#onDestroy()}
+     * Perform clean up for the renderer.
      */
     public abstract void close();
 

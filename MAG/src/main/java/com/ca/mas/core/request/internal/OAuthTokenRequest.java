@@ -11,7 +11,6 @@ package com.ca.mas.core.request.internal;
 import android.util.Log;
 
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.http.MAGResponseBody;
 
@@ -24,12 +23,13 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 /**
  * A request to retrieve the OAuth Tokens as a JSON Message
  */
 public class OAuthTokenRequest extends MAGRequestProxy implements LocalRequest {
-
-    private static final String TAG = OAuthTokenRequest.class.getCanonicalName();
 
     public static final String ACCESSTOKEN = "accesstoken";
     public static final String REFRESHTOKEN = "refreshtoken";
@@ -80,7 +80,7 @@ public class OAuthTokenRequest extends MAGRequestProxy implements LocalRequest {
                                 entity.put(REFRESHTOKEN, refreshToken);
                                 entity.put(EXPIRY, expiry);
                             } catch (JSONException e) {
-                                Log.i(TAG, e.getMessage(), e);
+                                if (DEBUG) Log.i(TAG, e.getMessage(), e);
                                 return new JSONObject();
                             }
                             return entity;

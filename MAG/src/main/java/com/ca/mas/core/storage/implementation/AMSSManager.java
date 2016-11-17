@@ -11,11 +11,9 @@ package com.ca.mas.core.storage.implementation;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.XmlResourceParser;
 import android.util.Log;
-
 
 import com.ca.mas.core.storage.StorageException;
 
@@ -23,16 +21,14 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 /**
  * Manager class that takes care of account creation. This internally uses AccountManager
  * It also sets up the common password for all ELS instances of an app
  */
 public class AMSSManager {
-
-    /**
-     * The Log tag for the whole class
-     */
-    private static final String TAG = "ELSAccountManager";
 
     /**
      * The authenticator xml file name.
@@ -68,7 +64,7 @@ public class AMSSManager {
         mContext = ctx;
         mAccountType = getAccountType(AUTHENTICATOR_FILE_NAME);
         if (mAccountType == null) {
-            Log.e(TAG, String.format("Missing/malformed %s xml file in application resource.", AUTHENTICATOR_FILE_NAME));
+            if (DEBUG) Log.e(TAG, String.format("Missing/malformed %s xml file in application resource.", AUTHENTICATOR_FILE_NAME));
             throw new StorageException(String.format("Missing/malformed %s xml file in application resource.", AUTHENTICATOR_FILE_NAME),null,StorageException.INVALID_INPUT);
         }
 
@@ -92,7 +88,7 @@ public class AMSSManager {
 
             int authenticator_id = mContext.getResources().getIdentifier(fileName, "xml", mContext.getPackageName());
             if (authenticator_id == 0) {
-                Log.e(TAG, "authenticator_ca_mas file could not be found");
+                if (DEBUG) Log.e(TAG, "authenticator_ca_mas file could not be found");
                 return acc_type;
             }
             XmlResourceParser xrp = mContext.getResources().getXml(authenticator_id);
@@ -107,7 +103,7 @@ public class AMSSManager {
                 xrp.next();
             }
         } catch (XmlPullParserException | IOException e) {
-            Log.e(TAG,"getAccountType failed to read from  "+fileName+": reason - "+e);
+            if (DEBUG) Log.e(TAG,"getAccountType failed to read from " + fileName + ", reason: " + e);
         }
         return acc_type;
     }
@@ -127,7 +123,7 @@ public class AMSSManager {
             boolean created = am.addAccountExplicitly(account, getPassword(ctx), null);
             return created;
         } else {
-            Log.i(TAG, "Account already present");
+            if (DEBUG) Log.i(TAG, "Account already present");
             try {
                 String password = am.getPassword(getAccount());
                 if(password!=null && !getPassword(ctx).equals(password)){
@@ -175,7 +171,7 @@ public class AMSSManager {
         try {
             return am.getAccountsByType(mAccountType)[0];
         } catch (Exception e) {
-            Log.e(TAG, String.format("Account of type %s doesn't exist ", mAccountType));
+            if (DEBUG) Log.e(TAG, String.format("Account of type %s doesn't exist ", mAccountType));
             throw new Exception(String.format("Account of type %s doesn't exist ", mAccountType));
         }
     }

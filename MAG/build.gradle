@@ -42,7 +42,6 @@ task javadoc(type: Javadoc) {
     include '**/MobileSsoFactory.java'
     include '**/MobileSsoListener.java'
     include '**/MssoIntents.java'
-    include '**/EnterpriseApp.java'
     include '**/app/App.java'
     include '**/auth/**/*'
     include '**/*Exception.java'

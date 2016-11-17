@@ -62,6 +62,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.foundation.MASDevice.createStorageProvider;
 import static com.ca.mas.foundation.MASDevice.createTokenManager;
 import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN;
@@ -490,7 +491,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             source.remove(IdentityConsts.KEY_PASSWORD);
                             tokenManager.saveUserProfile(source.toString());
                         } catch (Exception e) {
-                            Log.w(TAG, "Unable to persist user profile to local store.", e);
+                            if (DEBUG) Log.w(TAG, "Unable to persist user profile to local storage.", e);
                         }
                         Callback.onSuccess(callback, null);
                     }
@@ -510,7 +511,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                         user.populate(new JSONObject(userProfile));
                     }
                 } catch (Exception e) {
-                    Log.w(TAG, "Failed to populate MASUser from local store", e);
+                    if (DEBUG) Log.w(TAG, "Failed to populate MASUser from local storage.", e);
                 }
                 return user;
             }

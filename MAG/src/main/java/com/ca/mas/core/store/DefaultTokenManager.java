@@ -21,6 +21,8 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * A simple persistent token store that uses the system's key store daemon to store the objects.
@@ -34,7 +36,6 @@ import java.security.cert.X509Certificate;
  */
 public class DefaultTokenManager implements TokenManager {
 
-    private static final String TAG = DefaultTokenManager.class.getSimpleName();
     private static final String MSSO_USER_PROFILE = "msso.userProfile";
     private static final String MSSO_MAG_IDENTIFIER = "msso.magIdentifier";
     private static final String MSSO_CLIENT_CERT_PRIVATE_KEY = "msso.clientCertPrivateKey";
@@ -129,7 +130,7 @@ public class DefaultTokenManager implements TokenManager {
                 return null;
             return new String(userProfileBytes, Charsets.UTF8);
         } catch (TokenStoreException e) {
-            Log.e(TAG, "Unable to access client username: " + e.getMessage(), e);
+            if (DEBUG) Log.e(TAG, "Unable to access client username: " + e.getMessage(), e);
             return null;
         }
     }
@@ -142,7 +143,7 @@ public class DefaultTokenManager implements TokenManager {
                 return null;
             return new String(identBytes, Charsets.UTF8);
         } catch (TokenStoreException e) {
-            Log.e(TAG, "Unable to access client device identifier: " + e.getMessage(), e);
+            if (DEBUG) Log.e(TAG, "Unable to access client device identifier: " + e.getMessage(), e);
             return null;
         }
     }
@@ -161,10 +162,10 @@ public class DefaultTokenManager implements TokenManager {
             PrivateKey privateKey = KeyUtils.decodeRsaPrivateKey(privateBytes);
             return new KeyPair(publicKey, privateKey);
         } catch (IllegalArgumentException e) {
-            Log.e(TAG, "Unable to decode client cert key pair: " + e.getMessage(), e);
+            if (DEBUG) Log.e(TAG, "Unable to decode client cert key pair: " + e.getMessage(), e);
             return null;
         } catch (TokenStoreException e) {
-            Log.e(TAG, "Unable to access client cert key pair: " + e.getMessage(), e);
+            if (DEBUG) Log.e(TAG, "Unable to access client cert key pair: " + e.getMessage(), e);
             return null;
         }
     }
@@ -175,7 +176,7 @@ public class DefaultTokenManager implements TokenManager {
             return retrieveSecureItem(MSSO_CLIENT_CERT_CHAIN) != null;
             //return storage.getKeys().contains(getKey(MSSO_CLIENT_CERT_CHAIN));
         } catch (TokenStoreException e) {
-            Log.e(TAG, "Unable to access client cert chain: " + e.getMessage(), e);
+            if (DEBUG) Log.e(TAG, "Unable to access client cert chain: " + e.getMessage(), e);
             return false;
         }
     }
@@ -189,7 +190,7 @@ public class DefaultTokenManager implements TokenManager {
 
             return CertUtils.decodeCertificateChain(bytes);
         } catch (TokenStoreException e) {
-            Log.e(TAG, "Unable to access client cert chain: " + e.getMessage(), e);
+            if (DEBUG) Log.e(TAG, "Unable to access client cert chain: " + e.getMessage(), e);
             return null;
         }
     }
@@ -211,7 +212,7 @@ public class DefaultTokenManager implements TokenManager {
 
             return new IdToken(idToken, idTokenType);
         } catch (TokenStoreException e) {
-            Log.e(TAG, "Unable to access ID token: " + e.getMessage(), e);
+            if (DEBUG) Log.e(TAG, "Unable to access ID token: " + e.getMessage(), e);
             return null;
         }
     }
@@ -221,7 +222,7 @@ public class DefaultTokenManager implements TokenManager {
         try {
             return retrieveSecureItem(MSSO_SECURE_ID_TOKEN);
         } catch (TokenStoreException e) {
-            Log.e(TAG, "Unable to retrieve encrypted ID token: " + e.getMessage(), e);
+            if (DEBUG) Log.e(TAG, "Unable to retrieve encrypted ID token: " + e.getMessage(), e);
             return null;
         }
     }

@@ -20,7 +20,6 @@ import org.json.JSONException;
  * or a JSON error response from the register_device method.
  */
 public class OAuthTokenResponse extends ServerResponse {
-    private static final String TAG = OAuthTokenResponse.class.getName();
 
     public OAuthTokenResponse(int status, String json) throws JSONException {
         super(status, json);

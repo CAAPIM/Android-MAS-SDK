@@ -38,12 +38,14 @@ import com.ca.mas.foundation.auth.MASProximityLoginBLECentralListener;
 import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 /**
  * Sample to show a login DialogFragment.
  * This sample enables QR code, NFC proximity, BLE proximity, and social login.
  */
 public class MASLoginFragment extends DialogFragment {
-    private static final String TAG = MASLoginFragment.class.getCanonicalName();
     private static final String REQUEST_ID = "requestID";
     private static final String PROVIDERS = "providers";
     private long requestID;
@@ -245,7 +247,7 @@ public class MASLoginFragment extends DialogFragment {
         return new MASProximityLoginNFC() {
             @Override
             public void onError(int errorCode, final String m, Exception e) {
-                Log.i(TAG, m);
+                if (DEBUG) Log.i(TAG, m);
             }
 
             @Override
@@ -264,34 +266,34 @@ public class MASLoginFragment extends DialogFragment {
             public void onStatusUpdate(int state) {
                 switch (state) {
                     case MASProximityLoginBLECentralListener.BLE_STATE_SCAN_STARTED:
-                        Log.i(TAG, "Scan Started");
+                        if (DEBUG) Log.i(TAG, "Scan Started");
                         break;
                     case MASProximityLoginBLECentralListener.BLE_STATE_SCAN_STOPPED:
-                        Log.i(TAG, "Scan Stopped");
+                        if (DEBUG) Log.i(TAG, "Scan Stopped");
                         break;
                     case MASProximityLoginBLECentralListener.BLE_STATE_DEVICE_DETECTED:
-                        Log.i(TAG, "Device detected");
+                        if (DEBUG) Log.i(TAG, "Device detected");
                         break;
                     case MASProximityLoginBLECentralListener.BLE_STATE_CONNECTED:
-                        Log.i(TAG, "Connected to Gatt Server");
+                        if (DEBUG) Log.i(TAG, "Connected to Gatt Server");
                         break;
                     case MASProximityLoginBLECentralListener.BLE_STATE_DISCONNECTED:
-                        Log.i(TAG, "Disconnected from Gatt Server");
+                        if (DEBUG) Log.i(TAG, "Disconnected from Gatt Server");
                         break;
                     case MASProximityLoginBLECentralListener.BLE_STATE_SERVICE_DISCOVERED:
-                        Log.i(TAG, "Service Discovered");
+                        if (DEBUG) Log.i(TAG, "Service Discovered");
                         break;
                     case MASProximityLoginBLECentralListener.BLE_STATE_CHARACTERISTIC_FOUND:
-                        Log.i(TAG, "Characteristic Found");
+                        if (DEBUG) Log.i(TAG, "Characteristic Found");
                         break;
                     case MASProximityLoginBLECentralListener.BLE_STATE_CHARACTERISTIC_WRITTEN:
-                        Log.i(TAG, "Writing data to Characteristic... ");
+                        if (DEBUG) Log.i(TAG, "Writing data to Characteristic... ");
                         break;
                     case MASProximityLoginBLECentralListener.BLE_STATE_AUTH_SUCCEEDED:
-                        Log.i(TAG, "Auth Succeeded");
+                        if (DEBUG) Log.i(TAG, "Auth Succeeded");
                         break;
                     case MASProximityLoginBLECentralListener.BLE_STATE_AUTH_FAILED:
-                        Log.i(TAG, "Auth Failed");
+                        if (DEBUG) Log.i(TAG, "Auth Failed");
                         break;
                 }
             }
@@ -300,7 +302,7 @@ public class MASLoginFragment extends DialogFragment {
         return new MASProximityLoginBLE(callback) {
             @Override
             public void onError(int errorCode, final String m, Exception e) {
-                Log.i(TAG, m);
+                if (DEBUG) Log.i(TAG, m);
             }
 
             @Override

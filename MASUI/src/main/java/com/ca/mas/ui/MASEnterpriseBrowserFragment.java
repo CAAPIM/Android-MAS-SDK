@@ -32,6 +32,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 /**
  * <p>A simple {@link Fragment} subclass.
  * Use the {@link MASEnterpriseBrowserFragment#newInstance} factory method to
@@ -39,7 +42,6 @@ import java.util.List;
  * A sample Enterprise Browser dialog as a Fragment.
  */
 public class MASEnterpriseBrowserFragment extends DialogFragment {
-    public static final String TAG = MASEnterpriseBrowserFragment.class.getCanonicalName();
     public static final String AUTH_URL = "com.ca.mas.AUTH_URL";
 
     public MASEnterpriseBrowserFragment() {
@@ -85,7 +87,7 @@ public class MASEnterpriseBrowserFragment extends DialogFragment {
 
             @Override
             public void onError(Throwable e) {
-                Log.e(TAG, e.getMessage(), e);
+                if (DEBUG) Log.e(TAG, e.getMessage(), e);
             }
         });
         return view;
@@ -145,11 +147,11 @@ public class MASEnterpriseBrowserFragment extends DialogFragment {
                 if (application.getAuthUrl() != null) {
                     try {
                         if (!(new URL(application.getAuthUrl())).getHost().equals(MASConfiguration.getCurrentConfiguration().getGatewayHostName())) {
-                            Log.e(TAG, "This auth url is valid only for the host that has issued the access_token");
+                            if (DEBUG) Log.e(TAG, "This auth url is valid only for the host that has issued the access_token");
                             return;
                         }
                     } catch (MalformedURLException e) {
-                        Log.e(TAG, "Invalid auth url", e);
+                        if (DEBUG) Log.e(TAG, "Invalid auth url", e);
                         return;
                     }
                     Intent intent = new Intent(getActivity(), MASEnterpriseWebApplicationActivity.class);

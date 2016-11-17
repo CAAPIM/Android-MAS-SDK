@@ -23,10 +23,10 @@ import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocketFactory;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 public class MAGHttpClient {
-
-    private static final String TAG = MAGHttpClient.class.getCanonicalName();
 
     private SSLSocketFactory sslSocketFactory;
 
@@ -48,6 +48,9 @@ public class MAGHttpClient {
      */
     public <T> MAGResponse<T> execute(MAGRequest request) throws IOException {
         final HttpURLConnection urlConnection = (HttpURLConnection) request.getURL().openConnection();
+
+        if (DEBUG) Log.d(TAG, String.format("API Request Url: %s", request.getURL()));
+
         try {
             onConnectionObtained(urlConnection);
             if (request.getConnectionListener() != null) {
@@ -106,11 +109,15 @@ public class MAGHttpClient {
             try {
                 responseCode = urlConnection.getResponseCode();
                 responseMessage = urlConnection.getResponseMessage();
+                if (DEBUG) {
+                    Log.d(TAG, String.format("Response code: %d", responseCode));
+                    Log.d(TAG, String.format("Response message: %s", responseMessage));
+                }
                 responseBody.read(urlConnection);
             } catch (SSLHandshakeException e) {
                 //Related to MCT-104 & MCT-323
                 if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
-                    Log.w(TAG, "SSLHandshakeException occurs, setting it to response 204");
+                    if (DEBUG) Log.w(TAG, "SSLHandshakeException occurs, setting it to response 204");
                     responseCode = HttpsURLConnection.HTTP_NO_CONTENT;
                     responseMessage = null;
                 } else {

@@ -32,9 +32,10 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.x500.X500Principal;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
-    private static final String TAG = KeyStoreKeyStorageProvider.class.getCanonicalName();
 
     //"RSA/ECB/PKCS1Padding" actually doesn't implement ECB mode encryption.
     // It should have been called "RSA/None/PKCS1Padding" as it can only be used to
@@ -83,20 +84,20 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
                 ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
 
             } catch (KeyStoreException e) {
-                Log.e(TAG, "Error while instantiating Android KeyStore instance", e);
+                if (DEBUG) Log.e(TAG, "Error while instantiating Android KeyStore instance", e);
                 throw new RuntimeException("Error while instantiating Android KeyStore", e);
             }
             try {
                 ks.load(null);
             } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
-                Log.e(TAG, "Error while loading Android KeyStore instance", e);
+                if (DEBUG) Log.e(TAG, "Error while loading Android KeyStore instance", e);
                 throw new RuntimeException("Error while instantiating Android KeyStore", e);
             }
             java.security.KeyStore.Entry entry;
             try {
                 entry = ks.getEntry(ASYM_KEY_ALIAS, null);
             } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException e) {
-                Log.e(TAG, "Error while getting entry from Android KeyStore", e);
+                if (DEBUG) Log.e(TAG, "Error while getting entry from Android KeyStore", e);
                 throw new RuntimeException("Error while getting entry from Android KeyStore", e);
             }
 
@@ -108,7 +109,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
                 try {
                     keyPairGenerator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, ANDROID_KEY_STORE);
                 } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-                    Log.e(TAG, "Error while instantiating KeyPairGenerator", e);
+                    if (DEBUG) Log.e(TAG, "Error while instantiating KeyPairGenerator", e);
                     throw new RuntimeException("Error while instantiating KeyPairGenerator", e);
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -125,7 +126,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
                                 .setEndDate(notAfter.getTime())
                                 .build());
                     } catch (InvalidAlgorithmParameterException | NullPointerException e) {
-                        Log.e(TAG, "Error while instantiating KeyPairGenerator", e);
+                        if (DEBUG) Log.e(TAG, "Error while instantiating KeyPairGenerator", e);
                         throw new RuntimeException("Error while instantiating KeyPairGenerator", e);
                     }
                 }
@@ -134,7 +135,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
                 try {
                     entry = ks.getEntry(ASYM_KEY_ALIAS, null);
                 } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException e) {
-                    Log.e(TAG, "Error while getting entry from Android KeyStore", e);
+                    if (DEBUG) Log.e(TAG, "Error while getting entry from Android KeyStore", e);
                     throw new RuntimeException("Error while getting entry from Android KeyStore", e);
                 }
             }
@@ -144,7 +145,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
                 byte[] encryptedSecretkey = encryptSecretKey(key, publicKey);
                 storeSecretKeyLocally(alias, encryptedSecretkey);
             } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException | NoSuchAlgorithmException e) {
-                Log.e(TAG, "Error while encrypting SecretKey", e);
+                if (DEBUG) Log.e(TAG, "Error while encrypting SecretKey", e);
                 throw new RuntimeException("Error while encrypting SecretKey", e);
             }
         }
@@ -164,13 +165,13 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
             try {
                 ks = java.security.KeyStore.getInstance("AndroidKeyStore");
             } catch (KeyStoreException e) {
-                Log.e(TAG, "Error while instantiating Android KeyStore instance", e);
+                if (DEBUG) Log.e(TAG, "Error while instantiating Android KeyStore instance", e);
                 throw new RuntimeException("Error while instantiating Android KeyStore instance", e);
             }
             try {
                 ks.load(null);
             } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
-                Log.e(TAG, "Error while loading Android KeyStore instance", e);
+                if (DEBUG) Log.e(TAG, "Error while loading Android KeyStore instance", e);
                 throw new RuntimeException("Error while loading Android KeyStore instance", e);
             }
             SecretKey sk;
@@ -178,7 +179,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
                 java.security.KeyStore.SecretKeyEntry entry = (java.security.KeyStore.SecretKeyEntry) ks.getEntry(alias, null);
                 sk = entry.getSecretKey();
             } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException | NullPointerException e) {
-                Log.e(TAG, "Error while getting entry from Android KeyStore", e);
+                if (DEBUG) Log.e(TAG, "Error while getting entry from Android KeyStore", e);
                 throw new RuntimeException("Error while getting entry from Android KeyStore", e);
             }
             return sk;
@@ -222,19 +223,19 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
                 try {
                     ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
                 } catch (KeyStoreException e) {
-                    Log.e(TAG, "Error while instantiating Android KeyStore");
+                    if (DEBUG) Log.e(TAG, "Error while instantiating Android KeyStore");
                     return false;
                 }
                 try {
                     ks.load(null);
                 } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
-                    Log.e(TAG, "Error while instantiating Android KeyStore");
+                    if (DEBUG) Log.e(TAG, "Error while instantiating Android KeyStore");
                     return false;
                 }
                 try {
                     return ks.containsAlias(alias);
                 } catch (KeyStoreException e) {
-                    Log.e(TAG, "Error in  containsAlias function");
+                    if (DEBUG) Log.e(TAG, "Error in  containsAlias function");
                     return false;
                 }
             } else {
@@ -259,14 +260,14 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
         try {
             ks = KeyStore.getInstance(ANDROID_KEY_STORE);
         } catch (KeyStoreException e) {
-            Log.e(TAG, "Error while instantiating Android KeyStore");
+            if (DEBUG) Log.e(TAG, "Error while instantiating Android KeyStore");
             throw new RuntimeException("Error while instantiating Android KeyStore", e);
         }
 
         try {
             ks.load(null);
         } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
-            Log.e(TAG, "Error while instantiating Android KeyStore");
+            if (DEBUG) Log.e(TAG, "Error while instantiating Android KeyStore");
             throw new RuntimeException("Error while instantiating Android KeyStore", e);
         }
 
@@ -277,14 +278,14 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
             entry = ks.getEntry(ASYM_KEY_ALIAS, null);
             privateKey = ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
         } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException | NullPointerException e) {
-            Log.e(TAG, "Error while retrieving aysmmetric key from keystore", e);
+            if (DEBUG) Log.e(TAG, "Error while retrieving aysmmetric key from keystore", e);
             throw new RuntimeException("Error while retrieving aysmmetric key from keystore", e);
         }
 
         try {
             return decryptSecretKey(encryptedSecretKey, privateKey);
         } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
-            Log.e(TAG, "Error while decrypting SecretKey", e);
+            if (DEBUG) Log.e(TAG, "Error while decrypting SecretKey", e);
             throw new RuntimeException("Error while  decrypting SecretKey", e);
         }
     }
@@ -303,7 +304,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
             ks = java.security.KeyStore.getInstance("AndroidKeyStore");
             ks.load(null);
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-            Log.e(TAG, "Error instantiating Android keyStore");
+            if (DEBUG) Log.e(TAG, "Error instantiating Android keyStore");
             throw new RuntimeException("Error instantiating Android keyStore", e);
         }
 
@@ -317,7 +318,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
             ks.setEntry(alias, new KeyStore.SecretKeyEntry(key), kp);
             return true;
         } catch (KeyStoreException e) {
-            Log.e(TAG, "Error setting entry into Android keyStore");
+            if (DEBUG) Log.e(TAG, "Error setting entry into Android keyStore");
             throw new RuntimeException("Error setting entry into Android keyStore", e);
         }
 
@@ -333,20 +334,20 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
         try {
             ks = KeyStore.getInstance(ANDROID_KEY_STORE);
         } catch (KeyStoreException e) {
-            Log.e(TAG, "Error instantiating Android keyStore");
+            if (DEBUG) Log.e(TAG, "Error instantiating Android keyStore");
             throw new RuntimeException("Error instantiating Android keyStore", e);
         }
         try {
             ks.load(null);
         } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
-            Log.e(TAG, "Error loading Android keyStore");
+            if (DEBUG) Log.e(TAG, "Error loading Android keyStore");
             throw new RuntimeException("Error loading Android keyStore", e);
         }
         try {
             ks.deleteEntry(alias);
         } catch (KeyStoreException e) {
-            Log.e(TAG, "Error deleting a key Android keyStore");
-            throw new RuntimeException("Error deleting a key Android keyStore", e);
+            if (DEBUG) Log.e(TAG, "Error deleting Android keyStore");
+            throw new RuntimeException("Error deleting Android keyStore", e);
         }
     }
 

@@ -23,10 +23,11 @@ import java.security.cert.CertificateException;
 import javax.crypto.SecretKey;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class LockableKeyStorageProvider implements KeyStorageProvider {
-    private static final String TAG = LockableKeyStorageProvider.class.getCanonicalName();
     private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
     private SecretKey secretKey;
 
@@ -37,7 +38,7 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
             ks = KeyStore.getInstance(ANDROID_KEY_STORE);
             ks.load(null);
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-            Log.e(TAG, "Error instantiating Android KeyStore.", e);
+            if (DEBUG) Log.e(TAG, "Error instantiating Android KeyStore.", e);
             throw new RuntimeException("Error instantiating Android KeyStore.", e);
         }
 
@@ -52,7 +53,7 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
             this.secretKey = sk;
             ks.setEntry(alias, new KeyStore.SecretKeyEntry(sk), kp);
         } catch (KeyStoreException e) {
-            Log.e(TAG, "Error setting entry into Android KeyStore.", e);
+            if (DEBUG) Log.e(TAG, "Error setting entry into Android KeyStore.", e);
             throw new RuntimeException("Error setting entry into Android KeyStore.", e);
         }
     }
@@ -69,7 +70,7 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
             KeyStore.SecretKeyEntry entry = (KeyStore.SecretKeyEntry) ks.getEntry(alias, null);
             return entry == null ? null : entry.getSecretKey();
         } catch (Exception e) {
-            Log.e(TAG, "Error while getting SecretKey", e);
+            if (DEBUG) Log.e(TAG, "Error while getting SecretKey", e);
             throw new RuntimeException(e);
         }
     }
@@ -81,7 +82,7 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
             ks.load(null);
             return ks.containsAlias(alias);
         } catch (Exception e) {
-            Log.e(TAG, "Error while getting SecretKey", e);
+            if (DEBUG) Log.e(TAG, "Error while getting SecretKey", e);
             return false;
         }
     }
@@ -92,7 +93,7 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
             try {
                 destroyable.destroy();
             } catch (DestroyFailedException e) {
-                Log.e(TAG, "Could not destroy key");
+                if (DEBUG) Log.e(TAG, "Could not destroy key");
             }
         }
         secretKey = null;
@@ -104,7 +105,7 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
             ks.load(null);
             ks.deleteEntry(alias);
         } catch (Exception e) {
-            Log.e(TAG, "Error while delete SecretKey", e);
+            if (DEBUG) Log.e(TAG, "Error while delete SecretKey", e);
         }
     }
 }

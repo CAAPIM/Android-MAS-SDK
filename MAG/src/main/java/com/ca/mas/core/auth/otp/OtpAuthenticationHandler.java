@@ -94,14 +94,6 @@ public class OtpAuthenticationHandler implements Parcelable {
         MobileSsoFactory.getInstance().cancelRequest(requestId);
     }
 
-   /* public String getUserSelectedChannels() {
-        return userSelectedChannels;
-    }
-
-    public void setUserSelectedChannels(String userSelectedChannels) {
-        this.userSelectedChannels = userSelectedChannels;
-    }*/
-
     @Override
     public int describeContents() {
         return 0;

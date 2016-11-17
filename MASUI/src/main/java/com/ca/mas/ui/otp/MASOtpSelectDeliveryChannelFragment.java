@@ -36,7 +36,6 @@ import java.util.List;
  */
 @Deprecated
 public class MASOtpSelectDeliveryChannelFragment extends DialogFragment {
-    private static final String TAG = MASOtpSelectDeliveryChannelFragment.class.getCanonicalName();
     private static final String HANDLER = "handle";
     private MASOtpAuthenticationHandler handler;
     String errorMessage = "Request Cancelled";

@@ -109,8 +109,10 @@ public class MAGHttpClient {
             try {
                 responseCode = urlConnection.getResponseCode();
                 responseMessage = urlConnection.getResponseMessage();
-                if (DEBUG) Log.d(TAG, String.format("Response code: %d", responseCode));
-                if (DEBUG) Log.d(TAG, String.format("Response message: %s", responseMessage));
+                if (DEBUG) {
+                    Log.d(TAG, String.format("Response code: %d", responseCode));
+                    Log.d(TAG, String.format("Response message: %s", responseMessage));
+                }
                 responseBody.read(urlConnection);
             } catch (SSLHandshakeException e) {
                 //Related to MCT-104 & MCT-323

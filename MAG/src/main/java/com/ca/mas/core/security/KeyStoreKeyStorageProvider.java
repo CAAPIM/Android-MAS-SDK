@@ -346,8 +346,8 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
         try {
             ks.deleteEntry(alias);
         } catch (KeyStoreException e) {
-            if (DEBUG) Log.e(TAG, "Error deleting a key Android keyStore");
-            throw new RuntimeException("Error deleting a key Android keyStore", e);
+            if (DEBUG) Log.e(TAG, "Error deleting Android keyStore");
+            throw new RuntimeException("Error deleting Android keyStore", e);
         }
     }
 

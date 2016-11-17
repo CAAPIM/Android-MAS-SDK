@@ -20,6 +20,8 @@ import com.ca.mas.core.storage.StorageResultReceiver;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 
 /**
@@ -28,10 +30,6 @@ import java.util.ArrayList;
 public final class KeyStoreStorage extends Storage {
 
 
-    /**
-     * The Log tag for the whole class
-     */
-    private static final String TAG = KeyStoreStorage.class.getCanonicalName();
     /**
      * The L7 KeyStore utility instance.
      */
@@ -73,14 +71,14 @@ public final class KeyStoreStorage extends Storage {
             try {
                 ctx = (Context) inputs[0];
             } catch (Exception e) {
-                Log.e(TAG, "Missing Context input " + e);
+                if (DEBUG) Log.e(TAG, "Missing Context input " + e);
                 throw new StorageException(StorageException.INVALID_INPUT);
             }
 
             try {
                 prefix = (boolean) inputs[1]?"SHARED_":ctx.getPackageName()+"_";
             } catch (Exception e) {
-                Log.w(TAG, "Wrong shared input attribute, falling back to private" + e);
+                if (DEBUG) Log.w(TAG, "Wrong shared input attribute, falling back to private" + e);
                 //if not specified , assume default as "not shared"
                 prefix = ctx.getPackageName()+"_";
             }
@@ -120,7 +118,7 @@ public final class KeyStoreStorage extends Storage {
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "write error " + e);
+            if (DEBUG) Log.e(TAG, "write error " + e);
             returnException = new StorageException(StorageException.OPERATION_FAILED);
         }
         if (returnException != null) {
@@ -137,7 +135,7 @@ public final class KeyStoreStorage extends Storage {
     public void writeData(final String key, final byte[] value, final StorageResultReceiver callback) throws StorageException {
         StorageResult returnValue;
         if (callback == null) {
-            Log.w(TAG, "No Callback set");
+            if (DEBUG) Log.w(TAG, "No Callback set");
         }
         returnValue = writeData(key, value);
         notifyCallback(callback, returnValue);
@@ -162,7 +160,7 @@ public final class KeyStoreStorage extends Storage {
     public void writeString(final String key, final String value, final StorageResultReceiver callback) throws StorageException {
         StorageResult returnValue;
         if (callback == null) {
-            Log.w(TAG, "No Callback set");
+            if (DEBUG) Log.w(TAG, "No Callback set");
         }
         returnValue = writeString(key, value);
         returnValue.setType(StorageResult.StorageOperationType.WRITE_STRING);
@@ -209,7 +207,7 @@ public final class KeyStoreStorage extends Storage {
     public void readData(final String key, final StorageResultReceiver callback) throws StorageException {
         StorageResult returnValue;
         if (callback == null) {
-            Log.w(TAG, "No Callback set");
+            if (DEBUG) Log.w(TAG, "No Callback set");
         }
         returnValue = readData(key);
         notifyCallback(callback, returnValue);
@@ -240,7 +238,7 @@ public final class KeyStoreStorage extends Storage {
                 try {
                     stringValue = new String(value, "UTF-8");
                 } catch (UnsupportedEncodingException e) {
-                    Log.w(TAG, "The data is not UTF-8 " + e);
+                    if (DEBUG) Log.w(TAG, "The data is not UTF-8 " + e);
                     stringValue = new String(value);
                 }
                 returnValue.setData(stringValue);
@@ -262,7 +260,7 @@ public final class KeyStoreStorage extends Storage {
     public void readString(final String key, final StorageResultReceiver callback) throws StorageException {
         StorageResult returnValue;
         if (callback == null) {
-            Log.w(TAG, "No Callback set");
+            if (DEBUG) Log.w(TAG, "No Callback set");
         }
         returnValue = readString(key);
         notifyCallback(callback, returnValue);
@@ -290,7 +288,7 @@ public final class KeyStoreStorage extends Storage {
                 returnException = new StorageException(StorageException.READ_DATA_NOT_FOUND);
             }
         } catch (Exception e) {
-            Log.e(TAG, "update error " + e);
+            if (DEBUG) Log.e(TAG, "update error " + e);
             returnException = new StorageException(StorageException.OPERATION_FAILED);
         }
         if (returnException != null) {
@@ -307,7 +305,7 @@ public final class KeyStoreStorage extends Storage {
     public void updateData(final String key, final byte[] value, final StorageResultReceiver callback) throws StorageException {
         StorageResult returnValue;
         if (callback == null) {
-            Log.w(TAG, "No Callback set");
+            if (DEBUG) Log.w(TAG, "No Callback set");
         }
         returnValue = updateData(key, value);
         notifyCallback(callback, returnValue);
@@ -336,7 +334,7 @@ public final class KeyStoreStorage extends Storage {
                 returnException = new StorageException(StorageException.READ_DATA_NOT_FOUND);
             }
         } catch (Exception e) {
-            Log.e(TAG, "update string  error " + e);
+            if (DEBUG) Log.e(TAG, "update string  error " + e);
             returnException = new StorageException(StorageException.OPERATION_FAILED);
         }
         if (returnException != null) {
@@ -353,7 +351,7 @@ public final class KeyStoreStorage extends Storage {
     public void updateString(final String key, final String value, final StorageResultReceiver callback) throws StorageException {
         StorageResult returnValue;
         if (callback == null) {
-            Log.w(TAG, "No Callback set");
+            if (DEBUG) Log.w(TAG, "No Callback set");
         }
         returnValue = updateString(key, value);
         notifyCallback(callback, returnValue);
@@ -374,7 +372,7 @@ public final class KeyStoreStorage extends Storage {
                 returnException = e;
             }
         } catch (Exception e) {
-            Log.e(TAG, "write/update error " + e);
+            if (DEBUG) Log.e(TAG, "write/update error " + e);
             returnException = new StorageException(StorageException.OPERATION_FAILED);
         }
         if (returnException != null) {
@@ -391,7 +389,7 @@ public final class KeyStoreStorage extends Storage {
     public void writeOrUpdateData(final String key, final byte[] value, final StorageResultReceiver callback) throws StorageException {
         StorageResult returnValue;
         if (callback == null) {
-            Log.w(TAG, "No Callback set");
+            if (DEBUG) Log.w(TAG, "No Callback set");
         }
         returnValue = writeOrUpdateData(key, value);
         notifyCallback(callback, returnValue);
@@ -411,7 +409,7 @@ public final class KeyStoreStorage extends Storage {
                 returnException = e;
             }
         } catch (Exception e) {
-            Log.e(TAG, "write/update string error " + e);
+            if (DEBUG) Log.e(TAG, "write/update string error " + e);
             returnException = new StorageException(StorageException.OPERATION_FAILED);
         }
         if (returnException != null) {
@@ -428,7 +426,7 @@ public final class KeyStoreStorage extends Storage {
     public void writeOrUpdateString(final String key, final String value, final StorageResultReceiver callback) throws StorageException {
         StorageResult returnValue;
         if (callback == null) {
-            Log.w(TAG, "No Callback set");
+            if (DEBUG) Log.w(TAG, "No Callback set");
         }
         returnValue = writeOrUpdateString(key, value);
         notifyCallback(callback, returnValue);
@@ -461,7 +459,7 @@ public final class KeyStoreStorage extends Storage {
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "Delete error " + e);
+            if (DEBUG) Log.e(TAG, "Delete error " + e);
             returnException = new StorageException(StorageException.OPERATION_FAILED);
         }
         if (returnException != null) {
@@ -484,7 +482,7 @@ public final class KeyStoreStorage extends Storage {
     @Override
     public void deleteData(final String key, final StorageResultReceiver callback) throws StorageException {
         if (callback == null) {
-            Log.w(TAG, "No Callback set");
+            if (DEBUG) Log.w(TAG, "No Callback set");
         }
         StorageResult returnValue;
         returnValue = deleteData(key);
@@ -495,7 +493,7 @@ public final class KeyStoreStorage extends Storage {
     @Override
     public void deleteString(String key, StorageResultReceiver callback) throws StorageException {
         if (callback == null) {
-            Log.w(TAG, "No Callback set");
+            if (DEBUG) Log.w(TAG, "No Callback set");
         }
         StorageResult returnValue;
         returnValue = deleteString(key);
@@ -525,10 +523,10 @@ public final class KeyStoreStorage extends Storage {
 
             if (failureCount != 0) {
                 String msg = "Failed to deleteData " + failureCount + " entries. Entries deleted: " + successCount;
-                Log.e(TAG, msg);
+                if (DEBUG) Log.e(TAG, msg);
                 returnError = new StorageException(msg, null, StorageException.OPERATION_FAILED);
             } else {
-                Log.i(TAG, "Deleted " + successCount + " entries ");
+                if (DEBUG) Log.i(TAG, "Deleted " + successCount + " entries ");
             }
 
         } catch (Exception e) {
@@ -551,7 +549,7 @@ public final class KeyStoreStorage extends Storage {
     @Override
     public void deleteAll(final StorageResultReceiver callback) throws StorageException {
         if (callback == null) {
-            Log.w(TAG, "No Callback set");
+            if (DEBUG) Log.w(TAG, "No Callback set");
         }
         StorageResult returnValue = deleteAll();
         notifyCallback(callback, returnValue);
@@ -591,7 +589,7 @@ public final class KeyStoreStorage extends Storage {
     @Override
     public void getAllKeys(final StorageResultReceiver callback) throws StorageException {
         if (callback == null) {
-            Log.w(TAG, "No Callback set");
+            if (DEBUG) Log.w(TAG, "No Callback set");
         }
         StorageResult returnValue = getAllKeys();
         notifyCallback(callback, returnValue);
@@ -662,7 +660,7 @@ public final class KeyStoreStorage extends Storage {
                 callback.send(result);
             } catch (Exception e) {
                 //ignored purposefully as its the callers responsibility to handle errors in the callback
-                Log.w(TAG, "Error in callback- please handle " + e);
+                if (DEBUG) Log.w(TAG, "Error in callback- please handle " + e);
             }
         }
 
@@ -688,7 +686,7 @@ public final class KeyStoreStorage extends Storage {
 
             } else {
                 String errorStr = rcToStr(code);
-                Log.d(TAG, "last error = " + errorStr);
+                if (DEBUG) Log.d(TAG, "last error = " + errorStr);
                 throw new StorageException("KeyStore error: " + errorStr, null, StorageException.OPERATION_FAILED);
             }
 

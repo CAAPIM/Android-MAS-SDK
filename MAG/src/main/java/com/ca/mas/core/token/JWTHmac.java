@@ -13,10 +13,11 @@ import android.util.Log;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 public class JWTHmac {
 
-    private static final String TAG = JWTHmac.class.getName();
 
     public JWTHmac () {
 
@@ -79,7 +80,7 @@ public class JWTHmac {
                 append("\n    Generated Signature: [").
                 append(comparedSignature == null ? "(No comparison signature)" : new String(Base64.encodeToString(comparedSignature, Base64.URL_SAFE))).
                 append("]");
-        Log.w(TAG, error + errorResponse);
+        if (DEBUG) Log.w(TAG, error + errorResponse);
         return errorResponse.toString();
     }
 

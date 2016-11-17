@@ -16,12 +16,13 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * Utility methods for doing I/O.
  */
 public class IoUtils {
-    private static final String TAG = IoUtils.class.getName();
 
     /**
      * Read the entirety of the specified InputStream into memory and return it as a byte array.
@@ -117,9 +118,9 @@ public class IoUtils {
             if (closeable != null)
                 closeable.close();
         } catch (IOException e) {
-            Log.d(TAG, "Exception closing closeable: " + e.getMessage(), e);
+            if (DEBUG) Log.d(TAG, "Exception closing closeable: " + e.getMessage(), e);
         } catch (Exception e) {
-            Log.e(TAG, "Error closing closeable: " + e.getMessage(), e);
+            if (DEBUG) Log.e(TAG, "Error closing closeable: " + e.getMessage(), e);
         }
     }
 

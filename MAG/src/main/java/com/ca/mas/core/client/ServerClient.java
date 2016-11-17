@@ -23,13 +23,12 @@ import com.ca.mas.core.http.MAGResponseBody;
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.net.HttpURLConnection;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
-
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 /**
  * Utility class that encapsulates talking to the token server into Java method calls.
  * This handles just the network protocol for communicating with the token server to register a device, obtain an access token, etc.
@@ -39,7 +38,6 @@ import java.util.Map;
 
 public abstract class ServerClient {
 
-    private final static String TAG = ServerClient.class.getCanonicalName();
     public static final String X_CA_ERR = "x-ca-err";
     public static final String DEFAULT_CONTENT_TYPE = " text/plain";
     public static final String UTF_8 = "utf-8";
@@ -117,6 +115,7 @@ public abstract class ServerClient {
                 if (errorCodes == null || errorCodes.size() == 0) {
                     return -1;
                 }
+                if (DEBUG) Log.d(TAG, "Server response with x-ca-err: " + errorCodes.get(0));
                 return Integer.parseInt(errorCodes.get(0));
             }
         }
@@ -138,7 +137,10 @@ public abstract class ServerClient {
             throw new MAGException(MAGErrorCode.UNKNOWN, "Unable to post to " + request.getURL() + ": " + e.getMessage(), e);
         }
 
-        Log.d(TAG, "JWT response status: " + response.getResponseCode());
+        if (DEBUG) Log.d(TAG,
+                String.format("%s response with status: %d",
+                        request.getURL(),
+                        response.getResponseCode()) );
 
         try {
             final int statusCode = response.getResponseCode();

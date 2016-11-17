@@ -20,10 +20,10 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 public class DeviceIdentifier {
-
-    private static final String TAG = DeviceIdentifier.class.getCanonicalName();
 
     private String deviceId;
 
@@ -50,7 +50,7 @@ public class DeviceIdentifier {
                 sharedUserIdOrPackageNameHash = String.valueOf(packageName.hashCode());
             }
         } catch (Exception x) {
-            Log.w(TAG, "Unable to get sharedUserIdOrPackageNameHash: ", x);
+            if (DEBUG) Log.w(TAG, "Unable to get sharedUserIdOrPackageNameHash: ", x);
 
         }
         StringBuilder signatures = new StringBuilder(DEFAULT);
@@ -67,7 +67,7 @@ public class DeviceIdentifier {
                 }
             }
         } catch (Exception noSignature) {
-            Log.w(TAG, "Unable to get application signature(s): ", noSignature);
+            if (DEBUG) Log.w(TAG, "Unable to get application signature(s): ", noSignature);
         }
         String containerDescription;
         try {
@@ -98,7 +98,7 @@ public class DeviceIdentifier {
             deviceId = IoUtils.hexDump(mdBytes);
 
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException | IllegalArgumentException e) {
-            Log.w(TAG, "Error while finding the algorithm to hash or while encoding to utf-8", e);
+            if (DEBUG) Log.w(TAG, "Error while finding the algorithm to hash or while encoding to utf-8", e);
         }
         //Trim the device-id to <=100 characters in case they the length is more. This is fallback mechanism if hashing fails.
         if (localDeviceID.length() > 100) {
@@ -122,20 +122,21 @@ public class DeviceIdentifier {
             String dirs[] = filesDir.toString().split("\\/");
             if (dirs[1].equals("data")) {
                 if (dirs[2].equals("data")) {
-                    Log.d(TAG, "APP Not in knox container: " + dirs[3]);
+                    if (DEBUG) Log.d(TAG, "APP Not in knox container: " + dirs[3]);
                     containerDescription = "";
                 } else if (dirs[2].equals("data1")) {
-                    Log.d(TAG, "App In knox container #1: " + dirs[3]);
+                    if (DEBUG) Log.d(TAG, "App In knox container #1: " + dirs[3]);
                     containerDescription = "-knox-1";
                 } else if (dirs[2].equals("user")) {
-                    Log.d(TAG, "APP In knox container #" + dirs[3] + ": " + dirs[4]);
+                    if (DEBUG) Log.d(TAG, "APP In knox container #" + dirs[3] + ": " + dirs[4]);
                     containerDescription = "-knox-" + dirs[3];
                 } else
-                    Log.d(TAG, "APP Knox container status /data/" + dirs[2] + " unknown: " + filesDir);
-            } else
-                System.out.println("APP Knox container status /" + dirs[1] + " unknown: " + filesDir);
+                    if (DEBUG) Log.d(TAG, "APP Knox container status /data/" + dirs[2] + " unknown: " + filesDir);
+            } else {
+                if (DEBUG) Log.d(TAG, "APP Knox container status /" + dirs[1] + " unknown: " + filesDir);
+            }
         } catch (Exception noDesc) {
-            Log.w(TAG, "Unable to get container description from " + filesDir + ": " + noDesc);
+            if (DEBUG) Log.w(TAG, "Unable to get container description from " + filesDir + ": " + noDesc);
         }
 
         if (containerDescription == null)

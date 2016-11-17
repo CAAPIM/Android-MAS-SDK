@@ -48,6 +48,9 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Date;
 
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 /**
  * Top-level context used by mobile single-sign-on library.
  * An application would normally only need to create one instance of this class.
@@ -61,8 +64,6 @@ import java.util.Date;
  * are provided.
  */
 public class MssoContext {
-
-    private static final String TAG = "MssoContext";
 
     /**
      * Maximum number of RetryRequestExceptions to honor before giving up.
@@ -425,12 +426,13 @@ public class MssoContext {
                 }
                 policyManager.processResponse(requestInfo, response);
                 return response;
-            } catch (MAGServerException e ) {
+            } catch (MAGServerException e) {
+                if (DEBUG) Log.d(TAG, String.format("Server return x-ca-err %d", e.getErrorCode()));
                 rethrow(e);
             } catch (RetryRequestException e) {
                 lastError = e;
                 e.recover(this);
-                Log.d(TAG, "Attempting to retry request");
+                if (DEBUG) Log.d(TAG, "Attempting to retry request. " + e.getClass());
             }
         }
         if (lastError != null && lastError.getCause() != null) {
@@ -499,7 +501,7 @@ public class MssoContext {
         Exception exception = null;
 
         //Not allow to logout if the session is locked.
-        byte[] secureIdToken =  tokenManager.getSecureIdToken();
+        byte[] secureIdToken = tokenManager.getSecureIdToken();
         if (secureIdToken != null) {
             throw new SecureLockException("The session is currently locked.");
         }
@@ -578,7 +580,8 @@ public class MssoContext {
                 new RegistrationClient(this).removeDeviceRegistration();
             }
         } catch (Exception e) {
-            Log.w(TAG, "Error in removing Device registration details from the server " + e);
+            if (DEBUG) Log.w(TAG,
+                    "Error in removing Device registration details from the server " + e);
         } finally {
             resetHttpClient();
         }

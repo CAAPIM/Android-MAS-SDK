@@ -29,8 +29,6 @@ import java.util.List;
 public class LocalStoreDataSource implements DataSource<LocalStoreKey, LocalStoreEntity> {
 
 
-    public static final String TAG = "LocalStoreDataSource";
-
     private Context context;
 
     /**

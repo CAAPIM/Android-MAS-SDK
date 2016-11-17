@@ -10,6 +10,7 @@ package com.ca.mas.core.policy;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.clientcredentials.ClientCredentialsClient;
@@ -20,6 +21,8 @@ import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.token.ClientCredentials;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 import java.util.UUID;
 
@@ -43,6 +46,7 @@ public class ClientCredentialAssertion implements MssoAssertion {
             //Configured Client ID cannot be null, it is mandatory in the configuration.
             if (!configuredClientId.equals(configuredClientSecret)) {
                 //It is not a master key, do not hit the initialize endpoint
+                if (DEBUG) Log.d(TAG, "Using static client id and client secret");
                 return;
             }
         }
@@ -52,6 +56,7 @@ public class ClientCredentialAssertion implements MssoAssertion {
         if (mssoContext.isClientCredentialExpired(mssoContext.getClientExpiration()) ||
                 mssoContext.getStoredClientId() == null) {
             try {
+                if (DEBUG) Log.d(TAG, "Retrieve new Client Credential");
                 String uuid = UUID.randomUUID().toString();
                 ClientCredentials result = new ClientCredentialsClient(mssoContext).
                         getClientCredentials(configuredClientId, uuid, mssoContext.getDeviceId());

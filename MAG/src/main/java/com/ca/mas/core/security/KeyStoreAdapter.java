@@ -11,6 +11,8 @@ package com.ca.mas.core.security;
 import android.util.Log;
 
 import java.lang.reflect.Method;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * Adapter that provides a common interface {@link com.ca.mas.core.security.KeyStore} for various
@@ -22,7 +24,6 @@ import java.lang.reflect.Method;
  */
 public class KeyStoreAdapter implements KeyStore {
 
-    private static final String TAG = "KeyStoreAdapter";
     private static KeyStoreAdapter sInstance = null;
 
     private Object mAndroidKeyStore;
@@ -66,7 +67,7 @@ public class KeyStoreAdapter implements KeyStore {
 
             mAndroidKeyStore = getInstance.invoke(null);
         } catch (Exception e) {
-            Log.w(TAG,"Unable to create adapter for KeyStore access ",e);
+            if (DEBUG) Log.w(TAG,"Unable to create adapter for KeyStore access ",e);
             throw new RuntimeException(e);
         }
     }

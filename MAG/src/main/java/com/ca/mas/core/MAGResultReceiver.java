@@ -21,6 +21,8 @@ import com.ca.mas.core.service.MssoClient;
 import com.ca.mas.core.service.MssoIntents;
 
 import java.net.HttpURLConnection;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * Interface for receiving a callback result from {@link MobileSso#processRequest(com.ca.mas.core.http.MAGRequest, ResultReceiver)}.
@@ -34,8 +36,6 @@ import java.net.HttpURLConnection;
  */
 
 public abstract class MAGResultReceiver<T> extends ResultReceiver {
-
-    private static final String TAG = MAGResultReceiver.class.getCanonicalName();
 
 
     public MAGResultReceiver(Handler handler) {
@@ -73,13 +73,14 @@ public abstract class MAGResultReceiver<T> extends ResultReceiver {
                 default:
                     MAGError error = (MAGError) resultData.getSerializable(MssoIntents.RESULT_ERROR);
                     if (error != null) {
-                        Log.e(TAG, "Got Error: " + error.getMessage(), error);
+                        if (DEBUG) Log.d(TAG,
+                                "Error response with: " + error.getMessage(), error);
                         error.setResultCode(resultCode);
                         onError(error);
                     }
             }
         } catch (Throwable e) {
-            Log.e(TAG, "Error handling response.", e);
+            if (DEBUG) Log.e(TAG, "Error handling response.", e);
         }
 
     }

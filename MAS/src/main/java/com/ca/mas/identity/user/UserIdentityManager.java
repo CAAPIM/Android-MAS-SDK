@@ -57,8 +57,6 @@ import java.util.List;
  */
 public class UserIdentityManager {
 
-    private static String TAG = UserIdentityManager.class.getSimpleName();
-
     private static UserIdentityManager instance = new UserIdentityManager();
 
     public static UserIdentityManager getInstance() {

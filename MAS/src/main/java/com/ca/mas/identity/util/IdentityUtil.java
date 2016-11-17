@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * <p><b>IdentityUtil</b> implements helper methods used in creating {@link <a href="https://tools.ietf.org/html/rfc7644">SCIM</a>} URIs,
@@ -41,8 +42,6 @@ import static com.ca.mas.core.MAG.DEBUG;
  * this class follow the static format of 'IdentityUtil.&lt;method name&gt;.</p>
  */
 public class IdentityUtil extends FoundationUtil {
-
-    private static final String TAG = IdentityUtil.class.getSimpleName();
 
     public static final Map<String, JSONObject> SCHEMA_MAP = new HashMap<>();
 
@@ -214,7 +213,7 @@ public class IdentityUtil extends FoundationUtil {
             sb.append(FoundationConsts.FSLASH);
             sb.append(entity);
         }
-        if (DEBUG) Log.d(TAG, "getUrl(): " + sb.toString());
+        if (DEBUG) Log.d(TAG, "SCIM URL" + sb.toString());
         return sb.toString();
     }
 
@@ -236,7 +235,7 @@ public class IdentityUtil extends FoundationUtil {
             sb.append(FoundationConsts.FSLASH);
             sb.append(entity);
         }
-        if (DEBUG) Log.d(TAG, "getPath(): " + sb.toString());
+        if (DEBUG) Log.d(TAG, "SCIM URL Path: " + sb.toString());
         return sb.toString();
     }
 

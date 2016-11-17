@@ -22,6 +22,8 @@ import com.ca.mas.core.storage.StorageResultReceiver;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 
 /***
@@ -31,11 +33,6 @@ import java.util.Arrays;
  */
 public class AccountManagerStorage extends Storage {
 
-
-    /**
-     * The Log tag for the whole class
-     */
-    private static final String TAG = AccountManagerStorage.class.getCanonicalName();
 
     /**
      * Limits for key/value
@@ -93,14 +90,14 @@ public class AccountManagerStorage extends Storage {
                 mContext = (Context) inputs[0];
                 mContext.getPackageName();
             } catch (Exception e) {
-                Log.e(TAG, "Missing Context input " + e);
+                if (DEBUG) Log.e(TAG, "Missing Context input " + e);
                 throw new StorageException(StorageException.INVALID_INPUT);
             }
 
             try {
                 mPrefix = (boolean) inputs[1] ? "SHARED_" : mContext.getPackageName() + "_";
             } catch (Exception e) {
-                Log.w(TAG, "Wrong shared input attribute, falling back to private" + e);
+                if (DEBUG) Log.w(TAG, "Wrong shared input attribute, falling back to private" + e);
                 //if not specified , assume default as "not shared"
                 mPrefix = mContext.getPackageName() + "_";
             }
@@ -112,7 +109,7 @@ public class AccountManagerStorage extends Storage {
         } catch (StorageException bubble) {
             throw bubble;
         } catch (Exception e) {
-            Log.e(TAG, "Unexpected exception " + e);
+            if (DEBUG) Log.e(TAG, "Unexpected exception " + e);
             throw new StorageException(StorageException.INSTANTIATION_ERROR);
         }
     }
@@ -160,7 +157,7 @@ public class AccountManagerStorage extends Storage {
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "Error Writing data ", e);
+            if (DEBUG) Log.e(TAG, "Error Writing data ", e);
             returnException = new StorageException(StorageException.OPERATION_FAILED);
         }
         if (returnException != null) {
@@ -186,7 +183,7 @@ public class AccountManagerStorage extends Storage {
             try {
                 callback.send(result);
             } catch (Exception e) {
-                Log.w(TAG, "Callback threw exception", e);
+                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
             }
 
         }
@@ -211,7 +208,7 @@ public class AccountManagerStorage extends Storage {
             try {
                 callback.send(result);
             } catch (Exception e) {
-                Log.w(TAG, "Callback threw exception", e);
+                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
             }
 
         }
@@ -245,7 +242,7 @@ public class AccountManagerStorage extends Storage {
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "Error Writing data ", e);
+            if (DEBUG) Log.e(TAG, "Error Writing data ", e);
             returnException = new StorageException(StorageException.OPERATION_FAILED);
         }
         if (returnException != null) {
@@ -265,7 +262,7 @@ public class AccountManagerStorage extends Storage {
             try {
                 callback.send(result);
             } catch (Exception e) {
-                Log.w(TAG, "Callback threw exception", e);
+                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
             }
 
         }
@@ -284,7 +281,7 @@ public class AccountManagerStorage extends Storage {
             try {
                 returnValue.setData(new String((byte[]) returnValue.getData(), "UTF-8"));
             } catch (UnsupportedEncodingException e) {
-                Log.w(TAG, "UTF-8 decoding of the data failed, reverting to system default");
+                if (DEBUG) Log.w(TAG, "UTF-8 decoding of the data failed, reverting to system default");
                 returnValue.setData(new String((byte[]) returnValue.getData()));
             }
         }
@@ -300,7 +297,7 @@ public class AccountManagerStorage extends Storage {
             try {
                 callback.send(result);
             } catch (Exception e) {
-                Log.w(TAG, "Callback threw exception", e);
+                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
             }
 
         }
@@ -320,7 +317,7 @@ public class AccountManagerStorage extends Storage {
             try {
                 callback.send(result);
             } catch (Exception e) {
-                Log.w(TAG, "Callback threw exception", e);
+                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
             }
 
         }
@@ -345,7 +342,7 @@ public class AccountManagerStorage extends Storage {
             try {
                 callback.send(result);
             } catch (Exception e) {
-                Log.w(TAG, "Callback threw exception", e);
+                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
             }
 
         }
@@ -366,7 +363,7 @@ public class AccountManagerStorage extends Storage {
             try {
                 callback.send(result);
             } catch (Exception e) {
-                Log.w(TAG, "Callback threw exception", e);
+                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
             }
 
         }
@@ -391,7 +388,7 @@ public class AccountManagerStorage extends Storage {
             try {
                 callback.send(result);
             } catch (Exception e) {
-                Log.w(TAG, "Callback threw exception", e);
+                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
             }
 
         }
@@ -421,7 +418,7 @@ public class AccountManagerStorage extends Storage {
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "Error Writing data ", e);
+            if (DEBUG) Log.e(TAG, "Error Writing data ", e);
             returnException = new StorageException(StorageException.OPERATION_FAILED);
         }
         if (returnException != null) {
@@ -449,7 +446,7 @@ public class AccountManagerStorage extends Storage {
             try {
                 callback.send(result);
             } catch (Exception e) {
-                Log.w(TAG, "Callback threw exception", e);
+                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
             }
 
         }
@@ -462,7 +459,7 @@ public class AccountManagerStorage extends Storage {
             try {
                 callback.send(result);
             } catch (Exception e) {
-                Log.w(TAG, "Callback threw exception", e);
+                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
             }
 
         }
@@ -492,14 +489,14 @@ public class AccountManagerStorage extends Storage {
 
             if (failureCount != 0) {
                 String msg = "Failed to deleteData " + failureCount + " entries. Entries deleted: " + successCount;
-                Log.e(TAG, msg);
+                if (DEBUG) Log.e(TAG, msg);
                 returnError = new StorageException(msg, null, StorageException.OPERATION_FAILED);
             } else {
-                Log.i(TAG, "Deleted " + successCount + " entries ");
+                if (DEBUG) Log.i(TAG, "Deleted " + successCount + " entries ");
             }
 
         } catch (Exception e) {
-            Log.e(TAG,"deleteAll failed "+e);
+            if (DEBUG) Log.e(TAG,"deleteAll failed "+e);
             returnError = new StorageException(StorageException.OPERATION_FAILED);
         }
 
@@ -520,7 +517,7 @@ public class AccountManagerStorage extends Storage {
             try {
                 callback.send(returnValue);
             } catch (Exception e) {
-                Log.w(TAG, "Callback threw exception", e);
+                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
             }
 
         }
@@ -555,7 +552,7 @@ public class AccountManagerStorage extends Storage {
             try {
                 callback.send(returnValue);
             } catch (Exception e) {
-                Log.w(TAG, "Callback threw exception", e);
+                if (DEBUG) Log.w(TAG, "Callback threw exception", e);
             }
 
         }
@@ -698,7 +695,7 @@ public class AccountManagerStorage extends Storage {
                 keyBlob = keyBlob.endsWith(ACCOUNT_KEY_SEPERATOR) ? keyBlob.substring(0, keyBlob.length() - 1) : keyBlob;
                 return keyBlob;
             } catch (Exception e) {
-                Log.e(TAG, "Error in marshal " + e);
+                if (DEBUG) Log.e(TAG, "Error in marshal " + e);
                 return "";
             }
         }
@@ -727,7 +724,7 @@ public class AccountManagerStorage extends Storage {
                                 keys.add(sanitizedKey.substring(mPrefix.length()));
                             }
                         } else {
-                            Log.w(TAG, "Unable to process key retrieved from store");
+                            if (DEBUG) Log.w(TAG, "Unable to process key retrieved from store");
                         }
                     }
                 }else {
@@ -736,7 +733,7 @@ public class AccountManagerStorage extends Storage {
                     }
                 }
             } catch (UnsupportedEncodingException e) {
-                Log.e(TAG, "Error in unmarshal " + e);
+                if (DEBUG) Log.e(TAG, "Error in unmarshal " + e);
             }
             return keys;
 

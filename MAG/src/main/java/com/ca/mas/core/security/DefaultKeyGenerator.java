@@ -13,6 +13,8 @@ import android.util.Log;
 import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.SecretKey;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 class DefaultKeyGenerator implements KeyGenerator {
 
@@ -20,17 +22,16 @@ class DefaultKeyGenerator implements KeyGenerator {
     private String mAlgorithm;
     private static final int DEFAULT_KEY_LENGTH = 256;
     private static final String DEFAULT_ALGORITHM = "AES";
-    private static final String TAG = DefaultKeyGenerator.class.getCanonicalName();
 
     public DefaultKeyGenerator(String algorithm, int keyLength) {
         if (keyLength < 0) {
-            Log.i(TAG, "key length is less than zero, assigning default");
+            if (DEBUG) Log.d(TAG, "key length is less than zero, assigning default");
             mKeyLength = DEFAULT_KEY_LENGTH;
         } else
             mKeyLength = keyLength;
 
         if (algorithm != null && algorithm.trim().length() == 0) {
-            Log.i(TAG, "Algorithm is either null or zero length, assigning default");
+            if (DEBUG) Log.d(TAG, "Algorithm is either null or zero length, assigning default");
             mAlgorithm = DEFAULT_ALGORITHM;
         } else
             mAlgorithm = algorithm;

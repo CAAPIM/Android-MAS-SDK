@@ -19,8 +19,6 @@ import com.ca.mas.core.MAGResultReceiver;
  */
 public abstract class MASResultReceiver<T> extends MAGResultReceiver<T> {
 
-    private static final String TAG = MASResultReceiver.class.getSimpleName();
-
     /**
      * <b>Description:</b> Required constructor.
      *

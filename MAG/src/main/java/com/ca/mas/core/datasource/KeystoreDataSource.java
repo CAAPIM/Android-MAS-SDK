@@ -11,7 +11,6 @@ package com.ca.mas.core.datasource;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
 
 import com.ca.mas.core.storage.StorageException;
 import com.ca.mas.core.storage.StorageResult;
@@ -25,7 +24,6 @@ import java.util.List;
 
 public class KeystoreDataSource<K, V> implements DataSource<K, V> {
 
-    public static final String TAG = "KeystoreDataSource";
     public static final String SHARE = "share";
 
     private KeyStoreStorage storage;
@@ -295,7 +293,6 @@ public class KeystoreDataSource<K, V> implements DataSource<K, V> {
             context.startActivity(intent);
 
         } catch (Exception e) {
-            Log.w(TAG, "Exception @ bootProvider execute in application layer.");
             throw new DataSourceException("Error unlocking KeyStore storage", e);
         }
     }

@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * The top level MAS object represents the Mobile App Services SDK in its entirety.
@@ -49,7 +50,6 @@ import static com.ca.mas.core.MAG.DEBUG;
  * can be found and utilized.
  */
 public class MAS {
-    private static final String TAG = MAS.class.getCanonicalName();
     public static Context ctx;
     private static Activity currentActivity;
     private static boolean hasRegisteredActivityCallback;

@@ -23,14 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * <p><b>MASFilteredRequest</b> describes the APIs for user's to specify scim filters. This interface would be the backing set of APIs
  * so that an application developer could provide a simple query system for identity management.</p>
  */
 public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPagination {
-
-    private static String TAG = MASFilteredRequest.class.getSimpleName();
 
     private int mStartIndex;
     private int mCount;

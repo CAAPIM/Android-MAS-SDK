@@ -15,6 +15,7 @@ import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.ca.mas.connecta.serviceprovider.ConnectaService;
 import com.ca.mas.core.util.Functions;

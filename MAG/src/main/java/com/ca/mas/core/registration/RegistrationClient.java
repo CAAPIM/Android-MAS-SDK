@@ -33,6 +33,8 @@ import java.net.URI;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * Utility class that encapsulates talking to the token server into Java method calls.
@@ -45,8 +47,6 @@ public class RegistrationClient extends ServerClient {
 
     private static final int INVALID_CLIENT_CREDENTIALS = 1000201;
     private static final int INVALID_RESOURCE_OWNER_CREDENTIALS = 1000202;
-
-    private static final String TAG = RegistrationClient.class.getCanonicalName();
 
     public RegistrationClient(MssoContext mssoContext) {
         super(mssoContext);
@@ -158,7 +158,10 @@ public class RegistrationClient extends ServerClient {
             throw new RegistrationException(MAGErrorCode.DEVICE_NOT_REGISTERED, "Unable to post to register_device: " + e.getMessage(), e);
         }
 
-        Log.d(TAG, "register_device response status: " + response.getResponseCode());
+        if (DEBUG) Log.d(TAG,
+                String.format("%s response with status: %d",
+                        request.getURL(),
+                        response.getResponseCode()) );
 
         if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
 

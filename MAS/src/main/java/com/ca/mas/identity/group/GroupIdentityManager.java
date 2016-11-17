@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * The <i>GroupIdentityManager</i> behaves as the controller between the MAS SDK and the
@@ -46,8 +47,6 @@ import static com.ca.mas.core.MAG.DEBUG;
  * updated, or delete by the group's {@link MASOwner}.
  */
 public class GroupIdentityManager implements MASGroupIdentity {
-
-    private static String TAG = GroupIdentityManager.class.getSimpleName();
 
     private static GroupIdentityManager instance = new GroupIdentityManager();
 
@@ -313,7 +312,8 @@ public class GroupIdentityManager implements MASGroupIdentity {
     }
 
     private MASGroup processGroupById(JSONObject jsonObject) throws JSONException {
-        if (DEBUG) Log.d(TAG, "JSONObject: " + jsonObject.toString());
+        if (DEBUG) Log.d(TAG,
+                String.format("Group raw JSON data: %s", jsonObject.toString(4)));
         // should only be 1 user
         MASGroup group = MASGroup.newInstance();
         // get the array 'Resources'

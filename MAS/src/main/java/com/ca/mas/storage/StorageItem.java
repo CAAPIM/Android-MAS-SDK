@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * <p><b>StorageItem</b> is a class that contains 3 components;
@@ -54,8 +55,6 @@ import static com.ca.mas.core.MAG.DEBUG;
  * </p>
  */
 class StorageItem implements MASTransformable {
-
-    private static String TAG = StorageItem.class.getSimpleName();
 
     private StorageKey storageKey;
 

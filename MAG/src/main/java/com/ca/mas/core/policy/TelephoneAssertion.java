@@ -19,13 +19,13 @@ import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.MobileNumberInvalidException;
 import com.ca.mas.core.policy.exceptions.MobileNumberRequiredException;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * A policy that adds telephone information to outbound requests.
  */
 public class TelephoneAssertion implements MssoAssertion {
-
-    private static final String TAG = TelephoneAssertion.class.getName();
 
     private TelephonyManager telephonyManager;
 
@@ -43,7 +43,7 @@ public class TelephoneAssertion implements MssoAssertion {
         try {
             initTelephonyManager(sysContext);
         } catch (Exception e) {
-            Log.e(TAG, "Unable to access telephone manager: " + e.getMessage(), e);
+            if (DEBUG) Log.d(TAG, "Unable to access telephone manager: " + e.getMessage(), e);
         }
     }
 
@@ -72,7 +72,7 @@ public class TelephoneAssertion implements MssoAssertion {
             try {
                 request.getRequest().addHeader("MSISDN", telephonyManager.getLine1Number());
             } catch (SecurityException e) {
-                Log.i(TAG, "Unable to access phone state: " + e.getMessage());
+                if (DEBUG) Log.d(TAG, "Unable to access phone state: " + e.getMessage());
             }
         }
     }

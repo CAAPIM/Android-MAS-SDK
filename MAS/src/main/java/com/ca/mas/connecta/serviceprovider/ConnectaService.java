@@ -41,6 +41,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import java.util.Map;
 
 import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * <p>
@@ -61,7 +62,6 @@ import static com.ca.mas.core.MAG.DEBUG;
  * connecting, etc. then the error callback is invoked ending the service's life.</p>
  */
 public class ConnectaService extends Service implements MASConnectaClient {
-    private static String TAG = ConnectaService.class.getSimpleName();
     /**
      * <p><b>mMqttClient</b> is the only instance variable the references the Mqtt implementation library.</p>
      */
@@ -230,7 +230,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
     @Override
     public void disconnect(MASCallback<Void> callback) {
         if (isConnected()) {
-            if (DEBUG) Log.d(TAG, "Client Disconnected.");
+            if (DEBUG) Log.d(TAG, "MQTT Client Disconnected.");
             try {
                 mMqttClient.disconnect();
                 Callback.onSuccess(callback, null);

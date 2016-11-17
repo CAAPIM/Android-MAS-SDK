@@ -27,11 +27,13 @@ import java.net.HttpURLConnection;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 /**
  * A policy that adds location information to outbound requests.
  */
 class LocationAssertion implements MssoAssertion {
-    private static final String TAG = LocationAssertion.class.getName();
 
     static final String DEFAULT_PROVIDER = LocationManager.NETWORK_PROVIDER;
     static final long DEFAULT_MIN_TIME = 120000L;
@@ -76,7 +78,7 @@ class LocationAssertion implements MssoAssertion {
         try {
             initLocation(locationProvider, minTime, minDistance);
         } catch (Exception e) {
-            Log.i(TAG, "Unable to access location " + e.getMessage());
+            if (DEBUG) Log.i(TAG, "Unable to access location " + e.getMessage());
         }
 
     }
@@ -136,7 +138,7 @@ class LocationAssertion implements MssoAssertion {
             try {
                 return locationManager.getLastKnownLocation(locationProvider);
             } catch (SecurityException e) {
-                Log.i(TAG, "Unable to access location " + e.getMessage());
+                if (DEBUG) Log.i(TAG, "Unable to access location " + e.getMessage());
             }
         }
         return null;
@@ -163,7 +165,7 @@ class LocationAssertion implements MssoAssertion {
             try {
                 locationManager.removeUpdates(locationListener);
             } catch (SecurityException e) {
-                Log.i(TAG, "Unable to access location " + e.getMessage());
+                if (DEBUG) Log.i(TAG, "Unable to access location " + e.getMessage());
             }
             locationManager = null;
             locationListener = null;

@@ -22,13 +22,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * A request to retrieve the the current state of the SDK
  */
 public class StateRequest extends MAGRequestProxy implements LocalRequest {
-
-    private static final String TAG = StateRequest.class.getCanonicalName();
 
     public static final String ACCESS_TOKEN = "access_token";
     public static final String CLIENT_ID = "client_id";
@@ -69,7 +69,7 @@ public class StateRequest extends MAGRequestProxy implements LocalRequest {
                             entity.put(CLIENT_ID, context.getClientId());
                             entity.put(DEVICE_ID, context.getDeviceId());
                         } catch (JSONException e) {
-                            Log.i(TAG, e.getMessage(), e);
+                            if (DEBUG) Log.i(TAG, e.getMessage(), e);
                             return new JSONObject();
                         }
                         return entity;

@@ -34,8 +34,6 @@ import org.json.JSONObject;
  */
 public class ConnectaUtil extends FoundationUtil {
 
-    private static String TAG = ConnectaUtil.class.getSimpleName();
-
     /**
      * <mag_device_id>::<client_id>::<SCIM userID>
      *

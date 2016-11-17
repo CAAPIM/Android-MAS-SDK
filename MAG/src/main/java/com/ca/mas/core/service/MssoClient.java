@@ -24,13 +24,14 @@ import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.util.Functions;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * Encapsulates use of the MssoService.
  */
 public class MssoClient {
 
-    private final static String TAG = MssoClient.class.getCanonicalName();
     private final Context sysContext;
     private final MssoContext mssoContext;
 
@@ -100,7 +101,7 @@ public class MssoClient {
                     resultReceiver.onError(new MAGError(e));
                     return null;
                 } catch (Exception ignore) {
-                    Log.w(TAG, ignore);
+                    if (DEBUG) Log.w(TAG, ignore);
                 }
                 sysContext.startService(intent);
                 return null;

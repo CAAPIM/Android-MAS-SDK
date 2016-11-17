@@ -36,6 +36,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.ca.mas.core.MAG.DEBUG;
+
 /**
  * The <i>GroupIdentityManager</i> behaves as the controller between the MAS SDK and the
  * {@link <a href="https://tools.ietf.org/html/rfc7643">SCIM</a>} service. The GroupIdentityManager performs the same type
@@ -311,7 +313,7 @@ public class GroupIdentityManager implements MASGroupIdentity {
     }
 
     private MASGroup processGroupById(JSONObject jsonObject) throws JSONException {
-        Log.d(TAG, "JSONObject: " + jsonObject.toString());
+        if (DEBUG) Log.d(TAG, "JSONObject: " + jsonObject.toString());
         // should only be 1 user
         MASGroup group = MASGroup.newInstance();
         // get the array 'Resources'

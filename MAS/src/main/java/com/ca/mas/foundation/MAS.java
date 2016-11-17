@@ -35,11 +35,12 @@ import com.ca.mas.foundation.notify.Callback;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+
+import static com.ca.mas.core.MAG.DEBUG;
 
 /**
  * The top level MAS object represents the Mobile App Services SDK in its entirety.
@@ -74,7 +75,7 @@ public class MAS {
                     if (df != null) {
                         df.show(currentActivity.getFragmentManager(), "logonDialog");
                     } else {
-                        Log.w(TAG, MASUserLoginWithUserCredentialsListener.class + " is required for user authentication.");
+                        if (DEBUG) Log.w(TAG, MASUserLoginWithUserCredentialsListener.class.getSimpleName() + " is required for user authentication.");
                     }
                 } else {
                     masAuthenticationListener.onAuthenticateRequest(currentActivity, requestId, new MASAuthenticationProviders(provider));

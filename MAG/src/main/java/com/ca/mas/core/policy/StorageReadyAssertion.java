@@ -7,7 +7,7 @@ import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
 
-public class StorageReadyAssertion implements MssoAssertion {
+class StorageReadyAssertion implements MssoAssertion {
 
     @Override
     public void init(@NonNull MssoContext mssoContext, @NonNull Context sysContext) {

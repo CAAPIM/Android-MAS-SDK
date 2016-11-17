@@ -18,6 +18,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
+import com.ca.mas.core.MAG;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.MobileSsoListener;
@@ -50,6 +51,7 @@ import static com.ca.mas.core.MAG.TAG;
  * can be found and utilized.
  */
 public class MAS {
+
     public static Context ctx;
     private static Activity currentActivity;
     private static boolean hasRegisteredActivityCallback;
@@ -150,6 +152,13 @@ public class MAS {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Turn on debug mode
+     */
+    public static void debug() {
+        MAG.DEBUG = true;
     }
 
     /**

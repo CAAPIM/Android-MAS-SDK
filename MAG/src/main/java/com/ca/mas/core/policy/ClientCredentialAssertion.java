@@ -26,7 +26,7 @@ import static com.ca.mas.core.MAG.TAG;
 
 import java.util.UUID;
 
-public class ClientCredentialAssertion implements MssoAssertion {
+class ClientCredentialAssertion implements MssoAssertion {
 
     public static final String INVALID_CLIENT_CREDENTIALS_ERROR_CODE_SUFFIX = "201";
 
@@ -56,15 +56,20 @@ public class ClientCredentialAssertion implements MssoAssertion {
         if (mssoContext.isClientCredentialExpired(mssoContext.getClientExpiration()) ||
                 mssoContext.getStoredClientId() == null) {
             try {
-                if (DEBUG) Log.d(TAG, "Retrieve new Client Credential");
+                if (DEBUG) Log.d(TAG, "Retrieve dynamic Client Credentials");
                 String uuid = UUID.randomUUID().toString();
                 ClientCredentials result = new ClientCredentialsClient(mssoContext).
                         getClientCredentials(configuredClientId, uuid, mssoContext.getDeviceId());
+                if (DEBUG) Log.d(TAG, String.format("Client id: %s", result.getClientId()));
                 mssoContext.setClientCredentials(result);
+                return;
             } catch (NullPointerException e) {
                 throw new IllegalArgumentException("Please check your configurations. One or more configuration is wrong or incomplete");
             }
         }
+
+        if (DEBUG) Log.d(TAG, String.format("Client id: %s", mssoContext.getStoredClientId()));
+
     }
 
     @Override

@@ -78,7 +78,7 @@ class LocationAssertion implements MssoAssertion {
         try {
             initLocation(locationProvider, minTime, minDistance);
         } catch (Exception e) {
-            if (DEBUG) Log.i(TAG, "Unable to access location " + e.getMessage());
+            if (DEBUG) Log.i(TAG, "No permission to access location: " + e.getMessage());
         }
 
     }
@@ -138,7 +138,7 @@ class LocationAssertion implements MssoAssertion {
             try {
                 return locationManager.getLastKnownLocation(locationProvider);
             } catch (SecurityException e) {
-                if (DEBUG) Log.i(TAG, "Unable to access location " + e.getMessage());
+                if (DEBUG) Log.d(TAG, "No permission to access location: " + e.getMessage());
             }
         }
         return null;

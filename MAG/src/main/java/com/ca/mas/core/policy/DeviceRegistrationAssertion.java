@@ -40,6 +40,7 @@ import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
+
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
@@ -52,7 +53,7 @@ import static com.ca.mas.core.MAG.TAG;
  * CredentialRequiredException will be thrown if the user needs to be prompted for credentials.
  * TokenStoreUnavailableException will be thrown if the device needs to be unlocked.
  */
-public class DeviceRegistrationAssertion implements MssoAssertion {
+class DeviceRegistrationAssertion implements MssoAssertion {
 
     private TokenManager tokenManager;
 
@@ -83,7 +84,8 @@ public class DeviceRegistrationAssertion implements MssoAssertion {
                     throw new com.ca.mas.core.policy.exceptions.CertificateExpiredException(e);
                 }
             }
-            if (DEBUG) Log.d(TAG, "Device is registered");
+            if (DEBUG) Log.d(TAG,
+                    String.format("Device is registered with identifier: %s", tokenManager.getMagIdentifier()));
             return;
         }
 

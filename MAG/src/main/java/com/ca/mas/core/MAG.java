@@ -1,9 +1,9 @@
 package com.ca.mas.core;
 
-public interface MAG {
+public class MAG {
 
-    String TAG = "MAS";
+    public static String TAG = "MAS";
 
-    boolean DEBUG = android.util.Log.isLoggable(TAG,  android.util.Log.VERBOSE);
+    public static boolean DEBUG = android.util.Log.isLoggable(TAG,  android.util.Log.VERBOSE);
 
 }

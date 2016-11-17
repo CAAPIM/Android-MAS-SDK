@@ -8,6 +8,8 @@
 
 package com.ca.mas.core.http;
 
+import android.util.Log;
+
 import com.ca.mas.core.io.IoUtils;
 
 import org.json.JSONException;
@@ -17,6 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 /**
  * An API HTTP response body.
@@ -122,6 +126,18 @@ public class MAGResponseBody<T> {
             inputStream = httpURLConnection.getInputStream();
         }
         buffer = IoUtils.slurpStream(inputStream, DEFAULT_MAX_RESPONSE_SIZE);
+
+        if (DEBUG) {
+            String s = "";
+            try {
+                s = new String(buffer);
+                JSONObject j = new JSONObject(s);
+                Log.d(TAG, String.format("Response content: %s", j.toString(4)));
+            } catch (Exception ignore) {
+            }
+            Log.d(TAG, String.format("Response content: %s", s));
+        }
+
     }
 
 

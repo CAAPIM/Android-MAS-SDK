@@ -25,7 +25,7 @@ import static com.ca.mas.core.MAG.TAG;
 /**
  * A policy that adds telephone information to outbound requests.
  */
-public class TelephoneAssertion implements MssoAssertion {
+class TelephoneAssertion implements MssoAssertion {
 
     private TelephonyManager telephonyManager;
 
@@ -72,7 +72,7 @@ public class TelephoneAssertion implements MssoAssertion {
             try {
                 request.getRequest().addHeader("MSISDN", telephonyManager.getLine1Number());
             } catch (SecurityException e) {
-                if (DEBUG) Log.d(TAG, "Unable to access phone state: " + e.getMessage());
+                if (DEBUG) Log.d(TAG, "No permission to access phone state: " + e.getMessage());
             }
         }
     }

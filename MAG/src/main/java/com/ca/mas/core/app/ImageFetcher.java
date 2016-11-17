@@ -20,11 +20,13 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 public class ImageFetcher extends AsyncTask<Object, Object, Object> {
 
     //Use 1/24th of the available memory for image cache.
     private static LruCache<String, Bitmap> cache = new LruCache<String, Bitmap>((int) (Runtime.getRuntime().maxMemory() / 1024 / 24));
-    private final String TAG = ImageFetcher.class.getCanonicalName();
     ImageView imageView;
     private HttpURLConnection connection;
     private InputStream is;
@@ -52,7 +54,7 @@ public class ImageFetcher extends AsyncTask<Object, Object, Object> {
             bitmap = BitmapFactory.decodeStream(is);
             is.close();
         } catch (Exception e) {
-            Log.e(TAG, "Error in download image", e);
+            if (DEBUG) Log.e(TAG, "Error in downloading the image", e);
         } finally {
             try {
                 if (is != null) {
@@ -62,7 +64,7 @@ public class ImageFetcher extends AsyncTask<Object, Object, Object> {
                     connection.disconnect();
                 }
             } catch (IOException e) {
-                Log.e(TAG, "Failed to clear up connection.", e);
+                if (DEBUG) Log.w(TAG, "Failed to clear up connection.", e);
             }
         }
         if (bitmap != null) {

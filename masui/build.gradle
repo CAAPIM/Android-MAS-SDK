@@ -59,7 +59,7 @@ bintray {
         repo = 'maven'
         name = 'masui'
         userOrg = 'caapim'
-        desc = 'Built for organizations that require secure messaging, storage and data sharing.'
+        desc = 'Provides resources to implement a user login dialog, Social Login, One-Time Password, Proximity Login (QR code and BLE), Enterprise Browser and Fingerprint'
         websiteUrl = siteUrl
         issueTrackerUrl = issueUrl
         vcsUrl = gitUrl

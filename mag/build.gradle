@@ -7,6 +7,8 @@
  */
 
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
 
 android {
     compileSdkVersion 24
@@ -64,5 +66,79 @@ dependencies {
     compile 'com.madgag:scprov-jdk15on:1.47.0.3'
     compile 'com.android.support:support-annotations:24.2.1'
     compile 'com.google.zxing:core:3.2.0'
+}
+
+//jcenter integration
+def siteUrl = 'https://github.com/CAAPIM/Android-MAS-SDK'
+def gitUrl = 'https://github.com/CAAPIM/Android-MAS-SDK.git'
+def issueUrl = 'https://github.com/CAAPIM/Android-MAS-SDK/issues'
+
+group 'com.ca'
+
+project.version = "3.3"
+bintray {
+    user = bintray_user
+    key = bintray_api_key
+
+    configurations = ['archives'] //When uploading configuration files
+    pkg {
+        repo = 'maven'
+        name = 'mag'
+        userOrg = 'caapim'
+        desc = 'CA Mobile API Gateway provides enterprises with a secure mobile backend that integrates systems and allows control over which users, devices and applications can access your APIs. The gateway enables developers to leverage standards for API security such as (OAuth2, OpenID Connect, PKI) through client SDKs for Android and iOS.'
+        websiteUrl = siteUrl
+        issueTrackerUrl = issueUrl
+        vcsUrl = gitUrl
+        licenses = ['MIT']
+        labels = ['aar', 'android', 'oauth', 'security']
+        publicDownloadNumbers = true
+
+        version {
+            name = project.version
+            desc = 'Mobile API Gateway'
+        }
+    }
+}
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+                name 'Mobile API Gateway'
+                url siteUrl
+                licenses {
+                    license {
+                        name 'MIT'
+                        url 'https://github.com/CAAPIM/Android-MAS-SDK/blob/develop/LICENSE'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+task findConventions << {
+    println project.getConvention()
 }
 

@@ -15,8 +15,16 @@
     <string name="connection_custom_connection_will_qos">Will QoS</string>
     <string name="connection_custom_connection_will_retain">Retain</string>
     <string name="button_connection_custom_connect">Connect</string>
-    <string name="nav_drawer_subcribe_to_topic">Add Subscription</string>
+    <string name="nav_drawer_subscribe_to_topic">Add Subscription</string>
     <string name="subscribe_to_topic_edit_text_topic_name">Topic name</string>
+
+    <string name="subscribe_to_topic_message_success">Subscribed to topic %s</string>
+    <string name="subscribe_to_topic_message_error">Failed to subscribe: %s</string>
+    <string name="subscribe_to_topic_message_already_subscribed">Already subscribed</string>
+
+    <string name="publish_dialog_fragment_message">Message</string>
+
+    <string name="recycler_message_item_qos">QoS: %d</string>
 
     <string-array name="qos_options">
         <item>0</item>
@@ -33,4 +41,5 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="fragment_subscribe_button_subscribe">Subscribe</string>
+    <string name="nav_header_disconnect">Disconnect</string>
 </resources>

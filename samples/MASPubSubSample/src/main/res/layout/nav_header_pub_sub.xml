@@ -26,10 +26,12 @@
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
-    <TextView
-        android:id="@+id/nav_header_is_connected"
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        />
+
+        android:id="@+id/nav_header_disconnect"
+        android:text="@string/nav_header_disconnect"
+        android:background="@color/error" />
 
 </LinearLayout>

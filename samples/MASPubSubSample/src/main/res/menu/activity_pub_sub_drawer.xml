@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group android:checkableBehavior="single"
+        android:id="@+id/topics_group"
+        >
         <item
             android:id="@+id/subscribe_to_topic"
             android:icon="@drawable/ic_add_black_24dp"
-            android:title="@string/nav_drawer_subcribe_to_topic" />
+            android:title="@string/nav_drawer_subscribe_to_topic" />
     </group>
 
 </menu>

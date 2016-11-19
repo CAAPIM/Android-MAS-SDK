@@ -1,0 +1,27 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ca.com.maspubsubsample.PublishDialogFragment"
+    android:orientation="vertical"
+    android:minWidth="1000dp"
+    >
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/publish_dialog_fragment_message"
+        android:id="@+id/fragment_publish_edit_text_message" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/connection_custom_connection_will_retain"
+        android:id="@+id/fragment_publish_check_box_retain" />
+
+    <ca.com.maspubsubsample.QosSpinner
+        android:id="@+id/fragment_publish_spinner_qos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

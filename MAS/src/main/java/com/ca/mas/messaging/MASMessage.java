@@ -183,6 +183,7 @@ public abstract class MASMessage implements MASPayload {
                     mContentEncoding = jobj.optString(ConnectaConsts.KEY_CONTENT_ENCODING, FoundationConsts.ENC_UTF8);
                     String payloadBefore = jobj.optString(ConnectaConsts.KEY_PAYLOAD, FoundationConsts.EMPTY);
                     mPayload = Base64.decode(payloadBefore.getBytes(), Base64.NO_WRAP);
+                    mTopic = jobj.optString(ConnectaConsts.KEY_TOPIC);
                 } catch(JSONException je) {
                     throw new MASException(je);
                 }
@@ -239,6 +240,11 @@ public abstract class MASMessage implements MASPayload {
                         jobj.put(ConnectaConsts.KEY_PAYLOAD, new String(Base64.encode(payload, Base64.NO_WRAP)));
                     } else {
                         throw new MASException("Parameter cannot be empty or null.");
+                    }
+
+                    String topic = getTopic();
+                    if( !TextUtils.isEmpty(topic) ){
+                        jobj.put(ConnectaConsts.KEY_TOPIC, topic);
                     }
                 } catch (JSONException je) {
                     throw new MASException(je);

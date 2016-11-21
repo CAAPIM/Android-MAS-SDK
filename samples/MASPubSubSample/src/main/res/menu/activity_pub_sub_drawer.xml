@@ -8,6 +8,10 @@
             android:id="@+id/subscribe_to_topic"
             android:icon="@drawable/ic_add_black_24dp"
             android:title="@string/nav_drawer_subscribe_to_topic" />
+
+        <item
+            android:id="@+id/all_topics"
+            android:title="@string/nav_drawer_all_topics" />
     </group>
 
 </menu>

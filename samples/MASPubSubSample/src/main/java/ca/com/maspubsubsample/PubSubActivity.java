@@ -121,6 +121,8 @@ public class PubSubActivity extends NavDrawerActivity
 
         if (id == R.id.subscribe_to_topic) {
             fragmentTransaction.replace(R.id.content_pub_sub, new SubscribeFragment()).commit();
+        } else if ( id == R.id.all_topics) {
+            fragmentTransaction.replace(R.id.content_pub_sub, new AllTopicsFragment()).commit();
         } else {
             for( String topic : subscribedTopics.keySet() ){
                 if( topic.equals(item.getTitle()) ){

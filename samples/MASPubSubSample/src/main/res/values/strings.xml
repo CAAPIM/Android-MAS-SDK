@@ -26,6 +26,8 @@
 
     <string name="recycler_message_item_qos">QoS: %d</string>
 
+    <string name="nav_drawer_all_topics">All Topics</string>
+
     <string-array name="qos_options">
         <item>0</item>
         <item>1</item>

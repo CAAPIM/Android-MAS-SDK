@@ -61,7 +61,7 @@ public class MASConnectOptions extends MqttConnectOptions {
                 connectOptions.setPassword(oauthToken.toCharArray());
 
                 Map<String, Object> info = new HashMap<>();
-                info.put(StateRequest.DEVICE_ID, jobj.optString(StateRequest.DEVICE_ID));
+                info.put(StateRequest.MAG_IDENTIFIER, jobj.optString(StateRequest.MAG_IDENTIFIER));
                 info.put(MASConnectOptions.class.getName(), connectOptions);
 
                 Callback.onSuccess(callback, info);

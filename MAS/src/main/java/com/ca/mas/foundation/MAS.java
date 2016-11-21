@@ -224,9 +224,10 @@ public class MAS {
      */
     public static <T> long invoke(final MASRequest request, final MASCallback<MASResponse<T>> callback) {
 
-        return MobileSsoFactory.getInstance().processRequest(request, new MAGResultReceiver<T>(Callback.getHandler(callback)) {
+        long requestId = MobileSsoFactory.getInstance().processRequest(request, new MAGResultReceiver<T>(Callback.getHandler(callback)) {
             @Override
             public void onSuccess(final MAGResponse<T> response) {
+                Log.d(TAG, "onSuccess");
                 Callback.onSuccess(callback, new MASResponse<T>() {
                     public MASResponseBody<T> getBody() {
                         return new MASResponseBody<T>() {
@@ -259,16 +260,21 @@ public class MAS {
 
             @Override
             public void onError(MAGError error) {
+                Log.d(TAG, "onError");
                 Callback.onError(callback, error);
             }
 
             @Override
             public void onRequestCancelled() {
+                Log.d(TAG, "onRequestCancelled");
                 if (request.notifyOnCancel()) {
                     Callback.onError(callback, new RequestCancelledException());
                 }
             }
         });
+
+        Log.d(TAG, "Request ID: " + requestId);
+        return requestId;
     }
 
     public static class RequestCancelledException extends Exception {

@@ -16,8 +16,11 @@ import android.widget.EditText;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASException;
+import com.ca.mas.foundation.MASUser;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
+import com.ca.mas.messaging.topic.MASTopicBuilder;
 import com.ca.mas.messaging.util.MessagingConsts;
 
 public class PublishDialogFragment extends DialogFragment implements DialogInterface.OnClickListener{
@@ -27,9 +30,14 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
     private String topicName;
     private MASTopic masTopic;
 
+    EditText editTextTopic;
     EditText editTextMessage;
     CheckBox checkBoxRetain;
     QosSpinner qosSpinner;
+
+    public static PublishDialogFragment newInstance(){
+        return newInstance(null, null);
+    }
 
     public static PublishDialogFragment newInstance(String topicName, MASTopic masTopic){
         PublishDialogFragment publishDialogFragment = new PublishDialogFragment();
@@ -48,6 +56,10 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
         LayoutInflater i = getActivity().getLayoutInflater();
 
         View v = i.inflate(R.layout.fragment_publish_dialog, null);
+        editTextTopic = (EditText) v.findViewById(R.id.fragment_publish_edit_text_topic);
+        if( topicName != null ){
+            editTextTopic.setText(topicName);
+        }
         editTextMessage = (EditText) v.findViewById(R.id.fragment_publish_edit_text_message);
         checkBoxRetain = (CheckBox) v.findViewById(R.id.fragment_publish_check_box_retain);
         qosSpinner = (QosSpinner) v.findViewById(R.id.fragment_publish_spinner_qos);
@@ -67,9 +79,22 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
     public void onClick(DialogInterface dialogInterface, int i) {
         switch (i) {
             case DialogInterface.BUTTON_POSITIVE:
+                String topic = editTextTopic.getText().toString();
                 String message = editTextMessage.getText().toString();
                 boolean retain = checkBoxRetain.isChecked();
                 Integer qos = qosSpinner.getSelectedQos();
+
+                try {
+                    if( masTopic == null ){
+                        masTopic = new MASTopicBuilder()
+                                .setCustomTopic(topic)
+                                .setQos(qos)
+                                .setUserId(MASUser.getCurrentUser().getId())
+                                .build();
+                    }
+                } catch (MASException e) {
+                    Log.d(TAG, "Failed to build topic: " + e.getMessage());
+                }
 
                 MASMessage masMessage = MASMessage.newInstance();
                 masMessage.setTopic(masTopic.toString());

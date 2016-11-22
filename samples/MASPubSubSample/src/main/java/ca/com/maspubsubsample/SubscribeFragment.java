@@ -7,12 +7,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
+import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.MASUser;
@@ -30,6 +30,7 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
     QosSpinner qosSpinner;
     TextView textViewMessage;
     Button buttonSubscribe;
+    Button buttonUnsubscribe;
 
     private TopicSubscriptionListener topicSubscriptionListener;
 
@@ -47,6 +48,8 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
         textViewMessage = (TextView) v.findViewById(R.id.fragment_subscribe_text_view_message);
         buttonSubscribe = (Button) v.findViewById(R.id.fragment_subscribe_button_subscribe);
         buttonSubscribe.setOnClickListener(this);
+        buttonUnsubscribe = (Button) v.findViewById(R.id.fragment_subscribe_button_unsubscribe);
+        buttonUnsubscribe.setOnClickListener(this);
 
         topicSubscriptionListener = (TopicSubscriptionListener) getActivity();
         return v;
@@ -54,6 +57,7 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
 
     @Override
     public void onClick(View view) {
+        int id = view.getId();
         try {
             final String topicName = editTextTopicName.getText().toString();
             if( topicSubscriptionListener.isSubscribedToTopic(topicName) ){
@@ -67,20 +71,41 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
                     .setUserId(MASUser.getCurrentUser().getId())
                     .build();
 
-            MASConnectaManager.getInstance().subscribe(masTopic, new MASCallback<Void>() {
-                @Override
-                public void onSuccess(Void result) {
-                    setMessage(String.format(getResources()
-                            .getString(R.string.subscribe_to_topic_message_success), topicName));
-                    topicSubscriptionListener.onSubscribeToTopic(masTopic.toString(), masTopic);
-                }
+            MASConnectaManager masConnectaManager = MASConnectaManager.getInstance();
+            switch (id){
+                case R.id.fragment_subscribe_button_subscribe:
+                    masConnectaManager.subscribe(masTopic, new MASCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            setMessage(String.format(getResources()
+                                    .getString(R.string.subscribe_to_topic_message_success), topicName));
+                            topicSubscriptionListener.onSubscribeToTopic(masTopic.toString(), masTopic);
+                        }
 
-                @Override
-                public void onError(Throwable e) {
-                    setMessage(String.format(getResources().getString(
-                            R.string.subscribe_to_topic_message_error), e.getMessage()));
-                }
-            });
+                        @Override
+                        public void onError(Throwable e) {
+                            setMessage(String.format(getResources().getString(
+                                    R.string.subscribe_to_topic_message_error), e.getMessage()));
+                        }
+                    });
+                    break;
+                case R.id.fragment_subscribe_button_unsubscribe:
+                    masConnectaManager.unsubscribe(masTopic, new MASCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            setMessage(String.format(getResources()
+                                    .getString(R.string.unsubscribe_from_topic_message_success), topicName));
+                            topicSubscriptionListener.onUnsubscribeToTopic(masTopic.toString(), masTopic);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            setMessage(String.format(getResources().getString(
+                                    R.string.unsubscribe_from_topic_message_error), e.getMessage()));
+                        }
+                    });
+                    break;
+            }
         } catch (MASException e) {
             Log.d(TAG, e.getMessage());
         }
@@ -88,6 +113,5 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
 
     private void setMessage(String message){
         textViewMessage.setText(message);
-
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/content_pub_sub"
@@ -13,4 +13,18 @@
     tools:context="ca.com.maspubsubsample.PubSubActivity"
     tools:showIn="@layout/app_bar_pub_sub">
 
-</RelativeLayout>
+    <fragment
+        android:id="@+id/content_pub_sub_fragment_subscribe"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="ca.com.maspubsubsample.SubscribeFragment"
+        />
+
+    <fragment
+        android:id="@+id/content_pub_sub_fragment_messages"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="ca.com.maspubsubsample.MessagesFragment"
+        />
+
+</FrameLayout>

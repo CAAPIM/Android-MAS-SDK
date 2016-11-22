@@ -7,6 +7,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
@@ -33,8 +35,11 @@ public class PubSubActivity extends NavDrawerActivity
         implements NavigationView.OnNavigationItemSelectedListener, TopicSubscriptionListener, View.OnClickListener {
 
     private static final String TAG = PubSubActivity.class.getSimpleName();
+    private static final String FRAGMENT_SUBSCRIBE = "ca.com.maspubsubsample.SubscribeFragment";
+    private static final String FRAGMENT_MESSAGES = "ca.com.maspubsubsample.MessagesFragment";
 
     NavigationView navigationView;
+    private HashMap<String, Fragment> fragments;
     private HashMap<String, Topic> subscribedTopics;
 
     @Override
@@ -55,6 +60,11 @@ public class PubSubActivity extends NavDrawerActivity
         ( (TextView) navigationView.getHeaderView(0).findViewById(R.id.nav_header_host)).setText(MASConfiguration.getCurrentConfiguration().getGatewayHostName());
         (navigationView.getHeaderView(0).findViewById(R.id.nav_header_disconnect)).setOnClickListener(this);
 
+        fragments = new HashMap<>();
+        fragments.put(FRAGMENT_SUBSCRIBE, getSupportFragmentManager().findFragmentById(R.id.content_pub_sub_fragment_subscribe));
+        fragments.put(FRAGMENT_MESSAGES, getSupportFragmentManager().findFragmentById(R.id.content_pub_sub_fragment_messages));
+        hideAllFragments();
+
         subscribedTopics = new HashMap<>();
 
         IntentFilter intentFilter = new IntentFilter();
@@ -69,24 +79,16 @@ public class PubSubActivity extends NavDrawerActivity
                 try {
                     MASMessage message = MASMessage.newInstance(intent);
                     String topic = message.getTopic();
-                    TopicFragment topicFragment = subscribedTopics.get(topic).getTopicFragment();
-                    topicFragment.onMessageReceived(message);
+                    //TopicFragment topicFragment = subscribedTopics.get(topic).getTopicFragment();
+                    //topicFragment.onMessageReceived(message);
+                    MessagesFragment messagesFragment = (MessagesFragment) fragments.get(FRAGMENT_MESSAGES);
+                    messagesFragment.onMessageReceived(message);
                 } catch (MASException e) {
                     Log.d(TAG, e.getMessage());
                 }
 
             }
         }, intentFilter);
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
     }
 
     @Override
@@ -114,22 +116,25 @@ public class PubSubActivity extends NavDrawerActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.subscribe_to_topic) {
-            fragmentTransaction.replace(R.id.content_pub_sub, new SubscribeFragment()).commit();
-        } else if ( id == R.id.all_topics) {
-            fragmentTransaction.replace(R.id.content_pub_sub, new AllTopicsFragment()).commit();
+            showFragment(FRAGMENT_SUBSCRIBE);
+        } else if ( id == R.id.messages) {
+            showFragment(FRAGMENT_MESSAGES);
         } else {
+            hideAllFragments();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             for( String topic : subscribedTopics.keySet() ){
                 if( topic.equals(item.getTitle()) ){
-                    fragmentTransaction.replace(R.id.content_pub_sub, subscribedTopics.get(topic).getTopicFragment()).commit();
+                    fragmentTransaction.show(subscribedTopics.get(topic).getTopicFragment());
                     break;
+                } else {
+                    fragmentTransaction.hide(subscribedTopics.get(topic).getTopicFragment());
                 }
             }
+            fragmentTransaction.commit();
         }
 
         item.setChecked(true);
@@ -139,10 +144,10 @@ public class PubSubActivity extends NavDrawerActivity
 
     @Override
     public void onSubscribeToTopic(String topicName, MASTopic topic) {
-        subscribedTopics.put(topicName, new Topic(topicName, topic));
-        final Menu menu = navigationView.getMenu();
-        MenuItem item = menu.add(R.id.topics_group, Menu.NONE, Menu.NONE, topicName);
-        item.setCheckable(true);
+        //subscribedTopics.put(topicName, new Topic(topicName, topic));
+        //final Menu menu = navigationView.getMenu();
+        //MenuItem item = menu.add(R.id.topics_group, Menu.NONE, Menu.NONE, topicName);
+        //item.setCheckable(true);
     }
 
     @Override
@@ -185,6 +190,24 @@ public class PubSubActivity extends NavDrawerActivity
                 });
                 break;
         }
+    }
+
+    private void showFragment(String fragmentKey) {
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        for( Fragment fragment : fragments.values() ){
+            transaction.hide(fragment);
+        }
+        transaction.show( fragments.get(fragmentKey) );
+        transaction.commit();
+    }
+
+    private void hideAllFragments(){
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        for( Fragment fragment : fragments.values() ){
+            fragmentTransaction.hide(fragment);
+        }
+        fragmentTransaction.commit();
     }
 
     public static class Topic {

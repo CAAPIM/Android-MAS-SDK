@@ -37,24 +37,21 @@ public class TopicFragment extends Fragment implements View.OnClickListener{
 
     RecyclerView recyclerView;
     TopicMessagesAdapter topicMessagesAdapter;
-    SwipeRefreshLayout swipeRefreshLayout;
     FloatingActionButton fabPublish;
 
     private String topicName;
-    private ArrayList<MASMessage> messages;
 
     public TopicFragment() {
-        messages = new ArrayList<>();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        setRetainInstance(true);
         View v = inflater.inflate(R.layout.fragment_topic, container, false);
         recyclerView = (RecyclerView) v.findViewById(R.id.fragment_topic_recycler_view);
-        swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.fragment_topic_swipe_refresh);
         fabPublish = (FloatingActionButton) v.findViewById(R.id.fragment_topic_fab);
-        topicMessagesAdapter = new TopicMessagesAdapter(messages, getContext());
+        topicMessagesAdapter = new TopicMessagesAdapter(getContext());
         fabPublish.setOnClickListener(this);
         recyclerView.setAdapter(topicMessagesAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -74,7 +71,6 @@ public class TopicFragment extends Fragment implements View.OnClickListener{
     }
 
     public void onMessageReceived(MASMessage masMessage){
-        messages.add(masMessage);
-        topicMessagesAdapter.notifyDataSetChanged();
+        topicMessagesAdapter.addMessage(masMessage);
     }
 }

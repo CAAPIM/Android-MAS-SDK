@@ -129,7 +129,7 @@
                 android:id="@+id/activity_main_edit_text_will_message"
                 android:hint="@string/connection_custom_connection_will_message" />
 
-            <android.support.v7.widget.AppCompatSpinner
+            <ca.com.maspubsubsample.QosSpinner
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/activity_main_spinner_qos" />
@@ -140,13 +140,28 @@
                 android:text="@string/connection_custom_connection_will_retain"
                 android:id="@+id/activity_main_check_box_will_retain" />
 
-            <Button
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:text="@string/button_connection_custom_connect"
-                android:onClick="onClickPublicBroker"
-                />
+                android:gravity="right"
+                >
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_connection_custom_enter_default"
+                    android:onClick="onClickEnterDetails"
+                    />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_connection_custom_connect"
+                    android:onClick="onClickPublicBroker"
+                    />
+            </LinearLayout>
+
+
         </LinearLayout>
 
     </LinearLayout>

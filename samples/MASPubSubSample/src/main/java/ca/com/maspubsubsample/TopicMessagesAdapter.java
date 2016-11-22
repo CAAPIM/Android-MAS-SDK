@@ -28,8 +28,8 @@ public class TopicMessagesAdapter extends RecyclerView.Adapter<TopicMessagesAdap
         }
     }
 
-    public TopicMessagesAdapter(ArrayList<MASMessage> mDataset, Context context) {
-        this.mDataset = mDataset;
+    public TopicMessagesAdapter(Context context) {
+        mDataset = new ArrayList<>();
         this.context = context;
     }
 
@@ -49,7 +49,6 @@ public class TopicMessagesAdapter extends RecyclerView.Adapter<TopicMessagesAdap
         MASMessage message = mDataset.get(position);
         byte[] msg = message.getPayload();
         String m = new String(msg);
-        String topic = message.getTopic();
         Integer qos = message.getQos();
 
         holder.textViewMessage.setText(m);
@@ -59,6 +58,11 @@ public class TopicMessagesAdapter extends RecyclerView.Adapter<TopicMessagesAdap
     @Override
     public int getItemCount() {
         return mDataset.size();
+    }
+
+    public void addMessage(MASMessage masMessage){
+        mDataset.add(masMessage);
+        notifyDataSetChanged();
     }
 }
 

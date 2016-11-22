@@ -30,6 +30,7 @@
 
     <string name="recycler_message_item_topic">Topic: %s</string>
     <string name="recycler_message_item_qos">QoS: %d</string>
+    <string name="recycler_no_messages">No messages to show</string>
 
     <string name="nav_drawer_messages">Messages</string>
 

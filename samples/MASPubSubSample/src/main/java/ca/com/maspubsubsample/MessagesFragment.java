@@ -15,7 +15,7 @@ import com.ca.mas.messaging.MASMessage;
 
 public class MessagesFragment extends Fragment implements View.OnClickListener{
 
-    RecyclerView recyclerView;
+    MessagesRecyclerView recyclerView;
     TopicMessagesAdapter topicMessagesAdapter;
 
     public MessagesFragment() {
@@ -28,13 +28,13 @@ public class MessagesFragment extends Fragment implements View.OnClickListener{
                              Bundle savedInstanceState) {
         setRetainInstance(true);
         View v = inflater.inflate(R.layout.fragment_messages, container, false);
-        recyclerView = (RecyclerView) v.findViewById(R.id.fragment_messages_recycler);
+        recyclerView = (MessagesRecyclerView) v.findViewById(R.id.fragment_messages_recycler);
         topicMessagesAdapter = new TopicMessagesAdapter(getContext());
         recyclerView.setAdapter(topicMessagesAdapter);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), linearLayoutManager.getOrientation()));
-
+        recyclerView.setEmptyView(v.findViewById(R.id.fragment_messages_empty_view));
         FloatingActionButton fab = (FloatingActionButton) v.findViewById(R.id.fragment_messages_fab);
         fab.setOnClickListener(this);
         return v;

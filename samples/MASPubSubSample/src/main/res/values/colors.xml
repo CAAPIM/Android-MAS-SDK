@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="colorButtonDisconnect">#910000</color>
+    <color name="colorDarkGrey">#595959</color>
 </resources>

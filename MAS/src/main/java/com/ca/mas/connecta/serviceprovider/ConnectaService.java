@@ -117,7 +117,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
                 public void onSuccess(Map<String, Object> result) {
                     try {
                         if (DEBUG) Log.d(TAG, "CONNECTA: onSuccess()");
-                        initMqttClient((String) result.get(StateRequest.DEVICE_ID));
+                        initMqttClient((String) result.get(StateRequest.MAG_IDENTIFIER));
                         mMqttClient.connect((MqttConnectOptions) result.get(MASConnectOptions.class.getName()));
                         if (!mMqttClient.isConnected()) {
                             Callback.onError(callback, new ConnectaException("Not connected to message broker!"));
@@ -172,7 +172,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
     /*
     Called once the secure socket factory has been created to perform the Mqtt initialization.
      */
-    private void initMqttClient(String deviceId) throws MASException, MqttException {
+    private void initMqttClient(String magIdentifier) throws MASException, MqttException {
         if (mMqttClient != null) {
             return;
         }
@@ -185,7 +185,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
         if (this.clientId == null || brokerUrl.contains(FoundationUtil.getHost())) {
             // Client ID was not set, or if connecting to the gateway, generate a client id
             this.clientId = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getClientId();
-            brokerClientId = ConnectaUtil.getMqttClientId(clientId, deviceId);
+            brokerClientId = ConnectaUtil.getMqttClientId(clientId, magIdentifier);
         } else {
             // Client ID was set, use it
             brokerClientId = this.clientId;

@@ -32,7 +32,7 @@ public class StateRequest extends MAGRequestProxy implements LocalRequest {
 
     public static final String ACCESS_TOKEN = "access_token";
     public static final String CLIENT_ID = "client_id";
-    public static final String DEVICE_ID = "device_id";
+    public static final String MAG_IDENTIFIER = "mag_identifier";
 
     public StateRequest() {
         request = new MAGRequestBuilder((URL) null).password().build();
@@ -67,7 +67,7 @@ public class StateRequest extends MAGRequestProxy implements LocalRequest {
                         try {
                             entity.put(ACCESS_TOKEN, context.getAccessToken());
                             entity.put(CLIENT_ID, context.getClientId());
-                            entity.put(DEVICE_ID, context.getDeviceId());
+                            entity.put(MAG_IDENTIFIER, context.getTokenManager().getMagIdentifier());
                         } catch (JSONException e) {
                             if (DEBUG) Log.i(TAG, e.getMessage(), e);
                             return new JSONObject();

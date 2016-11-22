@@ -535,6 +535,11 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                         TokenManager keyChainManager = createTokenManager();
                         IdToken idToken = keyChainManager.getIdToken();
 
+                        if (idToken == null) {
+                            Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_RETRIEVE_ID_TOKEN));
+                            return;
+                        }
+
                         // Move the ID token from the Keychain to the fingerprint protected shared Keystore
                         Parcel idTokenParcel = Parcel.obtain();
                         idToken.writeToParcel(idTokenParcel, 0);

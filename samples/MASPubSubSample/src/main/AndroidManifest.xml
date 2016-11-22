@@ -18,7 +18,9 @@
         <activity
             android:name=".PubSubActivity"
             android:label="@string/title_activity_pub_sub"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".NewPubSubActivity"
+            android:windowSoftInputMode="stateAlwaysHidden" />
     </application>
 
 </manifest>

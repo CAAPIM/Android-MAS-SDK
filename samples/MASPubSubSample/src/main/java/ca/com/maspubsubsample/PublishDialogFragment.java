@@ -126,7 +126,7 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
         }
     }
 
-    private PubSubActivity getPubSubActivity(){
-        return (PubSubActivity) getActivity();
+    private NewPubSubActivity getPubSubActivity(){
+        return (NewPubSubActivity) getActivity();
     }
 }

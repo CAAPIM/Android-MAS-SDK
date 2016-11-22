@@ -45,9 +45,8 @@ public class MessagesFragment extends Fragment implements View.OnClickListener{
         int id = view.getId();
         switch (id){
             case R.id.fragment_messages_fab:
-                PubSubActivity pubSubActivity = (PubSubActivity) getActivity();
                 PublishDialogFragment publishDialogFragment = PublishDialogFragment.newInstance();
-                publishDialogFragment.show(pubSubActivity.getSupportFragmentManager(), null);
+                publishDialogFragment.show(getActivity().getSupportFragmentManager(), null);
                 break;
         }
     }

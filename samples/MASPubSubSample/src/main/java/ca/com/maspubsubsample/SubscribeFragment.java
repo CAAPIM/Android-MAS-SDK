@@ -57,6 +57,7 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
 
     @Override
     public void onClick(View view) {
+        Util.hideKeyboard(getActivity());
         int id = view.getId();
         try {
             final String topicName = editTextTopicName.getText().toString();
@@ -119,8 +120,8 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
         }
     }
 
-    private PubSubActivity getPubSubActivity(){
-        return (PubSubActivity) getActivity();
+    private NewPubSubActivity getPubSubActivity(){
+        return (NewPubSubActivity) getActivity();
     }
 
     private void setMessage(String message){

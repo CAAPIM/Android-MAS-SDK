@@ -9,7 +9,11 @@ import android.widget.TextView;
 
 import com.ca.mas.messaging.MASMessage;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 
 public class TopicMessagesAdapter extends RecyclerView.Adapter<TopicMessagesAdapter.ViewHolder> {
@@ -21,12 +25,14 @@ public class TopicMessagesAdapter extends RecyclerView.Adapter<TopicMessagesAdap
         TextView textViewMessage;
         TextView textViewQos;
         TextView textViewTopic;
+        TextView textViewTimeReceived;
 
         public ViewHolder(View v) {
             super(v);
             textViewMessage = (TextView) v.findViewById(R.id.recycler_message_item_text_view_message);
             textViewQos = (TextView) v.findViewById(R.id.recycler_message_item_text_view_qos);
             textViewTopic = (TextView) v.findViewById(R.id.recycler_message_item_text_view_topic);
+            textViewTimeReceived = (TextView) v.findViewById(R.id.recycler_message_item_text_view_time_received);
         }
     }
 
@@ -41,7 +47,6 @@ public class TopicMessagesAdapter extends RecyclerView.Adapter<TopicMessagesAdap
 
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycler_message_item, parent, false);
-
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }
@@ -53,10 +58,12 @@ public class TopicMessagesAdapter extends RecyclerView.Adapter<TopicMessagesAdap
         String m = new String(msg);
         String topic = message.getTopic();
         Integer qos = message.getQos();
+        Date date = new Date(message.getSentTime());
 
         holder.textViewMessage.setText(m);
         holder.textViewTopic.setText(String.format(context.getResources().getString(R.string.recycler_message_item_topic), topic));
         holder.textViewQos.setText(String.format(context.getResources().getString(R.string.recycler_message_item_qos), qos));
+        holder.textViewTimeReceived.setText((new SimpleDateFormat("HH:mm:ss", Locale.US)).format(date));
     }
 
     @Override

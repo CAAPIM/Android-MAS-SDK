@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startPubSubActivity(){
-        Intent i = new Intent(MainActivity.this, PubSubActivity.class);
+        Intent i = new Intent(MainActivity.this, NewPubSubActivity.class);
         i.putExtra(INTENT_EXTRA_PUBLIC_BROKER, publicBroker);
         i.putExtra(INTENT_EXTRA_HOST, host);
         startActivity(i);

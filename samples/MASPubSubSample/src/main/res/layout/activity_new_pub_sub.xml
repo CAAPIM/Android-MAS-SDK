@@ -11,32 +11,25 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ca.com.maspubsubsample.NewPubSubActivity">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <fragment
+            android:id="@+id/activity_new_pub_sub_fragment_subscribe"
+            android:name="ca.com.maspubsubsample.SubscribeFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
+            tools:layout="@layout/fragment_subscribe" />
 
-            <fragment
-                android:id="@+id/activity_new_pub_sub_fragment_subscribe"
-                android:name="ca.com.maspubsubsample.SubscribeFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_subscribe" />
-
-            <fragment
-                android:id="@+id/activity_new_pub_sub_fragment_messages"
-                android:name="ca.com.maspubsubsample.MessagesFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_messages" />
-        </LinearLayout>
-
-    </ScrollView>
+        <fragment
+            android:id="@+id/activity_new_pub_sub_fragment_messages"
+            android:name="ca.com.maspubsubsample.MessagesFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_messages" />
+    </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/new_activity_pub_sub_fab"

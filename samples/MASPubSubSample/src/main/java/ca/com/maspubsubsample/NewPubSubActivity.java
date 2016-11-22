@@ -5,16 +5,22 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
+import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.connecta.util.ConnectaConsts;
+import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASException;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
@@ -55,6 +61,37 @@ public class NewPubSubActivity extends AppCompatActivity implements TopicSubscri
         }, intentFilter);
 
         findViewById(R.id.new_activity_pub_sub_fab).setOnClickListener(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.activity_pub_sub, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_disconnect:
+                MASConnectaManager.getInstance().disconnect(new MASCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void result) {
+                        Intent i = new Intent(NewPubSubActivity.this, MainActivity.class);
+                        startActivity(i);
+                        finish();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Util.showSnackbar(NewPubSubActivity.this, "Failed to disconnect");
+                    }
+                });
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override

@@ -16,6 +16,13 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/activity_new_pub_sub_text_view_host"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            />
+
         <fragment
             android:id="@+id/activity_new_pub_sub_fragment_subscribe"
             android:name="ca.com.maspubsubsample.SubscribeFragment"

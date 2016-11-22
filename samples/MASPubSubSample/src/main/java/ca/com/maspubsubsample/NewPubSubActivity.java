@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.connecta.util.ConnectaConsts;
@@ -30,7 +31,6 @@ public class NewPubSubActivity extends AppCompatActivity implements TopicSubscri
 
     private MessagesFragment messagesFragment;
     private boolean publicBroker;
-    private String host;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +39,9 @@ public class NewPubSubActivity extends AppCompatActivity implements TopicSubscri
         Intent i = getIntent();
         if( i != null ){
             publicBroker = i.getBooleanExtra(MainActivity.INTENT_EXTRA_PUBLIC_BROKER, false);
-            host = i.getStringExtra(MainActivity.INTENT_EXTRA_HOST);
+            String host = i.getStringExtra(MainActivity.INTENT_EXTRA_HOST);
+            TextView textViewHost = (TextView) findViewById(R.id.activity_new_pub_sub_text_view_host);
+            textViewHost.setText(host);
         }
         messagesFragment = (MessagesFragment) getSupportFragmentManager().findFragmentById(R.id.activity_new_pub_sub_fragment_messages);
         IntentFilter intentFilter = new IntentFilter();

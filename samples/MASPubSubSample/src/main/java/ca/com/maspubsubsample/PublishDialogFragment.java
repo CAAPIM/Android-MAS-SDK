@@ -86,11 +86,17 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
 
                 try {
                     if( masTopic == null ){
-                        masTopic = new MASTopicBuilder()
+                        MASTopicBuilder masTopicBuilder = new MASTopicBuilder()
                                 .setCustomTopic(topic)
-                                .setQos(qos)
-                                .setUserId(MASUser.getCurrentUser().getId())
-                                .build();
+                                .setQos(qos);
+                        if( MASUser.getCurrentUser() != null ){
+                            masTopicBuilder.setUserId(MASUser.getCurrentUser().getId());
+                        }
+                        if( getPubSubActivity().isPublicBroker() ){
+                            masTopicBuilder.enforceTopicStructure(false);
+                        }
+
+                        masTopic = masTopicBuilder.build();
                     }
                 } catch (MASException e) {
                     Log.d(TAG, "Failed to build topic: " + e.getMessage());
@@ -118,5 +124,9 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
             case DialogInterface.BUTTON_NEGATIVE:
                 break;
         }
+    }
+
+    private PubSubActivity getPubSubActivity(){
+        return (PubSubActivity) getActivity();
     }
 }

@@ -28,6 +28,7 @@
     <string name="publish_dialog_fragment_topic">Topic</string>
     <string name="publish_dialog_fragment_message">Message</string>
 
+    <string name="recycler_message_item_topic">Topic: %s</string>
     <string name="recycler_message_item_qos">QoS: %d</string>
 
     <string name="nav_drawer_messages">Messages</string>

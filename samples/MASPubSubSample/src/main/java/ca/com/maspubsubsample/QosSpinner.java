@@ -23,7 +23,7 @@ public class QosSpinner extends AppCompatSpinner {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item,
+        setAdapter(new ArrayAdapter<>(getContext(), R.layout.qos_spinner_item,
                 getResources().getStringArray(R.array.qos_options)));
     }
 

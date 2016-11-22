@@ -41,11 +41,19 @@ public class PubSubActivity extends NavDrawerActivity
     NavigationView navigationView;
     private HashMap<String, Fragment> fragments;
     private HashMap<String, Topic> subscribedTopics;
+    private boolean publicBroker;
+    private String host;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pub_sub);
+        Intent i = getIntent();
+        if( i != null ){
+            publicBroker = i.getBooleanExtra(MainActivity.INTENT_EXTRA_PUBLIC_BROKER, false);
+            host = i.getStringExtra(MainActivity.INTENT_EXTRA_HOST);
+        }
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -57,7 +65,8 @@ public class PubSubActivity extends NavDrawerActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        ( (TextView) navigationView.getHeaderView(0).findViewById(R.id.nav_header_host)).setText(MASConfiguration.getCurrentConfiguration().getGatewayHostName());
+
+        ( (TextView) navigationView.getHeaderView(0).findViewById(R.id.nav_header_host)).setText(host);
         (navigationView.getHeaderView(0).findViewById(R.id.nav_header_disconnect)).setOnClickListener(this);
 
         fragments = new HashMap<>();
@@ -89,28 +98,6 @@ public class PubSubActivity extends NavDrawerActivity
 
             }
         }, intentFilter);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.pub_sub, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -158,6 +145,10 @@ public class PubSubActivity extends NavDrawerActivity
     @Override
     public boolean isSubscribedToTopic(String topicName) {
         return subscribedTopics.containsKey(topicName);
+    }
+
+    public boolean isPublicBroker() {
+        return publicBroker;
     }
 
     @Override

@@ -65,11 +65,19 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
                 return;
             }
 
-            final MASTopic masTopic = new MASTopicBuilder()
+            MASTopicBuilder masTopicBuilder = new MASTopicBuilder()
                     .setCustomTopic(topicName)
-                    .setQos(qosSpinner.getSelectedQos())
-                    .setUserId(MASUser.getCurrentUser().getId())
-                    .build();
+                    .setQos(qosSpinner.getSelectedQos());
+            if( MASUser.getCurrentUser() != null ){
+                masTopicBuilder.setUserId(MASUser.getCurrentUser().getId());
+            }
+            if( getPubSubActivity().isPublicBroker() ){
+                masTopicBuilder.enforceTopicStructure(false);
+            }
+
+            final MASTopic masTopic = masTopicBuilder.build();
+
+
 
             MASConnectaManager masConnectaManager = MASConnectaManager.getInstance();
             switch (id){
@@ -109,6 +117,10 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
         } catch (MASException e) {
             Log.d(TAG, e.getMessage());
         }
+    }
+
+    private PubSubActivity getPubSubActivity(){
+        return (PubSubActivity) getActivity();
     }
 
     private void setMessage(String message){

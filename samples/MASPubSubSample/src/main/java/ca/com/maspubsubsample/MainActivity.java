@@ -17,14 +17,21 @@ import com.ca.mas.connecta.client.MASConnectOptions;
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASConfiguration;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    public static final String INTENT_EXTRA_PUBLIC_BROKER = "ca.com.maspubsubsample.MainActivity.INTENT_EXTRA_PUBLIC_BROKER";
+    public static final String INTENT_EXTRA_HOST = "ca.com.maspubsubsample.MainActivity.INTENT_EXTRA_HOST";
 
     EditText editTextUri, editTextKeepAlive, editTextUsername, editTextPassword, editTextClientId,
             editTextWillTopic, editTextWillMessage;
     QosSpinner qosSpinner;
     AppCompatCheckBox checkBoxRetain, checkBoxCleanSession;
+
+    private boolean publicBroker;
+    private String host;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,11 +49,12 @@ public class MainActivity extends AppCompatActivity {
         checkBoxRetain = (AppCompatCheckBox) findViewById(R.id.activity_main_check_box_will_retain);
         qosSpinner = (QosSpinner) findViewById(R.id.activity_main_spinner_qos);
 
-
         MAS.start(this, true);
     }
 
     public void onClickMag(View v){
+        publicBroker = false;
+        host = MASConfiguration.getCurrentConfiguration().getGatewayUrl().toString();
         MASConnectaManager.getInstance().connect(new MASCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
@@ -63,7 +71,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickPublicBroker(View v){
-        String host = editTextUri.getText().toString();
+        publicBroker = true;
+        host = editTextUri.getText().toString();
         Integer keepAlive = Integer.parseInt((editTextKeepAlive).getText().toString());
         boolean cleanSession = checkBoxCleanSession.isChecked();
         String username = editTextUsername.getText().toString();
@@ -86,6 +95,8 @@ public class MainActivity extends AppCompatActivity {
             masConnectOptions.setServerURIs(new String[]{host});
         } catch (Exception e) {
             Log.d(TAG, e.getMessage());
+            showConnectionErrorMessage(e);
+            return;
         }
 
         MASConnectaManager.getInstance().setConnectOptions(masConnectOptions);
@@ -110,15 +121,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void startPubSubActivity(){
         Intent i = new Intent(MainActivity.this, PubSubActivity.class);
+        i.putExtra(INTENT_EXTRA_PUBLIC_BROKER, publicBroker);
+        i.putExtra(INTENT_EXTRA_HOST, host);
         startActivity(i);
         finish();
     }
 
     private void showConnectionErrorMessage(Throwable e){
+        showConnectionErrorMessage(e.getMessage());
+    }
+
+    private void showConnectionErrorMessage(String errorMessage){
         new AlertDialog.Builder(MainActivity.this)
                 .setTitle("Failed to connect")
-                .setMessage(e.getMessage())
+                .setMessage(errorMessage)
                 .show();
-
     }
 }

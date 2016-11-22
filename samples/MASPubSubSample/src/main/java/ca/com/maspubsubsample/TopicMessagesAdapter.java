@@ -20,11 +20,13 @@ public class TopicMessagesAdapter extends RecyclerView.Adapter<TopicMessagesAdap
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewMessage;
         TextView textViewQos;
+        TextView textViewTopic;
 
         public ViewHolder(View v) {
             super(v);
             textViewMessage = (TextView) v.findViewById(R.id.recycler_message_item_text_view_message);
             textViewQos = (TextView) v.findViewById(R.id.recycler_message_item_text_view_qos);
+            textViewTopic = (TextView) v.findViewById(R.id.recycler_message_item_text_view_topic);
         }
     }
 
@@ -49,9 +51,11 @@ public class TopicMessagesAdapter extends RecyclerView.Adapter<TopicMessagesAdap
         MASMessage message = mDataset.get(position);
         byte[] msg = message.getPayload();
         String m = new String(msg);
+        String topic = message.getTopic();
         Integer qos = message.getQos();
 
         holder.textViewMessage.setText(m);
+        holder.textViewTopic.setText(String.format(context.getResources().getString(R.string.recycler_message_item_topic), topic));
         holder.textViewQos.setText(String.format(context.getResources().getString(R.string.recycler_message_item_qos), qos));
     }
 

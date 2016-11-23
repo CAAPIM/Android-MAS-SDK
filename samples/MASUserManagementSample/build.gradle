@@ -42,7 +42,7 @@ dependencies {
     compile 'com.android.support:support-v4:24.2.1'
     compile 'com.android.support:recyclerview-v7:24.2.1'
     compile 'com.android.support:design:24.2.1'
-    compile project(':MAG')
-    compile project(':MAS')
-    compile project(':MASUI')
+    compile project(':mag')
+    compile project(':mas')
+    compile project(':masui')
 }

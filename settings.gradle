@@ -6,9 +6,9 @@
  *
  */
 
-include ':MAG', ':MAGTest', ':MASTest'
+include ':mag', ':magtest', ':mastest'
 
-include ':MAS', ':MASUI'
+include ':mas', ':masui'
 
 //Example App
 include ':SingleSignOnSample'
@@ -19,8 +19,8 @@ include ':MASMessagingSample'
 include ':MASSessionUnlockSample'
 include ':MASPubSubSample'
 
-project(':MAGTest').projectDir = new File('MAG/MAGTest')
-project(':MASTest').projectDir = new File('MAS/MASTest')
+project(':magtest').projectDir = new File('mag/magtest')
+project(':mastest').projectDir = new File('mas/mastest')
 project(':SingleSignOnSample').projectDir = new File('samples/SingleSignOnSample')
 project(':MASStorageSample').projectDir = new File('samples/MASStorageSample')
 project(':MASAccessAPISample').projectDir = new File('samples/MASAccessAPISample')

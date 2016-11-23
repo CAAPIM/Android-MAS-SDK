@@ -96,7 +96,7 @@ bintray {
 
         version {
             name = project.version
-            desc = 'Mobile App Services'
+            desc = 'CA Mobile App Services'
         }
     }
 }
@@ -106,7 +106,7 @@ install {
         pom {
             project {
                 packaging 'aar'
-                name 'Mobile API Services'
+                name 'CA Mobile App Services'
                 url siteUrl
                 licenses {
                     license {

@@ -13,8 +13,10 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:focusable="false"
+        >
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -24,8 +26,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="@string/button_connect_to_mag"
-                android:onClick="onClickMag" />
+                android:onClick="onClickMag"
+                android:text="@string/button_connect_to_mag" />
         </FrameLayout>
 
 
@@ -40,7 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_weight="0.3"
-                android:background="#000000" />
+                android:background="@color/colorDarkGrey" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -51,28 +53,33 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_weight="0.3"
-                android:background="#000000" />
+                android:background="@color/colorDarkGrey" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true"
-            >
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/connection_custom_connection_title" />
 
-            <EditText
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/connection_custom_connection_hostname"
-                android:id="@+id/activity_main_edit_text_host" />
+                >
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/activity_main_edit_text_host"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/connection_custom_connection_hostname" />
+            </android.support.design.widget.TextInputLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -84,81 +91,110 @@
                     android:layout_height="wrap_content"
                     android:text="@string/connection_custom_connection_keep_alive_interval" />
 
-                <EditText
+                <android.support.design.widget.TextInputLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:text="@string/connection_custom_connection_keep_alive_interval_default_value"
-                    android:id="@+id/activity_main_edit_text_keep_alive" />
+                    android:layout_height="wrap_content">
+
+                    <android.support.design.widget.TextInputEditText
+                        android:id="@+id/activity_main_edit_text_keep_alive"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:text="@string/connection_custom_connection_keep_alive_interval_default_value" />
+                </android.support.design.widget.TextInputLayout>
             </LinearLayout>
 
             <android.support.v7.widget.AppCompatCheckBox
+                android:id="@+id/activity_main_check_box_clean_session"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/connection_custom_connection_clean_session"
-                android:id="@+id/activity_main_check_box_clean_session" />
+                android:text="@string/connection_custom_connection_clean_session" />
 
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/activity_main_edit_text_username"
-                android:hint="@string/connection_custom_connection_username" />
 
-            <EditText
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                android:id="@+id/activity_main_edit_text_password"
-                android:hint="@string/connection_custom_connection_password" />
+                android:layout_height="wrap_content">
 
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/activity_main_edit_text_client_id"
-                android:hint="@string/connection_custom_connection_client_id" />
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/activity_main_edit_text_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/connection_custom_connection_username" />
+            </android.support.design.widget.TextInputLayout>
 
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/activity_main_edit_text_will_topic"
-                android:hint="@string/connection_custom_connection_will_topic" />
 
-            <EditText
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/activity_main_edit_text_will_message"
-                android:hint="@string/connection_custom_connection_will_message" />
+                android:layout_height="wrap_content">
 
-            <ca.com.maspubsubsample.QosSpinner
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/activity_main_edit_text_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/connection_custom_connection_password"
+                    android:inputType="textPassword" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/activity_main_spinner_qos" />
+                android:layout_height="wrap_content">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/activity_main_edit_text_client_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/connection_custom_connection_client_id" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/activity_main_edit_text_will_topic"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/connection_custom_connection_will_topic" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/activity_main_edit_text_will_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/connection_custom_connection_will_message" />
+            </android.support.design.widget.TextInputLayout>
+
+            <ca.com.maspubsubsample.SelectQosView
+                android:id="@+id/activity_main_select_qos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <android.support.v7.widget.AppCompatCheckBox
+                android:id="@+id/activity_main_check_box_will_retain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/connection_custom_connection_will_retain"
-                android:id="@+id/activity_main_check_box_will_retain" />
+                android:text="@string/connection_custom_connection_will_retain" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="right"
-                >
+                android:gravity="end">
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/button_connection_custom_enter_default"
                     android:onClick="onClickEnterDetails"
-                    />
+                    android:text="@string/button_connection_custom_enter_default" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/button_connection_custom_connect"
                     android:onClick="onClickPublicBroker"
-                    />
+                    android:text="@string/button_connection_custom_connect" />
             </LinearLayout>
 
 

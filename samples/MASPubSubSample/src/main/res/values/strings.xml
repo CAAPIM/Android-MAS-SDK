@@ -34,6 +34,8 @@
 
     <string name="nav_drawer_messages">Messages</string>
 
+    <string name="qos_spinner_title">QoS: </string>
+
     <string-array name="qos_options">
         <item>0</item>
         <item>1</item>

@@ -73,7 +73,7 @@ public class TopicMessagesAdapter extends RecyclerView.Adapter<TopicMessagesAdap
 
     public void addMessage(MASMessage masMessage){
         mDataset.add(masMessage);
-        notifyDataSetChanged();
+        notifyItemInserted(mDataset.size()-1);
     }
 }
 

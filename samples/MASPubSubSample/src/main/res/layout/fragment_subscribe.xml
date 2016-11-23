@@ -2,52 +2,50 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ca.com.maspubsubsample.SubscribeFragment"
     android:orientation="vertical"
-    >
+    tools:context="ca.com.maspubsubsample.SubscribeFragment">
 
-    <EditText
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/subscribe_to_topic_edit_text_topic_name"
-        android:id="@+id/fragment_subscribe_edit_text_topic_name" />
+        android:layout_height="wrap_content">
 
-    <ca.com.maspubsubsample.QosSpinner
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/fragment_subscribe_edit_text_topic_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/subscribe_to_topic_edit_text_topic_name" />
+    </android.support.design.widget.TextInputLayout>
+
+    <ca.com.maspubsubsample.SelectQosView
+        android:id="@+id/fragment_subscribe_select_qos"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/fragment_subscribe_spinner_qos"
-        />
+        android:layout_height="wrap_content" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
+        android:orientation="horizontal">
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/fragment_subscribe_button_subscribe"
             android:id="@+id/fragment_subscribe_button_subscribe"
-            />
-
-        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="@string/fragment_subscribe_button_unsubscribe"
+            android:text="@string/fragment_subscribe_button_subscribe" />
+
+        <Button
             android:id="@+id/fragment_subscribe_button_unsubscribe"
-            />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/fragment_subscribe_button_unsubscribe" />
     </LinearLayout>
 
 
-
     <TextView
+        android:id="@+id/fragment_subscribe_text_view_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/fragment_subscribe_text_view_message"
-        android:text=""
-        />
+        android:text="" />
 
 </LinearLayout>

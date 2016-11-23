@@ -2,6 +2,7 @@ package ca.com.maspubsubsample;
 
 
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,7 +13,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
-import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.MASUser;
@@ -26,8 +26,8 @@ import com.ca.mas.messaging.topic.MASTopicBuilder;
 public class SubscribeFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = SubscribeFragment.class.getSimpleName();
 
-    EditText editTextTopicName;
-    QosSpinner qosSpinner;
+    TextInputEditText editTextTopicName;
+    SelectQosView selectQosView;
     TextView textViewMessage;
     Button buttonSubscribe;
     Button buttonUnsubscribe;
@@ -42,8 +42,8 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_subscribe, container, false);
-        editTextTopicName = (EditText) v.findViewById(R.id.fragment_subscribe_edit_text_topic_name);
-        qosSpinner = (QosSpinner) v.findViewById(R.id.fragment_subscribe_spinner_qos);
+        editTextTopicName = (TextInputEditText) v.findViewById(R.id.fragment_subscribe_edit_text_topic_name);
+        selectQosView = (SelectQosView) v.findViewById(R.id.fragment_subscribe_select_qos);
         textViewMessage = (TextView) v.findViewById(R.id.fragment_subscribe_text_view_message);
         buttonSubscribe = (Button) v.findViewById(R.id.fragment_subscribe_button_subscribe);
         buttonSubscribe.setOnClickListener(this);
@@ -67,7 +67,7 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
 
             MASTopicBuilder masTopicBuilder = new MASTopicBuilder()
                     .setCustomTopic(topicName)
-                    .setQos(qosSpinner.getSelectedQos());
+                    .setQos(selectQosView.getSelectedQos());
             if( MASUser.getCurrentUser() != null ){
                 masTopicBuilder.setUserId(MASUser.getCurrentUser().getId());
             }

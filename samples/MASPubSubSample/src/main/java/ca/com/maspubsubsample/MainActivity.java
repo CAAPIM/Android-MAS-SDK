@@ -2,6 +2,7 @@ package ca.com.maspubsubsample;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatCheckBox;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 
 import com.ca.mas.connecta.client.MASConnectOptions;
@@ -25,9 +27,9 @@ public class MainActivity extends AppCompatActivity {
     public static final String INTENT_EXTRA_PUBLIC_BROKER = "ca.com.maspubsubsample.MainActivity.INTENT_EXTRA_PUBLIC_BROKER";
     public static final String INTENT_EXTRA_HOST = "ca.com.maspubsubsample.MainActivity.INTENT_EXTRA_HOST";
 
-    EditText editTextUri, editTextKeepAlive, editTextUsername, editTextPassword, editTextClientId,
+    TextInputEditText editTextUri, editTextKeepAlive, editTextUsername, editTextPassword, editTextClientId,
             editTextWillTopic, editTextWillMessage;
-    QosSpinner qosSpinner;
+    SelectQosView selectQosView;
     AppCompatCheckBox checkBoxRetain, checkBoxCleanSession;
 
     private boolean publicBroker;
@@ -37,17 +39,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ScrollView scrollView = (ScrollView) findViewById(R.id.activity_main);
+        scrollView.fullScroll(ScrollView.FOCUS_UP);
 
-        editTextUri = (EditText) findViewById(R.id.activity_main_edit_text_host);
-        editTextClientId = (EditText) findViewById(R.id.activity_main_edit_text_client_id);
-        editTextKeepAlive = (EditText) findViewById(R.id.activity_main_edit_text_keep_alive);
-        editTextUsername = (EditText) findViewById(R.id.activity_main_edit_text_username);
-        editTextPassword = (EditText) findViewById(R.id.activity_main_edit_text_password);
-        editTextWillTopic = (EditText) findViewById(R.id.activity_main_edit_text_will_topic);
-        editTextWillMessage = (EditText) findViewById(R.id.activity_main_edit_text_will_message);
+        editTextUri = (TextInputEditText) findViewById(R.id.activity_main_edit_text_host);
+        editTextClientId = (TextInputEditText) findViewById(R.id.activity_main_edit_text_client_id);
+        editTextKeepAlive = (TextInputEditText) findViewById(R.id.activity_main_edit_text_keep_alive);
+        editTextUsername = (TextInputEditText) findViewById(R.id.activity_main_edit_text_username);
+        editTextPassword = (TextInputEditText) findViewById(R.id.activity_main_edit_text_password);
+        editTextWillTopic = (TextInputEditText) findViewById(R.id.activity_main_edit_text_will_topic);
+        editTextWillMessage = (TextInputEditText) findViewById(R.id.activity_main_edit_text_will_message);
         checkBoxCleanSession = (AppCompatCheckBox) findViewById(R.id.activity_main_check_box_clean_session);
         checkBoxRetain = (AppCompatCheckBox) findViewById(R.id.activity_main_check_box_will_retain);
-        qosSpinner = (QosSpinner) findViewById(R.id.activity_main_spinner_qos);
+        selectQosView = (SelectQosView) findViewById(R.id.activity_main_select_qos);
 
         MAS.start(this, true);
     }
@@ -80,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         String clientId = editTextClientId.getText().toString();
         String willTopic = editTextWillTopic.getText().toString();
         String willMessage = editTextWillMessage.getText().toString();
-        Integer willQos = qosSpinner.getSelectedQos();
+        Integer willQos = selectQosView.getSelectedQos();
         boolean willRetained = checkBoxRetain.isChecked();
 
         MASConnectOptions masConnectOptions = new MASConnectOptions();

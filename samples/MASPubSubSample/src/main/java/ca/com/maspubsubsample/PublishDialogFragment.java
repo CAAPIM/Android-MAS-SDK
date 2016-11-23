@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -30,10 +31,10 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
     private String topicName;
     private MASTopic masTopic;
 
-    EditText editTextTopic;
-    EditText editTextMessage;
+    TextInputEditText editTextTopic;
+    TextInputEditText editTextMessage;
     CheckBox checkBoxRetain;
-    QosSpinner qosSpinner;
+    SelectQosView selectQosView;
 
     public static PublishDialogFragment newInstance(){
         return newInstance(null, null);
@@ -56,13 +57,13 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
         LayoutInflater i = getActivity().getLayoutInflater();
 
         View v = i.inflate(R.layout.fragment_publish_dialog, null);
-        editTextTopic = (EditText) v.findViewById(R.id.fragment_publish_edit_text_topic);
+        editTextTopic = (TextInputEditText) v.findViewById(R.id.fragment_publish_edit_text_topic);
         if( topicName != null ){
             editTextTopic.setText(topicName);
         }
-        editTextMessage = (EditText) v.findViewById(R.id.fragment_publish_edit_text_message);
+        editTextMessage = (TextInputEditText) v.findViewById(R.id.fragment_publish_edit_text_message);
         checkBoxRetain = (CheckBox) v.findViewById(R.id.fragment_publish_check_box_retain);
-        qosSpinner = (QosSpinner) v.findViewById(R.id.fragment_publish_spinner_qos);
+        selectQosView = (SelectQosView) v.findViewById(R.id.fragment_publish_select_qos);
         b.setView(v);
         return b.create();
     }
@@ -82,7 +83,7 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
                 String topic = editTextTopic.getText().toString();
                 String message = editTextMessage.getText().toString();
                 boolean retain = checkBoxRetain.isChecked();
-                Integer qos = qosSpinner.getSelectedQos();
+                Integer qos = selectQosView.getSelectedQos();
 
                 try {
                     if( masTopic == null ){

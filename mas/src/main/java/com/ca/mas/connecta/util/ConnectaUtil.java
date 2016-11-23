@@ -35,12 +35,12 @@ import org.json.JSONObject;
 public class ConnectaUtil extends FoundationUtil {
 
     /**
-     * <mag_device_id>::<client_id>::<SCIM userID>
+     * <mag_identifier>::<client_id>::<SCIM userID>
      *
      * @return the formatted clientId
      */
-    public static String getMqttClientId(String clientId, String deviceId) {
-        String mqttClientId = deviceId +
+    public static String getMqttClientId(String clientId, String magIdentifier) {
+        String mqttClientId = magIdentifier +
                 ConnectaConsts.CLIENT_ID_SEP +
                 clientId;
 

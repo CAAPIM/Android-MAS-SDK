@@ -8,10 +8,12 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.EditText;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.foundation.MASCallback;
@@ -22,7 +24,7 @@ import com.ca.mas.messaging.topic.MASTopic;
 import com.ca.mas.messaging.topic.MASTopicBuilder;
 import com.ca.mas.messaging.util.MessagingConsts;
 
-public class PublishDialogFragment extends DialogFragment implements DialogInterface.OnClickListener{
+public class PublishDialogFragment extends DialogFragment implements DialogInterface.OnClickListener, DialogInterface.OnShowListener{
 
     private static final String TAG = PublishDialogFragment.class.getSimpleName();
 
@@ -33,6 +35,7 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
     TextInputEditText editTextMessage;
     CheckBox checkBoxRetain;
     SelectQosView selectQosView;
+    EmptyFieldTextWatcher emptyFieldTextWatcher;
 
     public static PublishDialogFragment newInstance(){
         return newInstance(null, null);
@@ -63,7 +66,10 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
         checkBoxRetain = (CheckBox) v.findViewById(R.id.fragment_publish_check_box_retain);
         selectQosView = (SelectQosView) v.findViewById(R.id.fragment_publish_select_qos);
         b.setView(v);
-        return b.create();
+        AlertDialog alertDialog = b.create();
+        alertDialog.setOnShowListener(this);
+
+        return alertDialog;
     }
 
     private void setTopicName(String topicName) {
@@ -123,6 +129,15 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
             case DialogInterface.BUTTON_NEGATIVE:
                 break;
         }
+    }
+
+    @Override
+    public void onShow(DialogInterface dialogInterface) {
+        // Disable button on start dialog
+        AlertDialog alertDialog = (AlertDialog) getDialog();
+        alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
+        emptyFieldTextWatcher = new EmptyFieldTextWatcher(new View[]{alertDialog.getButton(DialogInterface.BUTTON_POSITIVE)},
+                new EditText[]{editTextTopic, editTextMessage});
     }
 
     private PubSubActivity getPubSubActivity(){

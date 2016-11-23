@@ -9,6 +9,8 @@ import android.support.v7.widget.AppCompatCheckBox;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ScrollView;
 
 import com.ca.mas.connecta.client.MASConnectOptions;
@@ -30,13 +32,12 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean publicBroker;
     private String host;
+    private EmptyFieldTextWatcher textWatcher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ScrollView scrollView = (ScrollView) findViewById(R.id.activity_main);
-        scrollView.fullScroll(ScrollView.FOCUS_UP);
 
         editTextUri = (TextInputEditText) findViewById(R.id.activity_main_edit_text_host);
         editTextClientId = (TextInputEditText) findViewById(R.id.activity_main_edit_text_client_id);
@@ -49,7 +50,12 @@ public class MainActivity extends AppCompatActivity {
         checkBoxRetain = (AppCompatCheckBox) findViewById(R.id.activity_main_check_box_will_retain);
         selectQosView = (SelectQosView) findViewById(R.id.activity_main_select_qos);
 
+        Button buttonPublicBroker = (Button) findViewById(R.id.activity_main_button_public_broker);
+        textWatcher = new EmptyFieldTextWatcher(new View[]{buttonPublicBroker}, new EditText[]{editTextUri});
         MAS.start(this, true);
+
+        Button buttonMag = (Button) findViewById(R.id.activity_main_button_connect_mag);
+        buttonMag.requestFocus();
     }
 
     public void onClickMag(View v){
@@ -113,10 +119,6 @@ public class MainActivity extends AppCompatActivity {
                 showConnectionErrorMessage(e);
             }
         });
-    }
-
-    public void onClickEnterDetails(View v){
-        editTextUri.setText("tcp://broker.hivemq.com:1883");
     }
 
     private void startPubSubActivity(){

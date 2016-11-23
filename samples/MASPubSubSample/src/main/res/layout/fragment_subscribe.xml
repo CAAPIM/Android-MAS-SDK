@@ -3,7 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="ca.com.maspubsubsample.SubscribeFragment">
+    tools:context="ca.com.maspubsubsample.SubscribeFragment"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    >
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"

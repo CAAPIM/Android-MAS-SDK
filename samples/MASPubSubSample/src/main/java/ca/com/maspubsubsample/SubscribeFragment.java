@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
@@ -30,6 +31,7 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
     TextView textViewMessage;
     Button buttonSubscribe;
     Button buttonUnsubscribe;
+    EmptyFieldTextWatcher emptyFieldTextWatcher;
 
     public SubscribeFragment() {
         // Required empty public constructor
@@ -46,6 +48,9 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
         buttonSubscribe.setOnClickListener(this);
         buttonUnsubscribe = (Button) v.findViewById(R.id.fragment_subscribe_button_unsubscribe);
         buttonUnsubscribe.setOnClickListener(this);
+        emptyFieldTextWatcher = new EmptyFieldTextWatcher(
+                new View[]{buttonSubscribe, buttonUnsubscribe},
+                new EditText[]{editTextTopicName});
         return v;
     }
 
@@ -105,6 +110,8 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
             }
         } catch (MASException e) {
             Log.d(TAG, e.getMessage());
+        } finally {
+            editTextTopicName.setText("");
         }
     }
 

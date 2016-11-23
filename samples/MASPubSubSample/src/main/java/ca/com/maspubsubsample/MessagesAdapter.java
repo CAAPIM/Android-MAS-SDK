@@ -11,12 +11,11 @@ import com.ca.mas.messaging.MASMessage;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 
-public class TopicMessagesAdapter extends RecyclerView.Adapter<TopicMessagesAdapter.ViewHolder> {
+public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> {
     private ArrayList<MASMessage> mDataset;
     private Context context;
 
@@ -36,14 +35,14 @@ public class TopicMessagesAdapter extends RecyclerView.Adapter<TopicMessagesAdap
         }
     }
 
-    public TopicMessagesAdapter(Context context) {
+    public MessagesAdapter(Context context) {
         mDataset = new ArrayList<>();
         this.context = context;
     }
 
     @Override
-    public TopicMessagesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                   int viewType) {
+    public MessagesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                                                         int viewType) {
 
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycler_message_item, parent, false);

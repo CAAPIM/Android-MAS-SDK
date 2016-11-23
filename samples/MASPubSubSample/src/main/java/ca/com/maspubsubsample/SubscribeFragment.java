@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
@@ -32,8 +31,6 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
     Button buttonSubscribe;
     Button buttonUnsubscribe;
 
-    private TopicSubscriptionListener topicSubscriptionListener;
-
     public SubscribeFragment() {
         // Required empty public constructor
     }
@@ -49,8 +46,6 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
         buttonSubscribe.setOnClickListener(this);
         buttonUnsubscribe = (Button) v.findViewById(R.id.fragment_subscribe_button_unsubscribe);
         buttonUnsubscribe.setOnClickListener(this);
-
-        topicSubscriptionListener = (TopicSubscriptionListener) getActivity();
         return v;
     }
 
@@ -60,10 +55,6 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
         int id = view.getId();
         try {
             final String topicName = editTextTopicName.getText().toString();
-            if( topicSubscriptionListener.isSubscribedToTopic(topicName) ){
-                setMessage(getResources().getString(R.string.subscribe_to_topic_message_already_subscribed));
-                return;
-            }
 
             MASTopicBuilder masTopicBuilder = new MASTopicBuilder()
                     .setCustomTopic(topicName)
@@ -87,7 +78,6 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
                         public void onSuccess(Void result) {
                             setMessage(String.format(getResources()
                                     .getString(R.string.subscribe_to_topic_message_success), topicName));
-                            topicSubscriptionListener.onSubscribeToTopic(masTopic.toString(), masTopic);
                         }
 
                         @Override
@@ -103,7 +93,6 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
                         public void onSuccess(Void result) {
                             setMessage(String.format(getResources()
                                     .getString(R.string.unsubscribe_from_topic_message_success), topicName));
-                            topicSubscriptionListener.onUnsubscribeToTopic(masTopic.toString(), masTopic);
                         }
 
                         @Override
@@ -119,8 +108,8 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
         }
     }
 
-    private NewPubSubActivity getPubSubActivity(){
-        return (NewPubSubActivity) getActivity();
+    private PubSubActivity getPubSubActivity(){
+        return (PubSubActivity) getActivity();
     }
 
     private void setMessage(String message){

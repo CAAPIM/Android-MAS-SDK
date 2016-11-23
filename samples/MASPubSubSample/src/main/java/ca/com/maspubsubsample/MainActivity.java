@@ -6,14 +6,10 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatCheckBox;
-import android.support.v7.widget.AppCompatSpinner;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ScrollView;
-import android.widget.Spinner;
 
 import com.ca.mas.connecta.client.MASConnectOptions;
 import com.ca.mas.connecta.client.MASConnectaManager;
@@ -124,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startPubSubActivity(){
-        Intent i = new Intent(MainActivity.this, NewPubSubActivity.class);
+        Intent i = new Intent(MainActivity.this, PubSubActivity.class);
         i.putExtra(INTENT_EXTRA_PUBLIC_BROKER, publicBroker);
         i.putExtra(INTENT_EXTRA_HOST, host);
         startActivity(i);

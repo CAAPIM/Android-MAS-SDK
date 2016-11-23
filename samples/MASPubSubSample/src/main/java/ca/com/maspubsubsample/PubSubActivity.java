@@ -5,18 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -24,25 +17,14 @@ import android.widget.TextView;
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASException;
 import com.ca.mas.messaging.MASMessage;
-import com.ca.mas.messaging.topic.MASTopic;
 
-import java.util.HashMap;
-
-public class PubSubActivity extends NavDrawerActivity
-        implements NavigationView.OnNavigationItemSelectedListener, TopicSubscriptionListener, View.OnClickListener {
-
+public class PubSubActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String TAG = PubSubActivity.class.getSimpleName();
-    private static final String FRAGMENT_SUBSCRIBE = "ca.com.maspubsubsample.SubscribeFragment";
-    private static final String FRAGMENT_MESSAGES = "ca.com.maspubsubsample.MessagesFragment";
 
-    NavigationView navigationView;
-    private HashMap<String, Fragment> fragments;
-    private HashMap<String, Topic> subscribedTopics;
+    private MessagesFragment messagesFragment;
     private boolean publicBroker;
-    private String host;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,31 +33,11 @@ public class PubSubActivity extends NavDrawerActivity
         Intent i = getIntent();
         if( i != null ){
             publicBroker = i.getBooleanExtra(MainActivity.INTENT_EXTRA_PUBLIC_BROKER, false);
-            host = i.getStringExtra(MainActivity.INTENT_EXTRA_HOST);
+            String host = i.getStringExtra(MainActivity.INTENT_EXTRA_HOST);
+            TextView textViewHost = (TextView) findViewById(R.id.activity_pub_sub_text_view_host);
+            textViewHost.setText(host);
         }
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        ( (TextView) navigationView.getHeaderView(0).findViewById(R.id.nav_header_host)).setText(host);
-        (navigationView.getHeaderView(0).findViewById(R.id.nav_header_disconnect)).setOnClickListener(this);
-
-        fragments = new HashMap<>();
-        fragments.put(FRAGMENT_SUBSCRIBE, getSupportFragmentManager().findFragmentById(R.id.content_pub_sub_fragment_subscribe));
-        fragments.put(FRAGMENT_MESSAGES, getSupportFragmentManager().findFragmentById(R.id.content_pub_sub_fragment_messages));
-        hideAllFragments();
-
-        subscribedTopics = new HashMap<>();
-
+        messagesFragment = (MessagesFragment) getSupportFragmentManager().findFragmentById(R.id.activity_pub_sub_fragment_messages);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectaConsts.MAS_CONNECTA_BROADCAST_MESSAGE_ARRIVED);
         LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
@@ -87,85 +49,28 @@ public class PubSubActivity extends NavDrawerActivity
 
                 try {
                     MASMessage message = MASMessage.newInstance(intent);
-                    String topic = message.getTopic();
-                    //TopicFragment topicFragment = subscribedTopics.get(topic).getTopicFragment();
-                    //topicFragment.onMessageReceived(message);
-                    MessagesFragment messagesFragment = (MessagesFragment) fragments.get(FRAGMENT_MESSAGES);
                     messagesFragment.onMessageReceived(message);
                 } catch (MASException e) {
                     Log.d(TAG, e.getMessage());
                 }
-
             }
         }, intentFilter);
+
+        findViewById(R.id.activity_pub_sub_fab).setOnClickListener(this);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.subscribe_to_topic) {
-            showFragment(FRAGMENT_SUBSCRIBE);
-        } else if ( id == R.id.messages) {
-            showFragment(FRAGMENT_MESSAGES);
-        } else {
-            hideAllFragments();
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            for( String topic : subscribedTopics.keySet() ){
-                if( topic.equals(item.getTitle()) ){
-                    fragmentTransaction.show(subscribedTopics.get(topic).getTopicFragment());
-                    break;
-                } else {
-                    fragmentTransaction.hide(subscribedTopics.get(topic).getTopicFragment());
-                }
-            }
-            fragmentTransaction.commit();
-        }
-
-        item.setChecked(true);
-        closeDrawer();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.activity_pub_sub, menu);
         return true;
     }
 
     @Override
-    public void onSubscribeToTopic(String topicName, MASTopic topic) {
-        //subscribedTopics.put(topicName, new Topic(topicName, topic));
-        //final Menu menu = navigationView.getMenu();
-        //MenuItem item = menu.add(R.id.topics_group, Menu.NONE, Menu.NONE, topicName);
-        //item.setCheckable(true);
-    }
-
-    @Override
-    public void onUnsubscribeToTopic(String topicName, MASTopic topic) {
-
-    }
-
-    @Override
-    public boolean isSubscribedToTopic(String topicName) {
-        return subscribedTopics.containsKey(topicName);
-    }
-
-    public boolean isPublicBroker() {
-        return publicBroker;
-    }
-
-    @Override
-    int getDrawerLayoutViewId() {
-        return R.id.drawer_layout;
-    }
-
-    public HashMap<String, Topic> getSubscribedTopics() {
-        return subscribedTopics;
-    }
-
-    @Override
-    public void onClick(View view) {
-        closeDrawer();
-        int id = view.getId();
-        switch (id){
-            case R.id.nav_header_disconnect:
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_disconnect:
                 MASConnectaManager.getInstance().disconnect(new MASCallback<Void>() {
                     @Override
                     public void onSuccess(Void result) {
@@ -176,53 +81,27 @@ public class PubSubActivity extends NavDrawerActivity
 
                     @Override
                     public void onError(Throwable e) {
-                        Util.showSnackbar(PubSubActivity.this, "Failed to disconnect", (CoordinatorLayout) findViewById(R.id.coordinator_layout));
+                        Util.showSnackbar(PubSubActivity.this, "Failed to disconnect");
                     }
                 });
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public boolean isPublicBroker() {
+        return publicBroker;
+    }
+
+    @Override
+    public void onClick(View view) {
+        int id = view.getId();
+        switch (id){
+            case R.id.activity_pub_sub_fab:
+                PublishDialogFragment publishDialogFragment = PublishDialogFragment.newInstance();
+                publishDialogFragment.show(getSupportFragmentManager(), null);
                 break;
-        }
-    }
-
-    private void showFragment(String fragmentKey) {
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction transaction = fm.beginTransaction();
-        for( Fragment fragment : fragments.values() ){
-            transaction.hide(fragment);
-        }
-        transaction.show( fragments.get(fragmentKey) );
-        transaction.commit();
-    }
-
-    private void hideAllFragments(){
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        for( Fragment fragment : fragments.values() ){
-            fragmentTransaction.hide(fragment);
-        }
-        fragmentTransaction.commit();
-    }
-
-    public static class Topic {
-        private String topicName;
-        private MASTopic masTopic;
-        private TopicFragment topicFragment;
-
-        public Topic(String topicName, MASTopic masTopic) {
-            this.topicName = topicName;
-            this.masTopic = masTopic;
-            topicFragment = new TopicFragment();
-            topicFragment.setTopicName(topicName);
-        }
-
-        public String getTopicName() {
-            return topicName;
-        }
-
-        public MASTopic getMasTopic() {
-            return masTopic;
-        }
-
-        public TopicFragment getTopicFragment() {
-            return topicFragment;
         }
     }
 }

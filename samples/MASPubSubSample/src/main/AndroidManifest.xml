@@ -15,11 +15,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".PubSubActivity"
-            android:label="@string/title_activity_pub_sub"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".NewPubSubActivity"
+        <activity android:name=".PubSubActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
     </application>
 

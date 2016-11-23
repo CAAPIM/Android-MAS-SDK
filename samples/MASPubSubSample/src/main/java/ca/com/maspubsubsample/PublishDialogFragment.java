@@ -11,9 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.EditText;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.foundation.MASCallback;
@@ -127,7 +125,7 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
         }
     }
 
-    private NewPubSubActivity getPubSubActivity(){
-        return (NewPubSubActivity) getActivity();
+    private PubSubActivity getPubSubActivity(){
+        return (PubSubActivity) getActivity();
     }
 }

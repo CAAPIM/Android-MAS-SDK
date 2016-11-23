@@ -6,7 +6,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,7 @@ import com.ca.mas.messaging.MASMessage;
 public class MessagesFragment extends Fragment implements View.OnClickListener{
 
     MessagesRecyclerView recyclerView;
-    TopicMessagesAdapter topicMessagesAdapter;
+    MessagesAdapter messagesAdapter;
 
     public MessagesFragment() {
         // Required empty public constructor
@@ -29,8 +28,8 @@ public class MessagesFragment extends Fragment implements View.OnClickListener{
         setRetainInstance(true);
         View v = inflater.inflate(R.layout.fragment_messages, container, false);
         recyclerView = (MessagesRecyclerView) v.findViewById(R.id.fragment_messages_recycler);
-        topicMessagesAdapter = new TopicMessagesAdapter(getContext());
-        recyclerView.setAdapter(topicMessagesAdapter);
+        messagesAdapter = new MessagesAdapter(getContext());
+        recyclerView.setAdapter(messagesAdapter);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), linearLayoutManager.getOrientation()));
@@ -52,6 +51,6 @@ public class MessagesFragment extends Fragment implements View.OnClickListener{
     }
 
     public void onMessageReceived(MASMessage masMessage){
-        topicMessagesAdapter.addMessage(masMessage);
+        messagesAdapter.addMessage(masMessage);
     }
 }

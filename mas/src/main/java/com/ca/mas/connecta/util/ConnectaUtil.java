@@ -39,10 +39,13 @@ public class ConnectaUtil extends FoundationUtil {
      *
      * @return the formatted clientId
      */
-    public static String getMqttClientId(String clientId, String magIdentifier) {
-        String mqttClientId = magIdentifier +
-                ConnectaConsts.CLIENT_ID_SEP +
-                clientId;
+    public static String getMqttClientId(String clientId, String magIdentifier, boolean isGateway) {
+        String mqttClientId = "";
+        if( isGateway ){
+            mqttClientId += magIdentifier + ConnectaConsts.CLIENT_ID_SEP;
+        }
+
+        mqttClientId += clientId;
 
         if( MASUser.getCurrentUser() != null ){
             // If user is logged in, get username to put in clientId

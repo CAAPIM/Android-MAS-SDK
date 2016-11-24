@@ -28,25 +28,11 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
 
     private static final String TAG = PublishDialogFragment.class.getSimpleName();
 
-    private String topicName;
-    private MASTopic masTopic;
-
     TextInputEditText editTextTopic;
     TextInputEditText editTextMessage;
     CheckBox checkBoxRetain;
     SelectQosView selectQosView;
     EmptyFieldTextWatcher emptyFieldTextWatcher;
-
-    public static PublishDialogFragment newInstance(){
-        return newInstance(null, null);
-    }
-
-    public static PublishDialogFragment newInstance(String topicName, MASTopic masTopic){
-        PublishDialogFragment publishDialogFragment = new PublishDialogFragment();
-        publishDialogFragment.setTopicName(topicName);
-        publishDialogFragment.setMasTopic(masTopic);
-        return publishDialogFragment;
-    }
 
     @NonNull
     @Override
@@ -59,9 +45,6 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
 
         View v = i.inflate(R.layout.fragment_publish_dialog, null);
         editTextTopic = (TextInputEditText) v.findViewById(R.id.fragment_publish_edit_text_topic);
-        if( topicName != null ){
-            editTextTopic.setText(topicName);
-        }
         editTextMessage = (TextInputEditText) v.findViewById(R.id.fragment_publish_edit_text_message);
         checkBoxRetain = (CheckBox) v.findViewById(R.id.fragment_publish_check_box_retain);
         selectQosView = (SelectQosView) v.findViewById(R.id.fragment_publish_select_qos);
@@ -70,14 +53,6 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
         alertDialog.setOnShowListener(this);
 
         return alertDialog;
-    }
-
-    private void setTopicName(String topicName) {
-        this.topicName = topicName;
-    }
-
-    private void setMasTopic(MASTopic masTopic) {
-        this.masTopic = masTopic;
     }
 
     @Override
@@ -90,41 +65,39 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
                 Integer qos = selectQosView.getSelectedQos();
 
                 try {
-                    if( masTopic == null ){
-                        MASTopicBuilder masTopicBuilder = new MASTopicBuilder()
-                                .setCustomTopic(topic)
-                                .setQos(qos);
-                        if( MASUser.getCurrentUser() != null ){
-                            masTopicBuilder.setUserId(MASUser.getCurrentUser().getId());
-                        }
-                        if( getPubSubActivity().isPublicBroker() ){
-                            masTopicBuilder.enforceTopicStructure(false);
+                    MASTopicBuilder masTopicBuilder = new MASTopicBuilder()
+                            .setCustomTopic(topic)
+                            .setQos(qos);
+                    if (MASUser.getCurrentUser() != null) {
+                        masTopicBuilder.setUserId(MASUser.getCurrentUser().getId());
+                    }
+                    if (getPubSubActivity().isPublicBroker()) {
+                        masTopicBuilder.enforceTopicStructure(false);
+                    }
+                    MASTopic masTopic = masTopicBuilder.build();
+
+                    MASMessage masMessage = MASMessage.newInstance();
+                    masMessage.setTopic(masTopic.toString());
+                    masMessage.setContentType(MessagingConsts.MT_TEXT_PLAIN);
+                    masMessage.setPayload(message.getBytes());
+                    masMessage.setQos(qos);
+                    masMessage.setRetained(retain);
+
+                    MASConnectaManager.getInstance().publish(masTopic, masMessage, new MASCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            Log.i(TAG, "Published message");
                         }
 
-                        masTopic = masTopicBuilder.build();
-                    }
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.d(TAG, "Failed to publish message: " + e.getMessage());
+                        }
+                    });
                 } catch (MASException e) {
                     Log.d(TAG, "Failed to build topic: " + e.getMessage());
                 }
 
-                MASMessage masMessage = MASMessage.newInstance();
-                masMessage.setTopic(masTopic.toString());
-                masMessage.setContentType(MessagingConsts.MT_TEXT_PLAIN);
-                masMessage.setPayload(message.getBytes());
-                masMessage.setQos(qos);
-                masMessage.setRetained(retain);
-
-                MASConnectaManager.getInstance().publish(masTopic, masMessage, new MASCallback<Void>() {
-                    @Override
-                    public void onSuccess(Void result) {
-                        Log.i(TAG, "Published message");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.d(TAG, "Failed to publish message: " + e.getMessage());
-                    }
-                });
                 break;
             case DialogInterface.BUTTON_NEGATIVE:
                 break;

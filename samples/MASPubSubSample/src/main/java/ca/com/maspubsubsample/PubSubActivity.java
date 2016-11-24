@@ -99,7 +99,7 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
         int id = view.getId();
         switch (id){
             case R.id.activity_pub_sub_fab:
-                PublishDialogFragment publishDialogFragment = PublishDialogFragment.newInstance();
+                PublishDialogFragment publishDialogFragment = new PublishDialogFragment();
                 publishDialogFragment.show(getSupportFragmentManager(), null);
                 break;
         }

@@ -73,8 +73,6 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
 
             final MASTopic masTopic = masTopicBuilder.build();
 
-
-
             MASConnectaManager masConnectaManager = MASConnectaManager.getInstance();
             switch (id){
                 case R.id.fragment_subscribe_button_subscribe:

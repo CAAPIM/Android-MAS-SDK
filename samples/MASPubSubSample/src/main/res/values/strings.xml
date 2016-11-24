@@ -19,7 +19,7 @@
     <string name="nav_drawer_subscribe_to_topic">Add Subscription</string>
     <string name="subscribe_to_topic_edit_text_topic_name">Topic name</string>
 
-    <string name="subscribe_to_topic_message_success">Subscribed to topic %s</string>
+    <string name="subscribe_to_topic_message_success">Last subscribed to topic %s</string>
     <string name="subscribe_to_topic_message_error">Failed to subscribe: %s</string>
     <string name="subscribe_to_topic_message_already_subscribed">Already subscribed</string>
     <string name="unsubscribe_from_topic_message_success">Unsubscribed from topic %s</string>

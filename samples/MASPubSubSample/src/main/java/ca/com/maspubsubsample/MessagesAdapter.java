@@ -71,8 +71,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     }
 
     public void addMessage(MASMessage masMessage){
-        mDataset.add(masMessage);
-        notifyItemInserted(mDataset.size()-1);
+        mDataset.add(0, masMessage);
+        notifyItemInserted(0);
     }
 }
 

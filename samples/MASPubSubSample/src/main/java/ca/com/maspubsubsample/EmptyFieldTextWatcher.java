@@ -37,7 +37,7 @@ public class EmptyFieldTextWatcher {
                 String s;
                 for( EditText editText : EmptyFieldTextWatcher.this.editTexts ){
                     s = editText.getText().toString();
-                    if(TextUtils.isEmpty(s)){
+                    if(TextUtils.isEmpty(s.trim())){
                         disableViews();
                         return;
                     }

@@ -1,7 +1,6 @@
 package ca.com.maspubsubsample;
 
 import android.app.Activity;
-import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.view.View;

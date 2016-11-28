@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
@@ -29,6 +30,7 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
     TextInputEditText editTextTopicName;
     SelectQosView selectQosView;
     TextView textViewMessage;
+    ProgressBar progressBar;
     Button buttonSubscribe;
     Button buttonUnsubscribe;
     EmptyFieldTextWatcher emptyFieldTextWatcher;
@@ -44,6 +46,7 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
         editTextTopicName = (TextInputEditText) v.findViewById(R.id.fragment_subscribe_edit_text_topic_name);
         selectQosView = (SelectQosView) v.findViewById(R.id.fragment_subscribe_select_qos);
         textViewMessage = (TextView) v.findViewById(R.id.fragment_subscribe_text_view_message);
+        progressBar = (ProgressBar) v.findViewById(R.id.fragment_subscribe_progress_bar);
         buttonSubscribe = (Button) v.findViewById(R.id.fragment_subscribe_button_subscribe);
         buttonSubscribe.setOnClickListener(this);
         buttonUnsubscribe = (Button) v.findViewById(R.id.fragment_subscribe_button_unsubscribe);
@@ -56,7 +59,8 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
 
     @Override
     public void onClick(View view) {
-        Util.hideKeyboard(getActivity());
+        textViewMessage.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
         int id = view.getId();
         try {
             final String topicName = editTextTopicName.getText().toString();
@@ -109,6 +113,7 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
         } catch (MASException e) {
             Log.d(TAG, e.getMessage());
         } finally {
+            Util.hideKeyboard(getActivity());
             editTextTopicName.setText("");
         }
     }
@@ -117,7 +122,14 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
         return (PubSubActivity) getActivity();
     }
 
-    private void setMessage(String message){
-        textViewMessage.setText(message);
+    private void setMessage(final String message){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                textViewMessage.setText(message);
+                progressBar.setVisibility(View.GONE);
+                textViewMessage.setVisibility(View.VISIBLE);
+            }
+        });
     }
 }

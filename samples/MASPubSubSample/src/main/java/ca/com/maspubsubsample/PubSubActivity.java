@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
@@ -25,6 +26,8 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
 
     private MessagesFragment messagesFragment;
     private boolean publicBroker;
+    View mainView;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,8 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
             TextView textViewHost = (TextView) findViewById(R.id.activity_pub_sub_text_view_host);
             textViewHost.setText(host);
         }
+        mainView = findViewById(R.id.activity_pub_sub_main_view);
+        progressBar = (ProgressBar) findViewById(R.id.activity_pub_sub_progress_bar);
         messagesFragment = (MessagesFragment) getSupportFragmentManager().findFragmentById(R.id.activity_pub_sub_fragment_messages);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectaConsts.MAS_CONNECTA_BROADCAST_MESSAGE_ARRIVED);
@@ -71,6 +76,7 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_disconnect:
+                showProgress();
                 MASConnectaManager.getInstance().disconnect(new MASCallback<Void>() {
                     @Override
                     public void onSuccess(Void result) {
@@ -81,6 +87,7 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
 
                     @Override
                     public void onError(Throwable e) {
+                        hideProgress();
                         Util.showSnackbar(PubSubActivity.this, "Failed to disconnect");
                     }
                 });
@@ -88,6 +95,28 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void showProgress(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mainView.setVisibility(View.GONE);
+                progressBar.setVisibility(View.VISIBLE);
+
+            }
+        });
+    }
+
+    private void hideProgress(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.GONE);
+                mainView.setVisibility(View.VISIBLE);
+
+            }
+        });
     }
 
     public boolean isPublicBroker() {

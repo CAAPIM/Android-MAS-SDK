@@ -44,11 +44,29 @@
             android:text="@string/fragment_subscribe_button_unsubscribe" />
     </LinearLayout>
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/fragment_subscribe_text_view_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="" />
+        <TextView
+            android:id="@+id/fragment_subscribe_text_view_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            />
+
+        <android.support.v4.widget.ContentLoadingProgressBar
+            android:id="@+id/fragment_subscribe_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"
+            />
+
+
+    </FrameLayout>
+
+
 
 </LinearLayout>

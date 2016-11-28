@@ -11,7 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ScrollView;
+import android.widget.ProgressBar;
 
 import com.ca.mas.connecta.client.MASConnectOptions;
 import com.ca.mas.connecta.client.MASConnectaManager;
@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
             editTextWillTopic, editTextWillMessage;
     SelectQosView selectQosView;
     AppCompatCheckBox checkBoxRetain, checkBoxCleanSession;
+    View mainView;
+    ProgressBar progressBar;
 
     private boolean publicBroker;
     private String host;
@@ -39,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mainView = findViewById(R.id.activity_main);
+        progressBar = (ProgressBar) findViewById(R.id.activity_main_progress_bar);
         editTextUri = (TextInputEditText) findViewById(R.id.activity_main_edit_text_host);
         editTextClientId = (TextInputEditText) findViewById(R.id.activity_main_edit_text_client_id);
         editTextKeepAlive = (TextInputEditText) findViewById(R.id.activity_main_edit_text_keep_alive);
@@ -59,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickMag(View v){
+        showProgress();
         publicBroker = false;
         host = MASConfiguration.getCurrentConfiguration().getGatewayUrl().toString();
         MASConnectaManager.getInstance().connect(new MASCallback<Void>() {
@@ -71,12 +76,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onError(Throwable e) {
                 Log.d(TAG, "Failed to connect: " + e.getMessage());
+                hideProgress();
                 showConnectionErrorMessage(e);
             }
         });
     }
 
     public void onClickPublicBroker(View v){
+        showProgress();
         publicBroker = true;
         host = editTextUri.getText().toString();
         Integer keepAlive = Integer.parseInt((editTextKeepAlive).getText().toString());
@@ -102,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.d(TAG, e.getMessage());
             showConnectionErrorMessage(e);
+            hideProgress();
             return;
         }
 
@@ -116,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onError(Throwable e) {
                 Log.d(TAG, "Failed to connect: " + e.getMessage());
+                hideProgress();
                 showConnectionErrorMessage(e);
             }
         });
@@ -129,14 +138,42 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
+    private void showProgress(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mainView.setVisibility(View.GONE);
+                progressBar.setVisibility(View.VISIBLE);
+
+            }
+        });
+    }
+
+    private void hideProgress(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.GONE);
+                mainView.setVisibility(View.VISIBLE);
+
+            }
+        });
+    }
+
     private void showConnectionErrorMessage(Throwable e){
         showConnectionErrorMessage(e.getMessage());
     }
 
-    private void showConnectionErrorMessage(String errorMessage){
-        new AlertDialog.Builder(MainActivity.this)
-                .setTitle("Failed to connect")
-                .setMessage(errorMessage)
-                .show();
+    private void showConnectionErrorMessage(final String errorMessage){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Failed to connect")
+                        .setMessage(errorMessage)
+                        .show();
+
+            }
+        });
     }
 }

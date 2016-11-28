@@ -12,6 +12,7 @@
     tools:context="ca.com.maspubsubsample.PubSubActivity">
 
     <LinearLayout
+        android:id="@+id/activity_pub_sub_main_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -37,6 +38,15 @@
             android:layout_height="match_parent"
             tools:layout="@layout/fragment_messages" />
     </LinearLayout>
+
+    <android.support.v4.widget.ContentLoadingProgressBar
+        android:id="@+id/activity_pub_sub_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/activity_pub_sub_fab"

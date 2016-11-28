@@ -30,9 +30,11 @@ import com.ca.mas.foundation.util.FoundationUtil;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
 
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -68,7 +70,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
     /**
      * <p><b>mMqttClient</b> is the only instance variable the references the Mqtt implementation library.</p>
      */
-    private MqttClient mMqttClient;
+    private MqttAsyncClient mMqttClient;
     private long mTimeOutInMillis;
     private MASConnectOptions mConnectOptions;
     private MessageBroadcaster mMessageBroadcaster;
@@ -118,17 +120,23 @@ public class ConnectaService extends Service implements MASConnectaClient {
                     try {
                         if (DEBUG) Log.d(TAG, "CONNECTA: onSuccess()");
                         initMqttClient((String) result.get(StateRequest.MAG_IDENTIFIER));
-                        mMqttClient.connect((MqttConnectOptions) result.get(MASConnectOptions.class.getName()));
-                        if (!mMqttClient.isConnected()) {
-                            Callback.onError(callback, new ConnectaException("Not connected to message broker!"));
-                            return;
-                        } else {
-                            //Once reconnected, re-subscribe the topic
-                            for (MASTopic topic: subscribedTopic) {
-                                subscribe(topic, null);
+                        MqttConnectOptions mqttConnectOptions = (MqttConnectOptions) result.get(MASConnectOptions.class.getName());
+                        mMqttClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
+                            @Override
+                            public void onSuccess(IMqttToken iMqttToken) {
+                                //Once reconnected, re-subscribe the topic
+                                for (MASTopic topic: subscribedTopic) {
+                                    subscribe(topic, null);
+                                }
+
+                                Callback.onSuccess(callback, null);
                             }
-                        }
-                        Callback.onSuccess(callback, null);
+
+                            @Override
+                            public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                                Callback.onError(callback, new ConnectaException("Not connected to message broker!"));
+                            }
+                        });
                     } catch (Exception e) {
                         if (DEBUG) Log.e(TAG, e.getMessage());
                         Callback.onError(callback, e);
@@ -152,12 +160,17 @@ public class ConnectaService extends Service implements MASConnectaClient {
                 mConnectOptions.setConnectionTimeout(ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(this), mTimeOutInMillis).getConnectionTimeout());
                 if (DEBUG) Log.d(TAG, "CONNECTA: onSuccess()");
                 initMqttClient();
-                mMqttClient.connect(mConnectOptions);
-                if (!mMqttClient.isConnected()) {
-                    Callback.onError(callback, new ConnectaException("Not connected to message broker!"));
-                    return;
-                }
-                Callback.onSuccess(callback, null);
+                mMqttClient.connect(mConnectOptions, null, new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken iMqttToken) {
+                        Callback.onSuccess(callback, null);
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                        Callback.onError(callback, new ConnectaException("Not connected to message broker!"));
+                    }
+                });
             }
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, e.getMessage(), e);
@@ -185,7 +198,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
         if (this.clientId == null || brokerUrl.contains(FoundationUtil.getHost())) {
             // Client ID was not set, or if connecting to the gateway, generate a client id
             this.clientId = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getClientId();
-            brokerClientId = ConnectaUtil.getMqttClientId(clientId, magIdentifier);
+            brokerClientId = ConnectaUtil.getMqttClientId(clientId, magIdentifier, mConnectOptions.isGateway());
         } else {
             // Client ID was set, use it
             brokerClientId = this.clientId;
@@ -195,7 +208,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
 
         final MemoryPersistence memoryPersistence = new MemoryPersistence();
 
-        mMqttClient = new MqttClient(brokerUrl, brokerClientId, memoryPersistence);
+        mMqttClient = new MqttAsyncClient(brokerUrl, brokerClientId, memoryPersistence);
         mMqttClient.setCallback(
                 new MqttCallback() {
                     @Override
@@ -248,14 +261,23 @@ public class ConnectaService extends Service implements MASConnectaClient {
     }
 
     @Override
-    public void disconnect(MASCallback<Void> callback) {
+    public void disconnect(final MASCallback<Void> callback) {
         subscribedTopic.clear();
         if (isConnected()) {
             if (DEBUG) Log.d(TAG, "MQTT Client Disconnected.");
             try {
-                mMqttClient.disconnect();
-                mConnectOptions = null;
-                Callback.onSuccess(callback, null);
+                mMqttClient.disconnect(null, new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken iMqttToken) {
+                        mConnectOptions = null;
+                        Callback.onSuccess(callback, null);
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                        Callback.onError(callback, throwable);
+                    }
+                });
             } catch (Exception e) {
                 Callback.onError(callback, e);
             }
@@ -265,14 +287,23 @@ public class ConnectaService extends Service implements MASConnectaClient {
     }
 
     @Override
-    public void subscribe(@NonNull MASTopic masTopic, MASCallback<Void> callback) {
+    public void subscribe(@NonNull final MASTopic masTopic, final MASCallback<Void> callback) {
         if (isConnected()) {
             try {
-                mMqttClient.subscribe(masTopic.toString(), masTopic.getQos());
-                if (!subscribedTopic.contains(masTopic)) {
-                    subscribedTopic.add(masTopic);
-                }
-                Callback.onSuccess(callback, null);
+                mMqttClient.subscribe(masTopic.toString(), masTopic.getQos(), null, new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken iMqttToken) {
+                        if (!subscribedTopic.contains(masTopic)) {
+                            subscribedTopic.add(masTopic);
+                        }
+                        Callback.onSuccess(callback, null);
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                        Callback.onError(callback, throwable);
+                    }
+                });
             } catch (Exception e) {
                 Callback.onError(callback, e);
             }
@@ -282,12 +313,21 @@ public class ConnectaService extends Service implements MASConnectaClient {
     }
 
     @Override
-    public void unsubscribe(@NonNull MASTopic topic, MASCallback<Void> callback) {
+    public void unsubscribe(@NonNull final MASTopic topic, final MASCallback<Void> callback) {
         if (isConnected()) {
             try {
-                mMqttClient.unsubscribe(topic.toString());
-                subscribedTopic.remove(topic);
-                Callback.onSuccess(callback, null);
+                mMqttClient.unsubscribe(topic.toString(), null, new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken iMqttToken) {
+                        subscribedTopic.remove(topic);
+                        Callback.onSuccess(callback, null);
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                        Callback.onError(callback, throwable);
+                    }
+                });
             } catch (Exception e) {
                 Callback.onError(callback, e);
             }
@@ -317,11 +357,20 @@ public class ConnectaService extends Service implements MASConnectaClient {
         publish(topic, mqttMessage, callback);
     }
 
-    private void publish(@NonNull MASTopic topic, @NonNull MqttMessage mqttMessage, MASCallback<Void> callback) {
+    private void publish(@NonNull MASTopic topic, @NonNull MqttMessage mqttMessage, final MASCallback<Void> callback) {
         if (isConnected()) {
             try {
-                mMqttClient.publish(topic.toString(), mqttMessage);
-                Callback.onSuccess(callback, null);
+                mMqttClient.publish(topic.toString(), mqttMessage, null, new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken iMqttToken) {
+                        Callback.onSuccess(callback, null);
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                        Callback.onError(callback, throwable);
+                    }
+                });
             } catch (Exception e) {
                 Callback.onError(callback, e);
             }

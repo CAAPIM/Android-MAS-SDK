@@ -37,11 +37,10 @@ public class MASConnectaPublicBrokerTests {
             MASConnectaManager.getInstance().start(ctx);
 
             MASConnectOptions connectOptions = new MASConnectOptions();
-            connectOptions.setServerURIs(new String[]{"tcp://mosquitto.org:1883"});
+            connectOptions.setServerURIs(new String[]{"tcp://mobile-autotest-services.l7tech.com:1883"});
 
             MASConnectaManager masConnectaManager = MASConnectaManager.getInstance();
             masConnectaManager.setConnectOptions(connectOptions);
-            masConnectaManager.setClientId("clientIadf78asdf8dsf8sda7f8sdaf87s8f7dd");
             masConnectaManager.connect(new MASCallback<Void>() {
                 @Override
                 public void onSuccess(Void object) {

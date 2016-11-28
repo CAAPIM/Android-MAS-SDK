@@ -178,7 +178,7 @@ public abstract class MASMessage implements MASPayload {
                         mSenderType = mSenderType.toUpperCase();
                     }
                     mDisplayName = jobj.optString(ConnectaConsts.KEY_DISPLAY_NAME);
-                    mSentTime = jobj.getInt(ConnectaConsts.KEY_SENT_TIME);
+                    mSentTime = jobj.getLong(ConnectaConsts.KEY_SENT_TIME);
                     mContentType = jobj.optString(ConnectaConsts.KEY_CONTENT_TYPE);
                     mContentEncoding = jobj.optString(ConnectaConsts.KEY_CONTENT_ENCODING, FoundationConsts.ENC_UTF8);
                     String payloadBefore = jobj.optString(ConnectaConsts.KEY_PAYLOAD, FoundationConsts.EMPTY);

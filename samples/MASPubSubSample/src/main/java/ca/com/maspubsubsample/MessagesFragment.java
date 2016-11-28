@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 
 import com.ca.mas.messaging.MASMessage;
 
-public class MessagesFragment extends Fragment implements View.OnClickListener{
+public class MessagesFragment extends Fragment implements View.OnClickListener {
 
     MessagesRecyclerView recyclerView;
     MessagesAdapter messagesAdapter;
@@ -42,7 +42,7 @@ public class MessagesFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View view) {
         int id = view.getId();
-        switch (id){
+        switch (id) {
             case R.id.fragment_messages_fab:
                 PublishDialogFragment publishDialogFragment = new PublishDialogFragment();
                 publishDialogFragment.show(getActivity().getSupportFragmentManager(), null);
@@ -50,7 +50,7 @@ public class MessagesFragment extends Fragment implements View.OnClickListener{
         }
     }
 
-    public void onMessageReceived(MASMessage masMessage){
+    public void onMessageReceived(MASMessage masMessage) {
         messagesAdapter.addMessage(masMessage);
     }
 }

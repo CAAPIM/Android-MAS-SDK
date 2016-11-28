@@ -18,6 +18,9 @@ import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConfiguration;
+import com.ca.mas.foundation.MASConnectionListener;
+
+import java.net.HttpURLConnection;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -57,12 +60,23 @@ public class MainActivity extends AppCompatActivity {
         Button buttonPublicBroker = (Button) findViewById(R.id.activity_main_button_public_broker);
         textWatcher = new EmptyFieldTextWatcher(new View[]{buttonPublicBroker}, new EditText[]{editTextUri});
         MAS.start(this, true);
+        MAS.setConnectionListener(new MASConnectionListener() {
+            @Override
+            public void onObtained(HttpURLConnection connection) {
+                connection.setReadTimeout(5000);
+            }
+
+            @Override
+            public void onConnected(HttpURLConnection connection) {
+
+            }
+        });
 
         Button buttonMag = (Button) findViewById(R.id.activity_main_button_connect_mag);
         buttonMag.requestFocus();
     }
 
-    public void onClickMag(View v){
+    public void onClickMag(View v) {
         showProgress();
         publicBroker = false;
         host = MASConfiguration.getCurrentConfiguration().getGatewayUrl().toString();
@@ -82,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void onClickPublicBroker(View v){
+    public void onClickPublicBroker(View v) {
         showProgress();
         publicBroker = true;
         host = editTextUri.getText().toString();
@@ -97,10 +111,11 @@ public class MainActivity extends AppCompatActivity {
         boolean willRetained = checkBoxRetain.isChecked();
 
         MASConnectOptions masConnectOptions = new MASConnectOptions();
-        if( !TextUtils.isEmpty(username) ) masConnectOptions.setUserName(username);
-        if( !TextUtils.isEmpty(password) ) masConnectOptions.setUserName(password);
-        if( !TextUtils.isEmpty(clientId) ) masConnectOptions.setUserName(clientId);
-        if( !TextUtils.isEmpty(willTopic) && !TextUtils.isEmpty(willMessage)) masConnectOptions.setWill(willTopic, willMessage.getBytes(), willQos, willRetained);
+        if (!TextUtils.isEmpty(username)) masConnectOptions.setUserName(username);
+        if (!TextUtils.isEmpty(password)) masConnectOptions.setUserName(password);
+        if (!TextUtils.isEmpty(clientId)) masConnectOptions.setUserName(clientId);
+        if (!TextUtils.isEmpty(willTopic) && !TextUtils.isEmpty(willMessage))
+            masConnectOptions.setWill(willTopic, willMessage.getBytes(), willQos, willRetained);
         masConnectOptions.setCleanSession(cleanSession);
         masConnectOptions.setKeepAliveInterval(keepAlive);
 
@@ -130,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void startPubSubActivity(){
+    private void startPubSubActivity() {
         Intent i = new Intent(MainActivity.this, PubSubActivity.class);
         i.putExtra(INTENT_EXTRA_PUBLIC_BROKER, publicBroker);
         i.putExtra(INTENT_EXTRA_HOST, host);
@@ -138,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    private void showProgress(){
+    private void showProgress() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -149,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void hideProgress(){
+    private void hideProgress() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -160,11 +175,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void showConnectionErrorMessage(Throwable e){
+    private void showConnectionErrorMessage(Throwable e) {
         showConnectionErrorMessage(e.getMessage());
     }
 
-    private void showConnectionErrorMessage(final String errorMessage){
+    private void showConnectionErrorMessage(final String errorMessage) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

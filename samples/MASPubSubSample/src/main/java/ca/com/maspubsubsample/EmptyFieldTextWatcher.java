@@ -35,9 +35,9 @@ public class EmptyFieldTextWatcher {
             @Override
             public void afterTextChanged(Editable editable) {
                 String s;
-                for( EditText editText : EmptyFieldTextWatcher.this.editTexts ){
+                for (EditText editText : EmptyFieldTextWatcher.this.editTexts) {
                     s = editText.getText().toString();
-                    if(TextUtils.isEmpty(s.trim())){
+                    if (TextUtils.isEmpty(s.trim())) {
                         disableViews();
                         return;
                     }
@@ -50,29 +50,29 @@ public class EmptyFieldTextWatcher {
         disableViews();
     }
 
-    private void setViewsToDisable(View... disableViews){
-        for( View v : disableViews ){
+    private void setViewsToDisable(View... disableViews) {
+        for (View v : disableViews) {
             viewsToDisable.add(v);
         }
     }
 
-    private void setEditTexts( EditText... editTexts ){
-        for( EditText editText : editTexts){
+    private void setEditTexts(EditText... editTexts) {
+        for (EditText editText : editTexts) {
             this.editTexts.add(editText);
             editText.addTextChangedListener(textWatcher);
         }
     }
 
-    private void disableViews(){
+    private void disableViews() {
         setViewsEnabled(false);
     }
 
-    private void enableViews(){
+    private void enableViews() {
         setViewsEnabled(true);
     }
 
-    private void setViewsEnabled(boolean enable){
-        for( View v : viewsToDisable ){
+    private void setViewsEnabled(boolean enable) {
+        for (View v : viewsToDisable) {
             v.setEnabled(enable);
         }
     }

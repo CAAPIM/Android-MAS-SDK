@@ -9,13 +9,13 @@ import android.view.inputmethod.InputMethodManager;
 
 public class Util {
 
-    public static void showSnackbar(Context context, String message){
-        showSnackbar(context, message, null);
+    public static void showSnackbar(String message) {
+        showSnackbar(message, null);
     }
 
-    public static void showSnackbar(Context context, String message, CoordinatorLayout coordinatorLayout){
+    public static void showSnackbar(String message, CoordinatorLayout coordinatorLayout) {
         Snackbar snackbar = Snackbar
-                .make(coordinatorLayout, "Welcome to AndroidHive", Snackbar.LENGTH_SHORT);
+                .make(coordinatorLayout, message, Snackbar.LENGTH_SHORT);
         snackbar.show();
     }
 

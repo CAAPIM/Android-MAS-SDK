@@ -35,7 +35,6 @@ public class SelectQosView extends LinearLayout {
         addView(textView);
 
 
-
         spinner = new AppCompatSpinner(getContext());
         spinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.qos_spinner_item,
                 getResources().getStringArray(R.array.qos_options)));
@@ -44,7 +43,7 @@ public class SelectQosView extends LinearLayout {
         addView(spinner);
     }
 
-    public Integer getSelectedQos(){
-        return Integer.parseInt( (String) spinner.getSelectedItem());
+    public Integer getSelectedQos() {
+        return Integer.parseInt((String) spinner.getSelectedItem());
     }
 }

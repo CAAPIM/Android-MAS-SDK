@@ -21,7 +21,7 @@ import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASException;
 import com.ca.mas.messaging.MASMessage;
 
-public class PubSubActivity extends AppCompatActivity implements View.OnClickListener{
+public class PubSubActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = PubSubActivity.class.getSimpleName();
 
     private MessagesFragment messagesFragment;
@@ -34,7 +34,7 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pub_sub);
         Intent i = getIntent();
-        if( i != null ){
+        if (i != null) {
             publicBroker = i.getBooleanExtra(MainActivity.INTENT_EXTRA_PUBLIC_BROKER, false);
             String host = i.getStringExtra(MainActivity.INTENT_EXTRA_HOST);
             TextView textViewHost = (TextView) findViewById(R.id.activity_pub_sub_text_view_host);
@@ -88,7 +88,7 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onError(Throwable e) {
                         hideProgress();
-                        Util.showSnackbar(PubSubActivity.this, "Failed to disconnect");
+                        Util.showSnackbar("Failed to disconnect");
                     }
                 });
                 return true;
@@ -97,7 +97,7 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void showProgress(){
+    private void showProgress() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -108,7 +108,7 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
         });
     }
 
-    private void hideProgress(){
+    private void hideProgress() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -126,7 +126,7 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View view) {
         int id = view.getId();
-        switch (id){
+        switch (id) {
             case R.id.activity_pub_sub_fab:
                 PublishDialogFragment publishDialogFragment = new PublishDialogFragment();
                 publishDialogFragment.show(getSupportFragmentManager(), null);

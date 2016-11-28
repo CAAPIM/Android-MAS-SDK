@@ -20,10 +20,6 @@ import com.ca.mas.foundation.MASUser;
 import com.ca.mas.messaging.topic.MASTopic;
 import com.ca.mas.messaging.topic.MASTopicBuilder;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class SubscribeFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = SubscribeFragment.class.getSimpleName();
 
@@ -68,17 +64,17 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
             MASTopicBuilder masTopicBuilder = new MASTopicBuilder()
                     .setCustomTopic(topicName)
                     .setQos(selectQosView.getSelectedQos());
-            if( MASUser.getCurrentUser() != null ){
+            if (MASUser.getCurrentUser() != null) {
                 masTopicBuilder.setUserId(MASUser.getCurrentUser().getId());
             }
-            if( getPubSubActivity().isPublicBroker() ){
+            if (getPubSubActivity().isPublicBroker()) {
                 masTopicBuilder.enforceTopicStructure(false);
             }
 
             final MASTopic masTopic = masTopicBuilder.build();
 
             MASConnectaManager masConnectaManager = MASConnectaManager.getInstance();
-            switch (id){
+            switch (id) {
                 case R.id.fragment_subscribe_button_subscribe:
                     masConnectaManager.subscribe(masTopic, new MASCallback<Void>() {
                         @Override
@@ -118,11 +114,11 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
         }
     }
 
-    private PubSubActivity getPubSubActivity(){
+    private PubSubActivity getPubSubActivity() {
         return (PubSubActivity) getActivity();
     }
 
-    private void setMessage(final String message){
+    private void setMessage(final String message) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

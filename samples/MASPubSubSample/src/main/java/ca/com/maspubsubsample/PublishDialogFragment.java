@@ -24,7 +24,7 @@ import com.ca.mas.messaging.topic.MASTopic;
 import com.ca.mas.messaging.topic.MASTopicBuilder;
 import com.ca.mas.messaging.util.MessagingConsts;
 
-public class PublishDialogFragment extends DialogFragment implements DialogInterface.OnClickListener, DialogInterface.OnShowListener{
+public class PublishDialogFragment extends DialogFragment implements DialogInterface.OnClickListener, DialogInterface.OnShowListener {
 
     private static final String TAG = PublishDialogFragment.class.getSimpleName();
 
@@ -37,7 +37,7 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder b=  new  AlertDialog.Builder(getActivity())
+        AlertDialog.Builder b = new AlertDialog.Builder(getActivity())
                 .setPositiveButton("Publish", this)
                 .setNegativeButton("Cancel", this);
 
@@ -113,7 +113,7 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
                 new EditText[]{editTextTopic, editTextMessage});
     }
 
-    private PubSubActivity getPubSubActivity(){
+    private PubSubActivity getPubSubActivity() {
         return (PubSubActivity) getActivity();
     }
 }

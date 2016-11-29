@@ -1,0 +1,57 @@
+<resources>
+    <string name="app_name">Pub/Sub</string>
+    <string name="button_connect_to_mag">Connect to MAG</string>
+    <string name="connection_divider_text">OR</string>
+    <string name="connection_custom_connection_title">Connect to public broker</string>
+    <string name="connection_custom_connection_hint_hostname">tcp://mybroker.com:1883</string>
+    <string name="connection_custom_connection_keep_alive_interval">Keep alive (seconds)</string>
+    <string name="connection_custom_connection_keep_alive_interval_default_value">60</string>
+    <string name="connection_custom_connection_clean_session">Clean Session</string>
+    <string name="connection_custom_connection_username">Username</string>
+    <string name="connection_custom_connection_password">Password</string>
+    <string name="connection_custom_connection_client_id">Client ID</string>
+    <string name="connection_custom_connection_will_topic">Will topic</string>
+    <string name="connection_custom_connection_will_message">Will message</string>
+    <string name="connection_custom_connection_will_qos">Will QoS</string>
+    <string name="connection_custom_connection_will_retain">Retain</string>
+    <string name="button_connection_custom_enter_default">Enter Details</string>
+    <string name="button_connection_custom_connect">Connect</string>
+    <string name="nav_drawer_subscribe_to_topic">Add Subscription</string>
+    <string name="subscribe_to_topic_edit_text_topic_name">Topic name</string>
+
+    <string name="subscribe_to_topic_message_success">Last subscribed to topic %s</string>
+    <string name="subscribe_to_topic_message_error">Failed to subscribe: %s</string>
+    <string name="subscribe_to_topic_message_already_subscribed">Already subscribed</string>
+    <string name="unsubscribe_from_topic_message_success">Unsubscribed from topic %s</string>
+    <string name="unsubscribe_from_topic_message_error">Failed to unsubscribe: %s</string>
+
+    <string name="publish_dialog_fragment_topic">Topic</string>
+    <string name="publish_dialog_fragment_message">Message</string>
+
+    <string name="recycler_message_item_topic">Topic: %s</string>
+    <string name="recycler_message_item_qos">QoS: %d</string>
+    <string name="recycler_no_messages">No messages to show</string>
+
+    <string name="nav_drawer_messages">Messages</string>
+
+    <string name="qos_spinner_title">QoS: </string>
+
+    <string-array name="qos_options">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string name="title_activity_pub_sub">PubSubActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="action_disconnect">Disconnect</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="fragment_subscribe_button_subscribe">Subscribe</string>
+    <string name="fragment_subscribe_button_unsubscribe">Unsubscribe</string>
+    <string name="nav_header_disconnect">Disconnect</string>
+</resources>

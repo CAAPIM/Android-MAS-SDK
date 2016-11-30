@@ -238,6 +238,8 @@ public class MASLoginFragment extends DialogFragment {
             @Override
             protected void onAuthCodeReceived(String code) {
                 super.onAuthCodeReceived(code);
+                //Fetch the user profile
+                MASUser.login(null);
                 dismiss();
             }
         };
@@ -253,6 +255,8 @@ public class MASLoginFragment extends DialogFragment {
             @Override
             protected void onAuthCodeReceived(String code) {
                 super.onAuthCodeReceived(code);
+                //Fetch the user profile
+                MASUser.login(null);
                 dismiss();
             }
         };
@@ -308,6 +312,8 @@ public class MASLoginFragment extends DialogFragment {
             @Override
             protected void onAuthCodeReceived(String code) {
                 super.onAuthCodeReceived(code);
+                //Fetch the user profile
+                MASUser.login(null);
                 dismiss();
             }
         };

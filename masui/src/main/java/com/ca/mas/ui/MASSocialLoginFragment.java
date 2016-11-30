@@ -21,6 +21,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.auth.MASAuthenticationProvider;
 import com.ca.mas.foundation.auth.MASSocialLogin;
 
@@ -78,6 +79,8 @@ public class MASSocialLoginFragment extends DialogFragment {
 
             @Override
             protected void onAuthCodeReceived(String code) {
+                //Fetch the user profile
+                MASUser.login(null);
                 dismiss();
             }
         };

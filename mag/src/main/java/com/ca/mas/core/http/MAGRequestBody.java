@@ -8,8 +8,10 @@
 
 package com.ca.mas.core.http;
 
+import android.util.Log;
 import android.util.Pair;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -20,7 +22,8 @@ import java.net.URLEncoder;
 import java.util.List;
 
 import static com.ca.mas.core.io.Charsets.UTF8;
-
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 /**
  * Base class for http api request.
  */
@@ -93,6 +96,7 @@ public abstract class MAGRequestBody {
 
             @Override
             public void write(OutputStream outputStream) throws IOException {
+                if (DEBUG) Log.d(TAG, String.format("Content: %s", body));
                 outputStream.write(content);
             }
         };
@@ -119,6 +123,12 @@ public abstract class MAGRequestBody {
 
             @Override
             public void write(OutputStream outputStream) throws IOException {
+                if (DEBUG) {
+                    try {
+                        Log.d(TAG, String.format("Content: %s", jsonObject.toString(4)));
+                    } catch (JSONException ignore) {
+                    }
+                }
                 outputStream.write(content);
             }
         };
@@ -168,6 +178,7 @@ public abstract class MAGRequestBody {
 
             @Override
             public void write(OutputStream outputStream) throws IOException {
+                if (DEBUG) Log.d(TAG, String.format("Content: %s", new String(getContent())));
                 outputStream.write(content);
             }
         };

@@ -13,6 +13,7 @@ import android.util.Pair;
 
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.context.MssoContext;
+import com.ca.mas.core.oauth.CodeVerifierCache;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,9 +26,11 @@ import java.util.Map;
 public class AuthorizationCodeCredentials implements Credentials {
 
     private String code;
+    private String state;
 
-    public AuthorizationCodeCredentials(String code) {
+    public AuthorizationCodeCredentials(String code, String state) {
         this.code = code;
+        this.state = state;
     }
 
     @Override
@@ -62,6 +65,10 @@ public class AuthorizationCodeCredentials implements Credentials {
     public List<Pair<String,String>> getParams(MssoContext context) {
         ArrayList<Pair<String, String>> params = new ArrayList<Pair<String, String>>();
         params.add(new Pair<String, String>("code", code));
+        String codeVerifier = CodeVerifierCache.getInstance().takeAndClear(state);
+        if (codeVerifier != null) {
+            params.add(new Pair<String, String>("code_verifier", codeVerifier));
+        }
         String redirectUrl = context.getConfigurationProvider().getProperty(MobileSsoConfig.PROP_AUTHORIZE_REDIRECT_URI);
         if (redirectUrl != null) {
             params.add(new Pair<String, String>("redirect_uri", redirectUrl));
@@ -95,29 +102,21 @@ public class AuthorizationCodeCredentials implements Credentials {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(code);
+        dest.writeString(this.code);
+        dest.writeString(this.state);
     }
 
-    /**
-     * Factory for creating instances of the Parcelable class.
-     */
-    public static final Creator<AuthorizationCodeCredentials> CREATOR = new Creator<AuthorizationCodeCredentials>() {
+    protected AuthorizationCodeCredentials(Parcel in) {
+        this.code = in.readString();
+        this.state = in.readString();
+    }
 
-        /**
-         * This method will be called to instantiate a MyParcelableMessage
-         * when a Parcel is received.
-         * All data fields which where written during the writeToParcel
-         * method should be read in the correct sequence during this method.
-         */
+    public static final Creator<AuthorizationCodeCredentials> CREATOR = new Creator<AuthorizationCodeCredentials>() {
         @Override
-        public AuthorizationCodeCredentials createFromParcel(Parcel in) {
-            String code = in.readString();
-            return new AuthorizationCodeCredentials(code);
+        public AuthorizationCodeCredentials createFromParcel(Parcel source) {
+            return new AuthorizationCodeCredentials(source);
         }
 
-        /**
-         * Creates an array of our Parcelable object.
-         */
         @Override
         public AuthorizationCodeCredentials[] newArray(int size) {
             return new AuthorizationCodeCredentials[size];

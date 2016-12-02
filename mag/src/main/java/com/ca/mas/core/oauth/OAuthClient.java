@@ -50,7 +50,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
 
 /**
  * Utility class that encapsulates talking to the token server into Java method calls.
@@ -129,7 +128,7 @@ public class OAuthClient extends ServerClient {
             }
             b.appendQueryParameter(REDIRECT_URI, redirectUri);
 
-            PKCE pkce = generateCodeVerifier();
+            PKCE pkce = generateCodeChallenge();
             if (pkce != null) {
                 b.appendQueryParameter(CODE_CHALLENGE, pkce.codeChallenge);
                 b.appendQueryParameter(CODE_CHALLENGE_METHOD, pkce.codeChallengeMethod);
@@ -222,7 +221,7 @@ public class OAuthClient extends ServerClient {
         }
     }
 
-    private PKCE generateCodeVerifier() {
+    private PKCE generateCodeChallenge() {
         int encodeFlags = Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE;
         byte[] randomBytes = new byte[64];
         new SecureRandom().nextBytes(randomBytes);

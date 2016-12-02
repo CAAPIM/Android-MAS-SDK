@@ -5,14 +5,15 @@
 - A cancelled MASRequest will no longer invoke the error callback. [DE247887]
 - Received MASMessage objects will now include a topic. [DE254536]
 - MQTT methods now run in the background thread. [DE255170]
+- Fixed incorrect timestamps of received MASMessage objects. [DE255503]
 
 ### New features
 
 - Client profile now updates when the SDK detects changes on the client ID. [US238458]
 - User profile now persists locally on the device, matching with iOS' behaviour. [US238628]
-- Providing an Account Manager Storage implementation for use when the KeyStore is not available. [US237238]
 - New streamlined OTP dialog fragment with custom logo support. [US238461]
-- Session locking and an associated sample app. [US240423, US240504]
+- Added session locking along with a sample app. [US240423, US240504]
+- Added a pub/sub sample app. [US240502]
 - Android interfaces for sending MQTT messages and support for connecting to public brokers. [US240431]
 - The SDK will now seamlessly handle the expiration/removal of client certificates from the server. [US240491, US240493]
 - Debug logging enhancements. [US262854]

@@ -591,6 +591,7 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
                 public void onError(Throwable e) {
                     result[1] = "Can't stop listening before starting.";
                     latch.countDown();
+                    latch.countDown();
                 }
             });
 

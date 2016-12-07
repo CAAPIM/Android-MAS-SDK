@@ -35,8 +35,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,33 +95,32 @@ public class UserIdentityManager {
     }
 
     public void getUserById(String id, final MASCallback<MASUser> callback) {
-        try {
-            MASRequest masRequest = new MASRequest.MASRequestBuilder(new URI(IdentityUtil.getUserPath(MAS.getContext())
-                    + FoundationConsts.FSLASH + id))
-                    .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
-                    .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
-                    .responseBody(MAGResponseBody.jsonBody())
-                    .get()
-                    .build();
+        Uri.Builder builder = new Uri.Builder();
+        String path = IdentityUtil.getUserPath(MAS.getContext());
+        builder.appendEncodedPath(path.startsWith(IdentityConsts.FSLASH) ? path.substring(1) : path);
+        builder.appendPath(id);
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(builder.build())
+                .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
+                .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
+                .responseBody(MAGResponseBody.jsonBody())
+                .get()
+                .build();
 
-            MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
-                @Override
-                public void onSuccess(MASResponse<JSONObject> result) {
-                    try {
-                        Callback.onSuccess(callback, processUserById(result.getBody().getContent()));
-                    } catch (Exception je) {
-                        onError(new MAGError(je));
-                    }
+        MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
+            @Override
+            public void onSuccess(MASResponse<JSONObject> result) {
+                try {
+                    Callback.onSuccess(callback, processUserById(result.getBody().getContent()));
+                } catch (Exception je) {
+                    onError(new MAGError(je));
                 }
+            }
 
-                @Override
-                public void onError(Throwable e) {
-                    Callback.onError(callback, e);
-                }
-            });
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+            @Override
+            public void onError(Throwable e) {
+                Callback.onError(callback, e);
+            }
+        });
     }
 
     // --------- META-DATA ----------------------------------------------------

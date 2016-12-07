@@ -8,7 +8,8 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.ca.mas.ui">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.ca.mas.ui">
 
     <application
         android:allowBackup="true"
@@ -26,6 +27,19 @@
             <intent-filter>
                 <action android:name="MASUI.intent.action.SessionUnlock"/>
                 <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="net.openid.appauth.RedirectUriReceiverActivity"
+            tools:node="replace">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https"
+                    android:host="www.example.com"
+                    android:path="/oauth2redirect"/>
             </intent-filter>
         </activity>
     </application>

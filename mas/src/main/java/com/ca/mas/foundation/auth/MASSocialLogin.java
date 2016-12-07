@@ -14,8 +14,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.net.http.SslCertificate;
 import android.net.http.SslError;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
@@ -29,17 +31,28 @@ import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.creds.AuthorizationCodeCredentials;
+import com.ca.mas.core.http.MAGHttpClient;
+import com.ca.mas.core.http.MAGRequest;
+import com.ca.mas.core.http.MAGResponse;
+import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.io.http.TrustedCertificateConfigurationTrustManager;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.MssoService;
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASCallback;
+
+import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The SDK uses {@link WebView} to display social login web interface.
@@ -163,4 +176,52 @@ public abstract class MASSocialLogin {
      * @param code Authorization Code
      */
     protected abstract void onAuthCodeReceived(String code);
+
+    private static class MagTask extends AsyncTask<Void, Void, MAGResponse> {
+        Context context;
+        MAGRequest request;
+        MASCallback<Uri> callback;
+
+        MagTask(Context context, MAGRequest request, MASCallback<Uri> callback) {
+            this.context = context;
+            this.request = request;
+            this.callback = callback;
+        }
+
+        @Override
+        protected MAGResponse<JSONObject> doInBackground(Void... params) {
+            MAGHttpClient magHttpClient = new MAGHttpClient(context) {
+                @Override
+                protected void onConnectionObtained(HttpURLConnection connection) {
+                    connection.setInstanceFollowRedirects(false);
+                }
+            };
+            try {
+                return magHttpClient.execute(request);
+            } catch (IOException e) {
+                Log.d("", e.getMessage());
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(MAGResponse magResponse) {
+            super.onPostExecute(magResponse);
+            String location = null;
+            Map<String, List<String>> headers = magResponse.getHeaders();
+            location = headers.get("Location").get(0);
+            callback.onSuccess(Uri.parse(location));
+        }
+    }
+
+    public static void getAuthConfiguration(Context context, MASAuthenticationProvider provider, MASCallback<Uri> callback) {
+        MAGRequest request = new MAGRequest.MAGRequestBuilder(Uri.parse(provider.getAuthenticationUrl()))
+                .get()
+                .responseBody(MAGResponseBody.jsonBody())
+                .build();
+
+        MagTask magTask = new MagTask(context, request, callback);
+        magTask.execute();
+    }
 }

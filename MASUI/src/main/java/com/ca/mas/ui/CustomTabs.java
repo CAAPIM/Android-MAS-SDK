@@ -82,8 +82,8 @@ public class CustomTabs {
                             .setCodeVerifier(null)
                             .build();
 
-                    Intent postAuthIntent = new Intent(context, MASEnterpriseWebApplicationActivity.class);
-                    Intent authCancelledIntent = new Intent(context, MASEnterpriseWebApplicationActivity.class);
+                    Intent postAuthIntent = new Intent(context, Empty.class);
+                    Intent authCancelledIntent = new Intent(context, Empty.class);
 
                     AuthorizationService service = new AuthorizationService(context, appAuthConfiguration);
                     service.performAuthorizationRequest(req, PendingIntent.getActivity(context,

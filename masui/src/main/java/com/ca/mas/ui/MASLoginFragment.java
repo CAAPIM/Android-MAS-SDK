@@ -178,7 +178,8 @@ public class MASLoginFragment extends DialogFragment {
                     imageButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            MASSocialLoginFragment.newInstance(requestID, p).show(getActivity().getFragmentManager(), "logonDialog");
+                            CustomTabs.socialLogin(getActivity(), p);
+                            //MASSocialLoginFragment.newInstance(requestID, p).show(getActivity().getFragmentManager(), "logonDialog");
                             dismiss();
                         }
                     });

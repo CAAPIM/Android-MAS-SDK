@@ -91,35 +91,35 @@ public interface ScimUser extends ScimIdentifiable, MASTransformable {
     /**
      * <b>Description:</b> See the SCIM definition of {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.2">addresses</a>}
      *
-     * @return List<MASAddress> contains this user's addresses. This list could be null or empty.
+     * @return {@literal List<MASAddress> contains this user's addresses. This list could be null or empty.}
      */
     List<MASAddress> getAddressList();
 
     /**
      * <b>Description:</b> See the SCIM definition of {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.2">emails</a>}
      *
-     * @return List<User.Email> contains this user's emails. This list could be null or empty.
+     * @return {@literal List<User.Email> contains this user's emails. This list could be null or empty.}
      */
     List<MASEmail> getEmailList();
 
     /**
      * <b>Description:</b> See the SCIM definition of {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.2">phoneNumbers</a>}
      *
-     * @return List<User.Phone> contains this user's phone numbers. This list could be null or empty.
+     * @return {@literal List<User.Phone> contains this user's phone numbers. This list could be null or empty.}
      */
     List<MASPhone> getPhoneList();
 
     /**
      * <b>Description:</b> See the SCIM definition of {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.2">addresses</a>}
      *
-     * @return List<MASAddress> contains this user's instant messaging addresses. This list could be null or empty.
+     * @return {@literal List<MASAddress> contains this user's instant messaging addresses. This list could be null or empty.}
      */
     List<MASIms> getImsList();
 
     /**
      * <b>Description:</b> See the SCIM definition of {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.2">photos</a>}
      *
-     * @return List<User.Photo> contains this user's photos. This list could be null or empty.
+     * @return {@literal List<User.Photo> contains this user's photos. This list could be null or empty.}
      */
     List<MASPhoto> getPhotoList();
 
@@ -133,7 +133,7 @@ public interface ScimUser extends ScimIdentifiable, MASTransformable {
     /**
      * <b>Description:</b> See the SCIM definition of {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.2">groups</a>}
      *
-     * @return List<MASGroup> this user is a member of. This list could be null or empty.
+     * @return {@literal List<MASGroup> this user is a member of. This list could be null or empty.}
      */
     List<MASGroup> getGroupList();
 

@@ -35,9 +35,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="www.example.com"
-                    android:path="/oauth2redirect"
-                    android:scheme="https" />
+                    android:scheme="dummy" />
             </intent-filter>
         </activity>
         <activity android:name=".Empty"

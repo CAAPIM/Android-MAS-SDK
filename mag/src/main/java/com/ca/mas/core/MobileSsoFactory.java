@@ -324,6 +324,12 @@ public final class MobileSsoFactory {
             }
 
             @Override
+            public void authenticate(String authCode, String state, MAGResultReceiver<JSONObject> resultReceiver) {
+                mssoClient.authenticate(authCode, state, resultReceiver);
+            }
+
+
+            @Override
             public void setMobileSsoListener(MobileSsoListener mobileSsoListener) {
                 ConfigurationManager.getInstance().setMobileSsoListener(mobileSsoListener);
             }

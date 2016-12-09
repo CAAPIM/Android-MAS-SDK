@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.core.io.ssl.MAGSocketFactory;
+import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.auth.MASAuthenticationProvider;
 import com.ca.mas.foundation.auth.MASSocialLogin;
@@ -49,25 +50,6 @@ public class CustomTabs {
                     String responseType = query.get("response_type").get(0);
                     String[] scope = query.get("scope").get(0).split("\\s+");
 
-                    AppAuthConfiguration appAuthConfiguration = new AppAuthConfiguration.Builder()
-                            .setConnectionBuilder(new ConnectionBuilder() {
-                                @NonNull
-                                @Override
-                                public HttpURLConnection openConnection(@NonNull Uri uri) throws IOException {
-                                    URL url = new URL(uri.toString());
-                                    HttpURLConnection connection =
-                                            (HttpURLConnection) url.openConnection();
-                                    if (connection instanceof HttpsURLConnection) {
-                                        ((HttpsURLConnection) connection).setSSLSocketFactory(
-                                                new MAGSocketFactory(context).createSSLSocketFactory());
-                                    }
-
-                                    return connection;
-                                }
-                            })
-                            .build();
-
-
                     AuthorizationServiceConfiguration config =
                             new AuthorizationServiceConfiguration(Uri.parse(configuration),
                                     Uri.parse("https://login.salesforce.com/services/oauth2/token"), null);
@@ -82,13 +64,13 @@ public class CustomTabs {
                             .setCodeVerifier(null)
                             .build();
 
-                    Intent postAuthIntent = new Intent(context, Empty.class);
-                    Intent authCancelledIntent = new Intent(context, Empty.class);
+                    Intent postAuthIntent = new Intent(MAS.getContext(), Empty.class);
+                    Intent authCancelledIntent = new Intent(MAS.getContext(), Empty.class);
 
-                    AuthorizationService service = new AuthorizationService(context, appAuthConfiguration);
-                    service.performAuthorizationRequest(req, PendingIntent.getActivity(context,
+                    AuthorizationService service = new AuthorizationService(MAS.getContext());
+                    service.performAuthorizationRequest(req, PendingIntent.getActivity(MAS.getContext(),
                             req.hashCode(), postAuthIntent, 0),
-                            PendingIntent.getActivity(context, req.hashCode(), authCancelledIntent, 0));
+                            PendingIntent.getActivity(MAS.getContext(), req.hashCode(), authCancelledIntent, 0));
                 } catch (UnsupportedEncodingException | MalformedURLException e) {
                     Log.d("", e.getMessage());
                 }

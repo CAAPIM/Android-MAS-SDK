@@ -6,8 +6,8 @@
   ~
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.ca.mas.ui">
+          xmlns:tools="http://schemas.android.com/tools"
+          package="com.ca.mas.ui">
 
     <application
         android:allowBackup="true"
@@ -15,43 +15,34 @@
         android:supportsRtl="true">
         <activity
             android:name=".MASEnterpriseWebApplicationActivity"
-            android:theme="@style/Theme.AppCompat.Light"></activity>
+            android:theme="@style/Theme.AppCompat"/>
         <activity
             android:name=".MASSessionUnlockActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
-                <action android:name="MASUI.intent.action.SessionUnlock" />
+                <action android:name="MASUI.intent.action.SessionUnlock"/>
 
-                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+
         <activity
             android:name="net.openid.appauth.RedirectUriReceiverActivity"
             tools:node="replace">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:scheme="dummy" />
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="camsso"/>
             </intent-filter>
         </activity>
-        <activity android:name=".Empty"
-            tools:node="replace">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
+        <activity
+            android:name=".MASOAuthRedirectActivity"
+            android:theme="@style/Theme.AppCompat.Light"/>
 
-                <data
-                    android:scheme="camsso" />
-            </intent-filter>
+        <activity android:name=".Empty"/>
 
-
-        </activity>
     </application>
 
 </manifest>

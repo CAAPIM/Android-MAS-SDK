@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import com.ca.mas.foundation.MASAuthorizationResponse;
+
 public class MASOAuthRedirectActivity extends AppCompatActivity {
     private static final String USED_INTENT = "USED_INTENT";
 
@@ -20,9 +22,9 @@ public class MASOAuthRedirectActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_empty);
         Uri redirectUri = getIntent().getData();
-        String authorizationCode = redirectUri.getQueryParameter("code");
-        if (authorizationCode != null) {
-            //MASUser.getCurrentUser().login(authorizationCode);
+        if (redirectUri != null) {
+            MASAuthorizationResponse response = MASAuthorizationResponse.fromUri(redirectUri);
+            //MASUser.getCurrentUser().login(response);
         }
     }
 

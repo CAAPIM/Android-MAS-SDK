@@ -6,8 +6,8 @@
   ~
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="com.ca.mas.ui">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.ca.mas.ui">
 
     <application
         android:allowBackup="true"
@@ -42,6 +42,11 @@
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity android:name=".Empty"/>
+
+        <activity android:name=".MASLoginActivity"
+            android:theme="@style/Theme.AppCompat.Light"
+            >
+        </activity>
 
     </application>
 

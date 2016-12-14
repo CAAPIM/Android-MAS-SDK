@@ -132,8 +132,11 @@ public class OAuthClient extends ServerClient {
             if (pkce != null) {
                 b.appendQueryParameter(CODE_CHALLENGE, pkce.codeChallenge);
                 b.appendQueryParameter(CODE_CHALLENGE_METHOD, pkce.codeChallengeMethod);
-                String key = UUID.randomUUID().toString();
-                CodeVerifierCache.getInstance().put(key, pkce.codeVerifier);
+                SecureRandom secureRandom = new SecureRandom();
+                byte[] random = new byte[16];
+                secureRandom.nextBytes(random);
+                String key = Base64.encodeToString(random, Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE);
+                CodeVerifierCache.getInstance().store(key, pkce.codeVerifier);
                 b.appendQueryParameter(STATE, key);
             }
 

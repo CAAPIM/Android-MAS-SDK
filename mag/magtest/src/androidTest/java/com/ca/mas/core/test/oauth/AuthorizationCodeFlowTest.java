@@ -73,7 +73,7 @@ public class AuthorizationCodeFlowTest extends BaseTest {
                 String codeChallenge = uri.getQueryParameter("code_challenge");
                 String codeChallengeMethod = uri.getQueryParameter("code_challenge_method");
                 String state = uri.getQueryParameter("state");
-                codeVerifier[0] = CodeVerifierCache.getInstance().get(state);
+                codeVerifier[0] = CodeVerifierCache.getInstance().getCurrentCodeVerifier();
                 assertNotNull(codeChallenge);
                 assertNotNull(codeChallengeMethod);
                 assertNotNull(state);

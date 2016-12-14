@@ -1,6 +1,5 @@
 package com.ca.mas.core.oauth;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -8,9 +7,10 @@ import java.util.Map;
  */
 public class CodeVerifierCache {
 
-    private final LinkedHashMap<String, String> cache = new LinkedHashMap<>();
-
     private static CodeVerifierCache instance = new CodeVerifierCache();
+
+    private String state;
+    private String codeVerifier;
 
     private CodeVerifierCache() {
     }
@@ -19,28 +19,24 @@ public class CodeVerifierCache {
         return instance;
     }
 
-    public void put(String key, String codeVerifier) {
-        cache.put(key, codeVerifier);
+    public String getCurrentCodeVerifier() {
+        return codeVerifier;
     }
 
-    public String get(String key) {
-        return cache.get(key);
+    public void store(String state, String codeVerifier) {
+        this.state = state;
+        this.codeVerifier = codeVerifier;
     }
 
-
-    public String takeAndClear(String key) {
-        String c = null;
-        if (key == null) {
-            Map.Entry<String, String> last = null;
-            for (Map.Entry e : cache.entrySet()) last = e;
-            if (last != null) {
-                c = last.getValue();
-            }
-        } else {
-            c = cache.get(key);
+    public String take(String state) {
+        if (this.state == null && state != null
+                || this.state != null && !this.state.equals(state)) {
+            throw new IllegalStateException("OAuth State Mismatch");
         }
-        cache.clear();
-        return c;
+        String cv = this.codeVerifier;
+        this.state = null;
+        this.codeVerifier = null;
+        return cv;
     }
 
 }

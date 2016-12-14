@@ -27,10 +27,12 @@ public class AuthorizationCodeCredentials implements Credentials {
 
     private String code;
     private String state;
+    private String codeVerifier;
 
     public AuthorizationCodeCredentials(String code, String state) {
         this.code = code;
         this.state = state;
+        this.codeVerifier = CodeVerifierCache.getInstance().take(state);
     }
 
     @Override
@@ -65,7 +67,6 @@ public class AuthorizationCodeCredentials implements Credentials {
     public List<Pair<String,String>> getParams(MssoContext context) {
         ArrayList<Pair<String, String>> params = new ArrayList<Pair<String, String>>();
         params.add(new Pair<String, String>("code", code));
-        String codeVerifier = CodeVerifierCache.getInstance().takeAndClear(state);
         if (codeVerifier != null) {
             params.add(new Pair<String, String>("code_verifier", codeVerifier));
         }
@@ -104,11 +105,13 @@ public class AuthorizationCodeCredentials implements Credentials {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.code);
         dest.writeString(this.state);
+        dest.writeString(this.codeVerifier);
     }
 
     protected AuthorizationCodeCredentials(Parcel in) {
         this.code = in.readString();
         this.state = in.readString();
+        this.codeVerifier = in.readString();
     }
 
     public static final Creator<AuthorizationCodeCredentials> CREATOR = new Creator<AuthorizationCodeCredentials>() {

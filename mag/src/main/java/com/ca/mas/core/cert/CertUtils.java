@@ -9,7 +9,6 @@
 package com.ca.mas.core.cert;
 
 import android.util.Base64;
-import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -99,44 +98,17 @@ public class CertUtils {
                String deviceId, String deviceName, String organization,
                PublicKey publicKey, PrivateKey privateKey) throws CertificateException {
         try {
-            Log.i("CERTIFICATE PROV", "CertUtils.generateCertificateSigningRequest start");
-            String sigAlg = "SHA1withRSA";
             PKCS10 pkcs10 = new PKCS10(publicKey);
-            Log.i("CERTIFICATE PROV", "CertUtils.generateCertificateSigningRequest got PKCS10");
-            /*
-            Signature signature = Signature.getInstance(sigAlg);
-            signature.initSign(privateKey);
-            */
             Signature signature = Signature.getInstance("SHA256withRSA");
-            Log.i("CERTIFICATE PROV", "CertUtils.generateCertificateSigningRequest got signature");
             signature.initSign(privateKey);
-            Log.i("CERTIFICATE PROV", "CertUtils.generateCertificateSigningRequest initSign done");
-            //new s.update(data);
-            //new byte[] signature = s.sign();
-            // common, orgUnit, org, locality, state, country
-            //    public X500Name(String commonName, String organizationUnit,
-            //      String domainComponent, String organization,
-            //      boolean containsDC)
-
-
-            //
-            //sun.security.x509.X500Name x500Name = new sun.security.x509.X500Name(commonName, deviceId, deviceName, organization, true);
-            //
             sun.security.x509.X500Name x500Name = new sun.security.x509.X500Name("cn=" + commonName + ", ou=" + deviceId + ", dc=" + deviceName + ", o=" + organization);
 
-            Log.i("CERTIFICATE PROV", "CertUtils.generateCertificateSigningRequest got X500Name");
             pkcs10.encodeAndSign(new X500Signer(signature, x500Name));
-            Log.i("CERTIFICATE PROV", "CertUtils.generateCertificateSigningRequest got encoded and signed");
-            byte[] c = pkcs10.getEncoded();
-            Log.i("CERTIFICATE PROV", "CertUtils.generateCertificateSigningRequest got csr bytes: " + c);
-            return c;
+            return pkcs10.getEncoded();
         } catch (Exception e) {
-            Log.i("CERTIFICATE PROV", "CertUtils.generateCertificateSigningRequest ERROR: " + e);
-            e.printStackTrace();
             throw new CertificateException("Unable to generate certificate signing request: " + e.getMessage(), e);
         } catch (Throwable t) {
-            Log.i("CERTIFICATE PROV", "CertUtils.generateCertificateSigningRequest THROWABLE: " + t);
-            t.printStackTrace();
+            throw new CertificateException("Unable to generate certificate signing request: " + t);
         }
         return null;
     }

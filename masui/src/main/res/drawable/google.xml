@@ -10,6 +10,6 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_enabled="false"
-          android:drawable="@mipmap/google_plus_disable" />
-    <item android:drawable="@mipmap/google_plus_enable" />
+          android:drawable="@mipmap/google_disable" />
+    <item android:drawable="@mipmap/google_enable" />
 </selector>

@@ -14,6 +14,7 @@ import com.ca.mas.foundation.auth.MASSocialLogin;
 import net.openid.appauth.AuthorizationRequest;
 import net.openid.appauth.AuthorizationService;
 import net.openid.appauth.AuthorizationServiceConfiguration;
+import net.openid.appauth.CodeVerifierUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,6 +29,8 @@ public class CustomTabs {
                 String scope = uri.getQueryParameter("scope");
                 String state = uri.getQueryParameter("state");
                 String responseType = uri.getQueryParameter("response_type");
+                String codeChallenge = uri.getQueryParameter("code_challenge");
+                String codeChallengeMethod = uri.getQueryParameter("code_challenge_method");
 
                 try {
                     URL url = new URL(uri.toString());
@@ -37,12 +40,26 @@ public class CustomTabs {
                     AuthorizationServiceConfiguration config = new AuthorizationServiceConfiguration(
                             authEndpoint, tokenEndpoint, null);
 
-                    AuthorizationRequest req = new AuthorizationRequest.Builder(
+                    AuthorizationRequest.Builder builder = new AuthorizationRequest.Builder(
                             config, clientId, responseType, Uri.parse(redirectUri))
                             .setState(state)
-                            .setScopes(scope)
-                            .setCodeVerifier(null)
-                            .build();
+                            .setScopes(scope);
+
+                    //PKCE social login support for MAG
+                    if (codeChallenge != null) {
+                        builder.setCodeVerifier(
+                                //The Code Verifier is stored on MAG Server, this is only for passing
+                                //the code verifier check for AppAuth, the code verifier will not be used
+                                //for retrieving the Access Token.
+                                CodeVerifierUtil.generateRandomCodeVerifier(),
+                                codeChallenge,
+                                codeChallengeMethod
+                        );
+                    } else {
+                        builder.setCodeVerifier(null);
+                    }
+
+                    AuthorizationRequest req = builder.build();
 
                     Context context = MAS.getContext();
                     Intent postAuthIntent = new Intent(context, MASOAuthRedirectActivity.class);

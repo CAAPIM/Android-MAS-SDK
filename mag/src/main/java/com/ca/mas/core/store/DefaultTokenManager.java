@@ -7,6 +7,7 @@
  */
 package com.ca.mas.core.store;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -148,27 +149,38 @@ public class DefaultTokenManager implements TokenManager {
         }
     }
 
-    @Override
-    public KeyPair getClientKeyPair() {
-        try {
-            byte[] publicBytes = retrieveSecureItem(MSSO_CLIENT_CERT_PUBLIC_KEY);
-            if (publicBytes == null)
-                return null;
-            byte[] privateBytes = retrieveSecureItem(MSSO_CLIENT_CERT_PRIVATE_KEY);
-            if (privateBytes == null)
-                return null;
 
-            PublicKey publicKey = KeyUtils.decodeRsaPublicKey(publicBytes);
-            PrivateKey privateKey = KeyUtils.decodeRsaPrivateKey(privateBytes);
-            return new KeyPair(publicKey, privateKey);
-        } catch (IllegalArgumentException e) {
-            if (DEBUG) Log.e(TAG, "Unable to decode client cert key pair: " + e.getMessage(), e);
-            return null;
-        } catch (TokenStoreException e) {
-            if (DEBUG) Log.e(TAG, "Unable to access client cert key pair: " + e.getMessage(), e);
+    @Override
+    public PrivateKey createPrivateKey(Context ctx, int keyBits)
+    {
+        try {
+            return KeyUtils.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_CERT_PRIVATE_KEY, true);
+        } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "Unable to create client private key: " + e.getMessage(), e);
             return null;
         }
     }
+
+    @Override
+    public PrivateKey getClientPrivateKey() {
+        try {
+            return KeyUtils.getRsaPrivateKey(MSSO_CLIENT_CERT_PRIVATE_KEY);
+        } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "Unable to get client private key: " + e.getMessage(), e);
+            return null;
+        }
+    }
+
+    @Override
+    public PublicKey getClientPublicKey() {
+        try {
+            return  KeyUtils.getRsaPublicKey(MSSO_CLIENT_CERT_PRIVATE_KEY);
+        } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "Unable to get client public key: " + e.getMessage(), e);
+            return null;
+        }
+    }
+
 
     @Override
     public boolean isClientCertificateChainAvailable() {

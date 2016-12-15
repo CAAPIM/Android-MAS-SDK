@@ -1,29 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    xmlns:social_login_button="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_mas_login"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:descendantFocusability="beforeDescendants"
-    android:focusableInTouchMode="true"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.ca.mas.ui.MASLoginActivity"
-    android:gravity="center"
-    >
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:card_view="http://schemas.android.com/apk/res-auto"
+              xmlns:social_login_button="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:id="@+id/activity_mas_login"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:layout_centerHorizontal="true"
+              android:descendantFocusability="beforeDescendants"
+              android:focusableInTouchMode="true"
+              android:orientation="vertical"
+              android:paddingBottom="@dimen/activity_vertical_margin"
+              android:paddingLeft="@dimen/activity_horizontal_margin"
+              android:paddingRight="@dimen/activity_horizontal_margin"
+              android:paddingTop="@dimen/activity_vertical_margin"
+              tools:context="com.ca.mas.ui.MASLoginActivity">
 
     <ImageView
-        android:layout_width="110dp"
-        android:layout_height="110dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_marginBottom="20dp"
         android:layout_marginTop="20dp"
-        android:src="@drawable/ca" />
+        android:src="@drawable/ca"/>
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
@@ -37,9 +36,8 @@
             android:drawableLeft="@drawable/ic_account_circle_black_24px"
             android:drawablePadding="16dp"
             android:hint="@string/user_name"
-            android:maxLines="1"
             android:inputType="textNoSuggestions"
-            />
+            android:maxLines="1"/>
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
@@ -57,7 +55,7 @@
             android:drawablePadding="16dp"
             android:hint="@string/enter_password"
             android:inputType="textPassword"
-            android:maxLines="1" />
+            android:maxLines="1"/>
     </android.support.design.widget.TextInputLayout>
 
     <android.support.v7.widget.AppCompatButton
@@ -67,7 +65,7 @@
         android:layout_marginTop="10dp"
         android:onClick="onClickLogin"
         android:padding="16dp"
-        android:text="@string/login" />
+        android:text="@string/login"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -82,22 +80,22 @@
             android:layout_marginTop="20dp"
             android:text="@string/social_login_title"
             android:textAppearance="@android:style/TextAppearance.Medium"
-            android:textSize="16sp" />
+            android:textSize="16sp"/>
 
         <GridLayout
             android:id="@+id/activity_mas_login_grid_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:columnCount="3"
-            android:rowCount="2"
-            android:paddingBottom="20dp"
             android:clipToPadding="false"
-            >
+            android:columnCount="3"
+            android:paddingBottom="20dp"
+            android:rowCount="2">
 
             <com.ca.mas.ui.SocialLoginButton
                 android:id="@+id/activity_mas_login_facebook"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginEnd="8dp"
                 card_view:cardBackgroundColor="@color/colorButtonFacebook"
                 social_login_button:contentPaddingLeft="6dp"
@@ -108,12 +106,13 @@
                 social_login_button:image_width="23dp"
                 social_login_button:text="@string/social_login_facebook"
                 social_login_button:text_color="#FFFFFF"
-                social_login_button:text_size="13sp" />
+                social_login_button:text_size="13sp"/>
 
             <com.ca.mas.ui.SocialLoginButton
                 android:id="@+id/activity_mas_login_google"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginEnd="8dp"
                 card_view:cardBackgroundColor="@color/colorButtonGoogle"
                 social_login_button:contentPaddingLeft="6dp"
@@ -124,12 +123,13 @@
                 social_login_button:image_width="23dp"
                 social_login_button:text="@string/social_login_google"
                 social_login_button:text_color="#5C6061"
-                social_login_button:text_size="13sp" />
+                social_login_button:text_size="13sp"/>
 
             <com.ca.mas.ui.SocialLoginButton
                 android:id="@+id/activity_mas_login_salesforce"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 card_view:cardBackgroundColor="@color/colorButtonSalesforce"
                 social_login_button:contentPaddingLeft="6dp"
                 social_login_button:contentPaddingRight="6dp"
@@ -139,12 +139,13 @@
                 social_login_button:image_width="23dp"
                 social_login_button:text="@string/social_login_salesforce"
                 social_login_button:text_color="#5C6061"
-                social_login_button:text_size="12sp" />
+                social_login_button:text_size="12sp"/>
 
             <com.ca.mas.ui.SocialLoginButton
                 android:id="@+id/activity_mas_login_linked_in"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginEnd="8dp"
                 card_view:cardBackgroundColor="@color/colorButtonLinkedIn"
                 social_login_button:contentPaddingLeft="6dp"
@@ -155,12 +156,13 @@
                 social_login_button:image_width="23dp"
                 social_login_button:text="@string/social_login_linkedin"
                 social_login_button:text_color="#FFFFFF"
-                social_login_button:text_size="13sp" />
+                social_login_button:text_size="13sp"/>
 
             <com.ca.mas.ui.SocialLoginButton
                 android:id="@+id/activity_mas_login_enterprise"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginEnd="8dp"
                 card_view:cardBackgroundColor="@color/colorButtonEnterprise"
                 social_login_button:contentPaddingLeft="6dp"
@@ -171,12 +173,13 @@
                 social_login_button:image_width="23dp"
                 social_login_button:text="@string/social_login_enterprise"
                 social_login_button:text_color="#5C6061"
-                social_login_button:text_size="13sp" />
+                social_login_button:text_size="13sp"/>
 
             <com.ca.mas.ui.SocialLoginButton
                 android:id="@+id/activity_mas_login_qr_code"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 card_view:cardBackgroundColor="@color/colorButtonQrCode"
                 social_login_button:contentPaddingLeft="6dp"
                 social_login_button:contentPaddingRight="6dp"
@@ -186,7 +189,7 @@
                 social_login_button:image_width="23dp"
                 social_login_button:text="@string/social_login_qr_code"
                 social_login_button:text_color="#5C6061"
-                social_login_button:text_size="13sp" />
+                social_login_button:text_size="13sp"/>
 
         </GridLayout>
 

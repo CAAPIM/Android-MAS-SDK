@@ -1,6 +1,7 @@
 package com.ca.mas.ui;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,13 +10,11 @@ import android.os.Parcelable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -38,16 +37,14 @@ import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
 public class MASLoginActivity extends AppCompatActivity {
-
     public static final String REQUEST_ID = "requestID";
     public static final String PROVIDERS = "providers";
-
     private long requestId;
 
-    private EditText editTextUsername;
-    private EditText editTextPassword;
-    private GridLayout gridLayout;
-
+    private Context mContext;
+    private EditText mEditTextUsername;
+    private EditText mEditTextPassword;
+    private GridLayout mGridLayout;
     private MASAuthenticationProviders providers;
     private MASProximityLogin qrCode;
     private MASProximityLogin nfc;
@@ -57,6 +54,7 @@ public class MASLoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mas_login);
+        mContext = this;
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -67,15 +65,14 @@ public class MASLoginActivity extends AppCompatActivity {
             }
         }
 
-
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        editTextUsername = (EditText) findViewById(R.id.activity_mas_login_edit_text_username);
-        editTextPassword = (EditText) findViewById(R.id.activity_mas_login_edit_text_password);
+        mEditTextUsername = (EditText) findViewById(R.id.activity_mas_login_edit_text_username);
+        mEditTextPassword = (EditText) findViewById(R.id.activity_mas_login_edit_text_password);
 
         // Proximity Login
         qrCode = getQrCode();
@@ -86,7 +83,7 @@ public class MASLoginActivity extends AppCompatActivity {
         initProximity(ble);
 
         // Social Login
-        gridLayout = (GridLayout) findViewById(R.id.activity_mas_login_grid_layout);
+        mGridLayout = (GridLayout) findViewById(R.id.activity_mas_login_grid_layout);
         List<MASAuthenticationProvider> providerList = providers.getProviders();
         for (final MASAuthenticationProvider p : providerList) {
             String identifier = p.getIdentifier();
@@ -119,7 +116,8 @@ public class MASLoginActivity extends AppCompatActivity {
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                // TODO social login
+                                CustomTabs.socialLogin(mContext, p);
+                                finish();
                             }
                         });
                     }
@@ -134,12 +132,12 @@ public class MASLoginActivity extends AppCompatActivity {
                             linearLayout.addView(imageView);
                             new AlertDialog.Builder(MASLoginActivity.this)
                                     .setView(linearLayout)
-                                    .setNegativeButton("DISMISS", null)
+                                    .setNegativeButton("Done", null)
                                     .show();
                         }
                     });
                 } else {
-                    gridLayout.removeView(button);
+                    mGridLayout.removeView(button);
                 }
             }
         }
@@ -162,15 +160,13 @@ public class MASLoginActivity extends AppCompatActivity {
             case 4:
                 numColumns = 2;
                 break;
-            case 3:
-            case 5:
-            case 6:
+            default:
                 numColumns = 3;
                 break;
         }
 
-        gridLayout.setRowCount(numRows);
-        gridLayout.setColumnCount(numColumns);
+        mGridLayout.setRowCount(numRows);
+        mGridLayout.setColumnCount(numColumns);
     }
 
     @Override
@@ -218,8 +214,8 @@ public class MASLoginActivity extends AppCompatActivity {
             progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progress.setCancelable(false);
             progress.show();
-            String username = editTextUsername.getText().toString();
-            char[] password = editTextPassword.getText().toString().toCharArray();
+            String username = mEditTextUsername.getText().toString();
+            char[] password = mEditTextPassword.getText().toString().toCharArray();
 
             MASUser.login(username, password, new MASCallback<MASUser>() {
                 @Override
@@ -248,7 +244,7 @@ public class MASLoginActivity extends AppCompatActivity {
             public void onError(int errorCode, final String m, Exception e) {
                 // Hide QR Code option
                 View qrButton = findViewById(R.id.activity_mas_login_qr_code);
-                gridLayout.removeView(qrButton);
+                mGridLayout.removeView(qrButton);
             }
 
             @Override

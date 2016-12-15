@@ -17,18 +17,13 @@ import android.security.keystore.KeyProperties;
 import android.util.Log;
 
 import java.math.BigInteger;
-import java.security.KeyFactory;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAKeyGenParameterSpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
@@ -51,6 +46,7 @@ import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_RSA_OAE
 import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1;
 import static android.security.keystore.KeyProperties.SIGNATURE_PADDING_RSA_PKCS1;
 import static android.security.keystore.KeyProperties.SIGNATURE_PADDING_RSA_PSS;
+
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
@@ -81,6 +77,10 @@ public class KeyUtils {
             java.security.NoSuchProviderException, java.security.cert.CertificateException,
             java.security.UnrecoverableKeyException
     {
+        // use a minimum of 2048
+        if (keysize < 2048)
+            keysize = 2048;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // use KeyGenParameterSpec.Builder, new in Marshmallow
             return generateRsaPrivateKeyAndroidM(keysize, alias, deviceLockRequired);

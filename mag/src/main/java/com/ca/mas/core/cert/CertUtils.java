@@ -9,9 +9,9 @@
 package com.ca.mas.core.cert;
 
 import android.util.Base64;
+import android.util.Log;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -25,11 +25,14 @@ import java.util.Collection;
 import java.util.List;
 
 import sun.security.pkcs.PKCS10;
-import sun.security.x509.X500Name;
 import sun.security.x509.X500Signer;
 
 import static android.R.attr.data;
 import static android.R.attr.x;
+
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 
 /**
  * Utility methods for working with certificate and CSRs.
@@ -77,6 +80,7 @@ public class CertUtils {
         try {
             return (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(bytes));
         } catch (CertificateException e) {
+            if (DEBUG) Log.e(TAG, "Unable to decode public certificate, error: " + e + " for cert " + certificateText);
             throw new IOException(e);
         }
     }
@@ -106,8 +110,10 @@ public class CertUtils {
             pkcs10.encodeAndSign(new X500Signer(signature, x500Name));
             return pkcs10.getEncoded();
         } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "Unable to generate certificate signing request: " + e);
             throw new CertificateException("Unable to generate certificate signing request: " + e.getMessage(), e);
         } catch (Throwable t) {
+            if (DEBUG) Log.e(TAG, "Unable to generate certificate signing request: " + t);
             throw new CertificateException("Unable to generate certificate signing request: " + t);
         }
     }
@@ -139,31 +145,11 @@ public class CertUtils {
         try {
             return toX509CertArray(CertificateFactory.getInstance("X.509").generateCertificates(new ByteArrayInputStream(chainBytes)));
         } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "Unable to decode certificate chain: " + e);
             throw new IllegalArgumentException(e);
         }
     }
 
-    /**
-     * Encode a certificate chain to a byte array.
-     * <p/>
-     * The returned byte array is simply the encoded form of each certificate appended to the array
-     * one by one without any surrounding structure or other delimiters, with the subject cert coming first.
-     *
-     * @param chain the chain to encode.  Required.
-     * @return the encoded bytes of the chain.
-     * @throws IllegalArgumentException if the chain cannot be encoded.
-     */
-    public static byte[] encodeCertificateChain(X509Certificate[] chain) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            for (X509Certificate cert : chain) {
-                baos.write(cert.getEncoded());
-            }
-            return baos.toByteArray();
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
 
     private CertUtils() {
     }

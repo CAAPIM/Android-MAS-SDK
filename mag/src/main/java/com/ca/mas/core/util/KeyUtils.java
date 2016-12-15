@@ -14,6 +14,7 @@ import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
+import android.util.Log;
 
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -50,6 +51,8 @@ import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_RSA_OAE
 import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1;
 import static android.security.keystore.KeyProperties.SIGNATURE_PADDING_RSA_PKCS1;
 import static android.security.keystore.KeyProperties.SIGNATURE_PADDING_RSA_PSS;
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 
 
 /**
@@ -203,12 +206,14 @@ public class KeyUtils {
      * @return the Private Key object
      */
     public static void deletePrivateKey(String alias)
-            throws java.security.cert.CertificateException, java.io.IOException,
-            java.security.KeyStoreException, java.security.NoSuchAlgorithmException
     {
-        KeyStore keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
-        keyStore.load(null);
-        keyStore.deleteEntry(alias);
+        try {
+            KeyStore keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
+            keyStore.load(null);
+            keyStore.deleteEntry(alias);
+        } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "Unable delete privage key: " + e.getMessage(), e);
+        }
     }
 
 
@@ -275,94 +280,16 @@ public class KeyUtils {
      *                    where position 0 in the array will be 1.
      */
     public static void clearCertificateChain(String aliasPrefix)
-            throws java.io.IOException, java.security.KeyStoreException,
-            java.security.NoSuchAlgorithmException, java.security.cert.CertificateException
-
     {
-        KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
-        keyStore.load(null);
-        // delete any existing ones
-        for (int i=1; i<=MAX_CHAIN; i++) {
-            keyStore.deleteEntry(aliasPrefix + i);
-        }
-    }
-
-
-
-    /**
-     * Convert the specified private key into encoded key bytes in PKCS#8 format.
-     *
-     * @param privateKey the private key to encode.  Required.
-     * @return the encoded form of this key.  Never null.
-     * @throws IllegalArgumentException if the key is not RSA or cannot be encoded (perhaps it is a hardware key that cannot be exported)
-     */
-    public static byte[] encodeRsaPrivateKey(PrivateKey privateKey) {
-        if (!"RSA".equals(privateKey.getAlgorithm()))
-            throw new IllegalArgumentException("Private key is not an RSA private key: " + privateKey.getAlgorithm());
-
-        if (!"PKCS#8".equals(privateKey.getFormat()))
-            throw new IllegalArgumentException("Private key encoding format is not PKCS#8: " + privateKey.getFormat());
-
-        byte[] bytes = privateKey.getEncoded();
-        if (bytes == null || bytes.length < 1)
-            throw new IllegalArgumentException("Private key encoded form is null or empty");
-
-        return bytes;
-    }
-
-    /**
-     * Decode the specified PKCS#8 encoded RSA private key bytes into an RSA PrivateKey instance.
-     *
-     * @param pkcs8EncodedKeyBytes the PKCS#8 encoded RSA private key bytes.  Required.
-     * @return the decoded PrivateKey instance, created using the current default RSA KeyFactory.  Never null.
-     * @throws IllegalArgumentException if the key cannot be decoded
-     */
-    public static PrivateKey decodeRsaPrivateKey(byte[] pkcs8EncodedKeyBytes) {
         try {
-            return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(pkcs8EncodedKeyBytes));
-        } catch (InvalidKeySpecException e) {
-            throw new IllegalArgumentException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Convert the specified RSA public key into an X.509 SubjectPublicKeyInfo structure.
-     *
-     * @param publicKey the public key to encode.  Required.
-     * @return the X.509 encoded bytes of the public key.  Never null.
-     * @throws IllegalArgumentException if the key is not RSA or cannot be encoded.
-     */
-    public static byte[] encodeRsaPublicKey(PublicKey publicKey) {
-        if (!"RSA".equals(publicKey.getAlgorithm()))
-            throw new IllegalArgumentException("Public key is not an RSA private key: " + publicKey.getAlgorithm());
-
-        final String format = publicKey.getFormat();
-        if (!"X.509".equals(format) && !"X509".equals(format))
-            throw new IllegalArgumentException("Public key encoding format is not X.509: " + format);
-
-        byte[] bytes = publicKey.getEncoded();
-        if (bytes == null || bytes.length < 1)
-            throw new IllegalArgumentException("Public key encoded form is null or empty");
-
-        return bytes;
-    }
-
-    /**
-     * Decode the specified X.509 encoded SubjectPublicKeyInfo bytes into an RSA PublicKey instance.
-     *
-     * @param x509EncodedKeyBytes the X.509 encoded bytes of the public key.  Required.
-     * @return the decoded PublicKey instance, created using the default RSA KeyFactory.  Never null.
-     * @throws IllegalArgumentException if the key cannot be decoded
-     */
-    public static PublicKey decodeRsaPublicKey(byte[] x509EncodedKeyBytes) {
-        try {
-            return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(x509EncodedKeyBytes));
-        } catch (InvalidKeySpecException e) {
-            throw new IllegalArgumentException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
+            // delete any existing ones
+            for (int i = 1; i <= MAX_CHAIN; i++) {
+                keyStore.deleteEntry(aliasPrefix + i);
+            }
+        } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "Unable to clear certificate chain: " + e.getMessage(), e);
         }
     }
 

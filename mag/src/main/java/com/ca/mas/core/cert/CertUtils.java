@@ -110,7 +110,6 @@ public class CertUtils {
         } catch (Throwable t) {
             throw new CertificateException("Unable to generate certificate signing request: " + t);
         }
-        return null;
     }
 
 

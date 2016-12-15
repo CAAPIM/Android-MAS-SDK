@@ -39,9 +39,8 @@ public class DefaultTokenManager implements TokenManager {
 
     private static final String MSSO_USER_PROFILE = "msso.userProfile";
     private static final String MSSO_MAG_IDENTIFIER = "msso.magIdentifier";
-    private static final String MSSO_CLIENT_CERT_PRIVATE_KEY = "msso.clientCertPrivateKey";
-    private static final String MSSO_CLIENT_CERT_PUBLIC_KEY = "msso.clientCertPublicKey";
-    private static final String MSSO_CLIENT_CERT_CHAIN = "msso.clientCertChain";
+    private static final String MSSO_CLIENT_PRIVATE_KEY = "msso.clientCertPrivateKey";
+    private static final String MSSO_CLIENT_CERT_CHAIN_PREFIX = "msso.clientCertChain_";
     private static final String MSSO_ID_TOKEN = "msso.idToken";
     private static final String MSSO_ID_TOKEN_TYPE = "msso.idTokenType";
     private static final String MSSO_SECURE_ID_TOKEN = "msso.secureIdToken";
@@ -62,14 +61,12 @@ public class DefaultTokenManager implements TokenManager {
     }
 
     @Override
-    public void saveClientKeyPair(KeyPair keyPair) throws TokenStoreException {
-        storeSecureItem(MSSO_CLIENT_CERT_PRIVATE_KEY, KeyUtils.encodeRsaPrivateKey(keyPair.getPrivate()));
-        storeSecureItem(MSSO_CLIENT_CERT_PUBLIC_KEY, KeyUtils.encodeRsaPublicKey(keyPair.getPublic()));
-    }
-
-    @Override
     public void saveClientCertificateChain(X509Certificate[] chain) throws TokenStoreException {
-        storeSecureItem(MSSO_CLIENT_CERT_CHAIN, CertUtils.encodeCertificateChain(chain));
+        try {
+            KeyUtils.setCertificateChain(MSSO_CLIENT_CERT_CHAIN_PREFIX, chain);
+        } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "Unable to save client certificate chain: " + e.getMessage(), e);
+        }
     }
 
     @Override
@@ -103,9 +100,8 @@ public class DefaultTokenManager implements TokenManager {
     public void clear() throws TokenStoreException {
         deleteIdToken();
         deleteUserProfile();
-        deleteSecureItem(MSSO_CLIENT_CERT_PRIVATE_KEY);
-        deleteSecureItem(MSSO_CLIENT_CERT_PUBLIC_KEY);
-        deleteSecureItem(MSSO_CLIENT_CERT_CHAIN);
+        KeyUtils.deletePrivateKey(MSSO_CLIENT_PRIVATE_KEY);
+        KeyUtils.clearCertificateChain(MSSO_CLIENT_CERT_CHAIN_PREFIX);
         deleteSecureItem(MSSO_MAG_IDENTIFIER);
     }
 
@@ -154,7 +150,7 @@ public class DefaultTokenManager implements TokenManager {
     public PrivateKey createPrivateKey(Context ctx, int keyBits)
     {
         try {
-            return KeyUtils.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_CERT_PRIVATE_KEY, true);
+            return KeyUtils.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_PRIVATE_KEY, true);
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to create client private key: " + e.getMessage(), e);
             return null;
@@ -164,7 +160,7 @@ public class DefaultTokenManager implements TokenManager {
     @Override
     public PrivateKey getClientPrivateKey() {
         try {
-            return KeyUtils.getRsaPrivateKey(MSSO_CLIENT_CERT_PRIVATE_KEY);
+            return KeyUtils.getRsaPrivateKey(MSSO_CLIENT_PRIVATE_KEY);
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to get client private key: " + e.getMessage(), e);
             return null;
@@ -174,7 +170,7 @@ public class DefaultTokenManager implements TokenManager {
     @Override
     public PublicKey getClientPublicKey() {
         try {
-            return  KeyUtils.getRsaPublicKey(MSSO_CLIENT_CERT_PRIVATE_KEY);
+            return  KeyUtils.getRsaPublicKey(MSSO_CLIENT_PRIVATE_KEY);
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to get client public key: " + e.getMessage(), e);
             return null;
@@ -185,9 +181,8 @@ public class DefaultTokenManager implements TokenManager {
     @Override
     public boolean isClientCertificateChainAvailable() {
         try {
-            return retrieveSecureItem(MSSO_CLIENT_CERT_CHAIN) != null;
-            //return storage.getKeys().contains(getKey(MSSO_CLIENT_CERT_CHAIN));
-        } catch (TokenStoreException e) {
+            return KeyUtils.getCertificateChain(MSSO_CLIENT_CERT_CHAIN_PREFIX) != null;
+        } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to access client cert chain: " + e.getMessage(), e);
             return false;
         }
@@ -196,12 +191,8 @@ public class DefaultTokenManager implements TokenManager {
     @Override
     public X509Certificate[] getClientCertificateChain() {
         try {
-            byte[] bytes = retrieveSecureItem(MSSO_CLIENT_CERT_CHAIN);
-            if (bytes == null)
-                return null;
-
-            return CertUtils.decodeCertificateChain(bytes);
-        } catch (TokenStoreException e) {
+            return KeyUtils.getCertificateChain(MSSO_CLIENT_CERT_CHAIN_PREFIX);
+        } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to access client cert chain: " + e.getMessage(), e);
             return null;
         }

@@ -11,14 +11,17 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ca.mas.foundation.MASCallback;
@@ -144,6 +147,42 @@ public class MASLoginActivity extends AppCompatActivity {
 
         int numButtons = providerList.size(); // Social buttons + QR button
         updateGridLayoutNumRowsColumns(numButtons);
+
+        // Login Button
+        View view = findViewById(R.id.activity_mas_login_button_login);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                login();
+            }
+        });
+
+
+        TextView.OnEditorActionListener onEditorActionListener = new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (v instanceof EditText) {
+                    EditText editText = (EditText) v;
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        int id = editText.getId();
+                        if (id == R.id.activity_mas_login_edit_text_username) {
+                            mEditTextPassword.requestFocus();
+                            handled = true;
+                        } else if (id == R.id.activity_mas_login_edit_text_password) {
+                            login();
+                            handled = true;
+                        }
+                    }
+                }
+                return handled;
+            }
+        };
+
+        mEditTextUsername.setOnEditorActionListener(onEditorActionListener);
+        mEditTextPassword.setOnEditorActionListener(onEditorActionListener);
+        mEditTextPassword.setImeActionLabel(getResources().getString(R.string.login), EditorInfo.IME_ACTION_DONE);
+
     }
 
     private void updateGridLayoutNumRowsColumns(int numButtons) {
@@ -207,36 +246,34 @@ public class MASLoginActivity extends AppCompatActivity {
         stopProximity(ble);
     }
 
-    public void onClickLogin(View view) {
-        int id = view.getId();
-        if (id == R.id.activity_mas_login_button_login) {
-            final ProgressDialog progress = new ProgressDialog(this);
-            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progress.setCancelable(false);
-            progress.show();
-            String username = mEditTextUsername.getText().toString();
-            char[] password = mEditTextPassword.getText().toString().toCharArray();
+    private void login() {
+        final ProgressDialog progress = new ProgressDialog(MASLoginActivity.this);
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setCancelable(false);
+        progress.show();
+        String username = mEditTextUsername.getText().toString();
+        char[] password = mEditTextPassword.getText().toString().toCharArray();
 
-            MASUser.login(username, password, new MASCallback<MASUser>() {
-                @Override
-                public Handler getHandler() {
-                    return new Handler(Looper.getMainLooper());
-                }
+        MASUser.login(username, password, new MASCallback<MASUser>() {
+            @Override
+            public Handler getHandler() {
+                return new Handler(Looper.getMainLooper());
+            }
 
-                @Override
-                public void onSuccess(MASUser result) {
-                    progress.dismiss();
-                    finish();
-                }
+            @Override
+            public void onSuccess(MASUser result) {
+                progress.dismiss();
+                finish();
+            }
 
-                @Override
-                public void onError(Throwable e) {
-                    progress.dismiss();
-                    Toast.makeText(MASLoginActivity.this, "Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
+            @Override
+            public void onError(Throwable e) {
+                progress.dismiss();
+                Toast.makeText(MASLoginActivity.this, "Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 
     private MASProximityLoginQRCode getQrCode() {
         return new MASProximityLoginQRCode() {

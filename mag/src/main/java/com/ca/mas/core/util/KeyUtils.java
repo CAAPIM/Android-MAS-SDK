@@ -140,12 +140,14 @@ public class KeyUtils {
         Date now = cal.getTime();
         cal.add(Calendar.YEAR, 1);
         Date end = cal.getTime();
+        //NOTE: setUserAuthenticationRequired does not work correctly if fingerprints are enabled
         keyPairGenerator.initialize(
                 new KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT + KeyProperties.PURPOSE_DECRYPT + KeyProperties.PURPOSE_SIGN + KeyProperties.PURPOSE_VERIFY)
                         .setKeySize(keysize)
                         .setCertificateNotBefore(now).setCertificateNotAfter(end)
                         .setCertificateSubject(new X500Principal("CN=msso"))
                         .setCertificateSerialNumber(BigInteger.valueOf(1))
+                        .setRandomizedEncryptionRequired(true)
                         //.setUserAuthenticationRequired(deviceLockRequired)
                         .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_ECB, BLOCK_MODE_GCM)
                         .setDigests(DIGEST_NONE, DIGEST_MD5, DIGEST_SHA1, DIGEST_SHA256, DIGEST_SHA384, DIGEST_SHA512)

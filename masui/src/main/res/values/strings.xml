@@ -12,7 +12,7 @@
     <string name="enter_password">Password</string>
     <string name="login">Login</string>
     <string name="ca_logo">CA Logo</string>
-    <string name="social_login_title">Or login with</string>
+    <string name="social_login_title">Or login with:</string>
     <string name="social_login_facebook">Facebook</string>
     <string name="social_login_google">Google</string>
     <string name="social_login_salesforce">Salesforce</string>

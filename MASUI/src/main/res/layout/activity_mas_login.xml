@@ -8,8 +8,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_centerHorizontal="true"
+    android:background="@color/white"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true"
+    android:gravity="center"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -22,7 +24,7 @@
         android:layout_height="100dp"
         android:layout_marginBottom="20dp"
         android:layout_marginTop="20dp"
-        android:src="@drawable/ca" />
+        android:src="@drawable/ca"/>
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
@@ -38,7 +40,7 @@
             android:hint="@string/user_name"
             android:imeOptions="actionDone"
             android:inputType="textNoSuggestions"
-            android:maxLines="1" />
+            android:maxLines="1"/>
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
@@ -57,7 +59,7 @@
             android:hint="@string/enter_password"
             android:imeOptions="actionDone"
             android:inputType="textPassword"
-            android:maxLines="1" />
+            android:maxLines="1"/>
     </android.support.design.widget.TextInputLayout>
 
     <android.support.v7.widget.AppCompatButton
@@ -65,8 +67,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:onClick="onClickLogin"
         android:padding="16dp"
-        android:text="@string/login" />
+        android:text="@string/login"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -81,7 +84,7 @@
             android:layout_marginTop="20dp"
             android:text="@string/social_login_title"
             android:textAppearance="@android:style/TextAppearance.Medium"
-            android:textSize="16sp" />
+            android:textSize="16sp"/>
 
         <GridLayout
             android:id="@+id/activity_mas_login_grid_layout"
@@ -101,13 +104,13 @@
                 card_view:cardBackgroundColor="@color/colorButtonFacebook"
                 social_login_button:contentPaddingLeft="6dp"
                 social_login_button:contentPaddingRight="6dp"
-                social_login_button:image_height="23dp"
+                social_login_button:image_height="@dimen/social_button_image_height"
                 social_login_button:image_margin_right="8dp"
                 social_login_button:image_src="@mipmap/facebook_enable"
-                social_login_button:image_width="23dp"
+                social_login_button:image_width="@dimen/social_button_image_width"
                 social_login_button:text="@string/social_login_facebook"
                 social_login_button:text_color="#FFFFFF"
-                social_login_button:text_size="13sp" />
+                social_login_button:text_size="@dimen/social_button_text_size"/>
 
             <com.ca.mas.ui.SocialLoginButton
                 android:id="@+id/activity_mas_login_google"
@@ -118,13 +121,13 @@
                 card_view:cardBackgroundColor="@color/colorButtonGoogle"
                 social_login_button:contentPaddingLeft="6dp"
                 social_login_button:contentPaddingRight="6dp"
-                social_login_button:image_height="23dp"
+                social_login_button:image_height="@dimen/social_button_image_height"
                 social_login_button:image_margin_right="8dp"
                 social_login_button:image_src="@mipmap/google"
-                social_login_button:image_width="23dp"
+                social_login_button:image_width="@dimen/social_button_image_width"
                 social_login_button:text="@string/social_login_google"
                 social_login_button:text_color="#5C6061"
-                social_login_button:text_size="13sp" />
+                social_login_button:text_size="@dimen/social_button_text_size"/>
 
             <com.ca.mas.ui.SocialLoginButton
                 android:id="@+id/activity_mas_login_salesforce"
@@ -134,13 +137,13 @@
                 card_view:cardBackgroundColor="@color/colorButtonSalesforce"
                 social_login_button:contentPaddingLeft="6dp"
                 social_login_button:contentPaddingRight="6dp"
-                social_login_button:image_height="23dp"
+                social_login_button:image_height="@dimen/social_button_image_height"
                 social_login_button:image_margin_right="8dp"
                 social_login_button:image_src="@mipmap/salesforce_enable"
-                social_login_button:image_width="23dp"
+                social_login_button:image_width="@dimen/social_button_image_width"
                 social_login_button:text="@string/social_login_salesforce"
                 social_login_button:text_color="#5C6061"
-                social_login_button:text_size="12sp" />
+                social_login_button:text_size="@dimen/social_button_text_size"/>
 
             <com.ca.mas.ui.SocialLoginButton
                 android:id="@+id/activity_mas_login_linked_in"
@@ -151,13 +154,13 @@
                 card_view:cardBackgroundColor="@color/colorButtonLinkedIn"
                 social_login_button:contentPaddingLeft="6dp"
                 social_login_button:contentPaddingRight="6dp"
-                social_login_button:image_height="23dp"
+                social_login_button:image_height="@dimen/social_button_image_height"
                 social_login_button:image_margin_right="8dp"
                 social_login_button:image_src="@mipmap/linkedin_enable"
-                social_login_button:image_width="23dp"
+                social_login_button:image_width="@dimen/social_button_image_width"
                 social_login_button:text="@string/social_login_linkedin"
                 social_login_button:text_color="#FFFFFF"
-                social_login_button:text_size="13sp" />
+                social_login_button:text_size="@dimen/social_button_text_size"/>
 
             <com.ca.mas.ui.SocialLoginButton
                 android:id="@+id/activity_mas_login_enterprise"
@@ -168,13 +171,13 @@
                 card_view:cardBackgroundColor="@color/colorButtonEnterprise"
                 social_login_button:contentPaddingLeft="6dp"
                 social_login_button:contentPaddingRight="6dp"
-                social_login_button:image_height="23dp"
+                social_login_button:image_height="@dimen/social_button_image_height"
                 social_login_button:image_margin_right="8dp"
                 social_login_button:image_src="@mipmap/enterprise_enable"
-                social_login_button:image_width="23dp"
+                social_login_button:image_width="@dimen/social_button_image_width"
                 social_login_button:text="@string/social_login_enterprise"
                 social_login_button:text_color="#5C6061"
-                social_login_button:text_size="13sp" />
+                social_login_button:text_size="@dimen/social_button_text_size"/>
 
             <com.ca.mas.ui.SocialLoginButton
                 android:id="@+id/activity_mas_login_qr_code"
@@ -184,13 +187,13 @@
                 card_view:cardBackgroundColor="@color/colorButtonQrCode"
                 social_login_button:contentPaddingLeft="6dp"
                 social_login_button:contentPaddingRight="6dp"
-                social_login_button:image_height="23dp"
+                social_login_button:image_height="@dimen/social_button_image_height"
                 social_login_button:image_margin_right="8dp"
                 social_login_button:image_src="@mipmap/qr_code"
-                social_login_button:image_width="23dp"
+                social_login_button:image_width="@dimen/social_button_image_width"
                 social_login_button:text="@string/social_login_qr_code"
                 social_login_button:text_color="#5C6061"
-                social_login_button:text_size="13sp" />
+                social_login_button:text_size="@dimen/social_button_text_size"/>
 
         </GridLayout>
 

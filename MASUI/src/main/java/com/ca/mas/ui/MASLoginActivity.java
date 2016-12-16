@@ -10,6 +10,7 @@ import android.os.Parcelable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -43,7 +44,6 @@ public class MASLoginActivity extends AppCompatActivity {
     public static final String REQUEST_ID = "requestID";
     public static final String PROVIDERS = "providers";
     private long requestId;
-
     private Context mContext;
     private EditText mEditTextUsername;
     private EditText mEditTextPassword;
@@ -72,6 +72,12 @@ public class MASLoginActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setElevation(0);
+        }
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.action_bar);
+        if (toolbar != null) {
+            toolbar.setBackgroundColor(0xffffffff);
         }
 
         mEditTextUsername = (EditText) findViewById(R.id.activity_mas_login_edit_text_username);
@@ -114,8 +120,8 @@ public class MASLoginActivity extends AppCompatActivity {
 
             if (id != null) {
                 View button = findViewById(id);
-                if (!p.isProximityLogin()) {
-                    if (providers.getIdp().equals("all") || providers.getIdp().equalsIgnoreCase(identifier)) {
+                if (providers.getIdp().equals("all") || providers.getIdp().equalsIgnoreCase(identifier)) {
+                    if (!p.isProximityLogin()) {
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -123,6 +129,9 @@ public class MASLoginActivity extends AppCompatActivity {
                                 finish();
                             }
                         });
+                    } else {
+                        button.setClickable(false);
+                        button.setEnabled(false);
                     }
                 } else if (identifier.equalsIgnoreCase("qrcode")) {
                     button.setOnClickListener(new View.OnClickListener() {
@@ -157,7 +166,6 @@ public class MASLoginActivity extends AppCompatActivity {
             }
         });
 
-
         TextView.OnEditorActionListener onEditorActionListener = new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -182,7 +190,6 @@ public class MASLoginActivity extends AppCompatActivity {
         mEditTextUsername.setOnEditorActionListener(onEditorActionListener);
         mEditTextPassword.setOnEditorActionListener(onEditorActionListener);
         mEditTextPassword.setImeActionLabel(getResources().getString(R.string.login), EditorInfo.IME_ACTION_DONE);
-
     }
 
     private void updateGridLayoutNumRowsColumns(int numButtons) {
@@ -273,7 +280,6 @@ public class MASLoginActivity extends AppCompatActivity {
             }
         });
     }
-
 
     private MASProximityLoginQRCode getQrCode() {
         return new MASProximityLoginQRCode() {

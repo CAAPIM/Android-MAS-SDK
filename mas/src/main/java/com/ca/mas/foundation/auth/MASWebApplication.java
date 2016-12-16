@@ -74,11 +74,6 @@ public class MASWebApplication {
 
         return new WebViewClient() {
 
-            @Override
-            public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
-                handler.proceed();
-            }
-
             @TargetApi(Build.VERSION_CODES.LOLLIPOP)
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {

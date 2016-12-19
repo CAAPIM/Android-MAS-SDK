@@ -202,13 +202,7 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
     }
 
     private void unsubscribeTopic(@NonNull final MASTopic topic, final MASCallback<Void> callback) {
-        Handler h = new Handler();
-        h.post(new Runnable() {
-            @Override
-            public void run() {
-                mMASTransportService.unsubscribe(topic, callback);
-            }
-        });
+        mMASTransportService.unsubscribe(topic, callback);
     }
 
     public void publish(@NonNull final MASTopic masTopic, @NonNull final String message, final MASCallback<Void> callback) {

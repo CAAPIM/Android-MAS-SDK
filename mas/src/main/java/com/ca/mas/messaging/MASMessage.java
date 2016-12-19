@@ -255,42 +255,42 @@ public abstract class MASMessage implements MASPayload {
     }
 
     /**
-     * <b>Descriptions:</b> See {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttMessage.html#setDuplicate(boolean)">MqttMessage.setDuplication(boolean)</a>}.
+     * <b>Description:</b> See {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttMessage.html#setDuplicate(boolean)">MqttMessage.setDuplication(boolean)</a>}.
      *
      * @param isDuplicate true or false.
      */
     public abstract void setDuplicate(boolean isDuplicate);
 
     /**
-     * <b>Descriptions:</b> <i>true</i> See {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttMessage.html#setDuplicate(boolean)">MqttMessage.setDuplication(boolean)</a>}.
+     * <b>Description:</b> <i>true</i> See {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttMessage.html#setDuplicate(boolean)">MqttMessage.setDuplication(boolean)</a>}.
      *
      * @return boolean true or false.
      */
     public abstract boolean isDuplicate();
 
     /**
-     * <b>Descriptions:</b> See {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttMessage.html#setRetained(boolean)">MqttMessage.setRetained(boolean)</a>}
+     * <b>Description:</b> See {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttMessage.html#setRetained-boolean-">MqttMessage.setRetained(boolean)</a>}
      *
      * @param isRetained true or false.
      */
     public abstract void setRetained(boolean isRetained);
 
     /**
-     * <b>Descriptions:</b> See {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttMessage.html#isRetained()">MqttMessage.isRetained()</a>}
+     * <b>Description:</b> See {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttMessage.html#isRetained--">MqttMessage.isRetained()</a>}
      *
      * @return boolean true or false.
      */
     public abstract boolean isRetained();
 
     /**
-     * <b>Descriptions:</b> Defaults to EXACTLY_ONCE. See {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttMessage.html#setRetained(boolean)">MqttMessage.setQos(int)</a>}
+     * <b>Description:</b> Defaults to EXACTLY_ONCE. See {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttMessage.html#setRetained-boolean-">MqttMessage.setQos(int)</a>}
      *
      * @param qos either 0, 1, or 2 (default)
      */
     public abstract void setQos(int qos);
 
     /**
-     * <b>Descriptions:</b> Defaults to EXACTLY_ONCE. See {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttMessage.html#setRetained(boolean)">MqttMessage.setQos(int)</a>}
+     * <b>Description:</b> Defaults to EXACTLY_ONCE. See {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttMessage.html#setRetained-boolean-">MqttMessage.setQos(int)</a>}
      *
      * @return int value of either 0, 1, or 2 (default)
      */
@@ -298,14 +298,14 @@ public abstract class MASMessage implements MASPayload {
 
 
     /**
-     * <b>Descriptions:</b> Set the topic that was used when this message is sent.
+     * <b>Description:</b> Set the topic that was used when this message is sent.
      *
      * @param topic the String representing the topic.
      */
     public abstract void setTopic(String topic);
 
     /**
-     * <b>Descriptions:</b> Getter for getting the topic this message arrived, on.
+     * <b>Description:</b> Getter for getting the topic this message arrived, on.
      *
      * @return String the topic.
      */

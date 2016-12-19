@@ -40,13 +40,11 @@ import static android.security.keystore.KeyProperties.DIGEST_SHA1;
 import static android.security.keystore.KeyProperties.DIGEST_SHA256;
 import static android.security.keystore.KeyProperties.DIGEST_SHA384;
 import static android.security.keystore.KeyProperties.DIGEST_SHA512;
-import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE;
 import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_PKCS7;
 import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_RSA_OAEP;
 import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1;
 import static android.security.keystore.KeyProperties.SIGNATURE_PADDING_RSA_PKCS1;
 import static android.security.keystore.KeyProperties.SIGNATURE_PADDING_RSA_PSS;
-
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
@@ -147,12 +145,18 @@ public class KeyUtils {
                         .setCertificateNotBefore(now).setCertificateNotAfter(end)
                         .setCertificateSubject(new X500Principal("CN=msso"))
                         .setCertificateSerialNumber(BigInteger.valueOf(1))
-                        .setRandomizedEncryptionRequired(true)
+                        // In HttpUrlConnection, com.android.org.conscrypt.CryptoUpcalls.rawSignDigestWithPrivateKey
+                        //   requires "NONEwithRSA", so we need to include DIGEST_NONE here
+                        //.setRandomizedEncryptionRequired(true)
+                        .setRandomizedEncryptionRequired(false)
+                        // This setUserAuthenticationRequired does not work correctly if fingerprints are enabled
                         //.setUserAuthenticationRequired(deviceLockRequired)
                         .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_ECB, BLOCK_MODE_GCM)
+                        // In HttpUrlConnection, com.android.org.conscrypt.CryptoUpcalls.rawSignDigestWithPrivateKey
+                        //   requires "NONEwithRSA", so we need to include DIGEST_NONE here
                         .setDigests(DIGEST_NONE, DIGEST_MD5, DIGEST_SHA1, DIGEST_SHA256, DIGEST_SHA384, DIGEST_SHA512)
-                        .setEncryptionPaddings(ENCRYPTION_PADDING_NONE, ENCRYPTION_PADDING_PKCS7, ENCRYPTION_PADDING_RSA_OAEP, ENCRYPTION_PADDING_RSA_PKCS1)
-                        .setRandomizedEncryptionRequired(false)
+                        // Removed ENCRYPTION_PADDING_NONE
+                        .setEncryptionPaddings(ENCRYPTION_PADDING_PKCS7, ENCRYPTION_PADDING_RSA_OAEP, ENCRYPTION_PADDING_RSA_PKCS1)
                         .setSignaturePaddings(SIGNATURE_PADDING_RSA_PSS, SIGNATURE_PADDING_RSA_PKCS1)
                         .build());
         return keyPairGenerator.generateKeyPair().getPrivate();

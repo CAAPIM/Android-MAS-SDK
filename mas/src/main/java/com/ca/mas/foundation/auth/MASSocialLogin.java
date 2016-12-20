@@ -138,9 +138,10 @@ public abstract class MASSocialLogin {
                 if (url.toString().startsWith(redirectUri)) {
                     //look up for the authorization code from the response parameter.
                     String code = url.getQueryParameter("code");
+                    String state = url.getQueryParameter("state");
                     Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, context, MssoService.class);
                     intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-                    intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, new AuthorizationCodeCredentials(code));
+                    intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, new AuthorizationCodeCredentials(code, state));
                     context.startService(intent);
                     onAuthCodeReceived(code);
                     return true;

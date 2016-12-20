@@ -34,6 +34,8 @@ import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.util.KeyUtils;
 
 import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
@@ -56,10 +58,12 @@ import static com.ca.mas.core.MAG.TAG;
 class DeviceRegistrationAssertion implements MssoAssertion {
 
     private TokenManager tokenManager;
+    private Context ctx = null;
 
     @Override
     public void init(@NonNull MssoContext mssoContext, @NonNull Context sysContext) throws MssoException {
         this.tokenManager = mssoContext.getTokenManager();
+        ctx = sysContext;
         if (tokenManager == null)
             throw new NullPointerException("mssoContext.tokenManager");
         if (mssoContext.getConfigurationProvider() == null)
@@ -118,25 +122,22 @@ class DeviceRegistrationAssertion implements MssoAssertion {
         if (DEBUG) Log.d(TAG, "Device registration process start");
 
         // Perform device registration
-        KeyPair keyPair = tokenManager.getClientKeyPair();
-        if (keyPair == null) {
-            Integer keyBits = mssoContext.getConfigurationProvider().getProperty(ConfigurationProvider.PROP_CLIENT_CERT_RSA_KEYBITS);
+        PrivateKey privateKey = tokenManager.getClientPrivateKey();
+        if (privateKey == null) { 
+            // if we don't have a private key yet, create one
+            Integer keyBits = mssoContext.getConfigurationProvider().getProperty(ConfigurationProvider.PROP_CLIENT_CERT_RSA_KEYBITS);           
             if (keyBits == null)
-                keyBits = 1024;
-            keyPair = KeyUtils.generateRsaKeyPair(keyBits);
-            try {
-                tokenManager.saveClientKeyPair(keyPair);
-            } catch (TokenStoreException e) {
-                throw new TokenStoreUnavailableException(e);
-            }
+                keyBits = 2048;
+            privateKey = tokenManager.createPrivateKey(ctx, keyBits);
         }
+        PublicKey publicKey = tokenManager.getClientPublicKey();
 
         final String deviceId = mssoContext.getDeviceId();
         final String deviceName = mssoContext.getDeviceName();
         byte[] csrBytes;
         try {
             String organization = mssoContext.getConfigurationProvider().getProperty(ConfigurationProvider.PROP_ORGANIZATION);
-            csrBytes = CertUtils.generateCertificateSigningRequest(creds.getUsername(), deviceId, deviceName, organization, keyPair);
+            csrBytes = CertUtils.generateCertificateSigningRequest(creds.getUsername(), deviceId, deviceName, organization, publicKey, privateKey);
         } catch (CertificateException e) {
             throw new RegistrationException(MAGErrorCode.DEVICE_NOT_REGISTERED, e);
         }

@@ -75,6 +75,11 @@ public interface MAGRequest {
      */
     String getScope();
 
+    /**
+     * @return True if this request is target to unProtected API Request
+     */
+    boolean isProtected();
+
     interface MAGConnectionListener {
         /**
          * Invoke immediately after the call {@link URL#openConnection()}.
@@ -106,6 +111,7 @@ public interface MAGRequest {
         private GrantProvider grantProvider = ConfigurationManager.getInstance().getDefaultGrantProvider();
         private String scope;
         private MAGConnectionListener listener;
+        private boolean isProtected = true;
 
         /**
          * Create a builder with the provided {@link URI}.
@@ -238,6 +244,16 @@ public interface MAGRequest {
         }
 
         /**
+         * Sets this request as unProtected API Request
+         *
+         * @return The builder
+         */
+        public MAGRequestBuilder unProtected() {
+            this.isProtected = false;
+            return this;
+        }
+
+        /**
          * Adds the specified header to the request.
          *
          * @param name  Header name
@@ -337,6 +353,11 @@ public interface MAGRequest {
                 @Override
                 public String getScope() {
                     return scope;
+                }
+
+                @Override
+                public boolean isProtected() {
+                    return isProtected;
                 }
             };
         }

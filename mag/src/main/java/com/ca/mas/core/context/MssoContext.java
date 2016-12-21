@@ -418,6 +418,10 @@ public class MssoContext {
         MAGStateException lastError = null;
         for (; requestInfo.getNumAttempts() < MAX_REQUEST_ATTEMPTS; requestInfo.incrementNumAttempts()) {
             try {
+                //Do not execute the policy if this request is target to an unprotected endpoint.
+                if (!request.isProtected()) {
+                    return getMAGHttpClient().execute(internalRequest);
+                }
                 policyManager.processRequest(requestInfo);
                 MAGResponse response;
                 if (internalRequest.isLocalRequest()) {

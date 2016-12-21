@@ -15,6 +15,7 @@ import com.ca.mas.sample.testapp.tests.instrumentation.foundation.MASApplication
 import com.ca.mas.sample.testapp.tests.instrumentation.foundation.MASConfigurationTest;
 import com.ca.mas.sample.testapp.tests.instrumentation.foundation.MASDeviceTests;
 import com.ca.mas.sample.testapp.tests.instrumentation.foundation.MASTest;
+import com.ca.mas.sample.testapp.tests.instrumentation.foundation.MASUnProtectedAPITest;
 import com.ca.mas.sample.testapp.tests.instrumentation.group.MASGroupTests;
 import com.ca.mas.sample.testapp.tests.instrumentation.storage.MASSecureStorageForApplication;
 import com.ca.mas.sample.testapp.tests.instrumentation.storage.MASSecureStorageForUserApplication;
@@ -46,6 +47,7 @@ import org.junit.runners.Suite;
                 MASUserTests.class,
 
                 MASTest.class,
+                MASUnProtectedAPITest.class,
                 MASApplicationTest.class,
                 MASConfigurationTest.class,
         })

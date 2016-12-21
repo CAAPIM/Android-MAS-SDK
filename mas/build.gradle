@@ -76,7 +76,7 @@ def issueUrl = 'https://github.com/CAAPIM/Android-MAS-SDK/issues'
 
 group 'com.ca'
 
-project.version = "1.3"
+project.version = "1.3-develop"
 bintray {
     user = bintray_user
     key = bintray_api_key

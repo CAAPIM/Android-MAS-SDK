@@ -63,6 +63,19 @@ public interface MobileSso {
     void authenticate(String username, char[] password, MAGResultReceiver<JSONObject> resultReceiver);
 
     /**
+     * <p>Authenticates a user with an Id Token
+     * </p>
+     *
+     * <p>The response to the request will eventually be delivered to the specified result receiver.</p>
+     * <p>This method returns immediately to the calling thread</p>
+     *
+     * @param idToken       The id_token to authenticate with
+     * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
+     */
+    void authenticate(char[] idToken, MAGResultReceiver<JSONObject> resultReceiver);
+
+
+    /**
      * Sets the {@link MobileSsoListener} that will receive various notifications and requests for MAG Client.
      *
      * @param mobileSsoListener an implementation of MobileSsoListener

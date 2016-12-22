@@ -17,6 +17,7 @@ import android.util.Log;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.creds.Credentials;
+import com.ca.mas.core.creds.JwtBearerCredentials;
 import com.ca.mas.core.creds.PasswordCredentials;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGRequest;
@@ -108,6 +109,45 @@ public class MssoClient {
             }
         }.execute((Void) null);
     }
+
+    /**
+     * Logs in a user with an IdToken
+     *
+     * <p/>
+     * <p>The response to the request will eventually be delivered to the specified result receiver.</p>
+     * <p>This method returns immediately to the calling thread</p>
+     *
+     * @param idToken       The idToken to log in with
+     * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
+     */
+    public void authenticate(final char[] idToken, final MAGResultReceiver resultReceiver) {
+
+        final MssoRequest mssoRequest = new MssoRequest(this, mssoContext, new AuthenticateRequest(), resultReceiver);
+        MssoRequestQueue.getInstance().addRequest(mssoRequest);
+        long requestId = mssoRequest.getId();
+
+        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, sysContext, MssoService.class);
+        Credentials credentials = new JwtBearerCredentials(idToken);
+        intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
+        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    mssoContext.logout(true);
+                } catch (SecureLockException e) {
+                    resultReceiver.onError(new MAGError(e));
+                    return null;
+                } catch (Exception ignore) {
+                    if (DEBUG) Log.w(TAG, ignore);
+                }
+                sysContext.startService(intent);
+                return null;
+            }
+        }.execute((Void) null);
+    }
+
 
     /**
      * Submit a wakeup message to the intent service, ensuring that any enqueued requests are being processed.

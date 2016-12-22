@@ -44,8 +44,8 @@ public class RenewDeviceTest extends BaseTest {
                         .setResponseCode(200)
                         .setHeader("device-status", "activated")
                         .setHeader("mag-identifier", "test-device")
-                        .setHeader("id-token", "dummy-idToken")
-                        .setHeader("id-token-type", "dummy-idTokenType")
+                        .setHeader("id-token", getIdToken())
+                        .setHeader("id-token-type", getIdTokenType())
                         .setBody(cert);
             }
         });

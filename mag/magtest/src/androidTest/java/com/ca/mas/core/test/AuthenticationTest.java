@@ -14,18 +14,22 @@ import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
+import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.request.internal.OAuthTokenRequest;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.squareup.okhttp.mockwebserver.MockResponse;
+import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.net.HttpURLConnection;
+import java.net.URLDecoder;
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
@@ -205,7 +209,7 @@ public class AuthenticationTest extends BaseTest {
     }
 
     @Test
-    public void authenticateTest() throws InterruptedException {
+    public void testAuthenticateWithUsernamePassword() throws InterruptedException {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         final boolean[] success = {false};
         mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
@@ -246,6 +250,83 @@ public class AuthenticationTest extends BaseTest {
 
         countDownLatch.await();
         assertTrue(success[0]);
+    }
+
+    @Test
+    public void testAuthenticateWithIdToken() throws Exception {
+        final CountDownLatch countDownLatch1 = new CountDownLatch(1);
+        final CountDownLatch countDownLatch2 = new CountDownLatch(1);
+        final boolean[] success = {false};
+
+        mobileSso.setMobileSsoListener(new MobileSsoListener() {
+            @Override
+            public void onAuthenticateRequest(long requestId, AuthenticationProvider authenticationProvider) {
+                mobileSso.authenticate(getIdToken().toCharArray(), new MAGResultReceiver<JSONObject>() {
+                    @Override
+                    public void onSuccess(MAGResponse<JSONObject> response) {
+                        countDownLatch2.countDown();
+                    }
+
+                    @Override
+                    public void onError(MAGError error) {
+                        countDownLatch2.countDown();
+                    }
+
+                    @Override
+                    public void onRequestCancelled() {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler) {
+
+            }
+        });
+        mobileSso.authenticate(getIdToken().toCharArray(), new MAGResultReceiver<JSONObject>() {
+            @Override
+            public void onSuccess(MAGResponse<JSONObject> response) {
+                RecordedRequest rr = null; //initialize
+                try {
+                    rr = ssg.takeRequest();
+                    //Verify the /register endpoint contains the id-token
+                    rr = ssg.takeRequest(); //register
+                    assertEquals(rr.getHeader("id-token"), getIdToken());
+                    assertEquals(rr.getHeader("id-token-type"), "urn:ietf:params:oauth:grant-type:jwt-bearer");
+                    rr = ssg.takeRequest(); //token
+                    success[0] = true;
+                } catch (InterruptedException e) {
+                    success[0] = false;
+                }
+                countDownLatch1.countDown();
+
+            }
+
+            @Override
+            public void onError(MAGError error) {
+                countDownLatch1.countDown();
+
+            }
+
+            @Override
+            public void onRequestCancelled() {
+
+            }
+        });
+        countDownLatch1.await();
+        assertTrue(success[0]);
+        mobileSso.logout(true);
+        RecordedRequest rr = ssg.takeRequest(); //logout
+        processRequest(new OAuthTokenRequest());
+        countDownLatch2.await();
+        rr = ssg.takeRequest(); //authorize
+        rr = ssg.takeRequest(); //token
+
+        //Verify the /token endpoint contains the id-token
+        String body = URLDecoder.decode(rr.getBody().readUtf8(), "UTF-8");
+        assertTrue(body.contains(ServerClient.ASSERTION + "=" + getIdToken()));
+        assertTrue(body.contains(ServerClient.GRANT_TYPE + "=urn:ietf:params:oauth:grant-type:jwt-bearer"));
     }
 
     @Test

@@ -111,6 +111,23 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
         });
     }
 
+    public static void login(@NonNull char[] idToken, final MASCallback<MASUser> callback) {
+        MobileSso mobileSso = FoundationUtil.getMobileSso();
+
+        mobileSso.authenticate(idToken, new MASResultReceiver<JSONObject>() {
+            @Override
+            public void onSuccess(MAGResponse<JSONObject> response) {
+                login(callback);
+            }
+
+            @Override
+            public void onError(MAGError error) {
+                current = null;
+                Callback.onError(callback, error);
+            }
+        });
+    }
+
     /**
      * Performs an implicit login by calling an endpoint that requires authentication. This results
      * in {@link MASUser#getCurrentUser()} being populated from the endpoint.

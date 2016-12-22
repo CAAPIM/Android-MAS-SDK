@@ -35,7 +35,10 @@ public abstract class MASIntegrationBaseTest {
     @BeforeClass
     public static void beforeClass() {
         MAS.start(InstrumentationRegistry.getInstrumentation().getTargetContext(), true);
+        login();
+    }
 
+    public static void login() {
         final CountDownLatch latch = new CountDownLatch(1);
         final boolean[] result = {false};
 
@@ -60,8 +63,8 @@ public abstract class MASIntegrationBaseTest {
         } catch (InterruptedException e) {
             fail();
         }
-
     }
+
 
     @AfterClass
     public static void afterClass() {

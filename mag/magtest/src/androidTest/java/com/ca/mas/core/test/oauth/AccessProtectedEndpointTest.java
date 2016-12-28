@@ -72,7 +72,7 @@ public class AccessProtectedEndpointTest extends BaseTest {
 
     @Test
     public void testAccessUnProtectedEndpoint() throws URISyntaxException, InterruptedException, IOException {
-        MAGRequest request = new MAGRequest.MAGRequestBuilder(getURI("/protected/resource/products?operation=listProducts")).unProtected().build();
+        MAGRequest request = new MAGRequest.MAGRequestBuilder(getURI("/protected/resource/products?operation=listProducts")).setPublic().build();
         processRequest(request);
         assertEquals(HttpURLConnection.HTTP_OK, response.getResponseCode());
 
@@ -81,6 +81,13 @@ public class AccessProtectedEndpointTest extends BaseTest {
             RecordedRequest productEndpointRequest = ssg.takeRequest();
             assertTrue(productEndpointRequest.getPath().startsWith("/protected/resource/products"));
         }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAccessUnProtectedEndpointInOtherServer() throws Throwable {
+        MAGRequest request = new MAGRequest.MAGRequestBuilder(getURI("https://somewhere/protected/resource/products?operation=listProducts")).setPublic().build();
+        processRequest(request);
+        throw error.getCause();
     }
 
 

@@ -87,8 +87,8 @@ public interface MASRequest extends MAGRequest {
         }
 
         @Override
-        public MASRequestBuilder unProtected() {
-            return (MASRequestBuilder) super.unProtected();
+        public MASRequestBuilder setPublic() {
+            return (MASRequestBuilder) super.setPublic();
         }
 
         @Override
@@ -162,8 +162,8 @@ public interface MASRequest extends MAGRequest {
                 }
 
                 @Override
-                public boolean isProtected() {
-                    return request.isProtected();
+                public boolean isPublic() {
+                    return request.isPublic();
                 }
             };
         }

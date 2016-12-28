@@ -62,7 +62,7 @@ public abstract class MAGRequestProxy implements MAGRequest {
     }
 
     @Override
-    public boolean isProtected() {
-        return request.isProtected();
+    public boolean isPublic() {
+        return request.isPublic();
     }
 }

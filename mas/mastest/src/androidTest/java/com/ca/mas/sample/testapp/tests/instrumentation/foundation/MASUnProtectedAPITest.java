@@ -32,7 +32,7 @@ public class MASUnProtectedAPITest {
         builder.appendEncodedPath("auth/device/authorization/test");
         builder.appendQueryParameter("operation", "listProducts");
         MASRequest request = new MASRequest.MASRequestBuilder(builder.build())
-                .unProtected()
+                .setPublic()
                 .build();
         final CountDownLatch latch = new CountDownLatch(1);
         final boolean[] result = {false};

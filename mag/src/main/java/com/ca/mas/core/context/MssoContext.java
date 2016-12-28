@@ -419,7 +419,11 @@ public class MssoContext {
         for (; requestInfo.getNumAttempts() < MAX_REQUEST_ATTEMPTS; requestInfo.incrementNumAttempts()) {
             try {
                 //Do not execute the policy if this request is target to an unprotected endpoint.
-                if (!request.isProtected()) {
+                if (request.isPublic()) {
+                    if (!request.getURL().getHost().equals(getConfigurationProvider().getTokenHost())) {
+                        throw new IllegalArgumentException(
+                                "This method is valid only for the host that has defined in the configuration");
+                    }
                     return getMAGHttpClient().execute(internalRequest);
                 }
                 policyManager.processRequest(requestInfo);

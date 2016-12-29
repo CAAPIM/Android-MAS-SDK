@@ -10,9 +10,11 @@ package com.ca.mas.core.storage.implementation;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.XmlResourceParser;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.ca.mas.core.storage.StorageException;
@@ -28,21 +30,28 @@ import static com.ca.mas.core.MAG.TAG;
  * Manager class that takes care of account creation. This internally uses AccountManager
  * It also sets up the common password for all ELS instances of an app
  */
-public class AMSSManager {
+class AMSSManager {
+
+    private static final String ACCOUNT_NAME = "account.name";
+    private static AMSSManager ourInstance;
 
     /**
-     * The authenticator xml file name.
+     * The name of the Account that is created. This is default as "CA MAS"
      */
-    private static final String AUTHENTICATOR_FILE_NAME = "authenticator_ca_mas";
+    private static final String CA_MAS = "CA MAS";
+
+
+    private String mAccountName = CA_MAS;
+
     /**
      * The type of the Account that is created. This is retrieved from the @{link AUTHENTICATOR_FILE_NAME}
      */
     private String mAccountType;
 
-    /**
-     * The name of the Account that is created. This is hard coded as "MAG"
-     */
-    private String mAccountName = "CA MAS";
+    private Account mAccount;
+
+    private Object mutex = new Object();
+
 
     /**
      * The application context
@@ -50,101 +59,121 @@ public class AMSSManager {
     private Context mContext;
 
 
-
-    private static AMSSManager ourInstance;
-
-    public static AMSSManager getInstance(Context ctx) throws StorageException{
-        if(ourInstance==null){
-            ourInstance = new AMSSManager(ctx);
+    public static AMSSManager getInstance(Context ctx) throws StorageException {
+        if (ourInstance == null) {
+            ourInstance = new AMSSManager(ctx.getApplicationContext());
         }
         return ourInstance;
     }
 
-    private AMSSManager(Context ctx) throws StorageException{
+    private AMSSManager(Context ctx) throws StorageException {
         mContext = ctx;
-        mAccountType = getAccountType(AUTHENTICATOR_FILE_NAME);
+        mAccountType = getAccountType();
+        mAccountName = getAccountName();
+
         if (mAccountType == null) {
-            if (DEBUG) Log.e(TAG, String.format("Missing/malformed %s xml file in application resource.", AUTHENTICATOR_FILE_NAME));
-            throw new StorageException(String.format("Missing/malformed %s xml file in application resource.", AUTHENTICATOR_FILE_NAME),null,StorageException.INVALID_INPUT);
+            if (DEBUG)
+                Log.e(TAG, "Missing/malformed android.accounts.AccountAuthenticator xml file in application resource.");
+            throw new StorageException("Missing/malformed android.accounts.AccountAuthenticator xml file in application resource.", null, StorageException.INVALID_INPUT);
         }
 
-        if (!addAccount(mContext, mAccountName, mAccountType)) {
+        if (!addAccount(mAccountName, mAccountType)) {
             throw new StorageException(StorageException.INSTANTIATION_ERROR);
         }
     }
 
     /**
+     * Retrieve the Account Name from meta data
+     * * <pre>
+     *   &lt;meta-data android:name="account.name"
+     *             android:resource="@string/acc_name" /&gt;
+     * </pre>
+     *
+     * @return The Account name or "CA MAS" if account name is not defined.
+     */
+    private String getAccountName() {
+        ComponentName myService = new ComponentName(mContext, AMSAuthenticatorService.class);
+        try {
+            Bundle data = mContext.getPackageManager().getServiceInfo(myService, PackageManager.GET_META_DATA).metaData;
+            int resourceId = data.getInt(ACCOUNT_NAME);
+            if (resourceId != 0) {
+                return mContext.getResources().getString(resourceId);
+            } else {
+                return data.getString(ACCOUNT_NAME, CA_MAS);
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            if (DEBUG)
+                Log.d(TAG, String.format("Account name is not provided, use %S", CA_MAS));
+        }
+        return CA_MAS;
+    }
+
+    /**
      * Grabs the AccountType form the authenticator xml.
      *
-     * @param fileName The name of the authenticator xml file
      * @return The type of the Account or null if account type retrial failed for any reason
      */
-    private String getAccountType(String fileName) {
+    private String getAccountType() {
 
-
-        String acc_type = null;
-
+        ComponentName myService = new ComponentName(mContext, AMSAuthenticatorService.class);
         try {
-
-            int authenticator_id = mContext.getResources().getIdentifier(fileName, "xml", mContext.getPackageName());
-            if (authenticator_id == 0) {
-                if (DEBUG) Log.e(TAG, "authenticator_ca_mas file could not be found");
-                return acc_type;
-            }
-            XmlResourceParser xrp = mContext.getResources().getXml(authenticator_id);
+            Bundle data = mContext.getPackageManager().getServiceInfo(myService, PackageManager.GET_META_DATA).metaData;
+            int resourceId = data.getInt("android.accounts.AccountAuthenticator");
+            XmlResourceParser xrp = mContext.getResources().getXml(resourceId);
             while (xrp.getEventType() != XmlResourceParser.END_DOCUMENT) {
                 if (xrp.getEventType() == XmlResourceParser.START_TAG) {
                     String s = xrp.getName();
                     if (s.equals("account-authenticator")) {
-                        acc_type = xrp.getAttributeValue("http://schemas.android.com/apk/res/android", "accountType");
-                        break;
+                        return xrp.getAttributeValue("http://schemas.android.com/apk/res/android", "accountType");
                     }
                 }
                 xrp.next();
             }
+        } catch (PackageManager.NameNotFoundException e) {
+            if (DEBUG)
+                Log.e(TAG, "Missing android.accounts.AccountAuthenticator metadata for " + AMSAuthenticatorService.class.getCanonicalName());
         } catch (XmlPullParserException | IOException e) {
-            if (DEBUG) Log.e(TAG,"getAccountType failed to read from " + fileName + ", reason: " + e);
+            if (DEBUG) Log.e(TAG, "Failed to retrieve account type", e);
         }
-        return acc_type;
+        return null;
     }
+
     /**
      * Adds an account to the device.
      *
-     * @param ctx
      * @param accountName Account name
      * @param accountType Account type
-     * @return
-     * @throws StorageException
+     * @return True if successfully add an new account or able to access the existing account
      */
-    private boolean addAccount(Context ctx, String accountName, String accountType)throws StorageException {
-        AccountManager am = AccountManager.get(ctx);
-        if (!isAccountPresent(ctx, accountName, accountType)) {
+    private boolean addAccount(String accountName, String accountType) throws StorageException {
+        AccountManager am = AccountManager.get(mContext);
+        if (!isAccountPresent(accountName, accountType)) {
             Account account = new Account(accountName, accountType);
-            boolean created = am.addAccountExplicitly(account, getPassword(ctx), null);
-            return created;
+            return am.addAccountExplicitly(account, getPassword(), null);
         } else {
             if (DEBUG) Log.i(TAG, "Account already present");
+            //Enforce Apps are using the same SharedID
             try {
                 String password = am.getPassword(getAccount());
-                if(password!=null && !getPassword(ctx).equals(password)){
-                    throw new StorageException("Can't access Account",null,StorageException.INSTANTIATION_ERROR_UNAUTHORIZED);
+                if (password != null && !getPassword().equals(password)) {
+                    throw new StorageException("Can't access Account", null, StorageException.INSTANTIATION_ERROR_UNAUTHORIZED);
                 }
             } catch (Exception e) {
-                throw new StorageException("Can't access Account",e,StorageException.INSTANTIATION_ERROR_UNAUTHORIZED);
+                throw new StorageException("Can't access Account", e, StorageException.INSTANTIATION_ERROR_UNAUTHORIZED);
             }
             return true;
         }
     }
 
-    private boolean isAccountPresent(Context ctx, String accountName, String accountType) {
-        AccountManager am = AccountManager.get(ctx);
+    private boolean isAccountPresent(String accountName, String accountType) {
+        AccountManager am = AccountManager.get(mContext);
         Account[] existingAccounts = am.getAccountsByType(accountType);
         if (existingAccounts.length == 0) {
             return false;
         } else {
             for (Account acc : existingAccounts) {
                 if (accountName.equals(acc.name)) {
-                        return true;
+                    return true;
                 }
             }
             return false;
@@ -152,32 +181,42 @@ public class AMSSManager {
     }
 
     /**
-     * Gets the password with which the Account in Encrypted with
-     * @param ctx
-     * @return
+     * @return A password that ensure Apps are defined with same SharedID Group
      */
-    private String getPassword(Context ctx){
-        String packageName = ctx.getApplicationContext().getPackageName();
+    private String getPassword() {
+        String packageName = mContext.getPackageName();
         String sharedUserId = null;
         try {
-            sharedUserId = ctx.getPackageManager().getPackageInfo(packageName,0).sharedUserId;
-        } catch (PackageManager.NameNotFoundException e) {
+            sharedUserId = mContext.getPackageManager().getPackageInfo(packageName, 0).sharedUserId;
+        } catch (PackageManager.NameNotFoundException ignored) {
         }
-        return sharedUserId!=null?sharedUserId:packageName;
+        return sharedUserId != null ? sharedUserId : packageName;
     }
 
-    public Account getAccount() throws Exception{
-        AccountManager am = AccountManager.get(mContext);
-        try {
-            return am.getAccountsByType(mAccountType)[0];
-        } catch (Exception e) {
-            if (DEBUG) Log.e(TAG, String.format("Account of type %s doesn't exist ", mAccountType));
-            throw new Exception(String.format("Account of type %s doesn't exist ", mAccountType));
+    Account getAccount() throws Exception {
+        if (mAccount == null) {
+            synchronized (mutex) {
+                if (mAccount != null) {
+                    return mAccount;
+                }
+                AccountManager am = AccountManager.get(mContext);
+                for (Account a : am.getAccountsByType(mAccountType)) {
+                    if (a.name.equals(mAccountName)) {
+                        this.mAccount = a;
+                        return this.mAccount;
+                    }
+                }
+                if (DEBUG)
+                    Log.e(TAG, String.format("Account of type %s, name %s doesn't exist ", mAccountType, mAccountName));
+                throw new Exception(String.format("Account of type %s, name %s doesn't exist ", mAccountType, mAccountName));
+            }
+        } else {
+            return mAccount;
         }
     }
 
 
-    public void reset(){
+    public void reset() {
         ourInstance = null;
     }
 }

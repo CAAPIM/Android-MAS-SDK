@@ -42,7 +42,7 @@ public interface MobileSsoConfig {
     String PROP_ORGANIZATION = "msso.organization";
 
     /**
-     * Integer.  The size in bits of the RSA keypair to generate for the client cert, eg 1024.  Optional.
+     * Integer.  The size in bits of the RSA keypair to generate for the client cert, eg 2048.  Optional.
      */
     String PROP_CLIENT_CERT_RSA_KEYBITS = "msso.cert.rsa.keybits";
 

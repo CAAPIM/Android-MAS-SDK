@@ -21,7 +21,6 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.Signature;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.spec.RSAKeyGenParameterSpec;
@@ -30,9 +29,6 @@ import java.util.Date;
 import java.util.Enumeration;
 
 import javax.security.auth.x500.X500Principal;
-
-import sun.security.pkcs.PKCS10;
-import sun.security.x509.X500Signer;
 
 import static android.security.keystore.KeyProperties.BLOCK_MODE_CBC;
 import static android.security.keystore.KeyProperties.BLOCK_MODE_CTR;
@@ -52,7 +48,6 @@ import static android.security.keystore.KeyProperties.SIGNATURE_PADDING_RSA_PSS;
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
-
 /**
  * Utility methods for working with keys and key pairs.
  */
@@ -69,10 +64,13 @@ public class KeyUtils {
      * @param context needed for generating key pre-M
      * @param keysize the key size in bits, eg 2048.
      * @param alias the keystore alias to use
+     * @param requireLockScreen for Android-M+ : if a lock screen is required to use this key
+     *                          for Android pre-M : encryption is required to protect keys -
+     *                          they will be encrypted using the pin or password
      * @return a new RSA PrivateKey.
      * @throws RuntimeException if an RSA key pair of the requested size cannot be generated
      */
-    public static PrivateKey generateRsaPrivateKey(Context context, int keysize, String alias)
+    public static PrivateKey generateRsaPrivateKey(Context context, int keysize, String alias, boolean requireLockScreen)
             throws java.security.InvalidAlgorithmParameterException, java.io.IOException,
             java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
             java.security.NoSuchProviderException, java.security.cert.CertificateException,
@@ -84,12 +82,12 @@ public class KeyUtils {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // use KeyGenParameterSpec.Builder, new in Marshmallow
-            return generateRsaPrivateKeyAndroidM(keysize, alias);
+            return generateRsaPrivateKeyAndroidM(keysize, alias, requireLockScreen);
         }
 
         // For Android Pre-M
         // use the KeyPairGeneratorSpec.Builder, deprecated as of Marshmallow
-        //    generates the key inside the AndroidKeyStore, always protected
+        //    generates the key inside the AndroidKeyStore
         RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(keysize, RSAKeyGenParameterSpec.F4);
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA", ANDROID_KEY_STORE);
 
@@ -98,13 +96,24 @@ public class KeyUtils {
         cal.add(Calendar.YEAR, 1);
         Date end = cal.getTime();
 
-        kpg.initialize(new KeyPairGeneratorSpec.Builder(context)
+        if (requireLockScreen) {
+            kpg.initialize(new KeyPairGeneratorSpec.Builder(context)
+                    .setAlias(alias)
+                    .setAlgorithmParameterSpec(spec)
+                    .setEncryptionRequired()
+                    .setStartDate(now).setEndDate(end)
+                    .setSerialNumber(BigInteger.valueOf(1))
+                    .setSubject(new X500Principal("CN=msso"))
+                    .build());
+        } else {
+            kpg.initialize(new KeyPairGeneratorSpec.Builder(context)
                     .setAlias(alias)
                     .setAlgorithmParameterSpec(spec)
                     .setStartDate(now).setEndDate(end)
                     .setSerialNumber(BigInteger.valueOf(1))
                     .setSubject(new X500Principal("CN=msso"))
                     .build());
+        }
         return kpg.generateKeyPair().getPrivate();
     }
 
@@ -114,52 +123,17 @@ public class KeyUtils {
      *
      * @param keysize the key size in bits, eg 2048.
      * @param alias the alias against which to store the key against
+     * @param requireLockScreen whether or not a lock screen is required to use this key
      * @return a new RSA keypair, created in and protected by the AndroidKeyStore, with an
      *        unusable self-signed certificate
      */
     @TargetApi(Build.VERSION_CODES.M)
-    protected static PrivateKey generateRsaPrivateKeyAndroidM(int keysize, String alias)
+    protected static PrivateKey generateRsaPrivateKeyAndroidM(int keysize, String alias, boolean requireLockScreen)
             throws java.security.InvalidAlgorithmParameterException, java.io.IOException,
             java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
             java.security.NoSuchProviderException, java.security.cert.CertificateException,
             java.security.UnrecoverableKeyException
     {
-        /*
-        try {
-                KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(
-                KeyProperties.KEY_ALGORITHM_RSA, ANDROID_KEY_STORE);
-        Calendar cal = Calendar.getInstance();
-        Date now = cal.getTime();
-        cal.add(Calendar.YEAR, 1);
-        Date end = cal.getTime();
-        //NOTE: setUserAuthenticationRequired does not work correctly if fingerprints are enabled
-        keyPairGenerator.initialize(
-                new KeyGenParameterSpec.Builder(alias + "_test", KeyProperties.PURPOSE_ENCRYPT + KeyProperties.PURPOSE_DECRYPT + KeyProperties.PURPOSE_SIGN + KeyProperties.PURPOSE_VERIFY)
-                        .setKeySize(keysize)
-                        .setCertificateNotBefore(now).setCertificateNotAfter(end)
-                        .setCertificateSubject(new X500Principal("CN=msso, ou=test"))
-                        .setCertificateSerialNumber(BigInteger.valueOf(1))
-                        //test
-                        .setUserAuthenticationRequired(true)
-                        // In HttpUrlConnection, com.android.org.conscrypt.CryptoUpcalls.rawSignDigestWithPrivateKey
-                        //   requires "NONEwithRSA", so we need to include DIGEST_NONE here
-                        //.setRandomizedEncryptionRequired(true)
-                        .setRandomizedEncryptionRequired(false)
-                        .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_ECB, BLOCK_MODE_GCM)
-                        // In HttpUrlConnection, com.android.org.conscrypt.CryptoUpcalls.rawSignDigestWithPrivateKey
-                        //   requires "NONEwithRSA", so we need to include DIGEST_NONE here
-                        .setDigests(DIGEST_NONE, DIGEST_MD5, DIGEST_SHA1, DIGEST_SHA256, DIGEST_SHA384, DIGEST_SHA512)
-                        .setEncryptionPaddings(ENCRYPTION_PADDING_PKCS7, ENCRYPTION_PADDING_RSA_OAEP, ENCRYPTION_PADDING_RSA_PKCS1)
-                        .setSignaturePaddings(SIGNATURE_PADDING_RSA_PSS, SIGNATURE_PADDING_RSA_PKCS1)
-                        .build());
-
-            PrivateKey test = keyPairGenerator.generateKeyPair().getPrivate();
-            Log.i("CERTIFICATE PROV", "generateRSAPrivateKey generated test, " + test);
-        }catch (Exception x) {
-            Log.i("CERTIFICATE PROV", "generateRSAPrivateKey generating test EXCEPTION: " + x);
-        }
-        */
-
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(
                 KeyProperties.KEY_ALGORITHM_RSA, ANDROID_KEY_STORE);
         Calendar cal = Calendar.getInstance();
@@ -172,14 +146,14 @@ public class KeyUtils {
                         .setCertificateNotBefore(now).setCertificateNotAfter(end)
                         .setCertificateSubject(new X500Principal("CN=msso"))
                         .setCertificateSerialNumber(BigInteger.valueOf(1))
-                        .setUserAuthenticationRequired(false)
+                        // if we require lock screen, can have issues using key when fingerprints added/removed
+                        .setUserAuthenticationRequired(requireLockScreen)
                         // In HttpUrlConnection, com.android.org.conscrypt.CryptoUpcalls.rawSignDigestWithPrivateKey
-                        //   requires "NONEwithRSA", so we need to include DIGEST_NONE here
-                        //.setRandomizedEncryptionRequired(true)
+                        //   requires "NONEwithRSA", so we need to include DIGEST_NONE
+                        //   therefore we can only setRandomizedEncruptionRequired to false
+                        //   and must include DIGEST_NONE in allowed digests
                         .setRandomizedEncryptionRequired(false)
                         .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_ECB, BLOCK_MODE_GCM)
-                        // In HttpUrlConnection, com.android.org.conscrypt.CryptoUpcalls.rawSignDigestWithPrivateKey
-                        //   requires "NONEwithRSA", so we need to include DIGEST_NONE here
                         .setDigests(DIGEST_NONE, DIGEST_MD5, DIGEST_SHA1, DIGEST_SHA256, DIGEST_SHA384, DIGEST_SHA512)
                         .setEncryptionPaddings(ENCRYPTION_PADDING_PKCS7, ENCRYPTION_PADDING_RSA_OAEP, ENCRYPTION_PADDING_RSA_PKCS1)
                         .setSignaturePaddings(SIGNATURE_PADDING_RSA_PSS, SIGNATURE_PADDING_RSA_PKCS1)
@@ -189,7 +163,7 @@ public class KeyUtils {
 
     /**
      * Get the existing private key.
-     *     Note: the initial self-signed public cert is not usable.
+     *     Note: the initial self-signed public cert is typically not useful.
      *
      * @param alias the alias of the existing private key
      * @return the Private Key object
@@ -199,41 +173,8 @@ public class KeyUtils {
             java.security.NoSuchAlgorithmException, java.security.cert.CertificateException,
             java.security.UnrecoverableKeyException
     {
-        Log.i("CERTIFICATE PROV", "Getting the test private key, alias " + alias);
         KeyStore keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
         keyStore.load(null);
-        for (Enumeration e=keyStore.aliases(); e.hasMoreElements(); ) {
-            String aliasFound = (String) e.nextElement();
-            Log.i("CERTIFICATE PROV", "Getting the test private key, found alias " + aliasFound);
-        }
-        try {
-            PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias + "_test", null);
-            Log.i("CERTIFICATE PROV", "Got the test private key");
-            Certificate cert = keyStore.getCertificate(alias + "_test");
-            PublicKey publicKey = cert.getPublicKey();
-            Log.i("CERTIFICATE PROV", "Got the test public key");
-
-            PKCS10 pkcs10 = new PKCS10(publicKey);
-            Signature signature = Signature.getInstance("SHA256withRSA");
-            Log.i("CERTIFICATE PROV", "Got the test signature initSign before");
-            signature.initSign(privateKey);
-            Log.i("CERTIFICATE PROV", "Got the test signature initSign after");
-            sun.security.x509.X500Name x500Name = new sun.security.x509.X500Name("cn=abc, ou=def, dc=ghi, o=o");
-
-            pkcs10.encodeAndSign(new X500Signer(signature, x500Name));
-            Log.i("CERTIFICATE PROV", "Got the test signature encodeAndSign done");
-            byte bytes[] = pkcs10.getEncoded();
-            Log.i("CERTIFICATE PROV", "Got the test private key and signed with it!!!!");
-        } catch (Exception e) {
-            Log.i("CERTIFICATE PROV", "Got the test private key and signed with it EXCEPTION: " + e);
-            e.printStackTrace();
-        } catch (Throwable t) {
-            Log.i("CERTIFICATE PROV", "Got the test private key and signed with it THROWABLE: " + t);
-            t.printStackTrace();
-        }/* */
-
-        //KeyStore keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
-        //keyStore.load(null);
         return (PrivateKey) keyStore.getKey(alias, null);
     }
 

@@ -8,12 +8,15 @@
 package com.ca.mas.core.store;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.core.conf.ConfigurationManager;
+import com.ca.mas.core.datasource.AccountManagerStoreDataSource;
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.io.Charsets;
+import com.ca.mas.core.security.LockableKeyStorageProvider;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.util.KeyUtils;
 
@@ -148,10 +151,26 @@ public class DefaultTokenManager implements TokenManager {
     @Override
     public PrivateKey createPrivateKey(Context ctx, int keyBits)
     {
+        // Check if we want to encrypt keystore for Android Pre-M or require lock screen for M+
+        boolean authorizationRequired = false;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            // for Pre-M, we need to encrypt the keystore using lock screen pin,
+            //     unless we don't have a lock screen with AccountManagerStoreDataSource
+            if ( !(storage instanceof AccountManagerStoreDataSource)) {
+                authorizationRequired = true;
+            }
+        } else {
+            // for Android M+, we only need to require screen protection for lockable data source
+            //    not needed to protect the keystore, but lock screen protects phone from other users
+            if (storage instanceof LockableKeyStorageProvider) {
+                authorizationRequired = true;
+            }
+        }
+
+
         try {
-            return KeyUtils.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_PRIVATE_KEY);
+            return KeyUtils.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_PRIVATE_KEY, authorizationRequired);
         } catch (Exception e) {
-Log.i("CERTIFICATE PROV", "createPrivateKey ERROR: " + e);
             if (DEBUG) Log.e(TAG, "Unable to create client private key: " + e.getMessage(), e);
             return null;
         }

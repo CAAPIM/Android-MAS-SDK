@@ -661,14 +661,9 @@ public class MssoContext {
      */
     public boolean isLogin() {
 
-        IdToken idToken = getIdToken();
-
-        if (idToken != null && !JWTValidation.isIdTokenExpired(idToken)) {
-            return true;
-        }
-
-        //No refresh token when using client credential flow.
-        return getAccessToken() != null && getRefreshToken() != null;
+        //The access token is granted by Client Credential if refresh token is null
+        //Please refer to https://tools.ietf.org/html/rfc6749#section-4.4.3 for detail
+        return getRefreshToken() != null;
 
     }
 

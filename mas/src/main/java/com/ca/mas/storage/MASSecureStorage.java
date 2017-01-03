@@ -52,73 +52,67 @@ public class MASSecureStorage extends AbstractMASStorage {
     @Override
     public void save(@NonNull final String key, final Object value, @MASStorageSegment final int segment, final MASCallback<Void> callback) {
         checkNull(key, value);
-        execute(new Functions.NullaryVoid() {
+
+        DataMarshaller relevantM;
+        byte[] data;
+        try {
+            relevantM = findMarshaller(value);
+            data = relevantM.marshall(value);
+        } catch (Exception e) {
+            Callback.onError(callback, e);
+            return;
+        }
+        StorageItem item = new StorageItem();
+        item.setKey(key);
+        item.setType(relevantM.getTypeAsString());
+        item.setValue(data);
+
+        final MASRequest.MASRequestBuilder builder = getRequestBuilder(key, segment);
+        JSONObject itemJson = null;
+        try {
+            itemJson = item.getAsJSONObject();
+        } catch (JSONException je) {
+            Callback.onError(callback, je);
+            return;
+        }
+
+        builder.put(MASRequestBody.jsonBody(itemJson));
+        final JSONObject finalItemJson = itemJson;
+
+
+        //Try update first
+        MAS.invoke(builder.build(), new MASCallback<MASResponse<Void>>() {
 
             @Override
-            public void call() {
+            public void onSuccess(MASResponse<Void> result) {
+                Callback.onSuccess(callback, null);
+            }
 
-                DataMarshaller relevantM;
-                byte[] data;
-                try {
-                    relevantM = findMarshaller(value);
-                    data = relevantM.marshall(value);
-                } catch (Exception e) {
-                    Callback.onError(callback, e);
-                    return;
-                }
-                StorageItem item = new StorageItem();
-                item.setKey(key);
-                item.setType(relevantM.getTypeAsString());
-                item.setValue(data);
+            @Override
+            public void onError(Throwable e) {
+                if (e.getCause() instanceof TargetApiException) {
+                    if (((TargetApiException) e.getCause()).getResponse().getResponseCode() == HttpsURLConnection.HTTP_NOT_FOUND) {
+                        //Create the data
+                        builder.post(MASRequestBody.jsonBody(finalItemJson));
+                        MAS.invoke(builder.build(), new MASCallback<MASResponse<Void>>() {
+                            @Override
+                            public void onSuccess(MASResponse<Void> result) {
+                                Callback.onSuccess(callback, null);
+                            }
 
-                final MASRequest.MASRequestBuilder builder = new MASRequest.MASRequestBuilder(getUri(key, segment));
-                JSONObject itemJson = null;
-                try {
-                    itemJson = item.getAsJSONObject();
-                } catch (JSONException je) {
-                    Callback.onError(callback, je);
-                    return;
-                }
-
-                builder.put(MASRequestBody.jsonBody(itemJson));
-                final JSONObject finalItemJson = itemJson;
-
-
-                //Try update first
-                MAS.invoke(builder.build(), new MASCallback<MASResponse<Void>>() {
-
-                    @Override
-                    public void onSuccess(MASResponse<Void> result) {
-                        Callback.onSuccess(callback, null);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        if (e.getCause() instanceof TargetApiException) {
-                            if (((TargetApiException) e.getCause()).getResponse().getResponseCode() == HttpsURLConnection.HTTP_NOT_FOUND) {
-                                //Create the data
-                                builder.post(MASRequestBody.jsonBody(finalItemJson));
-                                MAS.invoke(builder.build(), new MASCallback<MASResponse<Void>>() {
-                                    @Override
-                                    public void onSuccess(MASResponse<Void> result) {
-                                        Callback.onSuccess(callback, null);
-                                    }
-
-                                    @Override
-                                    public void onError(Throwable e) {
-                                        Callback.onError(callback, e);
-                                    }
-                                });
-                            } else {
+                            @Override
+                            public void onError(Throwable e) {
                                 Callback.onError(callback, e);
                             }
-                        } else {
-                            Callback.onError(callback, e);
-                        }
+                        });
+                    } else {
+                        Callback.onError(callback, e);
                     }
-                });
+                } else {
+                    Callback.onError(callback, e);
+                }
             }
-        }, segment, callback);
+        });
 
     }
 
@@ -126,151 +120,100 @@ public class MASSecureStorage extends AbstractMASStorage {
     public void findByKey(@NonNull final String key, @MASStorageSegment final int segment, final MASCallback callback) {
         checkNull(key);
 
-        execute(new Functions.NullaryVoid() {
+        MASRequest request = getRequestBuilder(key, segment).build();
+        MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+
             @Override
-            public void call() {
-                MASRequest request = new MASRequest.MASRequestBuilder(getUri(key, segment)).build();
-                MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+            public void onSuccess(MASResponse<JSONObject> response) {
+                // add the storage items to the model
+                final StorageItem item = new StorageItem();
+                try {
+                    JSONObject jobj = response.getBody().getContent();
+                    item.populate(jobj);
 
-                    @Override
-                    public void onSuccess(MASResponse<JSONObject> response) {
-                        // add the storage items to the model
-                        final StorageItem item = new StorageItem();
-                        try {
-                            JSONObject jobj = response.getBody().getContent();
-                            item.populate(jobj);
-
-                            DataMarshaller relevantM = findMarshaller(item.getType());
-                            Object result = relevantM.unmarshall(item.getValue());
-                            Callback.onSuccess(callback, result);
-                        } catch (Exception je) {
-                            Callback.onError(callback, je);
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        if (e.getCause() instanceof TargetApiException) {
-                            if (((TargetApiException) e.getCause()).getResponse().getResponseCode() == HttpsURLConnection.HTTP_NOT_FOUND) {
-                                //Return null if server cannot find the data.
-                                Callback.onSuccess(callback, null);
-                            } else {
-                                Callback.onError(callback, e);
-                            }
-                        } else {
-                            Callback.onError(callback, e);
-                        }
-                    }
-                });
+                    DataMarshaller relevantM = findMarshaller(item.getType());
+                    Object result = relevantM.unmarshall(item.getValue());
+                    Callback.onSuccess(callback, result);
+                } catch (Exception je) {
+                    Callback.onError(callback, je);
+                }
             }
-        }, segment, callback);
+
+            @Override
+            public void onError(Throwable e) {
+                if (e.getCause() instanceof TargetApiException) {
+                    if (((TargetApiException) e.getCause()).getResponse().getResponseCode() == HttpsURLConnection.HTTP_NOT_FOUND) {
+                        //Return null if server cannot find the data.
+                        Callback.onSuccess(callback, null);
+                    } else {
+                        Callback.onError(callback, e);
+                    }
+                } else {
+                    Callback.onError(callback, e);
+                }
+            }
+        });
     }
 
     @Override
     public void keySet(@MASStorageSegment final int segment, final MASCallback<Set<String>> callback) {
+        // ----- Storage Url
+        MASRequest request = getRequestBuilder(null, segment).build();
+        MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
 
-        execute(new Functions.NullaryVoid() {
             @Override
-            public void call() {
-                // ----- Storage Url
-                MASRequest request = new MASRequest.MASRequestBuilder(getUri(null, segment)).build();
-                MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
-
-                    @Override
-                    public void onSuccess(MASResponse<JSONObject> response) {
-                        final Set<String> itemsL = new HashSet<String>();
-                        try {
-                            JSONObject items = response.getBody().getContent();
-                            JSONArray itemArr = items.getJSONArray(StorageConsts.KEY_RESULTS);
-                            for (int i = 0; i < itemArr.length(); i++) {
-                                JSONObject jobj = itemArr.getJSONObject(i);
-                                StorageItem storageKey = new StorageItem();
-                                storageKey.populate(jobj);
-                                itemsL.add(storageKey.getKey());
-                            }
-                            Callback.onSuccess(callback, itemsL);
-                        } catch (JSONException je) {
-                            Callback.onError(callback, je);
-                        }
+            public void onSuccess(MASResponse<JSONObject> response) {
+                final Set<String> itemsL = new HashSet<String>();
+                try {
+                    JSONObject items = response.getBody().getContent();
+                    JSONArray itemArr = items.getJSONArray(StorageConsts.KEY_RESULTS);
+                    for (int i = 0; i < itemArr.length(); i++) {
+                        JSONObject jobj = itemArr.getJSONObject(i);
+                        StorageItem storageKey = new StorageItem();
+                        storageKey.populate(jobj);
+                        itemsL.add(storageKey.getKey());
                     }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Callback.onError(callback, e);
-                    }
-                });
+                    Callback.onSuccess(callback, itemsL);
+                } catch (JSONException je) {
+                    Callback.onError(callback, je);
+                }
             }
-        }, segment, callback);
+
+            @Override
+            public void onError(Throwable e) {
+                Callback.onError(callback, e);
+            }
+        });
 
     }
 
     @Override
     public void delete(@NonNull final String key, @MASStorageSegment final int segment, final MASCallback callback) {
         checkNull(key);
+        MASRequest request = getRequestBuilder(key, segment).delete(null).build();
+        MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
 
-        execute(new Functions.NullaryVoid() {
             @Override
-            public void call() {
-                MASRequest request = new MASRequest.MASRequestBuilder(getUri(key, segment)).delete(null).build();
-                MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
-
-                    @Override
-                    public void onSuccess(MASResponse<JSONObject> result) {
-                        Callback.onSuccess(callback, null);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        if (e.getCause() instanceof TargetApiException) {
-                            if (((TargetApiException) e.getCause()).getResponse().getResponseCode() == HttpsURLConnection.HTTP_NOT_FOUND) {
-                                //Ignore it if the server cannot find the data.
-                                Callback.onSuccess(callback, null);
-                            } else {
-                                Callback.onError(callback, e);
-                            }
-                        } else {
-                            Callback.onError(callback, e);
-                        }
-                    }
-                });
+            public void onSuccess(MASResponse<JSONObject> result) {
+                Callback.onSuccess(callback, null);
             }
-        }, segment, callback);
 
-    }
-
-    /**
-     * Execute with user
-     */
-    private void execute(final Functions.NullaryVoid function, @MASStorageSegment int segment, final MASCallback callback) {
-        switch (segment) {
-            case MASConstants.MAS_USER:
-            case MASConstants.MAS_USER | MASConstants.MAS_APPLICATION:
-                if (MASUser.getCurrentUser() != null && MASUser.getCurrentUser().getUserName() != null) {
-                    function.call();
+            @Override
+            public void onError(Throwable e) {
+                if (e.getCause() instanceof TargetApiException) {
+                    if (((TargetApiException) e.getCause()).getResponse().getResponseCode() == HttpsURLConnection.HTTP_NOT_FOUND) {
+                        //Ignore it if the server cannot find the data.
+                        Callback.onSuccess(callback, null);
+                    } else {
+                        Callback.onError(callback, e);
+                    }
                 } else {
-                    MASUser.login(new MASCallback<MASUser>() {
-
-                        @Override
-                        public void onSuccess(MASUser result) {
-                            function.call();
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            Callback.onError(callback, e);
-                        }
-                    });
+                    Callback.onError(callback, e);
                 }
-                break;
-            case MASConstants.MAS_APPLICATION:
-                function.call();
-                break;
-            default:
-                throw new IllegalArgumentException("Storage segment is not supported");
+            }
+        });
 
-        }
     }
-
 
     /**
      * <p>Generate a String representing the cloud storage URL without a dataKey; i.e.;
@@ -280,7 +223,7 @@ public class MASSecureStorage extends AbstractMASStorage {
      * @param segment
      * @return String representing the cloud storage URL.
      */
-    private Uri getUri(String dataKey, @MASStorageSegment int segment) {
+    private MASRequest.MASRequestBuilder getRequestBuilder(String dataKey, @MASStorageSegment int segment) {
         Uri.Builder uriBuilder = new Uri.Builder();
 
         String storagePath = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider()
@@ -297,15 +240,18 @@ public class MASSecureStorage extends AbstractMASStorage {
             }
         }
 
+        boolean userSessionRequired = false;
         switch (segment) {
             case MASConstants.MAS_USER:
                 uriBuilder.appendPath(StorageConsts.KEY_COMPONENT_USER);
+                userSessionRequired = true;
                 break;
             case MASConstants.MAS_APPLICATION:
                 uriBuilder.appendPath(StorageConsts.KEY_COMPONENT_CLIENT);
                 break;
             case MASConstants.MAS_USER | MASConstants.MAS_APPLICATION:
                 uriBuilder.appendPath(StorageConsts.KEY_COMPONENT_CLIENT).appendPath(StorageConsts.KEY_COMPONENT_USER);
+                userSessionRequired = true;
                 break;
             default:
                 throw new IllegalArgumentException("Storage segment is not supported");
@@ -316,7 +262,12 @@ public class MASSecureStorage extends AbstractMASStorage {
         if (dataKey != null) {
             uriBuilder.appendPath(dataKey);
         }
-        return uriBuilder.build();
+
+        MASRequest.MASRequestBuilder requestBuilder = new MASRequest.MASRequestBuilder(uriBuilder.build());
+        if (userSessionRequired) {
+            return requestBuilder.password();
+        }
+        return requestBuilder;
     }
 
 }

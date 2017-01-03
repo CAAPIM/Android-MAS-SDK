@@ -1,25 +1,25 @@
 {
   "server": {
-    "hostname": "mobile-staging-mysql.l7tech.com",
+    "hostname": "mag-autotest-mysql.l7tech.com",
     "port": 8443,
     "prefix": "",
     "server_certs": [
       [
         "-----BEGIN CERTIFICATE-----",
-        "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",
+        "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",
         "-----END CERTIFICATE-----"
       ]
     ]
@@ -28,13 +28,13 @@
     "client": {
       "organization": "CA Technologies",
       "description": "Example application for Mobile SSO demonstrations",
-      "client_name": "AppA",
+      "client_name": "AppB",
       "client_type": "confidential",
       "registered_by": "admin",
       "client_custom": {},
       "client_ids": [
         {
-          "client_id": "3f27bb4f-b5aa-458b-962b-14d352b7977c",
+          "client_id": "7c1f4b13-3813-4d8a-91cf-cba60d668fd4",
           "client_secret": "",
           "scope": "openid msso phone profile address email msso_register msso_client_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups abc$abc",
           "redirect_uri": "https://android.ssosdk.ca.com/android",
@@ -65,6 +65,7 @@
   "mag": {
     "system_endpoints": {
       "device_register_endpoint_path": "/connect/device/register",
+      "device_renew_endpoint_path": "/connect/device/renew",
       "device_client_register_endpoint_path": "/connect/device/register/client",
       "device_remove_endpoint_path": "/connect/device/remove",
       "client_credential_init_endpoint_path": "/connect/client/initialize",

@@ -8,12 +8,18 @@
 
 package com.ca.mas.sample.testapp.tests.instrumentation.storage;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASAuthenticationListener;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConstants;
+import com.ca.mas.foundation.MASOtpAuthenticationHandler;
+import com.ca.mas.foundation.MASUser;
+import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.sample.testapp.tests.instrumentation.base.MASIntegrationBaseTest;
 import com.ca.mas.storage.MASSecureStorage;
 import com.ca.mas.storage.MASStorageSegment;
@@ -21,6 +27,7 @@ import com.ca.mas.storage.MASStorageSegment;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -342,4 +349,42 @@ public class MASSecureStorageTests extends MASIntegrationBaseTest {
         return MASConstants.MAS_USER;
     }
 
+    @Test
+    public void triggerLogin() throws Exception {
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        MASUser.getCurrentUser().logout(new MASCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                countDownLatch.countDown();
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                countDownLatch.countDown();
+            }
+        });
+        await(countDownLatch);
+
+        final CountDownLatch countDownLatch2 = new CountDownLatch(1);
+        final boolean[] result = {false};
+        MAS.setAuthenticationListener(new MASAuthenticationListener() {
+            @Override
+            public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {
+                result[0] = true;
+                countDownLatch2.countDown();
+            }
+
+            @Override
+            public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {
+
+            }
+        });
+        MASSecureStorage mgr = new MASSecureStorage();
+        mgr.save(keys.get(1), "VALUE", MASConstants.MAS_USER, null);
+        await(countDownLatch2);
+        assertTrue(result[0]);
+        login();
+
+    }
 }

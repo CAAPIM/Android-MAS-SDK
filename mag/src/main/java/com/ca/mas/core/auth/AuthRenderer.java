@@ -119,9 +119,10 @@ public abstract class AuthRenderer {
                 if (response.getBody() != null) {
                     JSONObject json = response.getBody().getContent();
                     if (json != null) {
-                        String code = (String) json.get("code");
+                        String code = json.getString("code");
+                        String state = json.optString("state");
                         if (code != null && code.length() > 0) {
-                            sendCredentialsIntent(new AuthorizationCodeCredentials(code));
+                            sendCredentialsIntent(new AuthorizationCodeCredentials(code, state));
                             onAuthCodeReceived(code);
                         }
                     }

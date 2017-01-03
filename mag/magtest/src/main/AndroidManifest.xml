@@ -41,10 +41,11 @@
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
-
+            <meta-data android:name="account.name"
+                android:resource="@string/acc_name"/>
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator_ca_mas" />
+                android:resource="@xml/mastest" />
         </service>
 
 

@@ -270,6 +270,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
                     @Override
                     public void onSuccess(IMqttToken iMqttToken) {
                         mConnectOptions = null;
+                        mMqttClient = null;
                         Callback.onSuccess(callback, null);
                     }
 

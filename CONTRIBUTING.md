@@ -15,7 +15,7 @@ Follow these steps for pull requests:
 
 1. Fork the repo and create your branch from `master`.
 4. For any new code, add unit tests.
-3. If you've changed APIs, update code comments for AppleDocs.
+3. If you've changed APIs, update code comments for JavaDocs.
 4. Verify that the test suite passes.
 5. Verify that your code follows the [Code Standard Guideline][guidelines]
 6. If you haven't already, complete the [Contributor License Agreement ("CLA")][cla].

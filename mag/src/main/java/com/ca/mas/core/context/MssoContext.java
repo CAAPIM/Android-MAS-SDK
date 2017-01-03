@@ -660,8 +660,16 @@ public class MssoContext {
      * For SSO disabled, id token is not issued by the server, check access token and refresh token instead.
      */
     public boolean isLogin() {
-        return getIdToken() != null ||
-                (!isSsoEnabled() && getAccessToken() != null && getRefreshToken() != null);
+
+        IdToken idToken = getIdToken();
+
+        if (idToken != null && !JWTValidation.isIdTokenExpired(idToken)) {
+            return true;
+        }
+
+        //No refresh token when using client credential flow.
+        return getAccessToken() != null && getRefreshToken() != null;
+
     }
 
     public String getUserProfile() {

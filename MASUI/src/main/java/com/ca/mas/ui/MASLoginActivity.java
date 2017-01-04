@@ -35,6 +35,7 @@ import com.ca.mas.foundation.auth.MASProximityLoginBLECentralListener;
 import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.ca.mas.core.MAG.DEBUG;
@@ -43,12 +44,12 @@ import static com.ca.mas.core.MAG.TAG;
 public class MASLoginActivity extends AppCompatActivity {
     public static final String REQUEST_ID = "requestID";
     public static final String PROVIDERS = "providers";
-    private long requestId;
+    private long mRequestId;
     private Context mContext;
     private EditText mEditTextUsername;
     private EditText mEditTextPassword;
     private GridLayout mGridLayout;
-    private MASAuthenticationProviders providers;
+    private MASAuthenticationProviders mProviders;
     private MASProximityLogin qrCode;
     private MASProximityLogin nfc;
     private MASProximityLogin ble;
@@ -61,10 +62,10 @@ public class MASLoginActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (intent != null) {
-            Parcelable parcel = intent.getParcelableExtra(PROVIDERS);
-            if (parcel != null && parcel instanceof MASAuthenticationProviders) {
-                providers = (MASAuthenticationProviders) parcel;
-                requestId = intent.getLongExtra(REQUEST_ID, -1);
+            Parcelable providers = intent.getParcelableExtra(PROVIDERS);
+            if (providers != null && providers instanceof MASAuthenticationProviders) {
+                mProviders = (MASAuthenticationProviders) providers;
+                mRequestId = intent.getLongExtra(REQUEST_ID, -1);
             }
         }
 
@@ -93,7 +94,7 @@ public class MASLoginActivity extends AppCompatActivity {
 
         // Social Login
         mGridLayout = (GridLayout) findViewById(R.id.activity_mas_login_grid_layout);
-        List<MASAuthenticationProvider> providerList = providers.getProviders();
+        List<MASAuthenticationProvider> providerList = mProviders.getProviders();
         for (final MASAuthenticationProvider p : providerList) {
             String identifier = p.getIdentifier();
             Integer id = null;
@@ -120,7 +121,23 @@ public class MASLoginActivity extends AppCompatActivity {
 
             if (id != null) {
                 View button = findViewById(id);
-                if (providers.getIdp().equals("all") || providers.getIdp().equalsIgnoreCase(identifier)) {
+                String idp = mProviders.getIdp();
+                if (identifier.equalsIgnoreCase("qrcode")) {
+                    button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            LinearLayout linearLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.qr_code_dialog, null);
+                            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(500, 500);
+                            ImageView imageView = (ImageView) qrCode.render();
+                            imageView.setLayoutParams(layoutParams);
+                            linearLayout.addView(imageView);
+                            new AlertDialog.Builder(MASLoginActivity.this)
+                                    .setView(linearLayout)
+                                    .setNegativeButton(getString(R.string.done), null)
+                                    .show();
+                        }
+                    });
+                } else if (idp.equals("all") || idp.equalsIgnoreCase(identifier)) {
                     if (!p.isProximityLogin()) {
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -133,21 +150,6 @@ public class MASLoginActivity extends AppCompatActivity {
                         button.setClickable(false);
                         button.setEnabled(false);
                     }
-                } else if (identifier.equalsIgnoreCase("qrcode")) {
-                    button.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            LinearLayout linearLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.qr_code_dialog, null);
-                            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(500, 500);
-                            ImageView imageView = (ImageView) qrCode.render();
-                            imageView.setLayoutParams(layoutParams);
-                            linearLayout.addView(imageView);
-                            new AlertDialog.Builder(MASLoginActivity.this)
-                                    .setView(linearLayout)
-                                    .setNegativeButton("Done", null)
-                                    .show();
-                        }
-                    });
                 } else {
                     mGridLayout.removeView(button);
                 }
@@ -231,13 +233,13 @@ public class MASLoginActivity extends AppCompatActivity {
         } else if (id == R.id.menu_bluetooth) {
             new AlertDialog.Builder(this)
                     .setView(R.layout.proximity_dialog)
-                    .setPositiveButton("OKAY", null)
+                    .setPositiveButton(getString(R.string.done), null)
                     .show();
             return true;
         } else if (id == R.id.menu_nfc) {
             new AlertDialog.Builder(this)
                     .setView(R.layout.proximity_dialog)
-                    .setPositiveButton("OKAY", null)
+                    .setPositiveButton(getString(R.string.done), null)
                     .show();
             return true;
         } else {
@@ -259,7 +261,9 @@ public class MASLoginActivity extends AppCompatActivity {
         progress.setCancelable(false);
         progress.show();
         String username = mEditTextUsername.getText().toString();
-        char[] password = mEditTextPassword.getText().toString().toCharArray();
+        int passwordLength = mEditTextPassword.length();
+        char[] password = new char[passwordLength];
+        mEditTextPassword.getText().getChars(0, passwordLength, password, 0);
 
         MASUser.login(username, password, new MASCallback<MASUser>() {
             @Override
@@ -279,6 +283,8 @@ public class MASLoginActivity extends AppCompatActivity {
                 Toast.makeText(MASLoginActivity.this, "Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        Arrays.fill(password, ' ');
     }
 
     private MASProximityLoginQRCode getQrCode() {
@@ -368,7 +374,7 @@ public class MASLoginActivity extends AppCompatActivity {
     }
 
     private void initProximity(MASProximityLogin masProximityLogin) {
-        boolean init = masProximityLogin.init(this, requestId, providers);
+        boolean init = masProximityLogin.init(this, mRequestId, mProviders);
         if (init) {
             masProximityLogin.start();
         }

@@ -3,7 +3,6 @@ package com.ca.mas.ui;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
@@ -54,8 +53,8 @@ public class SocialLoginButton extends CardView {
             }
 
             // Image attrs
-            final float imgWidth = a.getDimension(R.styleable.SocialLoginButton_image_width, 100);
-            final float imgHeight = a.getDimension(R.styleable.SocialLoginButton_image_height, 100);
+            final float imgWidth = a.getDimension(R.styleable.SocialLoginButton_image_width, 140);
+            final float imgHeight = a.getDimension(R.styleable.SocialLoginButton_image_height, 140);
             final Drawable d = a.getDrawable(R.styleable.SocialLoginButton_image_src);
             final float imageMarginRight = a.getDimension(R.styleable.SocialLoginButton_image_margin_right, 0f);
             imageView.setImageDrawable(d);
@@ -68,11 +67,11 @@ public class SocialLoginButton extends CardView {
     }
 
     private void init(Context context) {
-        elevationNormal = dpToPx(2);
-        elevationPressed = dpToPx(8);
+        elevationNormal = dpToPx(5);
+        elevationPressed = dpToPx(12);
         setClickable(true);
         setCardElevation(elevationNormal);
-        setRadius(25);
+        setRadius(8);
         setUseCompatPadding(true);
 
         // Ripple effect

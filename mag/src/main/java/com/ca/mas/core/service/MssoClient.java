@@ -126,7 +126,7 @@ public class MssoClient {
         long requestId = mssoRequest.getId();
 
         final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, sysContext, MssoService.class);
-        Credentials credentials = new AuthorizationCodeCredentials(authCode);
+        Credentials credentials = new AuthorizationCodeCredentials(authCode, state);
         intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
 

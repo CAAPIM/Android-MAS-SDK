@@ -20,13 +20,12 @@
     <string name="social_login_enterprise">Enterprise</string>
     <string name="social_login_qr_code">QR Code</string>
 
-
-
     <!-- Validate OTP-->
     <string name="enter_otp">Enter the OTP</string>
     <string name="request_otp">Request OTP</string>
     <string name="verify_otp">Verify</string>
     <string name="cancel">Cancel</string>
+    <string name="done">Done</string>
 
     <!-- OTP Error Code Messages -->
     <string name="errorCode140">This page is OTP protected. Please select the channel for OTP delivery.</string>

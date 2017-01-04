@@ -679,8 +679,7 @@ public class MssoContext {
 
         //The access token is granted by Client Credential if refresh token is null
         //Please refer to https://tools.ietf.org/html/rfc6749#section-4.4.3 for detail
-        return getIdToken() != null ||
-                (!isSsoEnabled() && getRefreshToken() != null);
+        return getIdToken() != null || getRefreshToken() != null;
 
     }
 

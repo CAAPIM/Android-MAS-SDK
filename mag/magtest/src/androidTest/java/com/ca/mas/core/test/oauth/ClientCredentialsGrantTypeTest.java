@@ -10,6 +10,7 @@ package com.ca.mas.core.test.oauth;
 
 import android.support.test.runner.AndroidJUnit4;
 
+import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
 import com.ca.mas.core.auth.otp.model.OtpResponseBody;
@@ -31,9 +32,11 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
@@ -48,6 +51,18 @@ public class ClientCredentialsGrantTypeTest extends BaseTest {
             @Override
             protected MockResponse registerDeviceResponse() {
                 return noIdTokenRegisterDeviceResponse();
+            }
+
+            @Override
+            protected MockResponse retrieveTokenResponse() {
+                //Mock response for retrieve token
+                String token = "{\n" +
+                        "  \"access_token\":\"caa5871c-7c0f-44c7-b03b-1783609170e4\",\n" +
+                        "  \"token_type\":\"Bearer\",\n" +
+                        "  \"expires_in\":" + new Date().getTime() + 3600 + ",\n" +
+                        "  \"scope\":\"openid msso phone profile address email\"\n" +
+                        "}";
+                return new MockResponse().setResponseCode(200).setBody(token);
             }
         });
 
@@ -89,6 +104,7 @@ public class ClientCredentialsGrantTypeTest extends BaseTest {
             String s = new String(accessTokenRequest.getBody().readByteArray(), "US-ASCII");
             assertTrue(s.contains("grant_type=" + new ClientCredentials().getGrantType()));
         }
+        assertFalse(MobileSsoFactory.getInstance().isLogin());
     }
 
     @Test

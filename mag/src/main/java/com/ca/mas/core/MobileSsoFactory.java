@@ -239,20 +239,6 @@ public final class MobileSsoFactory {
                 return mssoContext.isLogin();
             }
 
-            @Override
-            public String getUserProfile() {
-                return mssoContext.getUserProfile();
-            }
-
-            @Override
-            public void logoffApp() {
-                mssoContext.logoffApp();
-            }
-
-            @Override
-            public void logoutDevice() {
-                removeDeviceRegistration();
-            }
 
             @Override
             public boolean isDeviceRegistered() {

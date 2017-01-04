@@ -133,6 +133,8 @@ class AccessTokenAssertion implements MssoAssertion {
                     if (DEBUG) Log.d(TAG, "Obtain Access Token using Refresh Token");
                     accessToken = obtainAccessTokenUsingRefreshToken(mssoContext, refreshToken);
                 } catch (OAuthServerException tse) {
+                    //The access token and refresh token are no longer valid.
+                    mssoContext.clearAccessToken();
                     accessToken = null;
                     if (DEBUG) Log.w(TAG,
                             "Refresh token failed, will fall back to ID token or password: " + tse.getMessage(), tse);
@@ -220,12 +222,16 @@ class AccessTokenAssertion implements MssoAssertion {
             mssoContext.onAccessTokenAvailable(accessToken, response.getRefreshToken(), response.getExpiresIn(), response.getGrantedScope());
             return accessToken;
         } catch (OAuthServerException e) {
+            //The Id token is no longer valid.
+            mssoContext.clearIdToken();
             // Obtain credentials and try again
             return obtainAccessTokenUsingCredential(mssoContext, request, true);
         }
     }
 
     private String obtainAccessTokenUsingCredential(MssoContext mssoContext, MAGInternalRequest request, boolean wantIdToken) throws CredentialRequiredException, AuthenticationException, OAuthServerException, OAuthException, JWTValidationException {
+        //Clear user profile before getting AccessToken using different credential.
+        mssoContext.clearUserProfile();
         getCredsOrThrow(mssoContext, request);
         String clientId = mssoContext.getClientId();
         String clientSecret = mssoContext.getClientSecret();

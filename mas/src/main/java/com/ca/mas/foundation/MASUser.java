@@ -138,15 +138,15 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
      * @return The currently authenticated user.
      */
     public static MASUser getCurrentUser() {
-        String userProfile = MobileSsoFactory.getInstance().getUserProfile();
         if (current == null) {
-            if (userProfile != null) {
+            if (MobileSsoFactory.getInstance().isLogin()) {
                 current = createMASUser();
             }
         } else {
-            if (userProfile == null) {
+            if (!current.isAuthenticated()) {
                 //The user's session has been removed,
-                //may perform device de-registration or resetLocally
+                //The Grant flow has been switch from user to client credential
+                //Device has been de-registered or resetLocally
                 current = null;
             }
         }

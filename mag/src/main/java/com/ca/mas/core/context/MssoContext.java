@@ -220,6 +220,22 @@ public class MssoContext {
         return ssoEnabled != null && ssoEnabled;
     }
 
+    public void clearUserProfile() {
+        try {
+            tokenManager.deleteUserProfile();
+        } catch (TokenStoreException e) {
+            throw new MssoException("Failed to remove User Profile: " + e.getMessage(), e);
+        }
+    }
+
+    public void clearIdToken() {
+        try {
+            tokenManager.deleteIdToken();
+        } catch (TokenStoreException e) {
+            throw new MssoException("Failed to remove ID token: " + e.getMessage(), e);
+        }
+    }
+
     public IdToken getIdToken() {
         return isSsoEnabled() && tokenManager != null
                 ? tokenManager.getIdToken()
@@ -663,27 +679,9 @@ public class MssoContext {
 
         //The access token is granted by Client Credential if refresh token is null
         //Please refer to https://tools.ietf.org/html/rfc6749#section-4.4.3 for detail
-        return getRefreshToken() != null;
+        return getIdToken() != null ||
+                (!isSsoEnabled() && getRefreshToken() != null);
 
-    }
-
-    public String getUserProfile() {
-        return tokenManager != null
-                ? tokenManager.getUserProfile()
-                : null;
-    }
-
-    /**
-     * Logoff the App by clear the access token.
-     *
-     * @throws MssoException if there is an error while accessing the storage .
-     */
-    public void logoffApp() throws MssoException {
-        try {
-            clearAccessToken();
-        } catch (DataSourceException e) {
-            throw new MssoException(e);
-        }
     }
 
     public void setClientCredentials(ClientCredentials clientCredentials) {

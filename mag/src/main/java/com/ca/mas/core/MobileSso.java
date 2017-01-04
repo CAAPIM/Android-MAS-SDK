@@ -162,27 +162,6 @@ public interface MobileSso {
     boolean isLogin();
 
     /**
-     * Retrieve the cached user profile.
-     *
-     * @return The user profile that has bee acquireda and cached, or null if empty
-     */
-    String getUserProfile();
-
-    /**
-     * Logs off the App by removing cached access token. This forces the next request to obtain a new access token.
-     */
-    @Deprecated
-    void logoffApp();
-
-    /**
-     * Logs off the device by removing the device registration from the server and removing
-     * the cached ID token and access token from the device.
-     * Refer to {@link #removeDeviceRegistration()} instead.
-     */
-    @Deprecated
-    void logoutDevice();
-
-    /**
      * Checks if the device has already been registered.
      *
      * @return true if device registered has already completed and a client cert chain and ID token are present in the token store.

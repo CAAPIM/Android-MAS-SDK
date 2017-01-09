@@ -39,16 +39,6 @@ public interface TokenManager extends TokenProvider {
     void saveMagIdentifier(String deviceIdentifier) throws TokenStoreException;
 
     /**
-     * Save the specified client private and public key pair to the persistent store.
-     * <p/>
-     * Calling this method has the side effect of clearing the client certificate chain.
-     *
-     * @param keyPair the client public and private keys.  The public key must relate to the corresponding private key.
-     * @throws TokenStoreException if there is a problem saving to the persistent store
-     */
-    void saveClientKeyPair(KeyPair keyPair) throws TokenStoreException;
-
-    /**
      * Save the specified certificate chain to the persistent store.
      * <p/>
      * The chain must be non-empty and the certificate in the zeroth index

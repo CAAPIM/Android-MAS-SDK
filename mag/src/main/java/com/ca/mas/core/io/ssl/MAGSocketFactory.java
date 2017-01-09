@@ -47,10 +47,7 @@ public class MAGSocketFactory {
         this.trustConfig = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
         StorageProvider storageProvider = new StorageProvider(context);
         TokenManager tokenManager = storageProvider.createTokenManager();
-        KeyPair keyPair = tokenManager.getClientKeyPair();
-        if (keyPair != null) {
-            clientCertPrivateKey = keyPair.getPrivate();
-        }
+        clientCertPrivateKey = tokenManager.getClientPrivateKey();
         clientCertChain = tokenManager.getClientCertificateChain();
     }
 

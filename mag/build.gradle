@@ -21,8 +21,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 24
-        versionCode 33
-        versionName "3.3"
+        versionCode 34
+        versionName "3.4"
     }
     buildTypes {
         release {
@@ -69,13 +69,9 @@ dependencies {
 }
 
 //jcenter integration
-def siteUrl = 'https://github.com/CAAPIM/Android-MAS-SDK'
-def gitUrl = 'https://github.com/CAAPIM/Android-MAS-SDK.git'
-def issueUrl = 'https://github.com/CAAPIM/Android-MAS-SDK/issues'
-
 group 'com.ca'
 
-project.version = "3.3"
+project.version = mag_version
 bintray {
     user = bintray_user
     key = bintray_api_key
@@ -85,7 +81,7 @@ bintray {
         repo = 'maven'
         name = 'mag'
         userOrg = 'caapim'
-        desc = 'CA Mobile API Gateway provides enterprises with a secure mobile backend that integrates systems and allows control over which users, devices and applications can access your APIs. The gateway enables developers to leverage standards for API security such as (OAuth2, OpenID Connect, PKI) through client SDKs for Android and iOS.'
+        desc = 'CA Mobile API Gateway (MAG) provides enterprises with a secure mobile backend for system integration and allows control over which users, devices, and applications can access your APIs. The gateway enables developers to leverage standards for API security (for example, OAuth2, OpenID Connect, PKI) through client SDKs for Android, iOS and other platforms.'
         websiteUrl = siteUrl
         issueTrackerUrl = issueUrl
         vcsUrl = gitUrl

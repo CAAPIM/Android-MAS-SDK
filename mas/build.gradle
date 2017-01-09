@@ -28,8 +28,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 24
-        versionCode 12
-        versionName "1.2"
+        versionCode 14
+        versionName "1.4"
     }
 
     lintOptions {
@@ -70,13 +70,9 @@ dependencies {
 }
 
 //jcenter integration
-def siteUrl = 'https://github.com/CAAPIM/Android-MAS-SDK'
-def gitUrl = 'https://github.com/CAAPIM/Android-MAS-SDK.git'
-def issueUrl = 'https://github.com/CAAPIM/Android-MAS-SDK/issues'
-
 group 'com.ca'
 
-project.version = "1.3"
+project.version = mas_version
 bintray {
     user = bintray_user
     key = bintray_api_key
@@ -86,7 +82,7 @@ bintray {
         repo = 'maven'
         name = 'mas'
         userOrg = 'caapim'
-        desc = 'Built for organizations that require secure messaging, storage and data sharing.'
+        desc = 'A secure messaging, storage, and data sharing framework.'
         websiteUrl = siteUrl
         issueTrackerUrl = issueUrl
         vcsUrl = gitUrl

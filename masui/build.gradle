@@ -55,7 +55,7 @@ bintray {
         repo = 'maven'
         name = 'masui'
         userOrg = 'caapim'
-        desc = 'A core UI framework with resources to implement a user login dialog. For example, Social Login, One-Time Password, Proximity Login (QR code and BLE), Enterprise Browser, and Fingerprint.'
+        desc = 'A core UI framework with resources to implement features such as User Login, Social Login, One-Time Password, Proximity Login (QR code and BLE), Enterprise Browser, and Fingerprint Unlock.'
         websiteUrl = siteUrl
         issueTrackerUrl = issueUrl
         vcsUrl = gitUrl

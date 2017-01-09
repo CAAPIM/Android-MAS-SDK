@@ -77,7 +77,7 @@ public class CertUtils {
         try {
             return (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(bytes));
         } catch (CertificateException e) {
-            if (DEBUG) Log.e(TAG, "Unable to decode public certificate, error: " + e + " for cert " + certificateText);
+            if (DEBUG) Log.e(TAG, "Unable to decode public certificate, error: " + e + " for cert " + certificateText, e);
             throw new IOException(e);
         }
     }
@@ -106,11 +106,8 @@ public class CertUtils {
 
             pkcs10.encodeAndSign(new X500Signer(signature, x500Name));
             return pkcs10.getEncoded();
-        } catch (Exception e) {
-            if (DEBUG) Log.e(TAG, "Unable to generate certificate signing request: " + e);
-            throw new CertificateException("Unable to generate certificate signing request: " + e.getMessage(), e);
         } catch (Throwable t) {
-            if (DEBUG) Log.e(TAG, "Unable to generate certificate signing request: " + t);
+            if (DEBUG) Log.e(TAG, "Unable to generate certificate signing request: " + t, t);
             throw new CertificateException("Unable to generate certificate signing request: " + t);
         }
     }
@@ -142,7 +139,7 @@ public class CertUtils {
         try {
             return toX509CertArray(CertificateFactory.getInstance("X.509").generateCertificates(new ByteArrayInputStream(chainBytes)));
         } catch (Exception e) {
-            if (DEBUG) Log.e(TAG, "Unable to decode certificate chain: " + e);
+            if (DEBUG) Log.e(TAG, "Unable to decode certificate chain: " + e, e);
             throw new IllegalArgumentException(e);
         }
     }

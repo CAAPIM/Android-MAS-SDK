@@ -11,9 +11,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.UiThread;
 import android.util.Log;
 
-import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.auth.MASAuthenticationProvider;
 
@@ -32,6 +32,7 @@ import static com.ca.mas.core.MAG.TAG;
  * MASCustomTabs is a Custom Tabs implementation utilizing the AppAuth library (https://openid.github.io/AppAuth-Android/).
  */
 public class MASCustomTabs {
+
     /**
      * Converts query redirect parameters from the gateway to construct an AppAuth request
      * for the social provider.
@@ -39,6 +40,7 @@ public class MASCustomTabs {
      * @param context
      * @param provider
      */
+    @UiThread
     public static void socialLogin(final Context context, MASAuthenticationProvider provider) {
         provider.getAuthConfiguration(context, provider, new MASCallback<Uri>() {
             @Override
@@ -82,7 +84,6 @@ public class MASCustomTabs {
 
                         AuthorizationRequest req = builder.build();
 
-                        Context context = MAS.getContext();
                         Intent postAuthIntent = new Intent(context, MASOAuthRedirectActivity.class);
                         Intent authCanceledIntent = new Intent(context, MASFinishActivity.class);
 

@@ -15,14 +15,14 @@
         android:supportsRtl="true">
         <activity
             android:name=".MASEnterpriseWebApplicationActivity"
-            android:theme="@style/Theme.AppCompat"/>
+            android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".MASSessionUnlockActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
-                <action android:name="MASUI.intent.action.SessionUnlock"/>
+                <action android:name="MASUI.intent.action.SessionUnlock" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
@@ -30,23 +30,25 @@
             android:name="net.openid.appauth.RedirectUriReceiverActivity"
             tools:node="replace">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="camsso"/>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="camsso" />
             </intent-filter>
         </activity>
 
         <activity
             android:name=".MASOAuthRedirectActivity"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity android:name=".MASFinishActivity" />
+
+        <activity
+            android:name=".MASLoginActivity"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.AppCompat.Light"/>
-
-        <activity android:name=".Empty"/>
-
-        <activity android:name=".MASLoginActivity"
-            android:theme="@style/Theme.AppCompat.Light"
-            >
-        </activity>
 
     </application>
 

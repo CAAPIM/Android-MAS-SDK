@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016 CA. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
 package com.ca.mas.ui;
 
 import android.app.ProgressDialog;
@@ -10,6 +18,7 @@ import android.os.Parcelable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -19,12 +28,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.auth.MASAuthenticationProvider;
@@ -35,12 +44,15 @@ import com.ca.mas.foundation.auth.MASProximityLoginBLECentralListener;
 import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
+/**
+ * A sample activity that allows you to log in with username/password credentials,
+ * or use login credentials for any gateway-supported social login providers.
+ */
 public class MASLoginActivity extends AppCompatActivity {
     public static final String REQUEST_ID = "requestID";
     public static final String PROVIDERS = "providers";
@@ -142,7 +154,7 @@ public class MASLoginActivity extends AppCompatActivity {
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                CustomTabs.socialLogin(mContext, p);
+                                MASCustomTabs.socialLogin(mContext, p);
                                 finish();
                             }
                         });
@@ -230,17 +242,8 @@ public class MASLoginActivity extends AppCompatActivity {
         if (id == android.R.id.home) {
             finish();
             return true;
-        } else if (id == R.id.menu_bluetooth) {
-            new AlertDialog.Builder(this)
-                    .setView(R.layout.proximity_dialog)
-                    .setPositiveButton(getString(R.string.done), null)
-                    .show();
-            return true;
-        } else if (id == R.id.menu_nfc) {
-            new AlertDialog.Builder(this)
-                    .setView(R.layout.proximity_dialog)
-                    .setPositiveButton(getString(R.string.done), null)
-                    .show();
+        } else if (id == R.id.menu_bluetooth || id == R.id.menu_nfc) {
+            Toast.makeText(mContext, R.string.proximity_dialog_description, Toast.LENGTH_SHORT).show();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
@@ -256,10 +259,12 @@ public class MASLoginActivity extends AppCompatActivity {
     }
 
     private void login() {
-        final ProgressDialog progress = new ProgressDialog(MASLoginActivity.this);
+        final ProgressDialog progress = new ProgressDialog(this);
         progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setMessage("Logging in...");
         progress.setCancelable(false);
         progress.show();
+
         String username = mEditTextUsername.getText().toString();
         int passwordLength = mEditTextPassword.length();
         char[] password = new char[passwordLength];
@@ -281,10 +286,9 @@ public class MASLoginActivity extends AppCompatActivity {
             public void onError(Throwable e) {
                 progress.dismiss();
                 Toast.makeText(MASLoginActivity.this, "Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                MAS.cancelRequest(mRequestId);
             }
         });
-
-        Arrays.fill(password, ' ');
     }
 
     private MASProximityLoginQRCode getQrCode() {

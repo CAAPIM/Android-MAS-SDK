@@ -12,7 +12,7 @@
     <string name="enter_password">Password</string>
     <string name="login">Login</string>
     <string name="ca_logo">CA Logo</string>
-    <string name="social_login_title">Or login with:</string>
+    <string name="social_login_title">Or sign in with:</string>
     <string name="social_login_facebook">Facebook</string>
     <string name="social_login_google">Google</string>
     <string name="social_login_salesforce">Salesforce</string>
@@ -43,7 +43,7 @@
 
     <!-- Login Screen Dialogs-->
     <string name="proximity_dialog_title">Proximity Login</string>
-    <string name="proximity_dialog_description">Log in with Bluetooth or NFC</string>
+    <string name="proximity_dialog_description">Log in with Bluetooth or NFC at any time.</string>
     <string name="qr_code_dialog_description">Scan the QR Code from an authenticated device</string>
     <string name="menu_bluetooth">Login with Bluetooth</string>
     <string name="menu_nfc">Login with NFC</string>

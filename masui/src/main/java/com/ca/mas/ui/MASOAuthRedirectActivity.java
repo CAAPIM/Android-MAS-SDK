@@ -7,30 +7,35 @@
  */
 package com.ca.mas.ui;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
+import android.widget.Toast;
 
 import com.ca.mas.foundation.MASAuthorizationResponse;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
 
 public class MASOAuthRedirectActivity extends AppCompatActivity {
-    private static final String USED_INTENT = "USED_INTENT";
-    private View mLayout;
+    private Context mContext;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_empty);
-        mLayout = findViewById(R.id.activity_empty);
+        mContext = this;
+        //AppAuth will return a state mismatch error at this point.
+        //This is expected at this point because the MAG will consume the state information.
+        //The redirect URL will then be returned by MAG without this state information.
         Uri redirectUri = getIntent().getData();
         if (redirectUri != null) {
             MASAuthorizationResponse response = MASAuthorizationResponse.fromUri(redirectUri);
             MASUser.login(response, getLoginCallback());
+        } else {
+            Toast.makeText(this, "No redirect URI detected.", Toast.LENGTH_LONG).show();
+            finish();
         }
     }
 
@@ -43,66 +48,10 @@ public class MASOAuthRedirectActivity extends AppCompatActivity {
 
             @Override
             public void onError(Throwable e) {
-                Snackbar.make(mLayout, e.getMessage(), Snackbar.LENGTH_SHORT).show();
+                Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_LONG).show();
                 finish();
             }
         };
     }
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        checkIntent(getIntent());
-//    }
-//
-//    @Override
-//    protected void onNewIntent(Intent intent) {
-//        checkIntent(intent);
-//    }
-//
-//    private void checkIntent(@Nullable Intent intent) {
-//        if (intent != null) {
-//            String action = intent.getAction();
-//            switch (action) {
-//                case "com.masui.oauth.HANDLE_AUTHORIZATION_RESPONSE":
-//                    if (!intent.hasExtra(USED_INTENT)) {
-//                        handleAuthorizationResponse(intent);
-//                        intent.putExtra(USED_INTENT, true);
-//                    }
-//                    break;
-//                default:
-//                    // do nothing
-//            }
-//        }
-//    }
-//
-//    /**
-//     * Exchanges the code, for the {@link TokenResponse}.
-//     *
-//     * @param intent represents the {@link Intent} from the Custom Tabs or the System Browser.
-//     */
-//    private void handleAuthorizationResponse(@NonNull Intent intent) {
-//        AuthorizationResponse response = AuthorizationResponse.fromIntent(intent);
-//        AuthorizationException error = AuthorizationException.fromIntent(intent);
-//        final AuthState authState = new AuthState(response, error);
-//
-//        if (response != null) {
-//            Log.i(TAG, String.format("Handled Authorization Response %s ", authState.toString()));
-//            AuthorizationService service = new AuthorizationService(this);
-//            service.performTokenRequest(response.createTokenExchangeRequest(), new AuthorizationService.TokenResponseCallback() {
-//                @Override
-//                public void onTokenRequestCompleted(@Nullable TokenResponse tokenResponse, @Nullable AuthorizationException exception) {
-//                    if (exception != null) {
-//                        Log.w(TAG, "Token Exchange failed", exception);
-//                    } else {
-//                        if (tokenResponse != null) {
-//                            authState.update(tokenResponse, exception);
-//                            persistAuthState(authState);
-//                            Log.i(TAG, String.format("Token Response [ Access Token: %s, ID Token: %s ]", tokenResponse.accessToken, tokenResponse.idToken));
-//                        }
-//                    }
-//                }
-//            });
-//        }
-//    }
 }

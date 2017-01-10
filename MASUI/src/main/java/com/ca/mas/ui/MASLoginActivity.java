@@ -33,6 +33,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
@@ -54,8 +55,6 @@ import static com.ca.mas.core.MAG.TAG;
  * or use login credentials for any gateway-supported social login providers.
  */
 public class MASLoginActivity extends AppCompatActivity {
-    public static final String REQUEST_ID = "requestID";
-    public static final String PROVIDERS = "providers";
     private long mRequestId;
     private Context mContext;
     private EditText mEditTextUsername;
@@ -74,10 +73,10 @@ public class MASLoginActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (intent != null) {
-            Parcelable providers = intent.getParcelableExtra(PROVIDERS);
+            Parcelable providers = intent.getParcelableExtra(MssoIntents.EXTRA_AUTH_PROVIDERS);
             if (providers != null && providers instanceof MASAuthenticationProviders) {
                 mProviders = (MASAuthenticationProviders) providers;
-                mRequestId = intent.getLongExtra(REQUEST_ID, -1);
+                mRequestId = intent.getLongExtra(MssoIntents.EXTRA_REQUEST_ID, -1);
             }
         }
 

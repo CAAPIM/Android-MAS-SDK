@@ -10,9 +10,9 @@ package com.ca.mas.foundation;
 
 import android.app.Activity;
 import android.app.Application;
-import android.app.DialogFragment;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -30,6 +30,7 @@ import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.oauth.GrantProvider;
 import com.ca.mas.core.service.AuthenticationProvider;
+import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.foundation.notify.Callback;
 
@@ -57,7 +58,7 @@ public class MAS {
     private static boolean hasRegisteredActivityCallback;
     private static MASAuthenticationListener masAuthenticationListener;
 
-    private static synchronized void init(@NonNull Context context) {
+    private static synchronized void init(@NonNull final Context context) {
         stop();
         // Initialize the MASConfiguration
         ctx = context.getApplicationContext();
@@ -73,11 +74,14 @@ public class MAS {
             @Override
             public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
                 if (masAuthenticationListener == null) {
-                    DialogFragment df = getLoginFragment(requestId, new MASAuthenticationProviders(provider));
-                    if (df != null) {
-                        df.show(currentActivity.getFragmentManager(), "logonDialog");
+                    Class<Activity> loginActivity = getLoginActivity();
+                    if (loginActivity != null) {
+                        Intent intent = new Intent(context, loginActivity);
+                        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
+                        intent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, new MASAuthenticationProviders(provider));
+                        context.startActivity(intent);
                     } else {
-                        if (DEBUG) Log.w(TAG, MASUserLoginWithUserCredentialsListener.class.getSimpleName() + " is required for user authentication.");
+                        if (DEBUG) Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for user authentication.");
                     }
                 } else {
                     masAuthenticationListener.onAuthenticateRequest(currentActivity, requestId, new MASAuthenticationProviders(provider));
@@ -138,17 +142,14 @@ public class MAS {
     }
 
     /**
-     * Return the MASLoginFragment from MASUI components if MASUI library is included in the classpath.
+     * Return the MASLoginActivity from MASUI components if MASUI library is included in the classpath.
      *
-     * @param requestID The request id
-     * @param providers Authentication Providers
-     * @return A DialogFragment to capture the user credentials or null if error.
+     * @return A LoginActivity to capture the user credentials or null if error.
      */
-    private static DialogFragment getLoginFragment(long requestID, MASAuthenticationProviders providers) {
+    private static Class<Activity> getLoginActivity() {
 
         try {
-            Class c = Class.forName("com.ca.mas.ui.MASLoginFragment");
-            return (DialogFragment) c.getMethod("newInstance", long.class, MASAuthenticationProviders.class).invoke(null, requestID, providers);
+            return (Class<Activity>) Class.forName("com.ca.mas.ui.MASLoginActivity");
         } catch (Exception e) {
             return null;
         }

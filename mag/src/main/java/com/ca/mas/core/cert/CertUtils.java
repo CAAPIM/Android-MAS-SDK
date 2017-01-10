@@ -9,36 +9,27 @@
 package com.ca.mas.core.cert;
 
 import android.util.Base64;
-
-import org.spongycastle.asn1.ASN1EncodableVector;
-import org.spongycastle.asn1.ASN1Set;
-import org.spongycastle.asn1.DERSet;
-import org.spongycastle.asn1.x509.BasicConstraints;
-import org.spongycastle.asn1.x509.X509Extensions;
-import org.spongycastle.jce.PKCS10CertificationRequest;
-import org.spongycastle.jce.X509KeyUsage;
-import org.spongycastle.x509.X509V3CertificateGenerator;
-import org.spongycastle.x509.extension.AuthorityKeyIdentifierStructure;
-import org.spongycastle.x509.extension.SubjectKeyIdentifierStructure;
+import android.util.Log;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
-import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.SecureRandom;
+import java.security.Signature;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
-import javax.security.auth.x500.X500Principal;
+import sun.security.pkcs.PKCS10;
+import sun.security.x509.X500Signer;
+
+import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
+
 
 /**
  * Utility methods for working with certificate and CSRs.
@@ -86,51 +77,11 @@ public class CertUtils {
         try {
             return (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(bytes));
         } catch (CertificateException e) {
+            if (DEBUG) Log.e(TAG, "Unable to decode public certificate, error: " + e + " for cert " + certificateText, e);
             throw new IOException(e);
         }
     }
 
-
-    /**
-     * Generate a self-signed certificate.
-     *
-     * @param dn subject DN.  Required.
-     * @param subjectPublicKey public key to "certify" by encoding it into the cert.  Required.
-     * @param issuerPrivateKey private key with which to sign the cert.  Required.
-     * @param random a SecureRandom instance to use for choosing a serial number.
-     * @return a new X509Certificate instance.  Never null.
-     * @throws CertificateException if a cert cannot be generated.
-     */
-    public static X509Certificate generateSelfSignedCertificate(String dn, PublicKey subjectPublicKey, PrivateKey issuerPrivateKey, SecureRandom random) throws CertificateException {
-        X500Principal subjectDn = new X500Principal(dn);
-        String sigAlg = "SHA1withRSA";
-        int daysUntilExpiry = 10 * 365;
-        Date notBefore = new Date(new Date().getTime() - (10 * 60 * 1000L)); // 10 min ago
-        Date notAfter = new Date(notBefore.getTime() + (daysUntilExpiry * 24 * 60 * 60 * 1000L)); // daysUntilExpiry days after notBefore
-        BigInteger serialNumber = new BigInteger(64, random).abs();
-
-        X509V3CertificateGenerator certgen = new X509V3CertificateGenerator();
-
-        certgen.setSerialNumber(serialNumber);
-        certgen.setNotBefore(notBefore);
-        certgen.setNotAfter(notAfter);
-        certgen.setSignatureAlgorithm(sigAlg);
-        certgen.setSubjectDN(subjectDn);
-        certgen.setIssuerDN(subjectDn);
-        certgen.setPublicKey(subjectPublicKey);
-
-        certgen.addExtension(X509Extensions.BasicConstraints, true, new BasicConstraints(false));
-        certgen.addExtension(X509Extensions.KeyUsage, true, new X509KeyUsage(KU_digitalSignature | KU_keyEncipherment));
-
-        try {
-            certgen.addExtension(X509Extensions.SubjectKeyIdentifier, false, new SubjectKeyIdentifierStructure(subjectPublicKey));
-            certgen.addExtension(X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure(subjectPublicKey));
-
-            return certgen.generate(issuerPrivateKey);
-        } catch (Exception e) {
-            throw new CertificateException("Unable to generate self-signed cert: " + e.getMessage(), e);
-        }
-    }
 
     /**
      * Generate a PKCS#10 certificate signing request from the specified parameters.
@@ -139,18 +90,25 @@ public class CertUtils {
      * @param deviceId  the device ID.  Required.
      * @param deviceName  the device name.  Required.
      * @param organization  the organization.  Required.
-     * @param keyPair  the client's public and private key pair.  Required.
+     * @param publicKey  the client's public key.  Required.
+     * @param privateKey  the client's private key.  Required.
      * @return a signed PKCS#10 CertificationRequest structure in binary DER format.  Never null.
      * @throws CertificateException if a CSR cannot be created
      */
-    public static byte[] generateCertificateSigningRequest(String commonName, String deviceId, String deviceName, String organization, KeyPair keyPair) throws CertificateException {
+    public static byte[] generateCertificateSigningRequest(String commonName,
+               String deviceId, String deviceName, String organization,
+               PublicKey publicKey, PrivateKey privateKey) throws CertificateException {
         try {
-            X500Principal subject = new X500Principal("cn=" + commonName + ", ou=" + deviceId + ", dc=" + deviceName + ", o=" + organization);
-            ASN1Set attrs = new DERSet(new ASN1EncodableVector());
-            PKCS10CertificationRequest csr = new PKCS10CertificationRequest("SHA1withRSA", subject, keyPair.getPublic(), attrs, keyPair.getPrivate(), null);
-            return csr.getEncoded();
-        } catch (Exception e) {
-            throw new CertificateException("Unable to generate certificate signing request: " + e.getMessage(), e);
+            PKCS10 pkcs10 = new PKCS10(publicKey);
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initSign(privateKey);
+            sun.security.x509.X500Name x500Name = new sun.security.x509.X500Name("cn=" + commonName + ", ou=" + deviceId + ", dc=" + deviceName + ", o=" + organization);
+
+            pkcs10.encodeAndSign(new X500Signer(signature, x500Name));
+            return pkcs10.getEncoded();
+        } catch (Throwable t) {
+            if (DEBUG) Log.e(TAG, "Unable to generate certificate signing request: " + t, t);
+            throw new CertificateException("Unable to generate certificate signing request: " + t);
         }
     }
 
@@ -181,31 +139,11 @@ public class CertUtils {
         try {
             return toX509CertArray(CertificateFactory.getInstance("X.509").generateCertificates(new ByteArrayInputStream(chainBytes)));
         } catch (Exception e) {
+            if (DEBUG) Log.e(TAG, "Unable to decode certificate chain: " + e, e);
             throw new IllegalArgumentException(e);
         }
     }
 
-    /**
-     * Encode a certificate chain to a byte array.
-     * <p/>
-     * The returned byte array is simply the encoded form of each certificate appended to the array
-     * one by one without any surrounding structure or other delimiters, with the subject cert coming first.
-     *
-     * @param chain the chain to encode.  Required.
-     * @return the encoded bytes of the chain.
-     * @throws IllegalArgumentException if the chain cannot be encoded.
-     */
-    public static byte[] encodeCertificateChain(X509Certificate[] chain) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            for (X509Certificate cert : chain) {
-                baos.write(cert.getEncoded());
-            }
-            return baos.toByteArray();
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
 
     private CertUtils() {
     }

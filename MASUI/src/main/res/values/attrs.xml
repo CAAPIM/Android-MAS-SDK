@@ -9,7 +9,8 @@
 
 <resources>
     <declare-styleable name="MASSocialLoginButton">
-        <attr name="image_src" format="reference|color" />
+        <attr name="image_src_enabled" format="reference|color" />
+        <attr name="image_src_disabled" format="reference|color" />
         <attr name="image_width" format="dimension" />
         <attr name="image_height" format="dimension" />
         <attr name="text" format="string" />

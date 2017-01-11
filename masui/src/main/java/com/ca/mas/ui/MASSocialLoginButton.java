@@ -11,6 +11,7 @@ package com.ca.mas.ui;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
@@ -62,9 +63,13 @@ public class MASSocialLoginButton extends CardView {
             // Image attrs
             final float imgWidth = a.getDimension(R.styleable.MASSocialLoginButton_image_width, 140);
             final float imgHeight = a.getDimension(R.styleable.MASSocialLoginButton_image_height, 140);
-            final Drawable d = a.getDrawable(R.styleable.MASSocialLoginButton_image_src);
+            final Drawable disabled = a.getDrawable(R.styleable.MASSocialLoginButton_image_src_disabled);
+            final Drawable enabled = a.getDrawable(R.styleable.MASSocialLoginButton_image_src_enabled);
+            StateListDrawable states = new StateListDrawable();
+            states.addState(new int[] {android.R.attr.state_enabled}, enabled);
+            states.addState(new int[] {-android.R.attr.state_enabled}, disabled);
+            imageView.setImageDrawable(states);
             final float imageMarginRight = a.getDimension(R.styleable.MASSocialLoginButton_image_margin_right, 0f);
-            imageView.setImageDrawable(d);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int) imgWidth, (int) imgHeight);
             layoutParams.setMargins(0, 0, (int) imageMarginRight, 0);
             imageView.setLayoutParams(layoutParams);

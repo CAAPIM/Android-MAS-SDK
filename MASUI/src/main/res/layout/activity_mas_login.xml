@@ -115,10 +115,10 @@
                     social_login_button:contentPaddingLeft="4dp"
                     social_login_button:image_height="@dimen/social_button_image_height"
                     social_login_button:image_margin_right="4dp"
-                    social_login_button:image_src="@mipmap/facebook_enable"
+                    social_login_button:image_src="@drawable/facebook_enabled"
                     social_login_button:image_width="@dimen/social_button_image_width"
                     social_login_button:text="@string/social_login_facebook"
-                    social_login_button:text_color="#FFFFFF"
+                    social_login_button:text_color="@color/white"
                     social_login_button:text_size="@dimen/social_button_text_size" />
 
                 <com.ca.mas.ui.MASSocialLoginButton
@@ -131,10 +131,10 @@
                     social_login_button:contentPaddingLeft="4dp"
                     social_login_button:image_height="@dimen/social_button_image_height"
                     social_login_button:image_margin_right="4dp"
-                    social_login_button:image_src="@drawable/google"
+                    social_login_button:image_src="@drawable/google_enabled"
                     social_login_button:image_width="@dimen/social_button_image_width"
                     social_login_button:text="@string/social_login_google"
-                    social_login_button:text_color="#5C6061"
+                    social_login_button:text_color="@color/colorAccent"
                     social_login_button:text_size="@dimen/social_button_text_size" />
 
                 <com.ca.mas.ui.MASSocialLoginButton
@@ -147,10 +147,10 @@
                     social_login_button:contentPaddingLeft="4dp"
                     social_login_button:image_height="@dimen/social_button_image_height"
                     social_login_button:image_margin_right="4dp"
-                    social_login_button:image_src="@drawable/salesforce"
+                    social_login_button:image_src="@drawable/salesforce_enabled"
                     social_login_button:image_width="@dimen/social_button_image_width"
                     social_login_button:text="@string/social_login_salesforce"
-                    social_login_button:text_color="#5C6061"
+                    social_login_button:text_color="@color/colorAccent"
                     social_login_button:text_size="@dimen/social_button_text_size" />
 
                 <com.ca.mas.ui.MASSocialLoginButton
@@ -163,10 +163,10 @@
                     social_login_button:contentPaddingLeft="4dp"
                     social_login_button:image_height="@dimen/social_button_image_height"
                     social_login_button:image_margin_right="4dp"
-                    social_login_button:image_src="@mipmap/linkedin_enable"
+                    social_login_button:image_src="@drawable/linkedin_enabled"
                     social_login_button:image_width="@dimen/social_button_image_width"
                     social_login_button:text="@string/social_login_linkedin"
-                    social_login_button:text_color="#FFFFFF"
+                    social_login_button:text_color="@color/white"
                     social_login_button:text_size="@dimen/social_button_text_size" />
 
                 <com.ca.mas.ui.MASSocialLoginButton
@@ -179,10 +179,10 @@
                     social_login_button:contentPaddingLeft="4dp"
                     social_login_button:image_height="@dimen/social_button_image_height"
                     social_login_button:image_margin_right="4dp"
-                    social_login_button:image_src="@mipmap/enterprise_enable"
+                    social_login_button:image_src="@drawable/enterprise_enabled"
                     social_login_button:image_width="@dimen/social_button_image_width"
                     social_login_button:text="@string/social_login_enterprise"
-                    social_login_button:text_color="#5C6061"
+                    social_login_button:text_color="@color/colorAccent"
                     social_login_button:text_size="@dimen/social_button_text_size" />
 
                 <com.ca.mas.ui.MASSocialLoginButton
@@ -198,7 +198,7 @@
                     social_login_button:image_src="@drawable/qrcode"
                     social_login_button:image_width="@dimen/social_button_image_width"
                     social_login_button:text="@string/social_login_qr_code"
-                    social_login_button:text_color="#5C6061"
+                    social_login_button:text_color="@color/colorAccent"
                     social_login_button:text_size="@dimen/social_button_text_size" />
 
             </android.support.v7.widget.GridLayout>

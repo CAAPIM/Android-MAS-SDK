@@ -7,4 +7,4 @@
  */
 
 configurations.maybeCreate("default")
-artifacts.add("default", file('appauth-release.aar'))
+artifacts.add("default", file('appauth-pullRequest133.aar'))

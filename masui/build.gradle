@@ -43,7 +43,7 @@ dependencies {
     compile 'com.android.support:cardview-v7:24.2.1'
     compile 'com.android.support:gridlayout-v7:24.2.1'
     testCompile 'junit:junit:4.12'
-    compile project(':appauth-release')
+    compile project(':appauth-pullRequest133')
 }
 
 //jcenter integration

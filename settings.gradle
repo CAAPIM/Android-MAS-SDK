@@ -6,7 +6,7 @@
  *
  */
 
-include ':mag', ':magtest', ':mastest'
+include ':mag', ':magtest', ':mastest', ':appauth-release'
 
 include ':mas', ':masui'
 

@@ -39,6 +39,7 @@ import android.widget.Toast;
 
 import com.ca.mas.core.auth.otp.OtpConstants;
 import com.ca.mas.core.error.TargetApiException;
+import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthenticationListener;
 import com.ca.mas.foundation.MASCallback;
@@ -56,7 +57,7 @@ import com.ca.mas.foundation.auth.MASProximityLoginBLEUserConsentHandler;
 import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 import com.ca.mas.ui.MASEnterpriseBrowserFragment;
-import com.ca.mas.ui.MASLoginFragment;
+import com.ca.mas.ui.MASLoginActivity;
 import com.ca.mas.ui.otp.MASOtpDialogFragment;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -120,8 +121,10 @@ public class ExampleActivity extends AppCompatActivity {
 
             @Override
             public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {
-                android.app.DialogFragment loginFragment = MASLoginFragment.newInstance(requestId, providers);
-                loginFragment.show(((Activity) context).getFragmentManager(), "logonDialog");
+                Intent loginIntent = new Intent(context, MASLoginActivity.class);
+                loginIntent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, providers);
+                loginIntent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
+                startActivity(loginIntent);
             }
 
             @Override

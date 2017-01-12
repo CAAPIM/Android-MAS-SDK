@@ -26,11 +26,11 @@ public class MASOAuthRedirectActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_empty);
         mContext = this;
-        //AppAuth will return a state mismatch error at this point.
-        //This is expected at this point because the MAG will consume the state information.
-        //The redirect URL will then be returned by MAG without this state information.
+        //If it was successful, AppAuth will return a state mismatch error at this point.
+        //This is expected because the gateway will consume the initial state information.
+        //The redirect URL will then be returned by gateway without the initial state information
+        //which is why a mismatch is expected.
         AuthorizationException ex = AuthorizationException.fromIntent(getIntent());
         if (ex != null && ex.equals(AuthorizationException.AuthorizationRequestErrors.STATE_MISMATCH)) {
             Uri redirectUri = getIntent().getData();
@@ -42,7 +42,7 @@ public class MASOAuthRedirectActivity extends AppCompatActivity {
                 finish();
             }
         } else {
-            Toast.makeText(this, "Expect state mismatch exception from AppAuth.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, ex.errorDescription, Toast.LENGTH_LONG).show();
             finish();
         }
     }

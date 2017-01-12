@@ -18,6 +18,8 @@ import com.ca.mas.foundation.MASAuthorizationResponse;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
 
+import net.openid.appauth.AuthorizationException;
+
 public class MASOAuthRedirectActivity extends AppCompatActivity {
     private Context mContext;
 
@@ -29,12 +31,18 @@ public class MASOAuthRedirectActivity extends AppCompatActivity {
         //AppAuth will return a state mismatch error at this point.
         //This is expected at this point because the MAG will consume the state information.
         //The redirect URL will then be returned by MAG without this state information.
-        Uri redirectUri = getIntent().getData();
-        if (redirectUri != null) {
-            MASAuthorizationResponse response = MASAuthorizationResponse.fromUri(redirectUri);
-            MASUser.login(response, getLoginCallback());
+        AuthorizationException ex = AuthorizationException.fromIntent(getIntent());
+        if (ex != null && ex.equals(AuthorizationException.AuthorizationRequestErrors.STATE_MISMATCH)) {
+            Uri redirectUri = getIntent().getData();
+            if (redirectUri != null) {
+                MASAuthorizationResponse response = MASAuthorizationResponse.fromUri(redirectUri);
+                MASUser.login(response, getLoginCallback());
+            } else {
+                Toast.makeText(this, "No redirect URI detected.", Toast.LENGTH_LONG).show();
+                finish();
+            }
         } else {
-            Toast.makeText(this, "No redirect URI detected.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Expect state mismatch exception from AppAuth.", Toast.LENGTH_LONG).show();
             finish();
         }
     }

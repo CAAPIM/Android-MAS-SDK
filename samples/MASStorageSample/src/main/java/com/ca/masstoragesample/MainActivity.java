@@ -8,16 +8,17 @@
 
 package com.ca.masstoragesample;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthenticationListener;
 import com.ca.mas.foundation.MASCallback;
@@ -26,7 +27,7 @@ import com.ca.mas.foundation.MASOtpAuthenticationHandler;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.storage.MASSecureLocalStorage;
 import com.ca.mas.storage.MASStorage;
-import com.ca.mas.ui.MASLoginFragment;
+import com.ca.mas.ui.MASLoginActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,8 +51,10 @@ public class MainActivity extends AppCompatActivity {
         MAS.setAuthenticationListener(new MASAuthenticationListener() {
             @Override
             public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {
-                android.app.DialogFragment loginFragment = MASLoginFragment.newInstance(requestId, providers);
-                loginFragment.show(((Activity) context).getFragmentManager(), "logonDialog");
+                Intent loginIntent = new Intent(context, MASLoginActivity.class);
+                loginIntent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, providers);
+                loginIntent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
+                startActivity(loginIntent);
             }
 
             @Override

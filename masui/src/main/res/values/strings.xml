@@ -12,12 +12,20 @@
     <string name="enter_password">Password</string>
     <string name="login">Login</string>
     <string name="ca_logo">CA Logo</string>
+    <string name="social_login_title">Or sign in with:</string>
+    <string name="social_login_facebook">Facebook</string>
+    <string name="social_login_google">Google</string>
+    <string name="social_login_salesforce">Salesforce</string>
+    <string name="social_login_linkedin">LinkedIn</string>
+    <string name="social_login_enterprise">Enterprise</string>
+    <string name="social_login_qr_code">QR Code</string>
 
     <!-- Validate OTP-->
     <string name="enter_otp">Enter the OTP</string>
     <string name="request_otp">Request OTP</string>
     <string name="verify_otp">Verify</string>
     <string name="cancel">Cancel</string>
+    <string name="done">Done</string>
 
     <!-- OTP Error Code Messages -->
     <string name="errorCode140">This page is OTP protected. Please select the channel for OTP delivery.</string>
@@ -32,4 +40,11 @@
     <!-- Session Unlock -->
     <string name="fingerprint_sign_in">User Fingerprint Sign-In</string>
     <string name="standard_sign_in">Go to Standard Sign-In</string>
+
+    <!-- Login Screen Dialogs-->
+    <string name="proximity_dialog_title">Proximity Login</string>
+    <string name="proximity_dialog_description">Log in with Bluetooth or NFC at any time.</string>
+    <string name="qr_code_dialog_description">Scan the QR Code from an authenticated device</string>
+    <string name="menu_bluetooth">Login with Bluetooth</string>
+    <string name="menu_nfc">Login with NFC</string>
 </resources>

@@ -164,4 +164,5 @@ public abstract class MASSocialLogin {
      * @param code Authorization Code
      */
     protected abstract void onAuthCodeReceived(String code);
+
 }

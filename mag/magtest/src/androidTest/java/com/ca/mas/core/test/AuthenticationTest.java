@@ -320,7 +320,7 @@ public class AuthenticationTest extends BaseTest {
 
     @Test(expected = NullPointerException.class)
     public void authenticateTestWithNullPassword() {
-        mobileSso.authenticate(getUsername(), null, new MAGResultReceiver<JSONObject>(null) {
+        mobileSso.authenticate(getUsername(), (char[]) null, new MAGResultReceiver<JSONObject>(null) {
 
             @Override
             public void onSuccess(MAGResponse<JSONObject> response) {

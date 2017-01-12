@@ -20,4 +20,11 @@
     <color name="successDark">#1B5E20</color>
     <color name="error">#F44336</color>
     <color name="errorDark">#B71C1C</color>
+
+    <color name="colorButtonFacebook">#3B5998</color>
+    <color name="colorButtonGoogle">#FFFFFF</color>
+    <color name="colorButtonSalesforce">#FFFFFF</color>
+    <color name="colorButtonLinkedIn">#0077B5</color>
+    <color name="colorButtonEnterprise">#FFFFFF</color>
+    <color name="colorButtonQrCode">#FFFFFF</color>
 </resources>

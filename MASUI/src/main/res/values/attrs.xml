@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2016 CA. All rights reserved.
   ~
   ~ This software may be modified and distributed under the terms
@@ -9,15 +8,9 @@
 
 <resources>
     <declare-styleable name="MASSocialLoginButton">
-        <attr name="image_src_enabled" format="reference|color" />
-        <attr name="image_src_disabled" format="reference|color" />
-        <attr name="image_width" format="dimension" />
-        <attr name="image_height" format="dimension" />
         <attr name="text" format="string" />
         <attr name="text_color" format="reference|color" />
-        <attr name="image_margin_right" format="dimension" />
-        <attr name="padding_right" format="dimension" />
-        <attr name="padding_left" format="dimension" />
-        <attr name="text_size" format="dimension"/>
+        <attr name="image_src_disabled" format="reference|color" />
+        <attr name="image_src_enabled" format="reference|color" />
     </declare-styleable>
 </resources>

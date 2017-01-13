@@ -9,6 +9,7 @@
 package com.ca.mas.ui;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
@@ -43,17 +44,17 @@ public class MASSocialLoginButton extends CardView {
         init(context);
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MASSocialLoginButton, defStyleAttr, 0);
+            Resources res = getResources();
 
             // LinearLayout attrs
-            final int paddingLeft = (int) a.getDimension(R.styleable.MASSocialLoginButton_padding_left, 0);
-            final int paddingRight = (int) a.getDimension(R.styleable.MASSocialLoginButton_padding_right, 0);
-            linearLayout.setPadding(paddingLeft, 0, paddingRight, 0);
+            final int paddingLeft = (int) res.getDimension(R.dimen.social_button_padding_left);
+            linearLayout.setPadding(paddingLeft, 0, paddingLeft, 0);
             linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
 
             // Text attrs
             final String text = a.getString(R.styleable.MASSocialLoginButton_text);
             final int textColor = a.getColor(R.styleable.MASSocialLoginButton_text_color, textView.getSolidColor());
-            final int textSize = a.getDimensionPixelSize(R.styleable.MASSocialLoginButton_text_size, 12);
+            final int textSize = (int) res.getDimension(R.dimen.social_button_text_size);
             textView.setText(text);
             textView.setTextColor(textColor);
             if (textSize > 0) {
@@ -61,15 +62,15 @@ public class MASSocialLoginButton extends CardView {
             }
 
             // Image attrs
-            final float imgWidth = a.getDimension(R.styleable.MASSocialLoginButton_image_width, 140);
-            final float imgHeight = a.getDimension(R.styleable.MASSocialLoginButton_image_height, 140);
+            final float imgWidth = res.getDimension(R.dimen.social_button_image_width);
+            final float imgHeight = res.getDimension(R.dimen.social_button_image_height);
             final Drawable disabled = a.getDrawable(R.styleable.MASSocialLoginButton_image_src_disabled);
             final Drawable enabled = a.getDrawable(R.styleable.MASSocialLoginButton_image_src_enabled);
             StateListDrawable states = new StateListDrawable();
             states.addState(new int[] {android.R.attr.state_enabled}, enabled);
             states.addState(new int[] {-android.R.attr.state_enabled}, disabled);
             imageView.setImageDrawable(states);
-            final float imageMarginRight = a.getDimension(R.styleable.MASSocialLoginButton_image_margin_right, 0f);
+            final float imageMarginRight = res.getDimension(R.dimen.social_button_margin_right);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int) imgWidth, (int) imgHeight);
             layoutParams.setMargins(0, 0, (int) imageMarginRight, 0);
             imageView.setLayoutParams(layoutParams);

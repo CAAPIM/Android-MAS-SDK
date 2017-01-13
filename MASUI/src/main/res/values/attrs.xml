@@ -8,15 +8,9 @@
 
 <resources>
     <declare-styleable name="MASSocialLoginButton">
-        <attr name="padding_left" format="dimension" />
-        <attr name="padding_right" format="dimension" />
         <attr name="text" format="string" />
         <attr name="text_color" format="reference|color" />
-        <attr name="text_size" format="dimension" />
-        <attr name="image_width" format="dimension" />
-        <attr name="image_height" format="dimension" />
         <attr name="image_src_disabled" format="reference|color" />
         <attr name="image_src_enabled" format="reference|color" />
-        <attr name="image_margin_right" format="dimension" />
     </declare-styleable>
 </resources>

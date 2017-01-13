@@ -8,7 +8,7 @@
   -->
 
 <resources>
-    <declare-styleable name="MASSocialLoginButton">
+    <declare-styleable name="com.ca.mas.ui.MASSocialLoginButton">
         <attr name="image_src_enabled" format="reference|color" />
         <attr name="image_src_disabled" format="reference|color" />
         <attr name="image_width" format="dimension" />

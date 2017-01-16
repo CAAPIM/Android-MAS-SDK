@@ -222,8 +222,9 @@ class AccessTokenAssertion implements MssoAssertion {
             mssoContext.onAccessTokenAvailable(accessToken, response.getRefreshToken(), response.getExpiresIn(), response.getGrantedScope());
             return accessToken;
         } catch (OAuthServerException e) {
-            //The Id token is no longer valid.
+            //The user session is no longer valid.
             mssoContext.clearIdToken();
+            mssoContext.clearUserProfile();
             // Obtain credentials and try again
             return obtainAccessTokenUsingCredential(mssoContext, request, true);
         }

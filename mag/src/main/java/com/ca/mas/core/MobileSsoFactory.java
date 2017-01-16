@@ -230,11 +230,6 @@ public final class MobileSsoFactory {
             }
 
             @Override
-            public boolean isAppLogon() {
-                return mssoContext.isAppLogon();
-            }
-
-            @Override
             public boolean isLogin() {
                 return mssoContext.isLogin();
             }

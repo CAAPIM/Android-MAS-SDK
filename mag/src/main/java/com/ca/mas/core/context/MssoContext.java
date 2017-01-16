@@ -661,15 +661,6 @@ public class MssoContext {
     }
 
     /**
-     * Check the App has been logon.
-     *
-     * @return true if the access token has been acquired. False is access Token is not available.
-     */
-    public boolean isAppLogon() {
-        return getAccessToken() != null;
-    }
-
-    /**
      * Check if the user has already been logon.
      *
      * @return true if the id token has been acquired and stored in the the device. false if the id token is not available.

@@ -161,13 +161,6 @@ public interface MobileSso {
     void removeDeviceRegistration();
 
     /**
-     * Check if the App has already been logged in.
-     *
-     * @return true if the access token has been acquired, false if the access Token is not available
-     */
-    boolean isAppLogon();
-
-    /**
      * Check if the user has already been logged in.
      *
      * @return true if the id token has been acquired and cached, false if the id token is not available

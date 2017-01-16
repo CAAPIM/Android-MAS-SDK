@@ -27,10 +27,11 @@ import com.squareup.okhttp.mockwebserver.MockResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
 import static junit.framework.Assert.assertTrue;
 
 
@@ -556,16 +557,21 @@ public class OtpTest extends BaseTest {
             @Override
             public void onOtpAuthenticationRequest(final OtpAuthenticationHandler otpAuthenticationHandler) {
                 if (otpAuthenticationHandler.isInvalidOtp()) {
-                    assertNotNull(otpAuthenticationHandler.getChannels());
-                    assertNotNull(otpAuthenticationHandler.getChannels().get(0));
-                    assertEquals("EMAIL", otpAuthenticationHandler.getChannels().get(0));
-                    ssg.setDispatcher(new DefaultDispatcher() {
-                        @Override
-                        protected MockResponse otpProtectedResponse() {
-                            return new MockResponse().setResponseCode(HttpURLConnection.HTTP_OK)
-                                    .setBody("SUCCESS");
-                        }
-                    });
+                    Field field = null;
+                    try {
+                        field = otpAuthenticationHandler.getClass().getDeclaredField("selectedChannels");
+                        field.setAccessible(true);
+                        assertEquals("EMAIL", field.get(otpAuthenticationHandler));
+                        ssg.setDispatcher(new DefaultDispatcher() {
+                            @Override
+                            protected MockResponse otpProtectedResponse() {
+                                return new MockResponse().setResponseCode(HttpURLConnection.HTTP_OK)
+                                        .setBody("SUCCESS");
+                            }
+                        });
+                    } catch (NoSuchFieldException | IllegalAccessException e) {
+                        fail();
+                    }
 
                 }
                 otpAuthenticationHandler.deliver("EMAIL", new MAGResultReceiver<Void>() {

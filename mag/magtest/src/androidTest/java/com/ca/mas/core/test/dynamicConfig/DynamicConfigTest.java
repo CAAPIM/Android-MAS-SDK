@@ -12,6 +12,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.content.LocalBroadcastManager;
@@ -92,21 +93,7 @@ public class DynamicConfigTest extends BaseTest {
         mobileSso.setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
-
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(),  null );
             }
 
             @Override
@@ -129,20 +116,7 @@ public class DynamicConfigTest extends BaseTest {
             @Override
             public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
 
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -179,21 +153,7 @@ public class DynamicConfigTest extends BaseTest {
         mobileSso.setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
-
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -212,20 +172,7 @@ public class DynamicConfigTest extends BaseTest {
             @Override
             public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
 
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -320,20 +267,7 @@ public class DynamicConfigTest extends BaseTest {
             @Override
             public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
 
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override

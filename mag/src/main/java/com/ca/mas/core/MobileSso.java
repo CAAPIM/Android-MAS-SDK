@@ -8,6 +8,7 @@
 
 package com.ca.mas.core;
 
+import android.os.Bundle;
 import android.os.ResultReceiver;
 
 import com.ca.mas.core.auth.ble.BluetoothLePeripheralCallback;
@@ -44,7 +45,7 @@ public interface MobileSso {
      *                       of the API request.
      *                       </p>
      * @return the request ID, which can be used to cancel the request, to cancel the request please refer to
-     * {@link #cancelRequest(long)}
+     * {@link #cancelRequest(long, Bundle)}}
      */
 
     long processRequest(MAGRequest request, ResultReceiver resultReceiver);
@@ -97,15 +98,17 @@ public interface MobileSso {
      * by the time this method executes, a response notification will never occur for the specified request ID.
      *
      * @param requestId the request ID to cancel.
+     * @param data the data to the cancelled request {@link MAGResultReceiver#onRequestCancelled(Bundle)}
      */
-    void cancelRequest(long requestId);
+    void cancelRequest(long requestId, Bundle data);
 
     /**
      * Cancels all requests. If the response notification has not already been delivered
      * by the time this method executes, response notification will never occur.
      *
+     * @param data the data to the all the cancelled request {@link MAGResultReceiver#onRequestCancelled(Bundle)}
      */
-    void cancelAllRequests();
+    void cancelAllRequests(Bundle data);
 
 
     /**

@@ -17,12 +17,11 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.ca.mas.core.MAGResultReceiver;
-import com.ca.mas.core.MobileSsoFactory;
-import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGResponse;
+import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConfiguration;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
 
 import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
@@ -88,19 +87,19 @@ public class MASWebApplication {
 
                     final CountDownLatch latch = new CountDownLatch(1);
                     final WebResourceResponse webResourceResponse = new WebResourceResponse(null, null, null);
-                    MAGRequest request = null;
+                    MASRequest request = null;
                     try {
-                        request = new MAGRequest.MAGRequestBuilder(new URL(url)).build();
+                        request = new MASRequest.MASRequestBuilder(new URL(url)).build();
                     } catch (MalformedURLException e) {
                         throw new RuntimeException(e);
                     }
 
-                    MobileSsoFactory.getInstance().processRequest(request, new MAGResultReceiver<byte[]>() {
+                    MAS.invoke(request, new MASCallback<MASResponse<byte[]>>() {
 
                         @Override
-                        public void onSuccess(MAGResponse<byte[]> response) {
+                        public void onSuccess(MASResponse<byte[]> result) {
                             try {
-                                webResourceResponse.setData(new ByteArrayInputStream(response.getBody().getContent()));
+                                webResourceResponse.setData(new ByteArrayInputStream(result.getBody().getContent()));
                                 webResourceResponse.setEncoding("UTF-8");
                                 webResourceResponse.setMimeType("text/html");
                             } catch (Exception e) {
@@ -112,12 +111,7 @@ public class MASWebApplication {
                         }
 
                         @Override
-                        public void onError(MAGError error) {
-                            latch.countDown();
-                        }
-
-                        @Override
-                        public void onRequestCancelled() {
+                        public void onError(Throwable e) {
                             latch.countDown();
                         }
                     });

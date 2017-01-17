@@ -81,7 +81,8 @@ public class MAS {
                         intent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, new MASAuthenticationProviders(provider));
                         context.startActivity(intent);
                     } else {
-                        if (DEBUG) Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for user authentication.");
+                        if (DEBUG)
+                            Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for user authentication.");
                     }
                 } else {
                     masAuthenticationListener.onAuthenticateRequest(currentActivity, requestId, new MASAuthenticationProviders(provider));
@@ -264,15 +265,25 @@ public class MAS {
             }
 
             @Override
-            public void onRequestCancelled() {
+            public void onRequestCancelled(Bundle data) {
                 if (request.notifyOnCancel()) {
-                    Callback.onError(callback, new RequestCancelledException());
+                    Callback.onError(callback, new RequestCancelledException(data));
                 }
             }
         });
     }
 
     public static class RequestCancelledException extends Exception {
+
+        private Bundle data;
+
+        public RequestCancelledException(Bundle data) {
+            this.data = data;
+        }
+
+        public Bundle getData() {
+            return data;
+        }
 
     }
 
@@ -358,12 +369,27 @@ public class MAS {
     /**
      * Cancels the specified request ID. If the response notification has not already been delivered
      * by the time this method executes, a response notification will never occur for the specified request ID
-     * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set
+     * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set.
      *
      * @param requestId the request ID to cancel.
      */
     public static void cancelRequest(long requestId) {
-        MobileSsoFactory.getInstance().cancelRequest(requestId);
+        MobileSsoFactory.getInstance().cancelRequest(requestId, null);
+    }
+
+    /**
+     * Cancels the specified request ID with extra information. If the response notification has not already been delivered
+     * by the time this method executes, a response notification will never occur for the specified request ID
+     * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set.
+     *
+     * When {@link MASRequest.MASRequestBuilder#notifyOnCancel} is set, {@link MASCallback#onError(Throwable)}
+     * will be triggered with {@link RequestCancelledException}.
+     * The provided extra information can be retrieved with {@link RequestCancelledException#getData()}
+     *
+     * @param requestId the request ID to cancel.
+     */
+    public static void cancelRequest(long requestId, Bundle data) {
+        MobileSsoFactory.getInstance().cancelRequest(requestId, data);
     }
 
     /**
@@ -372,7 +398,21 @@ public class MAS {
      * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set.
      */
     public static void cancelAllRequests() {
-        MobileSsoFactory.getInstance().cancelAllRequests();
+        MobileSsoFactory.getInstance().cancelAllRequests(null);
+    }
+
+    /**
+     * Cancels all requests with extra information. If the response notification has not already been delivered
+     * by the time this method executes, a response notification will never occur,
+     * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set.
+     *
+     * When {@link MASRequest.MASRequestBuilder#notifyOnCancel} is set, {@link MASCallback#onError(Throwable)}
+     * will be triggered with {@link RequestCancelledException}.
+     * The provided extra information can be retrieved with {@link RequestCancelledException#getData()}
+     *
+     */
+    public static void cancelAllRequest(Bundle data) {
+        MobileSsoFactory.getInstance().cancelAllRequests(data);
     }
 
     /**

@@ -8,15 +8,13 @@
 
 package com.ca.mas.core.test.error;
 
+import android.os.Bundle;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
-import com.ca.mas.core.auth.otp.model.OtpResponseBody;
-import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
-import com.ca.mas.core.clientcredentials.ClientCredentialsServerException;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.TargetApiException;
@@ -98,7 +96,7 @@ public class MAGEndpointTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });
@@ -148,7 +146,7 @@ public class MAGEndpointTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });

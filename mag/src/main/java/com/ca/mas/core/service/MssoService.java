@@ -9,7 +9,6 @@
 package com.ca.mas.core.service;
 
 import android.app.IntentService;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
@@ -325,17 +324,21 @@ public class MssoService extends IntentService {
     }
 
     private void respondError(ResultReceiver receiver, int resultCode, MAGError error) {
-        Bundle resultData = new Bundle();
-        resultData.putSerializable(MssoIntents.RESULT_ERROR, error);
-        resultData.putString(MssoIntents.RESULT_ERROR_MESSAGE, error.getMessage());
-        receiver.send(resultCode, resultData);
+        if (receiver != null) {
+            Bundle resultData = new Bundle();
+            resultData.putSerializable(MssoIntents.RESULT_ERROR, error);
+            resultData.putString(MssoIntents.RESULT_ERROR_MESSAGE, error.getMessage());
+            receiver.send(resultCode, resultData);
+        }
     }
 
     private void respondSuccess(ResultReceiver receiver, long requestId, String errorMessage) {
-        Bundle resultData = new Bundle();
-        resultData.putString(MssoIntents.RESULT_ERROR_MESSAGE, errorMessage);
-        resultData.putLong(MssoIntents.RESULT_REQUEST_ID, requestId);
-        receiver.send(MssoIntents.RESULT_CODE_SUCCESS, resultData);
+        if (receiver != null) {
+            Bundle resultData = new Bundle();
+            resultData.putString(MssoIntents.RESULT_ERROR_MESSAGE, errorMessage);
+            resultData.putLong(MssoIntents.RESULT_REQUEST_ID, requestId);
+            receiver.send(MssoIntents.RESULT_CODE_SUCCESS, resultData);
+        }
     }
 
 }

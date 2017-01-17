@@ -9,6 +9,7 @@
 package com.ca.mas.foundation;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -58,7 +59,7 @@ public class MASOtpAuthenticationHandler implements Parcelable{
             }
 
             @Override
-            public void onRequestCancelled() {
+            public void onRequestCancelled(Bundle data) {
 
             }
         });

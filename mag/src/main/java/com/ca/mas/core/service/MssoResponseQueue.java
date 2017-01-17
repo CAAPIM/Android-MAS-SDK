@@ -8,6 +8,8 @@
 
 package com.ca.mas.core.service;
 
+import android.os.Bundle;
+
 import com.ca.mas.core.util.Functions;
 
 import java.util.Iterator;
@@ -43,12 +45,16 @@ class MssoResponseQueue {
      *
      * @param predicate a predicate to check whether a given response should be removed.  Required.
      */
-    synchronized void removeMatching(Functions.Unary<Boolean, MssoResponse> predicate) {
+    synchronized void removeMatching(Functions.Unary<Boolean, MssoResponse> predicate, Bundle data) {
         Iterator<MssoResponse> it = outboundResponses.values().iterator();
         while (it.hasNext()) {
             MssoResponse mssoResponse = it.next();
             if (predicate.call(mssoResponse))
-                it.remove();
+                if (mssoResponse.getRequest().getResultReceiver() != null) {
+                    mssoResponse.getRequest().getResultReceiver().send(MssoIntents.RESULT_CODE_ERR_CANCELED, data);
+                }
+
+            it.remove();
         }
     }
 }

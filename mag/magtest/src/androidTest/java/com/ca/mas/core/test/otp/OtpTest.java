@@ -9,6 +9,7 @@
 package com.ca.mas.core.test.otp;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -60,20 +61,7 @@ public class OtpTest extends BaseTest {
         mobileSso.setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(long requestId, AuthenticationProvider authenticationProvider) {
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -92,7 +80,7 @@ public class OtpTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });
@@ -135,20 +123,7 @@ public class OtpTest extends BaseTest {
         mobileSso.setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(long requestId, AuthenticationProvider authenticationProvider) {
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -164,7 +139,7 @@ public class OtpTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });
@@ -205,20 +180,7 @@ public class OtpTest extends BaseTest {
         mobileSso.setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(long requestId, AuthenticationProvider authenticationProvider) {
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -234,7 +196,7 @@ public class OtpTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });
@@ -270,20 +232,7 @@ public class OtpTest extends BaseTest {
         mobileSso.setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(long requestId, AuthenticationProvider authenticationProvider) {
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -299,7 +248,7 @@ public class OtpTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });
@@ -336,20 +285,7 @@ public class OtpTest extends BaseTest {
         mobileSso.setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(long requestId, AuthenticationProvider authenticationProvider) {
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -366,11 +302,11 @@ public class OtpTest extends BaseTest {
                         success[1] = true;
                         assertTrue(error.getCause() instanceof TargetApiException);
                         assertEquals(HttpURLConnection.HTTP_FORBIDDEN, ((TargetApiException) error.getCause()).getResponse().getResponseCode());
-                        mobileSso.cancelRequest(requestId);
+                        mobileSso.cancelRequest(requestId, null);
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
                     }
                 });
             }
@@ -404,20 +340,7 @@ public class OtpTest extends BaseTest {
         mobileSso.setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(long requestId, AuthenticationProvider authenticationProvider) {
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -434,12 +357,12 @@ public class OtpTest extends BaseTest {
                         success[1] = true;
                         assertTrue(error.getCause() instanceof TargetApiException);
                         assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, ((TargetApiException) error.getCause()).getResponse().getResponseCode());
-                        mobileSso.cancelRequest(requestId);
+                        mobileSso.cancelRequest(requestId, null);
 
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
                     }
                 });
             }
@@ -473,20 +396,7 @@ public class OtpTest extends BaseTest {
         mobileSso.setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(long requestId, AuthenticationProvider authenticationProvider) {
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -503,11 +413,11 @@ public class OtpTest extends BaseTest {
                         success[1] = true;
                         assertTrue(error.getCause() instanceof TargetApiException);
                         assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR, ((TargetApiException) error.getCause()).getResponse().getResponseCode());
-                        mobileSso.cancelRequest(requestId);
+                        mobileSso.cancelRequest(requestId, null);
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
                     }
                 });
             }
@@ -538,20 +448,7 @@ public class OtpTest extends BaseTest {
         mobileSso.setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(long requestId, AuthenticationProvider authenticationProvider) {
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -585,7 +482,7 @@ public class OtpTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });

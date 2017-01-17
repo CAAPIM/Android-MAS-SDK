@@ -320,13 +320,14 @@ public final class MobileSsoFactory {
                 mssoClient.processPendingRequests();
             }
 
-            public void cancelRequest(long requestId) {
-                mssoClient.cancelRequest(requestId);
+            @Override
+            public void cancelRequest(long requestId, Bundle data) {
+                mssoClient.cancelRequest(requestId, data);
             }
 
             @Override
-            public void cancelAllRequests() {
-                mssoClient.cancelAll();
+            public void cancelAllRequests(Bundle data) {
+                mssoClient.cancelAll(data);
             }
         };
     }

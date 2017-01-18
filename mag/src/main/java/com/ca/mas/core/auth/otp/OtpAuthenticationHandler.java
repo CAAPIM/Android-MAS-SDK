@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSso;
@@ -91,7 +90,7 @@ public class OtpAuthenticationHandler implements Parcelable {
      * Cancel the fetch otp protected data request.
      */
     public void cancel() {
-        MobileSsoFactory.getInstance().cancelRequest(requestId);
+        MobileSsoFactory.getInstance().cancelRequest(requestId, null);
     }
 
     @Override

@@ -8,6 +8,7 @@
 
 package com.ca.mas.core.test;
 
+import android.os.Bundle;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.core.MAGResultReceiver;
@@ -57,7 +58,7 @@ public class AuthenticationTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
 
@@ -118,7 +119,7 @@ public class AuthenticationTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
 
@@ -167,7 +168,7 @@ public class AuthenticationTest extends BaseTest {
             public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
 
                 if (failCount[0] > 0) {
-                    mobileSso.cancelRequest(requestId);
+                    mobileSso.cancelRequest(requestId, null);
                     return;
                 }
 
@@ -183,7 +184,7 @@ public class AuthenticationTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
 
@@ -225,7 +226,7 @@ public class AuthenticationTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
 
@@ -238,7 +239,7 @@ public class AuthenticationTest extends BaseTest {
             }
 
             @Override
-            public void onRequestCancelled() {
+            public void onRequestCancelled(Bundle data) {
 
             }
 
@@ -282,7 +283,7 @@ public class AuthenticationTest extends BaseTest {
             }
 
             @Override
-            public void onRequestCancelled() {
+            public void onRequestCancelled(Bundle data) {
 
             }
         });
@@ -312,7 +313,7 @@ public class AuthenticationTest extends BaseTest {
             }
 
             @Override
-            public void onRequestCancelled() {
+            public void onRequestCancelled(Bundle data) {
 
             }
         });
@@ -333,7 +334,7 @@ public class AuthenticationTest extends BaseTest {
             }
 
             @Override
-            public void onRequestCancelled() {
+            public void onRequestCancelled(Bundle data) {
 
             }
         });

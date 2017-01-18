@@ -8,18 +8,10 @@
 
 package com.ca.mas.core.test.dynamicConfig;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.ca.mas.core.EventDispatcher;
-import com.ca.mas.core.MAGConstants;
-import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.MobileSsoListener;
@@ -27,9 +19,7 @@ import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.Server;
 import com.ca.mas.core.datasource.KeystoreDataSource;
-import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.store.ClientCredentialContainer;
 import com.ca.mas.core.store.OAuthTokenContainer;
@@ -93,7 +83,7 @@ public class DynamicConfigTest extends BaseTest {
         mobileSso.setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
-                mobileSso.authenticate(getUsername(), getPassword(),  null );
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override

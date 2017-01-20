@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -380,7 +381,8 @@ public class MASLoginActivity extends AppCompatActivity {
         return new MASProximityLoginBLE(callback) {
             @Override
             public void onError(int errorCode, final String m, Exception e) {
-                if (m != null && m.contains("ACCESS_FINE_LOCATION")) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                        && m != null && m.contains("ACCESS_FINE_LOCATION")) {
                     ActivityCompat.requestPermissions(mContext,
                             new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                             REQUEST_PERMISSIONS_ACCESS_FINE_LOCATION);

@@ -69,7 +69,6 @@ public class MASLoginActivity extends AppCompatActivity {
     private MASProximityLogin qrCode;
     private MASProximityLogin nfc;
     private MASProximityLogin ble;
-    private final int REQUEST_PERMISSIONS_ACCESS_FINE_LOCATION = getResources().getInteger(R.integer.request_access_fine_location);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -252,7 +251,7 @@ public class MASLoginActivity extends AppCompatActivity {
             if (bleScanPermissionCheck != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(mContext,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        REQUEST_PERMISSIONS_ACCESS_FINE_LOCATION);
+                        getResources().getInteger(R.integer.request_access_fine_location));
             } else {
                 Toast.makeText(mContext, R.string.proximity_dialog_description, Toast.LENGTH_SHORT).show();
             }
@@ -385,7 +384,7 @@ public class MASLoginActivity extends AppCompatActivity {
                         && m != null && m.contains("ACCESS_FINE_LOCATION")) {
                     ActivityCompat.requestPermissions(mContext,
                             new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                            REQUEST_PERMISSIONS_ACCESS_FINE_LOCATION);
+                            getResources().getInteger(R.integer.request_access_fine_location));
                 }
                 if (DEBUG) Log.i(TAG, m);
             }
@@ -419,7 +418,7 @@ public class MASLoginActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_PERMISSIONS_ACCESS_FINE_LOCATION &&
+        if (requestCode == getResources().getInteger(R.integer.request_access_fine_location) &&
                 grantResults.length > 0 &&
                 grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             initProximity(ble);

@@ -31,9 +31,7 @@ import com.ca.mas.core.registration.RegistrationException;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
 import com.ca.mas.core.token.IdToken;
-import com.ca.mas.core.util.KeyUtils;
 
-import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
@@ -114,9 +112,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
 
         // Ensure credentials are available
         Credentials creds = request.getRequest().getGrantProvider().getCredentials(mssoContext);
-        if (creds == null)
-            throw new CredentialRequiredException();
-        if (!creds.isValid())
+        if (creds == null || !creds.isValid())
             throw new CredentialRequiredException();
 
         if (DEBUG) Log.d(TAG, "Device registration process start");

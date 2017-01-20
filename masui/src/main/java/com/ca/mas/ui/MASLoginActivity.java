@@ -5,16 +5,20 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.ui;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -56,7 +60,7 @@ import static com.ca.mas.core.MAG.TAG;
  */
 public class MASLoginActivity extends AppCompatActivity {
     private long mRequestId;
-    private Context mContext;
+    private Activity mContext;
     private EditText mEditTextUsername;
     private EditText mEditTextPassword;
     private GridLayout mGridLayout;
@@ -64,6 +68,7 @@ public class MASLoginActivity extends AppCompatActivity {
     private MASProximityLogin qrCode;
     private MASProximityLogin nfc;
     private MASProximityLogin ble;
+    private final int REQUEST_PERMISSIONS_ACCESS_FINE_LOCATION = getResources().getInteger(R.integer.request_access_fine_location);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -241,7 +246,17 @@ public class MASLoginActivity extends AppCompatActivity {
         if (id == android.R.id.home) {
             finish();
             return true;
-        } else if (id == R.id.menu_bluetooth || id == R.id.menu_nfc) {
+        } else if (id == R.id.menu_bluetooth) {
+            int bleScanPermissionCheck = ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION);
+            if (bleScanPermissionCheck != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(mContext,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_PERMISSIONS_ACCESS_FINE_LOCATION);
+            } else {
+                Toast.makeText(mContext, R.string.proximity_dialog_description, Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        } else if (id == R.id.menu_nfc) {
             Toast.makeText(mContext, R.string.proximity_dialog_description, Toast.LENGTH_SHORT).show();
             return true;
         } else {
@@ -365,6 +380,11 @@ public class MASLoginActivity extends AppCompatActivity {
         return new MASProximityLoginBLE(callback) {
             @Override
             public void onError(int errorCode, final String m, Exception e) {
+                if (m != null && m.contains("ACCESS_FINE_LOCATION")) {
+                    ActivityCompat.requestPermissions(mContext,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            REQUEST_PERMISSIONS_ACCESS_FINE_LOCATION);
+                }
                 if (DEBUG) Log.i(TAG, m);
             }
 
@@ -394,4 +414,17 @@ public class MASLoginActivity extends AppCompatActivity {
         MASUser.login(null);
         finish();
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_PERMISSIONS_ACCESS_FINE_LOCATION &&
+                grantResults.length > 0 &&
+                grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            initProximity(ble);
+            Toast.makeText(mContext, R.string.proximity_dialog_description, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(mContext, R.string.enable_ble, Toast.LENGTH_SHORT).show();
+        }
+    }
+}
 }

@@ -5,18 +5,22 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.storage.implementation;
 
+import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.ca.mas.core.R;
 import com.ca.mas.core.storage.StorageException;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -27,37 +31,27 @@ import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
 /**
- * Manager class that takes care of account creation. This internally uses AccountManager
- * It also sets up the common password for all ELS instances of an app
+ * Manager class that takes care of account creation. This internally uses AccountManager.
+ * It also sets up the common password for all ELS instances of an app.
  */
 class AMSSManager {
-
     private static final String ACCOUNT_NAME = "account.name";
     private static AMSSManager ourInstance;
-
     /**
-     * The name of the Account that is created. This is default as "CA MAS"
+     * The name of the Account that is created. The default value is "CA MAS".
      */
     private static final String CA_MAS = "CA MAS";
-
-
     private String mAccountName = CA_MAS;
-
     /**
-     * The type of the Account that is created. This is retrieved from the @{link AUTHENTICATOR_FILE_NAME}
+     * The type of the Account that is created. This is retrieved from the @{link AUTHENTICATOR_FILE_NAME}.
      */
     private String mAccountType;
-
     private Account mAccount;
-
     private Object mutex = new Object();
-
-
     /**
      * The application context
      */
     private Context mContext;
-
 
     public static AMSSManager getInstance(Context ctx) throws StorageException {
         if (ourInstance == null) {
@@ -83,13 +77,13 @@ class AMSSManager {
     }
 
     /**
-     * Retrieve the Account Name from meta data
-     * * <pre>
+     * Retrieve the Account Name from metadata.
+     * <pre>
      *   &lt;meta-data android:name="account.name"
      *             android:resource="@string/acc_name" /&gt;
      * </pre>
      *
-     * @return The Account name or "CA MAS" if account name is not defined.
+     * @return The Account name or "CA MAS" if account name is not defined
      */
     private String getAccountName() {
         ComponentName myService = new ComponentName(mContext, AMSAuthenticatorService.class);
@@ -109,12 +103,11 @@ class AMSSManager {
     }
 
     /**
-     * Grabs the AccountType form the authenticator xml.
+     * Grabs the AccountType from the authenticator xml.
      *
      * @return The type of the Account or null if account type retrial failed for any reason
      */
     private String getAccountType() {
-
         ComponentName myService = new ComponentName(mContext, AMSAuthenticatorService.class);
         try {
             Bundle data = mContext.getPackageManager().getServiceInfo(myService, PackageManager.GET_META_DATA).metaData;
@@ -143,7 +136,7 @@ class AMSSManager {
      *
      * @param accountName Account name
      * @param accountType Account type
-     * @return True if successfully add an new account or able to access the existing account
+     * @return True if successfully able to add a new account or access the existing account
      */
     private boolean addAccount(String accountName, String accountType) throws StorageException {
         AccountManager am = AccountManager.get(mContext);
@@ -167,21 +160,28 @@ class AMSSManager {
 
     private boolean isAccountPresent(String accountName, String accountType) {
         AccountManager am = AccountManager.get(mContext);
-        Account[] existingAccounts = am.getAccountsByType(accountType);
-        if (existingAccounts.length == 0) {
-            return false;
-        } else {
-            for (Account acc : existingAccounts) {
-                if (accountName.equals(acc.name)) {
-                    return true;
+        int accountPermissionCheck = ContextCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS);
+        if (accountPermissionCheck == PackageManager.PERMISSION_GRANTED) {
+            Account[] existingAccounts = am.getAccountsByType(accountType);
+            if (existingAccounts.length == 0) {
+                return false;
+            } else {
+                for (Account acc : existingAccounts) {
+                    if (accountName.equals(acc.name)) {
+                        return true;
+                    }
                 }
             }
-            return false;
+        } else {
+            ActivityCompat.requestPermissions((Activity) mContext,
+                    new String[] {Manifest.permission.GET_ACCOUNTS},
+                    mContext.getResources().getInteger(R.integer.request_permissions_get_account));
         }
+        return false;
     }
 
     /**
-     * @return A password that ensure Apps are defined with same SharedID Group
+     * @return A password that ensures apps are defined with same SharedID group
      */
     private String getPassword() {
         String packageName = mContext.getPackageName();
@@ -200,21 +200,25 @@ class AMSSManager {
                     return mAccount;
                 }
                 AccountManager am = AccountManager.get(mContext);
-                for (Account a : am.getAccountsByType(mAccountType)) {
-                    if (a.name.equals(mAccountName)) {
-                        this.mAccount = a;
-                        return this.mAccount;
+                int accountPermissionCheck = ContextCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS);
+                if (accountPermissionCheck == PackageManager.PERMISSION_GRANTED) {
+                    for (Account a : am.getAccountsByType(mAccountType)) {
+                        if (a.name.equals(mAccountName)) {
+                            this.mAccount = a;
+                            return this.mAccount;
+                        }
                     }
+                    if (DEBUG)
+                        Log.e(TAG, String.format("Account of type %s, name %s doesn't exist ", mAccountType, mAccountName));
+                    throw new Exception(String.format("Account of type %s, name %s doesn't exist ", mAccountType, mAccountName));
+                } else {
+                    throw new Exception("Please enable the GET_ACCOUNTS permission");
                 }
-                if (DEBUG)
-                    Log.e(TAG, String.format("Account of type %s, name %s doesn't exist ", mAccountType, mAccountName));
-                throw new Exception(String.format("Account of type %s, name %s doesn't exist ", mAccountType, mAccountName));
             }
         } else {
             return mAccount;
         }
     }
-
 
     public void reset() {
         ourInstance = null;

@@ -47,4 +47,8 @@
     <string name="qr_code_dialog_description">Scan the QR Code from an authenticated device</string>
     <string name="menu_bluetooth">Login with Bluetooth</string>
     <string name="menu_nfc">Login with NFC</string>
+
+    <!-- Permissions -->
+    <string name="enable_ble">Please enable location access to use BLE.</string>
+
 </resources>

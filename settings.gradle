@@ -6,7 +6,7 @@
  *
  */
 
-include ':mag', ':magtest', ':mastest', ':appauth-pullRequest133'
+include ':mag', ':magtest', ':mastest'
 
 include ':mas', ':masui'
 

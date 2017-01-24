@@ -141,7 +141,7 @@ public class BluetoothLeCentralRenderer extends PollingRenderer {
         }
 
         scanner = manager.getAdapter().getBluetoothLeScanner();
-        int bleScanPermissionCheck = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
+        int bleScanPermissionCheck = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
         if (bleScanPermissionCheck == PackageManager.PERMISSION_GRANTED && !BluetoothLePeripheral.getInstance().isAuthenticating()) {
             startScan();
             callback.onStatusUpdate(BluetoothLeCentralCallback.BLE_STATE_SCAN_STARTED);

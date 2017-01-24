@@ -159,9 +159,9 @@ class AMSSManager {
     }
 
     private boolean isAccountPresent(String accountName, String accountType) {
-        AccountManager am = AccountManager.get(mContext);
         int accountPermissionCheck = ContextCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS);
         if (accountPermissionCheck == PackageManager.PERMISSION_GRANTED) {
+            AccountManager am = AccountManager.get(mContext);
             Account[] existingAccounts = am.getAccountsByType(accountType);
             if (existingAccounts.length == 0) {
                 return false;

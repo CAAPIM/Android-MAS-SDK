@@ -10,6 +10,7 @@ package com.ca.mas.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -247,21 +248,25 @@ public class MASLoginActivity extends AppCompatActivity {
             finish();
             return true;
         } else if (id == R.id.menu_bluetooth) {
-            int bleScanPermissionCheck = ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION);
+            int bleScanPermissionCheck = ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION);
             if (bleScanPermissionCheck != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(mContext,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         getResources().getInteger(R.integer.request_access_fine_location));
             } else {
-                Toast.makeText(mContext, R.string.proximity_dialog_description, Toast.LENGTH_SHORT).show();
+                showNfcBleToast(mContext);
             }
             return true;
         } else if (id == R.id.menu_nfc) {
-            Toast.makeText(mContext, R.string.proximity_dialog_description, Toast.LENGTH_SHORT).show();
+            showNfcBleToast(mContext);
             return true;
         } else {
             return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void showNfcBleToast(Context context) {
+        Toast.makeText(context, R.string.proximity_dialog_description, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -380,8 +385,7 @@ public class MASLoginActivity extends AppCompatActivity {
         return new MASProximityLoginBLE(callback) {
             @Override
             public void onError(int errorCode, final String m, Exception e) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                        && m != null && m.contains("ACCESS_FINE_LOCATION")) {
+                if (m != null && m.contains("ACCESS_FINE_LOCATION")) {
                     ActivityCompat.requestPermissions(mContext,
                             new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                             getResources().getInteger(R.integer.request_access_fine_location));
@@ -422,7 +426,7 @@ public class MASLoginActivity extends AppCompatActivity {
                 grantResults.length > 0 &&
                 grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             initProximity(ble);
-            Toast.makeText(mContext, R.string.proximity_dialog_description, Toast.LENGTH_SHORT).show();
+            showNfcBleToast(mContext);
         } else {
             Toast.makeText(mContext, R.string.enable_ble, Toast.LENGTH_SHORT).show();
         }

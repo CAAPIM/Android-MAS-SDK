@@ -11,6 +11,7 @@ package com.ca.mas.core.service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
 
@@ -99,7 +100,9 @@ public class MssoClient {
                 try {
                     mssoContext.logout(true);
                 } catch (SecureLockException e) {
-                    resultReceiver.onError(new MAGError(e));
+                    if (resultReceiver != null) {
+                        resultReceiver.onError(new MAGError(e));
+                    }
                     return null;
                 } catch (Exception ignore) {
                     if (DEBUG) Log.w(TAG, ignore);
@@ -136,7 +139,9 @@ public class MssoClient {
                 try {
                     mssoContext.logout(true);
                 } catch (SecureLockException e) {
-                    resultReceiver.onError(new MAGError(e));
+                    if (resultReceiver != null) {
+                        resultReceiver.onError(new MAGError(e));
+                    }
                     return null;
                 } catch (Exception ignore) {
                     if (DEBUG) Log.w(TAG, ignore);
@@ -181,7 +186,7 @@ public class MssoClient {
      *
      * @param requestId the request ID to cancel.
      */
-    public void cancelRequest(long requestId) {
+    public void cancelRequest(long requestId, Bundle data) {
         MssoRequest request = null;
         MssoResponseQueue.getInstance().takeResponse(requestId);
         request = MssoRequestQueue.getInstance().takeRequest(requestId);
@@ -190,7 +195,7 @@ public class MssoClient {
         }
         if (request != null) {
             if (request.getResultReceiver() != null) {
-                request.getResultReceiver().send(MssoIntents.RESULT_CODE_ERR_CANCELED, null);
+                request.getResultReceiver().send(MssoIntents.RESULT_CODE_ERR_CANCELED, data);
             }
         }
     }
@@ -198,25 +203,25 @@ public class MssoClient {
     /**
      * Canceling any pending requests and responses that were created by this MssoClient.
      */
-    public void cancelAll() {
+    public void cancelAll(Bundle data) {
         MssoRequestQueue.getInstance().removeMatching(new Functions.Unary<Boolean, MssoRequest>() {
             @Override
             public Boolean call(MssoRequest mssoRequest) {
                 return mssoRequest.getCreator() == MssoClient.this;
             }
-        });
+        }, data);
         MssoResponseQueue.getInstance().removeMatching(new Functions.Unary<Boolean, MssoResponse>() {
             @Override
             public Boolean call(MssoResponse mssoResponse) {
                 return mssoResponse.getRequest().getCreator() == MssoClient.this;
             }
-        });
+        }, data);
 
         MssoActiveQueue.getInstance().removeMatching(new Functions.Unary<Boolean, MssoRequest>() {
             @Override
             public Boolean call(MssoRequest mssoRequest) {
                 return mssoRequest.getCreator() == MssoClient.this;
             }
-        });
+        }, data);
     }
 }

@@ -8,6 +8,7 @@
 
 package com.ca.mas.foundation;
 
+import android.os.Bundle;
 import android.os.Handler;
 
 import com.ca.mas.core.MAGResultReceiver;
@@ -36,7 +37,7 @@ public abstract class MASResultReceiver<T> extends MAGResultReceiver<T> {
     }
 
     @Override
-    public void onRequestCancelled() {
+    public void onRequestCancelled(Bundle bundle) {
         // do nothing
     }
 }

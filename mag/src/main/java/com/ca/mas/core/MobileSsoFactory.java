@@ -230,29 +230,10 @@ public final class MobileSsoFactory {
             }
 
             @Override
-            public boolean isAppLogon() {
-                return mssoContext.isAppLogon();
-            }
-
-            @Override
             public boolean isLogin() {
                 return mssoContext.isLogin();
             }
 
-            @Override
-            public String getUserProfile() {
-                return mssoContext.getUserProfile();
-            }
-
-            @Override
-            public void logoffApp() {
-                mssoContext.logoffApp();
-            }
-
-            @Override
-            public void logoutDevice() {
-                removeDeviceRegistration();
-            }
 
             @Override
             public boolean isDeviceRegistered() {
@@ -339,13 +320,14 @@ public final class MobileSsoFactory {
                 mssoClient.processPendingRequests();
             }
 
-            public void cancelRequest(long requestId) {
-                mssoClient.cancelRequest(requestId);
+            @Override
+            public void cancelRequest(long requestId, Bundle data) {
+                mssoClient.cancelRequest(requestId, data);
             }
 
             @Override
-            public void cancelAllRequests() {
-                mssoClient.cancelAll();
+            public void cancelAllRequests(Bundle data) {
+                mssoClient.cancelAll(data);
             }
         };
     }

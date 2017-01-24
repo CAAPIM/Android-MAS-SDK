@@ -8,6 +8,7 @@
 
 package com.ca.mas.core;
 
+import android.os.Bundle;
 import android.os.ResultReceiver;
 
 import com.ca.mas.core.auth.ble.BluetoothLePeripheralCallback;
@@ -44,7 +45,7 @@ public interface MobileSso {
      *                       of the API request.
      *                       </p>
      * @return the request ID, which can be used to cancel the request, to cancel the request please refer to
-     * {@link #cancelRequest(long)}
+     * {@link #cancelRequest(long, Bundle)}}
      */
 
     long processRequest(MAGRequest request, ResultReceiver resultReceiver);
@@ -97,15 +98,17 @@ public interface MobileSso {
      * by the time this method executes, a response notification will never occur for the specified request ID.
      *
      * @param requestId the request ID to cancel.
+     * @param data the data to the cancelled request {@link MAGResultReceiver#onRequestCancelled(Bundle)}
      */
-    void cancelRequest(long requestId);
+    void cancelRequest(long requestId, Bundle data);
 
     /**
      * Cancels all requests. If the response notification has not already been delivered
      * by the time this method executes, response notification will never occur.
      *
+     * @param data the data to the all the cancelled request {@link MAGResultReceiver#onRequestCancelled(Bundle)}
      */
-    void cancelAllRequests();
+    void cancelAllRequests(Bundle data);
 
 
     /**
@@ -161,39 +164,11 @@ public interface MobileSso {
     void removeDeviceRegistration();
 
     /**
-     * Check if the App has already been logged in.
-     *
-     * @return true if the access token has been acquired, false if the access Token is not available
-     */
-    boolean isAppLogon();
-
-    /**
      * Check if the user has already been logged in.
      *
      * @return true if the id token has been acquired and cached, false if the id token is not available
      */
     boolean isLogin();
-
-    /**
-     * Retrieve the cached user profile.
-     *
-     * @return The user profile that has bee acquireda and cached, or null if empty
-     */
-    String getUserProfile();
-
-    /**
-     * Logs off the App by removing cached access token. This forces the next request to obtain a new access token.
-     */
-    @Deprecated
-    void logoffApp();
-
-    /**
-     * Logs off the device by removing the device registration from the server and removing
-     * the cached ID token and access token from the device.
-     * Refer to {@link #removeDeviceRegistration()} instead.
-     */
-    @Deprecated
-    void logoutDevice();
 
     /**
      * Checks if the device has already been registered.

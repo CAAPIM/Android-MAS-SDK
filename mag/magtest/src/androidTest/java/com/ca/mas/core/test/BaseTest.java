@@ -9,10 +9,10 @@
 package com.ca.mas.core.test;
 
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ServiceTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.AndroidTestCase;
 import android.util.Log;
 
 import com.ca.mas.core.MAGResultReceiver;
@@ -88,23 +88,7 @@ public abstract class BaseTest {
             mobileSso.setMobileSsoListener(new MobileSsoListener() {
                 @Override
                 public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
-
-                    mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                        @Override
-                        public void onSuccess(MAGResponse response) {
-
-                        }
-
-                        @Override
-                        public void onError(MAGError error) {
-
-                        }
-
-                        @Override
-                        public void onRequestCancelled() {
-
-                        }
-                    });
+                    mobileSso.authenticate(getUsername(), getPassword(), null);
                 }
 
                 @Override
@@ -258,7 +242,7 @@ public abstract class BaseTest {
             }
 
             @Override
-            public void onRequestCancelled() {
+            public void onRequestCancelled(Bundle data) {
                 latch.countDown();
             }
 

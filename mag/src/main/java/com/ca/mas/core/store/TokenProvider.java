@@ -8,9 +8,13 @@
 
 package com.ca.mas.core.store;
 
+import android.content.Context;
+
 import com.ca.mas.core.token.IdToken;
 
 import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 
 /**
@@ -36,14 +40,36 @@ public interface TokenProvider {
     String getMagIdentifier();
 
     /**
-     * Get the persisted client private and public key pair, if available.
+     * Get the persisted client private key, if available.
      * <p/>
      * A key pair may become available in the persistent store some time before an actual certificate chain
      * becomes available if the client needs to wait for the server to approve a certificate signing request.
      *
      * @return the client key pair, or null if a client key pair has not yet been saved.
      */
-    KeyPair getClientKeyPair();
+    PrivateKey getClientPrivateKey();
+
+    /**
+     * Get the persisted client public key, if available.
+     * <p/>
+     * A key pair may become available in the persistent store some time before an actual certificate chain
+     * becomes available if the client needs to wait for the server to approve a certificate signing request.
+     *
+     * @return the client key pair, or null if a client key pair has not yet been saved.
+     */
+    PublicKey getClientPublicKey();
+
+    /**
+     * Create an RSA private key.
+     * <p/>
+     * This will create a private key with a self-signed public key.
+     *
+     * @param ctx Android Context
+     * @param keyBits the size of the key, 2048 default
+     * @return the client key pair, or null if a client key pair has not yet been saved.
+     */
+    PrivateKey createPrivateKey(Context ctx, int keyBits);
+
 
     /**
      * Quickly check if a persisted client cert chain is available without actually reading and instantiating it.

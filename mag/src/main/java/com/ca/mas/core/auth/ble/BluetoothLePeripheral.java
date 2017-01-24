@@ -24,6 +24,7 @@ import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.ParcelUuid;
 
 import com.ca.mas.core.MAGResultReceiver;
@@ -247,7 +248,7 @@ public class BluetoothLePeripheral {
                                 }
 
                                 @Override
-                                public void onRequestCancelled() {
+                                public void onRequestCancelled(Bundle bundle) {
 
                                 }
                             });

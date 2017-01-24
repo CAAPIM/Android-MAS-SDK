@@ -8,13 +8,14 @@
 
 package com.ca.mas.core.service;
 
+import android.os.Bundle;
+
 import com.ca.mas.core.util.Functions;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,13 +56,13 @@ class MssoActiveQueue {
      *
      * @param predicate a predicate to check whether a given request should be removed.  Required.
      */
-    synchronized void removeMatching(Functions.Unary<Boolean, MssoRequest> predicate) {
+    synchronized void removeMatching(Functions.Unary<Boolean, MssoRequest> predicate, Bundle data) {
         Iterator<MssoRequest> it = activeRequests.values().iterator();
         while (it.hasNext()) {
             MssoRequest mssoRequest = it.next();
             if (predicate.call(mssoRequest)) {
                 if (mssoRequest.getResultReceiver() != null) {
-                    mssoRequest.getResultReceiver().send(MssoIntents.RESULT_CODE_ERR_CANCELED, null);
+                    mssoRequest.getResultReceiver().send(MssoIntents.RESULT_CODE_ERR_CANCELED, data);
                 }
                 it.remove();
             }

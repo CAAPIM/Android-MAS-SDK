@@ -89,7 +89,7 @@ public class DefaultConfiguration implements ConfigurationProvider {
         putProperty(PROP_LOCATION_ENABLED, false);
         putProperty(PROP_TOKEN_PORT_HTTP, 8080);
         putProperty(PROP_TOKEN_PORT_HTTPS, 8443);
-        putProperty(PROP_CLIENT_CERT_RSA_KEYBITS, 1024);
+        putProperty(PROP_CLIENT_CERT_RSA_KEYBITS, 2048);
         putProperty(PROP_RESPONSE_BUFFERING_ENABLED, true);
         putProperty(PROP_RESPONSE_BUFFERING_MAX_SIZE, 10485760);
         this.server = new Server(getTokenHost(), getTokenPort(), getPrefix());

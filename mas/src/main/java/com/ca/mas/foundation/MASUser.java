@@ -104,10 +104,10 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
     /**
      * Authenticate a user with username and password.
      */
-    public static void login(@NonNull String userName, @NonNull char[] password, final MASCallback<MASUser> callback) {
+    public static void login(@NonNull String userName, @NonNull char[] cPassword, final MASCallback<MASUser> callback) {
         MobileSso mobileSso = FoundationUtil.getMobileSso();
 
-        mobileSso.authenticate(userName, password, new MASResultReceiver<JSONObject>() {
+        mobileSso.authenticate(userName, cPassword, new MASResultReceiver<JSONObject>() {
             @Override
             public void onSuccess(MAGResponse<JSONObject> response) {
                 login(callback);
@@ -144,6 +144,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
     /**
      * Authenticates a user with authorization code,
+     *
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3.1">
      */
     public static void login(@NonNull MASAuthorizationResponse authorizationResponse, final MASCallback<MASUser> callback) {
@@ -171,17 +172,19 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
      * @return The currently authenticated user.
      */
     public static MASUser getCurrentUser() {
-        String userProfile = MobileSsoFactory.getInstance().getUserProfile();
         if (current == null) {
-            if (userProfile != null) {
+            TokenManager tokenManager = createTokenManager();
+            if (tokenManager.getUserProfile() != null) {
                 current = createMASUser();
             }
-        } else {
-            if (userProfile == null) {
-                //The user's session has been removed,
-                //may perform device de-registration or resetLocally
-                current = null;
-            }
+        }
+        if (current!= null &&
+                !current.isAuthenticated() &&
+                !current.isSessionLocked()) {
+            //The user's session has been removed,
+            //The Grant flow has been switch from user to client credential
+            //Device has been de-registered or resetLocally
+            current = null;
         }
         return current;
     }

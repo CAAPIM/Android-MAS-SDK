@@ -8,19 +8,17 @@
 
 package com.ca.mas.core.test.error;
 
+import android.os.Bundle;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
-import com.ca.mas.core.auth.otp.model.OtpResponseBody;
-import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.oauth.OAuthException;
-import com.ca.mas.core.oauth.OAuthServerException;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.request.internal.OAuthTokenRequest;
 import com.ca.mas.core.service.AuthenticationProvider;
@@ -75,7 +73,7 @@ public class OAuthEndpointTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });
@@ -125,7 +123,7 @@ public class OAuthEndpointTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });
@@ -184,7 +182,7 @@ public class OAuthEndpointTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });

@@ -239,6 +239,7 @@ public class MASLoginActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
+            MAS.cancelRequest(mRequestId);
             finish();
             return true;
         } else if (id == R.id.menu_bluetooth || id == R.id.menu_nfc) {
@@ -255,6 +256,12 @@ public class MASLoginActivity extends AppCompatActivity {
         stopProximity(qrCode);
         stopProximity(nfc);
         stopProximity(ble);
+    }
+
+    @Override
+    public void onBackPressed() {
+        MAS.cancelRequest(mRequestId);
+        super.onBackPressed();
     }
 
     private void login() {
@@ -285,7 +292,9 @@ public class MASLoginActivity extends AppCompatActivity {
             public void onError(Throwable e) {
                 progress.dismiss();
                 Toast.makeText(MASLoginActivity.this, "Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                MAS.cancelRequest(mRequestId);
+                Bundle data = new Bundle();
+                data.putString("LOGIN_STATUS", "FAILED");
+                MAS.cancelRequest(mRequestId, data);
             }
         });
     }

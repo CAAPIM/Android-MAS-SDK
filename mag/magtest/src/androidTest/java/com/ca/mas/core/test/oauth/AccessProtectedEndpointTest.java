@@ -8,6 +8,7 @@
 
 package com.ca.mas.core.test.oauth;
 
+import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -73,6 +74,8 @@ public class AccessProtectedEndpointTest extends BaseTest {
     @Test
     public void testAccessProtectedEndpointCancelOnExecutingRequest() throws URISyntaxException, InterruptedException, IOException {
         MAGRequest request = new MAGRequest.MAGRequestBuilder(getURI("/protected/resource/slow")).password().build();
+        final String KEY = "key";
+        final String VALUE = "This is a test";
 
         final boolean[] result = {false};
         final CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -88,19 +91,24 @@ public class AccessProtectedEndpointTest extends BaseTest {
             }
 
             @Override
-            public void onRequestCancelled() {
-                result[0] = true;
+            public void onRequestCancelled(Bundle data) {
+                String value = data.getString(KEY);
+                if (value.equals(VALUE)) {
+                    result[0] = true;
+                }
                 countDownLatch.countDown();
             }
         });
-        Thread.sleep(100);
+        Thread.sleep(100); //Let the engine put the message in the queue
         if (useMockServer()) {
             ssg.takeRequest(); //Authorize Request
             ssg.takeRequest(); //Client Credentials Request
             ssg.takeRequest(); //register request
             ssg.takeRequest(); //access token
         }
-        mobileSso.cancelRequest(requestID);
+        Bundle data = new Bundle();
+        data.putString(KEY, VALUE);
+        mobileSso.cancelRequest(requestID, data);
         ssg.takeRequest(); //The slow response
         countDownLatch.await();
         assertTrue(result[0]);
@@ -108,9 +116,12 @@ public class AccessProtectedEndpointTest extends BaseTest {
 
     }
 
+
     @Test
     public void testAccessProtectedEndpointCancelAllOnExecutingRequest() throws URISyntaxException, InterruptedException, IOException {
         MAGRequest request = new MAGRequest.MAGRequestBuilder(getURI("/protected/resource/slow")).password().build();
+        final String KEY = "key";
+        final String VALUE = "This is a test";
 
         final boolean[] result = {false};
         final CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -126,8 +137,11 @@ public class AccessProtectedEndpointTest extends BaseTest {
             }
 
             @Override
-            public void onRequestCancelled() {
-                result[0] = true;
+            public void onRequestCancelled(Bundle data) {
+                String value = data.getString(KEY);
+                if (value.equals(VALUE)) {
+                    result[0] = true;
+                }
                 countDownLatch.countDown();
             }
         });
@@ -138,7 +152,9 @@ public class AccessProtectedEndpointTest extends BaseTest {
             ssg.takeRequest(); //register request
             ssg.takeRequest(); //access token
         }
-        mobileSso.cancelAllRequests();
+        Bundle data = new Bundle();
+        data.putString(KEY, VALUE);
+        mobileSso.cancelAllRequests(data);
         ssg.takeRequest(); //The slow response
         countDownLatch.await();
         assertTrue(result[0]);
@@ -204,7 +220,7 @@ public class AccessProtectedEndpointTest extends BaseTest {
         //Remove Access Token
         DataSource<String, String> dataSource = DataSourceFactory.getStorage(InstrumentationRegistry.getTargetContext(),
                 KeystoreDataSource.class, null, null);
-        for (String k: dataSource.getKeys(null)) {
+        for (String k : dataSource.getKeys(null)) {
             if (k.contains(PrivateTokenStorage.KEY.PREF_ACCESS_TOKEN.name())) {
                 dataSource.remove(k);
             }

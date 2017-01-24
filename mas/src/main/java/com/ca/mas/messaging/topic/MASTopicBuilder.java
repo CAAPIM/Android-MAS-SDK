@@ -10,6 +10,7 @@ package com.ca.mas.messaging.topic;
 
 import com.ca.mas.connecta.client.MASConnectaClient;
 import com.ca.mas.connecta.util.ConnectaConsts;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.foundation.MASConstants;
 import com.ca.mas.foundation.MASException;
 
@@ -141,13 +142,20 @@ public class MASTopicBuilder {
     }
 
     private String createTopic() {
+        String prefix = ConfigurationManager.getInstance()
+                .getConnectedGatewayConfigurationProvider().getPrefix().trim();
+
+        if (prefix.length() > 0)  {
+            prefix = "/" + prefix;
+        }
+
         switch (mSegment) {
             case MASConstants.MAS_USER:
-                return String.format("/%s/users/%s/custom/%s", ConnectaConsts.TOPIC_VERSION_ORG, mUserId, mCustomTopic);
+                return String.format("%s/%s/users/%s/custom/%s", prefix, ConnectaConsts.TOPIC_VERSION_ORG, mUserId, mCustomTopic);
             case MASConstants.MAS_USER | MASConstants.MAS_APPLICATION:
-                return String.format("/%s/client/users/%s/custom/%s", ConnectaConsts.TOPIC_VERSION_ORG, mUserId, mCustomTopic);
+                return String.format("%s/%s/client/users/%s/custom/%s", prefix, ConnectaConsts.TOPIC_VERSION_ORG, mUserId, mCustomTopic);
             case MASConstants.MAS_APPLICATION:
-                return String.format("/%s/client/custom/%s", ConnectaConsts.TOPIC_VERSION_ORG, mCustomTopic);
+                return String.format("%s/%s/client/custom/%s", prefix, ConnectaConsts.TOPIC_VERSION_ORG, mCustomTopic);
             default:
                 throw new IllegalArgumentException("Messaging segment is not supported");
         }

@@ -396,7 +396,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             String userId = current.getId();
                             MASTopic masTopic = new MASTopicBuilder()
                                     .setUserId(userId)
-                                    .setCustomTopic(userId)
+                                    .setCustomTopic("#")
                                     .build();
 
                             startListeningToTopic(masTopic, callback);
@@ -416,7 +416,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             String userId = current.getId();
                             MASTopic masTopic = new MASTopicBuilder()
                                     .setUserId(userId)
-                                    .setCustomTopic(userId)
+                                    .setCustomTopic("#")
                                     .build();
 
                             stopListeningToTopic(masTopic, callback);

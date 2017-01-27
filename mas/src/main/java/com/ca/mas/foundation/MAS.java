@@ -378,15 +378,16 @@ public class MAS {
     }
 
     /**
-     * Cancels the specified request ID with extra information. If the response notification has not already been delivered
+     * Cancels the specified request ID with additional information. If the response notification has not already been delivered
      * by the time this method executes, a response notification will never occur for the specified request ID
      * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set.
      *
      * When {@link MASRequest.MASRequestBuilder#notifyOnCancel} is set, {@link MASCallback#onError(Throwable)}
      * will be triggered with {@link RequestCancelledException}.
-     * The provided extra information can be retrieved with {@link RequestCancelledException#getData()}
+     * The additional information can be retrieved with {@link RequestCancelledException#getData()}
      *
      * @param requestId the request ID to cancel.
+     * @param data the additional information to the request.
      */
     public static void cancelRequest(long requestId, Bundle data) {
         MobileSsoFactory.getInstance().cancelRequest(requestId, data);
@@ -402,14 +403,15 @@ public class MAS {
     }
 
     /**
-     * Cancels all requests with extra information. If the response notification has not already been delivered
+     * Cancels all requests with additional information. If the response notification has not already been delivered
      * by the time this method executes, a response notification will never occur,
      * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set.
      *
      * When {@link MASRequest.MASRequestBuilder#notifyOnCancel} is set, {@link MASCallback#onError(Throwable)}
      * will be triggered with {@link RequestCancelledException}.
-     * The provided extra information can be retrieved with {@link RequestCancelledException#getData()}
+     * The additional information can be retrieved with {@link RequestCancelledException#getData()}
      *
+     * @param data the additional information to the request.
      */
     public static void cancelAllRequest(Bundle data) {
         MobileSsoFactory.getInstance().cancelAllRequests(data);

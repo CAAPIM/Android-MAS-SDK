@@ -153,8 +153,25 @@ public class MASLoginActivity extends AppCompatActivity {
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                MASCustomTabs.socialLogin(mContext, p);
-                                finish();
+                                final ProgressDialog progress = new ProgressDialog(MASLoginActivity.this);
+                                progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                progress.setMessage("Launching Social Login...");
+                                progress.setCancelable(false);
+                                progress.show();
+
+                                MASCustomTabs.socialLogin(mContext, p, new MASCallback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void result) {
+                                        progress.dismiss();
+                                        finish();
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        progress.dismiss();
+                                        Toast.makeText(mContext, "Launch Social Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             }
                         });
                     } else {

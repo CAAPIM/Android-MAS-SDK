@@ -9,7 +9,6 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    xmlns:social_login_button="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -105,108 +104,93 @@
                 app:columnCount="3"
                 app:useDefaultMargins="true">
 
-                <com.ca.mas.ui.MASSocialLoginButton
+                <Button
                     android:id="@+id/activity_mas_login_facebook"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/social_button_image_height"
+                    android:background="@drawable/social_login_bg"
+                    android:drawablePadding="6dp"
+                    android:drawableStart="@drawable/facebook"
+                    android:text="@string/social_login_facebook"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="@dimen/social_button_text_size"
                     app:layout_columnWeight="1"
-                    app:layout_gravity="fill_horizontal|center_horizontal"
-                    card_view:cardBackgroundColor="@color/colorButtonFacebook"
-                    social_login_button:contentPaddingLeft="4dp"
-                    social_login_button:image_height="@dimen/social_button_image_height"
-                    social_login_button:image_margin_right="4dp"
-                    social_login_button:image_src_disabled="@drawable/facebook_disabled"
-                    social_login_button:image_src_enabled="@drawable/facebook_enabled"
-                    social_login_button:image_width="@dimen/social_button_image_width"
-                    social_login_button:text="@string/social_login_facebook"
-                    social_login_button:text_color="@color/white"
-                    social_login_button:text_size="@dimen/social_button_text_size" />
+                    app:layout_gravity="fill_horizontal|center_horizontal" />
 
-                <com.ca.mas.ui.MASSocialLoginButton
+                <Button
                     android:id="@+id/activity_mas_login_google"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/social_button_image_height"
+                    android:background="@drawable/social_login_bg"
+                    android:drawablePadding="6dp"
+                    android:drawableStart="@drawable/google"
+                    android:text="@string/social_login_google"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="@dimen/social_button_text_size"
                     app:layout_columnWeight="1"
-                    app:layout_gravity="fill_horizontal|center_horizontal"
-                    card_view:cardBackgroundColor="@color/colorButtonGoogle"
-                    social_login_button:contentPaddingLeft="4dp"
-                    social_login_button:image_height="@dimen/social_button_image_height"
-                    social_login_button:image_margin_right="4dp"
-                    social_login_button:image_src_disabled="@drawable/google_disabled"
-                    social_login_button:image_src_enabled="@drawable/google_enabled"
-                    social_login_button:image_width="@dimen/social_button_image_width"
-                    social_login_button:text="@string/social_login_google"
-                    social_login_button:text_color="@color/colorAccent"
-                    social_login_button:text_size="@dimen/social_button_text_size" />
+                    app:layout_gravity="fill_horizontal|center_horizontal" />
 
-                <com.ca.mas.ui.MASSocialLoginButton
+                <Button
                     android:id="@+id/activity_mas_login_salesforce"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/social_button_image_height"
+                    android:background="@drawable/social_login_bg"
+                    android:drawablePadding="6dp"
+                    android:drawableStart="@drawable/salesforce"
+                    android:elevation="4dp"
+                    android:text="@string/social_login_salesforce"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="@dimen/social_button_text_size"
                     app:layout_columnWeight="1"
-                    app:layout_gravity="fill_horizontal|center_horizontal"
-                    card_view:cardBackgroundColor="@color/colorButtonSalesforce"
-                    social_login_button:contentPaddingLeft="4dp"
-                    social_login_button:image_height="@dimen/social_button_image_height"
-                    social_login_button:image_margin_right="4dp"
-                    social_login_button:image_src_disabled="@drawable/salesforce_disabled"
-                    social_login_button:image_src_enabled="@drawable/salesforce_enabled"
-                    social_login_button:image_width="@dimen/social_button_image_width"
-                    social_login_button:text="@string/social_login_salesforce"
-                    social_login_button:text_color="@color/colorAccent"
-                    social_login_button:text_size="@dimen/social_button_text_size" />
+                    app:layout_gravity="fill_horizontal|center_horizontal" />
 
-                <com.ca.mas.ui.MASSocialLoginButton
+                <Button
                     android:id="@+id/activity_mas_login_linked_in"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/social_button_image_height"
+                    android:background="@drawable/social_login_bg"
+                    android:drawablePadding="6dp"
+                    android:drawableStart="@drawable/linkedin"
+                    android:elevation="4dp"
+                    android:text="@string/social_login_linkedin"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="@dimen/social_button_text_size"
                     app:layout_columnWeight="1"
-                    app:layout_gravity="fill_horizontal|center_horizontal"
-                    card_view:cardBackgroundColor="@color/colorButtonLinkedIn"
-                    social_login_button:contentPaddingLeft="4dp"
-                    social_login_button:image_height="@dimen/social_button_image_height"
-                    social_login_button:image_margin_right="4dp"
-                    social_login_button:image_src_disabled="@drawable/linkedin_disabled"
-                    social_login_button:image_src_enabled="@drawable/linkedin_enabled"
-                    social_login_button:image_width="@dimen/social_button_image_width"
-                    social_login_button:text="@string/social_login_linkedin"
-                    social_login_button:text_color="@color/white"
-                    social_login_button:text_size="@dimen/social_button_text_size" />
+                    app:layout_gravity="fill_horizontal|center_horizontal" />
 
-                <com.ca.mas.ui.MASSocialLoginButton
+                <Button
                     android:id="@+id/activity_mas_login_enterprise"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/social_button_image_height"
+                    android:background="@drawable/social_login_bg"
+                    android:drawablePadding="6dp"
+                    android:drawableStart="@drawable/enterprise"
+                    android:elevation="4dp"
+                    android:text="@string/social_login_enterprise"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="@dimen/social_button_text_size"
                     app:layout_columnWeight="1"
-                    app:layout_gravity="fill_horizontal|center_horizontal"
-                    card_view:cardBackgroundColor="@color/colorButtonEnterprise"
-                    social_login_button:contentPaddingLeft="4dp"
-                    social_login_button:image_height="@dimen/social_button_image_height"
-                    social_login_button:image_margin_right="4dp"
-                    social_login_button:image_src_disabled="@drawable/enterprise_disabled"
-                    social_login_button:image_src_enabled="@drawable/enterprise_enabled"
-                    social_login_button:image_width="@dimen/social_button_image_width"
-                    social_login_button:text="@string/social_login_enterprise"
-                    social_login_button:text_color="@color/colorAccent"
-                    social_login_button:text_size="@dimen/social_button_text_size" />
+                    app:layout_gravity="fill_horizontal|center_horizontal" />
 
-                <com.ca.mas.ui.MASSocialLoginButton
+                <Button
                     android:id="@+id/activity_mas_login_qr_code"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/social_button_image_height"
+                    android:background="@drawable/social_login_bg"
+                    android:drawablePadding="6dp"
+                    android:drawableStart="@drawable/qrcode"
+                    android:elevation="4dp"
+                    android:text="@string/social_login_qr_code"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="@dimen/social_button_text_size"
                     app:layout_columnWeight="1"
-                    app:layout_gravity="fill_horizontal|center_horizontal"
-                    card_view:cardBackgroundColor="@color/colorButtonQrCode"
-                    social_login_button:contentPaddingLeft="4dp"
-                    social_login_button:image_height="@dimen/social_button_image_height"
-                    social_login_button:image_margin_right="4dp"
-                    social_login_button:image_src_disabled="@drawable/qrcode"
-                    social_login_button:image_src_enabled="@drawable/qrcode"
-                    social_login_button:image_width="@dimen/social_button_image_width"
-                    social_login_button:text="@string/social_login_qr_code"
-                    social_login_button:text_color="@color/colorAccent"
-                    social_login_button:text_size="@dimen/social_button_text_size" />
-
+                    app:layout_gravity="fill_horizontal|center_horizontal" />
             </android.support.v7.widget.GridLayout>
 
         </LinearLayout>

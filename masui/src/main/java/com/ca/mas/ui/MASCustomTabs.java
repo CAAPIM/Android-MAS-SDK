@@ -70,7 +70,7 @@ public class MASCustomTabs {
                         //PKCE social login support for MAG
                         if (codeChallenge != null) {
                             builder.setCodeVerifier(
-                                    //The code verifier is stored on the MAG Server,
+                                    //The code verifier is stored on the MAG Server;
                                     //this is only for passing the code verifier check for AppAuth.
                                     //The code verifier will not be used for retrieving the Access Token.
                                     CodeVerifierUtil.generateRandomCodeVerifier(),
@@ -95,7 +95,7 @@ public class MASCustomTabs {
                         Callback.onError(callback, new IllegalArgumentException("No redirect URL detected."));
                     }
                 } catch (Exception e) {
-                    if (DEBUG) Log.e(TAG, "Launch Social Login with AppAuth failed.", e);
+                    if (DEBUG) Log.e(TAG, "Launching Social Login with AppAuth failed.", e);
                     Callback.onError(callback, e);
                 }
             }

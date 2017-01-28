@@ -42,6 +42,7 @@ public class DefaultTokenManager implements TokenManager {
     private static final String MSSO_MAG_IDENTIFIER = "msso.magIdentifier";
     private static final String MSSO_CLIENT_PRIVATE_KEY = "msso.clientCertPrivateKey";
     private static final String MSSO_CLIENT_CERT_CHAIN_PREFIX = "msso.clientCertChain_";
+    private static final String MSSO_DN = "cn=msso";
     private static final String MSSO_ID_TOKEN = "msso.idToken";
     private static final String MSSO_ID_TOKEN_TYPE = "msso.idTokenType";
     private static final String MSSO_SECURE_ID_TOKEN = "msso.secureIdToken";
@@ -164,7 +165,7 @@ public class DefaultTokenManager implements TokenManager {
 
 
         try {
-            return KeyUtils.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_PRIVATE_KEY, authorizationRequired);
+            return KeyUtils.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_PRIVATE_KEY, MSSO_DN, authorizationRequired);
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to create client private key: " + e.getMessage(), e);
             return null;

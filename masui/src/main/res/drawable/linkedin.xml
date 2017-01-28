@@ -9,7 +9,6 @@
   -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_enabled="false"
-          android:drawable="@drawable/linkedin_disabled" />
-    <item android:drawable="@drawable/linkedin" />
+    <item android:drawable="@drawable/linkedin_disabled" android:state_enabled="false" />
+    <item android:drawable="@drawable/linkedin_enabled" />
 </selector>

@@ -8,11 +8,15 @@
 
 package com.ca.mas.core.security;
 
+import android.content.Context;
 import android.os.Build;
 import android.security.keystore.KeyProperties;
 import android.security.keystore.KeyProtection;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
+
+import com.ca.mas.core.security.DefaultKeySymmetricManager;
 
 import java.io.IOException;
 import java.security.KeyStore;
@@ -23,69 +27,56 @@ import java.security.cert.CertificateException;
 import javax.crypto.SecretKey;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
+
+import static android.R.attr.key;
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class LockableKeyStorageProvider implements KeyStorageProvider {
-    private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
-    private SecretKey secretKey;
 
+    // will be generating symmetric keys protected by lock screen
+    protected DefaultKeySymmetricManager keyMgr = null;
+    protected SecretKey secretKey;
+
+
+    /**
+     * Retrieve the SecretKey from Storage
+     * @param alias : The alias to find the Key
+     * @return The SecretKey
+     */
     @Override
-    public void storeKey(String alias, SecretKey sk) {
-        KeyStore ks;
-        try {
-            ks = KeyStore.getInstance(ANDROID_KEY_STORE);
-            ks.load(null);
-        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-            if (DEBUG) Log.e(TAG, "Error instantiating Android KeyStore.", e);
-            throw new RuntimeException("Error instantiating Android KeyStore.", e);
+    public SecretKey getKey(String alias)
+    {
+        if (keyMgr == null)
+            keyMgr = new DefaultKeySymmetricManager("AES", 256, true, 5);
+
+        if (secretKey == null) {
+            SecretKey secretKey = keyMgr.retrieveKey(alias);
+
+            // if still no key, generate one
+            if (secretKey == null)
+                secretKey = keyMgr.generateKey(alias);
         }
 
-        KeyProtection kp = new KeyProtection.Builder(KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                .setUserAuthenticationRequired(true)
-                .setUserAuthenticationValidityDurationSeconds(5)
-                .build();
-
-        try {
-            this.secretKey = sk;
-            ks.setEntry(alias, new KeyStore.SecretKeyEntry(sk), kp);
-        } catch (KeyStoreException e) {
-            if (DEBUG) Log.e(TAG, "Error setting entry into Android KeyStore.", e);
-            throw new RuntimeException("Error setting entry into Android KeyStore.", e);
-        }
+        return secretKey;
     }
 
+    /**
+     * Remove the key
+     * @param alias the alias of the key to remove
+     */
     @Override
-    public SecretKey getKey(String alias) {
-        if (secretKey != null) {
-            return secretKey;
-        }
+    public boolean removeKey(String alias)
+    {
+        if (keyMgr == null)
+            keyMgr = new DefaultKeySymmetricManager("AES", 256, true, 5);
 
-        try {
-            KeyStore ks = KeyStore.getInstance(ANDROID_KEY_STORE);
-            ks.load(null);
-            KeyStore.SecretKeyEntry entry = (KeyStore.SecretKeyEntry) ks.getEntry(alias, null);
-            return entry == null ? null : entry.getSecretKey();
-        } catch (Exception e) {
-            if (DEBUG) Log.e(TAG, "Error while getting SecretKey", e);
-            throw new RuntimeException(e);
-        }
+        keyMgr.deleteKey(alias);
+        secretKey = null;
+        return true;
     }
 
-    @Override
-    public boolean containsKey(String alias) {
-        try {
-            KeyStore ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
-            ks.load(null);
-            return ks.containsAlias(alias);
-        } catch (Exception e) {
-            if (DEBUG) Log.e(TAG, "Error while getting SecretKey", e);
-            return false;
-        }
-    }
 
     public void lock() {
         if (secretKey != null && secretKey instanceof Destroyable) {
@@ -97,15 +88,5 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
             }
         }
         secretKey = null;
-    }
-
-    public void removeKey(String alias) {
-        try {
-            KeyStore ks = KeyStore.getInstance(ANDROID_KEY_STORE);
-            ks.load(null);
-            ks.deleteEntry(alias);
-        } catch (Exception e) {
-            if (DEBUG) Log.e(TAG, "Error while delete SecretKey", e);
-        }
     }
 }

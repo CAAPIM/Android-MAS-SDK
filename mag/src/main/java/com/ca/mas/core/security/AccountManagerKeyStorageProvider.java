@@ -15,7 +15,7 @@ import android.util.Log;
 import com.ca.mas.core.datasource.AccountManagerStoreDataSource;
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.datasource.DataSourceFactory;
-
+import com.ca.mas.core.security.DefaultKeySymmetricManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +34,7 @@ public class AccountManagerKeyStorageProvider extends KeyStoreKeyStorageProvider
      */
     public AccountManagerKeyStorageProvider(@NonNull Context ctx) {
         super(ctx);
+
         JSONObject params = new JSONObject();
         try {
             params.put("share", Boolean.TRUE);
@@ -43,6 +44,7 @@ public class AccountManagerKeyStorageProvider extends KeyStoreKeyStorageProvider
 
         storage = DataSourceFactory.getStorage(ctx, AccountManagerStoreDataSource.class, params, null);
     }
+
 
     /**
      * @param alias              The alias to store the key against.
@@ -65,15 +67,6 @@ public class AccountManagerKeyStorageProvider extends KeyStoreKeyStorageProvider
         return encryptedSecretKey;
     }
 
-    /**
-     * @param alias
-     * @return True if the secret key associated with given alias exists, false otherwise.
-     */
-    @Override
-    protected boolean containsSecretKeyLocally(String alias) {
-        byte[] encryptedSecretKey = storage.get(alias);
-        return (encryptedSecretKey != null);
-    }
 
     /**
      * Delete the secret key locally.

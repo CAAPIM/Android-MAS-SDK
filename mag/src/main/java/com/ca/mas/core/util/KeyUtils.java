@@ -70,7 +70,8 @@ public class KeyUtils {
      * @return a new RSA PrivateKey.
      * @throws RuntimeException if an RSA key pair of the requested size cannot be generated
      */
-    public static PrivateKey generateRsaPrivateKey(Context context, int keysize, String alias, boolean requireLockScreen)
+    public static PrivateKey generateRsaPrivateKey(Context context, int keysize,
+                     String alias, String dn, boolean requireLockScreen)
             throws java.security.InvalidAlgorithmParameterException, java.io.IOException,
             java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
             java.security.NoSuchProviderException, java.security.cert.CertificateException,
@@ -82,7 +83,7 @@ public class KeyUtils {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // use KeyGenParameterSpec.Builder, new in Marshmallow
-            return generateRsaPrivateKeyAndroidM(keysize, alias, requireLockScreen);
+            return generateRsaPrivateKeyAndroidM(keysize, alias, dn, requireLockScreen);
         }
 
         // For Android Pre-M
@@ -103,7 +104,7 @@ public class KeyUtils {
                     .setEncryptionRequired()
                     .setStartDate(now).setEndDate(end)
                     .setSerialNumber(BigInteger.valueOf(1))
-                    .setSubject(new X500Principal("CN=msso"))
+                    .setSubject(new X500Principal(dn))
                     .build());
         } else {
             kpg.initialize(new KeyPairGeneratorSpec.Builder(context)
@@ -111,7 +112,7 @@ public class KeyUtils {
                     .setAlgorithmParameterSpec(spec)
                     .setStartDate(now).setEndDate(end)
                     .setSerialNumber(BigInteger.valueOf(1))
-                    .setSubject(new X500Principal("CN=msso"))
+                    .setSubject(new X500Principal(dn))
                     .build());
         }
         return kpg.generateKeyPair().getPrivate();
@@ -128,7 +129,8 @@ public class KeyUtils {
      *        unusable self-signed certificate
      */
     @TargetApi(Build.VERSION_CODES.M)
-    protected static PrivateKey generateRsaPrivateKeyAndroidM(int keysize, String alias, boolean requireLockScreen)
+    protected static PrivateKey generateRsaPrivateKeyAndroidM(int keysize,
+                        String alias, String dn, boolean requireLockScreen)
             throws java.security.InvalidAlgorithmParameterException, java.io.IOException,
             java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
             java.security.NoSuchProviderException, java.security.cert.CertificateException,
@@ -141,7 +143,8 @@ public class KeyUtils {
         cal.add(Calendar.YEAR, 1);
         Date end = cal.getTime();
         keyPairGenerator.initialize(
-                new KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT + KeyProperties.PURPOSE_DECRYPT + KeyProperties.PURPOSE_SIGN + KeyProperties.PURPOSE_VERIFY)
+                new KeyGenParameterSpec.Builder(alias,
+                       KeyProperties.PURPOSE_ENCRYPT + KeyProperties.PURPOSE_DECRYPT + KeyProperties.PURPOSE_SIGN + KeyProperties.PURPOSE_VERIFY)
                         .setKeySize(keysize)
                         .setCertificateNotBefore(now).setCertificateNotAfter(end)
                         .setCertificateSubject(new X500Principal("CN=msso"))

@@ -169,7 +169,7 @@ public class MASLoginActivity extends AppCompatActivity {
                                     @Override
                                     public void onError(Throwable e) {
                                         progress.dismiss();
-                                        Toast.makeText(mContext, "Launch Social Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(mContext, "Launching Social Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                 });
                             }

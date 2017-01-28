@@ -30,7 +30,7 @@ project(':MASSessionUnlockSample').projectDir = new File('samples/MASSessionUnlo
 project(':MASPubSubSample').projectDir = new File('samples/MASPubSubSample')
 
 //MASUnit
-include ':MASUnit'
+//include ':MASUnit'
 
 //Knox
 //include ':Knox', ':SmcControllerSample', ':SamsungLicenseActivationSample'

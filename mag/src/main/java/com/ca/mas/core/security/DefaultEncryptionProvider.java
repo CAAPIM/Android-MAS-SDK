@@ -47,12 +47,6 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
 
     public DefaultEncryptionProvider(Context ctx, KeyStorageProvider keyStorageProvider) {
         ksp = keyStorageProvider;
-        boolean hasSecureKey = ksp.containsKey(getKeyAlias());
-
-        if (!hasSecureKey) {
-            SecretKey sk = generateKey();
-            ksp.storeKey(getKeyAlias(), sk);
-        }
     }
 
     protected String getKeyAlias() {
@@ -75,7 +69,6 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
      * @param data : the data to encrypt
      * @return encrypted data as byte[]
      */
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public byte[] encrypt(byte[] data) {
         if (data == null) {

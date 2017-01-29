@@ -53,16 +53,6 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
         return KEY_ALIAS;
     }
 
-    private SecretKey generateKey() {
-        KeyGenerator keyGenerator = new DefaultKeyGenerator(ALGORITHM, KEY_SIZE);
-        try {
-            return keyGenerator.generateKey();
-        } catch (NoSuchAlgorithmException e) {
-            if (DEBUG) Log.e(TAG, "Error while generating key");
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
     /**
      * Encrypts the given data.
      *

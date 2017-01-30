@@ -16,6 +16,7 @@ import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.oauth.CodeVerifierCache;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,10 @@ public class AuthorizationCodeCredentials implements Credentials {
             redirectValue.add(redirectUrl);
             headers.put("redirect-uri", redirectValue);
         }
+        if (codeVerifier != null) {
+            headers.put("code-verifier", Collections.singletonList(codeVerifier));
+        }
+
         return headers;
     }
 

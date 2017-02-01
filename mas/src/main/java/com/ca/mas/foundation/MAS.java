@@ -91,9 +91,22 @@ public class MAS {
 
             @Override
             public void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler) {
-                if (masAuthenticationListener != null) {
+
+                if (masAuthenticationListener == null) {
+                    Class<Activity> otpActivity = getOtpActivity();
+                    if (otpActivity != null) {
+                        Intent intent = new Intent(context, otpActivity);
+                        intent.putExtra(MssoIntents.EXTRA_OTP_HANDLER, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
+                        context.startActivity(intent);
+                    } else {
+                        if (DEBUG)
+                            Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for otp authentication.");
+                    }
+                } else {
                     masAuthenticationListener.onOtpAuthenticateRequest(currentActivity, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
                 }
+
+
             }
         });
         MASConnectaManager.getInstance().start(ctx);
@@ -151,6 +164,20 @@ public class MAS {
 
         try {
             return (Class<Activity>) Class.forName("com.ca.mas.ui.MASLoginActivity");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Return the MASOtpActivity from MASUI components if MASUI library is included in the classpath.
+     *
+     * @return A OtpActivity to capture the otp or null if error.
+     */
+    private static Class<Activity> getOtpActivity() {
+
+        try {
+            return (Class<Activity>) Class.forName("com.ca.mas.ui.otp.MASOtpActivity");
         } catch (Exception e) {
             return null;
         }

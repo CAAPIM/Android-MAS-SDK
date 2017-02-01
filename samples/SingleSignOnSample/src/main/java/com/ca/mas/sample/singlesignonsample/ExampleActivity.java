@@ -117,7 +117,6 @@ public class ExampleActivity extends AppCompatActivity {
         });
 
         MAS.setAuthenticationListener(new MASAuthenticationListener() {
-
             @Override
             public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {
                 Intent loginIntent = new Intent(context, MASLoginActivity.class);
@@ -137,7 +136,6 @@ public class ExampleActivity extends AppCompatActivity {
                 Intent loginIntent = new Intent(context, MASOtpActivity.class);
                 loginIntent.putExtra(MssoIntents.EXTRA_OTP_HANDLER, handler);
                 startActivity(loginIntent);
-
             }
         });
 
@@ -150,10 +148,8 @@ public class ExampleActivity extends AppCompatActivity {
 
         final Button listButton = (Button) findViewById(R.id.listItemsButton);
         listButton.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
-
                 clearItem();
                 //Android M Permission
                 checkPermission();
@@ -161,7 +157,6 @@ public class ExampleActivity extends AppCompatActivity {
                 final MASRequest request = new MASRequest.MASRequestBuilder(getProductListDownloadUri()).build();
 
                 MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
-
                     @Override
                     public Handler getHandler() {
                         return new Handler(Looper.getMainLooper());
@@ -189,10 +184,8 @@ public class ExampleActivity extends AppCompatActivity {
                         }
                     }
                 });
-
             }
         });
-
 
         final Button otpProtectedlistButton = (Button) findViewById(R.id.listOtpProtectedItemsButton);
         otpProtectedlistButton.setOnClickListener(new View.OnClickListener() {
@@ -203,9 +196,7 @@ public class ExampleActivity extends AppCompatActivity {
                 intent.setPackage(getBaseContext().getPackageName());
                 startActivity(intent);
             }
-
         });
-
 
         final Button logOutButton = (Button) findViewById(R.id.logOutButton);
         logOutButton.setOnClickListener(new View.OnClickListener() {
@@ -215,7 +206,6 @@ public class ExampleActivity extends AppCompatActivity {
             }
         });
         registerForContextMenu(logOutButton);
-
     }
 
     private void checkPermission() {
@@ -231,7 +221,6 @@ public class ExampleActivity extends AppCompatActivity {
                         0);
             }
         }
-
     }
 
     private void clearItem() {
@@ -250,7 +239,6 @@ public class ExampleActivity extends AppCompatActivity {
         menu.add(MENU_GROUP_LOGOUT, MENU_ITEM_REMOVE_DEVICE_REGISTRATION, Menu.NONE, "Unregister Device");
         menu.add(MENU_GROUP_LOGOUT, MENU_ITEM_DESTROY_TOKEN_STORE, Menu.NONE, "Destroy Token Store");
     }
-
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
@@ -291,7 +279,6 @@ public class ExampleActivity extends AppCompatActivity {
 
     // Tell the token server to un-register this device, without affecting the client-side token caches in any way.
     private void doServerUnregisterDevice() {
-
         MASDevice.getCurrentDevice().deregister(new MASCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
@@ -326,7 +313,6 @@ public class ExampleActivity extends AppCompatActivity {
 
         if (MASUser.getCurrentUser() != null) {
             MASDevice.getCurrentDevice().startAsBluetoothPeripheral(new MASProximityLoginBLEPeripheralListener() {
-
                 @Override
                 public void onStatusUpdate(int state) {
                     switch (state) {

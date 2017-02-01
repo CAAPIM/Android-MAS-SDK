@@ -116,31 +116,6 @@ public class ExampleActivity extends AppCompatActivity {
             }
         });
 
-        MAS.setAuthenticationListener(new MASAuthenticationListener() {
-
-            @Override
-            public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {
-                Intent loginIntent = new Intent(context, MASLoginActivity.class);
-                loginIntent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, providers);
-                loginIntent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-                startActivity(loginIntent);
-            }
-
-            @Override
-            public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {
-                Log.d("ActivityCallback", "onOtpAuthenticateRequest " + context.getClass().getCanonicalName());
-                //Should not trigger this if other then OtpResponseHeaders.X_CA_ERROR.GENERATED or OtpResponseHeaders.X_CA_ERROR.REQUIRED.
-                /*
-                android.app.DialogFragment otpFragment = MASOtpDialogFragment.newInstance(handler);
-                otpFragment.show(((Activity) context).getFragmentManager(), "OTPDialog");
-                */
-                Intent loginIntent = new Intent(context, MASOtpActivity.class);
-                loginIntent.putExtra(MssoIntents.EXTRA_OTP_HANDLER, handler);
-                startActivity(loginIntent);
-
-            }
-        });
-
         MAS.start(this, true);
 
         setContentView(R.layout.main);

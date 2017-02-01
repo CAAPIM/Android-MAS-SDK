@@ -53,6 +53,10 @@ public interface MssoIntents {
     /** The otp delivery selected channels.*/
     String EXTRA_OTP_SELECTED_CHANNELS = "com.ca.mas.core.service.req.extra.auth.otp.channels";
 
+    /** The otp authentication otp handler.*/
+    String EXTRA_OTP_HANDLER = "com.ca.mas.core.service.req.extra.auth.otp.handler";
+
+
     // Attributes for social login, below attributes can be empty if not using Social login
 
     /** The authentication provider.*/

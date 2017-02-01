@@ -9,7 +9,6 @@
 package com.ca.mas.sample.singlesignonsample;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -58,7 +57,7 @@ import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 import com.ca.mas.ui.MASEnterpriseBrowserFragment;
 import com.ca.mas.ui.MASLoginActivity;
-import com.ca.mas.ui.otp.MASOtpDialogFragment;
+import com.ca.mas.ui.otp.MASOtpActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -129,9 +128,16 @@ public class ExampleActivity extends AppCompatActivity {
 
             @Override
             public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {
+                Log.d("ActivityCallback", "onOtpAuthenticateRequest " + context.getClass().getCanonicalName());
                 //Should not trigger this if other then OtpResponseHeaders.X_CA_ERROR.GENERATED or OtpResponseHeaders.X_CA_ERROR.REQUIRED.
+                /*
                 android.app.DialogFragment otpFragment = MASOtpDialogFragment.newInstance(handler);
                 otpFragment.show(((Activity) context).getFragmentManager(), "OTPDialog");
+                */
+                Intent loginIntent = new Intent(context, MASOtpActivity.class);
+                loginIntent.putExtra(MssoIntents.EXTRA_OTP_HANDLER, handler);
+                startActivity(loginIntent);
+
             }
         });
 

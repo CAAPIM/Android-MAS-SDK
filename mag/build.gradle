@@ -11,16 +11,16 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '24.0.2'
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     lintOptions {
         abortOnError false
     }
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 24
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 34
         versionName "3.4"
     }
@@ -57,14 +57,12 @@ task javadoc(type: Javadoc) {
     include '**/MAGResponseBody.java'
 
     exclude '**/BluetoothLePeripheral.java'
-
 }
 
 dependencies {
-
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:support-annotations:24.2.1'
-    compile 'com.google.zxing:core:3.2.0'
+    compile "com.android.support:support-annotations:$rootProject.ext.supportAnnotationsVersion"
+    compile "com.google.zxing:core:$rootProject.ext.zxingVersion"
 }
 
 //jcenter integration

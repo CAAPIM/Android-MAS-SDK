@@ -146,7 +146,7 @@ public class BluetoothLeCentralRenderer extends PollingRenderer {
             startScan();
             callback.onStatusUpdate(BluetoothLeCentralCallback.BLE_STATE_SCAN_STARTED);
         } else {
-            onError(BluetoothLe.BLE_ERROR_INVALID_UUID, "Please enable the ACCESS_FINE_LOCATION permission", null);
+            onError(BluetoothLe.BLE_ERROR_PERMISSION_NOT_GRANTED, "Please enable the ACCESS_FINE_LOCATION permission", null);
         }
     }
 

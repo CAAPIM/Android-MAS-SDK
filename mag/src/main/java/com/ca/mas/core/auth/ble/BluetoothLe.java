@@ -36,6 +36,10 @@ public interface BluetoothLe {
      */
     int BLE_ERROR_SESSION_SHARING_NOT_SUPPORTED = 103;
     /**
+     * Bluetooth permission has not been granted
+     */
+    int BLE_ERROR_PERMISSION_NOT_GRANTED = 104;
+    /**
      * Notify the host application for status update.
      *
      * @param state The status code corresponding to an BLE_STATE* value defined under

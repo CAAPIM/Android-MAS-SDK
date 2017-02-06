@@ -8,24 +8,24 @@
 
 package com.ca.mas.core.security;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.security.KeyPairGeneratorSpec;
-import android.security.keystore.KeyProperties;
-import android.security.keystore.KeyProtection;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.core.util.KeyUtils;
 
 import java.io.IOException;
-import java.math.BigInteger;
-import java.security.*;
-import java.security.KeyStore;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.InvalidParameterException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.Calendar;
-import java.util.Date;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -33,7 +33,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import javax.security.auth.x500.X500Principal;
 
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
@@ -82,8 +81,16 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
 
             // check if the key is present locally
             byte encryptedSecretKey[] = getEncryptedSecretKey(alias);
-            if (encryptedSecretKey != null)
-                secretKey = decryptSecretKey(encryptedSecretKey);
+            if (encryptedSecretKey != null) {
+                try {
+                    secretKey = decryptSecretKey(encryptedSecretKey);
+                } catch (Exception unableToDecrypt) {
+                    if (DEBUG) Log.e(TAG, "Error while decrypting SecretKey, deleting it", unableToDecrypt);
+
+                    deleteSecretKeyLocally(alias);
+                    encryptedSecretKey = null;
+                }
+            }
 
             // if still no key, generate one
             if (secretKey == null) {
@@ -91,8 +98,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
 
                 // if this is Pre- Android.M, we need to store it locally
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-
-                    byte encryptedSecretkey[] = encryptSecretKey(secretKey);
+                    encryptedSecretKey = encryptSecretKey(secretKey);
                     storeSecretKeyLocally(alias, encryptedSecretKey);
                 }
             }
@@ -159,7 +165,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
             if (publicKey == null) {
                 KeyUtils.generateRsaPrivateKey(context, 2048,
                             ASYM_KEY_ALIAS, String.format("CN=%s, OU=%s", ASYM_KEY_ALIAS, "com.ca"),
-                            true);
+                            false);
                 publicKey = KeyUtils.getRsaPublicKey(ASYM_KEY_ALIAS);
             }
 
@@ -201,6 +207,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
             if (DEBUG) Log.e(TAG, "Error while decrypting SecretKey", e);
             throw new RuntimeException("Error while decrypting SecretKey", e);
         }
+
 
     }
 

@@ -11,7 +11,6 @@ package com.ca.mas.core.security;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
 import android.security.keystore.KeyProtection;
 import android.util.Log;
 
@@ -25,12 +24,10 @@ import java.security.UnrecoverableEntryException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
-import static android.R.string.no;
 import static android.security.keystore.KeyProperties.BLOCK_MODE_CBC;
 import static android.security.keystore.KeyProperties.BLOCK_MODE_CTR;
 import static android.security.keystore.KeyProperties.BLOCK_MODE_GCM;
 import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE;
-import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_PKCS7;
 import static android.security.keystore.KeyProperties.PURPOSE_DECRYPT;
 import static android.security.keystore.KeyProperties.PURPOSE_ENCRYPT;
 import static com.ca.mas.core.MAG.DEBUG;
@@ -144,6 +141,7 @@ public class DefaultKeySymmetricManager implements KeySymmetricManager {
             KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(alias, PURPOSE_ENCRYPT | PURPOSE_DECRYPT)
                     .setKeySize(mKeyLength)
                     .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
                     .setRandomizedEncryptionRequired(true)
                     .setUserAuthenticationRequired(mUserAuthenticationRequired);
 
@@ -204,6 +202,8 @@ public class DefaultKeySymmetricManager implements KeySymmetricManager {
         SecretKey sk;
         try {
             java.security.KeyStore.SecretKeyEntry entry = (java.security.KeyStore.SecretKeyEntry) ks.getEntry(alias, null);
+            if (entry == null)
+                return null;
             sk = entry.getSecretKey();
         } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException | NullPointerException e) {
             if (DEBUG) Log.e(TAG, "Error while getting entry from Android KeyStore", e);
@@ -249,8 +249,8 @@ public class DefaultKeySymmetricManager implements KeySymmetricManager {
 
         KeyProtection.Builder builder = new KeyProtection.Builder(PURPOSE_ENCRYPT | PURPOSE_DECRYPT)
                         .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_GCM)
-                        //.setEncryptionPaddings(ENCRYPTION_PADDING_NONE, ENCRYPTION_PADDING_PKCS7)
-                        .setRandomizedEncryptionRequired(mUserAuthenticationRequired)
+                        .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
+                        .setRandomizedEncryptionRequired(true)
                         .setUserAuthenticationRequired(mUserAuthenticationRequired);
 
         if (mUserAuthenticationRequired && mUserAuthenticationValiditySeconds > 0)

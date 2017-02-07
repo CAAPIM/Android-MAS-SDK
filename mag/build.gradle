@@ -62,7 +62,6 @@ task javadoc(type: Javadoc) {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile "com.android.support:support-annotations:$rootProject.ext.supportAnnotationsVersion"
-    compile "com.android.support:appcompat-v7:$rootProject.ext.appCompatVersion"
     compile "com.google.zxing:core:$rootProject.ext.zxingVersion"
 }
 

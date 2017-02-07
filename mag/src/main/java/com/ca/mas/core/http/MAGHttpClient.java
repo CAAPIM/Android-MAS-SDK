@@ -13,6 +13,7 @@ import android.os.Build;
 import android.util.Log;
 
 import com.ca.mas.core.conf.ConfigurationManager;
+import com.ca.mas.core.io.ssl.MAGPinningSocketFactory;
 import com.ca.mas.core.io.ssl.MAGSocketFactory;
 
 import java.io.IOException;
@@ -34,6 +35,9 @@ public class MAGHttpClient {
         sslSocketFactory = new MAGSocketFactory(context).createSSLSocketFactory();
     }
 
+    public MAGHttpClient(String publicKeyHash) {
+        sslSocketFactory = new MAGPinningSocketFactory(publicKeyHash).createSSLSocketFactory();
+    }
 
     public MAGHttpClient() {
     }

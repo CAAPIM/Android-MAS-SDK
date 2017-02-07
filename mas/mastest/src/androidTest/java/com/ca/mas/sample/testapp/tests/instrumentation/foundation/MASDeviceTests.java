@@ -8,7 +8,6 @@
 
 package com.ca.mas.sample.testapp.tests.instrumentation.foundation;
 
-import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.foundation.MASDevice;

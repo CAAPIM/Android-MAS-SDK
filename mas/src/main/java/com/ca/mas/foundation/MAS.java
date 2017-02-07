@@ -13,6 +13,8 @@ import android.app.Application;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -26,6 +28,8 @@ import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.MAGErrorCode;
+import com.ca.mas.core.http.MAGHttpClient;
+import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.oauth.GrantProvider;
@@ -236,6 +240,56 @@ public class MAS {
         MobileSsoFactory.getInstance(context, url);
     }
 
+
+    /**
+     * Starts the lifecycle of the MAS processes with given enrollment URL.
+     * This method will (if it is different) overwrite the JSON configuration that was stored.
+     *
+     * @param url The enrollment URL of the JSON configuration path.
+     *            If the provided url is null, {@link MAS#start(Context)} will be used to start the
+     *            lifecycle of the MAS processes..
+     * @param callback The callback to notify when a response is available, or if there is an error.
+     */
+
+    public static void start(@NonNull final Context context, final URL url, final MASCallback<Void> callback) {
+
+        if (url == null) {
+            try {
+                MAS.start(context);
+                Callback.onSuccess(callback, null);
+            } catch (Exception e) {
+                Callback.onError(callback, e);
+            }
+            return;
+        }
+
+        Uri uri = Uri.parse(url.toString());
+        final String publicKeyHash = uri.getQueryParameter("subjectKeyHash");
+        if (publicKeyHash == null || publicKeyHash.trim().isEmpty()) {
+            Callback.onError(callback, new IllegalArgumentException("subjectKeyHash is not provided."));
+            return;
+        }
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                MAGHttpClient client = new MAGHttpClient(publicKeyHash);
+                MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
+                        responseBody(MAGResponseBody.jsonBody()).build();
+                try {
+                    MAGResponse<JSONObject> response = client.execute(request);
+                    MAS.start(context, response.getBody().getContent());
+                    Callback.onSuccess(callback, null);
+                } catch (Exception e) {
+                    Callback.onError(callback, e);
+                }
+                return null;
+            }
+        }.execute((Void) null);
+
+    }
+
+    ;
+
     /**
      * Request method for an HTTP POST, PUT, DELETE, GET call to the Gateway.
      *
@@ -408,13 +462,13 @@ public class MAS {
      * Cancels the specified request ID with additional information. If the response notification has not already been delivered
      * by the time this method executes, a response notification will never occur for the specified request ID
      * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set.
-     *
+     * <p>
      * When {@link MASRequest.MASRequestBuilder#notifyOnCancel} is set, {@link MASCallback#onError(Throwable)}
      * will be triggered with {@link RequestCancelledException}.
      * The additional information can be retrieved with {@link RequestCancelledException#getData()}
      *
      * @param requestId the request ID to cancel.
-     * @param data the additional information to the request.
+     * @param data      the additional information to the request.
      */
     public static void cancelRequest(long requestId, Bundle data) {
         MobileSsoFactory.getInstance().cancelRequest(requestId, data);
@@ -433,7 +487,7 @@ public class MAS {
      * Cancels all requests with additional information. If the response notification has not already been delivered
      * by the time this method executes, a response notification will never occur,
      * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set.
-     *
+     * <p>
      * When {@link MASRequest.MASRequestBuilder#notifyOnCancel} is set, {@link MASCallback#onError(Throwable)}
      * will be triggered with {@link RequestCancelledException}.
      * The additional information can be retrieved with {@link RequestCancelledException#getData()}

@@ -104,10 +104,10 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
     /**
      * Authenticate a user with username and password.
      */
-    public static void login(@NonNull String userName, @NonNull char[] password, final MASCallback<MASUser> callback) {
+    public static void login(@NonNull String userName, @NonNull char[] cPassword, final MASCallback<MASUser> callback) {
         MobileSso mobileSso = FoundationUtil.getMobileSso();
 
-        mobileSso.authenticate(userName, password, new MASResultReceiver<JSONObject>() {
+        mobileSso.authenticate(userName, cPassword, new MASResultReceiver<JSONObject>() {
             @Override
             public void onSuccess(MAGResponse<JSONObject> response) {
                 login(callback);
@@ -396,7 +396,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             String userId = current.getId();
                             MASTopic masTopic = new MASTopicBuilder()
                                     .setUserId(userId)
-                                    .setCustomTopic(userId)
+                                    .setCustomTopic("#")
                                     .build();
 
                             startListeningToTopic(masTopic, callback);
@@ -416,7 +416,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             String userId = current.getId();
                             MASTopic masTopic = new MASTopicBuilder()
                                     .setUserId(userId)
-                                    .setCustomTopic(userId)
+                                    .setCustomTopic("#")
                                     .build();
 
                             stopListeningToTopic(masTopic, callback);

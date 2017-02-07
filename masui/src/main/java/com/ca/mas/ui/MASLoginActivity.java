@@ -159,8 +159,25 @@ public class MASLoginActivity extends AppCompatActivity {
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                MASCustomTabs.socialLogin(mContext, p);
-                                finish();
+                                final ProgressDialog progress = new ProgressDialog(MASLoginActivity.this);
+                                progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                progress.setMessage("Launching Social Login...");
+                                progress.setCancelable(false);
+                                progress.show();
+
+                                MASCustomTabs.socialLogin(mContext, p, new MASCallback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void result) {
+                                        progress.dismiss();
+                                        finish();
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        progress.dismiss();
+                                        Toast.makeText(mContext, "Launching Social Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             }
                         });
                     } else {
@@ -245,6 +262,7 @@ public class MASLoginActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
+            MAS.cancelRequest(mRequestId);
             finish();
             return true;
         } else if (id == R.id.menu_bluetooth) {
@@ -277,6 +295,12 @@ public class MASLoginActivity extends AppCompatActivity {
         stopProximity(ble);
     }
 
+    @Override
+    public void onBackPressed() {
+        MAS.cancelRequest(mRequestId);
+        super.onBackPressed();
+    }
+
     private void login() {
         final ProgressDialog progress = new ProgressDialog(this);
         progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -305,7 +329,9 @@ public class MASLoginActivity extends AppCompatActivity {
             public void onError(Throwable e) {
                 progress.dismiss();
                 Toast.makeText(MASLoginActivity.this, "Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                MAS.cancelRequest(mRequestId);
+                Bundle data = new Bundle();
+                data.putString("LOGIN_STATUS", "FAILED");
+                MAS.cancelRequest(mRequestId, data);
             }
         });
     }

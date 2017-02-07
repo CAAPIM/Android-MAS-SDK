@@ -7,7 +7,7 @@
   -->
 
 <resources>
-    <dimen name="social_button_image_height">32dp</dimen>
+    <dimen name="social_button_image_height">44dp</dimen>
     <dimen name="social_button_image_width">28dp</dimen>
     <dimen name="social_button_text_size">15sp</dimen>
 </resources>

@@ -93,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
                 Intent loginIntent = new Intent(context, MASLoginActivity.class);
                 loginIntent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, providers);
                 loginIntent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-                startActivity(loginIntent);}
+                startActivity(loginIntent);
+            }
 
             @Override
             public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {

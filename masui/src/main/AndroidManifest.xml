@@ -25,7 +25,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name="net.openid.appauth.RedirectUriReceiverActivity"
             tools:node="replace">
@@ -38,17 +37,19 @@
                 <data android:scheme="camsso" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".MASOAuthRedirectActivity"
             android:theme="@style/Theme.AppCompat.Light" />
-
         <activity android:name=".MASFinishActivity" />
-
         <activity
             android:name=".MASLoginActivity"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.AppCompat.Light"/>
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
+            android:name=".otp.MASOtpActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.AppCompat.Light.Dialog" />
 
     </application>
 

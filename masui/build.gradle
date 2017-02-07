@@ -11,12 +11,12 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '24.0.2'
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 24
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 14
         versionName "1.4"
     }
@@ -36,14 +36,10 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':mas')
     compile project(':mag')
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.android.support:support-v4:24.2.1'
-    compile 'com.android.support:design:24.2.1'
-    compile 'com.android.support:customtabs:24.2.1'
-    compile 'com.android.support:cardview-v7:24.2.1'
-    compile 'com.android.support:gridlayout-v7:24.2.1'
+    compile "com.android.support:design:$rootProject.ext.designVersion"
+    compile "com.android.support:gridlayout-v7:$rootProject.ext.gridLayoutVersion"
+    compile "net.openid:appauth:$rootProject.ext.appAuthVersion"
     testCompile 'junit:junit:4.12'
-    compile project(':appauth-pullRequest133')
 }
 
 //jcenter integration

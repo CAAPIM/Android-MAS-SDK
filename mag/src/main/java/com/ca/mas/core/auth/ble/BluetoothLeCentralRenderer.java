@@ -8,7 +8,6 @@
 
 package com.ca.mas.core.auth.ble;
 
-import android.Manifest;
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -25,10 +24,8 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.ParcelUuid;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 
@@ -141,13 +138,8 @@ public class BluetoothLeCentralRenderer extends PollingRenderer {
         }
 
         scanner = manager.getAdapter().getBluetoothLeScanner();
-        int bleScanPermissionCheck = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
-        if (bleScanPermissionCheck == PackageManager.PERMISSION_GRANTED && !BluetoothLePeripheral.getInstance().isAuthenticating()) {
-            startScan();
-            callback.onStatusUpdate(BluetoothLeCentralCallback.BLE_STATE_SCAN_STARTED);
-        } else {
-            onError(BluetoothLe.BLE_ERROR_PERMISSION_NOT_GRANTED, "Please enable the ACCESS_FINE_LOCATION permission", null);
-        }
+        startScan();
+        callback.onStatusUpdate(BluetoothLeCentralCallback.BLE_STATE_SCAN_STARTED);
     }
 
     /**

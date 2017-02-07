@@ -7,20 +7,15 @@
  */
 package com.ca.mas.core.storage.implementation;
 
-import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import com.ca.mas.core.R;
 import com.ca.mas.core.storage.StorageException;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -158,24 +153,18 @@ class AMSSManager {
         }
     }
 
+    @SuppressWarnings("MissingPermission")
     private boolean isAccountPresent(String accountName, String accountType) {
-        int accountPermissionCheck = ContextCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS);
-        if (accountPermissionCheck == PackageManager.PERMISSION_GRANTED) {
-            AccountManager am = AccountManager.get(mContext);
-            Account[] existingAccounts = am.getAccountsByType(accountType);
-            if (existingAccounts.length == 0) {
-                return false;
-            } else {
-                for (Account acc : existingAccounts) {
-                    if (accountName.equals(acc.name)) {
-                        return true;
-                    }
+        AccountManager am = AccountManager.get(mContext);
+        Account[] existingAccounts = am.getAccountsByType(accountType);
+        if (existingAccounts.length == 0) {
+            return false;
+        } else {
+            for (Account acc : existingAccounts) {
+                if (accountName.equals(acc.name)) {
+                    return true;
                 }
             }
-        } else {
-            ActivityCompat.requestPermissions((Activity) mContext,
-                    new String[] {Manifest.permission.GET_ACCOUNTS},
-                    mContext.getResources().getInteger(R.integer.request_permissions_get_account));
         }
         return false;
     }
@@ -193,6 +182,7 @@ class AMSSManager {
         return sharedUserId != null ? sharedUserId : packageName;
     }
 
+    @SuppressWarnings("MissingPermission")
     Account getAccount() throws Exception {
         if (mAccount == null) {
             synchronized (mutex) {
@@ -200,20 +190,15 @@ class AMSSManager {
                     return mAccount;
                 }
                 AccountManager am = AccountManager.get(mContext);
-                int accountPermissionCheck = ContextCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS);
-                if (accountPermissionCheck == PackageManager.PERMISSION_GRANTED) {
-                    for (Account a : am.getAccountsByType(mAccountType)) {
-                        if (a.name.equals(mAccountName)) {
-                            this.mAccount = a;
-                            return this.mAccount;
-                        }
+                for (Account a : am.getAccountsByType(mAccountType)) {
+                    if (a.name.equals(mAccountName)) {
+                        this.mAccount = a;
+                        return this.mAccount;
                     }
-                    if (DEBUG)
-                        Log.e(TAG, String.format("Account of type %s, name %s doesn't exist ", mAccountType, mAccountName));
-                    throw new Exception(String.format("Account of type %s, name %s doesn't exist ", mAccountType, mAccountName));
-                } else {
-                    throw new Exception("Please enable the GET_ACCOUNTS permission");
                 }
+                if (DEBUG)
+                    Log.e(TAG, String.format("Account of type %s, name %s doesn't exist ", mAccountType, mAccountName));
+                throw new Exception(String.format("Account of type %s, name %s doesn't exist ", mAccountType, mAccountName));
             }
         } else {
             return mAccount;

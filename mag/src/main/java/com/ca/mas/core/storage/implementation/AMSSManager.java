@@ -5,7 +5,6 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.storage.implementation;
 
 import android.accounts.Account;
@@ -27,37 +26,27 @@ import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
 /**
- * Manager class that takes care of account creation. This internally uses AccountManager
- * It also sets up the common password for all ELS instances of an app
+ * Manager class that takes care of account creation. This internally uses AccountManager.
+ * It also sets up the common password for all ELS instances of an app.
  */
 class AMSSManager {
-
     private static final String ACCOUNT_NAME = "account.name";
     private static AMSSManager ourInstance;
-
     /**
-     * The name of the Account that is created. This is default as "CA MAS"
+     * The name of the Account that is created. The default value is "CA MAS".
      */
     private static final String CA_MAS = "CA MAS";
-
-
     private String mAccountName = CA_MAS;
-
     /**
-     * The type of the Account that is created. This is retrieved from the @{link AUTHENTICATOR_FILE_NAME}
+     * The type of the Account that is created. This is retrieved from the @{link AUTHENTICATOR_FILE_NAME}.
      */
     private String mAccountType;
-
     private Account mAccount;
-
     private Object mutex = new Object();
-
-
     /**
      * The application context
      */
     private Context mContext;
-
 
     public static AMSSManager getInstance(Context ctx) throws StorageException {
         if (ourInstance == null) {
@@ -83,13 +72,13 @@ class AMSSManager {
     }
 
     /**
-     * Retrieve the Account Name from meta data
-     * * <pre>
+     * Retrieve the Account Name from metadata.
+     * <pre>
      *   &lt;meta-data android:name="account.name"
      *             android:resource="@string/acc_name" /&gt;
      * </pre>
      *
-     * @return The Account name or "CA MAS" if account name is not defined.
+     * @return The Account name or "CA MAS" if account name is not defined
      */
     private String getAccountName() {
         ComponentName myService = new ComponentName(mContext, AMSAuthenticatorService.class);
@@ -109,12 +98,11 @@ class AMSSManager {
     }
 
     /**
-     * Grabs the AccountType form the authenticator xml.
+     * Grabs the AccountType from the authenticator xml.
      *
      * @return The type of the Account or null if account type retrial failed for any reason
      */
     private String getAccountType() {
-
         ComponentName myService = new ComponentName(mContext, AMSAuthenticatorService.class);
         try {
             Bundle data = mContext.getPackageManager().getServiceInfo(myService, PackageManager.GET_META_DATA).metaData;
@@ -143,7 +131,7 @@ class AMSSManager {
      *
      * @param accountName Account name
      * @param accountType Account type
-     * @return True if successfully add an new account or able to access the existing account
+     * @return True if successfully able to add a new account or access the existing account
      */
     private boolean addAccount(String accountName, String accountType) throws StorageException {
         AccountManager am = AccountManager.get(mContext);
@@ -165,6 +153,7 @@ class AMSSManager {
         }
     }
 
+    @SuppressWarnings("MissingPermission")
     private boolean isAccountPresent(String accountName, String accountType) {
         AccountManager am = AccountManager.get(mContext);
         Account[] existingAccounts = am.getAccountsByType(accountType);
@@ -176,12 +165,12 @@ class AMSSManager {
                     return true;
                 }
             }
-            return false;
         }
+        return false;
     }
 
     /**
-     * @return A password that ensure Apps are defined with same SharedID Group
+     * @return A password that ensures apps are defined with same SharedID group
      */
     private String getPassword() {
         String packageName = mContext.getPackageName();
@@ -193,6 +182,7 @@ class AMSSManager {
         return sharedUserId != null ? sharedUserId : packageName;
     }
 
+    @SuppressWarnings("MissingPermission")
     Account getAccount() throws Exception {
         if (mAccount == null) {
             synchronized (mutex) {
@@ -214,7 +204,6 @@ class AMSSManager {
             return mAccount;
         }
     }
-
 
     public void reset() {
         ourInstance = null;

@@ -5,7 +5,6 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.policy;
 
 import android.content.Context;
@@ -38,7 +37,6 @@ class LocationAssertion implements MssoAssertion {
     static final String DEFAULT_PROVIDER = LocationManager.NETWORK_PROVIDER;
     static final long DEFAULT_MIN_TIME = 120000L;
     static final float DEFAULT_MIN_DISTANCE = 100.0f;
-
     private volatile Location lastLocation;
     private LocationManager locationManager;
     private LocationListener locationListener;
@@ -50,7 +48,6 @@ class LocationAssertion implements MssoAssertion {
         this.mssoContext = mssoContext;
         this.context = sysContext;
         setupLocation();
-
     }
 
     private void setupLocation() {
@@ -80,9 +77,9 @@ class LocationAssertion implements MssoAssertion {
         } catch (Exception e) {
             if (DEBUG) Log.i(TAG, "No permission to access location: " + e.getMessage());
         }
-
     }
 
+    @SuppressWarnings("MissingPermission")
     private void initLocation(String locationProvider, final long minTime, final float minDistance) throws SecurityException {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         lastLocation = getLastKnownLocation(locationProvider);
@@ -128,11 +125,10 @@ class LocationAssertion implements MssoAssertion {
             };
 
             locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, locationListener);
-
         }
     }
 
-
+    @SuppressWarnings("MissingPermission")
     private Location getLastKnownLocation(String locationProvider) {
         if (locationManager != null) {
             try {
@@ -159,6 +155,7 @@ class LocationAssertion implements MssoAssertion {
         }
     }
 
+    @SuppressWarnings("MissingPermission")
     @Override
     public void close() {
         if (locationListener != null && locationManager != null) {

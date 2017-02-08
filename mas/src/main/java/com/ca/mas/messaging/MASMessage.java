@@ -5,7 +5,6 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.messaging;
 
 import android.content.Context;
@@ -32,7 +31,7 @@ import org.json.JSONObject;
 public abstract class MASMessage implements MASPayload {
 
     public static MASMessage newInstance(Intent intent) throws MASException {
-        MASMessage m  = MASMessage.newInstance();
+        MASMessage m = MASMessage.newInstance();
         m.createMASMessageFromJSONString(intent.getStringExtra(FoundationConsts.KEY_MESSAGE));
         return m;
     }
@@ -174,7 +173,7 @@ public abstract class MASMessage implements MASPayload {
                     mVersion = jobj.optString(ConnectaConsts.KEY_VERSION, MessagingConsts.DEFAULT_VERSION);
                     mSenderId = jobj.optString(ConnectaConsts.KEY_SENDER_ID);
                     mSenderType = jobj.optString(ConnectaConsts.KEY_SENDER_TYPE);
-                    if(!TextUtils.isEmpty(mSenderType)) {
+                    if (!TextUtils.isEmpty(mSenderType)) {
                         mSenderType = mSenderType.toUpperCase();
                     }
                     mDisplayName = jobj.optString(ConnectaConsts.KEY_DISPLAY_NAME);
@@ -184,7 +183,7 @@ public abstract class MASMessage implements MASPayload {
                     String payloadBefore = jobj.optString(ConnectaConsts.KEY_PAYLOAD, FoundationConsts.EMPTY);
                     mPayload = Base64.decode(payloadBefore.getBytes(), Base64.NO_WRAP);
                     mTopic = jobj.optString(ConnectaConsts.KEY_TOPIC);
-                } catch(JSONException je) {
+                } catch (JSONException je) {
                     throw new MASException(je);
                 }
             }
@@ -194,43 +193,44 @@ public abstract class MASMessage implements MASPayload {
                 JSONObject jobj = new JSONObject();
                 try {
                     String ver = getVersion();
-                    if(TextUtils.isEmpty(ver)) {
+                    if (TextUtils.isEmpty(ver)) {
                         ver = MessagingConsts.DEFAULT_VERSION;
                     }
                     jobj.put(ConnectaConsts.KEY_VERSION, ver);
 
-                    MASUser masUser = MASUser.getCurrentUser();
-                    String id = "";
-                    if(masUser != null){
+                    String id = getSenderId();
+                    if (TextUtils.isEmpty(id)) {
+                        MASUser masUser = MASUser.getCurrentUser();
                         id = masUser.getId();
                     }
                     jobj.put(ConnectaConsts.KEY_SENDER_ID, id);
 
                     String senderType = getSenderType();
-                    if(TextUtils.isEmpty(senderType)) {
+                    if (TextUtils.isEmpty(senderType)) {
                         senderType = MessagingConsts.DEFAULT_SENDER_TYPE;
                     }
                     jobj.put(ConnectaConsts.KEY_SENDER_TYPE, senderType.toUpperCase());
 
                     String dispName = getDisplayName();
-                    if(TextUtils.isEmpty(dispName)) {
+                    if (TextUtils.isEmpty(dispName)) {
                         dispName = id;
                     }
                     jobj.put(ConnectaConsts.KEY_DISPLAY_NAME, dispName);
+
                     long sentTime = getSentTime();
-                    if(sentTime == 0) {
+                    if (sentTime == 0) {
                         sentTime = System.currentTimeMillis();
                     }
                     jobj.put(ConnectaConsts.KEY_SENT_TIME, sentTime);
 
                     String contentType = getContentType();
-                    if(TextUtils.isEmpty(contentType)) {
+                    if (TextUtils.isEmpty(contentType)) {
                         contentType = MessagingConsts.DEFAULT_TEXT_PLAIN_CONTENT_TYPE;
                     }
                     jobj.put(ConnectaConsts.KEY_CONTENT_TYPE, contentType);
 
                     String contentEnc = getContentEncoding();
-                    if(TextUtils.isEmpty(contentEnc)) {
+                    if (TextUtils.isEmpty(contentEnc)) {
                         contentEnc = MessagingConsts.DEFAULT_BASE64_ENCODING;
                     }
                     jobj.put(ConnectaConsts.KEY_CONTENT_ENCODING, contentEnc);
@@ -243,7 +243,7 @@ public abstract class MASMessage implements MASPayload {
                     }
 
                     String topic = getTopic();
-                    if( !TextUtils.isEmpty(topic) ){
+                    if (!TextUtils.isEmpty(topic)) {
                         jobj.put(ConnectaConsts.KEY_TOPIC, topic);
                     }
                 } catch (JSONException je) {
@@ -295,7 +295,6 @@ public abstract class MASMessage implements MASPayload {
      * @return int value of either 0, 1, or 2 (default)
      */
     public abstract int getQos();
-
 
     /**
      * <b>Description:</b> Set the topic that was used when this message is sent.

@@ -8,6 +8,28 @@ For more information about our mobile products see [the website][mas.ca.com].
 ## Get Started
 Follow our step-by-step guide to [get started][get-started].
 
+## Feature List
+
+**Login: User Authentication and Authorization**  
+- Login and Password
+- Fingerprint Session Lock
+- Proximity Login (BLE, NFC, and QR Code)
+- Single Sign-On
+- Social Login
+- Second Factor Authorization
+- Secure API Calls
+- Enterprise Browser
+- Dynamic SDK Configuration
+- Geolocation
+- One-Time Password
+- Proof Key for Code Exchange for authorization flow
+- SSL Pinning with certificate, public key, or public key hash
+
+**Services**  
+- Messaging and Pub/Sub
+- Identity (Users and Groups)
+- Storage (Local and Private Cloud)
+
 ## How You Can Contribute
 
 Contributions are welcome and much appreciated. To learn more, see the [Contribution Guidelines][contributing].

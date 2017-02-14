@@ -112,7 +112,7 @@ public class AccountManagerStorage extends Storage {
         } catch (StorageException bubble) {
             throw bubble;
         } catch (Exception e) {
-            Log.e(TAG, "Unexpected exception " + e);
+            Log.e(TAG, "Failed to initialize storage" + e);
             throw new StorageException(StorageException.INSTANTIATION_ERROR);
         }
     }

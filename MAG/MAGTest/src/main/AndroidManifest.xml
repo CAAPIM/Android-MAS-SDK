@@ -44,7 +44,7 @@
 
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator_ca_mas" />
+                android:resource="@xml/mastest" />
         </service>
 
 

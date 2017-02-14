@@ -68,6 +68,8 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile "com.android.support:appcompat-v7:$rootProject.ext.appCompatVersion"
     compile project(':mag')
+    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$rootProject.ext.pahoClientVersion"
+    compile "org.eclipse.paho:org.eclipse.paho.android.service:$rootProject.ext.pahoServiceVersion"
 }
 
 //jcenter integration

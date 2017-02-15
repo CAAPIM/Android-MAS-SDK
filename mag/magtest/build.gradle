@@ -42,5 +42,8 @@ dependencies {
     androidTestCompile 'com.android.support.test:runner:0.3'
     androidTestCompile 'com.android.support.test:rules:0.3'
 
+    androidTestCompile 'com.nimbusds:nimbus-jose-jwt:4.23'
+
+
     compile project(':mag')
 }

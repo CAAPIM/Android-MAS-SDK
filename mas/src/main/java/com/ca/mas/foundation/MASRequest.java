@@ -106,6 +106,11 @@ public interface MASRequest extends MAGRequest {
             return this;
         }
 
+        @Override
+        public MASRequestBuilder sign() {
+            return (MASRequestBuilder) super.sign();
+        }
+
 
         public MASRequest build() {
             final MAGRequest request = super.build();

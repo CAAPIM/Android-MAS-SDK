@@ -13,6 +13,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.test.AndroidTestCase;
 
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASConnectionListener;
 import com.ca.mas.foundation.MASDevice;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
@@ -21,8 +22,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 
+import java.net.HttpURLConnection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
 
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
@@ -34,6 +40,22 @@ public abstract class MASIntegrationBaseTest {
 
     @BeforeClass
     public static void beforeClass() {
+        MAS.setConnectionListener(new MASConnectionListener() {
+            @Override
+            public void onObtained(HttpURLConnection connection) {
+                ((HttpsURLConnection) connection).setHostnameVerifier(new HostnameVerifier() {
+                    @Override
+                    public boolean verify(String hostname, SSLSession session) {
+                        return true;
+                    }
+                });
+            }
+
+            @Override
+            public void onConnected(HttpURLConnection connection) {
+
+            }
+        });
         MAS.start(InstrumentationRegistry.getInstrumentation().getTargetContext(), true);
         login();
     }
@@ -96,7 +118,7 @@ public abstract class MASIntegrationBaseTest {
     }
 
     protected static void await(CountDownLatch latch) throws InterruptedException {
-        latch.await(TIMEOUT, TimeUnit.SECONDS);
-        //latch.await();
+        //latch.await(TIMEOUT, TimeUnit.SECONDS);
+        latch.await();
     }
 }

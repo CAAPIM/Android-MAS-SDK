@@ -1,25 +1,29 @@
 {
   "server": {
-    "hostname": "mag-autotest-mysql.l7tech.com",
+    "hostname": "10.242.45.214",
     "port": 8443,
     "prefix": "",
     "server_certs": [
       [
         "-----BEGIN CERTIFICATE-----",
-        "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",
+        "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",
         "-----END CERTIFICATE-----"
       ]
     ]
@@ -34,9 +38,9 @@
       "client_custom": {},
       "client_ids": [
         {
-          "client_id": "7c1f4b13-3813-4d8a-91cf-cba60d668fd4",
+          "client_id": "68d155e9-1402-48a2-9750-e5d9f0746666",
           "client_secret": "",
-          "scope": "openid msso phone profile address email msso_register msso_client_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups abc$abc",
+          "scope": "openid msso phone profile address email msso_register",
           "redirect_uri": "https://android.ssosdk.ca.com/android",
           "environment": "Android",
           "status": "ENABLED",
@@ -58,14 +62,9 @@
       "userinfo_endpoint_path": "/openid/connect/v1/userinfo"
     }
   },
-  "mas": {
-    "scim-path": "/SCIM/MAS/v2",
-    "mas-storage-path": "/MASS/v1/Client"
-  },
   "mag": {
     "system_endpoints": {
       "device_register_endpoint_path": "/connect/device/register",
-      "device_renew_endpoint_path": "/connect/device/renew",
       "device_client_register_endpoint_path": "/connect/device/register/client",
       "device_remove_endpoint_path": "/connect/device/remove",
       "client_credential_init_endpoint_path": "/connect/client/initialize",

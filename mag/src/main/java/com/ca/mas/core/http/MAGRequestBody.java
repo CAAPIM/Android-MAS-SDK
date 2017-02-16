@@ -59,7 +59,8 @@ public abstract class MAGRequestBody {
 
             @Override
             public ContentType getContentType() {
-                return null;
+                //return null;
+                return ContentType.APPLICATION_OCTET_STREAM;
             }
 
             @Override

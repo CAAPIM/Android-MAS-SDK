@@ -106,6 +106,7 @@ public interface MAGRequest {
         private GrantProvider grantProvider = ConfigurationManager.getInstance().getDefaultGrantProvider();
         private String scope;
         private MAGConnectionListener listener;
+        private boolean sign;
 
         /**
          * Create a builder with the provided {@link URI}.
@@ -279,6 +280,12 @@ public interface MAGRequest {
             return this;
         }
 
+        public MAGRequestBuilder sign() {
+            this.sign = true;
+            return this;
+        }
+
+
         /**
          * Builds the {@link MAGRequest} object.
          *
@@ -298,7 +305,7 @@ public interface MAGRequest {
             }
             final Map<String, List<String>> unmodifiableHeaders = Collections.unmodifiableMap(newHeaders);
 
-            return new MAGRequest() {
+            MAGRequest request = new MAGRequest() {
                 @Override
                 public URL getURL() {
                     return url;
@@ -339,6 +346,12 @@ public interface MAGRequest {
                     return scope;
                 }
             };
+
+            if (sign) {
+                return new JwtSignRequest(request);
+            } else {
+                return request;
+            }
         }
     }
 }

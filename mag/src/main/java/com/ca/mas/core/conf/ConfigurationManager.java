@@ -63,6 +63,10 @@ public class ConfigurationManager {
         return instance;
     }
 
+    public Context getContext() {
+        return context;
+    }
+
     public void reset() {
         connectedGatewayConfigurationProvider = null;
     }

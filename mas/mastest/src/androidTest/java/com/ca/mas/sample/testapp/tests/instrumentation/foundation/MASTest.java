@@ -57,6 +57,66 @@ public class MASTest extends MASIntegrationBaseTest {
     }
 
     @Test
+    public void testSignRequest() throws Exception {
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/echo?fromAcc=1234&toAcc=2345&amount=100"))
+                .sign()
+                .build();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+
+            @Override
+            public void onSuccess(MASResponse<JSONObject> response) {
+                if (HttpURLConnection.HTTP_OK == response.getResponseCode()) {
+                    JSONObject j = response.getBody().getContent();
+                    result[0] = true;
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                latch.countDown();
+            }
+        });
+        await(latch);
+
+        assertTrue(result[0]);
+    }
+
+    @Test
+    public void testSignRequestWithJsonBody() throws Exception {
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/echo2"))
+                .post(MASRequestBody.jsonBody(new JSONObject("{\"test\" : \"value\"}")))
+                .sign()
+                .build();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+
+            @Override
+            public void onSuccess(MASResponse<JSONObject> response) {
+                if (HttpURLConnection.HTTP_OK == response.getResponseCode()) {
+                    JSONObject j = response.getBody().getContent();
+                    result[0] = true;
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                latch.countDown();
+            }
+        });
+        await(latch);
+
+        assertTrue(result[0]);
+    }
+
+
+    @Test
     public void testAccessUserInfo() throws Exception {
 
         String userinfoEndPoint = MASConfiguration.getCurrentConfiguration().getEndpointPath("mas.url.user_info");

@@ -63,7 +63,8 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
 
         // Symmetric Key Manager creates symmetric keys,
         //   stored inside AndroidKeyStore for Android.M+
-        keyMgr = new DefaultKeySymmetricManager("AES", 256, false, -1);
+        keyMgr = new DefaultKeySymmetricManager("AES", 256, true, false, -1);
+
     }
 
     /**

@@ -287,7 +287,7 @@ public class EncryptionProviderTest {
         assertEquals("Decrypting" + dataString + ": ", dataString, result);
 
         //Lock the key
-        lockableKeyStorageProvider.lock();
+        lockableKeyStorageProvider.lock(alias);
 
         //Should failed after lock
         try {

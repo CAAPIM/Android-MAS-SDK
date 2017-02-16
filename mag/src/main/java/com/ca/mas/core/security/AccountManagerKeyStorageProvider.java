@@ -15,7 +15,6 @@ import android.util.Log;
 import com.ca.mas.core.datasource.AccountManagerStoreDataSource;
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.datasource.DataSourceFactory;
-import com.ca.mas.core.security.DefaultKeySymmetricManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;

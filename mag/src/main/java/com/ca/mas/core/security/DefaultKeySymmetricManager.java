@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.UnrecoverableEntryException;
 
 import javax.crypto.KeyGenerator;
@@ -45,26 +44,20 @@ import static com.ca.mas.core.MAG.TAG;
 public class DefaultKeySymmetricManager implements KeySymmetricManager {
 
     // the following parameters apply to all key generation operations
-    private String mAlgorithm;
-    private static final String DEFAULT_ALGORITHM = "AES";
-    private int mKeyLength;
-    private static final int DEFAULT_KEY_LENGTH = 256;
+    private String mAlgorithm = "AES";
+    private int mKeyLength = 256;;
 
     // the following apply to keys created or stored in Android.M+
     private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
-    private boolean mUserAuthenticationRequired;
-    private static final boolean DEFAULT_USER_AUTH_REQUIRED = false;
-    private int mUserAuthenticationValiditySeconds;
-    private static final int DEFAULT_AUTHENTICATION_SECONDS = -1;
+    private boolean mInMemory = true;
+    private boolean mUserAuthenticationRequired = false;
+    private int mUserAuthenticationValiditySeconds = -1;
+
 
     /**
      * Constructor, uses least secure defaults
      */
     public DefaultKeySymmetricManager() {
-        mKeyLength = DEFAULT_KEY_LENGTH;
-        mAlgorithm = DEFAULT_ALGORITHM;
-        mUserAuthenticationRequired = DEFAULT_USER_AUTH_REQUIRED;
-        mUserAuthenticationValiditySeconds = DEFAULT_AUTHENTICATION_SECONDS;
     }
 
     /**
@@ -72,27 +65,29 @@ public class DefaultKeySymmetricManager implements KeySymmetricManager {
      *
      * @param algorithm AES or other Symmetric Key algorithm
      * @param keyLength default is 256
-     * @param userAuthenticationRequired for Android.M+, require screen lock
-     * @param userAuthenticationValiditySeconds
-     *            Sets the duration for which this key is authorized to be
-     *            used after the user is successfully authenticated.
+     * @param inMemory for Android.M+ the key will be created outside the AndroidKeyStore and then stored
+     *                    inside.  The in-memory copy can be used without user authentication until the
+     *                    app is closed, dereferenced, or variable is destroyed.
+     * @param userAuthenticationRequired for Android.M+ require screen lock.  Note, if inMemory is true,
+     *                    this applies only to versions extracted from the AndroidKeyStore.
+     * @param userAuthenticationValiditySeconds sets the duration for which this key is authorized
+     *                    to be used after the user is successfully authenticated.
      */
     public DefaultKeySymmetricManager(String algorithm, int keyLength,
-                       boolean userAuthenticationRequired, int userAuthenticationValiditySeconds)
+                       boolean inMemory, boolean userAuthenticationRequired, int userAuthenticationValiditySeconds)
     {
 
         if (keyLength < 0) {
-            if (DEBUG) Log.d(TAG, "key length is less than zero, assigning default, " + DEFAULT_KEY_LENGTH);
-            mKeyLength = DEFAULT_KEY_LENGTH;
+            if (DEBUG) Log.d(TAG, "key length is less than zero, assigning default, " + mKeyLength);
         } else
             mKeyLength = keyLength;
 
         if (algorithm != null && algorithm.trim().length() == 0) {
-            if (DEBUG) Log.d(TAG, "Algorithm is either null or zero length, assigning default, " + DEFAULT_ALGORITHM);
-            mAlgorithm = DEFAULT_ALGORITHM;
+            if (DEBUG) Log.d(TAG, "Algorithm is either null or zero length, assigning default, " + mAlgorithm);
         } else
             mAlgorithm = algorithm;
 
+        mInMemory = inMemory;
         mUserAuthenticationRequired = userAuthenticationRequired;
         mUserAuthenticationValiditySeconds = userAuthenticationValiditySeconds;
     }
@@ -108,18 +103,45 @@ public class DefaultKeySymmetricManager implements KeySymmetricManager {
      */
     @Override
     public SecretKey generateKey(String alias)  {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        SecretKey returnKey = null;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            if (mInMemory) {
+
+                // generate the key outside AndroidKeyStore then store
+                returnKey = generateKeyInMemory(alias);
+                storeKeyAndroidM(alias, returnKey);
+
+            } else {
+
                 // generate the key inside the keystore
-                generateKeyAndroidM(alias);
+                returnKey = generateKeyInAndroidKeyStore(alias);
+
             }
 
+        } else {
+            returnKey = generateKeyInMemory(alias);
+        }
+        return returnKey;
+    }
+
+
+    /**
+     * Return a secretKey to be used for encryption.
+     *   For Android.M+, the key will be protected by
+     *   the AndroidKeyStore.  If pre-M, the SecretKey
+     *   must be stored using a KeyStorageProvider.
+     */
+    private SecretKey generateKeyInMemory(String alias) {
+
+        try {
             javax.crypto.KeyGenerator kg = javax.crypto.KeyGenerator.getInstance(mAlgorithm);
             kg.init(mKeyLength);
             return kg.generateKey();
         } catch (Exception x) {
-            if (DEBUG) Log.e(TAG, "Error generateKeyAndroidM", x);
-            throw new RuntimeException("Error generateKeyAndroidM", x);
+            if (DEBUG) Log.e(TAG, "Error generateKeyInMemory", x);
+            throw new RuntimeException("Error generateKeyInMemory", x);
         }
     }
 
@@ -131,9 +153,7 @@ public class DefaultKeySymmetricManager implements KeySymmetricManager {
      *   must be stored using a KeyStorageProvider.
      */
     @TargetApi(Build.VERSION_CODES.M)
-    private SecretKey generateKeyAndroidM(String alias)
-               throws NoSuchAlgorithmException, NoSuchProviderException,
-               java.security.InvalidAlgorithmParameterException {
+    private SecretKey generateKeyInAndroidKeyStore(String alias) {
 
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(
@@ -153,9 +173,10 @@ public class DefaultKeySymmetricManager implements KeySymmetricManager {
 
             SecretKey key = keyGenerator.generateKey();
             return key;
+
         } catch (Exception x) {
-            if (DEBUG) Log.e(TAG, "Error generateKeyAndroidM", x);
-            throw new RuntimeException("Error generateKeyAndroidM", x);
+            if (DEBUG) Log.e(TAG, "Error generateKeyInAndroidKeyStore", x);
+            throw new RuntimeException("Error generateKeyInAndroidKeyStore", x);
         }
     }
 
@@ -169,7 +190,7 @@ public class DefaultKeySymmetricManager implements KeySymmetricManager {
     public SecretKey retrieveKey(String alias)
     {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-           // generate the key inside the keystore
+           // get the key from the AndroidKeyStore
            return retrieveKeyAndroidM(alias);
         }
 
@@ -188,7 +209,7 @@ public class DefaultKeySymmetricManager implements KeySymmetricManager {
     {
         java.security.KeyStore ks;
         try {
-            ks = java.security.KeyStore.getInstance("AndroidKeyStore");
+            ks = java.security.KeyStore.getInstance(ANDROID_KEY_STORE);
         } catch (KeyStoreException e) {
             if (DEBUG) Log.e(TAG, "Error while instantiating Android KeyStore instance", e);
             throw new RuntimeException("Error while instantiating Android KeyStore instance", e);

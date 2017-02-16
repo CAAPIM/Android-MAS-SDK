@@ -111,6 +111,10 @@ public interface MASRequest extends MAGRequest {
             return (MASRequestBuilder) super.sign();
         }
 
+        @Override
+        public MASRequestBuilder fingerprintSign() {
+            return (MASRequestBuilder) super.fingerprintSign();
+        }
 
         public MASRequest build() {
             final MAGRequest request = super.build();

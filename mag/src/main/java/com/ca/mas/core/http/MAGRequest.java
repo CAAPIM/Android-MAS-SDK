@@ -107,6 +107,7 @@ public interface MAGRequest {
         private String scope;
         private MAGConnectionListener listener;
         private boolean sign;
+        private boolean fingerprintSign;
 
         /**
          * Create a builder with the provided {@link URI}.
@@ -285,6 +286,12 @@ public interface MAGRequest {
             return this;
         }
 
+        public MAGRequestBuilder fingerprintSign() {
+            this.sign = true;
+            this.fingerprintSign = true;
+            return this;
+        }
+
 
         /**
          * Builds the {@link MAGRequest} object.
@@ -348,7 +355,11 @@ public interface MAGRequest {
             };
 
             if (sign) {
-                return new JwtSignRequest(request);
+                if (fingerprintSign) {
+                    return new JwtSignWithFingerprintRequest(request);
+                } else {
+                    return new JwtSignRequest(request);
+                }
             } else {
                 return request;
             }

@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.PrivateKey;
 
 public class JwtSignRequest extends MAGRequestProxy {
 
@@ -43,11 +44,9 @@ public class JwtSignRequest extends MAGRequestProxy {
                         parameter.put(n, v);
                     }
 
-                    StorageProvider storageProvider = new StorageProvider(ConfigurationManager.getInstance().getContext());
-                    TokenManager tokenManager = storageProvider.createTokenManager();
                     JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
                             new Payload(parameter.toString()));
-                    jwsObject.sign(new RSASSASigner(tokenManager.getClientPrivateKey()));
+                    jwsObject.sign(new RSASSASigner(getPrivateKey()));
                     String compactJws = jwsObject.serialize();
                     r = new URL(uri.getScheme() +"://" + uri.getAuthority()+ uri.getPath() + "?payload=" + compactJws);
                 } else {
@@ -70,11 +69,9 @@ public class JwtSignRequest extends MAGRequestProxy {
             try {
                 body.write(baos);
                 byte[] data = baos.toByteArray();
-                StorageProvider storageProvider = new StorageProvider(ConfigurationManager.getInstance().getContext());
-                TokenManager tokenManager = storageProvider.createTokenManager();
                 JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
                         new Payload(data));
-                jwsObject.sign(new RSASSASigner(tokenManager.getClientPrivateKey()));
+                jwsObject.sign(new RSASSASigner(getPrivateKey()));
                 String compactJws = jwsObject.serialize();
                 return MAGRequestBody.stringBody(compactJws);
 
@@ -82,6 +79,12 @@ public class JwtSignRequest extends MAGRequestProxy {
                 throw new RuntimeException(e);
             }
         }
-        return body;
+        return null;
+    }
+
+    protected PrivateKey getPrivateKey() {
+        StorageProvider storageProvider = new StorageProvider(ConfigurationManager.getInstance().getContext());
+        TokenManager tokenManager = storageProvider.createTokenManager();
+        return tokenManager.getClientPrivateKey();
     }
 }

@@ -47,26 +47,10 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
 
     public DefaultEncryptionProvider(Context ctx, KeyStorageProvider keyStorageProvider) {
         ksp = keyStorageProvider;
-        boolean hasSecureKey = ksp.containsKey(getKeyAlias());
-
-        if (!hasSecureKey) {
-            SecretKey sk = generateKey();
-            ksp.storeKey(getKeyAlias(), sk);
-        }
     }
 
     protected String getKeyAlias() {
         return KEY_ALIAS;
-    }
-
-    private SecretKey generateKey() {
-        KeyGenerator keyGenerator = new DefaultKeyGenerator(ALGORITHM, KEY_SIZE);
-        try {
-            return keyGenerator.generateKey();
-        } catch (NoSuchAlgorithmException e) {
-            if (DEBUG) Log.e(TAG, "Error while generating key");
-            throw new RuntimeException(e.getMessage(), e);
-        }
     }
 
     /**
@@ -75,7 +59,6 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
      * @param data : the data to encrypt
      * @return encrypted data as byte[]
      */
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public byte[] encrypt(byte[] data) {
         if (data == null) {

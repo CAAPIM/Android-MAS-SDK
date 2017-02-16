@@ -583,9 +583,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                         byte[] idTokenBytes = idTokenParcel.marshall();
 
                         // Delete any previously generated key due to improper closure
-                        if (mKeyStoreProvider.getKey(SESSION_LOCK_ALIAS) != null) {
-                            mKeyStoreProvider.removeKey(SESSION_LOCK_ALIAS);
-                        }
+                        mKeyStoreProvider.removeKey(SESSION_LOCK_ALIAS);
 
                         // Save the encrypted token
                         EncryptionProvider encryptionProvider = getSessionLockEncryptionProvider();
@@ -605,7 +603,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             return;
                         }
 
-                        mKeyStoreProvider.lock();
+                        mKeyStoreProvider.lock(SESSION_LOCK_ALIAS);
                         idTokenParcel.recycle();
 
                         Callback.onSuccess(callback, null);

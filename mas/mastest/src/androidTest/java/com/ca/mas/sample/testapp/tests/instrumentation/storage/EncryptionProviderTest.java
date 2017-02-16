@@ -334,16 +334,12 @@ public class EncryptionProviderTest {
         //Encrypt the ID TOKEN with passcode
         EncryptionProvider pinKeyEP = new DefaultEncryptionProvider(InstrumentationRegistry.getInstrumentation().getTargetContext(), new KeyStorageProvider() {
             @Override
-            public void storeKey(String alias, SecretKey sk) {
-            }
-
-            @Override
             public SecretKey getKey(String alias) {
                 return passcode2;
             }
 
             @Override
-            public boolean containsKey(String alias) {
+            public boolean removeKey(String alias) {
                 return true;
             }
         });
@@ -362,16 +358,12 @@ public class EncryptionProviderTest {
         EncryptionProvider ep2 = new DefaultEncryptionProvider(InstrumentationRegistry.getInstrumentation().getTargetContext(), new KeyStorageProvider() {
 
             @Override
-            public void storeKey(String alias, SecretKey sk) {
-            }
-
-            @Override
             public SecretKey getKey(String alias) {
                 return secretKey2;
             }
 
             @Override
-            public boolean containsKey(String alias) {
+            public boolean removeKey(String alias) {
                 return true;
             }
 

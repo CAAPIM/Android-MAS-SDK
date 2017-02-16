@@ -9,6 +9,9 @@
 package com.ca.mas.sample.testapp.tests.instrumentation.foundation;
 
 
+import android.support.test.InstrumentationRegistry;
+
+import com.ca.mas.core.util.KeyUtils;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConfiguration;
@@ -16,12 +19,17 @@ import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASRequestBody;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.sample.testapp.tests.instrumentation.base.MASIntegrationBaseTest;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.RSAKey;
 
 import org.json.JSONObject;
 import org.junit.Test;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertTrue;
@@ -55,6 +63,43 @@ public class MASTest extends MASIntegrationBaseTest {
 
         assertTrue(result[0]);
     }
+
+    @Test
+    public void testEnroll() throws Exception {
+
+        KeyUtils.generateRsaPrivateKey(InstrumentationRegistry.getInstrumentation().getTargetContext(), 2048, "SecureAPI", false);
+        PublicKey publicKey = KeyUtils.getRsaPublicKey("SecureAPI");
+
+        JWK jwk = new RSAKey.Builder((RSAPublicKey) publicKey)
+                .keyID(UUID.randomUUID().toString()) // Give the key some ID (optional)
+                .build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/connect/device/enroll"))
+                .post(MASRequestBody.jsonBody(new JSONObject(jwk.toJSONString())))
+                .build();
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        MAS.invoke(request, new MASCallback<MASResponse<Void>>() {
+
+            @Override
+            public void onSuccess(MASResponse<Void> response) {
+                if (HttpURLConnection.HTTP_OK == response.getResponseCode()) {
+                    result[0] = true;
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                latch.countDown();
+            }
+        });
+        await(latch);
+
+        assertTrue(result[0]);
+    }
+
 
     @Test
     public void testSignRequest() throws Exception {
@@ -115,7 +160,6 @@ public class MASTest extends MASIntegrationBaseTest {
         assertTrue(result[0]);
     }
 
-
     @Test
     public void testAccessUserInfo() throws Exception {
 
@@ -144,7 +188,6 @@ public class MASTest extends MASIntegrationBaseTest {
 
         assertTrue(result[0]);
     }
-
 
 
     @Test

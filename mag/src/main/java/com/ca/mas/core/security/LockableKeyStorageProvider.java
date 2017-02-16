@@ -47,8 +47,10 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
             secretKey = keyMgr.retrieveKey(alias);
 
             // if still no key, generate one
-            if (secretKey == null)
+            if (secretKey == null) {
                 secretKey = keyMgr.generateKey(alias);
+                secretKeys.put(alias, secretKey);
+            }
         }
 
         return secretKey;

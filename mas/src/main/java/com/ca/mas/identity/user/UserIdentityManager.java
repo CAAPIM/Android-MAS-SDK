@@ -344,7 +344,7 @@ public class UserIdentityManager {
 
             @Override
             public List<MASEmail> getEmailList() {
-                return null;
+                return scimUser.getEmailList();
             }
 
             @Override

@@ -61,6 +61,7 @@ public class MAS {
     private static Activity currentActivity;
     private static boolean hasRegisteredActivityCallback;
     private static MASAuthenticationListener masAuthenticationListener;
+    private static int state;
 
     private static synchronized void init(@NonNull final Context context) {
         stop();
@@ -202,6 +203,7 @@ public class MAS {
     public static void start(@NonNull Context context) {
         init(context);
         MobileSsoFactory.getInstance(context);
+        state = MASConstants.MAS_STATE_STARTED;
     }
 
     /**
@@ -216,6 +218,7 @@ public class MAS {
     public static void start(@NonNull Context context, boolean shouldUseDefault) {
         init(context);
         MobileSsoFactory.getInstance(context, shouldUseDefault);
+        state = MASConstants.MAS_STATE_STARTED;
     }
 
     /**
@@ -227,6 +230,7 @@ public class MAS {
     public static void start(@NonNull Context context, JSONObject jsonConfiguration) {
         init(context);
         MobileSsoFactory.getInstance(context, jsonConfiguration);
+        state = MASConstants.MAS_STATE_STARTED;
     }
 
     /**
@@ -238,16 +242,24 @@ public class MAS {
     public static void start(@NonNull Context context, URL url) {
         init(context);
         MobileSsoFactory.getInstance(context, url);
+        state = MASConstants.MAS_STATE_STARTED;
     }
 
 
     /**
-     * Starts the lifecycle of the MAS processes with given enrollment URL.
-     * This method will (if it is different) overwrite the JSON configuration that was stored.
+     * Starts the lifecycle of the MAS processes with given JSON configuration enrolment URL or null.
+     * This method will overwrite JSON configuration (if they are different) that was stored in keychain when configuration file path or enrolment URL is provided.
+     * When URL is recognized as null, this method will initialize SDK by using last used JSON configuration that is stored,
+     * or load JSON configuration from defined default configuration file name.
+     * <p>
+     * Enrolment URL is an URL from gateway containing some of credentials required to establish secure connection.
+     * The gateway must be configured to generate and handle enrolment process with client side SDK.
+     * The enrolment URL can be retrieved in many ways which has to be configured properly along with the gateway in regards of the enrolment process.
+     * MASFoundation SDK does not request, or retrieve the enrolment URL by itself.
      *
-     * @param url The enrollment URL of the JSON configuration path.
-     *            If the provided url is null, {@link MAS#start(Context)} will be used to start the
-     *            lifecycle of the MAS processes..
+     * @param url      The enrollment URL
+     *                 If the enrollment url is null, {@link MAS#start(Context)} will be used to start the
+     *                 lifecycle of the MAS processes..
      * @param callback The callback to notify when a response is available, or if there is an error.
      */
 
@@ -512,8 +524,30 @@ public class MAS {
     }
 
     /**
+     * Returns current {@link MASState} value.  The value can be used to determine which state SDK is currently at.
+     *
+     * @return return {@link MASState} of current state.
+     */
+    public static @MASState int getState(Context context) {
+        if (state != 0) {
+            return state;
+        }
+        // Determine the state
+        ConfigurationManager.getInstance().init(context);
+        try {
+            ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
+            ConfigurationManager.getInstance().reset();
+            state = MASConstants.MAS_STATE_NOT_INITIALIZED;
+        } catch (Exception e) {
+            state = MASConstants.MAS_STATE_NOT_CONFIGURED;
+        }
+        return state;
+    }
+
+    /**
      * Stops the lifecycle of all MAS processes.
      */
     public static void stop() {
+        state = MASConstants.MAS_STATE_STOPPED;
     }
 }

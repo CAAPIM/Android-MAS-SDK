@@ -148,6 +148,7 @@ public class KeyUtils {
                         .setCertificateSerialNumber(BigInteger.valueOf(1))
                         // if we require lock screen, can have issues using key when fingerprints added/removed
                         .setUserAuthenticationRequired(requireLockScreen)
+                        .setUserAuthenticationValidityDurationSeconds(5)
                         // In HttpUrlConnection, com.android.org.conscrypt.CryptoUpcalls.rawSignDigestWithPrivateKey
                         //   requires "NONEwithRSA", so we need to include DIGEST_NONE
                         //   therefore we can only setRandomizedEncruptionRequired to false

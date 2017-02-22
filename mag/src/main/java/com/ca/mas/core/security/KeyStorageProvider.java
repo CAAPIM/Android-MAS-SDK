@@ -11,16 +11,9 @@ package com.ca.mas.core.security;
 import javax.crypto.SecretKey;
 
 /**
- * This interface provides a storage mechanism for cryptographic keys
+ * This interface manages cryptographic keys
  */
 public interface KeyStorageProvider {
-
-    /**
-     * Stores the Secret key in secure Storage
-     * @param alias: The alias to store the key against
-     * @param sk : the SecretKey
-     */
-    void storeKey(String alias, SecretKey sk);
 
     /**
      * Retrieve the SecretKey from Storage
@@ -30,9 +23,8 @@ public interface KeyStorageProvider {
     SecretKey getKey(String alias);
 
     /**
-     * Checks whether the key exists or not in the storage
-     * @param alias: the alias to find the key
-     * @return true or false
+     * Remove the key
+     * @param alias the alias of the key to remove
      */
-    boolean containsKey(String alias);
+    boolean removeKey(String alias);
 }

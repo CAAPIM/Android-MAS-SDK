@@ -10,7 +10,6 @@ package com.ca.mas.foundation;
 
 public class MASConstants {
 
-
     /**
      * The user credentials grant flow.
      */
@@ -20,10 +19,8 @@ public class MASConstants {
      */
     public static final int MAS_GRANT_FLOW_CLIENT_CREDENTIALS = 1;
 
-
     public static final int MAS_USER = 1;
     public static final int MAS_APPLICATION = 2;
-
 
     /**
      * State that SDK has not been initialized and does not have configuration file
@@ -45,7 +42,6 @@ public class MASConstants {
      * State that SDK did stop; at this state, SDK is properly stopped and should be able to re-start.
      */
     public static final int MAS_STATE_STOPPED = 4;
-
 
 }
 

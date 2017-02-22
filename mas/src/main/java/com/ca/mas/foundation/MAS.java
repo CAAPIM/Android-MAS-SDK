@@ -245,7 +245,6 @@ public class MAS {
         state = MASConstants.MAS_STATE_STARTED;
     }
 
-
     /**
      * Starts the lifecycle of the MAS processes with given JSON configuration enrolment URL or null.
      * This method will overwrite JSON configuration (if they are different) that was stored in keychain when configuration file path or enrolment URL is provided.
@@ -264,7 +263,6 @@ public class MAS {
      */
 
     public static void start(@NonNull final Context context, final URL url, final MASCallback<Void> callback) {
-
         if (url == null) {
             try {
                 MAS.start(context);
@@ -297,10 +295,7 @@ public class MAS {
                 return null;
             }
         }.execute((Void) null);
-
     }
-
-    ;
 
     /**
      * Request method for an HTTP POST, PUT, DELETE, GET call to the Gateway.

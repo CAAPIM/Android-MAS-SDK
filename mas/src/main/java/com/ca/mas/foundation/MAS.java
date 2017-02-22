@@ -13,6 +13,8 @@ import android.app.Application;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -26,6 +28,8 @@ import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.MAGErrorCode;
+import com.ca.mas.core.http.MAGHttpClient;
+import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.oauth.GrantProvider;
@@ -57,6 +61,7 @@ public class MAS {
     private static Activity currentActivity;
     private static boolean hasRegisteredActivityCallback;
     private static MASAuthenticationListener masAuthenticationListener;
+    private static int state;
 
     private static synchronized void init(@NonNull final Context context) {
         stop();
@@ -198,6 +203,7 @@ public class MAS {
     public static void start(@NonNull Context context) {
         init(context);
         MobileSsoFactory.getInstance(context);
+        state = MASConstants.MAS_STATE_STARTED;
     }
 
     /**
@@ -212,6 +218,7 @@ public class MAS {
     public static void start(@NonNull Context context, boolean shouldUseDefault) {
         init(context);
         MobileSsoFactory.getInstance(context, shouldUseDefault);
+        state = MASConstants.MAS_STATE_STARTED;
     }
 
     /**
@@ -223,6 +230,7 @@ public class MAS {
     public static void start(@NonNull Context context, JSONObject jsonConfiguration) {
         init(context);
         MobileSsoFactory.getInstance(context, jsonConfiguration);
+        state = MASConstants.MAS_STATE_STARTED;
     }
 
     /**
@@ -234,6 +242,59 @@ public class MAS {
     public static void start(@NonNull Context context, URL url) {
         init(context);
         MobileSsoFactory.getInstance(context, url);
+        state = MASConstants.MAS_STATE_STARTED;
+    }
+
+    /**
+     * Starts the lifecycle of the MAS processes with given JSON configuration enrolment URL or null.
+     * This method will overwrite JSON configuration (if they are different) that was stored in keychain when configuration file path or enrolment URL is provided.
+     * When URL is recognized as null, this method will initialize SDK by using last used JSON configuration that is stored,
+     * or load JSON configuration from defined default configuration file name.
+     * <p>
+     * Enrolment URL is an URL from gateway containing some of credentials required to establish secure connection.
+     * The gateway must be configured to generate and handle enrolment process with client side SDK.
+     * The enrolment URL can be retrieved in many ways which has to be configured properly along with the gateway in regards of the enrolment process.
+     * MASFoundation SDK does not request, or retrieve the enrolment URL by itself.
+     *
+     * @param url      The enrollment URL
+     *                 If the enrollment url is null, {@link MAS#start(Context)} will be used to start the
+     *                 lifecycle of the MAS processes..
+     * @param callback The callback to notify when a response is available, or if there is an error.
+     */
+
+    public static void start(@NonNull final Context context, final URL url, final MASCallback<Void> callback) {
+        if (url == null) {
+            try {
+                MAS.start(context);
+                Callback.onSuccess(callback, null);
+            } catch (Exception e) {
+                Callback.onError(callback, e);
+            }
+            return;
+        }
+
+        Uri uri = Uri.parse(url.toString());
+        final String publicKeyHash = uri.getQueryParameter("subjectKeyHash");
+        if (publicKeyHash == null || publicKeyHash.trim().isEmpty()) {
+            Callback.onError(callback, new IllegalArgumentException("subjectKeyHash is not provided."));
+            return;
+        }
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                MAGHttpClient client = new MAGHttpClient(publicKeyHash);
+                MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
+                        responseBody(MAGResponseBody.jsonBody()).build();
+                try {
+                    MAGResponse<JSONObject> response = client.execute(request);
+                    MAS.start(context, response.getBody().getContent());
+                    Callback.onSuccess(callback, null);
+                } catch (Exception e) {
+                    Callback.onError(callback, e);
+                }
+                return null;
+            }
+        }.execute((Void) null);
     }
 
     /**
@@ -408,13 +469,13 @@ public class MAS {
      * Cancels the specified request ID with additional information. If the response notification has not already been delivered
      * by the time this method executes, a response notification will never occur for the specified request ID
      * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set.
-     *
+     * <p>
      * When {@link MASRequest.MASRequestBuilder#notifyOnCancel} is set, {@link MASCallback#onError(Throwable)}
      * will be triggered with {@link RequestCancelledException}.
      * The additional information can be retrieved with {@link RequestCancelledException#getData()}
      *
      * @param requestId the request ID to cancel.
-     * @param data the additional information to the request.
+     * @param data      the additional information to the request.
      */
     public static void cancelRequest(long requestId, Bundle data) {
         MobileSsoFactory.getInstance().cancelRequest(requestId, data);
@@ -433,7 +494,7 @@ public class MAS {
      * Cancels all requests with additional information. If the response notification has not already been delivered
      * by the time this method executes, a response notification will never occur,
      * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set.
-     *
+     * <p>
      * When {@link MASRequest.MASRequestBuilder#notifyOnCancel} is set, {@link MASCallback#onError(Throwable)}
      * will be triggered with {@link RequestCancelledException}.
      * The additional information can be retrieved with {@link RequestCancelledException#getData()}
@@ -458,8 +519,30 @@ public class MAS {
     }
 
     /**
+     * Returns current {@link MASState} value.  The value can be used to determine which state SDK is currently at.
+     *
+     * @return return {@link MASState} of current state.
+     */
+    public static @MASState int getState(Context context) {
+        if (state != 0) {
+            return state;
+        }
+        // Determine the state
+        ConfigurationManager.getInstance().init(context);
+        try {
+            ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
+            ConfigurationManager.getInstance().reset();
+            state = MASConstants.MAS_STATE_NOT_INITIALIZED;
+        } catch (Exception e) {
+            state = MASConstants.MAS_STATE_NOT_CONFIGURED;
+        }
+        return state;
+    }
+
+    /**
      * Stops the lifecycle of all MAS processes.
      */
     public static void stop() {
+        state = MASConstants.MAS_STATE_STOPPED;
     }
 }

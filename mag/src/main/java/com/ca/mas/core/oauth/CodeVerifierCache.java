@@ -45,4 +45,13 @@ public class CodeVerifierCache {
         return cv;
     }
 
+    //Workaround for pre MAG 3.3, Defect reference DE256594
+    public String take() {
+        String cv = this.codeVerifier;
+        this.state = null;
+        this.codeVerifier = null;
+        return cv;
+    }
+
+
 }

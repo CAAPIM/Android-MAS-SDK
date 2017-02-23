@@ -12,6 +12,7 @@ import android.os.Parcel;
 import android.util.Pair;
 
 import com.ca.mas.core.MobileSsoConfig;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.oauth.CodeVerifierCache;
 
@@ -33,7 +34,13 @@ public class AuthorizationCodeCredentials implements Credentials {
     public AuthorizationCodeCredentials(String code, String state) {
         this.code = code;
         this.state = state;
-        this.codeVerifier = CodeVerifierCache.getInstance().take(state);
+        if (ConfigurationManager.getInstance().isPKCEEnabled()) {
+            if (state != null) {
+                this.codeVerifier = CodeVerifierCache.getInstance().take(state);
+            } else {
+                this.codeVerifier = CodeVerifierCache.getInstance().take();
+            }
+        }
     }
 
     @Override

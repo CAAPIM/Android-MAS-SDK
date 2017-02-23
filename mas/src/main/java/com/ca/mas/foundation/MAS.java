@@ -540,6 +540,23 @@ public class MAS {
     }
 
     /**
+     * Enable PKCE extension to OAuth.
+     *
+     * @param enablePKCE True to enable PKCE extension, False to disable PKCE Extension. Default to true.
+     */
+    public static void enablePKCE(boolean enablePKCE) {
+        ConfigurationManager.getInstance().enablePKCE(enablePKCE);
+    }
+
+    /**
+     * Determines whether PKCE extension is enabled.
+     * @return true if PKCE extension is enabled, false otherwise
+     */
+    public static boolean isPKCEEnabled() {
+        return ConfigurationManager.getInstance().isPKCEEnabled();
+    }
+
+    /**
      * Stops the lifecycle of all MAS processes.
      */
     public static void stop() {

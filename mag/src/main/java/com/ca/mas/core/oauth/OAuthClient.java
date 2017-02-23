@@ -17,6 +17,7 @@ import android.util.Pair;
 
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.client.ServerClient;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGErrorCode;
@@ -128,16 +129,18 @@ public class OAuthClient extends ServerClient {
             }
             b.appendQueryParameter(REDIRECT_URI, redirectUri);
 
-            PKCE pkce = generateCodeChallenge();
-            if (pkce != null) {
-                b.appendQueryParameter(CODE_CHALLENGE, pkce.codeChallenge);
-                b.appendQueryParameter(CODE_CHALLENGE_METHOD, pkce.codeChallengeMethod);
-                SecureRandom secureRandom = new SecureRandom();
-                byte[] random = new byte[16];
-                secureRandom.nextBytes(random);
-                String key = Base64.encodeToString(random, Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE);
-                CodeVerifierCache.getInstance().store(key, pkce.codeVerifier);
-                b.appendQueryParameter(STATE, key);
+            if (ConfigurationManager.getInstance().isPKCEEnabled()) {
+                PKCE pkce = generateCodeChallenge();
+                if (pkce != null) {
+                    b.appendQueryParameter(CODE_CHALLENGE, pkce.codeChallenge);
+                    b.appendQueryParameter(CODE_CHALLENGE_METHOD, pkce.codeChallengeMethod);
+                    SecureRandom secureRandom = new SecureRandom();
+                    byte[] random = new byte[16];
+                    secureRandom.nextBytes(random);
+                    String key = Base64.encodeToString(random, Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE);
+                    CodeVerifierCache.getInstance().store(key, pkce.codeVerifier);
+                    b.appendQueryParameter(STATE, key);
+                }
             }
 
             MAGHttpClient httpClient = mssoContext.getMAGHttpClient();

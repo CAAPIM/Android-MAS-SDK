@@ -43,6 +43,7 @@ public class ConfigurationManager {
     private Context context;
     private List<Config> appConfigs;
     private String configurationFileName = null;
+    private boolean enablePKCE = true;
 
     private MAGRequest.MAGConnectionListener connectionListener;
     private MobileSsoListener mobileSsoListener;
@@ -61,6 +62,14 @@ public class ConfigurationManager {
 
     public static ConfigurationManager getInstance() {
         return instance;
+    }
+
+    public void enablePKCE(boolean enablePKCE) {
+        this.enablePKCE = enablePKCE;
+    }
+
+    public boolean isPKCEEnabled() {
+        return enablePKCE;
     }
 
     public void reset() {

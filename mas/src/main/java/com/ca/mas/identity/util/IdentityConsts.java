@@ -42,14 +42,14 @@ public class IdentityConsts extends FoundationConsts {
     public static final String KEY_SUFFIX_NAME = "honorificSuffix";
 
     public static final String KEY_ADDRS = "addresses";
-    public static final String KEY_ADDR_FORMATTED = "formattedAddress";
-    public static final String KEY_ADDR_TYPE = "addressType";
+    public static final String KEY_ADDR_FORMATTED = "formatted";
+    public static final String KEY_ADDR_TYPE = "type";
     public static final String KEY_ADDR_STREET = "streetAddress";
     public static final String KEY_ADDR_LOCALITY = "locality";
     public static final String KEY_ADDR_REGION = "region";
     public static final String KEY_ADDR_POSTAL = "postalCode";
-    public static final String KEY_ADDR_COUNTRY = "postalCode";
-    public static final String KEY_ADDR_IS_ACTIVE = "isActive";
+    public static final String KEY_ADDR_COUNTRY = "country";
+    public static final String KEY_ADDR_PRIMARY = "primary";
 
     public static final String KEY_EMAILS = "emails";
     public static final String KEY_EMAIL_PRIMARY = "primary";

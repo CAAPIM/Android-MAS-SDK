@@ -34,6 +34,8 @@ ext {
     designVersion = '25.1.0'
     gridLayoutVersion = '25.1.0'
     minSdkVersion = 19
+    pahoClientVersion = '1.1.0'
+    pahoServiceVersion = '1.1.1'
     recyclerViewVersion = '25.1.0'
     supportAnnotationsVersion = '25.1.0'
     targetSdkVersion = 25

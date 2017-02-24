@@ -156,7 +156,7 @@ public class User implements ScimUser {
         mTimeZone = jsonObject.optString(IdentityConsts.KEY_TIMEZONE);
         mPassword = jsonObject.optString(IdentityConsts.KEY_PASSWORD);
 
-        mIsActive = jsonObject.has(IdentityConsts.KEY_ACTIVE) && jsonObject.getBoolean(IdentityConsts.KEY_ACTIVE);
+        mIsActive = jsonObject.optBoolean(IdentityConsts.KEY_ACTIVE, false);
 
         // meta
         if (jsonObject.has(IdentityConsts.KEY_META)) {

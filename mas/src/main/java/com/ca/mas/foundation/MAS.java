@@ -25,6 +25,7 @@ import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
+import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.MAGErrorCode;
@@ -41,6 +42,7 @@ import com.ca.mas.foundation.notify.Callback;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.List;
@@ -287,6 +289,9 @@ public class MAS {
                         responseBody(MAGResponseBody.jsonBody()).build();
                 try {
                     MAGResponse<JSONObject> response = client.execute(request);
+                    if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                        throw ServerClient.createServerException(response, MASServerException.class);
+                    }
                     MAS.start(context, response.getBody().getContent());
                     Callback.onSuccess(callback, null);
                 } catch (Exception e) {

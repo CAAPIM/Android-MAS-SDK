@@ -179,8 +179,12 @@ public final class MobileSsoFactory {
     }
 
     private static boolean isSwitchGateway(JSONObject newConfig) {
-        Server current = ConfigurationManager.getInstance().getConnectedGateway();
-        return !current.equals(new Server(newConfig));
+        try {
+            Server current = ConfigurationManager.getInstance().getConnectedGateway();
+            return !current.equals(new Server(newConfig));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**

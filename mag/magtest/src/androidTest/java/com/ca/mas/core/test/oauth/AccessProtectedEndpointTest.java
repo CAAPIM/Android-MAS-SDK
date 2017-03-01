@@ -234,13 +234,6 @@ public class AccessProtectedEndpointTest extends BaseTest {
     @Test
     public void testAccessProtectedEndpointWith204Response() throws URISyntaxException, InterruptedException, IOException {
 
-        ssg.setDispatcher(new DefaultDispatcher() {
-            @Override
-            protected MockResponse secureServiceResponse() {
-                return new MockResponse().setResponseCode(HttpURLConnection.HTTP_NO_CONTENT);
-            }
-        });
-
         MAGRequest request = new MAGRequest.MAGRequestBuilder(getURI("/testNoContent").toURL())
                 .build();
 

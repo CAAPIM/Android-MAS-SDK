@@ -6,23 +6,31 @@
  *
  */
 
-package com.ca.mas.core.test;
+package com.ca.mas;
 
 import com.ca.mas.core.http.ContentType;
+import com.ca.mas.core.io.IoUtils;
 import com.squareup.okhttp.mockwebserver.Dispatcher;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.net.HttpURLConnection;
 import java.util.Date;
 
-public class DefaultDispatcher extends Dispatcher {
+public class GatewayDefaultDispatcher extends Dispatcher {
 
+    public static final String CONNECT_DEVICE_CONFIG = "/connect/device/config";
+    public static final String CONNECT_DEVICE_EXPIRED_CONFIG = "/connect/device/expiredConfig";
     public static final String CONNECT_DEVICE_REGISTER = "/connect/device/register";
     public static final String CONNECT_CLIENT_INITIALIZE = "/connect/client/initialize";
     public static final String AUTH_OAUTH_V2_TOKEN = "/auth/oauth/v2/token";
     public static final String PROTECTED_RESOURCE_SLOW = "/protected/resource/slow";
-    public static final String PROTECTED_RESOURCE_PRODUCTS = "/protected/resource/products";
+    public static final String PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY = "/protected/resource/productsAsArray";
+    public static final String PROTECTED_RESOURCE_PRODUCTS = "/protected/resource/products?operation=listProducts";
     public static final String TEST_NO_CONTENT = "/testNoContent";
     public static final String AUTH_OAUTH_V2_AUTHORIZE = "/auth/oauth/v2/authorize";
     public static final String CONNECT_DEVICE_REGISTER_CLIENT = "/connect/device/register/client";
@@ -31,6 +39,7 @@ public class DefaultDispatcher extends Dispatcher {
     public static final String CONNECT_SESSION_LOGOUT = "/connect/session/logout";
     public static final String OTP_PROTECTED_URL = "/otpProtected";
     public static final String AUTH_OTP = "/auth/generateOTP";
+    public static final String USER_INFO = "/openid/connect/v1/userinfo";
 
     public static String TARGET_RESPONSE = "{ \"products\": [\n" +
             "    {\"id\": 1, \"name\": \"Red Stapler\", \"price\": \"54.44\"},\n" +
@@ -47,7 +56,11 @@ public class DefaultDispatcher extends Dispatcher {
     @Override
     public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         request.getBody();
-        if (request.getPath().contains(CONNECT_DEVICE_REGISTER)) {
+        if (request.getPath().contains(CONNECT_DEVICE_CONFIG)) {
+            return configDeviceResponse();
+        } else if (request.getPath().contains(CONNECT_DEVICE_EXPIRED_CONFIG)) {
+            return expiredConfigDeviceResponse();
+        } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER)) {
             return registerDeviceResponse();
         } else if (request.getPath().contains(CONNECT_CLIENT_INITIALIZE)) {
             return initializeResponse();
@@ -55,6 +68,8 @@ public class DefaultDispatcher extends Dispatcher {
             return retrieveTokenResponse();
         } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS)) {
             return secureServiceResponse();
+        } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY)) {
+            return secureServiceResponseAsArray();
         } else if (request.getPath().contains(PROTECTED_RESOURCE_SLOW)) {
             Thread.sleep(1000);
             return secureServiceResponse();
@@ -79,6 +94,8 @@ public class DefaultDispatcher extends Dispatcher {
             }
         } else if (request.getPath().contains(AUTH_OTP)) {
             return generateOtp();
+        } else if (request.getPath().contains(USER_INFO)) {
+            return userInfo();
         }
         return new MockResponse().setResponseCode(404);
     }
@@ -103,6 +120,37 @@ public class DefaultDispatcher extends Dispatcher {
         return new MockResponse()
                 .setResponseCode(200);
     }
+
+    protected MockResponse configDeviceResponse() {
+        byte[] bytes = new byte[0];
+        try {
+            bytes = IoUtils.slurpStream(getClass().getResourceAsStream("/msso_config.json"), 10485760);
+            JSONObject jsonObject = new JSONObject(new String(bytes));
+            return new MockResponse()
+                    .setResponseCode(200)
+                    .setBody(jsonObject.toString())
+                    .addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected MockResponse expiredConfigDeviceResponse() {
+        try {
+            JSONObject jsonObject = new JSONObject("{\n" +
+                    "  \"error\": \"invalid_request\",\n" +
+                    "  \"error_description\": \"The server configuration is invalid. Contact the administrator\"\n" +
+                    "}");
+            return new MockResponse()
+                    .setResponseCode(400)
+                    .setHeader("x-ca-err", "132")
+                    .setBody(jsonObject.toString())
+                    .addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     protected MockResponse registerDeviceResponse() {
 
@@ -218,12 +266,29 @@ public class DefaultDispatcher extends Dispatcher {
         return new MockResponse().setResponseCode(200)
                 .setBody(TARGET_RESPONSE)
                 .addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
-
-
     }
 
     protected MockResponse secureServiceResponseWithNoContent() {
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_NO_CONTENT);
+    }
+
+    protected MockResponse secureServiceResponseAsArray() {
+        //Mock response for the secure service
+        try {
+            JSONArray jsonArray = new JSONArray("[\n" +
+                    "  \"test1\",\n" +
+                    "  \"test2\",\n" +
+                    "  \"test3\"\n" +
+                    "]");
+            return new MockResponse().setResponseCode(200)
+                    .setBody(jsonArray.toString())
+                    .addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     protected MockResponse otpProtectedResponse() {
@@ -246,4 +311,27 @@ public class DefaultDispatcher extends Dispatcher {
         return new MockResponse().setResponseCode(200)
                 .setHeader("X-OTP", "generated");
     }
+
+    protected MockResponse userInfo() {
+        return new MockResponse().setResponseCode(200)
+                .setHeader("Content-type", ContentType.APPLICATION_JSON)
+                .setBody("{\n" +
+                        "  \"sub\": \"6vKMGM8Xsw6o54D-FurMX1zXDhYLrf9fBBPFr-HwWXY\",\n" +
+                        "  \"given_name\": \"Sarek\",\n" +
+                        "  \"family_name\": \"Jensen\",\n" +
+                        "  \"preferred_username\": \"spock\",\n" +
+                        "  \"picture\": \"https://photos.example.com/profilephoto/72930000000Ccne/F\",\n" +
+                        "  \"email\": \"sarek@layer7tech.com\",\n" +
+                        "  \"phone_number\": \"555-555-5555\",\n" +
+                        "  \"address\": {\n" +
+                        "    \"street_address\": \"100 Universal City Plaza\",\n" +
+                        "    \"locality\": \"Hollywood\",\n" +
+                        "    \"region\": \"CA\",\n" +
+                        "    \"postal_code\": \"91608\",\n" +
+                        "    \"country\": \"USA\"\n" +
+                        "  }\n" +
+                        "}");
+    }
+
+
 }

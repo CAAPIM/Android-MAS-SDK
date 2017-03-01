@@ -24,6 +24,7 @@ import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocketFactory;
+
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
@@ -60,14 +61,16 @@ public class MAGHttpClient {
             if (request.getConnectionListener() != null) {
                 request.getConnectionListener().onObtained(urlConnection);
             }
-            if (ConfigurationManager.getInstance().getConnectionListener() != null) {
-                ConfigurationManager.getInstance().getConnectionListener().onObtained(urlConnection);
-            }
 
             if (urlConnection instanceof HttpsURLConnection && sslSocketFactory != null) {
                 ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sslSocketFactory);
             }
-            urlConnection.setRequestMethod(request.getMethod());
+
+            if (ConfigurationManager.getInstance().getConnectionListener() != null) {
+                ConfigurationManager.getInstance().getConnectionListener().onObtained(urlConnection);
+            }
+
+           urlConnection.setRequestMethod(request.getMethod());
             urlConnection.setDoInput(true);
             for (String key : request.getHeaders().keySet()) {
                 if (request.getHeaders().get(key) != null) {
@@ -120,8 +123,9 @@ public class MAGHttpClient {
                 responseBody.read(urlConnection);
             } catch (SSLHandshakeException e) {
                 //Related to MCT-104 & MCT-323
-                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
-                    if (DEBUG) Log.w(TAG, "SSLHandshakeException occurs, setting it to response 204");
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                    if (DEBUG)
+                        Log.w(TAG, "SSLHandshakeException occurs, setting it to response 204");
                     responseCode = HttpsURLConnection.HTTP_NO_CONTENT;
                     responseMessage = null;
                 } else {

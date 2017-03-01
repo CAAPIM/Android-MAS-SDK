@@ -23,6 +23,7 @@ import java.util.Date;
 public class GatewayDefaultDispatcher extends Dispatcher {
 
     public static final String CONNECT_DEVICE_CONFIG = "/connect/device/config";
+    public static final String CONNECT_DEVICE_EXPIRED_CONFIG = "/connect/device/expiredConfig";
     public static final String CONNECT_DEVICE_REGISTER = "/connect/device/register";
     public static final String CONNECT_CLIENT_INITIALIZE = "/connect/client/initialize";
     public static final String AUTH_OAUTH_V2_TOKEN = "/auth/oauth/v2/token";
@@ -56,6 +57,8 @@ public class GatewayDefaultDispatcher extends Dispatcher {
         request.getBody();
         if (request.getPath().contains(CONNECT_DEVICE_CONFIG)) {
             return configDeviceResponse();
+        } else if (request.getPath().contains(CONNECT_DEVICE_EXPIRED_CONFIG)) {
+            return expiredConfigDeviceResponse();
         } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER)) {
             return registerDeviceResponse();
         } else if (request.getPath().contains(CONNECT_CLIENT_INITIALIZE)) {
@@ -130,6 +133,23 @@ public class GatewayDefaultDispatcher extends Dispatcher {
             throw new RuntimeException(e);
         }
     }
+
+    protected MockResponse expiredConfigDeviceResponse() {
+        try {
+            JSONObject jsonObject = new JSONObject("{\n" +
+                    "  \"error\": \"invalid_request\",\n" +
+                    "  \"error_description\": \"The server configuration is invalid. Contact the administrator\"\n" +
+                    "}");
+            return new MockResponse()
+                    .setResponseCode(400)
+                    .setHeader("x-ca-err", "132")
+                    .setBody(jsonObject.toString())
+                    .addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     protected MockResponse registerDeviceResponse() {
 

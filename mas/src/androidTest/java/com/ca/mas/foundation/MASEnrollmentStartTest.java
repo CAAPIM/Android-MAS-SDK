@@ -30,6 +30,7 @@ import java.security.cert.X509Certificate;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
@@ -62,6 +63,60 @@ public class MASEnrollmentStartTest extends MASTestBase {
 
         MAS.start(InstrumentationRegistry.getTargetContext(), new URL(uri.toString()), callback);
         Assert.assertNull(callback.get());
+
+    }
+
+    @Test
+    public void testEnrollmentWithInvalidHashKey() throws Exception {
+
+        MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .encodedAuthority(getHost() + ":" + getPort())
+                .appendPath("connect")
+                .appendPath("device")
+                .appendPath("config")
+                .appendQueryParameter("subjectKeyHash","PX7agsaKVqzj3ee1C2sxE15z5KSJOEaEZCxdRKWlMD0=")
+                .build();
+
+        MAS.setConnectionListener(null);
+
+        MAS.start(InstrumentationRegistry.getTargetContext(), new URL(uri.toString()), callback);
+        try {
+            callback.get();
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertTrue(e.getCause() instanceof SSLHandshakeException);
+        }
+    }
+
+    @Test
+    public void testExpiredEnrollmentUrl() throws Exception {
+        MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
+        SSLSocketFactory factory = createSSLSocketFactory();
+        SSLSocket socket = (SSLSocket) factory.createSocket(getHost(), getPort());
+        socket.startHandshake();
+        Certificate[] certs = socket.getSession().getPeerCertificates();
+        Certificate cert = certs[0];
+        PublicKey key = cert.getPublicKey();
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .encodedAuthority(getHost() + ":" + getPort())
+                .appendPath("connect")
+                .appendPath("device")
+                .appendPath("expiredConfig")
+                .appendQueryParameter("subjectKeyHash", toHash(key))
+                .build();
+
+        MAS.start(InstrumentationRegistry.getTargetContext(), new URL(uri.toString()), callback);
+        try {
+            callback.get();
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertTrue(e.getCause() instanceof MASServerException);
+        }
 
     }
 

@@ -284,11 +284,11 @@ public class MAS {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                MAGHttpClient client = new MAGHttpClient(publicKeyHash);
-                MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
-                        responseBody(MAGResponseBody.jsonBody()).build();
-                try {
-                    MAGResponse<JSONObject> response = client.execute(request);
+               try {
+                   MAGHttpClient client = new MAGHttpClient(publicKeyHash);
+                   MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
+                           responseBody(MAGResponseBody.jsonBody()).build();
+                   MAGResponse<JSONObject> response = client.execute(request);
                     if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
                         throw ServerClient.createServerException(response, MASServerException.class);
                     }

@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.HttpURLConnection;
 import java.util.Date;
 
 public class GatewayDefaultDispatcher extends Dispatcher {
@@ -73,7 +74,7 @@ public class GatewayDefaultDispatcher extends Dispatcher {
             Thread.sleep(1000);
             return secureServiceResponse();
         } else if (request.getPath().contains(TEST_NO_CONTENT)) {
-            return secureServiceResponse();
+            return secureServiceResponseWithNoContent();
         } else if (request.getPath().contains(AUTH_OAUTH_V2_AUTHORIZE)) {
             return authorizeResponse();
         } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER_CLIENT)) {
@@ -265,8 +266,10 @@ public class GatewayDefaultDispatcher extends Dispatcher {
         return new MockResponse().setResponseCode(200)
                 .setBody(TARGET_RESPONSE)
                 .addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
+    }
 
-
+    protected MockResponse secureServiceResponseWithNoContent() {
+        return new MockResponse().setResponseCode(HttpURLConnection.HTTP_NO_CONTENT);
     }
 
     protected MockResponse secureServiceResponseAsArray() {

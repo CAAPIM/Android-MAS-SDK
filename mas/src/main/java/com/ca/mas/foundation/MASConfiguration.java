@@ -15,6 +15,7 @@ import com.ca.mas.core.conf.Config;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.foundation.util.FoundationConsts;
 
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.cert.X509Certificate;
@@ -33,24 +34,21 @@ public class MASConfiguration {
     private static Config APP_DESCRIPTION = new Config(false, FoundationConsts.KEY_CONFIG_APP_DESCRIPTION, "oauth.client.description", String.class);
     private static Config APP_TYPE = new Config(false, FoundationConsts.KEY_CONFIG_APP_TYPE, "oauth.client.client_type", String.class);
 
-    private static MASConfiguration current;
-
+    private static WeakReference<MASConfiguration> current;
 
     public static MASConfiguration getCurrentConfiguration() {
         if (current == null) {
             throw new IllegalStateException("MAS.start() has not been invoked.");
         }
-        return current;
+        return current.get();
     }
 
-    private Context mContext;
-
     protected MASConfiguration(Context context) {
-        this.mContext = context.getApplicationContext();
-        ConfigurationManager.getInstance().init(mContext);
+        Context appContext = context.getApplicationContext();
+        ConfigurationManager.getInstance().init(appContext);
         ConfigurationManager.getInstance().setAppConfigs(Arrays.asList(USERINFO, MAS_SCIM, MAS_STORAGE, APP_NAME,
                 APP_ORGANIZATION, APP_REGISTERED_BY, APP_DESCRIPTION, APP_TYPE));
-        current = this;
+        current = new WeakReference<>(this);
     }
 
     /**

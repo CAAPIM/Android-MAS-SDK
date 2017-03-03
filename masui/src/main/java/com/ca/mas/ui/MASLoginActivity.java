@@ -13,7 +13,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -51,6 +50,7 @@ import com.ca.mas.foundation.auth.MASProximityLoginBLECentralListener;
 import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import static com.ca.mas.core.MAG.DEBUG;
@@ -62,7 +62,7 @@ import static com.ca.mas.core.MAG.TAG;
  */
 public class MASLoginActivity extends AppCompatActivity {
     private long mRequestId;
-    private Activity mContext;
+    private WeakReference<Activity> mActivityRef;
     private EditText mEditTextUsername;
     private EditText mEditTextPassword;
     private GridLayout mGridLayout;
@@ -75,7 +75,7 @@ public class MASLoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mas_login);
-        mContext = this;
+        mActivityRef = new WeakReference<Activity>(this);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -165,7 +165,8 @@ public class MASLoginActivity extends AppCompatActivity {
                                 progress.setCancelable(false);
                                 progress.show();
 
-                                MASCustomTabs.socialLogin(mContext, p, new MASCallback<Void>() {
+                                final Context context = mActivityRef.get();
+                                MASCustomTabs.socialLogin(context, p, new MASCallback<Void>() {
                                     @Override
                                     public void onSuccess(Void result) {
                                         progress.dismiss();
@@ -175,7 +176,7 @@ public class MASLoginActivity extends AppCompatActivity {
                                     @Override
                                     public void onError(Throwable e) {
                                         progress.dismiss();
-                                        Toast.makeText(mContext, "Launching Social Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(context, "Launching Social Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                 });
                             }
@@ -266,17 +267,17 @@ public class MASLoginActivity extends AppCompatActivity {
             finish();
             return true;
         } else if (id == R.id.menu_bluetooth) {
-            int bleScanPermissionCheck = ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION);
+            int bleScanPermissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
             if (bleScanPermissionCheck != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(mContext,
+                ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         getResources().getInteger(R.integer.request_access_fine_location));
             } else {
-                showNfcBleToast(mContext);
+                showNfcBleToast(this);
             }
             return true;
         } else if (id == R.id.menu_nfc) {
-            showNfcBleToast(mContext);
+            showNfcBleToast(this);
             return true;
         } else {
             return super.onOptionsItemSelected(item);
@@ -412,9 +413,7 @@ public class MASLoginActivity extends AppCompatActivity {
             @Override
             public void onError(int errorCode, final String m, Exception e) {
                 if (m != null && m.contains("ACCESS_FINE_LOCATION")) {
-                    ActivityCompat.requestPermissions(mContext,
-                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                            getResources().getInteger(R.integer.request_access_fine_location));
+                    requestFineLocation();
                 }
                 if (DEBUG) Log.i(TAG, m);
             }
@@ -425,6 +424,12 @@ public class MASLoginActivity extends AppCompatActivity {
                 onProximityAuthenticated();
             }
         };
+    }
+
+    private void requestFineLocation() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                getResources().getInteger(R.integer.request_access_fine_location));
     }
 
     private void initProximity(MASProximityLogin masProximityLogin) {
@@ -452,9 +457,9 @@ public class MASLoginActivity extends AppCompatActivity {
                 grantResults.length > 0 &&
                 grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             initProximity(ble);
-            showNfcBleToast(mContext);
+            showNfcBleToast(this);
         } else {
-            Toast.makeText(mContext, R.string.enable_ble, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.enable_ble, Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -5,7 +5,6 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.foundation;
 
 import android.app.Activity;
@@ -42,6 +41,7 @@ import com.ca.mas.foundation.notify.Callback;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
@@ -58,9 +58,8 @@ import static com.ca.mas.core.MAG.TAG;
  * can be found and utilized.
  */
 public class MAS {
-
-    public static Context ctx;
-    private static Activity currentActivity;
+    private static WeakReference<Context> appContextRef;
+    private static WeakReference<Activity> currentActivityRef;
     private static boolean hasRegisteredActivityCallback;
     private static MASAuthenticationListener masAuthenticationListener;
     private static int state;
@@ -68,55 +67,68 @@ public class MAS {
     private static synchronized void init(@NonNull final Context context) {
         stop();
         // Initialize the MASConfiguration
-        ctx = context.getApplicationContext();
+        Context appContext = context.getApplicationContext();
+        appContextRef = new WeakReference<>(appContext);
         if (context instanceof Activity) {
-            currentActivity = (Activity) context;
+            currentActivityRef = new WeakReference<>((Activity) context);
         }
 
-        registerActivityLifecycleCallbacks((Application) ctx);
+        registerActivityLifecycleCallbacks((Application) appContext);
 
         // This is important, don't remove this
-        new MASConfiguration(ctx);
-        ConfigurationManager.getInstance().setMobileSsoListener(new MobileSsoListener() {
-            @Override
-            public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
-                if (masAuthenticationListener == null) {
-                    Class<Activity> loginActivity = getLoginActivity();
-                    if (loginActivity != null) {
+        new MASConfiguration(appContext);
+        ConfigurationManager.getInstance().setMobileSsoListener(new MASMobileSsoListener(context));
+        MASConnectaManager.getInstance().start(appContext);
+    }
+
+    private static class MASMobileSsoListener implements MobileSsoListener {
+
+        private WeakReference<Context> contextRef;
+
+        MASMobileSsoListener(Context context) {
+            contextRef = new WeakReference<>(context);
+        }
+
+        @Override
+        public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
+            if (masAuthenticationListener == null) {
+                Class<Activity> loginActivity = getLoginActivity();
+                if (loginActivity != null) {
+                    Context context = contextRef.get();
+                    if (context != null) {
                         Intent intent = new Intent(context, loginActivity);
                         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
                         intent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, new MASAuthenticationProviders(provider));
                         context.startActivity(intent);
-                    } else {
-                        if (DEBUG)
-                            Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for user authentication.");
                     }
                 } else {
-                    masAuthenticationListener.onAuthenticateRequest(currentActivity, requestId, new MASAuthenticationProviders(provider));
+                    if (DEBUG)
+                        Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for user authentication.");
                 }
+            } else {
+                masAuthenticationListener.onAuthenticateRequest(currentActivityRef.get(), requestId, new MASAuthenticationProviders(provider));
             }
+        }
 
-            @Override
-            public void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler) {
-
-                if (masAuthenticationListener == null) {
-                    Class<Activity> otpActivity = getOtpActivity();
-                    if (otpActivity != null) {
+        @Override
+        public void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler) {
+            if (masAuthenticationListener == null) {
+                Class<Activity> otpActivity = getOtpActivity();
+                if (otpActivity != null) {
+                    Context context = contextRef.get();
+                    if (context != null) {
                         Intent intent = new Intent(context, otpActivity);
                         intent.putExtra(MssoIntents.EXTRA_OTP_HANDLER, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
                         context.startActivity(intent);
-                    } else {
-                        if (DEBUG)
-                            Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for otp authentication.");
                     }
                 } else {
-                    masAuthenticationListener.onOtpAuthenticateRequest(currentActivity, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
+                    if (DEBUG)
+                        Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for otp authentication.");
                 }
-
-
+            } else {
+                masAuthenticationListener.onOtpAuthenticateRequest(currentActivityRef.get(), new MASOtpAuthenticationHandler(otpAuthenticationHandler));
             }
-        });
-        MASConnectaManager.getInstance().start(ctx);
+        }
     }
 
     private static void registerActivityLifecycleCallbacks(Application application) {
@@ -136,7 +148,7 @@ public class MAS {
 
             @Override
             public void onActivityResumed(Activity activity) {
-                currentActivity = activity;
+                currentActivityRef = new WeakReference<>(activity);
             }
 
             @Override
@@ -155,8 +167,11 @@ public class MAS {
 
             @Override
             public void onActivityDestroyed(Activity activity) {
-                if (currentActivity == activity) {
-                    currentActivity = null;
+                if (currentActivityRef != null) {
+                    Activity currentActivity = currentActivityRef.get();
+                    if (currentActivity != null && currentActivity == activity) {
+                        currentActivityRef = null;
+                    }
                 }
             }
         });
@@ -263,7 +278,6 @@ public class MAS {
      *                 lifecycle of the MAS processes..
      * @param callback The callback to notify when a response is available, or if there is an error.
      */
-
     public static void start(@NonNull final Context context, final URL url, final MASCallback<Void> callback) {
         if (url == null) {
             try {
@@ -367,7 +381,6 @@ public class MAS {
     }
 
     public static class RequestCancelledException extends Exception {
-
         private Bundle data;
 
         public RequestCancelledException(Bundle data) {
@@ -377,7 +390,6 @@ public class MAS {
         public Bundle getData() {
             return data;
         }
-
     }
 
     /**
@@ -451,12 +463,12 @@ public class MAS {
 
     @Internal
     public static Context getContext() {
-        return ctx;
+        return appContextRef.get();
     }
 
     @Internal
     public static Activity getCurrentActivity() {
-        return currentActivity;
+        return currentActivityRef.get();
     }
 
     /**
@@ -528,7 +540,9 @@ public class MAS {
      *
      * @return return {@link MASState} of current state.
      */
-    public static @MASState int getState(Context context) {
+    public static
+    @MASState
+    int getState(Context context) {
         if (state != 0) {
             return state;
         }
@@ -555,6 +569,7 @@ public class MAS {
 
     /**
      * Determines whether PKCE extension is enabled.
+     *
      * @return true if PKCE extension is enabled, false otherwise
      */
     public static boolean isPKCEEnabled() {

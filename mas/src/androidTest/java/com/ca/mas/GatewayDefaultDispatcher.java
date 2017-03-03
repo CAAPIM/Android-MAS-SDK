@@ -12,6 +12,7 @@ import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.io.IoUtils;
 import com.squareup.okhttp.mockwebserver.Dispatcher;
 import com.squareup.okhttp.mockwebserver.MockResponse;
+import com.squareup.okhttp.mockwebserver.QueueDispatcher;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import org.json.JSONArray;
@@ -21,7 +22,7 @@ import org.json.JSONObject;
 import java.net.HttpURLConnection;
 import java.util.Date;
 
-public class GatewayDefaultDispatcher extends Dispatcher {
+public class GatewayDefaultDispatcher extends QueueDispatcher {
 
     public static final String CONNECT_DEVICE_CONFIG = "/connect/device/config";
     public static final String CONNECT_DEVICE_EXPIRED_CONFIG = "/connect/device/expiredConfig";
@@ -40,6 +41,7 @@ public class GatewayDefaultDispatcher extends Dispatcher {
     public static final String OTP_PROTECTED_URL = "/otpProtected";
     public static final String AUTH_OTP = "/auth/generateOTP";
     public static final String USER_INFO = "/openid/connect/v1/userinfo";
+    public static final String OTHER = "other";
 
     public static String TARGET_RESPONSE = "{ \"products\": [\n" +
             "    {\"id\": 1, \"name\": \"Red Stapler\", \"price\": \"54.44\"},\n" +
@@ -97,7 +99,11 @@ public class GatewayDefaultDispatcher extends Dispatcher {
         } else if (request.getPath().contains(USER_INFO)) {
             return userInfo();
         }
-        return new MockResponse().setResponseCode(404);
+        return other();
+    }
+
+    protected MockResponse other() {
+        return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
     }
 
     private MockResponse logout() {

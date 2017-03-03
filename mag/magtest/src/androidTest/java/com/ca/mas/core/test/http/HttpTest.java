@@ -37,6 +37,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class HttpTest {
 
@@ -66,6 +67,7 @@ public class HttpTest {
         mockWebServer.shutdown();
     }
 
+    @Deprecated
     @Test
     public void testInvalidUrl() throws Exception {
         mockWebServer.enqueue(new MockResponse().
@@ -87,6 +89,7 @@ public class HttpTest {
         }
     }
 
+    @Deprecated
     @Test
     public void testHttpGet() throws Exception {
         mockWebServer.enqueue(new MockResponse().setBody(RESPONSE_DATA));
@@ -109,6 +112,7 @@ public class HttpTest {
         }
     }
 
+    @Deprecated
     @Test
     public void testHttpDelete() throws Exception {
         mockWebServer.enqueue(new MockResponse());
@@ -124,6 +128,7 @@ public class HttpTest {
     }
 
 
+    @Deprecated
     @Test
     public void testHttpPost() throws Exception {
 
@@ -157,6 +162,7 @@ public class HttpTest {
 
     }
 
+    @Deprecated
     @Test
     public void testHttpPostWithJson() throws Exception {
 
@@ -186,6 +192,7 @@ public class HttpTest {
 
     }
 
+    @Deprecated
     @Test
     public void testHttpPostWithUrlEncodedForm() throws Exception {
 
@@ -214,6 +221,7 @@ public class HttpTest {
 
     }
 
+    @Deprecated
     @Test
     public void testHttpPut() throws Exception {
 

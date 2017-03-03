@@ -12,7 +12,6 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASConnectionListener;
-import com.ca.mas.foundation.MASDevice;
 import com.squareup.okhttp.internal.SslContextBuilder;
 import com.squareup.okhttp.mockwebserver.Dispatcher;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
@@ -84,7 +83,6 @@ public abstract class MASTestBase {
     protected void setDispatcher(Dispatcher dispatcher) {
         ssg.setDispatcher(dispatcher);
     }
-
 
     protected int getPort() {
         return 41979;

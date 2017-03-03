@@ -7,8 +7,10 @@
  */
 package com.ca.mas.foundation;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
+import android.util.Pair;
 
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
@@ -32,7 +34,9 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertEquals;
@@ -199,7 +203,7 @@ public class MASTest extends MASLoginTestBase {
             fail();
         } catch (ExecutionException e) {
             TargetApiException error = (TargetApiException) e.getCause().getCause();
-            assertTrue(((MASException)e.getCause()).getRootCause() instanceof TargetApiException );
+            assertTrue(((MASException) e.getCause()).getRootCause() instanceof TargetApiException);
             assertEquals(HttpURLConnection.HTTP_FORBIDDEN, error.getResponse().getResponseCode());
             assertEquals(expectedErrorMessage, (error.getResponse().getBody().getContent().toString()));
         }
@@ -229,5 +233,266 @@ public class MASTest extends MASLoginTestBase {
             }
 
         }
+    }
+
+    private static final String RESPONSE_DATA = "Expected Response Data";
+
+    @Test
+    public void testInvalidUrl() throws InterruptedException, ExecutionException {
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR).
+                        setBody(RESPONSE_DATA);
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendPath("other").build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri).build();
+        MASCallbackFuture<MASResponse<String>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        try {
+            callback.get();
+            fail();
+        } catch (ExecutionException e) {
+            assertEquals(RESPONSE_DATA,
+                    new String(((TargetApiException) (e.getCause()).getCause()).getResponse().getBody().getRawContent()));
+            assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR,
+                    ((TargetApiException) (e.getCause()).getCause()).getResponse().getResponseCode());
+
+        }
+    }
+
+    private static final String RESPONSE_HEADER_NAME = "headerName";
+    private static final String RESPONSE_HEADER_VALUE = "headerValue";
+    private static final String QUERY_PARAMETER_NAME = "queryName";
+    private static final String QUERY_PARAMETER_VALUE = "queryValue";
+    public static final String HTTP_TEST = "httptest";
+
+    @Test
+    public void testHttpGet() throws Exception {
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK).
+                        setHeader("Content-type", ContentType.TEXT_PLAIN).
+                        setBody(RESPONSE_DATA);
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).
+                appendQueryParameter(QUERY_PARAMETER_NAME, QUERY_PARAMETER_VALUE).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri).build();
+        MASCallbackFuture<MASResponse<String>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        assertEquals(RESPONSE_DATA, callback.get().getBody().getContent());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+
+        RecordedRequest recordedRequest = getRecordRequest(uri.toString());
+        assertEquals(request.getMethod(), recordedRequest.getMethod());
+        assertTrue(uri.toString().endsWith(recordedRequest.getPath()));
+    }
+
+    @Test
+    public void testHttpDelete() throws Exception {
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK).
+                        setHeader("Content-type", ContentType.TEXT_PLAIN).
+                        setBody(RESPONSE_DATA);
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).
+                appendQueryParameter(QUERY_PARAMETER_NAME, QUERY_PARAMETER_VALUE).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri).delete(null).build();
+        MASCallbackFuture<MASResponse<String>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        assertEquals(RESPONSE_DATA, callback.get().getBody().getContent());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+
+        RecordedRequest recordedRequest = getRecordRequest(uri.toString());
+        assertEquals(request.getMethod(), recordedRequest.getMethod());
+        assertTrue(uri.toString().endsWith(recordedRequest.getPath()));
+
+    }
+
+
+    @Test
+    public void testHttpPost() throws Exception {
+
+        String requestData = "Expected Request Data";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK).
+                        setHeader("Content-type", ContentType.TEXT_PLAIN).
+                        setHeader(RESPONSE_HEADER_NAME, RESPONSE_HEADER_VALUE).
+                        setBody(RESPONSE_DATA);
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).
+                appendQueryParameter(QUERY_PARAMETER_NAME, QUERY_PARAMETER_VALUE).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .post(MASRequestBody.stringBody(requestData))
+                .header(RESPONSE_HEADER_NAME, RESPONSE_HEADER_VALUE)
+                .build();
+
+        MASCallbackFuture<MASResponse<String>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        assertEquals(RESPONSE_DATA, callback.get().getBody().getContent());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+        assertNotNull(callback.get().getHeaders().get(RESPONSE_HEADER_NAME));
+
+        RecordedRequest recordedRequest = getRecordRequest(uri.toString());
+        assertEquals(request.getMethod(), recordedRequest.getMethod());
+        assertTrue(uri.toString().endsWith(recordedRequest.getPath()));
+
+        assertEquals(requestData, new String(recordedRequest.getBody().readUtf8()));
+        assertEquals(RESPONSE_HEADER_VALUE, recordedRequest.getHeader(RESPONSE_HEADER_NAME));
+        assertTrue(uri.toString().endsWith(recordedRequest.getPath()));
+    }
+
+    @Test
+    public void testHttpPostWithJson() throws Exception {
+
+        final JSONObject requestData = new JSONObject();
+        requestData.put("jsonName", "jsonValue");
+        requestData.put("jsonName2", 1234);
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK).
+                        setHeader("Content-type", ContentType.APPLICATION_JSON).
+                        setHeader(RESPONSE_HEADER_NAME, RESPONSE_HEADER_VALUE).
+                        setBody(requestData.toString());
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).
+                appendQueryParameter(QUERY_PARAMETER_NAME, QUERY_PARAMETER_VALUE).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .post(MASRequestBody.jsonBody(requestData))
+                .header(RESPONSE_HEADER_NAME, RESPONSE_HEADER_VALUE)
+                .build();
+
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        assertEquals(requestData.toString(), callback.get().getBody().getContent().toString());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+        assertNotNull(callback.get().getHeaders().get(RESPONSE_HEADER_NAME));
+
+        RecordedRequest recordedRequest = getRecordRequest(uri.toString());
+        assertEquals(request.getMethod(), recordedRequest.getMethod());
+        assertTrue(uri.toString().endsWith(recordedRequest.getPath()));
+
+        assertEquals(requestData.toString(), new String(recordedRequest.getBody().readUtf8()));
+        assertEquals(RESPONSE_HEADER_VALUE, recordedRequest.getHeader(RESPONSE_HEADER_NAME));
+        assertTrue(uri.toString().endsWith(recordedRequest.getPath()));
+
+    }
+
+    @Test
+    public void testHttpPostWithUrlEncodedForm() throws Exception {
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK);
+            }
+        });
+
+        List<Pair<String, String>> form = new ArrayList<>();
+        form.add(new Pair<String, String>("formfield1", "field1Value"));
+        form.add(new Pair<String, String>("formfield2", "field2Value"));
+        form.add(new Pair<String, String>("formfield3", "field3Value"));
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .post(MASRequestBody.urlEncodedFormBody(form))
+                .build();
+
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+
+        RecordedRequest recordedRequest = getRecordRequest(uri.toString());
+        String s = recordedRequest.getBody().readUtf8();
+        assertEquals("formfield1=field1Value&formfield2=field2Value&formfield3=field3Value", s);
+        assertEquals(request.getMethod(), recordedRequest.getMethod());
+        assertTrue(uri.toString().endsWith(recordedRequest.getPath()));
+
+    }
+
+    @Test
+    public void testHttpPut() throws Exception {
+
+        String requestData = "Expected Request Data";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK).
+                        setHeader("Content-type", ContentType.TEXT_PLAIN).
+                        setHeader(RESPONSE_HEADER_NAME, RESPONSE_HEADER_VALUE).
+                        setBody(RESPONSE_DATA);
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).
+                appendQueryParameter(QUERY_PARAMETER_NAME, QUERY_PARAMETER_VALUE).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .put(MASRequestBody.stringBody(requestData))
+                .header(RESPONSE_HEADER_NAME, RESPONSE_HEADER_VALUE)
+                .build();
+
+        MASCallbackFuture<MASResponse<String>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        assertEquals(RESPONSE_DATA, callback.get().getBody().getContent());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+        assertNotNull(callback.get().getHeaders().get(RESPONSE_HEADER_NAME));
+
+        RecordedRequest recordedRequest = getRecordRequest(uri.toString());
+        assertEquals(request.getMethod(), recordedRequest.getMethod());
+        assertTrue(uri.toString().endsWith(recordedRequest.getPath()));
+
+        assertEquals(requestData, new String(recordedRequest.getBody().readUtf8()));
+        assertEquals(RESPONSE_HEADER_VALUE, recordedRequest.getHeader(RESPONSE_HEADER_NAME));
+        assertTrue(uri.toString().endsWith(recordedRequest.getPath()));
     }
 }

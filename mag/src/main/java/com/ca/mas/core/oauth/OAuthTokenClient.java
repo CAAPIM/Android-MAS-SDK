@@ -145,6 +145,10 @@ public class OAuthTokenClient extends ServerClient {
         } catch (JSONException | MAGException e) {
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, e);
         } catch (MAGServerException e) {
+            //Throw error to retry request instead of ask for credential
+            if (e.getErrorCode() == INVALID_CLIENT_CREDENTIALS) {
+                throw new InvalidClientCredentialException(e);
+            }
             throw new OAuthServerException(e);
         }
 

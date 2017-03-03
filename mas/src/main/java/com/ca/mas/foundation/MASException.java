@@ -8,43 +8,35 @@
 
 package com.ca.mas.foundation;
 
+
 /**
- * <p><b>MASException</b> is a general exception wrapper used by the MAS SDK to
- * normalize protocol specific messaging implementations.</p>
+ * Encapsulate a general MAS error.
+ * An exception that returned to {@link MASCallback#onError(Throwable)}
  */
-public class MASException extends Exception {
+public class MASException extends Throwable {
 
-    /**
-     * <b>Description:</b> No args constructor.
-     */
-    public MASException() {
+    public MASException(Throwable cause) {
+        super(cause);
     }
 
-    /**
-     * <b>Description:</b> Convenience constructor.
-     *
-     * @param detailMessage - free form message.
-     */
-    public MASException(String detailMessage) {
-        super(detailMessage);
+    public MASException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    /**
-     * <b>Description:</b> Convenience constructor.
-     *
-     * @param throwable - the prior exception.
-     */
-    public MASException(Throwable throwable) {
-        super(throwable);
+    public Throwable getRootCause() {
+        return getRootCause(getCause());
     }
 
-    /**
-     * <b>Description:</b> Convenience constructor.
-     *
-     * @param detailMessage - free form message.
-     * @param throwable - the prior exception.
-     */
-    public MASException(String detailMessage, Throwable throwable) {
-        super(detailMessage, throwable);
+    private Throwable getRootCause(Throwable t) {
+        if (t.getCause() == null) {
+            return t;
+        } else {
+            if (!t.getClass().getPackage().getName().startsWith("com.ca") &&
+                    !(t instanceof RuntimeException)) {
+                return t;
+            } else {
+                return getRootCause(t.getCause());
+            }
+        }
     }
 }

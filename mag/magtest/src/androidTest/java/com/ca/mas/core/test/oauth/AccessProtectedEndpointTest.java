@@ -49,6 +49,7 @@ public class AccessProtectedEndpointTest extends BaseTest {
 
     private final String SCOPE = "read write";
 
+    @Deprecated
     @Test
     public void testAccessProtectedEndpoint() throws URISyntaxException, InterruptedException, IOException {
         MAGRequest request = new MAGRequest.MAGRequestBuilder(getURI("/protected/resource/products?operation=listProducts")).password().build();
@@ -71,6 +72,7 @@ public class AccessProtectedEndpointTest extends BaseTest {
         }
     }
 
+    @Deprecated
     @Test
     public void testAccessProtectedEndpointCancelOnExecutingRequest() throws URISyntaxException, InterruptedException, IOException {
         MAGRequest request = new MAGRequest.MAGRequestBuilder(getURI("/protected/resource/slow")).password().build();
@@ -117,6 +119,7 @@ public class AccessProtectedEndpointTest extends BaseTest {
     }
 
 
+    @Deprecated
     @Test
     public void testAccessProtectedEndpointCancelAllOnExecutingRequest() throws URISyntaxException, InterruptedException, IOException {
         MAGRequest request = new MAGRequest.MAGRequestBuilder(getURI("/protected/resource/slow")).password().build();
@@ -163,6 +166,7 @@ public class AccessProtectedEndpointTest extends BaseTest {
     }
 
 
+    @Deprecated
     @Test
     public void testAccessProtectedEndpointWithOverrideScope() throws URISyntaxException, InterruptedException, IOException {
         MAGRequest request = new MAGRequest.MAGRequestBuilder(getURI("/protected/resource/products?operation=listProducts").toURL())
@@ -184,6 +188,7 @@ public class AccessProtectedEndpointTest extends BaseTest {
         }
     }
 
+    @Deprecated
     @Test
     public void getAccessTokenUsingRefreshToken() throws InterruptedException, JSONException {
 
@@ -231,6 +236,7 @@ public class AccessProtectedEndpointTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void testAccessProtectedEndpointWith204Response() throws URISyntaxException, InterruptedException, IOException {
 

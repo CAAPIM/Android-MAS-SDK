@@ -37,6 +37,7 @@ import java.net.HttpURLConnection;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class MAGEndpointTest extends BaseTest {
 
@@ -46,6 +47,7 @@ public class MAGEndpointTest extends BaseTest {
         assumeMockServer();
     }
 
+    @Deprecated
     @Test
     public void initializeClientCredentialsTest() throws InterruptedException {
         final int expectedErrorCode = 1002201;
@@ -62,6 +64,7 @@ public class MAGEndpointTest extends BaseTest {
         assertTrue(error.getCause() instanceof InvalidClientCredentialException);
     }
 
+    @Deprecated
     @Test
     public void registerWithInvalidClientCredentials() throws InterruptedException {
         final boolean[] override = {true};
@@ -112,6 +115,7 @@ public class MAGEndpointTest extends BaseTest {
         assertTrue(registrationError[0].getCause() instanceof InvalidClientCredentialException);
     }
 
+    @Deprecated
     @Test
     public void registerWithInvalidResourceOwner() throws InterruptedException {
 
@@ -167,6 +171,7 @@ public class MAGEndpointTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void appEndpointError() throws Exception {
         final String expectedErrorMessage = "{ \"error\":\"This is App Error\" }";

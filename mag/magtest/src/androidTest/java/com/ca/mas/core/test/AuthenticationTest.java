@@ -37,6 +37,7 @@ import static junit.framework.Assert.fail;
 @RunWith(AndroidJUnit4.class)
 public class AuthenticationTest extends BaseTest {
 
+    @Deprecated
     @Test
     public void mobileSsoListenerTest() throws JSONException, InterruptedException {
 
@@ -77,6 +78,7 @@ public class AuthenticationTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void testCallbackWithAuthenticateFailed() throws JSONException, InterruptedException {
 

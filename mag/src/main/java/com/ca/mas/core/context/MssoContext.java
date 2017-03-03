@@ -322,6 +322,7 @@ public class MssoContext {
      * @param idToken the ID token.  Required.
      */
     public void onIdTokenAvailable(IdToken idToken) throws JWTValidationException {
+        clearCredentials();
         String deviceIdentifier = tokenManager.getMagIdentifier();
         String clientId = getClientId();
         String clientSecret = getClientSecret();
@@ -336,7 +337,6 @@ public class MssoContext {
             setIdToken(idToken);
         }
 
-        clearCredentials();
     }
 
     /**
@@ -356,10 +356,11 @@ public class MssoContext {
      * @param expiresInSec number of seconds until the access token should be considered expired.  Required.
      */
     public void onAccessTokenAvailable(String accessToken, String refreshToken, long expiresInSec, String grantedScope) {
-        privateTokens.saveAccessToken(accessToken, refreshToken, expiresInSec, grantedScope);
-        if (accessToken != null)
+        if (accessToken != null) {
             clearCredentials();
-    }
+        }
+        privateTokens.saveAccessToken(accessToken, refreshToken, expiresInSec, grantedScope);
+   }
 
     /**
      * Clear the access token, forcing the next request to obtain a new one.
@@ -445,17 +446,23 @@ public class MssoContext {
                 return response;
             } catch (MAGServerException e) {
                 if (DEBUG) Log.d(TAG, String.format("Server return x-ca-err %d", e.getErrorCode()));
-                rethrow(e);
+                try {
+                    rethrow(e);
+                } catch (RetryRequestException rre) {
+                    lastError = rre;
+                    rre.recover(this);
+                    if (DEBUG) Log.d(TAG, "Attempting to retry request. " + e.getClass());
+                }
             } catch (RetryRequestException e) {
                 lastError = e;
                 e.recover(this);
                 if (DEBUG) Log.d(TAG, "Attempting to retry request. " + e.getClass());
             }
         }
-        if (lastError != null && lastError.getCause() != null) {
-            throw (Exception) lastError.getCause();
+        if (lastError != null ) {
+            throw lastError;
         }
-        throw new IOException("Too many attempts, giving up: " + (lastError == null ? null : lastError.getMessage()));
+        throw new IOException("Too many attempts, giving up");
     }
 
     /**

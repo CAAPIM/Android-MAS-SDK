@@ -26,7 +26,7 @@ import android.widget.TextView;
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.foundation.MASException;
+import com.ca.mas.messaging.MASMessageException;
 import com.ca.mas.messaging.MASMessage;
 
 public class PubSubActivity extends AppCompatActivity implements View.OnClickListener {
@@ -63,7 +63,7 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
                 try {
                     MASMessage message = MASMessage.newInstance(intent);
                     messagesFragment.onMessageReceived(message);
-                } catch (MASException e) {
+                } catch (MASMessageException e) {
                     Log.d(TAG, e.getMessage());
                 }
             }

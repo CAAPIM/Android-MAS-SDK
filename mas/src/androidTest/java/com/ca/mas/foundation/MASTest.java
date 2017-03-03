@@ -13,10 +13,11 @@ import android.support.test.InstrumentationRegistry;
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
-import com.ca.mas.OnErrorResult;
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.datasource.DataSourceFactory;
 import com.ca.mas.core.datasource.KeystoreDataSource;
+import com.ca.mas.core.error.TargetApiException;
+import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.store.PrivateTokenStorage;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
@@ -52,7 +53,7 @@ public class MASTest extends MASLoginTestBase {
     }
 
     @Test
-    public void testAccessProtectedEndpointCancelOnExecutingRequest() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
+    public void testAccessProtectedEndpointCancelOnExecutingRequest() throws URISyntaxException, InterruptedException, IOException {
         MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/slow"))
                 .notifyOnCancel()
                 .build();
@@ -68,8 +69,8 @@ public class MASTest extends MASLoginTestBase {
         try {
             callback.get();
             fail();
-        } catch (OnErrorResult e) {
-            MAS.RequestCancelledException exception = (MAS.RequestCancelledException) e.getCause();
+        } catch (ExecutionException e) {
+            MAS.RequestCancelledException exception = (MAS.RequestCancelledException) e.getCause().getCause();
             assertEquals(exception.getData().get(KEY), VALUE);
         }
     }
@@ -91,8 +92,8 @@ public class MASTest extends MASLoginTestBase {
         try {
             callback.get();
             fail();
-        } catch (OnErrorResult e) {
-            MAS.RequestCancelledException exception = (MAS.RequestCancelledException) e.getCause();
+        } catch (ExecutionException e) {
+            MAS.RequestCancelledException exception = (MAS.RequestCancelledException) e.getCause().getCause();
             assertEquals(exception.getData().get(KEY), VALUE);
         }
     }
@@ -164,6 +165,44 @@ public class MASTest extends MASLoginTestBase {
         RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS);
         assertTrue(rr.getHeader("Authorization").contains(NEW_ACCESS_TOKEN));
 
+    }
+
+    @Test
+    public void testAccessProtectedEndpointWith204Response() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/testNoContent")).build();
+        MASCallbackFuture<MASResponse<byte[]>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+        assertEquals(HttpURLConnection.HTTP_NO_CONTENT, callback.get().getResponseCode());
+        assertEquals(0, (callback.get().getBody().getContent()).length);
+        assertNotNull(callback.get().getBody().getContent());
+    }
+
+    @Test
+    public void appEndpointError() throws URISyntaxException, InterruptedException {
+        final String expectedErrorMessage = "{\"error\":\"This is App Error\"}";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse secureServiceResponse() {
+                return new MockResponse().setResponseCode(HttpURLConnection.HTTP_FORBIDDEN)
+                        .addHeader("Content-type", ContentType.APPLICATION_JSON.toString())
+                        .setBody(expectedErrorMessage);
+            }
+        });
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/products?operation=listProducts")).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        try {
+            assertNotNull(callback.get());
+            fail();
+        } catch (ExecutionException e) {
+            TargetApiException error = (TargetApiException) e.getCause().getCause();
+            assertTrue(((MASException)e.getCause()).getRootCause() instanceof TargetApiException );
+            assertEquals(HttpURLConnection.HTTP_FORBIDDEN, error.getResponse().getResponseCode());
+            assertEquals(expectedErrorMessage, (error.getResponse().getBody().getContent().toString()));
+        }
     }
 
     @Test

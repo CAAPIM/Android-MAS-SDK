@@ -13,7 +13,7 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.ca.mas.connecta.util.ConnectaConsts;
-import com.ca.mas.foundation.MASException;
+import com.ca.mas.messaging.MASMessageException;
 import com.ca.mas.foundation.util.FoundationConsts;
 import com.ca.mas.messaging.MASMessage;
 
@@ -37,10 +37,10 @@ public class MessageBroadcaster {
     /**
      * <b>Description:</b> Transform the MASMessage into an Android Intent and broadcast it.
      * @param masMessage the MASMessage received from the Mqtt broker.
-     * @throws MASException if the transformation fails for any reason during the call to
+     * @throws MASMessageException if the transformation fails for any reason during the call to
      * 'createJSONStringFromMASMessage()'.
      */
-    public void broadcastMessage(MASMessage masMessage) throws MASException {
+    public void broadcastMessage(MASMessage masMessage) throws MASMessageException {
         Intent intent = new Intent();
         intent.setAction(ConnectaConsts.MAS_CONNECTA_BROADCAST_MESSAGE_ARRIVED);
         intent.putExtra(FoundationConsts.KEY_EVENT_TYPE, FoundationConsts.KEY_ON_MESSAGE);

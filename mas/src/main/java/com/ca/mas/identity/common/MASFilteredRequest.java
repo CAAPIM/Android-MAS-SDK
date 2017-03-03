@@ -14,7 +14,6 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.ca.mas.identity.util.IdentityUtil;
@@ -58,18 +57,18 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
     }
 
     @Override
-    public MASFilteredRequestBuilder setAttributes(List<String> attributes) throws MASException {
+    public MASFilteredRequestBuilder setAttributes(List<String> attributes) {
         if(mExcludedAttributes != null) {
-            throw new MASException("attributes and excludedAttributes are mutually exclusive.");
+            throw new IllegalArgumentException("attributes and excludedAttributes are mutually exclusive.");
         }
         mAttributes = attributes;
         return this;
     }
 
     @Override
-    public MASFilteredRequestBuilder setExcludedAttributes(List<String> excludedAttributes) throws MASException {
+    public MASFilteredRequestBuilder setExcludedAttributes(List<String> excludedAttributes) {
         if(mAttributes != null) {
-            throw new MASException("attributes and excludedAttributes are mutually exclusive.");
+            throw new IllegalArgumentException("attributes and excludedAttributes are mutually exclusive.");
         }
         mExcludedAttributes = excludedAttributes;
         return this;

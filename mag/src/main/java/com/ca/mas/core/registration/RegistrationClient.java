@@ -25,6 +25,7 @@ import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.io.IoUtils;
+import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.token.IdToken;
 
 import java.io.IOException;
@@ -119,7 +120,7 @@ public class RegistrationClient extends ServerClient {
                                                    @NonNull String clientId,
                                                    @NonNull String clientSecret,
                                                    @NonNull String deviceId,
-                                                   @NonNull String deviceName, boolean createSession) throws RegistrationException, RegistrationServerException, AuthenticationException {
+                                                   @NonNull String deviceName, boolean createSession) throws RegistrationException, RegistrationServerException, AuthenticationException, InvalidClientCredentialException {
         if (request.getGrantProvider().getCredentials(mssoContext) == null)
             throw new NullPointerException("credentials");
 
@@ -168,7 +169,7 @@ public class RegistrationClient extends ServerClient {
             RegistrationServerException e = ServerClient.createServerException(response, RegistrationServerException.class);
 
             if (e.getErrorCode() == INVALID_CLIENT_CREDENTIALS) {
-                mssoContext.clearClientCredentials();
+                throw new InvalidClientCredentialException(e);
             } else if (e.getErrorCode() == INVALID_RESOURCE_OWNER_CREDENTIALS) {
                 throw new AuthenticationException(e);
             }

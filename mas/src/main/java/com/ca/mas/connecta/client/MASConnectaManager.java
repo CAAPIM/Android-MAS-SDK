@@ -15,7 +15,6 @@ import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.ca.mas.connecta.serviceprovider.ConnectaService;
 import com.ca.mas.core.util.Functions;
@@ -69,25 +68,19 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
                         if (connectaListener != null) {
                             mMASTransportService.setConnectaListener(connectaListener);
                         }
-                        if (connectCallback != null) {
-                            connectCallback.onSuccess(null);
-                            connectCallback = null;
-                        }
+                        Callback.onSuccess(connectCallback, null);
+                        connectCallback = null;
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        if (connectCallback != null) {
-                            connectCallback.onError(e);
-                            connectCallback = null;
-                        }
+                        Callback.onError(connectCallback, e);
+                        connectCallback = null;
                     }
                 });
             } else {
-                if (connectCallback != null) {
-                    connectCallback.onError(new ConnectaException("Failed to bind Transport Service"));
-                    connectCallback = null;
-                }
+                Callback.onError(connectCallback, new ConnectaException("Failed to bind Transport Service"));
+                connectCallback = null;
             }
         }
 

@@ -13,7 +13,6 @@ import android.text.TextUtils;
 import android.util.Base64;
 
 import com.ca.mas.connecta.util.ConnectaConsts;
-import com.ca.mas.foundation.MASException;
 import com.ca.mas.identity.ScimIdentifiable;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.util.FoundationConsts;
@@ -30,7 +29,7 @@ import org.json.JSONObject;
  */
 public abstract class MASMessage implements MASPayload {
 
-    public static MASMessage newInstance(Intent intent) throws MASException {
+    public static MASMessage newInstance(Intent intent) throws MASMessageException {
         MASMessage m = MASMessage.newInstance();
         m.createMASMessageFromJSONString(intent.getStringExtra(FoundationConsts.KEY_MESSAGE));
         return m;
@@ -167,7 +166,7 @@ public abstract class MASMessage implements MASPayload {
                 mTopic = topic;
             }
 
-            public void createMASMessageFromJSONString(String jsonStr) throws MASException {
+            public void createMASMessageFromJSONString(String jsonStr) throws MASMessageException {
                 try {
                     JSONObject jobj = new JSONObject(jsonStr);
                     mVersion = jobj.optString(ConnectaConsts.KEY_VERSION, MessagingConsts.DEFAULT_VERSION);
@@ -184,12 +183,12 @@ public abstract class MASMessage implements MASPayload {
                     mPayload = Base64.decode(payloadBefore.getBytes(), Base64.NO_WRAP);
                     mTopic = jobj.optString(ConnectaConsts.KEY_TOPIC);
                 } catch (JSONException je) {
-                    throw new MASException(je);
+                    throw new MASMessageException(je);
                 }
             }
 
             @Override
-            public String createJSONStringFromMASMessage(Context context) throws MASException {
+            public String createJSONStringFromMASMessage(Context context) throws MASMessageException {
                 JSONObject jobj = new JSONObject();
                 try {
                     String ver = getVersion();
@@ -239,7 +238,7 @@ public abstract class MASMessage implements MASPayload {
                     if (payload != null && payload.length > 0) {
                         jobj.put(ConnectaConsts.KEY_PAYLOAD, new String(Base64.encode(payload, Base64.NO_WRAP)));
                     } else {
-                        throw new MASException("Parameter cannot be empty or null.");
+                        throw new MASMessageException("Parameter cannot be empty or null.");
                     }
 
                     String topic = getTopic();
@@ -247,7 +246,7 @@ public abstract class MASMessage implements MASPayload {
                         jobj.put(ConnectaConsts.KEY_TOPIC, topic);
                     }
                 } catch (JSONException je) {
-                    throw new MASException(je);
+                    throw new MASMessageException(je);
                 }
                 return jobj.toString();
             }

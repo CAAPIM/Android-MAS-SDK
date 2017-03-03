@@ -219,11 +219,11 @@ public class OAuthClient extends ServerClient {
             obtainServerResponseToPostedForm(request);
         } catch (MAGException e) {
             throw new OAuthException(MAGErrorCode.UNKNOWN, e);
-        } catch (MAGServerException e) {
+        } catch (OAuthServerException e) {
             if (e.getErrorCode() == INVALID_CLIENT_CREDENTIALS) {
                 mssoContext.clearClientCredentials();
             }
-            throw new OAuthServerException(e);
+            throw e;
         }
     }
 

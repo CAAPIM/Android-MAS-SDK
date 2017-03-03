@@ -13,12 +13,13 @@ import android.util.Log;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGErrorCode;
-import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.http.MAGResponseBody;
+import com.ca.mas.core.oauth.OAuthException;
+import com.ca.mas.core.oauth.OAuthServerException;
 
 import org.json.JSONException;
 
@@ -122,19 +123,19 @@ public abstract class ServerClient {
         return -1;
     }
 
-    protected ServerResponse obtainServerResponseToPostedForm(MAGRequest request) throws MAGException, MAGServerException {
+    protected ServerResponse obtainServerResponseToPostedForm(MAGRequest request) throws OAuthException, OAuthServerException {
 
         return obtainServerResponse(request);
     }
 
-    private ServerResponse obtainServerResponse(MAGRequest request) throws MAGException, MAGServerException {
+    private ServerResponse obtainServerResponse(MAGRequest request) throws OAuthException, OAuthServerException {
         MAGHttpClient httpClient = mssoContext.getMAGHttpClient();
 
         final MAGResponse<String> response;
         try {
             response = httpClient.execute(request);
         } catch (IOException e) {
-            throw new MAGException(MAGErrorCode.UNKNOWN, "Unable to post to " + request.getURL() + ": " + e.getMessage(), e);
+            throw new OAuthException(MAGErrorCode.UNKNOWN, "Unable to post to " + request.getURL() + ": " + e.getMessage(), e);
         }
 
         if (DEBUG) Log.d(TAG,
@@ -145,23 +146,23 @@ public abstract class ServerClient {
         try {
             final int statusCode = response.getResponseCode();
             if (statusCode != HttpURLConnection.HTTP_OK) {
-                throw ServerClient.createServerException(response, MAGServerException.class);
+                throw ServerClient.createServerException(response, OAuthServerException.class);
             }
 
             MAGResponseBody<String> responseEntity = response.getBody();
             if (responseEntity == null)
-                throw new MAGException(MAGErrorCode.UNKNOWN, "Response from " + request.getURL() + " did not contain an entity");
+                throw new OAuthException(MAGErrorCode.UNKNOWN, "Response from " + request.getURL() + " did not contain an entity");
 
 
             final String responseString = responseEntity.getContent();
 
             if (responseString == null) {
-                throw new MAGException(MAGErrorCode.UNKNOWN, "response from " + request.getURL() + " was empty, with status=" + statusCode);
+                throw new OAuthException(MAGErrorCode.UNKNOWN, "response from " + request.getURL() + " was empty, with status=" + statusCode);
             }
             return new ServerResponse(statusCode, responseString);
 
         } catch (JSONException e) {
-            throw new MAGException(MAGErrorCode.UNKNOWN, "response from " + request.getURL() + " was not valid JSON: " + e.getMessage(), e);
+            throw new OAuthException(MAGErrorCode.UNKNOWN, "response from " + request.getURL() + " was not valid JSON: " + e.getMessage(), e);
         }
     }
 

@@ -36,8 +36,8 @@ public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
 
     @Override
     public void onError(Throwable e) {
-        done = true;
-        throwableResult = e;
+        this.done = true;
+        this.throwableResult = e;
         countDownLatch.countDown();
     }
 
@@ -62,7 +62,7 @@ public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
             countDownLatch.await();
         }
         if (throwableResult != null) {
-            throw new OnErrorResult(throwableResult);
+            throw new ExecutionException(throwableResult);
         }
         return result;
     }
@@ -73,7 +73,7 @@ public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
             countDownLatch.await(timeout, unit);
         }
         if (throwableResult != null) {
-            throw new OnErrorResult(throwableResult);
+            throw new ExecutionException(throwableResult);
         }
         return result;
     }

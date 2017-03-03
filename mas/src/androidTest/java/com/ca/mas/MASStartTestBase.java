@@ -12,10 +12,13 @@ import android.support.test.InstrumentationRegistry;
 
 import com.ca.mas.core.io.IoUtils;
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASDevice;
 
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+
+import java.util.concurrent.ExecutionException;
 
 
 public abstract class MASStartTestBase extends MASTestBase {
@@ -31,7 +34,15 @@ public abstract class MASStartTestBase extends MASTestBase {
     }
 
     @After
-    public void masStop() throws  Exception {
+    public void masStop() {
+        MASCallbackFuture<Void> masCallback = new MASCallbackFuture<>();
+        MASDevice.getCurrentDevice().deregister(masCallback);
+        try {
+            masCallback.get();
+        } catch (Exception ignore) {
+            //Ignore
+        }
+        MASDevice.getCurrentDevice().resetLocally();
         MAS.stop();
     }
 

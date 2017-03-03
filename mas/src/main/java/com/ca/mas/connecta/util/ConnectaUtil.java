@@ -8,14 +8,9 @@
 
 package com.ca.mas.connecta.util;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
-import com.ca.mas.core.MobileSso;
-import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.foundation.MASException;
+import com.ca.mas.messaging.MASMessageException;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.util.FoundationUtil;
 import com.ca.mas.messaging.MASMessage;
@@ -23,7 +18,6 @@ import com.ca.mas.messaging.MASMessage;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * <p><b>ConnectaUtil</b> consists of static helper methods that are used by different components of the MAS SDK. ConnectaUtil
@@ -65,7 +59,7 @@ public class ConnectaUtil extends FoundationUtil {
      * @return {@link MASMessage}
      * @throws JSONException
      */
-    public static MASMessage createMASMessageFromMqtt(@NonNull MqttMessage mqttMessage) throws MASException {
+    public static MASMessage createMASMessageFromMqtt(@NonNull MqttMessage mqttMessage) throws MASMessageException {
         MASMessage masMessage = initMessageFromPayload(mqttMessage.getPayload());
         masMessage.setDuplicate(mqttMessage.isDuplicate());
         masMessage.setRetained(mqttMessage.isRetained());
@@ -102,9 +96,9 @@ public class ConnectaUtil extends FoundationUtil {
      * utility method populates a MASMessage with the payload bytes received from an MQTT message.
      *
      * @param payload
-     * @throws MASException
+     * @throws MASMessageException
      */
-    private static MASMessage initMessageFromPayload(byte[] payload) throws MASException {
+    private static MASMessage initMessageFromPayload(byte[] payload) throws MASMessageException {
         String totalPayload = new String(payload);
 
         MASMessage m = MASMessage.newInstance();

@@ -24,9 +24,11 @@ import java.net.URISyntaxException;
 
 import static junit.framework.Assert.assertTrue;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class MSISDNTest extends BaseTest {
 
+    @Deprecated
     @Test
     public void missingMSISDNHeader() throws InterruptedException, URISyntaxException {
 
@@ -44,6 +46,7 @@ public class MSISDNTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void InvalidMSISDNHeader() throws InterruptedException, URISyntaxException {
 

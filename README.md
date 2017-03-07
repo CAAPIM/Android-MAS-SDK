@@ -15,7 +15,7 @@ For more information about our mobile products see [the website][mas.ca.com].
 * **Secure API Calls** - *Protect APIs with Mutual TLS and control API access on application, user and device level.*
 * **Authentication** - *Implement authentication with username/password, Facebook, Google, Twitter sign-in.*
 * **Second Factor Auth** - *Secure critical APIs with One Time Password.*
-* **Single Sign-On** -*Share user credentials between your app.*
+* **Single Sign-On** -*Share user credentials between your apps.*
 * **Enterprise Browser** - *Extend the single sign-on session to web applications.*
 * **Proximity Login** - *Transfer the user session between devices and platforms.*
 * **Fingerprint Sessions Lock** - *Support phone unlocking using fingerprint recognition.*

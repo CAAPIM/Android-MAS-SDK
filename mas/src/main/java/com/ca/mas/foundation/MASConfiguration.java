@@ -35,7 +35,6 @@ public class MASConfiguration {
 
     private static MASConfiguration current;
 
-
     public static MASConfiguration getCurrentConfiguration() {
         if (current == null) {
             throw new IllegalStateException("MAS.start() has not been invoked.");
@@ -43,11 +42,9 @@ public class MASConfiguration {
         return current;
     }
 
-    private Context mContext;
-
     protected MASConfiguration(Context context) {
-        this.mContext = context.getApplicationContext();
-        ConfigurationManager.getInstance().init(mContext);
+        Context appContext = context.getApplicationContext();
+        ConfigurationManager.getInstance().init(appContext);
         ConfigurationManager.getInstance().setAppConfigs(Arrays.asList(USERINFO, MAS_SCIM, MAS_STORAGE, APP_NAME,
                 APP_ORGANIZATION, APP_REGISTERED_BY, APP_DESCRIPTION, APP_TYPE));
         current = this;

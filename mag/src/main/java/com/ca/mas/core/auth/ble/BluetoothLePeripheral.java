@@ -51,7 +51,7 @@ public class BluetoothLePeripheral {
 
     private static BluetoothLePeripheral instance = new BluetoothLePeripheral();
 
-    private Context context;
+    private Context appContext;
     private ConfigurationProvider configurationProvider;
     private BluetoothLePeripheralCallback callback;
 
@@ -69,7 +69,7 @@ public class BluetoothLePeripheral {
     }
 
     public void init(ConfigurationProvider configurationProvider, Context context) {
-        this.context = context;
+        this.appContext = context.getApplicationContext();
         this.configurationProvider = configurationProvider;
         stop();
     }
@@ -87,6 +87,7 @@ public class BluetoothLePeripheral {
             return;
         }
 
+        final Context context = appContext;
         if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             notifyWithError(BluetoothLe.BLE_ERROR_NOT_SUPPORTED);
             return;

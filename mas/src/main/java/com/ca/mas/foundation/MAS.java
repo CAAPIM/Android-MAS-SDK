@@ -5,7 +5,6 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.foundation;
 
 import android.app.Activity;
@@ -58,8 +57,7 @@ import static com.ca.mas.core.MAG.TAG;
  * can be found and utilized.
  */
 public class MAS {
-
-    public static Context ctx;
+    private static Context appContext;
     private static Activity currentActivity;
     private static boolean hasRegisteredActivityCallback;
     private static MASAuthenticationListener masAuthenticationListener;
@@ -68,55 +66,65 @@ public class MAS {
     private static synchronized void init(@NonNull final Context context) {
         stop();
         // Initialize the MASConfiguration
-        ctx = context.getApplicationContext();
+        appContext = context.getApplicationContext();
         if (context instanceof Activity) {
             currentActivity = (Activity) context;
         }
 
-        registerActivityLifecycleCallbacks((Application) ctx);
+        registerActivityLifecycleCallbacks((Application) appContext);
 
         // This is important, don't remove this
-        new MASConfiguration(ctx);
-        ConfigurationManager.getInstance().setMobileSsoListener(new MobileSsoListener() {
-            @Override
-            public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
-                if (masAuthenticationListener == null) {
-                    Class<Activity> loginActivity = getLoginActivity();
-                    if (loginActivity != null) {
-                        Intent intent = new Intent(context, loginActivity);
+        new MASConfiguration(appContext);
+        ConfigurationManager.getInstance().setMobileSsoListener(new MASMobileSsoListener(appContext));
+        MASConnectaManager.getInstance().start(appContext);
+    }
+
+    private static class MASMobileSsoListener implements MobileSsoListener {
+
+        private Context mAppContext;
+
+        MASMobileSsoListener(Context context) {
+            mAppContext = context;
+        }
+
+        @Override
+        public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
+            if (masAuthenticationListener == null) {
+                Class<Activity> loginActivity = getLoginActivity();
+                if (loginActivity != null) {
+                    if (mAppContext != null) {
+                        Intent intent = new Intent(mAppContext, loginActivity);
                         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
                         intent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, new MASAuthenticationProviders(provider));
-                        context.startActivity(intent);
-                    } else {
-                        if (DEBUG)
-                            Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for user authentication.");
+                        mAppContext.startActivity(intent);
                     }
                 } else {
-                    masAuthenticationListener.onAuthenticateRequest(currentActivity, requestId, new MASAuthenticationProviders(provider));
+                    if (DEBUG)
+                        Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for user authentication.");
                 }
+            } else {
+                masAuthenticationListener.onAuthenticateRequest(currentActivity, requestId, new MASAuthenticationProviders(provider));
             }
+        }
 
-            @Override
-            public void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler) {
-
-                if (masAuthenticationListener == null) {
-                    Class<Activity> otpActivity = getOtpActivity();
-                    if (otpActivity != null) {
-                        Intent intent = new Intent(context, otpActivity);
+        @Override
+        public void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler) {
+            if (masAuthenticationListener == null) {
+                Class<Activity> otpActivity = getOtpActivity();
+                if (otpActivity != null) {
+                    if (mAppContext != null) {
+                        Intent intent = new Intent(mAppContext, otpActivity);
                         intent.putExtra(MssoIntents.EXTRA_OTP_HANDLER, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
-                        context.startActivity(intent);
-                    } else {
-                        if (DEBUG)
-                            Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for otp authentication.");
+                        mAppContext.startActivity(intent);
                     }
                 } else {
-                    masAuthenticationListener.onOtpAuthenticateRequest(currentActivity, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
+                    if (DEBUG)
+                        Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for otp authentication.");
                 }
-
-
+            } else {
+                masAuthenticationListener.onOtpAuthenticateRequest(currentActivity, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
             }
-        });
-        MASConnectaManager.getInstance().start(ctx);
+        }
     }
 
     private static void registerActivityLifecycleCallbacks(Application application) {
@@ -155,8 +163,11 @@ public class MAS {
 
             @Override
             public void onActivityDestroyed(Activity activity) {
-                if (currentActivity == activity) {
-                    currentActivity = null;
+                if (currentActivity != null) {
+                    Activity currentActivity = MAS.currentActivity;
+                    if (currentActivity == activity) {
+                        MAS.currentActivity = null;
+                    }
                 }
             }
         });
@@ -263,7 +274,6 @@ public class MAS {
      *                 lifecycle of the MAS processes..
      * @param callback The callback to notify when a response is available, or if there is an error.
      */
-
     public static void start(@NonNull final Context context, final URL url, final MASCallback<Void> callback) {
         if (url == null) {
             try {
@@ -367,7 +377,6 @@ public class MAS {
     }
 
     public static class RequestCancelledException extends Exception {
-
         private Bundle data;
 
         public RequestCancelledException(Bundle data) {
@@ -377,7 +386,6 @@ public class MAS {
         public Bundle getData() {
             return data;
         }
-
     }
 
     /**
@@ -451,7 +459,7 @@ public class MAS {
 
     @Internal
     public static Context getContext() {
-        return ctx;
+        return appContext;
     }
 
     @Internal
@@ -528,7 +536,9 @@ public class MAS {
      *
      * @return return {@link MASState} of current state.
      */
-    public static @MASState int getState(Context context) {
+    public static
+    @MASState
+    int getState(Context context) {
         if (state != 0) {
             return state;
         }
@@ -555,6 +565,7 @@ public class MAS {
 
     /**
      * Determines whether PKCE extension is enabled.
+     *
      * @return true if PKCE extension is enabled, false otherwise
      */
     public static boolean isPKCEEnabled() {

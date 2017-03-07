@@ -71,7 +71,7 @@ public class MssoContext {
      */
     private static final int MAX_REQUEST_ATTEMPTS = 4;
 
-    private Context context;
+    private Context appContext;
 
     private ConfigurationProvider configurationProvider;
     private PolicyManager policyManager;
@@ -137,7 +137,7 @@ public class MssoContext {
      * @throws MssoException if the token store cannot be prepared
      */
     public void init(Context context) throws MssoException {
-        this.context = context;
+        this.appContext = context.getApplicationContext();
         this.configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
 
         StorageProvider storageProvider = new StorageProvider(context, configurationProvider);
@@ -169,7 +169,7 @@ public class MssoContext {
         if (policyManager == null) {
             policyManager = new PolicyManager(this);
         }
-        policyManager.init(context);
+        policyManager.init(appContext);
     }
 
     /**
@@ -299,7 +299,7 @@ public class MssoContext {
         if (client != null)
             return client;
 
-        client = new MAGHttpClient(context) {
+        client = new MAGHttpClient(appContext) {
             @Override
             protected void onConnectionObtained(HttpURLConnection connection) {
                 super.onConnectionObtained(connection);
@@ -716,7 +716,7 @@ public class MssoContext {
      * @return device-id
      */
     private String generateDeviceId() {
-        return (new DeviceIdentifier(context)).toString();
+        return (new DeviceIdentifier(appContext)).toString();
     }
 
 }

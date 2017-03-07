@@ -32,15 +32,15 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ca.mas.core.conf.Config.HOSTNAME;
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.core.conf.Config.HOSTNAME;
 
 public class ConfigurationManager {
 
     private final String CONNECTED_GATEWAY_CONFIG = "connected_gateway.json";
     private ConfigurationProvider connectedGatewayConfigurationProvider = null;
-    private Context context;
+    private Context appContext;
     private List<Config> appConfigs;
     private String configurationFileName = null;
     private boolean enablePKCE = true;
@@ -77,7 +77,7 @@ public class ConfigurationManager {
     }
 
     public void init(Context context) {
-        this.context = context.getApplicationContext();
+        this.appContext = context.getApplicationContext();
     }
 
     public void setAppConfigs(List<Config> appConfigs) {
@@ -106,8 +106,9 @@ public class ConfigurationManager {
     private void store(JSONObject config) {
         OutputStreamWriter writer = null;
         try {
+            Context appContext = this.appContext;
             writer = new OutputStreamWriter(
-                    context.openFileOutput(CONNECTED_GATEWAY_CONFIG, Context.MODE_PRIVATE));
+                    appContext.openFileOutput(CONNECTED_GATEWAY_CONFIG, Context.MODE_PRIVATE));
             writer.write(config.toString());
             writer.flush();
         } catch (IOException e) {
@@ -128,7 +129,8 @@ public class ConfigurationManager {
         InputStream is = null;
         StringBuilder jsonConfig = new StringBuilder();
         try {
-            is = context.openFileInput(CONNECTED_GATEWAY_CONFIG);
+            Context appContext = this.appContext;
+            is = appContext.openFileInput(CONNECTED_GATEWAY_CONFIG);
             BufferedReader in =
                     new BufferedReader(new InputStreamReader(is, "UTF-8"));
             String str;
@@ -160,10 +162,11 @@ public class ConfigurationManager {
     public void activate(JSONObject jsonObject) {
         try {
             this.connectedGatewayConfigurationProvider = create(jsonObject);
+            Context appContext = this.appContext;
             if (DEBUG) Log.d(TAG,
                     String.format("Activate configuration: %s", jsonObject.toString(4)));
             for (ConfigurationListener c : configurationListeners) {
-                c.onUpdated(context, connectedGatewayConfigurationProvider);
+                c.onUpdated(appContext, connectedGatewayConfigurationProvider);
             }
         } catch (JSONException e) {
             throw new MAGRuntimeException(MAGErrorCode.FAILED_JSON_VALIDATION, e);
@@ -174,7 +177,8 @@ public class ConfigurationManager {
     private JSONObject getConfig(String filename) {
         InputStream is = null;
         try {
-            is = context.getAssets().open(filename);
+            Context appContext = this.appContext;
+            is = appContext.getAssets().open(filename);
             return getConfig(is);
         } catch (IOException e) {
             throw new MAGRuntimeException(MAGErrorCode.FAILED_FILE_NOT_FOUND, e);

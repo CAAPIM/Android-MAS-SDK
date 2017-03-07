@@ -1,11 +1,11 @@
 # Android Mobile SDK
 CA Mobile API Gateway provides enterprises with a secure mobile backend that integrates systems and allows control over which users, devices and applications can access your APIs. The gateway enables developers to leverage standards for API security such as (OAuth2, OpenID Connect, PKI) through client SDKs for Android.
 
-CA Mobile App Services is an extension of CA Mobile API Gateway that provides powerful features through SDKs and APIs for developers to help accelerate the app development process.
+CA Mobile App Services is an extension of the CA Mobile API Gateway which provides powerful features through SDKs and APIs for developers to help accelerate the app development process.
 
 The SDK consists of these frameworks:
 * **mag** - Handles user authentication, device and app registration, requests and local storage of certificates, keys, and token credentials for accessing the protected APIs.
-* **mas** - Messaging and Pub/Sub, Identity Management, and Storage services
+* **mas** - Messaging and Pub/Sub, Identity Management, and Storage services.
 * **masui** - Resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).
 
 For more information about our mobile products see [the website][mas.ca.com].
@@ -15,9 +15,9 @@ For more information about our mobile products see [the website][mas.ca.com].
 * **Secure API Calls** - *Protect APIs with Mutual TLS and control API access on application, user and device level.*
 * **Authentication** - *Implement authentication with username/password, Facebook, Google, Twitter sign-in.*
 * **Second Factor Auth** - *Secure critical APIs with One Time Password.*
-* **Single Sign-On** -* Share user credentials between your apps without coding effort.*
-* **Enterprise Browser** - *Extend single sign on session to web applications.*
-* **Proximity Login** - *Transfer user session between devices and platforms.*
+* **Single Sign-On** -*Share user credentials between your app.*
+* **Enterprise Browser** - *Extend the single sign-on session to web applications.*
+* **Proximity Login** - *Transfer the user session between devices and platforms.*
 * **Fingerprint Sessions Lock** - *Support phone unlocking using fingerprint recognition.*
 * **Messaging** - *Create collaborative apps with secure, reliable messaging.*
 * **User Management** - *Seamlessly integrate your app with an existing enterprise user directory.*
@@ -25,18 +25,17 @@ For more information about our mobile products see [the website][mas.ca.com].
 * **Pub/Sub** - *Create real-time, IoT-friendly apps using an MQTT-based Pub/Sub infrastructure.*
 * **Adhoc Groups** - *Create groups on-the-fly for collaborative apps.*
 * **Local Storage** - *Store data on devices with enterprise-grade encryption.*
-* **UI Template** - *Provides resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE) saving developers the time of building those UI as well as providing them with a fast way for prototyping apps.*
+* **UI Template** - *Provides resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE), to save time during UI creation and app prototyping.*
 
 
 ## Get Started
 * Read the "[Getting Started][get-started]" guide or watch some [video tutorials][video].
-* Check out our [documentation][documentation] for more details and sample codes
+* Check out our [documentation][documentation] for more details and sample code.
 
 
 ## Communication
-* Have general questions or need help? Open an [issue][issues]
+* Have general questions, need help, or have an idea and want to request a feature? Open an [issue][issues].
 * Find a bug? Open an [issue][issues] with the steps to reproduce it.
-* Request a feature or have an idea? Open an [issue][issues].
 
 ## Installation
 Edit your build.gradle file and add below dependency:
@@ -51,7 +50,7 @@ Edit your build.gradle file and add below dependency:
 Contributions are welcome and much appreciated. To learn more, see the [Contribution Guidelines][contributing].
 
 ## Documentation
-For more documentation and API references, go to our [main website][documentation]
+For more documentation and API references, go to our [main website][documentation].
 
 ## License
 Copyright (c) 2016 CA. All rights reserved.

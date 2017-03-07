@@ -78,7 +78,7 @@ bintray {
         repo = 'maven'
         name = 'mag'
         userOrg = 'caapim'
-        desc = 'SDK to support CA Mobile API Gateway and CA Mobile App Services'
+        desc = 'SDK to support the CA Mobile API Gateway and CA Mobile App Services.'
         websiteUrl = siteUrl
         issueTrackerUrl = issueUrl
         vcsUrl = gitUrl

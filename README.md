@@ -7,8 +7,8 @@ For more information about our mobile products see [the website][mas.ca.com].
 
 The SDK consists of these frameworks:
 - **mag** - Handles user authentication, device and app registration, requests and local storage of certificates, keys, and token credentials for accessing the protected APIs.
-- **mas** - provides Messaging and Pub/Sub, Identity Management, and Storage services
-- **masui** - provides resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).
+- **mas** - Messaging and Pub/Sub, Identity Management, and Storage services
+- **masui** - Resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).
 
 ## Get Started
 Follow our step-by-step guide to [get started][get-started].

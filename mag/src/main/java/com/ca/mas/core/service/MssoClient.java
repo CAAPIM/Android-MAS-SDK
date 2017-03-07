@@ -26,8 +26,6 @@ import com.ca.mas.core.request.internal.AuthenticateRequest;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.util.Functions;
 
-import java.lang.ref.WeakReference;
-
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
@@ -35,7 +33,7 @@ import static com.ca.mas.core.MAG.TAG;
  * Encapsulates use of the MssoService.
  */
 public class MssoClient {
-    private final WeakReference<Context> sysContext;
+    private final Context appContext;
     private final MssoContext mssoContext;
 
     /**
@@ -50,7 +48,7 @@ public class MssoClient {
         if (mssoContext == null)
             throw new NullPointerException("mssoContext");
         this.mssoContext = mssoContext;
-        this.sysContext = new WeakReference<>(sysContext);
+        this.appContext = sysContext.getApplicationContext();
     }
 
     /**
@@ -67,7 +65,7 @@ public class MssoClient {
         MssoRequestQueue.getInstance().addRequest(mssoRequest);
 
         final long requestId = mssoRequest.getId();
-        Context context = sysContext.get();
+        Context context = appContext;
         Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, context, MssoService.class);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
         context.startService(intent);
@@ -90,23 +88,22 @@ public class MssoClient {
         MssoRequestQueue.getInstance().addRequest(mssoRequest);
         long requestId = mssoRequest.getId();
 
-        final Context context = sysContext.get();
-        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, context, MssoService.class);
+        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
         Credentials credentials = new PasswordCredentials(username, password);
         intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
 
-        new MssoClientLogoutAsyncTask(context, mssoContext, resultReceiver, intent).execute((Void) null);
+        new MssoClientLogoutAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
     }
 
     private static class MssoClientLogoutAsyncTask extends AsyncTask<Void, Void, Void> {
-        private WeakReference<Context> contextRef;
+        private Context appContext;
         private MAGResultReceiver aResultReceiver;
         private Intent aIntent;
         private MssoContext aMssoContext;
 
         MssoClientLogoutAsyncTask(Context context, MssoContext mssoContext, MAGResultReceiver resultReceiver, Intent intent) {
-            contextRef = new WeakReference<>(context);
+            appContext = context;
             aResultReceiver = resultReceiver;
             aMssoContext = mssoContext;
             aIntent = intent;
@@ -125,38 +122,8 @@ public class MssoClient {
                 if (DEBUG) Log.w(TAG, ignore);
             }
 
-            Context context = contextRef.get();
+            Context context = appContext;
             context.startService(aIntent);
-            return null;
-        }
-    }
-
-    private static class MssoClientAuthenticateAsyncTask extends AsyncTask<Void, Void, Void> {
-        private WeakReference<Context> contextRef;
-        private MAGResultReceiver aResultReceiver;
-        private Intent aIntent;
-        private MssoContext aMssoContext;
-
-        MssoClientAuthenticateAsyncTask(Context context, MssoContext mssoContext, MAGResultReceiver resultReceiver, Intent intent) {
-            contextRef = new WeakReference<>(context);
-            aResultReceiver = resultReceiver;
-            aMssoContext = mssoContext;
-            aIntent = intent;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                aMssoContext.logout(true);
-            } catch (SecureLockException e) {
-                if (aResultReceiver != null) {
-                    aResultReceiver.onError(new MAGError(e));
-                }
-                return null;
-            } catch (Exception ignore) {
-                if (DEBUG) Log.w(TAG, ignore);
-            }
-            contextRef.get().startService(aIntent);
             return null;
         }
     }
@@ -176,13 +143,42 @@ public class MssoClient {
         MssoRequestQueue.getInstance().addRequest(mssoRequest);
         long requestId = mssoRequest.getId();
 
-        final Context context = sysContext.get();
-        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, context, MssoService.class);
+        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
         Credentials credentials = new AuthorizationCodeCredentials(authCode, state);
         intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
 
-        new MssoClientLogoutAsyncTask(context, mssoContext, resultReceiver, intent).execute((Void) null);
+        new MssoClientAuthenticateAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
+    }
+
+    private static class MssoClientAuthenticateAsyncTask extends AsyncTask<Void, Void, Void> {
+        private Context aAppContext;
+        private MAGResultReceiver aResultReceiver;
+        private Intent aIntent;
+        private MssoContext aMssoContext;
+
+        MssoClientAuthenticateAsyncTask(Context context, MssoContext mssoContext, MAGResultReceiver resultReceiver, Intent intent) {
+            aAppContext = context;
+            aResultReceiver = resultReceiver;
+            aMssoContext = mssoContext;
+            aIntent = intent;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                aMssoContext.logout(true);
+            } catch (SecureLockException e) {
+                if (aResultReceiver != null) {
+                    aResultReceiver.onError(new MAGError(e));
+                }
+                return null;
+            } catch (Exception ignore) {
+                if (DEBUG) Log.w(TAG, ignore);
+            }
+            aAppContext.startService(aIntent);
+            return null;
+        }
     }
 
     /**
@@ -192,9 +188,9 @@ public class MssoClient {
         // Currently this should only be necessary when we have started the UNLOCK activity.
         // For the Log On activity, it should take care of signalling the MssoService when it should retry.
         if (MssoState.isExpectedUnlock()) {
-            Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, sysContext.get(), MssoService.class);
+            Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, appContext, MssoService.class);
             intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, (long) -1);
-            sysContext.get().startService(intent);
+            appContext.startService(intent);
         }
     }
 

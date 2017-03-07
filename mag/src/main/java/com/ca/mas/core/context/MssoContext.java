@@ -46,7 +46,6 @@ import com.ca.mas.core.token.JWTValidation;
 import com.ca.mas.core.token.JWTValidationException;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.util.Date;
 
@@ -72,7 +71,7 @@ public class MssoContext {
      */
     private static final int MAX_REQUEST_ATTEMPTS = 4;
 
-    private WeakReference<Context> contextRef;
+    private Context appContext;
 
     private ConfigurationProvider configurationProvider;
     private PolicyManager policyManager;
@@ -138,7 +137,7 @@ public class MssoContext {
      * @throws MssoException if the token store cannot be prepared
      */
     public void init(Context context) throws MssoException {
-        this.contextRef = new WeakReference<>(context);
+        this.appContext = context.getApplicationContext();
         this.configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
 
         StorageProvider storageProvider = new StorageProvider(context, configurationProvider);
@@ -170,7 +169,7 @@ public class MssoContext {
         if (policyManager == null) {
             policyManager = new PolicyManager(this);
         }
-        policyManager.init(contextRef.get());
+        policyManager.init(appContext);
     }
 
     /**
@@ -300,7 +299,7 @@ public class MssoContext {
         if (client != null)
             return client;
 
-        client = new MAGHttpClient(contextRef.get()) {
+        client = new MAGHttpClient(appContext) {
             @Override
             protected void onConnectionObtained(HttpURLConnection connection) {
                 super.onConnectionObtained(connection);
@@ -717,7 +716,7 @@ public class MssoContext {
      * @return device-id
      */
     private String generateDeviceId() {
-        return (new DeviceIdentifier(contextRef.get())).toString();
+        return (new DeviceIdentifier(appContext)).toString();
     }
 
 }

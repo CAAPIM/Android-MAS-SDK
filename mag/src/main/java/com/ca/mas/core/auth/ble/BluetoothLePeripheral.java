@@ -39,7 +39,6 @@ import com.ca.mas.core.http.MAGResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.util.UUID;
 
@@ -52,7 +51,7 @@ public class BluetoothLePeripheral {
 
     private static BluetoothLePeripheral instance = new BluetoothLePeripheral();
 
-    private WeakReference<Context> contextRef;
+    private Context appContext;
     private ConfigurationProvider configurationProvider;
     private BluetoothLePeripheralCallback callback;
 
@@ -70,7 +69,7 @@ public class BluetoothLePeripheral {
     }
 
     public void init(ConfigurationProvider configurationProvider, Context context) {
-        this.contextRef = new WeakReference<>(context);
+        this.appContext = context.getApplicationContext();
         this.configurationProvider = configurationProvider;
         stop();
     }
@@ -88,7 +87,7 @@ public class BluetoothLePeripheral {
             return;
         }
 
-        final Context context = contextRef.get();
+        final Context context = appContext;
         if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             notifyWithError(BluetoothLe.BLE_ERROR_NOT_SUPPORTED);
             return;

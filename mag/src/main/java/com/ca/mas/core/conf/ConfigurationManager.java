@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +40,7 @@ public class ConfigurationManager {
 
     private final String CONNECTED_GATEWAY_CONFIG = "connected_gateway.json";
     private ConfigurationProvider connectedGatewayConfigurationProvider = null;
-    private WeakReference<Context> context;
+    private Context appContext;
     private List<Config> appConfigs;
     private String configurationFileName = null;
     private boolean enablePKCE = true;
@@ -78,7 +77,7 @@ public class ConfigurationManager {
     }
 
     public void init(Context context) {
-        this.context = new WeakReference<>(context.getApplicationContext());
+        this.appContext = context.getApplicationContext();
     }
 
     public void setAppConfigs(List<Config> appConfigs) {
@@ -107,7 +106,7 @@ public class ConfigurationManager {
     private void store(JSONObject config) {
         OutputStreamWriter writer = null;
         try {
-            Context appContext = context.get();
+            Context appContext = this.appContext;
             writer = new OutputStreamWriter(
                     appContext.openFileOutput(CONNECTED_GATEWAY_CONFIG, Context.MODE_PRIVATE));
             writer.write(config.toString());
@@ -130,7 +129,7 @@ public class ConfigurationManager {
         InputStream is = null;
         StringBuilder jsonConfig = new StringBuilder();
         try {
-            Context appContext = context.get();
+            Context appContext = this.appContext;
             is = appContext.openFileInput(CONNECTED_GATEWAY_CONFIG);
             BufferedReader in =
                     new BufferedReader(new InputStreamReader(is, "UTF-8"));
@@ -163,7 +162,7 @@ public class ConfigurationManager {
     public void activate(JSONObject jsonObject) {
         try {
             this.connectedGatewayConfigurationProvider = create(jsonObject);
-            Context appContext = context.get();
+            Context appContext = this.appContext;
             if (DEBUG) Log.d(TAG,
                     String.format("Activate configuration: %s", jsonObject.toString(4)));
             for (ConfigurationListener c : configurationListeners) {
@@ -178,7 +177,7 @@ public class ConfigurationManager {
     private JSONObject getConfig(String filename) {
         InputStream is = null;
         try {
-            Context appContext = context.get();
+            Context appContext = this.appContext;
             is = appContext.getAssets().open(filename);
             return getConfig(is);
         } catch (IOException e) {

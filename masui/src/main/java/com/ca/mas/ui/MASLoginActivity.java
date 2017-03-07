@@ -8,7 +8,6 @@
 package com.ca.mas.ui;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -50,7 +49,6 @@ import com.ca.mas.foundation.auth.MASProximityLoginBLECentralListener;
 import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 import static com.ca.mas.core.MAG.DEBUG;
@@ -62,7 +60,7 @@ import static com.ca.mas.core.MAG.TAG;
  */
 public class MASLoginActivity extends AppCompatActivity {
     private long mRequestId;
-    private WeakReference<Activity> mActivityRef;
+    private Context mContext;
     private EditText mEditTextUsername;
     private EditText mEditTextPassword;
     private GridLayout mGridLayout;
@@ -75,7 +73,7 @@ public class MASLoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mas_login);
-        mActivityRef = new WeakReference<Activity>(this);
+        mContext = this;
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -165,7 +163,7 @@ public class MASLoginActivity extends AppCompatActivity {
                                 progress.setCancelable(false);
                                 progress.show();
 
-                                final Context context = mActivityRef.get();
+                                final Context context = mContext;
                                 MASCustomTabs.socialLogin(context, p, new MASCallback<Void>() {
                                     @Override
                                     public void onSuccess(Void result) {

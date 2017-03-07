@@ -41,7 +41,6 @@ import com.ca.mas.foundation.notify.Callback;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
@@ -58,8 +57,8 @@ import static com.ca.mas.core.MAG.TAG;
  * can be found and utilized.
  */
 public class MAS {
-    private static WeakReference<Context> appContextRef;
-    private static WeakReference<Activity> currentActivityRef;
+    private static Context appContext;
+    private static Activity currentActivity;
     private static boolean hasRegisteredActivityCallback;
     private static MASAuthenticationListener masAuthenticationListener;
     private static int state;
@@ -67,26 +66,25 @@ public class MAS {
     private static synchronized void init(@NonNull final Context context) {
         stop();
         // Initialize the MASConfiguration
-        Context appContext = context.getApplicationContext();
-        appContextRef = new WeakReference<>(appContext);
+        appContext = context.getApplicationContext();
         if (context instanceof Activity) {
-            currentActivityRef = new WeakReference<>((Activity) context);
+            currentActivity = (Activity) context;
         }
 
         registerActivityLifecycleCallbacks((Application) appContext);
 
         // This is important, don't remove this
         new MASConfiguration(appContext);
-        ConfigurationManager.getInstance().setMobileSsoListener(new MASMobileSsoListener(context));
+        ConfigurationManager.getInstance().setMobileSsoListener(new MASMobileSsoListener(appContext));
         MASConnectaManager.getInstance().start(appContext);
     }
 
     private static class MASMobileSsoListener implements MobileSsoListener {
 
-        private WeakReference<Context> contextRef;
+        private Context mAppContext;
 
         MASMobileSsoListener(Context context) {
-            contextRef = new WeakReference<>(context);
+            mAppContext = context;
         }
 
         @Override
@@ -94,19 +92,18 @@ public class MAS {
             if (masAuthenticationListener == null) {
                 Class<Activity> loginActivity = getLoginActivity();
                 if (loginActivity != null) {
-                    Context context = contextRef.get();
-                    if (context != null) {
-                        Intent intent = new Intent(context, loginActivity);
+                    if (mAppContext != null) {
+                        Intent intent = new Intent(mAppContext, loginActivity);
                         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
                         intent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, new MASAuthenticationProviders(provider));
-                        context.startActivity(intent);
+                        mAppContext.startActivity(intent);
                     }
                 } else {
                     if (DEBUG)
                         Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for user authentication.");
                 }
             } else {
-                masAuthenticationListener.onAuthenticateRequest(currentActivityRef.get(), requestId, new MASAuthenticationProviders(provider));
+                masAuthenticationListener.onAuthenticateRequest(currentActivity, requestId, new MASAuthenticationProviders(provider));
             }
         }
 
@@ -115,18 +112,17 @@ public class MAS {
             if (masAuthenticationListener == null) {
                 Class<Activity> otpActivity = getOtpActivity();
                 if (otpActivity != null) {
-                    Context context = contextRef.get();
-                    if (context != null) {
-                        Intent intent = new Intent(context, otpActivity);
+                    if (mAppContext != null) {
+                        Intent intent = new Intent(mAppContext, otpActivity);
                         intent.putExtra(MssoIntents.EXTRA_OTP_HANDLER, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
-                        context.startActivity(intent);
+                        mAppContext.startActivity(intent);
                     }
                 } else {
                     if (DEBUG)
                         Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for otp authentication.");
                 }
             } else {
-                masAuthenticationListener.onOtpAuthenticateRequest(currentActivityRef.get(), new MASOtpAuthenticationHandler(otpAuthenticationHandler));
+                masAuthenticationListener.onOtpAuthenticateRequest(currentActivity, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
             }
         }
     }
@@ -148,7 +144,7 @@ public class MAS {
 
             @Override
             public void onActivityResumed(Activity activity) {
-                currentActivityRef = new WeakReference<>(activity);
+                currentActivity = activity;
             }
 
             @Override
@@ -167,10 +163,10 @@ public class MAS {
 
             @Override
             public void onActivityDestroyed(Activity activity) {
-                if (currentActivityRef != null) {
-                    Activity currentActivity = currentActivityRef.get();
-                    if (currentActivity != null && currentActivity == activity) {
-                        currentActivityRef = null;
+                if (currentActivity != null) {
+                    Activity currentActivity = MAS.currentActivity;
+                    if (currentActivity == activity) {
+                        MAS.currentActivity = null;
                     }
                 }
             }
@@ -463,12 +459,12 @@ public class MAS {
 
     @Internal
     public static Context getContext() {
-        return appContextRef.get();
+        return appContext;
     }
 
     @Internal
     public static Activity getCurrentActivity() {
-        return currentActivityRef.get();
+        return currentActivity;
     }
 
     /**

@@ -10,8 +10,7 @@ package com.ca.mas.foundation;
 
 
 /**
- * Encapsulate a general MAS error.
- * An exception that returned to {@link MASCallback#onError(Throwable)}
+ * Encapsulates a general MAS error as an exception that returns to a {@link MASCallback#onError(Throwable)}.
  */
 public class MASException extends Throwable {
 

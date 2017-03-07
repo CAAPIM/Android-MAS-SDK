@@ -6,11 +6,14 @@
  *
  */
 
-package com.ca.mas;
+package com.ca.mas.foundation;
 
-public class OnErrorResult extends RuntimeException {
+import android.support.test.runner.AndroidJUnit4;
 
-    public OnErrorResult(Throwable cause) {
-        super(cause);
-    }
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
+public class MASStartTest {
+
+
 }

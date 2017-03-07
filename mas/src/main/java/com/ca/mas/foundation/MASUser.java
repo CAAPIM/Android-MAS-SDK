@@ -178,7 +178,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                 current = createMASUser();
             }
         }
-        if (current!= null &&
+        if (current != null &&
                 !current.isAuthenticated() &&
                 !current.isSessionLocked()) {
             //The user's session has been removed,
@@ -372,17 +372,13 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                 execute(new Functions.NullaryVoid() {
                     @Override
                     public void call() {
-                        try {
-                            String userId = user.getId();
-                            MASTopic masTopic = new MASTopicBuilder()
-                                    .setUserId(userId)
-                                    .setCustomTopic(topic)
-                                    .build();
+                        String userId = user.getId();
+                        MASTopic masTopic = new MASTopicBuilder()
+                                .setUserId(userId)
+                                .setCustomTopic(topic)
+                                .build();
 
-                            MASConnectaManager.getInstance().publish(masTopic, message, callback);
-                        } catch (MASException me) {
-                            callback.onError(me);
-                        }
+                        MASConnectaManager.getInstance().publish(masTopic, message, callback);
                     }
                 }, callback);
             }
@@ -392,17 +388,13 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                 execute(new Functions.NullaryVoid() {
                     @Override
                     public void call() {
-                        try {
-                            String userId = current.getId();
-                            MASTopic masTopic = new MASTopicBuilder()
-                                    .setUserId(userId)
-                                    .setCustomTopic("#")
-                                    .build();
+                        String userId = current.getId();
+                        MASTopic masTopic = new MASTopicBuilder()
+                                .setUserId(userId)
+                                .setCustomTopic("#")
+                                .build();
 
-                            startListeningToTopic(masTopic, callback);
-                        } catch (MASException me) {
-                            callback.onError(me);
-                        }
+                        startListeningToTopic(masTopic, callback);
                     }
                 }, callback);
             }
@@ -412,17 +404,13 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                 execute(new Functions.NullaryVoid() {
                     @Override
                     public void call() {
-                        try {
-                            String userId = current.getId();
-                            MASTopic masTopic = new MASTopicBuilder()
-                                    .setUserId(userId)
-                                    .setCustomTopic("#")
-                                    .build();
+                        String userId = current.getId();
+                        MASTopic masTopic = new MASTopicBuilder()
+                                .setUserId(userId)
+                                .setCustomTopic("#")
+                                .build();
 
-                            stopListeningToTopic(masTopic, callback);
-                        } catch (MASException me) {
-                            callback.onError(me);
-                        }
+                        stopListeningToTopic(masTopic, callback);
                     }
                 }, callback);
             }

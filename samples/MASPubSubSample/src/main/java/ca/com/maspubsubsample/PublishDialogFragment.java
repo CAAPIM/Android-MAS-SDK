@@ -24,7 +24,6 @@ import android.widget.EditText;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
@@ -71,39 +70,35 @@ public class PublishDialogFragment extends DialogFragment implements DialogInter
                 boolean retain = checkBoxRetain.isChecked();
                 Integer qos = selectQosView.getSelectedQos();
 
-                try {
-                    MASTopicBuilder masTopicBuilder = new MASTopicBuilder()
-                            .setCustomTopic(topic)
-                            .setQos(qos);
-                    if (MASUser.getCurrentUser() != null) {
-                        masTopicBuilder.setUserId(MASUser.getCurrentUser().getId());
-                    }
-                    if (getPubSubActivity().isPublicBroker()) {
-                        masTopicBuilder.enforceTopicStructure(false);
-                    }
-                    MASTopic masTopic = masTopicBuilder.build();
-
-                    MASMessage masMessage = MASMessage.newInstance();
-                    masMessage.setTopic(masTopic.toString());
-                    masMessage.setContentType(MessagingConsts.MT_TEXT_PLAIN);
-                    masMessage.setPayload(message.getBytes());
-                    masMessage.setQos(qos);
-                    masMessage.setRetained(retain);
-
-                    MASConnectaManager.getInstance().publish(masTopic, masMessage, new MASCallback<Void>() {
-                        @Override
-                        public void onSuccess(Void result) {
-                            Log.i(TAG, "Published message");
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            Log.d(TAG, "Failed to publish message: " + e.getMessage());
-                        }
-                    });
-                } catch (MASException e) {
-                    Log.d(TAG, "Failed to build topic: " + e.getMessage());
+                MASTopicBuilder masTopicBuilder = new MASTopicBuilder()
+                        .setCustomTopic(topic)
+                        .setQos(qos);
+                if (MASUser.getCurrentUser() != null) {
+                    masTopicBuilder.setUserId(MASUser.getCurrentUser().getId());
                 }
+                if (getPubSubActivity().isPublicBroker()) {
+                    masTopicBuilder.enforceTopicStructure(false);
+                }
+                MASTopic masTopic = masTopicBuilder.build();
+
+                MASMessage masMessage = MASMessage.newInstance();
+                masMessage.setTopic(masTopic.toString());
+                masMessage.setContentType(MessagingConsts.MT_TEXT_PLAIN);
+                masMessage.setPayload(message.getBytes());
+                masMessage.setQos(qos);
+                masMessage.setRetained(retain);
+
+                MASConnectaManager.getInstance().publish(masTopic, masMessage, new MASCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void result) {
+                        Log.i(TAG, "Published message");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "Failed to publish message: " + e.getMessage());
+                    }
+                });
 
                 break;
             case DialogInterface.BUTTON_NEGATIVE:

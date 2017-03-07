@@ -58,7 +58,7 @@ public class ScimUserRepository implements UserRepository {
                         });
 
                     } catch (JSONException e) {
-                        onError(e);
+                        Callback.onError(result, e);
                     }
 
                 }

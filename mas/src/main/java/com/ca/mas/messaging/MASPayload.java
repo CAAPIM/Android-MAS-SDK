@@ -10,8 +10,6 @@ package com.ca.mas.messaging;
 
 import android.content.Context;
 
-import com.ca.mas.foundation.MASException;
-
 /**
  * <p><b>MASPayload</b> describes the message format that is passed between MAS clients. The payload is a simple
  * JSON document consisting of 8 key/value pairs;</p>
@@ -176,14 +174,14 @@ public interface MASPayload {
      *
      * @return String representing the base64 encoded JSON document.
      */
-    /* public */ String createJSONStringFromMASMessage(Context context) throws MASException;
+    /* public */ String createJSONStringFromMASMessage(Context context) throws MASMessageException;
 
     /**
      * <b>Description:</b> This method takes a JSON object that has been turned into a String and attempts to turn it into a
      * MASPayload object. This is a re-serialization of the transmitted MASPayload.
      *
      * @param jsonStr the JSON object, as a String, representing the MASPayload.
-     * @throws MASException if the String cannot be converted or is not valid JSON.
+     * @throws MASMessageException if the String cannot be converted or is not valid JSON.
      */
-    /* public */ void createMASMessageFromJSONString(String jsonStr) throws MASException;
+    /* public */ void createMASMessageFromJSONString(String jsonStr) throws MASMessageException;
 }

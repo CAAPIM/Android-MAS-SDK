@@ -13,11 +13,9 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
@@ -82,8 +80,8 @@ public class UserIdentityManager {
                 try {
                     List<MASUser> container = new ArrayList<>();
                     processUsersByFilter(filteredRequest, result.getBody().getContent(), container, callback);
-                } catch (Exception je) {
-                    onError(new MAGError(je));
+                } catch (JSONException e) {
+                    Callback.onError(callback, e);
                 }
             }
 
@@ -111,8 +109,8 @@ public class UserIdentityManager {
             public void onSuccess(MASResponse<JSONObject> result) {
                 try {
                     Callback.onSuccess(callback, processUserById(result.getBody().getContent()));
-                } catch (Exception je) {
-                    onError(new MAGError(je));
+                } catch (JSONException e) {
+                    Callback.onError(callback, e);
                 }
             }
 
@@ -138,8 +136,8 @@ public class UserIdentityManager {
                     JSONObject jsonObject = result.getBody().getContent();
                     UserAttributes userAttributes = getAttributes(jsonObject);
                     Callback.onSuccess(callback, userAttributes);
-                } catch (MASException e) {
-                    onError(new MAGError(e));
+                } catch (JSONException e) {
+                    Callback.onError(callback, e);
                 }
             }
 
@@ -182,7 +180,7 @@ public class UserIdentityManager {
     /*
     Helper method for retrieving users when paging is involved.
      */
-    private void getUsers(final MASFilteredRequest filteredRequest, final List<MASUser> masUsers, final MASCallback<List<MASUser>> callback) throws MASException {
+    private void getUsers(final MASFilteredRequest filteredRequest, final List<MASUser> masUsers, final MASCallback<List<MASUser>> callback) {
         Uri uri = filteredRequest.createUri(MAS.getContext());
         MASRequest masRequest = new MASRequest.MASRequestBuilder(uri)
                 .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
@@ -211,29 +209,25 @@ public class UserIdentityManager {
     /*
     Helper method for populating attributes.
      */
-    private UserAttributes getAttributes(JSONObject jsonObject) throws MASException {
+    private UserAttributes getAttributes(JSONObject jsonObject) throws JSONException {
         String id = jsonObject.optString(IdentityConsts.KEY_ID);
         if (TextUtils.isEmpty(id)) {
-            throw new MASException("The ID cannot be null!");
+            throw new IllegalArgumentException("The ID cannot be null!");
         }
 
-        try {
-            if (id.equals(IdentityConsts.SCHEMA_USER)) {
-                UserAttributes userAttributes = new UserAttributes();
-                userAttributes.populate(jsonObject);
-                return userAttributes;
-            } else {
-                return null;
-            }
-        } catch (JSONException je) {
-            throw new MASException(je);
+        if (id.equals(IdentityConsts.SCHEMA_USER)) {
+            UserAttributes userAttributes = new UserAttributes();
+            userAttributes.populate(jsonObject);
+            return userAttributes;
+        } else {
+            return null;
         }
     }
 
     /*
     Helper method for processing users.
      */
-    private void processUsersByFilter(MASFilteredRequest filteredRequest, JSONObject jsonObject, List<MASUser> container, MASCallback<List<MASUser>> callback) throws JSONException, MASException {
+    private void processUsersByFilter(MASFilteredRequest filteredRequest, JSONObject jsonObject, List<MASUser> container, MASCallback<List<MASUser>> callback) throws JSONException {
 
         // get the array 'Resources'
         if (jsonObject.has(IdentityConsts.KEY_RESOURCES)) {

@@ -24,6 +24,7 @@ import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.CredentialRequiredException;
+import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
 import com.ca.mas.core.registration.DeviceRegistrationAwaitingActivationException;
 import com.ca.mas.core.registration.RegistrationClient;
@@ -91,14 +92,17 @@ class DeviceRegistrationAssertion implements MssoAssertion {
             return;
         }
 
-        boolean success = false;
+        boolean clearCredentials = true;
         try {
             registerDevice(mssoContext, request);
-            success = true;
+        } catch (RetryRequestException e) {
+            //Need the credentials to retry
+            clearCredentials = false;
+            throw e;
         } finally {
             // If registration fails, clear any cached credentials so the user will be prompted again.
-            if (!success || (mssoContext.getCredentials() != null && !mssoContext.getCredentials().isReuseable())) {
-                mssoContext.setCredentials(null);
+            if (clearCredentials || (mssoContext.getCredentials() != null && !mssoContext.getCredentials().isReuseable())) {
+                mssoContext.clearCredentials();
             }
         }
     }

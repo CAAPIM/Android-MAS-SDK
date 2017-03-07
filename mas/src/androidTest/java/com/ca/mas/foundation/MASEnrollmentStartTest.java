@@ -87,7 +87,8 @@ public class MASEnrollmentStartTest extends MASTestBase {
             callback.get();
             Assert.fail();
         } catch (Exception e) {
-            Assert.assertTrue(e.getCause() instanceof SSLHandshakeException);
+            Assert.assertTrue(e.getCause().getCause() instanceof SSLHandshakeException);
+            Assert.assertTrue(((MASException)e.getCause()).getRootCause() instanceof SSLHandshakeException);
         }
     }
 
@@ -115,7 +116,8 @@ public class MASEnrollmentStartTest extends MASTestBase {
             callback.get();
             Assert.fail();
         } catch (Exception e) {
-            Assert.assertTrue(e.getCause() instanceof MASServerException);
+            Assert.assertTrue(e.getCause().getCause() instanceof MASServerException);
+            Assert.assertTrue(((MASException)e.getCause()).getRootCause() instanceof MASServerException);
         }
 
     }

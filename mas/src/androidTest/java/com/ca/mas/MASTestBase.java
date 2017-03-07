@@ -56,7 +56,6 @@ public abstract class MASTestBase {
 
             }
         });
-
     }
 
     @After
@@ -84,7 +83,6 @@ public abstract class MASTestBase {
     protected void setDispatcher(Dispatcher dispatcher) {
         ssg.setDispatcher(dispatcher);
     }
-
 
     protected int getPort() {
         return 41979;

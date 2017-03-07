@@ -24,7 +24,7 @@ import com.ca.mas.connecta.util.ConnectaUtil;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.request.internal.StateRequest;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.foundation.MASException;
+import com.ca.mas.messaging.MASMessageException;
 import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.foundation.util.FoundationUtil;
 import com.ca.mas.messaging.MASMessage;
@@ -178,14 +178,14 @@ public class ConnectaService extends Service implements MASConnectaClient {
         }
     }
 
-    private void initMqttClient() throws MASException, MqttException {
+    private void initMqttClient() throws MASMessageException, MqttException {
         initMqttClient(null);
     }
 
     /*
     Called once the secure socket factory has been created to perform the Mqtt initialization.
      */
-    private void initMqttClient(String magIdentifier) throws MASException, MqttException {
+    private void initMqttClient(String magIdentifier) throws MASMessageException, MqttException {
         if (mMqttClient != null) {
             return;
         }
@@ -346,7 +346,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
             mqttMessage.setQos(message.getQos());
             mqttMessage.setRetained(message.isRetained());
             publish(masTopic, mqttMessage, callback);
-        } catch (MASException me) {
+        } catch (MASMessageException me) {
             Callback.onError(callback, me);
         }
     }

@@ -261,7 +261,7 @@ public final class MobileSsoFactory {
                         JSONObject jsonObject = new JSONObject(url);
                         String provider_url = jsonObject.getString("provider_url");
                         if (resultReceiver instanceof AuthResultReceiver) {
-                            ((AuthResultReceiver) resultReceiver).setJson(jsonObject);
+                            ((AuthResultReceiver) resultReceiver).setData(jsonObject);
                         }
                         builder = new MAGRequest.MAGRequestBuilder(getURI(provider_url));
                     } catch (JSONException e) {

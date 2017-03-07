@@ -27,7 +27,6 @@ import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
@@ -453,7 +452,7 @@ public class MAS {
                 ConfigurationManager.getInstance().setDefaultGrantProvider(GrantProvider.PASSWORD);
                 break;
             default:
-                throw new MASRuntimeException(MAGErrorCode.TYPE_UNSUPPORTED, "Flow Type Unsupported");
+                throw new IllegalArgumentException("Invalid Flow Type");
         }
     }
 

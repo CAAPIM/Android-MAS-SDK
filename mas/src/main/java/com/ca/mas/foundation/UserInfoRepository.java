@@ -39,7 +39,7 @@ class UserInfoRepository implements UserRepository {
                     user = transform(response.getBody().getContent());
                     Callback.onSuccess(result, user);
                 } catch (JSONException e) {
-                    onError(e);
+                    Callback.onError(result, e);
                 }
             }
 

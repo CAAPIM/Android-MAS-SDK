@@ -36,9 +36,11 @@ import java.util.concurrent.CountDownLatch;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class OAuthEndpointTest extends BaseTest {
 
+    @Deprecated
     @Test
     public void getAccessTokenWithInvalidClientCredentials() throws InterruptedException {
         final boolean[] override = {true};
@@ -89,6 +91,7 @@ public class OAuthEndpointTest extends BaseTest {
         assertTrue(result[0].getCause() instanceof InvalidClientCredentialException);
     }
 
+    @Deprecated
     @Test
     public void getAccessTokenWithInvalidResourceOwner() throws InterruptedException {
 
@@ -143,6 +146,7 @@ public class OAuthEndpointTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void getAccessTokenWithNoAccessToken() throws InterruptedException {
 

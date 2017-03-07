@@ -3,6 +3,11 @@ CA Mobile API Gateway provides enterprises with a secure mobile backend that int
 
 CA Mobile App Services is an extension of CA Mobile API Gateway that provides powerful features through SDKs and APIs for developers to help accelerate the app development process.
 
+The SDK consists of these frameworks:
+* **mag** - Handles user authentication, device and app registration, requests and local storage of certificates, keys, and token credentials for accessing the protected APIs.
+* **mas** - Messaging and Pub/Sub, Identity Management, and Storage services
+* **masui** - Resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).
+
 For more information about our mobile products see [the website][mas.ca.com].
 
 ## Features

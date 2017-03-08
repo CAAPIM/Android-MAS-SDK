@@ -41,6 +41,7 @@ import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
@@ -54,6 +55,8 @@ public class MASTest extends MASLoginTestBase {
         assertNotNull(callback.get());
         assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
         assertNotNull(callback.get().getBody().getContent());
+        RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS);
+        assertNotNull(rr.getHeader("Authorization"));
     }
 
     @Test
@@ -494,5 +497,36 @@ public class MASTest extends MASLoginTestBase {
         assertEquals(requestData, new String(recordedRequest.getBody().readUtf8()));
         assertEquals(RESPONSE_HEADER_VALUE, recordedRequest.getHeader(RESPONSE_HEADER_NAME));
         assertTrue(uri.toString().endsWith(recordedRequest.getPath()));
+    }
+
+    @Test
+    public void testAccessUnProtectedEndpoint() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/products?operation=listProducts"))
+                .setPublic()
+                .build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+
+        RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS);
+        assertNull(rr.getHeader("Authorization"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAccessUnProtectedEndpointInOtherServer() throws Throwable {
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI("https://somewhere/protected/resource/products?operation=listProducts"))
+                .setPublic()
+                .build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        try {
+            callback.get();
+        } catch (ExecutionException e) {
+            throw e.getCause().getCause();
+        }
+
     }
 }

@@ -8,6 +8,7 @@
 
 package com.ca.mas.core.creds;
 
+import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.util.Pair;
 
@@ -19,6 +20,7 @@ import java.util.Map;
 /**
  * Credentials for Client Credentials Grant Type
  */
+@SuppressLint("ParcelCreator")
 public class ClientCredentials implements Credentials {
 
     @Override

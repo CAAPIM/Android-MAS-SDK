@@ -151,6 +151,11 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
     }
 
     @Override
+    public boolean isPublic() {
+        return false;
+    }
+
+    @Override
     public boolean notifyOnCancel() {
         return false;
     }

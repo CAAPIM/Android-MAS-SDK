@@ -8,7 +8,6 @@
 package com.ca.mas.core.store;
 
 import android.content.Context;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -151,21 +150,23 @@ public class DefaultTokenManager implements TokenManager {
     @Override
     public PrivateKey createPrivateKey(Context ctx, int keyBits)
     {
-        // Check if we want to encrypt keystore
-        //    Lock screen required to better protect keys in Android Pre-M
-        //       but not required for M+
-        boolean authorizationRequired = false;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            // for Pre-M, we need to encrypt the keystore using lock screen pin,
-            //     unless we don't have a lock screen with AccountManagerStoreDataSource
-            if ( !(storage instanceof AccountManagerStoreDataSource)) {
-                authorizationRequired = true;
-            }
-        }
-
-
         try {
-            return KeyUtils.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_PRIVATE_KEY, MSSO_DN, authorizationRequired);
+            if (storage instanceof AccountManagerStoreDataSource) {
+
+                // don't require a pin/password/swipe
+                return KeyUtils.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_PRIVATE_KEY,
+                     MSSO_DN, false, false, 100000, false);
+
+            } else {
+
+                // for pre-marshmallow devices, require a pin/password/swipe
+                //    which will encrypt the keys at rest
+                // otherwise, the keys are already protected from extraction and use
+                //    except by apps with same signing key + shared user id
+                return KeyUtils.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_PRIVATE_KEY,
+                        MSSO_DN, true, false, 100000, false);
+            }
+
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to create client private key: " + e.getMessage(), e);
             return null;

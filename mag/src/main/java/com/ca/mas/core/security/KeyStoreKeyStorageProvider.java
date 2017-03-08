@@ -164,9 +164,10 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
         try {
             PublicKey publicKey = KeyUtils.getRsaPublicKey(ASYM_KEY_ALIAS);
             if (publicKey == null) {
+
                 KeyUtils.generateRsaPrivateKey(context, 2048,
                             ASYM_KEY_ALIAS, String.format("CN=%s, OU=%s", ASYM_KEY_ALIAS, "com.ca"),
-                            false);
+                            false, false, 100000, false);
                 publicKey = KeyUtils.getRsaPublicKey(ASYM_KEY_ALIAS);
             }
 

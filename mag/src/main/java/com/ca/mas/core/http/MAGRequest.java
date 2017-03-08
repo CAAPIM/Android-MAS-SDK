@@ -246,7 +246,7 @@ public interface MAGRequest {
 
         /**
          * The request is being made outside of primary gateway.
-         * When the value is set to true, all automatically injected credentials in SDK will be excluded in the request.
+         * When the public attribute is set, all automatically injected credentials in SDK will be excluded in the request.
          *
          * @return The builder
          */

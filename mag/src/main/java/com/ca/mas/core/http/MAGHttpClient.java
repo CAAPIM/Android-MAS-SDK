@@ -23,6 +23,7 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLProtocolException;
 import javax.net.ssl.SSLSocketFactory;
 
 import static com.ca.mas.core.MAG.DEBUG;
@@ -124,10 +125,15 @@ public class MAGHttpClient {
             } catch (SSLHandshakeException e) {
                 //Related to MCT-104 & MCT-323
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    if (DEBUG)
-                        Log.w(TAG, "SSLHandshakeException occurs, setting it to response 204");
-                    responseCode = HttpsURLConnection.HTTP_NO_CONTENT;
-                    responseMessage = null;
+                    //TODO While making a secure connection, android was falling back to SSLv3 from TLSv1 . It is a bug in android versions < 4.4
+                    if (e.getCause() != null && e.getCause() instanceof SSLProtocolException) {
+                        if (DEBUG)
+                            Log.w(TAG, "SSLHandshakeException occurs, setting it to response 204");
+                        responseCode = HttpsURLConnection.HTTP_NO_CONTENT;
+                        responseMessage = null;
+                    } else {
+                        throw e;
+                    }
                 } else {
                     throw e;
                 }

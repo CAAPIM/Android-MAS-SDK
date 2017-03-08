@@ -62,7 +62,11 @@ public class Callback {
         if (t instanceof MAGError ) {
             return new MASException(t.getMessage(), t.getCause());
         } else {
-            return new MASException(t);
+            if (t instanceof MASException) {
+                return (MASException) t;
+            } else {
+                return new MASException(t);
+            }
         }
     }
 

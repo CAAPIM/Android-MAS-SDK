@@ -69,12 +69,12 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
 
     /**
      * Retrieve the SecretKey from Storage
+     *
      * @param alias : The alias to find the Key
      * @return The SecretKey
      */
     @Override
-    public SecretKey getKey(String alias)
-    {
+    public SecretKey getKey(String alias) {
         // For Android.M+, if this key was created we'll find it here
         SecretKey secretKey = keyMgr.retrieveKey(alias);
 
@@ -86,7 +86,8 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
                 try {
                     secretKey = decryptSecretKey(encryptedSecretKey);
                 } catch (Exception unableToDecrypt) {
-                    if (DEBUG) Log.e(TAG, "Error while decrypting SecretKey, deleting it", unableToDecrypt);
+                    if (DEBUG)
+                        Log.e(TAG, "Error while decrypting SecretKey, deleting it", unableToDecrypt);
 
                     deleteSecretKeyLocally(alias);
                     encryptedSecretKey = null;
@@ -102,8 +103,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
                     encryptedSecretKey = encryptSecretKey(secretKey);
                     storeSecretKeyLocally(alias, encryptedSecretKey);
                 }
-            }
-            else {
+            } else {
                 // if this is Android.M+, check if the operating system was upgraded
                 //   and we can now store the SecretKey in the AndroidKeyStore
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -119,11 +119,11 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
 
     /**
      * Remove the key
+     *
      * @param alias the alias of the key to remove
      */
     @Override
-    public boolean removeKey(String alias)
-    {
+    public boolean removeKey(String alias) {
         keyMgr.deleteKey(alias);
         deleteSecretKeyLocally(alias);
         return true;
@@ -154,19 +154,19 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
 
     /**
      * This method encrypts a SecretKey using an RSA key.
-     *   This is intended for Pre-Android.M, where the 
-     *   SecretKey cannot be stored in the AndroidKeyStore
+     * This is intended for Pre-Android.M, where the
+     * SecretKey cannot be stored in the AndroidKeyStore
      *
-     * @param secretKey    SecretKey to encrypt
+     * @param secretKey SecretKey to encrypt
      */
-    protected byte[] encryptSecretKey(SecretKey secretKey)
-    {
+    protected byte[] encryptSecretKey(SecretKey secretKey) {
         try {
             PublicKey publicKey = KeyUtils.getRsaPublicKey(ASYM_KEY_ALIAS);
             if (publicKey == null) {
+
                 KeyUtils.generateRsaPrivateKey(context, 2048,
-                            ASYM_KEY_ALIAS, String.format("CN=%s, OU=%s", ASYM_KEY_ALIAS, "com.ca"),
-                            false);
+                        ASYM_KEY_ALIAS, String.format("CN=%s, OU=%s", ASYM_KEY_ALIAS, "com.ca"),
+                        false, false, -1, false);
                 publicKey = KeyUtils.getRsaPublicKey(ASYM_KEY_ALIAS);
             }
 
@@ -186,13 +186,12 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
 
     /**
      * This method decrypts a SecretKey using an RSA key.
-     *   This is intended for Pre-Android.M, where the
-     *   SecretKey cannot be stored in the AndroidKeyStore
+     * This is intended for Pre-Android.M, where the
+     * SecretKey cannot be stored in the AndroidKeyStore
      *
-     * @param encryptedSecretKey  the encrypted bytes of the secret key
+     * @param encryptedSecretKey the encrypted bytes of the secret key
      */
-    protected SecretKey decryptSecretKey(byte encryptedSecretKey[])
-    {
+    protected SecretKey decryptSecretKey(byte encryptedSecretKey[]) {
         try {
             PrivateKey privateKey = KeyUtils.getRsaPrivateKey(ASYM_KEY_ALIAS);
 

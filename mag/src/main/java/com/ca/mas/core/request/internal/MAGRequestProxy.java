@@ -60,4 +60,9 @@ public abstract class MAGRequestProxy implements MAGRequest {
     public String getScope() {
         return request.getScope();
     }
+
+    @Override
+    public boolean isPublic() {
+        return request.isPublic();
+    }
 }

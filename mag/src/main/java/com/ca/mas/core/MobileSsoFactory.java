@@ -27,6 +27,7 @@ import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.MssoClient;
 import com.ca.mas.core.service.MssoIntents;
+import com.ca.mas.core.token.IdToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -313,6 +314,10 @@ public final class MobileSsoFactory {
                 mssoClient.authenticate(authCode, state, resultReceiver);
             }
 
+            @Override
+            public void authenticate(IdToken idToken, MAGResultReceiver<JSONObject> resultReceiver) {
+                mssoClient.authenticate(idToken, resultReceiver);
+            }
 
             @Override
             public void setMobileSsoListener(MobileSsoListener mobileSsoListener) {

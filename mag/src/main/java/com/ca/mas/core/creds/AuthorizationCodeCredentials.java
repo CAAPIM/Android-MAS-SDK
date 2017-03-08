@@ -35,7 +35,7 @@ public class AuthorizationCodeCredentials implements Credentials {
         this.code = code;
         this.state = state;
         if (ConfigurationManager.getInstance().isPKCEEnabled()) {
-            if (state != null) {
+            if (state != null && !state.isEmpty()) {
                 this.codeVerifier = CodeVerifierCache.getInstance().take(state);
             } else {
                 this.codeVerifier = CodeVerifierCache.getInstance().take();

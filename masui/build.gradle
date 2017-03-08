@@ -55,7 +55,9 @@ bintray {
         repo = 'maven'
         name = 'masui'
         userOrg = 'caapim'
-        desc = 'A core UI framework with resources to implement features such as User Login, Social Login, One-Time Password, Proximity Login (QR code and BLE), Enterprise Browser, and Fingerprint Unlock.'
+        desc = 'MASUI is the core UI framework of the Mobile SDK, which is part of CA Mobile App Services. It provides resources to implement a user login dialog, ' +
+                'Social Login, One-Time Password, and Proximity Login (QR code and BLE) saving developers the time of building those UIs as well as providing them ' +
+                'with a fast way for prototyping apps.'
         websiteUrl = siteUrl
         issueTrackerUrl = issueUrl
         vcsUrl = gitUrl

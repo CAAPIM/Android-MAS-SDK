@@ -78,7 +78,7 @@ bintray {
         repo = 'maven'
         name = 'mag'
         userOrg = 'caapim'
-        desc = 'CA Mobile API Gateway (MAG) provides enterprises with a secure mobile backend for system integration and allows control over which users, devices, and applications can access your APIs. The gateway enables developers to leverage standards for API security (for example, OAuth2, OpenID Connect, PKI) through client SDKs for Android, iOS and other platforms.'
+        desc = 'SDK to support the CA Mobile API Gateway and CA Mobile App Services.'
         websiteUrl = siteUrl
         issueTrackerUrl = issueUrl
         vcsUrl = gitUrl

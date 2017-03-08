@@ -90,7 +90,12 @@ bintray {
         repo = 'maven'
         name = 'mas'
         userOrg = 'caapim'
-        desc = 'A secure messaging, storage, and data sharing framework.'
+
+        desc = 'CA Mobile App Services is an extension of the CA Mobile API Gateway and provides powerful features through SDKs and APIs ' +
+                'for developers to help accelerate the app development process.' +
+                'CA Mobile API Gateway provides enterprises with a secure mobile backend that integrates systems and allows for control over ' +
+                'which users, devices and applications can access your APIs. The gateway enables developers to leverage standards for ' +
+                'API security such as (OAuth2, OpenID Connect, PKI) through client SDKs for Android and iOS.'
         websiteUrl = siteUrl
         issueTrackerUrl = issueUrl
         vcsUrl = gitUrl

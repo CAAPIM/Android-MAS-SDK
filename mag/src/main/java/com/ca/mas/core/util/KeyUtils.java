@@ -58,74 +58,73 @@ public class KeyUtils {
 
     /**
      * Generate a new RSA keypair with the specified number of key bits.
-     *     This will always create the key pair inside the AndroidKeyStore,
-     *        ensuring it is always protected.
+     * This will always create the key pair inside the AndroidKeyStore,
+     * ensuring it is always protected.
+     * <p>
+     * For Pre-M, lollipop_setEncryptionRequired requires that the user sets
+     * a screen lock and that the keys will be encrypted at rest.
+     * <p>
+     * For M+:
+     * “The Android Keystore system lets you store cryptographic keys in a
+     * container to make it more difficult to extract from the device.
+     * Once keys are in the keystore, they can be used for cryptographic
+     * operations with the key material remaining non-exportable”.
+     * This means that the key can't be extracted from the keystore, and
+     * note that keys can only be shared between applications with
+     * the same signing key and shared user id.
+     * Therefore, it is not necessary to protect private keys stored
+     * in the AndroidKeyStore with a screen lock in the same way
+     * encryption was required for Pre-M.
+     * <p>
+     * The key protection parameters for M+ AndroidKeyStore RSA keys
+     * marshmallow_setUserAuthenticationValidityDurationSeconds,
+     * and nougat_setInvalidatedByBiometricEnrollment are linked,
+     * below are the combinations:
+     * <p>
+     * 1) Android M+: marshmallow_setUserAuthenticationRequired(false) – the keys
+     * are still protected from export but can be used whenever needed.
+     * 2) Android M+: marshmallow_setUserAuthenticationRequired(true) and
+     * marshmallow_setUserAuthenticationValidityDurationSeconds( > 0 ) –
+     * the key can only be used if the pin has been entered within the given
+     * number of seconds.  On some devices, when a fingerprint is added
+     * the key is invalidated.
+     * 3) Android M+: marshmallow_setUserAuthenticationRequired(true) and
+     * marshmallow_setUserAuthenticationValidityDurationSeconds(zero) –
+     * works only with fingerprint+pin/swipe/pattern, and requires that
+     * the fingerprint is entered every time a key is used.  This requires
+     * an added layer to prompt the user to swipe their fingerprint.
+     * 4) Android N+: nougat_setInvalidatedByBiometricEnrollment(true/false)
+     * changes the behavior in #2 – either the key will or won’t be
+     * invalided when the user adds an or another fingerprint.
      *
-     *  For Pre-M, lollipop_setEncryptionRequired requires that the user sets
-     *      a screen lock and that the keys will be encrypted at rest.
-     *
-     *  For M+:
-     *      “The Android Keystore system lets you store cryptographic keys in a
-     *           container to make it more difficult to extract from the device.
-     *           Once keys are in the keystore, they can be used for cryptographic
-     *           operations with the key material remaining non-exportable”.
-     *           This means that the key can't be extracted from the keystore, and 
-     *           note that keys can only be shared between applications with
-     *           the same signing key and shared user id.
-     *      Therefore, it is not necessary to protect private keys stored
-     *           in the AndroidKeyStore with a screen lock in the same way
-     *           encryption was required for Pre-M.
-     *
-     *      The key protection parameters for M+ AndroidKeyStore RSA keys
-     *           marshmallow_setUserAuthenticationValidityDurationSeconds,
-     *           and nougat_setInvalidatedByBiometricEnrollment are linked,
-     *           below are the combinations:
-     *           
-     *       1) Android M+: marshmallow_setUserAuthenticationRequired(false) – the keys
-     *           are still protected from export but can be used whenever needed.
-     *       2) Android M+: marshmallow_setUserAuthenticationRequired(true) and
-     *           marshmallow_setUserAuthenticationValidityDurationSeconds( > 0 ) –
-     *           the key can only be used if the pin has been entered within the given
-     *           number of seconds.  On some devices, when a fingerprint is added
-     *           the key is invalidated.
-     *       3) Android M+: marshmallow_setUserAuthenticationRequired(true) and
-     *           marshmallow_setUserAuthenticationValidityDurationSeconds(zero) –
-     *           works only with fingerprint+pin/swipe/pattern, and requires that
-     *           the fingerprint is entered every time a key is used.  This requires
-     *           an added layer to prompt the user to swipe their fingerprint.
-     *       4) Android N+: nougat_setInvalidatedByBiometricEnrollment(true/false)
-     *           changes the behavior in #2 – either the key will or won’t be
-     *           invalided when the user adds an or another fingerprint.
-     *
-     * @param context needed for generating key pre-M
-     * @param keysize the key size in bits, eg 2048.
-     * @param alias the keystore alias to use
-     * @oaram lollipop_setEncryptionRequired true/false for pre-Android-M:
-     *           requires that the user sets a screen lock and that the keys will be encrypted at rest
-     * @param marshmallow_userAuthenticationRequired true/false for Android-M+:
-     *           requires a lock screen in order to use the key.  If the validity duration
-     *           is equal to zero, a fingerprint validation is required for every use of the key.
-     * @param marshmallow_userAuthenticationValidityDurationSeconds # secs for Android-M+:
-     *           if user authentication is required, this specifies the number of seconds after
-     *           unlocking the screen where key is still usable.  If this value is zero, a
-     *           fingerprint is required for every use.
-     * @param nougat_invalidatedByBiometricEnrollment true/false for Android-N+:
-     *           if setUserAuthenticationRequired true, some Android M devices may disable
-     *           a key if a fingerprint is added.  Setting this value to true ensures
-     *           the key is usabl even if a fingerprint is added.
+     * @param context                                               needed for generating key pre-M
+     * @param keysize                                               the key size in bits, eg 2048.
+     * @param alias                                                 the keystore alias to use
+     * @param marshmallowUserAuthenticationRequired                true/false for Android-M+:
+     *                                                              requires a lock screen in order to use the key.  If the validity duration
+     *                                                              is equal to zero, a fingerprint validation is required for every use of the key.
+     * @param marshmallowUserAuthenticationValidityDurationSeconds # secs for Android-M+:
+     *                                                              if user authentication is required, this specifies the number of seconds after
+     *                                                              unlocking the screen where key is still usable.  If this value is zero, a
+     *                                                              fingerprint is required for every use.
+     * @param nougat_invalidatedByBiometricEnrollment               true/false for Android-N+:
+     *                                                              if setUserAuthenticationRequired true, some Android M devices may disable
+     *                                                              a key if a fingerprint is added.  Setting this value to true ensures
+     *                                                              the key is usabl even if a fingerprint is added.
      * @return a new RSA PrivateKey.
      * @throws RuntimeException if an RSA key pair of the requested size cannot be generated
+     * @oaram lollipop_setEncryptionRequired true/false for pre-Android-M:
+     * requires that the user sets a screen lock and that the keys will be encrypted at rest
      */
     public static PrivateKey generateRsaPrivateKey(Context context, int keysize,
-                     String alias, String dn, boolean lollipop_encryptionRequired,
-                     boolean marshmallow_userAuthenticationRequired,
-                     int marshmallow_userAuthenticationValidityDurationSeconds,
-                     boolean nougat_invalidatedByBiometricEnrollment)
+                                                   String alias, String dn, boolean lollipop_encryptionRequired,
+                                                   boolean marshmallowUserAuthenticationRequired,
+                                                   int marshmallowUserAuthenticationValidityDurationSeconds,
+                                                   boolean nougat_invalidatedByBiometricEnrollment)
             throws java.security.InvalidAlgorithmParameterException, java.io.IOException,
             java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
             java.security.NoSuchProviderException, java.security.cert.CertificateException,
-            java.security.UnrecoverableKeyException
-    {
+            java.security.UnrecoverableKeyException {
         // use a minimum of 2048
         if (keysize < 2048)
             keysize = 2048;
@@ -134,21 +133,17 @@ public class KeyUtils {
             // use KeyGenParameterSpec.Builder, new in Marshmallow
             //   and include nougat_invalidatedByBiometricEnrollment
             return generateRsaPrivateKey_AndroidN(keysize, alias, dn,
-                      marshmallow_userAuthenticationRequired,
-                      marshmallow_userAuthenticationValidityDurationSeconds,
-                      nougat_invalidatedByBiometricEnrollment);
-        }
-
-        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    marshmallowUserAuthenticationRequired,
+                    marshmallowUserAuthenticationValidityDurationSeconds,
+                    nougat_invalidatedByBiometricEnrollment);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // use KeyGenParameterSpec.Builder, new in Marshmallow
             return generateRsaPrivateKey_AndroidM(keysize, alias, dn,
-                      marshmallow_userAuthenticationRequired,
-                      marshmallow_userAuthenticationValidityDurationSeconds);
-        }
-
-        else {
+                    marshmallowUserAuthenticationRequired,
+                    marshmallowUserAuthenticationValidityDurationSeconds);
+        } else {
             return generateRsaPrivateKey_AndroidL(context, keysize,
-                      alias, dn, lollipop_encryptionRequired);
+                    alias, dn, lollipop_encryptionRequired);
         }
     }
 
@@ -156,35 +151,23 @@ public class KeyUtils {
     /**
      * Android Lollipop and prior:
      * Generate a new RSA keypair with the specified number of key bits.
-     *     This will always create the key pair inside the AndroidKeyStore,
-     *        ensuring it is always protected.
+     * This will always create the key pair inside the AndroidKeyStore,
+     * ensuring it is always protected.
      *
      * @param context needed for generating key Android.M+
      * @param keysize the key size in bits, eg 2048.
-     * @param alias the keystore alias to use
-     * @oaram lollipop_setEncryptionRequired true/false for pre-Android-M:
-     *           requires that the user sets a screen lock and that the keys will be encrypted at rest
-     * @param marshmallow_setUserAuthenticationRequired true/false for Android-M+:
-     *           requires a lock screen in order to use the key.  If the validity duration
-     *           is equal to zero, a fingerprint validation is required for every use of the key.
-     * @param marshmallow_setUserAuthenticationValidityDurationSeconds # secs for Android-M+:
-     *           if user authentication is required, this specifies the number of seconds after
-     *           unlocking the screen where key is still usable.  If this value is zero, a
-     *           fingerprint is required for every use.
-     * @param nougat_setInvalidatedByBiometricEnrollment true/false for Android-N+:
-     *           if setUserAuthenticationRequired true, some Android M devices may disable
-     *           a key if a fingerprint is added.  Setting this value to true ensures
-     *           the key is usabl even if a fingerprint is added.
+     * @param alias   the keystore alias to use
      * @return a new RSA PrivateKey.
      * @throws RuntimeException if an RSA key pair of the requested size cannot be generated
+     * @oaram lollipop_setEncryptionRequired true/false for pre-Android-M:
+     * requires that the user sets a screen lock and that the keys will be encrypted at rest
      */
-    protected static PrivateKey generateRsaPrivateKey_AndroidL(Context context, int keysize,
-                     String alias, String dn, boolean setEncryptionRequired)
+    private static PrivateKey generateRsaPrivateKey_AndroidL(Context context, int keysize,
+                                                             String alias, String dn, boolean setEncryptionRequired)
             throws java.security.InvalidAlgorithmParameterException, java.io.IOException,
             java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
             java.security.NoSuchProviderException, java.security.cert.CertificateException,
-            java.security.UnrecoverableKeyException
-    {
+            java.security.UnrecoverableKeyException {
         // For Android Pre-M (Lollipop and prior)
         // use the KeyPairGeneratorSpec.Builder, deprecated as of Marshmallow
         //    generates the key inside the AndroidKeyStore
@@ -220,29 +203,28 @@ public class KeyUtils {
     /**
      * Android Marshmallow:
      * Generate a new RSA keypair with the specified number of key bits.
-     *     This will always create the key pair inside the AndroidKeyStore
+     * This will always create the key pair inside the AndroidKeyStore
      *
-     * @param keysize the key size in bits, eg 2048.
-     * @param alias the alias against which to store the key against
-     * @param userAuthenticationRequired true/false for Android-M+:
-     *           requires a lock screen in order to use the key.  If the validity duration
-     *           is equal to zero, a fingerprint validation is required for every use of the key.
+     * @param keysize                                   the key size in bits, eg 2048.
+     * @param alias                                     the alias against which to store the key against
+     * @param userAuthenticationRequired                true/false for Android-M+:
+     *                                                  requires a lock screen in order to use the key.  If the validity duration
+     *                                                  is equal to zero, a fingerprint validation is required for every use of the key.
      * @param userAuthenticationValidityDurationSeconds # secs for Android-M+:
-     *           if user authentication is required, this specifies the number of seconds after
-     *           unlocking the screen where key is still usable.  If this value is zero, a
-     *           fingerprint is required for every use.
+     *                                                  if user authentication is required, this specifies the number of seconds after
+     *                                                  unlocking the screen where key is still usable.  If this value is zero, a
+     *                                                  fingerprint is required for every use.
      * @return a new RSA keypair, created in and protected by the AndroidKeyStore, with an
-     *           unusable self-signed certificate
+     * unusable self-signed certificate
      */
     @TargetApi(Build.VERSION_CODES.M)
-    protected static PrivateKey generateRsaPrivateKey_AndroidM(int keysize,
-                        String alias, String dn, boolean userAuthenticationRequired,
-                        int userAuthenticationValidityDurationSeconds)
+    private static PrivateKey generateRsaPrivateKey_AndroidM(int keysize,
+                                                             String alias, String dn, boolean userAuthenticationRequired,
+                                                             int userAuthenticationValidityDurationSeconds)
             throws java.security.InvalidAlgorithmParameterException, java.io.IOException,
             java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
             java.security.NoSuchProviderException, java.security.cert.CertificateException,
-            java.security.UnrecoverableKeyException
-    {
+            java.security.UnrecoverableKeyException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(
                 KeyProperties.KEY_ALGORITHM_RSA, ANDROID_KEY_STORE);
         Calendar cal = Calendar.getInstance();
@@ -251,8 +233,8 @@ public class KeyUtils {
         Date end = cal.getTime();
         keyPairGenerator.initialize(
                 new KeyGenParameterSpec.Builder(alias,
-                       KeyProperties.PURPOSE_ENCRYPT + KeyProperties.PURPOSE_DECRYPT
-                                  + KeyProperties.PURPOSE_SIGN + KeyProperties.PURPOSE_VERIFY)
+                        KeyProperties.PURPOSE_ENCRYPT + KeyProperties.PURPOSE_DECRYPT
+                                + KeyProperties.PURPOSE_SIGN + KeyProperties.PURPOSE_VERIFY)
                         .setKeySize(keysize)
                         .setCertificateNotBefore(now).setCertificateNotAfter(end)
                         .setCertificateSubject(new X500Principal("CN=msso"))
@@ -276,34 +258,33 @@ public class KeyUtils {
     /**
      * Android Nougat and above::
      * Generate a new RSA keypair with the specified number of key bits.
-     *     This will always create the key pair inside the AndroidKeyStore
+     * This will always create the key pair inside the AndroidKeyStore
      *
-     * @param keysize the key size in bits, eg 2048.
-     * @param alias the alias against which to store the key against
-     * @param userAuthenticationRequired true/false for Android-M+:
-     *           requires a lock screen in order to use the key.  If the validity duration
-     *           is equal to zero, a fingerprint validation is required for every use of the key.
+     * @param keysize                                   the key size in bits, eg 2048.
+     * @param alias                                     the alias against which to store the key against
+     * @param userAuthenticationRequired                true/false for Android-M+:
+     *                                                  requires a lock screen in order to use the key.  If the validity duration
+     *                                                  is equal to zero, a fingerprint validation is required for every use of the key.
      * @param userAuthenticationValidityDurationSeconds # secs for Android-M+:
-     *           if user authentication is required, this specifies the number of seconds after
-     *           unlocking the screen where key is still usable.  If this value is zero, a
-     *           fingerprint is required for every use.
-     * @param invalidatedByBiometricEnrollment true/false for Android-N+:
-     *           if setUserAuthenticationRequired true, some Android M devices may disable
-     *           a key if a fingerprint is added.  Setting this value to true ensures
-     *           the key is usabl even if a fingerprint is added.
+     *                                                  if user authentication is required, this specifies the number of seconds after
+     *                                                  unlocking the screen where key is still usable.  If this value is zero, a
+     *                                                  fingerprint is required for every use.
+     * @param invalidatedByBiometricEnrollment          true/false for Android-N+:
+     *                                                  if setUserAuthenticationRequired true, some Android M devices may disable
+     *                                                  a key if a fingerprint is added.  Setting this value to true ensures
+     *                                                  the key is usabl even if a fingerprint is added.
      * @return a new RSA keypair, created in and protected by the AndroidKeyStore, with an
-     *           unusable self-signed certificate
+     * unusable self-signed certificate
      */
     @TargetApi(Build.VERSION_CODES.N)
-    protected static PrivateKey generateRsaPrivateKey_AndroidN(int keysize,
-                        String alias, String dn, boolean userAuthenticationRequired,
-                        int userAuthenticationValidityDurationSeconds,
-                        boolean invalidatedByBiometricEnrollment)
+    private static PrivateKey generateRsaPrivateKey_AndroidN(int keysize,
+                                                             String alias, String dn, boolean userAuthenticationRequired,
+                                                             int userAuthenticationValidityDurationSeconds,
+                                                             boolean invalidatedByBiometricEnrollment)
             throws java.security.InvalidAlgorithmParameterException, java.io.IOException,
             java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
             java.security.NoSuchProviderException, java.security.cert.CertificateException,
-            java.security.UnrecoverableKeyException
-    {
+            java.security.UnrecoverableKeyException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(
                 KeyProperties.KEY_ALGORITHM_RSA, ANDROID_KEY_STORE);
         Calendar cal = Calendar.getInstance();
@@ -312,8 +293,8 @@ public class KeyUtils {
         Date end = cal.getTime();
         keyPairGenerator.initialize(
                 new KeyGenParameterSpec.Builder(alias,
-                       KeyProperties.PURPOSE_ENCRYPT + KeyProperties.PURPOSE_DECRYPT
-                                  + KeyProperties.PURPOSE_SIGN + KeyProperties.PURPOSE_VERIFY)
+                        KeyProperties.PURPOSE_ENCRYPT + KeyProperties.PURPOSE_DECRYPT
+                                + KeyProperties.PURPOSE_SIGN + KeyProperties.PURPOSE_VERIFY)
                         .setKeySize(keysize)
                         .setCertificateNotBefore(now).setCertificateNotAfter(end)
                         .setCertificateSubject(new X500Principal("CN=msso"))
@@ -337,7 +318,7 @@ public class KeyUtils {
 
     /**
      * Get the existing private key.
-     *     Note: the initial self-signed public cert is typically not useful.
+     * Note: the initial self-signed public cert is typically not useful.
      *
      * @param alias the alias of the existing private key
      * @return the Private Key object
@@ -345,8 +326,7 @@ public class KeyUtils {
     public static PrivateKey getRsaPrivateKey(String alias)
             throws java.io.IOException, java.security.KeyStoreException,
             java.security.NoSuchAlgorithmException, java.security.cert.CertificateException,
-            java.security.UnrecoverableKeyException
-    {
+            java.security.UnrecoverableKeyException {
         KeyStore keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
         keyStore.load(null);
         return (PrivateKey) keyStore.getKey(alias, null);
@@ -355,17 +335,16 @@ public class KeyUtils {
 
     /**
      * Get the existing public key.
-     *     Note: the private key will be associated with the initial
-     *     self-signed public certificate.  The PublicKey can be
-     *     used in a Certificate Signing Request.
+     * Note: the private key will be associated with the initial
+     * self-signed public certificate.  The PublicKey can be
+     * used in a Certificate Signing Request.
      *
      * @param alias the alias of the existing private key
      * @return the Private Key object
      */
     public static PublicKey getRsaPublicKey(String alias)
             throws java.io.IOException, java.security.KeyStoreException,
-            java.security.NoSuchAlgorithmException, java.security.cert.CertificateException
-    {
+            java.security.NoSuchAlgorithmException, java.security.cert.CertificateException {
         KeyStore keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
         keyStore.load(null);
         Certificate cert = keyStore.getCertificate(alias);
@@ -378,14 +357,13 @@ public class KeyUtils {
 
     /**
      * Remove the existing public key.
-     *     Note: the initial self-signed public cert is not usable.
+     * Note: the initial self-signed public cert is not usable.
      *
      * @param alias the alias of the existing private key +
      *              self-signed public key
      * @return the Private Key object
      */
-    public static void deletePrivateKey(String alias)
-    {
+    public static void deletePrivateKey(String alias) {
         try {
             KeyStore keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
             keyStore.load(null);
@@ -398,37 +376,37 @@ public class KeyUtils {
 
     /**
      * This will install or replace the existing certificate chain in the AndroidKeyStore.
-     *       The chain will be stored as "alias#".
+     * The chain will be stored as "alias#".
+     *
      * @param aliasPrefix the alias prefix to use, will be appended with position number,
      *                    where position 0 in the array will be 1.
-     * @param chain array of certificates in chain.  Typically the public certificate
-     *              matching the private key will be in array position [0].
+     * @param chain       array of certificates in chain.  Typically the public certificate
+     *                    matching the private key will be in array position [0].
      */
     public static void setCertificateChain(String aliasPrefix, X509Certificate chain[])
             throws java.io.IOException, java.security.KeyStoreException,
-            java.security.NoSuchAlgorithmException, java.security.cert.CertificateException
-    {
+            java.security.NoSuchAlgorithmException, java.security.cert.CertificateException {
         KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
         keyStore.load(null);
         // delete any existing ones
-        for (int i=1; i<=MAX_CHAIN; i++) {
+        for (int i = 1; i <= MAX_CHAIN; i++) {
             keyStore.deleteEntry(aliasPrefix + i);
         }
         // now add the new ones
-        for (int i=0; i<chain.length; i++) {
-            keyStore.setCertificateEntry(aliasPrefix + (i+1), chain[i]);
+        for (int i = 0; i < chain.length; i++) {
+            keyStore.setCertificateEntry(aliasPrefix + (i + 1), chain[i]);
         }
     }
 
     /**
      * Clear any existing certificates in the public certificate chain.
+     *
      * @param aliasPrefix
      * @return
      */
     public static X509Certificate[] getCertificateChain(String aliasPrefix)
             throws java.io.IOException, java.security.KeyStoreException,
-            java.security.NoSuchAlgorithmException, java.security.cert.CertificateException
-    {
+            java.security.NoSuchAlgorithmException, java.security.cert.CertificateException {
         X509Certificate returnChain[] = null;
 
         KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
@@ -445,8 +423,8 @@ public class KeyUtils {
         }
         if (numInChain > 0) {
             returnChain = new X509Certificate[numInChain];
-            for (int i=0; i<numInChain; i++)
-                returnChain[i] = (X509Certificate) keyStore.getCertificate(aliasPrefix + (i+1));
+            for (int i = 0; i < numInChain; i++)
+                returnChain[i] = (X509Certificate) keyStore.getCertificate(aliasPrefix + (i + 1));
         }
 
         return returnChain;
@@ -454,12 +432,12 @@ public class KeyUtils {
 
     /**
      * This will install or replace the existing certificate chain in the AndroidKeyStore.
-     *       The chain will be stored as "alias#".
+     * The chain will be stored as "alias#".
+     *
      * @param aliasPrefix the alias prefix to use, will be appended with position number,
      *                    where position 0 in the array will be 1.
      */
-    public static void clearCertificateChain(String aliasPrefix)
-    {
+    public static void clearCertificateChain(String aliasPrefix) {
         try {
             KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);

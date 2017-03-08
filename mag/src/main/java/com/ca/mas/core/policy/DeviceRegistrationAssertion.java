@@ -86,9 +86,13 @@ class DeviceRegistrationAssertion implements MssoAssertion {
                     throw new com.ca.mas.core.policy.exceptions.CertificateExpiredException(e);
                 }
             }
-            if (DEBUG) Log.d(TAG,
-                    String.format("Device is registered with identifier: %s", tokenManager.getMagIdentifier()));
-            return;
+
+            //The mag identifier may be removed after the key reset.
+            if (tokenManager.getMagIdentifier() != null) {
+                if (DEBUG) Log.d(TAG,
+                        String.format("Device is registered with identifier: %s", tokenManager.getMagIdentifier()));
+                return;
+            }
         }
 
         boolean success = false;

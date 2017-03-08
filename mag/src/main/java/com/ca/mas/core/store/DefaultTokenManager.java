@@ -141,21 +141,21 @@ public class DefaultTokenManager implements TokenManager {
                 return null;
             return new String(identBytes, Charsets.UTF8);
         } catch (TokenStoreException e) {
-            if (DEBUG) Log.e(TAG, "Unable to access client device identifier: " + e.getMessage(), e);
+            if (DEBUG)
+                Log.e(TAG, "Unable to access client device identifier: " + e.getMessage(), e);
             return null;
         }
     }
 
 
     @Override
-    public PrivateKey createPrivateKey(Context ctx, int keyBits)
-    {
+    public PrivateKey createPrivateKey(Context ctx, int keyBits) {
         try {
             if (storage instanceof AccountManagerStoreDataSource) {
 
                 // don't require a pin/password/swipe
                 return KeyUtils.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_PRIVATE_KEY,
-                     MSSO_DN, false, false, 100000, false);
+                        MSSO_DN, false, false, -1, false);
 
             } else {
 
@@ -164,7 +164,7 @@ public class DefaultTokenManager implements TokenManager {
                 // otherwise, the keys are already protected from extraction and use
                 //    except by apps with same signing key + shared user id
                 return KeyUtils.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_PRIVATE_KEY,
-                        MSSO_DN, true, false, 100000, false);
+                        MSSO_DN, true, false, -1, false);
             }
 
         } catch (Exception e) {
@@ -186,7 +186,7 @@ public class DefaultTokenManager implements TokenManager {
     @Override
     public PublicKey getClientPublicKey() {
         try {
-            return  KeyUtils.getRsaPublicKey(MSSO_CLIENT_PRIVATE_KEY);
+            return KeyUtils.getRsaPublicKey(MSSO_CLIENT_PRIVATE_KEY);
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to get client public key: " + e.getMessage(), e);
             return null;

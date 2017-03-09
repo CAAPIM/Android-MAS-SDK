@@ -93,6 +93,7 @@ public class MAS {
                 if (loginActivity != null) {
                     if (mAppContext != null) {
                         Intent intent = new Intent(mAppContext, loginActivity);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
                         intent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, new MASAuthenticationProviders(provider));
                         mAppContext.startActivity(intent);

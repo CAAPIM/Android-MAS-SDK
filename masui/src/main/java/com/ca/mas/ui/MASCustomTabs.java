@@ -18,10 +18,15 @@ import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.auth.MASAuthenticationProvider;
 import com.ca.mas.foundation.notify.Callback;
 
+import net.openid.appauth.AppAuthConfiguration;
 import net.openid.appauth.AuthorizationRequest;
 import net.openid.appauth.AuthorizationService;
 import net.openid.appauth.AuthorizationServiceConfiguration;
 import net.openid.appauth.CodeVerifierUtil;
+import net.openid.appauth.browser.BrowserBlacklist;
+import net.openid.appauth.browser.Browsers;
+import net.openid.appauth.browser.VersionRange;
+import net.openid.appauth.browser.VersionedBrowserMatcher;
 
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
@@ -85,7 +90,20 @@ public class MASCustomTabs {
                         Intent postAuthIntent = new Intent(context, MASOAuthRedirectActivity.class);
                         Intent authCanceledIntent = new Intent(context, MASFinishActivity.class);
 
-                        AuthorizationService service = new AuthorizationService(context);
+                        // Workaround for Samsung's SBrowser
+                        // As described in https://github.com/openid/AppAuth-Android/issues/157
+                        VersionedBrowserMatcher matcher = new VersionedBrowserMatcher(
+                                Browsers.SBrowser.PACKAGE_NAME,
+                                Browsers.SBrowser.SIGNATURE_SET,
+                                true, // uses custom tab
+                                VersionRange.ANY_VERSION);
+                        BrowserBlacklist blacklist = new BrowserBlacklist(matcher);
+
+                        AuthorizationService service = new AuthorizationService(context,
+                                new AppAuthConfiguration.Builder()
+                                        .setBrowserMatcher(blacklist)
+                                        .build());
+
                         service.performAuthorizationRequest(req,
                                 PendingIntent.getActivity(context, req.hashCode(), postAuthIntent, 0),
                                 PendingIntent.getActivity(context, req.hashCode(), authCanceledIntent, 0));

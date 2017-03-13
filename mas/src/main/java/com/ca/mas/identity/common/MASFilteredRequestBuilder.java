@@ -193,11 +193,4 @@ public interface MASFilteredRequestBuilder {
      */
     MASFilteredRequestBuilder setSortOrder(SortOrder sortOrder, @NonNull String attribute);
 
-    /**
-     * <b>Description:</b> Is there another page to retrieve?.
-     *
-     * @return boolean
-     */
-    boolean hasNext();
-
 }

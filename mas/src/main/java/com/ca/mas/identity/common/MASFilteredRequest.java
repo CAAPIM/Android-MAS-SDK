@@ -32,7 +32,6 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
 
     private int mStartIndex;
     private int mCount;
-    private int mTotalResults = PAGE_START_INDEX;
     boolean mIsPaging;
     String mSortUri;
     String mQueryCondition;
@@ -161,28 +160,6 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
     }
 
     @Override
-    public MASFilteredRequestBuilder setTotalResults(int totalResults) {
-
-        // sanity check
-        if (totalResults < PAGE_START_INDEX) {
-            return this;
-        }
-        // this value can be set by the caller prior to calling getRequest
-        // or after receiving the initial response.
-        // In the case where the totalResults available is less than what the caller has
-        // requested then mTotalResults will be updated to reflect what is available
-        // from the web service. In other words; <i>mTotalResults</i> can be increased if
-        // it has not been set previously but it can only be decreased once set, not increased.
-        if (mTotalResults == PAGE_START_INDEX || totalResults < mTotalResults) {
-            mTotalResults = totalResults;
-        }
-        if (mIsPaging && mTotalResults < mCount) {
-            mIsPaging = false;
-        }
-        return this;
-    }
-
-    @Override
     public Uri createUri(@NonNull Context context) {
         // another request...
         if (uri != null) {
@@ -256,43 +233,6 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
             }
         }
         return sb.toString();
-    }
-
-    @Override
-    public boolean hasNext(){
-        if (!mIsPaging) {
-            return false;
-        }
-
-        StringBuilder fullUrl = new StringBuilder();
-        String url = uri.toString();
-        int index = url.indexOf(IdentityConsts.QM);
-        if (index > -1) {
-            String sub = url.substring(0, index);
-            fullUrl.append(sub);
-        } else {
-            return true;
-        }
-        fullUrl.append(IdentityConsts.QM);
-
-        String pagFilter = getPaginationFilter();
-
-        for (int i = 0; i < mQueryComponents.size(); i++) {
-            String comp = mQueryComponents.get(i);
-            if (comp.startsWith(MASPagination.PAGE_START_EXP)) {
-                fullUrl.append(pagFilter);
-            } else {
-                fullUrl.append(comp);
-            }
-            if (i < mQueryComponents.size() - 1) {
-                fullUrl.append(IdentityConsts.AMP);
-            }
-        }
-
-        String encUrl = fullUrl.toString().replaceAll(" ", IdentityConsts.ENC_SPACE);
-        encUrl = encUrl.replaceAll("\"", IdentityConsts.ENC_DOUBLE_QUOTE);
-        uri = Uri.parse(encUrl);
-        return true;
     }
 
     /*

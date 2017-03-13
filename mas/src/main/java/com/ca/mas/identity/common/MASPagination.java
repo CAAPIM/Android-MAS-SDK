@@ -8,9 +8,6 @@
 
 package com.ca.mas.identity.common;
 
-import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.foundation.MASRequest;
-
 /**
  * <p>For example, to retrieve the first 10 Users, set the startIndex to 1
  * and the count to 10:</p>
@@ -48,15 +45,4 @@ public interface MASPagination {
     String PAGE_START = PAGE_START_EXP + "%s";
     String PAGE_INC_BY = "&count=%s";
 
-    /**
-     * <b>Pre-Conditions:</b> The call to {@link com.ca.mas.foundation.MAS#invoke(MASRequest, MASCallback)}  } must have successfully responded.<br>
-     * <b>Description: </b> <i>totalResults</i> is a JSON value returned from SCIM for each successful
-     * response. This value provides a ceiling on the number of iterations, or calls to {@link MASFilteredRequest#hasNext()} that
-     * are necessary to retrieve all the results. The default value for this attribute is {@link MASFilteredRequest#PAGE_START_INDEX},
-     * however, if a user overrides this value prior to the response from {@link MASFilteredRequest#hasNext()} then that user
-     * supplied value will be the number of items returned in total, regardless of how many are available.
-     *
-     * @param totalResults the number of results that are available.
-     */
-    MASFilteredRequestBuilder setTotalResults(int totalResults);
 }

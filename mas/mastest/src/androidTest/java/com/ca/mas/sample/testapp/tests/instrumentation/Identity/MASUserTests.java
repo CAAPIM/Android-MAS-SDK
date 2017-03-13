@@ -53,7 +53,7 @@ public class MASUserTests extends MASIntegrationBaseTest {
     @Test
     public void testPersistUserProfile() throws Exception {
         Assert.assertNotNull(MASUser.getCurrentUser());
-        StorageProvider sp = new StorageProvider( InstrumentationRegistry.getInstrumentation().getTargetContext());
+        StorageProvider sp = new StorageProvider(InstrumentationRegistry.getInstrumentation().getTargetContext());
         TokenManager tm = sp.createTokenManager();
         String storedUserProfile = tm.getUserProfile();
         Assert.assertNotNull(storedUserProfile);
@@ -61,7 +61,7 @@ public class MASUserTests extends MASIntegrationBaseTest {
         assertEquals(getUsername(), source.getString("userName"));
 
         MASUser user = MASUser.getCurrentUser();
-        assertEquals(user.getPhoneList().size(), 1);
+        assertEquals(user.getEmailList().size(), 1);
         assertEquals(getUsername(), user.getUserName());
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -114,371 +114,309 @@ public class MASUserTests extends MASIntegrationBaseTest {
         }
 
 
-
-
     }
 
     /**
      * Gets the user MetaData and stores it in memory for the rest of the tests.
      */
     @Before
-    public void getUserMetadata() {
-        try {
-            final CountDownLatch latch = new CountDownLatch(1);
-            final Object[] result = {false, "unknown"};
-            MASUser.getCurrentUser().getUserMetaData(new MASCallback<UserAttributes>() {
-                @Override
-                public void onSuccess(UserAttributes object) {
-                    userAttribs = object;
-                    result[0] = true;
-                    latch.countDown();
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    result[0] = false;
-                    result[1] = "" + e;
-                    latch.countDown();
-                }
-            });
-            await(latch);
-            if (!(boolean) result[0]) {
-                fail("Reason: " + result[1]);
+    public void getUserMetadata() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        MASUser.getCurrentUser().getUserMetaData(new MASCallback<UserAttributes>() {
+            @Override
+            public void onSuccess(UserAttributes object) {
+                userAttribs = object;
+                result[0] = true;
+                latch.countDown();
             }
-        } catch (InterruptedException e) {
-            fail("" + e);
-        }
+
+            @Override
+            public void onError(Throwable e) {
+                result[0] = false;
+                latch.countDown();
+            }
+        });
+        await(latch);
+        assertTrue(result[0]);
     }
 
     /**
      * Gets all the user(s)containing "s" in the UserName
      */
     @Test
-    public void testGetAllUsersWithContainsAttribute() {
-        try {
-            final CountDownLatch latch = new CountDownLatch(1);
-            final Object[] result = {false, "unknown"};
-            Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            MASUser user = MASUser.getCurrentUser();
-            MASFilteredRequest filter = createFilter(null, null, 0, 0, null, userAttribs.getAttributes(), "s");
-            user.getUsersByFilter(filter, new MASCallback<List<MASUser>>() {
-                @Override
-                public void onSuccess(List<MASUser> object) {
-                    result[0] = true;
-                    latch.countDown();
-                }
-
-                @Override
-                public void onError(Throwable e) {
+    public void testGetAllUsersWithContainsAttribute() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        MASUser user = MASUser.getCurrentUser();
+        MASFilteredRequest filter = new MASFilteredRequest(userAttribs.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES);
+        filter.contains(IdentityConsts.KEY_USERNAME, "s");
+        user.getUsersByFilter(filter, new MASCallback<List<MASUser>>() {
+            @Override
+            public void onSuccess(List<MASUser> object) {
+                result[0] = true;
+                if (object.size() == 0) {
                     result[0] = false;
-                    result[1] = "Error in GetAllUsers " + e;
-                    latch.countDown();
                 }
-            });
-            await(latch);
-            if (!(boolean) result[0]) {
-                fail("Reason: " + result[1]);
-            }
-        } catch (Exception e) {
-            fail("" + e);
-        }
-    }
-
-    /**
-     * Precondition/assumption: getting user(s) containing "s" in the UserName
-     */
-    @Test
-    public void testGetAllUsersWithSortingAsecAttribute() {
-        try {
-            final CountDownLatch latch = new CountDownLatch(1);
-            final Object[] result = {false, "unknown"};
-            Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            MASUser user = MASUser.getCurrentUser();
-            List<String> userAttributes = userAttribs.getAttributes();
-            String sortAttrib = (userAttributes == null || userAttributes.size() == 0) ? null : userAttributes.get(0);
-            MASFilteredRequest filter = createFilter(MASFilteredRequestBuilder.SortOrder.ascending, sortAttrib, 0, 0, null, userAttributes, "s");
-            user.getUsersByFilter(filter, new MASCallback<List<MASUser>>() {
-                @Override
-                public void onSuccess(List<MASUser> object) {
-                    result[0] = true;
-                    latch.countDown();
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    result[0] = false;
-                    result[1] = "Error in GetAllUsers " + e;
-                    latch.countDown();
-                }
-            });
-            await(latch);
-            if (!(boolean) result[0]) {
-                fail("Reason: " + result[1]);
-            }
-        } catch (Exception e) {
-            fail("" + e);
-        }
-    }
-
-    /**
-     * Precondition/assumption: getting user(s) containing "s" in the UserName
-     */
-    @Test
-    public void testGetAllUsersWithSortingDescAttribute() {
-        try {
-            final CountDownLatch latch = new CountDownLatch(1);
-            final Object[] result = {false, "unknown"};
-            Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            MASUser user = MASUser.getCurrentUser();
-            List<String> userAttributes = userAttribs.getAttributes();
-            String sortAttrib = (userAttributes == null || userAttributes.size() == 0) ? null : userAttributes.get(0);
-            MASFilteredRequest filter = createFilter(MASFilteredRequestBuilder.SortOrder.descending, sortAttrib, 0, 0, null, userAttributes, "s");
-            user.getUsersByFilter(filter, new MASCallback<List<MASUser>>() {
-                @Override
-                public void onSuccess(List<MASUser> object) {
-                    result[0] = true;
-                    latch.countDown();
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    result[0] = false;
-                    result[1] = "Error in GetAllUsers " + e;
-                    latch.countDown();
-                }
-            });
-            await(latch);
-            if (!(boolean) result[0]) {
-                fail("Reason: " + result[1]);
-            }
-        } catch (Exception e) {
-            fail("" + e);
-        }
-    }
-
-
-    /**
-     * Precondition/assumption: getting user(s) containing "s" in the UserName
-     */
-    @Test
-    public void testGetAllUsersWithPagination() {
-        try {
-            final CountDownLatch latch = new CountDownLatch(1);
-            final Object[] result = {false, "unknown"};
-            Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            MASUser user = MASUser.getCurrentUser();
-            List<String> userAttributes = userAttribs.getAttributes();
-            MASFilteredRequest filter = createFilter(null, null, 1, 3, null, userAttributes, "s");
-            user.getUsersByFilter(filter, new MASCallback<List<MASUser>>() {
-                @Override
-                public void onSuccess(List<MASUser> object) {
-                    result[0] = true;
-                    latch.countDown();
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    result[0] = false;
-                    result[1] = "Error in GetUsers with Pagination " + e;
-                    latch.countDown();
-                }
-            });
-            await(latch);
-            if (!(boolean) result[0]) {
-                fail("Reason: " + result[1]);
-            }
-        } catch (Exception e) {
-            fail("" + e);
-        }
-    }
-
-    /**
-     * Precondition/assumption: getting user(s) containing "s" in the UserName
-     */
-    @Test
-    public void testGetAllUsersWithInvalidPagination() {
-        try {
-            final CountDownLatch latch = new CountDownLatch(1);
-            final Object[] result = {false, "unknown"};
-            Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            MASUser user = MASUser.getCurrentUser();
-            List<String> userAttributes = userAttribs.getAttributes();
-            // start index = -10 will automatically be converted to 1
-            // Count of -10 implies that , pagination is not there
-            MASFilteredRequest filter = createFilter(null, null, -10, -10, null, userAttributes, "s");
-            user.getUsersByFilter(filter, new MASCallback<List<MASUser>>() {
-                @Override
-                public void onSuccess(List<MASUser> object) {
-                    result[0] = true;
-                    latch.countDown();
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    result[0] = false;
-                    result[1] = "Error in GetUsers with Pagination " + e;
-                    latch.countDown();
-                }
-            });
-            await(latch);
-            if (!(boolean) result[0]) {
-                fail("Reason: " + result[1]);
-            }
-        } catch (Exception e) {
-            fail("" + e);
-        }
-    }
-
-
-    @Test
-    public void testGetUserById() {
-        try {
-            final CountDownLatch latch = new CountDownLatch(1);
-            final Object[] result = {false, "unknown"};
-            Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            final MASUser user = MASUser.getCurrentUser();
-            user.getUserById(user.getId(), new MASCallback<MASUser>() {
-                @Override
-                public void onSuccess(MASUser object) {
-                    if (object != null && object.getId().equals(user.getId())) {
-                        result[0] = true;
+                for (MASUser u : object) {
+                    if (!u.getUserName().contains("s")) {
+                        result[0] = false;
                     }
-                    latch.countDown();
                 }
-
-                @Override
-                public void onError(Throwable e) {
-                    result[0] = false;
-                    result[1] = "Error in Get Users with id " + user.getId();
-                    latch.countDown();
-                }
-            });
-            await(latch);
-            if (!(boolean) result[0]) {
-                fail("Reason: " + result[1]);
+                latch.countDown();
             }
-        } catch (Exception e) {
-            fail("" + e);
-        }
+
+            @Override
+            public void onError(Throwable e) {
+                result[0] = false;
+                latch.countDown();
+            }
+        });
+        await(latch);
+        assertTrue(result[0]);
     }
 
-
+    /**
+     * Precondition/assumption: getting user(s) containing "s" in the UserName
+     */
     @Test
-    public void testGetUserByInvalidId() {
-        try {
-            final CountDownLatch latch = new CountDownLatch(1);
-            final Object[] result = {false, "unknown"};
-            Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            final MASUser user = MASUser.getCurrentUser();
-            user.getUserById("invalidId", new MASCallback<MASUser>() {
-                @Override
-                public void onSuccess(MASUser object) {
-                    result[0] = false;
-                    result[1] = "Expected exception as the id is invalid ";
-                    latch.countDown();
-                }
+    public void testGetAllUsersWithSortingAsecAttribute() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        MASUser user = MASUser.getCurrentUser();
+        MASFilteredRequest filter = new MASFilteredRequest(userAttribs.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES);
+        filter.setSortOrder(MASFilteredRequestBuilder.SortOrder.ascending, IdentityConsts.KEY_USERNAME);
+        user.getUsersByFilter(filter, new MASCallback<List<MASUser>>() {
+            @Override
+            public void onSuccess(List<MASUser> object) {
+                result[0] = true;
 
-                @Override
-                public void onError(Throwable e) {
-                    result[0] = true;
-                    latch.countDown();
-                }
-            });
-            await(latch);
-            if (!(boolean) result[0]) {
-                fail("Reason: " + result[1]);
-            }
-        } catch (Exception e) {
-            fail("" + e);
-        }
-    }
-
-    @Test
-    public void testGetUserByUserName() {
-        try {
-            final CountDownLatch latch = new CountDownLatch(1);
-            final Object[] result = {false, "unknown"};
-            Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            final MASUser user = MASUser.getCurrentUser();
-            MASFilteredRequest filter = createFilter(null, null, 0, 0, null, userAttribs.getAttributes(), user.getUserName());
-            user.getUsersByFilter(filter, new MASCallback<List<MASUser>>() {
-                @Override
-                public void onSuccess(List<MASUser> object) {
-                    if (object == null) {
+                MASUser first = object.get(0);
+                for (int i = 1; i < object.size(); i++) {
+                    if (first.getUserName().compareTo(object.get(i).getUserName()) > 0) {
                         result[0] = false;
-                        result[1] = "Null User";
-                    } else if (object.size() != 1) {
-                        result[0] = false;
-                        result[1] = "More than one user for username! ";
-                    } else if (!object.get(0).getUserName().equals(user.getUserName())) {
-                        result[0] = false;
-                        result[1] = "Returned user doesn not have the expected username";
                     } else {
-                        result[0] = true;
+                        first = object.get(i);
                     }
-                    latch.countDown();
                 }
-
-                @Override
-                public void onError(Throwable e) {
-                    result[0] = false;
-                    result[1] = "Error in testGetUserByUserName " + e;
-                    latch.countDown();
-                }
-            });
-            await(latch);
-            if (!(boolean) result[0]) {
-                fail("Reason: " + result[1]);
+                latch.countDown();
             }
-        } catch (Exception e) {
-            fail("" + e);
-        }
+
+            @Override
+            public void onError(Throwable e) {
+                result[0] = false;
+                latch.countDown();
+            }
+        });
+        await(latch);
+        assertTrue(result[0]);
     }
 
+    /**
+     * Precondition/assumption: getting user(s) containing "s" in the UserName
+     */
+
     @Test
-    public void testGetUserByInvalidUserName() {
-        try {
-            final CountDownLatch latch = new CountDownLatch(1);
-            final Object[] result = {false, "unknown"};
-            Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            final MASUser user = MASUser.getCurrentUser();
-            MASFilteredRequest filter = createFilter(null, null, 0, 0, null, userAttribs.getAttributes(), "invalidUser");
-            user.getUsersByFilter(filter, new MASCallback<List<MASUser>>() {
-                @Override
-                public void onSuccess(List<MASUser> object) {
-                    if (object == null) {
+    public void testGetAllUsersWithSortingDescAttribute() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        MASUser user = MASUser.getCurrentUser();
+        MASFilteredRequest filter = new MASFilteredRequest(userAttribs.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES);
+        filter.setSortOrder(MASFilteredRequestBuilder.SortOrder.descending, IdentityConsts.KEY_USERNAME);
+        user.getUsersByFilter(filter, new MASCallback<List<MASUser>>() {
+            @Override
+            public void onSuccess(List<MASUser> object) {
+                result[0] = true;
+
+                MASUser first = object.get(0);
+                for (int i = 1; i < object.size(); i++) {
+                    if (first.getUserName().compareTo(object.get(i).getUserName()) < 0) {
                         result[0] = false;
-                        result[1] = "Null User";
-                    } else if (object.size() > 0) {
-                        result[0] = false;
-                        result[1] = "Expected no users";
                     } else {
-                        result[0] = true;
+                        first = object.get(i);
                     }
-                    latch.countDown();
                 }
-
-                @Override
-                public void onError(Throwable e) {
-                    result[0] = false;
-                    result[1] = "Error: " + e;
-                    latch.countDown();
-                }
-            });
-            await(latch);
-            if (!(boolean) result[0]) {
-                fail("Reason: " + result[1]);
+                latch.countDown();
             }
-        } catch (Exception e) {
-            fail("" + e);
-        }
+
+            @Override
+            public void onError(Throwable e) {
+                result[0] = false;
+                latch.countDown();
+            }
+        });
+        await(latch);
+        assertTrue(result[0]);
     }
 
     @Test
-    public void testGetUserThumbnail() {
+    public void testGetAllUsersWithPagination() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        MASUser user = MASUser.getCurrentUser();
+        MASFilteredRequest filter = new MASFilteredRequest(userAttribs.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES);
+        //assume there are more than 3 user in the database
+        filter.setPagination(1, 3);
+        user.getUsersByFilter(filter, new MASCallback<List<MASUser>>() {
+            @Override
+            public void onSuccess(List<MASUser> object) {
+                if (object.size() == 3) {
+                    result[0] = true;
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                result[0] = false;
+                latch.countDown();
+            }
+        });
+        await(latch);
+        assertTrue(result[0]);
+    }
+
+
+    /**
+     * Precondition/assumption: getting user(s) containing "s" in the UserName
+     */
+    @Test
+    public void testGetAllUsersWithInvalidPagination() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        MASUser user = MASUser.getCurrentUser();
+        List<String> userAttributes = userAttribs.getAttributes();
+        // start index = -10 will automatically be converted to 1
+        // Count of -10 implies that , pagination is not there
+        MASFilteredRequest filter = new MASFilteredRequest(userAttribs.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES);
+        filter.setPagination(-10, -10);
+        user.getUsersByFilter(filter, new MASCallback<List<MASUser>>() {
+            @Override
+            public void onSuccess(List<MASUser> object) {
+                result[0] = true;
+                latch.countDown();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                result[0] = false;
+                latch.countDown();
+            }
+        });
+        await(latch);
+        assertTrue(result[0]);
+    }
+
+
+    @Test
+    public void testGetUserById() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
         final MASUser user = MASUser.getCurrentUser();
-        Bitmap bitmap = user.getThumbnailImage();
-        assertNotNull(bitmap);
+        user.getUserById(user.getId(), new MASCallback<MASUser>() {
+            @Override
+            public void onSuccess(MASUser object) {
+                if (object != null && object.getId().equals(user.getId())) {
+                    result[0] = true;
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                result[0] = false;
+                latch.countDown();
+            }
+        });
+        await(latch);
+        assertTrue(result[0]);
+    }
+
+
+    @Test
+    public void testGetUserByInvalidId() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        final MASUser user = MASUser.getCurrentUser();
+        user.getUserById("invalidId", new MASCallback<MASUser>() {
+            @Override
+            public void onSuccess(MASUser object) {
+                result[0] = false;
+                latch.countDown();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                result[0] = true;
+                latch.countDown();
+            }
+        });
+        await(latch);
+        assertTrue(result[0]);
+    }
+
+    @Test
+    public void testGetUserByUserName() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        final MASUser user = MASUser.getCurrentUser();
+        MASFilteredRequest filter = new MASFilteredRequest(userAttribs.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES);
+        filter.contains(IdentityConsts.KEY_USERNAME, user.getUserName());
+
+        user.getUsersByFilter(filter, new MASCallback<List<MASUser>>() {
+            @Override
+            public void onSuccess(List<MASUser> object) {
+                if (object == null) {
+                    result[0] = false;
+                } else if (object.size() != 1) {
+                    result[0] = false;
+                } else if (!object.get(0).getUserName().equals(user.getUserName())) {
+                    result[0] = false;
+                } else {
+                    result[0] = true;
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                result[0] = false;
+                latch.countDown();
+            }
+        });
+        await(latch);
+        assertTrue(result[0]);
+    }
+
+    @Test
+    public void testGetUserByInvalidUserName() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        final MASUser user = MASUser.getCurrentUser();
+        MASFilteredRequest filter = new MASFilteredRequest(userAttribs.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES);
+        filter.contains(IdentityConsts.KEY_USERNAME, "notExist");
+
+        user.getUsersByFilter(filter, new MASCallback<List<MASUser>>() {
+            @Override
+            public void onSuccess(List<MASUser> object) {
+                if (object == null) {
+                    result[0] = false;
+                } else if (object.size() > 0) {
+                    result[0] = false;
+                } else {
+                    result[0] = true;
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                result[0] = false;
+                latch.countDown();
+            }
+        });
+        await(latch);
+        assertTrue(result[0]);
     }
 
     @Test
@@ -508,28 +446,5 @@ public class MASUserTests extends MASIntegrationBaseTest {
         assertNotNull(user.getId());
 
     }
-
-    /**
-     * Utility method for creating Filter
-     *
-     * @return
-     */
-    private MASFilteredRequest createFilter(MASFilteredRequestBuilder.SortOrder sortOrder, String sortAttr, int pageStart, int pageEnd, String op, List<String> userAttributes, String userFilter) {
-        String attr = MessagingConsts.KEY_DISPLAY_NAME;
-        if (TextUtils.isEmpty(op)) {
-            op = "co";
-        }
-        // add the query filters
-        MASFilteredRequest frb = IdentityUtil.createFilter(userAttributes, IdentityConsts.KEY_USER_ATTRIBUTES, userFilter, op, attr);
-        // add pagination
-        frb.setPagination(pageStart, pageEnd);
-
-        // add sorting
-        if (sortOrder != null) {
-            frb.setSortOrder(sortOrder, sortAttr);
-        }
-        return frb;
-    }
-
 
 }

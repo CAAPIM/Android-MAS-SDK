@@ -126,13 +126,13 @@ public class MASLoginTest extends MASStartTestBase {
 
         setDispatcher(new GatewayDefaultDispatcher() {
             @Override
-            protected MockResponse registerDeviceResponse() {
+            protected MockResponse registerDeviceResponse(RecordedRequest request) {
                 if (override[0]) {
                     return new MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED).
                             setHeader("x-ca-err", expectedErrorCode).
                             setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
                 } else {
-                    return super.registerDeviceResponse();
+                    return super.registerDeviceResponse(request);
                 }
             }
         });
@@ -185,7 +185,7 @@ public class MASLoginTest extends MASStartTestBase {
 
         setDispatcher(new GatewayDefaultDispatcher() {
             @Override
-            protected MockResponse registerDeviceResponse() {
+            protected MockResponse registerDeviceResponse(RecordedRequest request) {
                 return new MockResponse()
                         .setResponseCode(200)
                         .setHeader("device-status", "activated")
@@ -218,7 +218,7 @@ public class MASLoginTest extends MASStartTestBase {
             }
 
             @Override
-            protected MockResponse registerDeviceResponse() {
+            protected MockResponse registerDeviceResponse(RecordedRequest request) {
                 return new MockResponse()
                         .setResponseCode(200)
                         .setHeader("device-status", "activated")
@@ -247,7 +247,7 @@ public class MASLoginTest extends MASStartTestBase {
         setDispatcher(new GatewayDefaultDispatcher() {
 
             @Override
-            protected MockResponse registerDeviceResponse() {
+            protected MockResponse registerDeviceResponse(RecordedRequest request) {
                 return new MockResponse()
                         .setResponseCode(200)
                         .setHeader("device-status", "activated")
@@ -281,7 +281,7 @@ public class MASLoginTest extends MASStartTestBase {
             }
 
             @Override
-            protected MockResponse registerDeviceResponse() {
+            protected MockResponse registerDeviceResponse(RecordedRequest request) {
                 return new MockResponse()
                         .setResponseCode(200)
                         .setHeader("device-status", "activated")

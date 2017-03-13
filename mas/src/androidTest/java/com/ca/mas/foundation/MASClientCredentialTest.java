@@ -15,6 +15,7 @@ import com.ca.mas.core.oauth.OAuthServerException;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.registration.RegistrationServerException;
 import com.squareup.okhttp.mockwebserver.MockResponse;
+import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import junit.framework.Assert;
 
@@ -63,7 +64,7 @@ public class MASClientCredentialTest extends MASStartTestBase {
 
         setDispatcher(new GatewayDefaultDispatcher() {
             @Override
-            protected MockResponse registerDeviceResponse() {
+            protected MockResponse registerDeviceResponse(RecordedRequest request) {
                 return new MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED).setHeader("x-ca-err", expectedErrorCode).setBody(expectedErrorMessage);
             }
         });

@@ -63,6 +63,8 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile "com.android.support:support-annotations:$rootProject.ext.supportAnnotationsVersion"
     compile "com.google.zxing:core:$rootProject.ext.zxingVersion"
+    compile 'com.nimbusds:nimbus-jose-jwt:4.23'
+    compile 'io.jsonwebtoken:jjwt:0.7.0'
 }
 
 //jcenter integration

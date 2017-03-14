@@ -45,6 +45,10 @@ public class ConfigurationManager {
     private String configurationFileName = null;
     private boolean enablePKCE = true;
 
+    public Context getContext() {
+        return appContext;
+    }
+
     private MAGRequest.MAGConnectionListener connectionListener;
     private MobileSsoListener mobileSsoListener;
 

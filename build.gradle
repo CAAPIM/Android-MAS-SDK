@@ -28,7 +28,7 @@ allprojects {
 
 ext {
     appCompatVersion = '25.1.0'
-    appAuthVersion = '0.5.0'
+    appAuthVersion = '0.5.1'
     buildToolsVersion = '25.0.2'
     compileSdkVersion = 25
     designVersion = '25.1.0'

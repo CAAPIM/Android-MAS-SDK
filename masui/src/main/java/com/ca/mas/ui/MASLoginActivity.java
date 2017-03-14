@@ -341,7 +341,9 @@ public class MASLoginActivity extends AppCompatActivity {
             public void onError(int errorCode, final String m, Exception e) {
                 // Hide QR Code option
                 View qrButton = findViewById(R.id.activity_mas_login_qr_code);
-                mGridLayout.removeView(qrButton);
+                if (mGridLayout != null) {
+                    mGridLayout.removeView(qrButton);
+                }
             }
 
             @Override

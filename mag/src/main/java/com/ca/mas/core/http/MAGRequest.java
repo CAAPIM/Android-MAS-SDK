@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * An Http Api Request. Instances of this class are immutable.
@@ -81,6 +82,13 @@ public interface MAGRequest {
      */
     boolean isPublic();
 
+    /**
+     * @return the expiration time on or after which the token will not be accepted
+     */
+    long getTimeout();
+
+    TimeUnit getTimeUnit();
+
     interface MAGConnectionListener {
         /**
          * Invoke immediately after the call {@link URL#openConnection()}.
@@ -113,6 +121,9 @@ public interface MAGRequest {
         private String scope;
         private MAGConnectionListener listener;
         private boolean isPublic = false;
+        private boolean sign;
+        private long timeout;
+        private TimeUnit timeUnit;
 
         /**
          * Create a builder with the provided {@link URI}.
@@ -297,13 +308,24 @@ public interface MAGRequest {
             return this;
         }
 
+        public MAGRequestBuilder sign() {
+            this.sign = true;
+            return this;
+        }
+
+        public MAGRequestBuilder sign(long timeout, TimeUnit timeUnit) {
+            this.sign = true;
+            this.timeout = timeout;
+            this.timeUnit = timeUnit;
+            return this;
+        }
+
         /**
          * Builds the {@link MAGRequest} object.
          *
          * @return An immutable {@link MAGRequest} object.
          */
         public MAGRequest build() {
-
             Map<String, List<String>> newHeaders = new HashMap<>();
             for (String key : headers.keySet()) {
                 List<String> headerValues = new ArrayList<>();
@@ -316,7 +338,7 @@ public interface MAGRequest {
             }
             final Map<String, List<String>> unmodifiableHeaders = Collections.unmodifiableMap(newHeaders);
 
-            return new MAGRequest() {
+            MAGRequest request = new MAGRequest() {
                 @Override
                 public URL getURL() {
                     return url;
@@ -361,7 +383,23 @@ public interface MAGRequest {
                 public boolean isPublic() {
                     return isPublic;
                 }
+
+                @Override
+                public long getTimeout() {
+                    return timeout;
+                }
+
+                @Override
+                public TimeUnit getTimeUnit() {
+                    return timeUnit;
+                }
             };
+
+            if (sign) {
+                return new JwtSignRequest(request);
+            } else {
+                return request;
+            }
         }
     }
 }

@@ -20,6 +20,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * An Http Api Request. Instances of this class are immutable.
@@ -111,6 +112,15 @@ public interface MASRequest extends MAGRequest {
             return this;
         }
 
+        @Override
+        public MASRequestBuilder sign() {
+            return (MASRequestBuilder) super.sign();
+        }
+
+        @Override
+        public MASRequestBuilder sign(long timeout, TimeUnit unit) {
+            return (MASRequestBuilder) super.sign(timeout, unit);
+        }
 
         public MASRequest build() {
             final MAGRequest request = super.build();
@@ -164,6 +174,16 @@ public interface MASRequest extends MAGRequest {
                 @Override
                 public boolean isPublic() {
                     return request.isPublic();
+                }
+
+                @Override
+                public long getTimeout() {
+                    return request.getTimeout();
+                }
+
+                @Override
+                public TimeUnit getTimeUnit() {
+                    return request.getTimeUnit();
                 }
             };
         }

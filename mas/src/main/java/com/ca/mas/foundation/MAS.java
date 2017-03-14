@@ -34,8 +34,16 @@ import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.oauth.GrantProvider;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.MssoIntents;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.foundation.notify.Callback;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.crypto.RSASSASigner;
 
 import org.json.JSONObject;
 
@@ -43,6 +51,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
+import java.security.PrivateKey;
 import java.util.List;
 import java.util.Map;
 
@@ -79,7 +88,6 @@ public class MAS {
     }
 
     private static class MASMobileSsoListener implements MobileSsoListener {
-
         private Context mAppContext;
 
         MASMobileSsoListener(Context context) {
@@ -294,11 +302,11 @@ public class MAS {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-               try {
-                   MAGHttpClient client = new MAGHttpClient(publicKeyHash);
-                   MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
-                           responseBody(MAGResponseBody.jsonBody()).build();
-                   MAGResponse<JSONObject> response = client.execute(request);
+                try {
+                    MAGHttpClient client = new MAGHttpClient(publicKeyHash);
+                    MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
+                            responseBody(MAGResponseBody.jsonBody()).build();
+                    MAGResponse<JSONObject> response = client.execute(request);
                     if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
                         throw ServerClient.createServerException(response, MASServerException.class);
                     }
@@ -577,5 +585,28 @@ public class MAS {
      */
     public static void stop() {
         state = MASConstants.MAS_STATE_STOPPED;
+    }
+
+    public void sign(JSONObject content, long timeout) {
+        sign(content, timeout, null);
+    }
+
+    public void sign(JSONObject content, long timeout, PrivateKey privateKey) {
+        if (privateKey == null) {
+            try {
+                StorageProvider storageProvider = new StorageProvider(ConfigurationManager.getInstance().getContext());
+                TokenManager tokenManager = storageProvider.createTokenManager();
+                privateKey = tokenManager.getClientPrivateKey();
+
+                JWSSigner signer = new RSASSASigner(privateKey);
+                JWSObject object = new JWSObject(
+                        new JWSHeader.Builder(JWSAlgorithm.RS256).build(),
+                        new Payload(content.toString()));
+                object.sign(signer);
+                String s = object.serialize();
+            } catch (Exception e) {
+
+            }
+        }
     }
 }

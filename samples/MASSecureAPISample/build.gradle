@@ -12,14 +12,16 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
+    lintOptions {
+        abortOnError false
+    }
+
     defaultConfig {
-        applicationId "com.ca.mas.core.test"
+        applicationId "com.ca.mas.massessionunlocksample"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -27,21 +29,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-    lintOptions {
-        abortOnError false
-    }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile "com.android.support:appcompat-v7:$rootProject.ext.appCompatVersion"
-    androidTestCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
-
-    androidTestCompile "com.android.support:support-annotations:$rootProject.ext.supportAnnotationsVersion"
-    androidTestCompile 'com.android.support.test:runner:0.3'
-    androidTestCompile 'com.android.support.test:rules:0.3'
-    androidTestCompile 'com.nimbusds:nimbus-jose-jwt:4.23'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile "com.android.support:recyclerview-v7:$rootProject.ext.recyclerViewVersion"
+    compile "com.android.support:design:$rootProject.ext.designVersion"
+    compile 'com.nimbusds:nimbus-jose-jwt:4.23'
 
     compile project(':mag')
+    compile project(':mas')
+    compile project(':masui')
 }

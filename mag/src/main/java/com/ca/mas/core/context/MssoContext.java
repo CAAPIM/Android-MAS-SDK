@@ -319,7 +319,7 @@ public class MssoContext {
      * <p/>
      * Setting a non-null ID token has the side-effect of causing any cached password in memory to be destroyed.
      *
-     * @param idToken the ID token.  Required.
+     * @param idToken the ID token.  Required.Ø
      */
     public void onIdTokenAvailable(IdToken idToken) throws JWTValidationException {
         clearCredentials();

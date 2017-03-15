@@ -330,7 +330,6 @@ public class MASLoginActivity extends AppCompatActivity {
                 Toast.makeText(MASLoginActivity.this, "Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 Bundle data = new Bundle();
                 data.putString("LOGIN_STATUS", "FAILED");
-                MAS.cancelRequest(mRequestId, data);
             }
         });
     }

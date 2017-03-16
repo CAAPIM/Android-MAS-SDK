@@ -35,4 +35,14 @@ project(':MASSessionUnlockSample').projectDir = new File('samples/MASSessionUnlo
 //project(':SmcControllerSample').projectDir = new File('Knox/samples/SmcControllerSample')
 //project(':SamsungLicenseActivationSample').projectDir = new File('Knox/samples/SamsungLicenseActivationSample')
 
+//Fido
+include ':fido'
+
+//Fido Providers
+include ':nnl'
+include ':sds'
+
+project(':nnl').projectDir = new File('fido/providers/nnl')
+project(':sds').projectDir = new File('fido/providers/sds')
+
 

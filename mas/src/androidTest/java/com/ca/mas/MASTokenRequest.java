@@ -28,6 +28,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class MASTokenRequest implements MASRequest, LocalRequest {
 
@@ -153,6 +154,16 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
     @Override
     public boolean isPublic() {
         return false;
+    }
+
+    @Override
+    public long getTimeout() {
+        return 0;
+    }
+
+    @Override
+    public TimeUnit getTimeUnit() {
+        return null;
     }
 
     @Override

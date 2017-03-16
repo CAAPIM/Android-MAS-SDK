@@ -3,6 +3,7 @@ package com.ca.mas.core.http;
 import android.net.Uri;
 
 import com.ca.mas.core.conf.ConfigurationManager;
+import com.ca.mas.core.conf.Server;
 import com.ca.mas.core.request.internal.MAGRequestProxy;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
@@ -27,6 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.PrivateKey;
 import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class JwtSignRequest extends MAGRequestProxy {
@@ -84,21 +86,30 @@ public class JwtSignRequest extends MAGRequestProxy {
                 // JWT claims
                 // iss
 //                claimBuilder.issuer("device://" + {mag-identifier}/{client_id});
-//                claimBuilder.issuer("device://");
+                String magId = mTokenManager.getMagIdentifier();
+                claimBuilder.issuer("device://" + magId + "/$") ;
+
+                // TODO: sub: username
 
                 // aud
-//                for the receiving MAG, e.g. https://mag.ca.com
+                Server server = ConfigurationManager.getInstance().getConnectedGateway();
+                String gateway = server.getHost();
+                claimBuilder.audience(gateway);
 
-                ConfigurationManager.getInstance().getConnectedGateway();
                 // jti
-                // use the UUID
+                UUID uuid = UUID.randomUUID();
+                claimBuilder.jwtID(uuid.toString());
+
+                // iat
+                long currentTime = System.currentTimeMillis() * 1000;
+                Date currentDate = DateUtils.fromSecondsSinceEpoch(currentTime);
+                claimBuilder.issueTime(currentDate);
 
                 // exp
                 TimeUnit timeUnit = super.getTimeUnit();
                 if (timeUnit != null) {
                     long timeOut = TimeUnit.SECONDS.convert(getTimeout(), timeUnit);
-                    Date expiryDate = DateUtils.fromSecondsSinceEpoch(timeOut);
-
+                    Date expiryDate = DateUtils.fromSecondsSinceEpoch(timeOut + currentTime);
                     claimBuilder.expirationTime(expiryDate);
                 }
 

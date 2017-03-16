@@ -2,6 +2,12 @@
 	path = MASUnit
 	url = https://github.com/CAAPIM/Android-MAS-Unit.git
 	branch = develop
+	
+[submodule "fido"]
+	path = fido
+	url = https://github.com/CAAPIM/Android-MAS-FIDO
+	branch = US314378-FIDO
+
 [submodule "Knox"]
 	path = Knox
 	url = https://github.com/CAAPIM/Android-MAS-Knox.git

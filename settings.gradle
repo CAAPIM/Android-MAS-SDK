@@ -10,6 +10,8 @@ include ':MAG', ':MAGTest', ':MASTest'
 
 include ':MAS', ':MASUI'
 
+
+
 //Example App
 include ':SingleSignOnSample'
 include ':MASStorageSample'
@@ -31,9 +33,9 @@ project(':MASSessionUnlockSample').projectDir = new File('samples/MASSessionUnlo
 //include ':MASUnit'
 
 //Knox
-//include ':Knox', ':SmcControllerSample', ':SamsungLicenseActivationSample'
-//project(':SmcControllerSample').projectDir = new File('Knox/samples/SmcControllerSample')
-//project(':SamsungLicenseActivationSample').projectDir = new File('Knox/samples/SamsungLicenseActivationSample')
+include ':Knox', ':SmcControllerSample', ':SamsungLicenseActivationSample'
+project(':SmcControllerSample').projectDir = new File('Knox/samples/SmcControllerSample')
+project(':SamsungLicenseActivationSample').projectDir = new File('Knox/samples/SamsungLicenseActivationSample')
 
 //Fido
 include ':fido'

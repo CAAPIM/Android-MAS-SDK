@@ -33,8 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 public class JwtSignRequest extends MAGRequestProxy {
 
-    private TokenManager mTokenManager;
-
     public JwtSignRequest(MAGRequest request) {
         this.request = request;
     }
@@ -53,7 +51,7 @@ public class JwtSignRequest extends MAGRequestProxy {
                 // JWT claims
                 // iss
 //                claimBuilder.issuer("device://" + {mag-identifier}/{client_id});
-                String magId = mTokenManager.getMagIdentifier();
+                String magId = StorageProvider.getInstance().getTokenManager().getMagIdentifier();
                 claimBuilder.issuer("device://" + magId + "/$");
 
                 // TODO: sub: username
@@ -74,20 +72,23 @@ public class JwtSignRequest extends MAGRequestProxy {
 
                 // exp
                 TimeUnit timeUnit = super.getTimeUnit();
-                if (timeUnit != null) {
-                    long timeOut = TimeUnit.SECONDS.convert(getTimeout(), timeUnit);
-                    Date expiryDate = DateUtils.fromSecondsSinceEpoch(timeOut + currentTime);
-                    claimBuilder.expirationTime(expiryDate);
-                }
+                if (timeUnit == null) {
+                    timeUnit = TimeUnit.SECONDS;
+               }
+                long timeOut = TimeUnit.SECONDS.convert(getTimeout(), timeUnit);
+                Date expiryDate = DateUtils.fromSecondsSinceEpoch(timeOut + currentTime);
+                claimBuilder.expirationTime(expiryDate);
+
+
+                claimBuilder.claim("content", new String(data));
 
                 JWSHeader rs256Header = new JWSHeader(JWSAlgorithm.RS256);
                 SignedJWT claimsToken = new SignedJWT(rs256Header, claimBuilder.build());
                 claimsToken.sign(signer);
 
-                JWSObject jwsObject = new JWSObject(rs256Header, new Payload(data));
-                jwsObject.sign(signer);
+                //JWSObject jwsObject = new JWSObject(rs256Header, new Payload(claimsToken));
 
-                String compactJws = jwsObject.serialize();
+                String compactJws = claimsToken.serialize();
                 return MAGRequestBody.stringBody(compactJws);
             } catch (IOException | JOSEException e) {
                 throw new RuntimeException(e);

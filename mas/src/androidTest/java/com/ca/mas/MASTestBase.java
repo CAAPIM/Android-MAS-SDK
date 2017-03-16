@@ -45,10 +45,15 @@ public abstract class MASTestBase {
         //Turn on debug by default
         MAS.debug();
 
+
+
         MAS.setConnectionListener(new MASConnectionListener() {
             @Override
             public void onObtained(HttpURLConnection connection) {
-                ((HttpsURLConnection) connection).setSSLSocketFactory(SslContextBuilder.localhost().getSocketFactory());
+                //If connect to localhost
+                if (connection.getURL().getHost().equals("localhost")) {
+                    ((HttpsURLConnection) connection).setSSLSocketFactory(SslContextBuilder.localhost().getSocketFactory());
+                }
             }
 
             @Override

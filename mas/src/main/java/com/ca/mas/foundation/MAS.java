@@ -592,21 +592,19 @@ public class MAS {
     }
 
     public void sign(JSONObject content, long timeout, PrivateKey privateKey) {
-        if (privateKey == null) {
-            try {
-                StorageProvider storageProvider = new StorageProvider(ConfigurationManager.getInstance().getContext());
-                TokenManager tokenManager = storageProvider.createTokenManager();
-                privateKey = tokenManager.getClientPrivateKey();
-
-                JWSSigner signer = new RSASSASigner(privateKey);
-                JWSObject object = new JWSObject(
-                        new JWSHeader.Builder(JWSAlgorithm.RS256).build(),
-                        new Payload(content.toString()));
-                object.sign(signer);
-                String s = object.serialize();
-            } catch (Exception e) {
-
+        try {
+            if (privateKey == null) {
+                privateKey = StorageProvider.getInstance().getTokenManager().getClientPrivateKey();
             }
+
+            JWSSigner signer = new RSASSASigner(privateKey);
+            JWSObject object = new JWSObject(
+                    new JWSHeader.Builder(JWSAlgorithm.RS256).build(),
+                    new Payload(content.toString()));
+            object.sign(signer);
+            String s = object.serialize();
+        } catch (Exception e) {
+
         }
     }
 }

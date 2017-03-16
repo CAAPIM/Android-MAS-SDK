@@ -38,11 +38,6 @@ public abstract class MASDevice implements Device {
                         Thread t = new Thread(new Runnable() {
                             public void run() {
                                 try {
-                                    mobileSso.removeDeviceRegistration();
-                                    TokenManager manager = createTokenManager();
-                                    if (manager.getSecureIdToken() != null) {
-                                        manager.deleteSecureIdToken();
-                                    }
                                     Callback.onSuccess(callback, null);
                                 } catch (Exception e) {
                                     Callback.onError(callback, e);
@@ -83,16 +78,6 @@ public abstract class MASDevice implements Device {
             };
         }
         return current;
-    }
-
-    static StorageProvider createStorageProvider() {
-        ConfigurationProvider configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
-        StorageProvider storageProvider = new StorageProvider(MAS.getContext(), configurationProvider);
-        return storageProvider;
-    }
-
-    static TokenManager createTokenManager() {
-        return createStorageProvider().createTokenManager();
     }
 
 }

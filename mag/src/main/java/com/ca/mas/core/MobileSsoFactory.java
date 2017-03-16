@@ -27,6 +27,7 @@ import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.MssoClient;
 import com.ca.mas.core.service.MssoIntents;
+import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.token.IdToken;
 
 import org.json.JSONException;
@@ -197,6 +198,7 @@ public final class MobileSsoFactory {
         synchronized (mobileSso) {
             mobileSso.set(null);
             ConfigurationManager.getInstance().reset();
+            StorageProvider.getInstance().reset();
         }
     }
 

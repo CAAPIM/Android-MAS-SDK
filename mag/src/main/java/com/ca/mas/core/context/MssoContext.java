@@ -138,20 +138,19 @@ public class MssoContext {
      */
     public void init(Context context) throws MssoException {
         this.appContext = context.getApplicationContext();
+
         this.configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
 
-        StorageProvider storageProvider = new StorageProvider(context, configurationProvider);
-
         if (tokenManager == null) {
-            tokenManager = storageProvider.createTokenManager();
+            tokenManager = StorageProvider.getInstance().getTokenManager();
         }
 
         if (privateTokens == null) {
-            privateTokens = storageProvider.createOAuthTokenContainer();
+            privateTokens = StorageProvider.getInstance().getOAuthTokenContainer();
         }
 
         if (clientCredentialTokens == null) {
-            clientCredentialTokens = storageProvider.createClientCredentialContainer();
+            clientCredentialTokens = StorageProvider.getInstance().getClientCredentialContainer();
         }
 
         if (deviceId == null) {
@@ -299,7 +298,7 @@ public class MssoContext {
         if (client != null)
             return client;
 
-        client = new MAGHttpClient(appContext) {
+        client = new MAGHttpClient() {
             @Override
             protected void onConnectionObtained(HttpURLConnection connection) {
                 super.onConnectionObtained(connection);

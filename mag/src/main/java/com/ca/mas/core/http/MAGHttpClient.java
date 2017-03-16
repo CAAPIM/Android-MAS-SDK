@@ -33,15 +33,12 @@ public class MAGHttpClient {
 
     private SSLSocketFactory sslSocketFactory;
 
-    public MAGHttpClient(Context context) {
-        sslSocketFactory = new MAGSocketFactory(context).createSSLSocketFactory();
+    public MAGHttpClient() {
+        sslSocketFactory = new MAGSocketFactory().createSSLSocketFactory();
     }
 
     public MAGHttpClient(String publicKeyHash) {
         sslSocketFactory = new MAGPinningSocketFactory(publicKeyHash).createSSLSocketFactory();
-    }
-
-    public MAGHttpClient() {
     }
 
     /**

@@ -65,43 +65,6 @@ public class MASTest extends MASIntegrationBaseTest {
     }
 
     @Test
-    public void testEnroll() throws Exception {
-
-        KeyUtils.generateRsaPrivateKey(InstrumentationRegistry.getInstrumentation().getTargetContext(), 2048, "SecureAPI", false);
-        PublicKey publicKey = KeyUtils.getRsaPublicKey("SecureAPI");
-
-        JWK jwk = new RSAKey.Builder((RSAPublicKey) publicKey)
-                .keyID(UUID.randomUUID().toString()) // Give the key some ID (optional)
-                .build();
-
-        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/connect/device/enroll"))
-                .post(MASRequestBody.jsonBody(new JSONObject(jwk.toJSONString())))
-                .build();
-
-        final CountDownLatch latch = new CountDownLatch(1);
-        final boolean[] result = {false};
-        MAS.invoke(request, new MASCallback<MASResponse<Void>>() {
-
-            @Override
-            public void onSuccess(MASResponse<Void> response) {
-                if (HttpURLConnection.HTTP_OK == response.getResponseCode()) {
-                    result[0] = true;
-                }
-                latch.countDown();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                latch.countDown();
-            }
-        });
-        await(latch);
-
-        assertTrue(result[0]);
-    }
-
-
-    @Test
     public void testSignRequest() throws Exception {
 
         MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/echo?fromAcc=1234&toAcc=2345&amount=100"))

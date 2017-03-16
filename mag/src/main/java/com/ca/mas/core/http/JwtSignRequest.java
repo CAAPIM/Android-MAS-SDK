@@ -37,39 +37,6 @@ public class JwtSignRequest extends MAGRequestProxy {
 
     public JwtSignRequest(MAGRequest request) {
         this.request = request;
-        StorageProvider storageProvider = new StorageProvider(ConfigurationManager.getInstance().getContext());
-        mTokenManager = storageProvider.createTokenManager();
-    }
-
-    @Override
-    public URL getURL() {
-        URL r = null;
-        URL url = request.getURL();
-        if (url != null) {
-            try {
-                if (url.getQuery() != null) {
-                    Uri uri = Uri.parse(url.toString());
-                    JSONObject parameter = new JSONObject();
-                    for (String n : uri.getQueryParameterNames()) {
-                        JSONArray v = new JSONArray(uri.getQueryParameters(n));
-                        parameter.put(n, v);
-                    }
-
-                    JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
-                            new Payload(parameter.toString()));
-                    jwsObject.sign(new RSASSASigner(getPrivateKey()));
-                    String compactJws = jwsObject.serialize();
-                    r = new URL(uri.getScheme() + "://" + uri.getAuthority() + uri.getPath() + "?payload=" + compactJws);
-                } else {
-                    return url;
-                }
-            } catch (MalformedURLException e) {
-                throw new IllegalArgumentException(e);
-            } catch (JOSEException | JSONException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return r;
     }
 
     @Override
@@ -87,7 +54,7 @@ public class JwtSignRequest extends MAGRequestProxy {
                 // iss
 //                claimBuilder.issuer("device://" + {mag-identifier}/{client_id});
                 String magId = mTokenManager.getMagIdentifier();
-                claimBuilder.issuer("device://" + magId + "/$") ;
+                claimBuilder.issuer("device://" + magId + "/$");
 
                 // TODO: sub: username
 
@@ -130,6 +97,8 @@ public class JwtSignRequest extends MAGRequestProxy {
     }
 
     protected PrivateKey getPrivateKey() {
-        return mTokenManager.getClientPrivateKey();
+        return StorageProvider.getInstance().getTokenManager().getClientPrivateKey();
     }
+
+
 }

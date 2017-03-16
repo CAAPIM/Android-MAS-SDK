@@ -42,7 +42,7 @@ public class SignJWTTest {
     @Test
     public void testSignAndVerify() throws Exception {
         //Client
-        PrivateKey privateKey  = KeyUtils.generateRsaPrivateKey(InstrumentationRegistry.getInstrumentation().getTargetContext(), 2048, "TEST", false);
+        PrivateKey privateKey  = KeyUtils.generateRsaPrivateKey(InstrumentationRegistry.getInstrumentation().getTargetContext(), 2048, "TEST", "dn=test", false, false, -1, false);
         JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
                 new Payload("Hello, world!"));
         jwsObject.sign(new RSASSASigner(privateKey));
@@ -64,7 +64,7 @@ public class SignJWTTest {
 
         //===================== Enroll ======================================
         //The client enroll the public key with JWK
-        PrivateKey privateKey = KeyUtils.generateRsaPrivateKey(InstrumentationRegistry.getInstrumentation().getTargetContext(), 2048, "TEST", false);
+        PrivateKey privateKey  = KeyUtils.generateRsaPrivateKey(InstrumentationRegistry.getInstrumentation().getTargetContext(), 2048, "TEST", "dn=test", false, false, -1, false);
         PublicKey publicKey = KeyUtils.getRsaPublicKey("TEST");
 
         JWK jwk = new RSAKey.Builder((RSAPublicKey) publicKey)

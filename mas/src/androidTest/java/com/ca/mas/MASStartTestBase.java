@@ -23,14 +23,9 @@ import java.util.concurrent.ExecutionException;
 
 public abstract class MASStartTestBase extends MASTestBase {
 
-    private static final int DEFAULT_MAX_RESPONSE_SIZE = 10485760;
-
     @Before
     public void masStart() throws Exception {
-
-        byte[] bytes = IoUtils.slurpStream(getClass().getResourceAsStream("/msso_config.json"), DEFAULT_MAX_RESPONSE_SIZE);
-        JSONObject jsonObject = new JSONObject(new String(bytes));
-        MAS.start(InstrumentationRegistry.getTargetContext(), jsonObject);
+        MAS.start(getContext(), getConfig("/msso_config.json"));
     }
 
     @After

@@ -10,6 +10,7 @@ package com.ca.mas;
 
 import com.ca.mas.foundation.MASClientCredentialTest;
 import com.ca.mas.foundation.MASDeviceTest;
+import com.ca.mas.foundation.MASDynamicSDKTest;
 import com.ca.mas.foundation.MASEnrollmentStartTest;
 import com.ca.mas.foundation.MASGeoFencingTest;
 import com.ca.mas.foundation.MASLoginTest;
@@ -34,6 +35,7 @@ import org.junit.runners.Suite;
         MASPhoneNumberTest.class,
         MASOAuthTest.class,
         MASOAuthLoginTest.class,
+        MASDynamicSDKTest.class,
         MASDeviceTest.class})
 
 public class MASTestSuite {

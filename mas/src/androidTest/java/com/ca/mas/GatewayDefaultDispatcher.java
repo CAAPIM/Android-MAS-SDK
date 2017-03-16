@@ -141,7 +141,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                     .setBody(jsonObject.toString())
                     .addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
 
@@ -157,7 +157,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                     .setBody(jsonObject.toString())
                     .addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
 
@@ -168,9 +168,9 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
         PKCS10 pkcs10 = null;
         try {
-            pkcs10 = new PKCS10(Base64.decode(request.getBody().readByteArray(), Base64.DEFAULT));
+            pkcs10 = new PKCS10(Base64.decode(request.getBody().readByteArray(),  Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE));
         } catch (Exception e) {
-            throw new IllegalArgumentException(e);
+            return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
         DataSource.getInstance().store(magIdentifier, new DataSource.Device(pkcs10.getSubjectPublicKeyInfo()));
 
@@ -305,7 +305,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                     .addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
 
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
 
 

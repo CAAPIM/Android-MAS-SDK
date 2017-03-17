@@ -83,10 +83,13 @@ public interface MAGRequest {
     boolean isPublic();
 
     /**
-     * @return the expiration time on or after which the token will not be accepted
+     * @return the token lifetime after which the token will not be accepted
      */
     long getTimeout();
 
+    /**
+     * @return the time unit that the expiration time should use
+     */
     TimeUnit getTimeUnit();
 
     interface MAGConnectionListener {
@@ -308,11 +311,23 @@ public interface MAGRequest {
             return this;
         }
 
+        /**
+         * Signs the request with the user's private key and injects JWT claims based on the user information.
+         * This method will use a default value of 5 minutes for the JWS 'exp' claim.
+         * @return The builder
+         */
         public MAGRequestBuilder sign() {
             this.sign = true;
+            this.timeout = 5;
+            this.timeUnit = TimeUnit.MINUTES;
             return this;
         }
 
+        /**
+         * Signs the request with the user's private key and injects JWT claims based on the user information.
+         * A timeout of 0 will not inject a 'exp' claim into the JWS.
+         * @return The builder
+         */
         public MAGRequestBuilder sign(long timeout, TimeUnit timeUnit) {
             this.sign = true;
             this.timeout = timeout;

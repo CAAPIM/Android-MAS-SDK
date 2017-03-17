@@ -36,7 +36,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile "com.android.support:recyclerview-v7:$rootProject.ext.recyclerViewVersion"
     compile "com.android.support:design:$rootProject.ext.designVersion"
-    compile 'com.nimbusds:nimbus-jose-jwt:4.23'
+    compile "com.nimbusds:nimbus-jose-jwt:$rootProject.ext.nimbusJoseVersion"
 
     compile project(':mag')
     compile project(':mas')

@@ -4,6 +4,7 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.Server;
 import com.ca.mas.core.request.internal.MAGRequestProxy;
 import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -35,10 +36,11 @@ public class JwtSignRequest extends MAGRequestProxy {
                 byte[] data = baos.toByteArray();
                 JWSSigner signer = new RSASSASigner(getPrivateKey());
                 JWTClaimsSet.Builder claimBuilder = new JWTClaimsSet.Builder();
+                TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
 
                 // JWT claims
                 // iss
-                String magId = StorageProvider.getInstance().getTokenManager().getMagIdentifier();
+                String magId = tokenManager.getMagIdentifier();
                 claimBuilder.issuer("device://" + magId + "/$");
 
                 // TODO: sub: username
@@ -58,15 +60,19 @@ public class JwtSignRequest extends MAGRequestProxy {
                 claimBuilder.issueTime(currentDate);
 
                 // exp
-                TimeUnit timeUnit = super.getTimeUnit();
-                if (timeUnit != null) {
-                    timeUnit = TimeUnit.SECONDS;
-                    long timeOut = TimeUnit.SECONDS.convert(getTimeout(), timeUnit);
+                TimeUnit timeUnit = getTimeUnit();
+                if (timeUnit == null) {
+                    timeUnit = TimeUnit.DAYS.SECONDS;
+                }
+
+                long timeOut = TimeUnit.SECONDS.convert(getTimeout(), timeUnit);
+                if (timeOut != 0) {
                     Date expiryDate = DateUtils.fromSecondsSinceEpoch(timeOut + currentTime);
                     claimBuilder.expirationTime(expiryDate);
                 }
 
                 claimBuilder.claim("content", new String(data));
+                claimBuilder.claim("content-type", ContentType.APPLICATION_JSON.getMimeType());
 
                 JWSHeader rs256Header = new JWSHeader(JWSAlgorithm.RS256);
                 SignedJWT claimsToken = new SignedJWT(rs256Header, claimBuilder.build());

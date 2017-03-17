@@ -34,6 +34,7 @@ ext {
     designVersion = '25.1.0'
     gridLayoutVersion = '25.1.0'
     minSdkVersion = 19
+    nimbusJoseVersion = '4.9'
     recyclerViewVersion = '25.1.0'
     supportAnnotationsVersion = '25.1.0'
     targetSdkVersion = 25

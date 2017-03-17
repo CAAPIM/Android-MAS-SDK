@@ -51,7 +51,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
     protected static final String ASYM_KEY_ALIAS = "ASYM_KEY";
     public static final String RSA_ECB_PKCS1_PADDING = "RSA/ECB/PKCS1PADDING";
 
-    private Context context;
+    protected Context context;
 
     /**
      * Default constructor generates a DefaultKeySymmetricManager
@@ -63,7 +63,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
 
         // Symmetric Key Manager creates symmetric keys,
         //   stored inside AndroidKeyStore for Android.M+
-        keyMgr = new DefaultKeySymmetricManager("AES", 256, true, false, -1);
+        keyMgr = new DefaultKeySymmetricManager("AES", 256, true, false, -1, false);
 
     }
 

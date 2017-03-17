@@ -23,19 +23,19 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.security.interfaces.RSAPublicKey;
+import java.util.concurrent.TimeUnit;
 
 public class MASJwtSigningTest extends MASLoginTestBase {
 
     @Test
     public void testJSONPost() throws Exception {
-
         JSONObject requestData = new JSONObject();
         requestData.put("jsonName", "jsonValue");
         requestData.put("jsonName2", 1234);
 
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
                 .post(MASRequestBody.jsonBody(requestData))
-                //.sign()
+                .sign()
                 .build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
@@ -50,12 +50,42 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         JWSObject signedObject = JWSObject.parse(signedDoc);
         JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) device.getRegisteredPublicKey());
         Assert.assertTrue(signedObject.verify(verifier));
-        Assert.assertEquals("<expected iss>", signedObject.getPayload().toJSONObject().get("iss"));
-        Assert.assertEquals(requestData.toString(), signedObject.getPayload().toJSONObject().get("content"));
+        net.minidev.json.JSONObject payload = signedObject.getPayload().toJSONObject();
+        Assert.assertEquals(requestData.toString(), payload.get("content"));
+        // Expiry time should be non-existent since no timeout was specified
+        Assert.assertEquals(payload.get("exp"), null);
+        Assert.assertEquals(payload.get("aud"), "localhost");
         //... assert other attribute
-
-
     }
 
+    @Test
+    public void testJSONTimeoutPost() throws Exception {
+        JSONObject requestData = new JSONObject();
+        requestData.put("jsonName", "jsonValue");
+        requestData.put("jsonName2", 1234);
 
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+                .post(MASRequestBody.jsonBody(requestData))
+                .sign(500, TimeUnit.SECONDS)
+                .build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        callback.get();
+
+        RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS);
+        String magIdentifier = rr.getHeader("mag-identifier");
+        DataSource.Device device = DataSource.getInstance().getDevice(magIdentifier);
+        String signedDoc = rr.getBody().readUtf8();
+
+        JWSObject signedObject = JWSObject.parse(signedDoc);
+        JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) device.getRegisteredPublicKey());
+        Assert.assertTrue(signedObject.verify(verifier));
+        net.minidev.json.JSONObject payload = signedObject.getPayload().toJSONObject();
+        Assert.assertEquals(requestData.toString(), payload.get("content"));
+        // Expiry time should be equal to the issued time plus the specified timeout
+        Assert.assertEquals((long) payload.get("iat") + 500, payload.get("exp"));
+        Assert.assertEquals(payload.get("aud"), "localhost");
+        //... assert other attribute
+    }
 }

@@ -45,8 +45,6 @@ public abstract class MASTestBase {
         //Turn on debug by default
         MAS.debug();
 
-
-
         MAS.setConnectionListener(new MASConnectionListener() {
             @Override
             public void onObtained(HttpURLConnection connection) {

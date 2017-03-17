@@ -34,6 +34,11 @@ include ':MASUnit'
 
 //Fido
 include ':fido'
+include ':nnl'
+include ':sds'
+project(':nnl').projectDir = new File('fido/providers/nnl')
+project(':sds').projectDir = new File('fido/providers/sds')
+
 
 //Knox
 //include ':Knox', ':SmcControllerSample', ':SamsungLicenseActivationSample'

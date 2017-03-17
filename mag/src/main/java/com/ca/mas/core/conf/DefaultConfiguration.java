@@ -204,6 +204,9 @@ public class DefaultConfiguration implements ConfigurationProvider {
      */
     protected String getTokenUrlSuffix(String operation) {
         String prefix = getProperty(PROP_TOKEN_URI_PREFIX);
+        if (prefix == null) {
+            prefix = "";
+        }
         String suffix = operationUriSuffixes.get(operation);
         return prefix + suffix;
     }

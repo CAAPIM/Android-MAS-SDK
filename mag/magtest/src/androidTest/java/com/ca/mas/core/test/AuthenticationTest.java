@@ -34,6 +34,7 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class AuthenticationTest extends BaseTest {
 
@@ -146,6 +147,7 @@ public class AuthenticationTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void testCallbackWithAuthenticateFailedAndCancel() throws JSONException, InterruptedException {
 
@@ -207,6 +209,7 @@ public class AuthenticationTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void authenticateTest() throws InterruptedException {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -251,6 +254,7 @@ public class AuthenticationTest extends BaseTest {
         assertTrue(success[0]);
     }
 
+    @Deprecated
     @Test
     public void testAuthenticationFail() throws InterruptedException {
 
@@ -300,6 +304,7 @@ public class AuthenticationTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test(expected = NullPointerException.class)
     public void authenticateTestWithNullUsername() {
         mobileSso.authenticate(null, getPassword(), new MAGResultReceiver<JSONObject>(null) {
@@ -321,6 +326,7 @@ public class AuthenticationTest extends BaseTest {
         });
     }
 
+    @Deprecated
     @Test(expected = NullPointerException.class)
     public void authenticateTestWithNullPassword() {
         mobileSso.authenticate(getUsername(), (char[]) null, new MAGResultReceiver<JSONObject>(null) {

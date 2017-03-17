@@ -39,6 +39,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
@@ -71,9 +72,11 @@ public class MASLoginTest extends MASStartTestBase {
             Assert.assertNull(logoutCallback.get());
         }
 
-        MASCallbackFuture<Void> deregisterCallback = new MASCallbackFuture<Void>();
-        MASDevice.getCurrentDevice().deregister(deregisterCallback);
-        Assert.assertNull(deregisterCallback.get());
+        if (MASDevice.getCurrentDevice().isRegistered()) {
+            MASCallbackFuture<Void> deregisterCallback = new MASCallbackFuture<Void>();
+            MASDevice.getCurrentDevice().deregister(deregisterCallback);
+            Assert.assertNull(deregisterCallback.get());
+        }
     }
 
     @Test
@@ -315,7 +318,7 @@ public class MASLoginTest extends MASStartTestBase {
         Assert.assertNotNull(callback.get());
         RecordedRequest registerRequest = getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_REGISTER);
         Assert.assertEquals(registerRequest.getHeader("authorization"), "Bearer " + expected);
-        Assert.assertEquals(registerRequest.getHeader("x-authorization-type"), expectedType );
+        Assert.assertEquals(registerRequest.getHeader("x-authorization-type"), expectedType);
 
         //Logout
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
@@ -343,7 +346,112 @@ public class MASLoginTest extends MASStartTestBase {
         Assert.assertNotNull(callback.get());
         RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_REGISTER);
         Assert.assertEquals(rr.getHeader("authorization"), "Bearer " + expected);
-        Assert.assertEquals(rr.getHeader("x-authorization-type"), MASIdToken.JWT_DEFAULT );
+        Assert.assertEquals(rr.getHeader("x-authorization-type"), MASIdToken.JWT_DEFAULT);
+    }
+
+    @Test
+    public void testCallbackWithAuthenticateFailedAndCancel() throws JSONException, InterruptedException, URISyntaxException {
+
+        final int expectedErrorCode = 1000202;
+        final String expectedErrorMessage = "{ \"error\":\"invalid_request\", \"error_description\":\"The resource owner could not be authenticated due to missing or invalid credentials\" }";
+        final String CONTENT_TYPE = "Content-Type";
+        final String CONTENT_TYPE_VALUE = "application/json";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse registerDeviceResponse() {
+                return new MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED).
+                        setHeader("x-ca-err", expectedErrorCode).
+                        setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+            }
+        });
+
+        MAS.setAuthenticationListener(new MASAuthenticationListener() {
+            @Override
+            public void onAuthenticateRequest(Context context, final long requestId, MASAuthenticationProviders providers) {
+
+                MASUser.login("admin", "7layer".toCharArray(), new MASCallback<MASUser>() {
+                    @Override
+                    public void onSuccess(MASUser result) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        MAS.cancelRequest(requestId);
+                    }
+                });
+
+            }
+
+            @Override
+            public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {
+
+            }
+        });
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+                .notifyOnCancel()
+                .build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        try {
+            callback.get();
+            fail();
+        } catch (ExecutionException e) {
+            assertTrue(e.getCause().getCause() instanceof MAS.RequestCancelledException);
+        }
+    }
+
+    @Test
+    public void loginTest() throws InterruptedException, ExecutionException {
+
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASUser.login("admin", "7layer".toCharArray(), callback);
+        assertNotNull(callback.get());
+        assertNotNull(MASUser.getCurrentUser());
+
+    }
+
+    @Test
+    public void testAuthenticationFail() throws InterruptedException {
+
+        final int expectedErrorCode = 1000202;
+        final String expectedErrorMessage = "{ \"error\":\"invalid_request\", \"error_description\":\"The resource owner could not be authenticated due to missing or invalid credentials\" }";
+        final String CONTENT_TYPE = "Content-Type";
+        final String CONTENT_TYPE_VALUE = "application/json";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse registerDeviceResponse() {
+                return new MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED).
+                        setHeader("x-ca-err", expectedErrorCode).
+                        setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+            }
+        });
+
+        MASCallbackFuture<MASUser> callbackFuture = new MASCallbackFuture<>();
+
+        MASUser.login("admin", "invalid".toCharArray(), callbackFuture);
+
+        try {
+            callbackFuture.get();
+            fail();
+        } catch (ExecutionException e) {
+            assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, ((AuthenticationException) e.getCause().getCause()).getStatus());
+        }
+
+
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void authenticateTestWithNullUsername() {
+        MASUser.login(null, "7layer".toCharArray(), null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void authenticateTestWithNullPassword() {
+        MASUser.login("admin", (char[]) null, null);
     }
 
 

@@ -31,6 +31,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class InitSDKTest {
 

@@ -532,6 +532,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
                         try {
                             JSONObject source = scimUser.getSource();
+                            //make sure not to store the password
                             source.remove(IdentityConsts.KEY_PASSWORD);
                             tokenManager.saveUserProfile(source.toString());
                         } catch (Exception e) {

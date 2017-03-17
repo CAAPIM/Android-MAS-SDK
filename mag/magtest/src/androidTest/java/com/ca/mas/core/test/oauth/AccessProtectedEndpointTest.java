@@ -44,6 +44,7 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class AccessProtectedEndpointTest extends BaseTest {
 
@@ -250,6 +251,7 @@ public class AccessProtectedEndpointTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void testMagIdentifier() throws Exception {
         MAGRequest request = new MAGRequest.MAGRequestBuilder(getURI("/protected/resource/products?operation=listProducts")).build();
@@ -280,6 +282,7 @@ public class AccessProtectedEndpointTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void testConnectionListener() throws Exception {
         final boolean[] got = {false};

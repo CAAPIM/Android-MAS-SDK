@@ -52,6 +52,7 @@ public class DefaultKeySymmetricManager implements KeySymmetricManager {
     private boolean mInMemory = true;
     private boolean mUserAuthenticationRequired = false;
     private int mUserAuthenticationValiditySeconds = -1;
+    private boolean mNougat_invalidatedByBiometricEnrollment = false;
 
 
     /**
@@ -61,20 +62,62 @@ public class DefaultKeySymmetricManager implements KeySymmetricManager {
     }
 
     /**
-     * Constructor, allows for full selection of key properties
+     * Constructor, allows for full selection of key properties.  This can
+     *   only be used for Symmetric (AES) Keys for Android.M+.
+     *
+     * “The Android Keystore system lets you store cryptographic keys in a
+     * container to make it more difficult to extract from the device.
+     * Once keys are in the keystore, they can be used for cryptographic
+     * operations with the key material remaining non-exportable”.
+     * This means that the key can't be extracted from the keystore, and
+     * note that keys can only be shared between applications with
+     * the same signing key and shared user id.
+     * Therefore, it is not necessary to protect private keys stored
+     * in the AndroidKeyStore with a screen lock in the same way
+     * encryption was required for Pre-M.
+     * <p>
+     * The key protection parameters for AndroidKeyStore AES keys
+     * userAuthenticationValidityDurationSeconds,
+     * and nougat_setInvalidatedByBiometricEnrollment are linked,
+     * below are the combinations:
+     * <p>
+     * 1) userAuthenticationRequired(false) – the keys
+     *      are still protected from export but can be used whenever needed.
+     * 2) userAuthenticationRequired(true) and
+     *      userAuthenticationValidityDurationSeconds( > 0 ) –
+     *      the key can only be used if the pin has been entered within the given
+     *      number of seconds.  On some devices, when a fingerprint is added
+     *      the key is invalidated.
+     * 3) userAuthenticationRequired(true) and
+     *      userAuthenticationValidityDurationSeconds(zero) –
+     *      works only with fingerprint+pin/swipe/pattern, and requires that
+     *      the fingerprint is entered every time a key is used.  This requires
+     *      an added layer to prompt the user to swipe their fingerprint.
+     * 4) Android N+: nougat_setInvalidatedByBiometricEnrollment(true/false)
+     *      changes the behavior in #2 – either the key will or won’t be
+     *      invalided when the user adds an or another fingerprint.
      *
      * @param algorithm AES or other Symmetric Key algorithm
      * @param keyLength default is 256
-     * @param inMemory for Android.M+ the key will be created outside the AndroidKeyStore and then stored
-     *                    inside.  The in-memory copy can be used without user authentication until the
-     *                    app is closed, dereferenced, or variable is destroyed.
-     * @param userAuthenticationRequired for Android.M+ require screen lock.  Note, if inMemory is true,
-     *                    this applies only to versions extracted from the AndroidKeyStore.
-     * @param userAuthenticationValiditySeconds sets the duration for which this key is authorized
-     *                    to be used after the user is successfully authenticated.
+     * @param inMemory the key will be created outside the AndroidKeyStore and then stored
+     *                      inside.  The in-memory copy can be used without user authentication until the
+     *                      app is closed, dereferenced, or variable is destroyed.
+     * @param userAuthenticationRequired
+     *                      true/false, requires a lock screen in order to use the key.
+     * @param userAuthenticationValidityDurationSeconds
+     *                      if user authentication is required, this specifies the number of seconds after
+     *                      unlocking the screen wherein key is still usable.  If this value is zero or negative, a
+     *                      fingerprint is required for every use.  Can be set to 100,000, which would only
+     *                      require a screen unlock within the last day or so.
+     * @param nougat_invalidatedByBiometricEnrollment
+     *                      true/false: if setUserAuthenticationRequired true, some Android M devices may disable
+     *                      a key if a fingerprint is added.  Setting this value to true ensures
+     *                      the key is usable even if a fingerprint is added.
      */
-    public DefaultKeySymmetricManager(String algorithm, int keyLength,
-                       boolean inMemory, boolean userAuthenticationRequired, int userAuthenticationValiditySeconds)
+    public DefaultKeySymmetricManager(String algorithm, int keyLength, boolean inMemory,
+                       boolean userAuthenticationRequired,
+                       int userAuthenticationValiditySeconds,
+                       boolean nougat_invalidatedByBiometricEnrollment)
     {
 
         if (keyLength < 0) {
@@ -90,6 +133,7 @@ public class DefaultKeySymmetricManager implements KeySymmetricManager {
         mInMemory = inMemory;
         mUserAuthenticationRequired = userAuthenticationRequired;
         mUserAuthenticationValiditySeconds = userAuthenticationValiditySeconds;
+        mNougat_invalidatedByBiometricEnrollment = nougat_invalidatedByBiometricEnrollment;
     }
 
 
@@ -165,8 +209,11 @@ public class DefaultKeySymmetricManager implements KeySymmetricManager {
                     .setRandomizedEncryptionRequired(true)
                     .setUserAuthenticationRequired(mUserAuthenticationRequired);
 
-            if (mUserAuthenticationRequired && mUserAuthenticationValiditySeconds > 0)
+            if (mUserAuthenticationRequired)
                 builder.setUserAuthenticationValidityDurationSeconds(mUserAuthenticationValiditySeconds);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                builder.setInvalidatedByBiometricEnrollment(mNougat_invalidatedByBiometricEnrollment);
 
             KeyGenParameterSpec keyGenSpec = builder.build();
             keyGenerator.init(keyGenSpec);

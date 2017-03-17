@@ -9,3 +9,4 @@
 [submodule "fido"]
 	path = fido
 	url = https://github.com/CAAPIM/Android-MAS-FIDO
+	branch = US314378-FIDO

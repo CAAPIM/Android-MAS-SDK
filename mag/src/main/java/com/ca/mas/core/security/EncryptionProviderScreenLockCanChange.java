@@ -42,7 +42,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
     private static final int IV_LENGTH = 12;
 
     public DefaultEncryptionProvider(@NonNull Context ctx) {
-        this(ctx, new SharedPreferencesKeyStorageProvider(ctx));
+        this(ctx, new KeyStorageScreenLockCanChange(ctx));
     }
 
     public DefaultEncryptionProvider(Context ctx, KeyStorageProvider keyStorageProvider) {

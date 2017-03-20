@@ -39,6 +39,10 @@ include ':sds'
 project(':nnl').projectDir = new File('fido/providers/nnl')
 project(':sds').projectDir = new File('fido/providers/sds')
 
+//FidoSample
+include ':fidosample'
+project(':fidosample').projectDir = new File('fido/samples/FidoSample')
+
 
 //Knox
 //include ':Knox', ':SmcControllerSample', ':SamsungLicenseActivationSample'

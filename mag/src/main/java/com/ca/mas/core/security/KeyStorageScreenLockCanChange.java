@@ -62,7 +62,7 @@ class KeyStorageScreenLockCanChange extends SharedPreferencesKeyStorageProvider 
 
         // Symmetric Key Manager creates symmetric keys,
         //   stored inside AndroidKeyStore for Android.M+
-        keyMgr = new DefaultKeySymmetricManager("AES", 256, false, true, 100000, false);
+        keyMgr = new DefaultKeySymmetricManager("AES", 256, false, false, 100000, false);
     }
 
 

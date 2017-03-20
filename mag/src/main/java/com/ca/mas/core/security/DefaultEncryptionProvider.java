@@ -33,7 +33,7 @@ import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
 public class DefaultEncryptionProvider implements EncryptionProvider {
-    private KeyStorageProvider ksp;
+    protected KeyStorageProvider ksp;
     private static final String KEY_ALIAS = "secret";
     private static final String ALGORITHM = "AES";
     private static final int KEY_SIZE = 256;

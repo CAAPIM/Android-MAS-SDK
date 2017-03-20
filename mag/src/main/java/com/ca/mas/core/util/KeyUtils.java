@@ -81,21 +81,21 @@ public class KeyUtils {
      * and nougat_setInvalidatedByBiometricEnrollment are linked,
      * below are the combinations:
      * <p>
-     * 1) Android M+: marshmallow_setUserAuthenticationRequired(false) – the keys
-     * are still protected from export but can be used whenever needed.
-     * 2) Android M+: marshmallow_setUserAuthenticationRequired(true) and
-     * marshmallow_setUserAuthenticationValidityDurationSeconds( > 0 ) –
-     * the key can only be used if the pin has been entered within the given
-     * number of seconds.  On some devices, when a fingerprint is added
-     * the key is invalidated.
-     * 3) Android M+: marshmallow_setUserAuthenticationRequired(true) and
-     * marshmallow_setUserAuthenticationValidityDurationSeconds(zero) –
-     * works only with fingerprint+pin/swipe/pattern, and requires that
-     * the fingerprint is entered every time a key is used.  This requires
-     * an added layer to prompt the user to swipe their fingerprint.
+     * 1) userAuthenticationRequired(false) – the keys
+     *      are still protected from export but can be used whenever needed.
+     * 2) userAuthenticationRequired(true) and
+     *      userAuthenticationValidityDurationSeconds( > 0 ) –
+     *      the key can only be used if the pin/fingerprint has been entered within the
+     *      given number of seconds.  On some devices, when a fingerprint is added
+     *      the key is invalidated.  At least one fingerprint must be registered.
+     * 3) userAuthenticationRequired(true) and
+     *      userAuthenticationValidityDurationSeconds(zero) –
+     *      works only with fingerprint+pin/swipe/pattern, and requires that
+     *      the fingerprint is entered every time a key is used.  This requires
+     *      an added layer to prompt the user to swipe their fingerprint.
      * 4) Android N+: nougat_setInvalidatedByBiometricEnrollment(true/false)
-     * changes the behavior in #2 – either the key will or won’t be
-     * invalided when the user adds an or another fingerprint.
+     *      changes the behavior in #2 – either the key will or won’t be
+     *      invalided when the user adds an or another fingerprint.
      *
      * @param context                                               needed for generating key pre-M
      * @param keysize                                               the key size in bits, eg 2048.
@@ -239,8 +239,7 @@ public class KeyUtils {
         Date now = cal.getTime();
         cal.add(Calendar.YEAR, 1);
         Date end = cal.getTime();
-        keyPairGenerator.initialize(
-                new KeyGenParameterSpec.Builder(alias,
+        KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(alias,
                         KeyProperties.PURPOSE_ENCRYPT + KeyProperties.PURPOSE_DECRYPT
                                 + KeyProperties.PURPOSE_SIGN + KeyProperties.PURPOSE_VERIFY)
                         .setKeySize(keysize)
@@ -248,7 +247,6 @@ public class KeyUtils {
                         .setCertificateSubject(new X500Principal("CN=msso"))
                         .setCertificateSerialNumber(BigInteger.valueOf(1))
                         .setUserAuthenticationRequired(userAuthenticationRequired)
-                        .setUserAuthenticationValidityDurationSeconds(userAuthenticationValidityDurationSeconds)
                         // In HttpUrlConnection, com.android.org.conscrypt.CryptoUpcalls.rawSignDigestWithPrivateKey
                         //   requires "NONEwithRSA", so we need to include DIGEST_NONE
                         //   therefore we can only setRandomizedEncruptionRequired to false
@@ -257,8 +255,11 @@ public class KeyUtils {
                         .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_ECB, BLOCK_MODE_GCM)
                         .setDigests(DIGEST_NONE, DIGEST_MD5, DIGEST_SHA1, DIGEST_SHA256, DIGEST_SHA384, DIGEST_SHA512)
                         .setEncryptionPaddings(ENCRYPTION_PADDING_PKCS7, ENCRYPTION_PADDING_RSA_OAEP, ENCRYPTION_PADDING_RSA_PKCS1)
-                        .setSignaturePaddings(SIGNATURE_PADDING_RSA_PSS, SIGNATURE_PADDING_RSA_PKCS1)
-                        .build());
+                        .setSignaturePaddings(SIGNATURE_PADDING_RSA_PSS, SIGNATURE_PADDING_RSA_PKCS1);
+        if (userAuthenticationRequired)
+            builder.setUserAuthenticationValidityDurationSeconds(userAuthenticationValidityDurationSeconds);
+
+        keyPairGenerator.initialize(builder.build());
         return keyPairGenerator.generateKeyPair().getPrivate();
     }
 
@@ -300,8 +301,7 @@ public class KeyUtils {
         Date now = cal.getTime();
         cal.add(Calendar.YEAR, 1);
         Date end = cal.getTime();
-        keyPairGenerator.initialize(
-                new KeyGenParameterSpec.Builder(alias,
+        KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(alias,
                         KeyProperties.PURPOSE_ENCRYPT + KeyProperties.PURPOSE_DECRYPT
                                 + KeyProperties.PURPOSE_SIGN + KeyProperties.PURPOSE_VERIFY)
                         .setKeySize(keysize)
@@ -309,7 +309,6 @@ public class KeyUtils {
                         .setCertificateSubject(new X500Principal("CN=msso"))
                         .setCertificateSerialNumber(BigInteger.valueOf(1))
                         .setUserAuthenticationRequired(userAuthenticationRequired)
-                        .setUserAuthenticationValidityDurationSeconds(userAuthenticationValidityDurationSeconds)
                         .setInvalidatedByBiometricEnrollment(invalidatedByBiometricEnrollment)
                         // In HttpUrlConnection, com.android.org.conscrypt.CryptoUpcalls.rawSignDigestWithPrivateKey
                         //   requires "NONEwithRSA", so we need to include DIGEST_NONE
@@ -319,8 +318,11 @@ public class KeyUtils {
                         .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_ECB, BLOCK_MODE_GCM)
                         .setDigests(DIGEST_NONE, DIGEST_MD5, DIGEST_SHA1, DIGEST_SHA256, DIGEST_SHA384, DIGEST_SHA512)
                         .setEncryptionPaddings(ENCRYPTION_PADDING_PKCS7, ENCRYPTION_PADDING_RSA_OAEP, ENCRYPTION_PADDING_RSA_PKCS1)
-                        .setSignaturePaddings(SIGNATURE_PADDING_RSA_PSS, SIGNATURE_PADDING_RSA_PKCS1)
-                        .build());
+                        .setSignaturePaddings(SIGNATURE_PADDING_RSA_PSS, SIGNATURE_PADDING_RSA_PKCS1);
+        if (userAuthenticationRequired)
+            builder.setUserAuthenticationValidityDurationSeconds(userAuthenticationValidityDurationSeconds);
+
+        keyPairGenerator.initialize(builder.build());
         return keyPairGenerator.generateKeyPair().getPrivate();
     }
 

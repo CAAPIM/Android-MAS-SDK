@@ -15,26 +15,8 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.ca.mas.core.util.KeyUtils;
-
-import java.io.IOException;
-import java.security.cert.CertificateException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.InvalidParameterException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PublicKey;
-import java.security.UnrecoverableKeyException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
-import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
 /**
@@ -107,79 +89,8 @@ class KeyStorageScreenLockCanChange extends SharedPreferencesKeyStorageProvider 
             throw new RuntimeException("KeyStorageScreenLockCanChange getKey there is no screen lock (pin/swipe/password), so the encryption key has been deleted");
         }
 
-        // For Android.M+, if this key was created we'll find it here
-        SecretKey secretKey = keyMgr.retrieveKey(alias);
-
-        if (secretKey == null) {
-
-            // check if the key is present locally
-            byte encryptedSecretKey[] = getEncryptedSecretKey(alias);
-            if (encryptedSecretKey != null) {
-                try {
-                    secretKey = decryptSecretKey(encryptedSecretKey);
-                } catch (Exception unableToDecrypt) {
-                    if (DEBUG)
-                        Log.e(TAG, "Error while decrypting SecretKey, deleting it", unableToDecrypt);
-
-                    deleteSecretKeyLocally(alias);
-                    encryptedSecretKey = null;
-                }
-            }
-
-            // if still no key, generate one
-            if (secretKey == null) {
-                secretKey = keyMgr.generateKey(alias);
-
-                // if this is Pre- Android.M, we need to store it locally
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                    encryptedSecretKey = encryptSecretKey(secretKey);
-                    storeSecretKeyLocally(alias, encryptedSecretKey);
-                }
-            } else {
-                // if this is Android.M+, check if the operating system was upgraded
-                //   and we can now store the SecretKey in the AndroidKeyStore
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    keyMgr.storeKey(alias, secretKey);
-                    deleteSecretKeyLocally(alias);
-                }
-            }
-        }
-
-        return secretKey;
+        return super.getKey(alias);
     }
-
-
-    /**
-     * This method encrypts a SecretKey using an RSA key.
-     * This is intended for Pre-Android.M, where the
-     * SecretKey cannot be stored in the AndroidKeyStore
-     *
-     * @param secretKey SecretKey to encrypt
-     */
-    protected byte[] encryptSecretKey(SecretKey secretKey) {
-        try {
-            PublicKey publicKey = KeyUtils.getRsaPublicKey(ASYM_KEY_ALIAS);
-            if (publicKey == null) {
-                KeyUtils.generateRsaPrivateKey(context, 2048,
-                        ASYM_KEY_ALIAS, String.format("CN=%s, OU=%s", ASYM_KEY_ALIAS, "com.ca"),
-                        false, false, -1, false);
-                publicKey = KeyUtils.getRsaPublicKey(ASYM_KEY_ALIAS);
-            }
-
-            Cipher cipher = Cipher.getInstance(RSA_ECB_PKCS1_PADDING);
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            return cipher.doFinal(secretKey.getEncoded());
-
-        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException
-                | NoSuchPaddingException | NoSuchAlgorithmException | NoSuchProviderException
-                | IOException | InvalidParameterException | KeyStoreException
-                | InvalidAlgorithmParameterException | CertificateException
-                | UnrecoverableKeyException e) {
-            if (DEBUG) Log.e(TAG, "Error while encrypting SecretKey", e);
-            throw new RuntimeException("Error while encrypting SecretKey", e);
-        }
-    }
-
 
 
 }

@@ -31,7 +31,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String AUTH_OAUTH_V2_TOKEN = "/auth/oauth/v2/token";
     public static final String PROTECTED_RESOURCE_SLOW = "/protected/resource/slow";
     public static final String PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY = "/protected/resource/productsAsArray";
-    public static final String PROTECTED_RESOURCE_PRODUCTS = "/protected/resource/products?operation=listProducts";
+    public static final String PROTECTED_RESOURCE_PRODUCTS = "/protected/resource/products";
     public static final String TEST_NO_CONTENT = "/testNoContent";
     public static final String AUTH_OAUTH_V2_AUTHORIZE = "/auth/oauth/v2/authorize";
     public static final String CONNECT_DEVICE_REGISTER_CLIENT = "/connect/device/register/client";
@@ -42,6 +42,9 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String AUTH_OTP = "/auth/generateOTP";
     public static final String USER_INFO = "/openid/connect/v1/userinfo";
     public static final String OTHER = "other";
+
+    public static final String ID_TOKEN = "dummy-idToken";
+    public static final String ID_TOKEN_TYPE = "dummy-idTokenType";
 
     public static String TARGET_RESPONSE = "{ \"products\": [\n" +
             "    {\"id\": 1, \"name\": \"Red Stapler\", \"price\": \"54.44\"},\n" +
@@ -68,11 +71,11 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
             return initializeResponse();
         } else if (request.getPath().contains(AUTH_OAUTH_V2_TOKEN)) {
             return retrieveTokenResponse();
-        } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS)) {
-            return secureServiceResponse();
         } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY)) {
             return secureServiceResponseAsArray();
-        } else if (request.getPath().contains(PROTECTED_RESOURCE_SLOW)) {
+        } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS)) {
+            return secureServiceResponse();
+       } else if (request.getPath().contains(PROTECTED_RESOURCE_SLOW)) {
             Thread.sleep(1000);
             return secureServiceResponse();
         } else if (request.getPath().contains(TEST_NO_CONTENT)) {
@@ -181,8 +184,8 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 .setResponseCode(200)
                 .setHeader("device-status", "activated")
                 .setHeader("mag-identifier", "test-device")
-                .setHeader("id-token", "dummy-idToken")
-                .setHeader("id-token-type", "dummy-idTokenType")
+                .setHeader("id-token", ID_TOKEN)
+                .setHeader("id-token-type", ID_TOKEN_TYPE)
                 .setBody(cert);
 
     }
@@ -247,7 +250,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 "  \"token_type\":\"Bearer\",\n" +
                 "  \"expires_in\":" + new Date().getTime() + 3600 + ",\n" +
                 "  \"refresh_token\":\"19785fca-4b86-4f8e-a73c-7de1d420f88d\",\n" +
-                "  \"scope\":\"openid msso phone profile address email\"\n" +
+                "  \"scope\":\"openid msso phone profile address email msso_register msso_client_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups\"\n" +
                 "}";
         return new MockResponse().setResponseCode(200).setBody(token);
 
@@ -260,7 +263,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 "  \"token_type\":\"Bearer\",\n" +
                 "  \"expires_in\":3600,\n" +
                 "  \"refresh_token\":\"19785fca-4b86-4f8e-a73c-7de1d420f88d\",\n" +
-                "  \"scope\":\"openid phone email\",\n" +
+                "  \"scope\":\"openid msso phone profile address email msso_register msso_client_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups\",\n" +
                 "  \"id-token\":\"dummy-idToken\",\n" +
                 "  \"id-token-type\":\"dummy-idTokenType\"\n" +
                 "}";

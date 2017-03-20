@@ -12,6 +12,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.VisibleForTesting;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
@@ -27,6 +28,7 @@ import java.util.List;
  */
 public class MASOtpAuthenticationHandler implements Parcelable{
 
+    @VisibleForTesting
     private OtpAuthenticationHandler handler;
 
     public MASOtpAuthenticationHandler(OtpAuthenticationHandler handler) {

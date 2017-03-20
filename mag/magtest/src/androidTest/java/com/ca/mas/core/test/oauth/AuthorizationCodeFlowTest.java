@@ -40,11 +40,13 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class AuthorizationCodeFlowTest extends BaseTest {
 
     private final String AUTH_CODE = "dummy_code";
 
+    @Deprecated
     @Test
     public void testAccessProtectedEndpointWithAuthCodeWithPKCE() throws URISyntaxException, InterruptedException, IOException {
 
@@ -72,7 +74,7 @@ public class AuthorizationCodeFlowTest extends BaseTest {
                 String codeChallenge = uri.getQueryParameter("code_challenge");
                 String codeChallengeMethod = uri.getQueryParameter("code_challenge_method");
                 String state = uri.getQueryParameter("state");
-                codeVerifier[0] = CodeVerifierCache.getInstance().getCurrentCodeVerifier();
+                codeVerifier[0] = getValue(CodeVerifierCache.getInstance(), "codeVerifier", String.class);
                 assertNotNull(codeChallenge);
                 assertNotNull(codeChallengeMethod);
                 assertNotNull(state);
@@ -127,6 +129,7 @@ public class AuthorizationCodeFlowTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void testAccessProtectedEndpointWithAuthCodeWithoutPKCE() throws URISyntaxException, InterruptedException, IOException {
 
@@ -210,6 +213,7 @@ public class AuthorizationCodeFlowTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void testRegistrationWithAuthCodeWithPKCE() throws URISyntaxException, InterruptedException, IOException {
 
@@ -237,7 +241,7 @@ public class AuthorizationCodeFlowTest extends BaseTest {
                 String codeChallenge = uri.getQueryParameter("code_challenge");
                 String codeChallengeMethod = uri.getQueryParameter("code_challenge_method");
                 String state = uri.getQueryParameter("state");
-                codeVerifier[0] = CodeVerifierCache.getInstance().getCurrentCodeVerifier();
+                codeVerifier[0] = getValue(CodeVerifierCache.getInstance(), "codeVerifier", String.class);
                 assertNotNull(codeChallenge);
                 assertNotNull(codeChallengeMethod);
                 assertNotNull(state);

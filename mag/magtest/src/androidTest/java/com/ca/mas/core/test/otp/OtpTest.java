@@ -39,6 +39,7 @@ import static junit.framework.Assert.assertTrue;
 /*
 OtpTest class tests for all of the OTP related scenarios
  */
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class OtpTest extends BaseTest {
     Context context;
@@ -53,6 +54,7 @@ public class OtpTest extends BaseTest {
     It again sends a MAG request to /otpProtected end point which is super protected with the X-OTP header with a otp value.
     Mockserver will return Success.
     */
+    @Deprecated
     @Test
     public void otpPositiveFlowTest() throws Exception {
         context = InstrumentationRegistry.getTargetContext().getApplicationContext();
@@ -104,6 +106,7 @@ public class OtpTest extends BaseTest {
     Mockserver will return otp expired error.
     */
 
+    @Deprecated
     @Test
     public void otpExpiredFlowTest() throws Exception {
         context = InstrumentationRegistry.getTargetContext().getApplicationContext();
@@ -160,6 +163,7 @@ public class OtpTest extends BaseTest {
     It again sends a MAG request to /otpProtected end point which is super protected with the X-OTP header with a otp value.
     Mockserver will return user suspended error.
     */
+    @Deprecated
     @Test
     public void otpUserSuspendedFlowTest() throws Exception {
         context = InstrumentationRegistry.getTargetContext().getApplicationContext();
@@ -216,6 +220,7 @@ public class OtpTest extends BaseTest {
     It again sends a MAG request to /otpProtected end point which is super protected with the X-OTP header with a otp value.
     Mockserver will return Internal Server Error.
      */
+    @Deprecated
     @Test
     public void otpServerErrorFlowTest() throws Exception {
         context = InstrumentationRegistry.getTargetContext().getApplicationContext();
@@ -266,6 +271,7 @@ public class OtpTest extends BaseTest {
     Then test case will sends a MAG request to /auth/otp end point with the otp delivery channel.
     Mockserver will return otp suspended error.
     */
+    @Deprecated
     @Test
     public void otpUserBarredFlowTest() throws Exception {
         context = InstrumentationRegistry.getTargetContext().getApplicationContext();
@@ -325,6 +331,7 @@ public class OtpTest extends BaseTest {
     Then test case will sends a MAG request to /auth/otp end point with the otp delivery channel.
     Mockserver will return invalid request error.
     */
+    @Deprecated
     @Test
     public void otpErrorGeneratingFlowTest() throws Exception {
         context = InstrumentationRegistry.getTargetContext().getApplicationContext();
@@ -381,6 +388,7 @@ public class OtpTest extends BaseTest {
     Then test case will sends a MAG request to /auth/otp end point with the otp delivery channel.
     Mockserver will return internal error.
    */
+    @Deprecated
     @Test
     public void otpInternalServerErrorGeneratingFlowTest() throws Exception {
         context = InstrumentationRegistry.getTargetContext().getApplicationContext();
@@ -429,6 +437,7 @@ public class OtpTest extends BaseTest {
         }
     }
 
+    @Deprecated
     @Test
     public void otpInvalidFlowTest() throws Exception {
         context = InstrumentationRegistry.getTargetContext().getApplicationContext();

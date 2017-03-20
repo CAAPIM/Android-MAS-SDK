@@ -25,6 +25,7 @@ import java.net.URISyntaxException;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class DeviceIdTest extends BaseTest {
 

@@ -96,6 +96,9 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             encryptedData = concatArrays(mac, iv, encryptedData);
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "inside exception of encrypt function: ", e);
+            // if auth error, we should delete the invalid key
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                checkDeleteKeys(e);
             throw new RuntimeException(e.getMessage(), e);
         }
         return encryptedData;
@@ -105,7 +108,6 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
      * @param encryptedData : data to be decrypted
      * @return byte[] of decrypted data
      */
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public byte[] decrypt(byte[] encryptedData) {
         Cipher cipher;
@@ -215,6 +217,15 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             } catch (DestroyFailedException e) {
                 if (DEBUG) Log.e(TAG, "Could not destroy key");
             }
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    protected void checkDeleteKeys(Exception e)
+    {
+        if (e instanceof android.security.keystore.UserNotAuthenticatedException) {
+            ksp.removeKey(getKeyAlias());
+            if (DEBUG) Log.e(TAG, "deleted key " + getKeyAlias() + " since User not authenticated");
         }
     }
 }

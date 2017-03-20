@@ -30,14 +30,16 @@ public abstract class MASLoginTestBase extends MASStartTestBase {
     @After
     public void deregister() throws InterruptedException, ExecutionException {
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<Void>();
-        if (MASUser.getCurrentUser() != null) {
-            MASUser.getCurrentUser().logout(logoutCallback);
+        MASUser currentUser = MASUser.getCurrentUser();
+        if (currentUser != null) {
+            currentUser.logout(logoutCallback);
             Assert.assertNull(logoutCallback.get());
         }
 
-        if (MASDevice.getCurrentDevice().isRegistered()) {
+        MASDevice currentDevice = MASDevice.getCurrentDevice();
+        if (currentDevice.isRegistered()) {
             MASCallbackFuture<Void> deregisterCallback = new MASCallbackFuture<Void>();
-            MASDevice.getCurrentDevice().deregister(deregisterCallback);
+            currentDevice.deregister(deregisterCallback);
             Assert.assertNull(deregisterCallback.get());
         }
     }

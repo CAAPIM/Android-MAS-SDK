@@ -32,7 +32,7 @@ import javax.security.auth.Destroyable;
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
-public class DefaultEncryptionProvider implements EncryptionProvider {
+public class EncryptionProviderScreenLockCanChange implements EncryptionProvider {
     private KeyStorageProvider ksp;
     private static final String KEY_ALIAS = "secret";
     private static final String ALGORITHM = "AES";
@@ -41,11 +41,11 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
     private static final String HMAC_SHA256 = "HmacSHA256";
     private static final int IV_LENGTH = 12;
 
-    public DefaultEncryptionProvider(@NonNull Context ctx) {
+    public EncryptionProviderScreenLockCanChange(@NonNull Context ctx) {
         this(ctx, new KeyStorageScreenLockCanChange(ctx));
     }
 
-    public DefaultEncryptionProvider(Context ctx, KeyStorageProvider keyStorageProvider) {
+    public EncryptionProviderScreenLockCanChange(Context ctx, KeyStorageProvider keyStorageProvider) {
         ksp = keyStorageProvider;
     }
 

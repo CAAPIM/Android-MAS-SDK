@@ -25,7 +25,6 @@ import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
 import com.ca.mas.core.security.LockableKeyStorageProvider;
 import com.ca.mas.core.security.SecureLockException;
-import com.ca.mas.core.store.OAuthTokenContainer;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
@@ -63,7 +62,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.foundation.MASDevice.createStorageProvider;
 import static com.ca.mas.foundation.MASDevice.createTokenManager;
 import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN;
 
@@ -572,11 +570,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                     } else if (isSessionLocked()) {
                         Callback.onSuccess(callback, null);
                     } else {
-                        // Remove access and refresh tokens
-                        StorageProvider storageProvider = createStorageProvider();
-                        OAuthTokenContainer container = storageProvider.createOAuthTokenContainer();
-                        container.clear();
-
                         // Retrieve the ID token
                         TokenManager keyChainManager = createTokenManager();
                         IdToken idToken = keyChainManager.getIdToken();

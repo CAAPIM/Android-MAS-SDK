@@ -572,11 +572,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                     } else if (isSessionLocked()) {
                         Callback.onSuccess(callback, null);
                     } else {
-                        // Remove access and refresh tokens
-                        StorageProvider storageProvider = createStorageProvider();
-                        OAuthTokenContainer container = storageProvider.createOAuthTokenContainer();
-                        container.clear();
-
                         // Retrieve the ID token
                         TokenManager keyChainManager = createTokenManager();
                         IdToken idToken = keyChainManager.getIdToken();
@@ -585,6 +580,10 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_RETRIEVE_ID_TOKEN));
                             return;
                         }
+
+                        StorageProvider storageProvider = createStorageProvider();
+                        OAuthTokenContainer container = storageProvider.createOAuthTokenContainer();
+                        container.clear();
 
                         // Move the ID token from the Keychain to the fingerprint protected shared Keystore
                         Parcel idTokenParcel = Parcel.obtain();

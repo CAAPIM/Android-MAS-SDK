@@ -157,12 +157,6 @@ public class MASLoginActivity extends AppCompatActivity {
                     });
                 } else if (idp.equals("all") || idp.equalsIgnoreCase(identifier)) {
                     if (!p.isProximityLogin()) {
-                        // Set the name of the provider based off the identifier
-                        if (!identifier.equals("enterprise")) {
-                            String buttonName = identifier.substring(0, 1).toUpperCase() + identifier.substring(1);
-                            button.setText(buttonName);
-                        }
-
                         button.setVisibility(View.VISIBLE);
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override

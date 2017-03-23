@@ -9,8 +9,7 @@
 include ':mag'
 //, ':magtest', ':mastest'
 
-include ':mas'
-//, ':masui'
+include ':mas' , ':masui'
 /*
 //Example App
 include ':SingleSignOnSample'
@@ -37,8 +36,8 @@ include ':MASUnit'
 //Fido
 include ':fido'
 //Fido-NNL Provider
-include ':nnl'
-project(':nnl').projectDir = new File('fido/providers/nnl')
+//include ':nnl'
+//project(':nnl').projectDir = new File('fido/providers/nnl')
 
 //Fido-SDS Provider
 include ':sds'

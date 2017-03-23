@@ -86,21 +86,21 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/activity_mas_login_sign_in_with"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="15dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="15dp"
                 android:text="@string/social_login_title"
                 android:textAppearance="@android:style/TextAppearance.Medium"
                 android:textSize="16sp" />
 
-            <android.support.v7.widget.GridLayout
+            <com.ca.mas.ui.MASGridLayout
                 android:id="@+id/activity_mas_login_grid_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 app:alignmentMode="alignBounds"
-                app:columnCount="3"
                 app:useDefaultMargins="true">
 
                 <Button
@@ -114,6 +114,7 @@
                     android:textAllCaps="false"
                     android:textColor="@color/colorPrimaryDark"
                     android:textSize="@dimen/social_button_text_size"
+                    android:visibility="gone"
                     app:layout_columnWeight="1"
                     app:layout_gravity="fill_horizontal|center_horizontal" />
 
@@ -128,21 +129,7 @@
                     android:textAllCaps="false"
                     android:textColor="@color/colorPrimaryDark"
                     android:textSize="@dimen/social_button_text_size"
-                    app:layout_columnWeight="1"
-                    app:layout_gravity="fill_horizontal|center_horizontal" />
-
-                <Button
-                    android:id="@+id/activity_mas_login_salesforce"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/social_button_image_height"
-                    android:background="@drawable/social_login_bg"
-                    android:drawablePadding="6dp"
-                    android:drawableStart="@drawable/salesforce"
-                    android:elevation="4dp"
-                    android:text="@string/social_login_salesforce"
-                    android:textAllCaps="false"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="@dimen/social_button_text_size"
+                    android:visibility="gone"
                     app:layout_columnWeight="1"
                     app:layout_gravity="fill_horizontal|center_horizontal" />
 
@@ -158,6 +145,23 @@
                     android:textAllCaps="false"
                     android:textColor="@color/colorPrimaryDark"
                     android:textSize="@dimen/social_button_text_size"
+                    android:visibility="gone"
+                    app:layout_columnWeight="1"
+                    app:layout_gravity="fill_horizontal|center_horizontal" />
+
+                <Button
+                    android:id="@+id/activity_mas_login_salesforce"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/social_button_image_height"
+                    android:background="@drawable/social_login_bg"
+                    android:drawablePadding="6dp"
+                    android:drawableStart="@drawable/salesforce"
+                    android:elevation="4dp"
+                    android:text="@string/social_login_salesforce"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="@dimen/social_button_text_size"
+                    android:visibility="gone"
                     app:layout_columnWeight="1"
                     app:layout_gravity="fill_horizontal|center_horizontal" />
 
@@ -173,6 +177,7 @@
                     android:textAllCaps="false"
                     android:textColor="@color/colorPrimaryDark"
                     android:textSize="@dimen/social_button_text_size"
+                    android:visibility="gone"
                     app:layout_columnWeight="1"
                     app:layout_gravity="fill_horizontal|center_horizontal" />
 
@@ -188,9 +193,10 @@
                     android:textAllCaps="false"
                     android:textColor="@color/colorPrimaryDark"
                     android:textSize="@dimen/social_button_text_size"
+                    android:visibility="gone"
                     app:layout_columnWeight="1"
                     app:layout_gravity="fill_horizontal|center_horizontal" />
-            </android.support.v7.widget.GridLayout>
+            </com.ca.mas.ui.MASGridLayout>
 
         </LinearLayout>
 

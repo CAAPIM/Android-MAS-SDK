@@ -13,5 +13,5 @@
 
     <dimen name="social_button_image_height">24dp</dimen>
     <dimen name="social_button_image_width">24dp</dimen>
-    <dimen name="social_button_text_size">14sp</dimen>
+    <dimen name="social_button_text_size">15sp</dimen>
 </resources>

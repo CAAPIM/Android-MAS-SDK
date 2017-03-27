@@ -75,7 +75,6 @@ public class MAS {
         // This is important, don't remove this
         new MASConfiguration(appContext);
         ConfigurationManager.getInstance().setMobileSsoListener(new MASMobileSsoListener(appContext));
-        MASConnectaManager.getInstance().start(appContext);
     }
 
     private static class MASMobileSsoListener implements MobileSsoListener {

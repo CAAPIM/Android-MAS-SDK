@@ -53,7 +53,6 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
             final CountDownLatch latch = new CountDownLatch(1);
             final Object[] result = {false, "unknown"};
             final Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            MASConnectaManager.getInstance().start(ctx);
 
             MASConnectaManager.getInstance().connect(new MASCallback<Void>() {
                 @Override

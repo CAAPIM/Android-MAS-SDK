@@ -12,6 +12,8 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
+import com.ca.mas.core.util.KeyUtilsSymmetric;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.crypto.SecretKey;
@@ -24,9 +26,11 @@ import static com.ca.mas.core.MAG.TAG;
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class LockableKeyStorageProvider implements KeyStorageProvider {
 
-    // will be generating symmetric keys protected by lock screen
-    protected DefaultKeySymmetricManager keyMgr = null;
-
+    /**
+     * Save the secret key so we don't have to get it out of the AndroidKeyStore.
+     *   This way, we can generate the key in memory and use it without authentication,
+     *   but then require authentication when using for unlock.
+     */
     protected ConcurrentHashMap<String, SecretKey> secretKeys = new ConcurrentHashMap<String, SecretKey>();
 
 
@@ -38,17 +42,12 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
     @Override
     public SecretKey getKey(String alias)
     {
-        // Symmetric keys will be generated in memory then stored in AndroidKeyStore
-        if (keyMgr == null)
-            keyMgr = new DefaultKeySymmetricManager("AES", 256, true, true, 10);
-
         SecretKey secretKey = secretKeys.get(alias);
         if (secretKey == null) {
-            secretKey = keyMgr.retrieveKey(alias);
-
-            // if still no key, generate one
+            secretKey = KeyUtilsSymmetric.retrieveKey(alias);
             if (secretKey == null) {
-                secretKey = keyMgr.generateKey(alias);
+                secretKey = KeyUtilsSymmetric.generateKey(alias, "AES", 256,
+                                     false, true, 10, false);
                 secretKeys.put(alias, secretKey);
             }
         }
@@ -63,17 +62,14 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
     @Override
     public boolean removeKey(String alias)
     {
-        if (keyMgr == null)
-            keyMgr = new DefaultKeySymmetricManager("AES", 256, true, true, 10);
-
         secretKeys.remove(alias);
-        keyMgr.deleteKey(alias);
+        KeyUtilsSymmetric.deleteKey(alias);
         return true;
     }
 
 
     public void lock(String alias) {
-        SecretKey secretKey = secretKeys.remove(alias);
+        SecretKey secretKey = secretKeys.get(alias);
         if (secretKey != null && secretKey instanceof Destroyable) {
             Destroyable destroyable = (Destroyable) secretKey;
             try {

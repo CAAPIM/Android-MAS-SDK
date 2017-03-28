@@ -22,8 +22,9 @@ import android.util.Log;
 
 import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
+import com.ca.mas.core.security.EncryptionProviderLockable;
 import com.ca.mas.core.security.KeyStorageProvider;
-import com.ca.mas.core.security.LockableKeyStorageProvider;
+import com.ca.mas.core.util.KeyUtilsSymmetric;
 
 import org.junit.After;
 import org.junit.Test;
@@ -66,11 +67,6 @@ public class EncryptionProviderTest {
 
     private static final String TAG = "EncryptionProviderTest";
 
-    /**
-     * The Encryption provider reference
-     */
-    EncryptionProvider encryptionProvider;
-
     private static final String SYM_KEY = "secret";
     private static final String ASYM_KEY_ALIAS = "ASYM_KEY";
     public static final String PREFS_NAME = "SECRET_PREFS";
@@ -104,7 +100,7 @@ public class EncryptionProviderTest {
     @Test
     public void testEncryptDecryptOperation() {
 
-        encryptionProvider = new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
+        EncryptionProvider encryptionProvider = new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
         try {
             String dataString = "CA Technologies";
             byte[] data = dataString.getBytes("UTF-8");
@@ -233,7 +229,8 @@ public class EncryptionProviderTest {
         //-----End of Store the symmetric key in the local storage ----------
 
 
-        encryptionProvider = new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
+        EncryptionProvider encryptionProvider
+                = new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
 
 
         //Now test assertions----------
@@ -265,45 +262,39 @@ public class EncryptionProviderTest {
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Test
-    public void testLockableKeyStorageProvider() throws Exception {
+    public void testEncryptionProviderLockable() throws Exception {
 
         final String alias = "MY_KEY_ALIAS";
-
-        LockableKeyStorageProvider lockableKeyStorageProvider = new LockableKeyStorageProvider();
-        lockableKeyStorageProvider.removeKey(alias);
-
-        encryptionProvider = new DefaultEncryptionProvider(InstrumentationRegistry.getTargetContext().getApplicationContext(), lockableKeyStorageProvider) {
-            @Override
-            protected String getKeyAlias() {
-                return alias;
-            }
-        };
+        EncryptionProviderLockable encryptionProviderLockable = new EncryptionProviderLockable(
+                                          InstrumentationRegistry.getTargetContext().getApplicationContext(), alias);
+        KeyUtilsSymmetric.deleteKey(alias);
         String dataString = "CA Technologies";
         byte[] data = dataString.getBytes("UTF-8");
-        byte[] encryptedData = encryptionProvider.encrypt(data);
+        byte[] encryptedData = encryptionProviderLockable.encrypt(data);
         Log.i(TAG, "Encrypted Data: " + Base64.encodeToString(encryptedData, Base64.DEFAULT));
-        byte[] decryptedData = encryptionProvider.decrypt(encryptedData);
+        byte[] decryptedData = encryptionProviderLockable.decrypt(encryptedData);
         String result = new String(decryptedData, "UTF-8");
         assertEquals("Decrypting" + dataString + ": ", dataString, result);
 
         //Lock the key
-        lockableKeyStorageProvider.lock(alias);
+        encryptionProviderLockable.lock();
+        Thread.currentThread().sleep(5);
 
         //Should failed after lock
         try {
-            encryptionProvider.decrypt(encryptedData);
+            encryptionProviderLockable.decrypt(encryptedData);
             fail();
         } catch (Exception e) {
             assertTrue(e.getCause() instanceof UserNotAuthenticatedException);
         }
 
         try {
-            encryptionProvider.encrypt(data);
+            encryptionProviderLockable.encrypt(data);
             fail();
         } catch (Exception e) {
             assertTrue(e.getCause() instanceof UserNotAuthenticatedException);
         }
-        lockableKeyStorageProvider.removeKey(alias);
+        KeyUtilsSymmetric.deleteKey(alias);
 
     }
 

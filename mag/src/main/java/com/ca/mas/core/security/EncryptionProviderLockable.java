@@ -62,7 +62,7 @@ public class EncryptionProviderLockable implements EncryptionProvider {
             secretKey = KeyUtilsSymmetric.retrieveKey(keyAlias);
             if (secretKey == null) {
                 secretKey = KeyUtilsSymmetric.generateKey(keyAlias, "AES", 256,
-                                                 true, true, 10, false);
+                                                 true, true, 4, false);
                 secretKeys.put(keyAlias, secretKey);
             }
         }
@@ -113,14 +113,15 @@ public class EncryptionProviderLockable implements EncryptionProvider {
      *   This is not inherited from EncryptionProvider.
      */
     public void lock() {
-        SecretKey secretKey = secretKeys.get(keyAlias);
-        if (secretKey != null && secretKey instanceof Destroyable) {
-            secretKeys.remove(keyAlias);
-            Destroyable destroyable = (Destroyable) secretKey;
-            try {
-                destroyable.destroy();
-            } catch (DestroyFailedException e) {
-                if (DEBUG) Log.e(TAG, "Could not destroy key");
+        SecretKey secretKey = secretKeys.remove(keyAlias);
+        if (secretKey != null) {
+            if (secretKey instanceof Destroyable) {
+                Destroyable destroyable = (Destroyable) secretKey;
+                try {
+                    destroyable.destroy();
+                } catch (DestroyFailedException e) {
+                    if (DEBUG) Log.e(TAG, "Could not destroy key");
+                }
             }
         }
     }

@@ -13,7 +13,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.ca.mas.core.util.KeyUtils;
+import com.ca.mas.core.util.KeyUtilsAsymmetric;
 import com.ca.mas.core.util.KeyUtilsSymmetric;
 
 import java.io.IOException;
@@ -160,13 +160,13 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
      */
     protected byte[] encryptSecretKey(SecretKey secretKey) {
         try {
-            PublicKey publicKey = KeyUtils.getRsaPublicKey(ASYM_KEY_ALIAS);
+            PublicKey publicKey = KeyUtilsAsymmetric.getRsaPublicKey(ASYM_KEY_ALIAS);
             if (publicKey == null) {
 
-                KeyUtils.generateRsaPrivateKey(context, 2048,
+                KeyUtilsAsymmetric.generateRsaPrivateKey(context, 2048,
                         ASYM_KEY_ALIAS, String.format("CN=%s, OU=%s", ASYM_KEY_ALIAS, "com.ca"),
                         false, false, -1, false);
-                publicKey = KeyUtils.getRsaPublicKey(ASYM_KEY_ALIAS);
+                publicKey = KeyUtilsAsymmetric.getRsaPublicKey(ASYM_KEY_ALIAS);
             }
 
             Cipher cipher = Cipher.getInstance(RSA_ECB_PKCS1_PADDING);
@@ -192,7 +192,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
      */
     protected SecretKey decryptSecretKey(byte encryptedSecretKey[]) {
         try {
-            PrivateKey privateKey = KeyUtils.getRsaPrivateKey(ASYM_KEY_ALIAS);
+            PrivateKey privateKey = KeyUtilsAsymmetric.getRsaPrivateKey(ASYM_KEY_ALIAS);
 
             Cipher cipher = Cipher.getInstance(RSA_ECB_PKCS1_PADDING);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);

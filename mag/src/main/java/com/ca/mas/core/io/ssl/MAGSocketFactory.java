@@ -17,17 +17,12 @@ import com.ca.mas.core.io.http.TrustedCertificateConfigurationTrustManager;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
@@ -56,8 +51,13 @@ public class MAGSocketFactory {
         clientCertChain = tokenManager.getClientCertificateChain();
     }
 
-    public SSLSocketFactory createSSLSocketFactory() {
+    public SSLSocketFactory createTLSSocketFactory() {
         return new TLSSocketFactory(createSslContext().getSocketFactory());
+    }
+
+
+    public SSLSocketFactory createSSLSocketFactory() {
+        return createSslContext().getSocketFactory();
     }
 
     private SSLContext createSslContext() {

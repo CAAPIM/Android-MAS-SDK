@@ -18,10 +18,11 @@ import javax.net.ssl.SSLSocketFactory;
 class TLSSocketFactory extends SSLSocketFactory {
 
     private SSLSocketFactory sslSocketFactory;
+    private static final String SSL_V3_PROTOCOL = "SSLv3";
     private static final String SSL_TLS_V1_PROTOCOL = "TLSv1";
     private static final String SSL_TLS_V1_1_PROTOCOL = "TLSv1.1";
     private static final String SSL_TLS_V1_2_PROTOCOL = "TLSv1.2";
-    private static final String[] SUPPORTED_TLS =  {SSL_TLS_V1_PROTOCOL, SSL_TLS_V1_1_PROTOCOL, SSL_TLS_V1_2_PROTOCOL};
+    private static final String[] SUPPORTED_TLS =  {SSL_V3_PROTOCOL, SSL_TLS_V1_PROTOCOL, SSL_TLS_V1_1_PROTOCOL, SSL_TLS_V1_2_PROTOCOL};
 
     TLSSocketFactory(SSLSocketFactory sslSocketFactory) {
         this.sslSocketFactory = sslSocketFactory;

@@ -53,7 +53,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
     private Context context;
 
     /**
-     * Default constructor generates a DefaultKeySymmetricManager
+     * Default constructor.
      *
      * @param ctx context
      */

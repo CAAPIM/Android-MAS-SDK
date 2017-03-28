@@ -56,8 +56,13 @@ public class MAGSocketFactory {
         clientCertChain = tokenManager.getClientCertificateChain();
     }
 
-    public SSLSocketFactory createSSLSocketFactory() {
+    public SSLSocketFactory createTLSSocketFactory() {
         return new TLSSocketFactory(createSslContext().getSocketFactory());
+    }
+
+
+    public SSLSocketFactory createSSLSocketFactory() {
+        return createSslContext().getSocketFactory();
     }
 
     private SSLContext createSslContext() {

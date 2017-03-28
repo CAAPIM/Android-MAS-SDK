@@ -63,7 +63,7 @@ public class MAGPinningSocketFactory {
                 }
             }};
             sslContext.init(new KeyManager[0], trustManagers, new SecureRandom());
-            return sslContext.getSocketFactory();
+            return new TLSSocketFactory(sslContext.getSocketFactory());
 
         } catch (Exception e) {
             throw new RuntimeException("Unable to create SSL Context: " + e.getMessage(), e);

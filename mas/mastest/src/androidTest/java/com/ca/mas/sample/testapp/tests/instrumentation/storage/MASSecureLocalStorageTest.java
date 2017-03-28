@@ -119,7 +119,7 @@ public class MASSecureLocalStorageTest extends MASIntegrationBaseTest {
         String key = "key1";
         Object unsupportedData = new Object();
         final CountDownLatch latch = new CountDownLatch(1);
-        final String[] expected = new String[1];
+        final Throwable[] expected = new Throwable[1];
         localStorage.save(key, unsupportedData, getMode(), new MASCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
@@ -128,14 +128,13 @@ public class MASSecureLocalStorageTest extends MASIntegrationBaseTest {
 
             @Override
             public void onError(Throwable e) {
-                String errorFound = e.toString();
-                expected[0] = errorFound;
+                expected[0] = e;
                 latch.countDown();
             }
         });
         await(latch);
         if (expected[0] != null) {
-            throw new Exception(expected[0]);
+            throw new java.lang.TypeNotPresentException(expected[0].getMessage(), expected[0]);
         }
         Assert.fail("Expected an Exception ");
     }

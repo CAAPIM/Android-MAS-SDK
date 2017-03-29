@@ -39,6 +39,11 @@ class TLSSocketFactory extends SSLSocketFactory {
     }
 
     @Override
+    public Socket createSocket() throws IOException {
+        return enableTLS(sslSocketFactory.createSocket());
+    }
+
+    @Override
     public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
         return enableTLS(sslSocketFactory.createSocket(s, host, port, autoClose));
     }

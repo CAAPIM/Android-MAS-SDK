@@ -1,3 +1,27 @@
+# Version 4.0
+
+### Bug fixes
+- Populate MASUser.getEmailList() from scim interface [DE277223]
+- Include server prefix in MQTT topic structure. [DE269619]
+- Remove auto pagination for Group and User management [DE275216]
+- TLS1.1 and 1.2 support for Android 4.4 [DE284027]
+
+
+### New features
+- PKCE Support on Social Login and Device Registration. [US269512]
+- JCenter integration, allow developers to use dependency manager to install MAS SDK. [US279239]
+- Remove Sponge castle dependency. [US238965]
+- New Login interface with Custom Chrome Tab for Social Login. [US273008]
+- Provide callback with error details when MASRequest is canceled. [US253874]
+- Minimize the number of permissions requested by the Mobile SDK. [US285971]
+
+# Version 1.3.00-CR1
+
+### Bug fixes
+- Remove default WebViewClient onReceivedSslError implementation . [DE247887]
+- Allow developer to overwrite the authenticator_ca_mas setting for AMS. [DE265344]
+
+
 # Version 1.3
 
 ### Bug fixes

@@ -25,6 +25,10 @@ import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.auth.MASAuthenticationProvider;
 import com.ca.mas.foundation.auth.MASSocialLogin;
 
+/**
+ * Deprecated: use {@link MASCustomTabs}
+ */
+@Deprecated
 public class MASSocialLoginFragment extends DialogFragment {
     // The fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String REQUEST_ID = "REQUEST_ID";

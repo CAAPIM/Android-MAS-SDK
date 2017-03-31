@@ -6,3 +6,6 @@
 	path = Knox
 	url = https://github.com/CAAPIM/Android-MAS-Knox.git
 	branch = develop
+[submodule "fido"]
+	path = fido
+	url = https://github.com/CAAPIM/Android-MAS-FIDO

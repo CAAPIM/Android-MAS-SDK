@@ -8,30 +8,36 @@
 
 package com.ca.mas;
 
-import android.support.test.InstrumentationRegistry;
+import android.content.Context;
 
-import com.ca.mas.core.io.IoUtils;
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASAuthenticationListener;
 import com.ca.mas.foundation.MASDevice;
+import com.ca.mas.foundation.MASOtpAuthenticationHandler;
+import com.ca.mas.foundation.MASUser;
+import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
-
-import java.util.concurrent.ExecutionException;
 
 
 public abstract class MASStartTestBase extends MASTestBase {
 
-    private static final int DEFAULT_MAX_RESPONSE_SIZE = 10485760;
-
     @Before
     public void masStart() throws Exception {
+        MAS.start(getContext(), getConfig("/msso_config.json"));
+        MAS.setAuthenticationListener(new MASAuthenticationListener() {
+            @Override
+            public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {
+                MASUser.login("admin", "layer7".toCharArray(), null);
+            }
 
-        byte[] bytes = IoUtils.slurpStream(getClass().getResourceAsStream("/msso_config.json"), DEFAULT_MAX_RESPONSE_SIZE);
-        JSONObject jsonObject = new JSONObject(new String(bytes));
-        MAS.start(InstrumentationRegistry.getTargetContext(), jsonObject);
-    }
+            @Override
+            public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {
+
+            }
+        });
+   }
 
     @After
     public void masStop() {
@@ -43,6 +49,7 @@ public abstract class MASStartTestBase extends MASTestBase {
             //Ignore
         }
         MASDevice.getCurrentDevice().resetLocally();
+        MAS.cancelAllRequests();
         MAS.stop();
     }
 

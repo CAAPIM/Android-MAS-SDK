@@ -46,6 +46,7 @@ import java.util.Collection;
  * The {@link MASSocialLogin} intercept the browser request to the gateway and perform the authentication process.
  * Once authentication is completed, {@link MASSocialLogin#onAuthCodeReceived(String)} will be triggered.
  */
+@Deprecated
 public abstract class MASSocialLogin {
 
     public MASSocialLogin(final Context context, final WebView webView, final long requestId, MASAuthenticationProvider provider) {

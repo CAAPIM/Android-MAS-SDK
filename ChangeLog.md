@@ -1,3 +1,33 @@
+# Version 4.0.00
+
+### Bug fixes
+- Populate MASUser.getEmailList() from scim interface [DE277223]
+- Include server prefix in MQTT topic structure. [DE269619]
+- Remove auto pagination for Group and User management [DE275216]
+- TLS1.1 and 1.2 support for Android 4.4 [DE284027]
+
+
+### New features
+- Introduces new way of dynamically initializing SDK with enrollment URL. With this feature, application or system administrator can generate an URL specified to a user, so that the user can initialize SDK without having an application with built in `msso_config.json` deployed with the application. Server configuration and application level's implementation is required. [US279237]
+- Introduces new way of performing social login through SDK.  SDK now performs social login with `CustomTabs` to ensure better security, and adopt modern way of performing oAuth web authentication. [US273008]
+- Introduces new protection on authorization process with Proof Key for Code Exchange by OAuth Public Clients.  By default, PKCE process is enabled, and it can be disabled; however, it is strongly recommended to not disable it unless there is a specific use case. [US269512]
+- JCenter integration, allow developers to use dependency manager to install MAS SDK. [US279239]
+- Provide callback with error details when MASRequest is canceled. [US253874]
+- Minimize the number of permissions requested by the Mobile SDK. [US285971]
+- Remove Sponge castle dependency. [US238965]
+- Introduces new way of performing user login. MASUser.login(MASIdToken idToken, final MASCallback<MASUser> callback) [US308531]
+- New attribute on MASRequestBuilder to allow access non-protected endpoint on the gateway.  [US308531]
+
+### Deprecated Methods
+- `MASSocialLogin` class is deprecated. Please use `MASCustomTabs` to display social login web URL from `MASAuthenticationProvider` and use `MASAuthorizationResponse` class to handle incoming response from `CustomTabs`. [US279228]
+
+
+# Version 1.3.00-CR1
+
+### Bug fixes
+- Remove default WebViewClient onReceivedSslError implementation . [DE247887]
+- Allow developer to overwrite the authenticator_ca_mas setting for AMS. [DE265344]
+
 # Version 1.3
 
 ### Bug fixes

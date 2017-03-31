@@ -34,11 +34,11 @@ public class MAGHttpClient {
     private SSLSocketFactory sslSocketFactory;
 
     public MAGHttpClient() {
-        sslSocketFactory = new MAGSocketFactory().createSSLSocketFactory();
+        sslSocketFactory = new MAGSocketFactory().createTLSSocketFactory();
     }
 
     public MAGHttpClient(String publicKeyHash) {
-        sslSocketFactory = new MAGPinningSocketFactory(publicKeyHash).createSSLSocketFactory();
+        sslSocketFactory = new MAGPinningSocketFactory(publicKeyHash).createTLSSocketFactory();
     }
 
     /**

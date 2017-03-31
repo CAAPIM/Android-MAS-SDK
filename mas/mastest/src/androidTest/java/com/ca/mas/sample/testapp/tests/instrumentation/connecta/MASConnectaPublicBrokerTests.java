@@ -42,7 +42,6 @@ public class MASConnectaPublicBrokerTests {
             final CountDownLatch latch = new CountDownLatch(1);
             final Object[] result = {false, "unknown"};
             final Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            MASConnectaManager.getInstance().start(ctx);
 
             MASConnectOptions connectOptions = new MASConnectOptions();
             connectOptions.setServerURIs(new String[]{"tcp://mobile-autotest-services.l7tech.com:1883"});

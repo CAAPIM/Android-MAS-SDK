@@ -84,7 +84,6 @@ public class MAS {
         // This is important, don't remove this
         new MASConfiguration(appContext);
         ConfigurationManager.getInstance().setMobileSsoListener(new MASMobileSsoListener(appContext));
-        MASConnectaManager.getInstance().start(appContext);
     }
 
     private static class MASMobileSsoListener implements MobileSsoListener {
@@ -122,6 +121,7 @@ public class MAS {
                 if (otpActivity != null) {
                     if (mAppContext != null) {
                         Intent intent = new Intent(mAppContext, otpActivity);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.putExtra(MssoIntents.EXTRA_OTP_HANDLER, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
                         mAppContext.startActivity(intent);
                     }

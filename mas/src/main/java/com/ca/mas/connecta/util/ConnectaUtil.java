@@ -59,7 +59,7 @@ public class ConnectaUtil extends FoundationUtil {
      * @return {@link MASMessage}
      * @throws JSONException
      */
-    public static MASMessage createMASMessageFromMqtt(@NonNull MqttMessage mqttMessage) throws MASMessageException {
+    public static MASMessage createMASMessageFromMqtt(@NonNull MqttMessage mqttMessage) {
         MASMessage masMessage = initMessageFromPayload(mqttMessage.getPayload());
         masMessage.setDuplicate(mqttMessage.isDuplicate());
         masMessage.setRetained(mqttMessage.isRetained());
@@ -96,15 +96,15 @@ public class ConnectaUtil extends FoundationUtil {
      * utility method populates a MASMessage with the payload bytes received from an MQTT message.
      *
      * @param payload
-     * @throws MASMessageException
      */
-    private static MASMessage initMessageFromPayload(byte[] payload) throws MASMessageException {
+    private static MASMessage initMessageFromPayload(byte[] payload) {
         String totalPayload = new String(payload);
 
         MASMessage m = MASMessage.newInstance();
-        if (totalPayload.startsWith("{")) {
+
+        try {
             m.createMASMessageFromJSONString(totalPayload);
-        } else {
+        } catch (MASMessageException e) {
             m.setPayload(payload);
         }
         return m;

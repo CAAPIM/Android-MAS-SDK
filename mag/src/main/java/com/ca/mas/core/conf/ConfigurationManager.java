@@ -35,6 +35,7 @@ import java.util.List;
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 import static com.ca.mas.core.conf.Config.HOSTNAME;
+import static com.ca.mas.core.conf.Config.PORT;
 
 public class ConfigurationManager {
 
@@ -227,11 +228,12 @@ public class ConfigurationManager {
 
         String tokenHost = getValue(HOSTNAME, jsonObject);
         String tokenUriPrefix = getValue(Config.PREFIX, jsonObject);
+        Integer port = getValue(PORT, jsonObject);
         String clientId = getValue(Config.CLIENT_KEY, jsonObject);
         String clientSecret = getValue(Config.CLIENT_SECRET, jsonObject);
         String organization = getValue(Config.ORGANIZATION, jsonObject);
 
-        DefaultConfiguration conf = new DefaultConfiguration(jsonObject, tokenHost, tokenUriPrefix, clientId, clientSecret, organization);
+        DefaultConfiguration conf = new DefaultConfiguration(jsonObject, tokenHost, port, tokenUriPrefix, clientId, clientSecret, organization);
 
         Config[] attrs = Config.values;
         for (Config attr : attrs) {

@@ -6,10 +6,10 @@
  *
  */
 
-include ':mag'
+//include ':mag'
 //, ':magtest', ':mastest'
 
-include ':mas' , ':masui'
+//include ':mas' , ':masui'
 /*
 //Example App
 include ':SingleSignOnSample'

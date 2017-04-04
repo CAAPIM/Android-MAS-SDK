@@ -17,15 +17,9 @@ import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.util.KeyUtils;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.Payload;
-import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.util.DateUtils;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
@@ -43,10 +37,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 public class MASJwtSigningTest extends MASLoginTestBase {
@@ -221,4 +212,5 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         Assert.assertEquals(requestData.get("jsonName"), (new JSONObject(payload.get("content").toString())).get("jsonName"));
 
     }
+
 }

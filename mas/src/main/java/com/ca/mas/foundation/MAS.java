@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.core.MAG;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoFactory;
@@ -35,15 +34,19 @@ import com.ca.mas.core.oauth.GrantProvider;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.store.StorageProvider;
-import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.foundation.notify.Callback;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+
+import net.minidev.json.JSONStyle;
+import net.minidev.json.JSONValue;
+import net.minidev.json.reader.JsonWriterI;
 
 import org.json.JSONObject;
 
@@ -587,24 +590,45 @@ public class MAS {
         state = MASConstants.MAS_STATE_STOPPED;
     }
 
-    public void sign(JSONObject content, long timeout) {
-        sign(content, timeout, null);
+
+    static {
+        JSONValue.defaultWriter.registerWriter(new JsonWriterI<JSONObject>() {
+            public void writeJSONString(JSONObject value, Appendable out, JSONStyle compression) throws IOException {
+                out.append(value.toString());
+            }
+        }, JSONObject.class);
     }
 
-    public void sign(JSONObject content, long timeout, PrivateKey privateKey) {
+    public static String sign(final MASClaims masClaims) throws MASException {
+        return sign(masClaims, StorageProvider.getInstance().getTokenManager().getClientPrivateKey());
+    }
+
+    public static String sign(MASClaims masClaims, PrivateKey privateKey) throws MASException {
+        if (!MASDevice.getCurrentDevice().isRegistered()) {
+            throw new IllegalStateException("Device not registered.");
+        }
+        JWSSigner signer = new RSASSASigner(privateKey);
+        JWTClaimsSet.Builder claimBuilder = new JWTClaimsSet.Builder();
+
+        claimBuilder.jwtID(masClaims.getJwtId())
+                .issuer(masClaims.getIssuer())
+                .notBeforeTime(masClaims.getNotBefore())
+                .expirationTime(masClaims.getExpirationTime())
+                .issueTime(masClaims.getIssuedAt())
+                .audience(masClaims.getAudience())
+                .subject(masClaims.getSubject());
+
+        for (Map.Entry<String, Object> entry : masClaims.getClaims().entrySet()) {
+            claimBuilder.claim(entry.getKey(), entry.getValue());
+        }
+
+        JWSHeader rs256Header = new JWSHeader(JWSAlgorithm.RS256);
+        SignedJWT claimsToken = new SignedJWT(rs256Header, claimBuilder.build());
         try {
-            if (privateKey == null) {
-                privateKey = StorageProvider.getInstance().getTokenManager().getClientPrivateKey();
-            }
-
-            JWSSigner signer = new RSASSASigner(privateKey);
-            JWSObject object = new JWSObject(
-                    new JWSHeader.Builder(JWSAlgorithm.RS256).build(),
-                    new Payload(content.toString()));
-            object.sign(signer);
-            String s = object.serialize();
-        } catch (Exception e) {
-
+            claimsToken.sign(signer);
+            return claimsToken.serialize();
+        } catch (JOSEException e) {
+            throw new MASException(e);
         }
     }
 }

@@ -129,6 +129,7 @@ public interface MASRequest extends MAGRequest {
          * @return The builder
          */
         public MASRequestBuilder sign(MASClaims claim) {
+            this.sign = true;
             this.claim = claim;
             return this;
         }
@@ -165,7 +166,11 @@ public interface MASRequest extends MAGRequest {
 
                 @Override
                 public MAGRequestBody getBody() {
-                    return request.getBody();
+                    if (sign) {
+                        return MASRequestBody.jwtClaimsBody(claim, request.getBody());
+                    } else {
+                        return request.getBody();
+                    }
                 }
 
                 @Override

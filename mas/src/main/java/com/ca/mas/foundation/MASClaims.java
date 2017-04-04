@@ -14,10 +14,15 @@ import org.json.JSONObject;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface MASClaims {
+
+    String CONTENT = "content";
+    String CONTENT_TYPE = "content-type";
 
     //Registered Claim
     String getIssuer();
@@ -29,23 +34,32 @@ public interface MASClaims {
     String getJwtId();
 
     //Private Claim
-    Object getContent();
-    String getContentType();
+    Map<String, Object> getClaims();
 
 
     class MASClaimsBuilder {
 
         private Date exp;
-        private Object content;
-        private String contentType;
+        private Map<String, Object> claims = new HashMap<>();
+
+        public MASClaimsBuilder(MASClaims masClaims) {
+            if (masClaims != null) {
+                //Only allow to overwrite the private claim and the exp claim
+                claims.putAll(masClaims.getClaims());
+                exp = masClaims.getExpirationTime();
+            }
+        }
+
+        public MASClaimsBuilder() {
+        }
 
         MASClaimsBuilder expirationTime(final Date exp) {
             this.exp = exp;
             return this;
         }
 
-        MASClaimsBuilder claim(String name, Object content) {
-            this.content = content;
+        MASClaimsBuilder claim(@MASClaimsConstants String name, Object value) {
+            claims.put(name, value);
             return this;
         }
 
@@ -53,7 +67,11 @@ public interface MASClaims {
 
             return new MASClaims() {
 
+                long currentTime = System.currentTimeMillis() / 1000;
                 String jti = UUID.randomUUID().toString();
+                Date issuedAt = DateUtils.fromSecondsSinceEpoch(currentTime);
+                Date expDate = DateUtils.fromSecondsSinceEpoch(currentTime + 300L);
+
                 @Override
                 public String getIssuer() {
                     return String.format("device://%s/%s",
@@ -77,7 +95,11 @@ public interface MASClaims {
 
                 @Override
                 public Date getExpirationTime() {
-                    return exp;
+                    if (exp == null) {
+                        return expDate;
+                    } else {
+                        return exp;
+                    }
                 }
 
                 @Override
@@ -87,8 +109,7 @@ public interface MASClaims {
 
                 @Override
                 public Date getIssuedAt() {
-                    long currentTime = System.currentTimeMillis() / 1000;
-                    return DateUtils.fromSecondsSinceEpoch(currentTime);
+                    return issuedAt;
                 }
 
                 @Override
@@ -97,14 +118,10 @@ public interface MASClaims {
                 }
 
                 @Override
-                public Object getContent() {
-                    return content;
+                public Map<String, Object> getClaims() {
+                    return claims;
                 }
 
-                @Override
-                public String getContentType() {
-                    return contentType;
-                }
             };
 
         }

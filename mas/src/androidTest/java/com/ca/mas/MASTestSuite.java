@@ -42,7 +42,7 @@ import org.junit.runners.Suite;
         MASOAuthTest.class,
         MASOAuthLoginTest.class,
         MASDeviceTest.class,
-        MASJwtSigningTest.class})
+        MASJwtSigningTest.class,
         MASDynamicSDKTest.class,
         MASRegistrationTest.class,
         MASAuthorizationCodeFlowTest.class,

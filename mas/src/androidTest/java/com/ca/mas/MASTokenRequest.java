@@ -157,16 +157,6 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
     }
 
     @Override
-    public long getTimeout() {
-        return 0;
-    }
-
-    @Override
-    public TimeUnit getTimeUnit() {
-        return null;
-    }
-
-    @Override
     public boolean notifyOnCancel() {
         return false;
     }

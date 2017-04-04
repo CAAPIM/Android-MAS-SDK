@@ -8,23 +8,15 @@
 package com.ca.mas.foundation;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
-import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.MASStartTestBase;
-import com.ca.mas.MASTestBase;
 import com.ca.mas.core.EventDispatcher;
-import com.ca.mas.core.MobileSsoFactory;
-import com.ca.mas.core.MobileSsoListener;
-import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.Server;
 import com.ca.mas.core.datasource.KeystoreDataSource;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.store.ClientCredentialContainer;
 import com.ca.mas.core.store.OAuthTokenContainer;
 import com.ca.mas.core.store.StorageProvider;
@@ -43,7 +35,6 @@ import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNotSame;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
@@ -240,14 +231,12 @@ public class MASDynamicSDKTest extends MASStartTestBase {
         //Client updated
         MAS.start(getContext(), getConfig("/msso_config2.json"));
 
-        StorageProvider sp = new StorageProvider(getContext(),
-                ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider());
-        ClientCredentialContainer cc = sp.createClientCredentialContainer();
+        ClientCredentialContainer cc = StorageProvider.getInstance().getClientCredentialContainer();
         assertNull(cc.getMasterClientId());
         assertNull(cc.getClientId());
         assertNull(cc.getClientSecret());
 
-        OAuthTokenContainer oAuthTokenContainer = sp.createOAuthTokenContainer();
+        OAuthTokenContainer oAuthTokenContainer = StorageProvider.getInstance().getOAuthTokenContainer();
         assertNull(oAuthTokenContainer.getAccessToken());
         assertNull(oAuthTokenContainer.getRefreshToken());
         assertNull(oAuthTokenContainer.getGrantedScope());

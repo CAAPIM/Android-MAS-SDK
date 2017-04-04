@@ -28,8 +28,6 @@ import java.util.Map;
  */
 public class FoundationUtil {
 
-    private static String deviceId;
-
     /**
      * <b>Pre-Conditions:</b> The MAG SDK must be initialized.<br>
      * <b>Description:</b> Retrieve the UserInfo endpoint for initializing the Web Services handshake.
@@ -43,34 +41,6 @@ public class FoundationUtil {
             userInfo = "/openid/connect/v1/userinfo";
         }
         return new Uri.Builder().path(userInfo).build();
-    }
-
-    /**
-     * <b>Pre-Conditions:</b> The MAG SDK must be initialized.<br>
-     * <b>Description:</b> Getter that returns the set of default headers. These will
-     * be overridden with a subsequent call to add a header with the same key, such as
-     * in a SCIM request.
-     *
-     * @return Map<String, String> the set of headers.
-     */
-    public static Map<String, String> getStandardHeaders() {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(FoundationConsts.HEADER_KEY_ACCEPT, FoundationConsts.MT_APP_JSON);
-        headers.put(FoundationConsts.HEADER_KEY_CONTENT_TYPE, FoundationConsts.MT_APP_JSON);
-        headers.put(FoundationConsts.HEADER_KEY_USER_AGENT, getUserAgentId());
-        return headers;
-    }
-
-    /**
-     * <b>Pre-Conditions:</b> The MAG SDK must be initialized.<br>
-     * <b>Description:</b> Create a user agent string of the form;
-     * Mozilla/5.0 (Linux; <Android Version>; <Build Tag etc.>) AppleWebKit/<WebKit Rev>
-     * (KHTML, like Gecko) Chrome/<Chrome Rev> Mobile Safari/<WebKit Rev>
-     *
-     * @return String representing the user agent header.
-     */
-    private static String getUserAgentId() {
-        return FoundationConsts.UA_MOZILLA + FoundationConsts.SPACE + Build.VERSION.RELEASE + FoundationConsts.SEMI_COLON + Build.VERSION.CODENAME + FoundationConsts.CLOSE_PAREN + FoundationConsts.SPACE + FoundationConsts.UA_KHTML + FoundationConsts.SPACE + FoundationConsts.UA_APP_MOBILE_APP_SERVICES;
     }
 
     /**
@@ -136,27 +106,6 @@ public class FoundationUtil {
         } else {
             return (ConnectaConsts.SSL_MESSAGING_SCHEME + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH) + getHost() + FoundationConsts.COLON + ConnectaConsts.SSL_MESSAGING_PORT;
         }
-    }
-
-
-    /**
-     * <b>Pre-Conditions:</b> The MAG SDK must be initialized.<br>
-     * <b>Description:</b> Convenience method for setting the deviceId.
-     *
-     * @param deviceId
-     */
-    public static void setDeviceId(String deviceId) {
-        FoundationUtil.deviceId = deviceId;
-    }
-
-    /**
-     * <b>Pre-Conditions:</b> The MAG SDK must be initialized.<br>
-     * <b>Description:</b> Convenience method for retrieving the deviceId that was previously set.
-     *
-     * @return - the deviceId. Can be null.
-     */
-    public static String getDeviceId() {
-        return FoundationUtil.deviceId;
     }
 
 }

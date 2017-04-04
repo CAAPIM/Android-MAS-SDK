@@ -67,13 +67,4 @@ public abstract class MAGRequestProxy implements MAGRequest {
         return request.isPublic();
     }
 
-    @Override
-    public long getTimeout() {
-        return request.getTimeout();
-    }
-
-    @Override
-    public TimeUnit getTimeUnit() {
-        return request.getTimeUnit();
-    }
 }

@@ -1,7 +1,17 @@
-package com.ca.mas.core.http;
+/*
+ *  Copyright (c) 2016 CA. All rights reserved.
+ *
+ *  This software may be modified and distributed under the terms
+ *  of the MIT license.  See the LICENSE file for details.
+ */
+
+package com.ca.mas.foundation;
 
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.Server;
+import com.ca.mas.core.http.ContentType;
+import com.ca.mas.core.http.MAGRequest;
+import com.ca.mas.core.http.MAGRequestBody;
 import com.ca.mas.core.request.internal.MAGRequestProxy;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
@@ -21,8 +31,9 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-public class JwtSignRequest extends MAGRequestProxy {
-    public JwtSignRequest(MAGRequest request) {
+class JwtSignRequest extends MAGRequestProxy {
+
+    JwtSignRequest(MAGRequest request) {
         this.request = request;
     }
 
@@ -60,6 +71,7 @@ public class JwtSignRequest extends MAGRequestProxy {
                 claimBuilder.issueTime(currentDate);
 
                 // exp
+                /* TODO fix the timeout
                 TimeUnit timeUnit = getTimeUnit();
                 if (timeUnit == null) {
                     timeUnit = TimeUnit.DAYS.SECONDS;
@@ -70,6 +82,7 @@ public class JwtSignRequest extends MAGRequestProxy {
                     Date expiryDate = DateUtils.fromSecondsSinceEpoch(timeOut + currentTime);
                     claimBuilder.expirationTime(expiryDate);
                 }
+                */
 
                 claimBuilder.claim("content", new String(data));
                 claimBuilder.claim("content-type", ContentType.APPLICATION_JSON.getMimeType());

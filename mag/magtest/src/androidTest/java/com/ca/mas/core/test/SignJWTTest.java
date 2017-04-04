@@ -10,6 +10,11 @@ package com.ca.mas.core.test;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.ca.mas.core.conf.ConfigurationManager;
+import com.ca.mas.core.conf.Server;
+import com.ca.mas.core.http.ContentType;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.util.KeyUtils;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -20,13 +25,19 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.util.DateUtils;
 
+import net.minidev.json.reader.JsonWriterI;
+
+import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Date;
 import java.util.UUID;
 
 import static junit.framework.Assert.assertEquals;
@@ -51,6 +62,36 @@ public class SignJWTTest {
         assertEquals("Hello, world!", jwsObject.getPayload().toString());
 
         KeyUtils.deletePrivateKey("TEST");
+    }
+
+    @Test
+    public void name() throws Exception {
+
+        JWTClaimsSet.Builder claimBuilder = new JWTClaimsSet.Builder();
+        claimBuilder.claim("content", true);
+        claimBuilder.claim("content-type", ContentType.APPLICATION_JSON.getMimeType());
+
+        String s = claimBuilder.build().toJSONObject().toJSONString();
+        System.out.print(s);
+
+    }
+
+    private static class Test2 {
+        private String name;
+        private String value;
+
+        public Test2(String name, String value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 
     @Test

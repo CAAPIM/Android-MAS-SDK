@@ -38,6 +38,7 @@ public abstract class MASDevice implements Device {
                         Thread t = new Thread(new Runnable() {
                             public void run() {
                                 try {
+                                    mobileSso.removeDeviceRegistration();
                                     Callback.onSuccess(callback, null);
                                 } catch (Exception e) {
                                     Callback.onError(callback, e);

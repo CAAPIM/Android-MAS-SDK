@@ -358,11 +358,13 @@ public class MASLoginTest extends MASStartTestBase {
         final String CONTENT_TYPE_VALUE = "application/json";
 
         setDispatcher(new GatewayDefaultDispatcher() {
+
             @Override
-            protected MockResponse registerDeviceResponse() {
+            protected MockResponse registerDeviceResponse(RecordedRequest request) {
                 return new MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED).
                         setHeader("x-ca-err", expectedErrorCode).
                         setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+
             }
         });
 
@@ -422,11 +424,13 @@ public class MASLoginTest extends MASStartTestBase {
         final String CONTENT_TYPE_VALUE = "application/json";
 
         setDispatcher(new GatewayDefaultDispatcher() {
+
             @Override
-            protected MockResponse registerDeviceResponse() {
+            protected MockResponse registerDeviceResponse(RecordedRequest request) {
                 return new MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED).
                         setHeader("x-ca-err", expectedErrorCode).
                         setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+
             }
         });
 

@@ -158,7 +158,7 @@ public class MASTest extends MASLoginTestBase {
         newToken[0] = true;
 
         //Remove Access Token
-        DataSource<String, String> dataSource = DataSourceFactory.getStorage(InstrumentationRegistry.getTargetContext(),
+        DataSource<String, String> dataSource = DataSourceFactory.getStorage(getContext(),
                 KeystoreDataSource.class, null, null);
         for (String k : dataSource.getKeys(null)) {
             if (k.contains(PrivateTokenStorage.KEY.PREF_ACCESS_TOKEN.name())) {

@@ -119,7 +119,7 @@ public class MASClientCredentialTest extends MASStartTestBase {
 
         setDispatcher(new GatewayDefaultDispatcher() {
             @Override
-            protected MockResponse registerDeviceResponse() {
+            protected MockResponse registerDeviceResponse(RecordedRequest request) {
                 return noIdTokenRegisterDeviceResponse();
             }
         });
@@ -162,8 +162,9 @@ public class MASClientCredentialTest extends MASStartTestBase {
         final boolean[] result = {true};
 
         setDispatcher(new GatewayDefaultDispatcher() {
+
             @Override
-            protected MockResponse registerDeviceResponse() {
+            protected MockResponse registerDeviceResponse(RecordedRequest request) {
                 return noIdTokenRegisterDeviceResponse();
             }
         });

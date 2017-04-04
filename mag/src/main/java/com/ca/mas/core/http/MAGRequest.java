@@ -82,16 +82,6 @@ public interface MAGRequest {
      */
     boolean isPublic();
 
-    /**
-     * @return the token lifetime after which the token will not be accepted
-     */
-    long getTimeout();
-
-    /**
-     * @return the time unit that the expiration time should use
-     */
-    TimeUnit getTimeUnit();
-
     interface MAGConnectionListener {
         /**
          * Invoke immediately after the call {@link URL#openConnection()}.
@@ -312,30 +302,6 @@ public interface MAGRequest {
         }
 
         /**
-         * Signs the request with the user's private key and injects JWT claims based on the user information.
-         * This method will use a default value of 5 minutes for the JWS 'exp' claim.
-         * @return The builder
-         */
-        public MAGRequestBuilder sign() {
-            this.sign = true;
-            this.timeout = 5;
-            this.timeUnit = TimeUnit.MINUTES;
-            return this;
-        }
-
-        /**
-         * Signs the request with the user's private key and injects JWT claims based on the user information.
-         * A timeout of 0 will not inject a 'exp' claim into the JWS.
-         * @return The builder
-         */
-        public MAGRequestBuilder sign(long timeout, TimeUnit timeUnit) {
-            this.sign = true;
-            this.timeout = timeout;
-            this.timeUnit = timeUnit;
-            return this;
-        }
-
-        /**
          * Builds the {@link MAGRequest} object.
          *
          * @return An immutable {@link MAGRequest} object.
@@ -353,7 +319,7 @@ public interface MAGRequest {
             }
             final Map<String, List<String>> unmodifiableHeaders = Collections.unmodifiableMap(newHeaders);
 
-            MAGRequest request = new MAGRequest() {
+            return new MAGRequest() {
                 @Override
                 public URL getURL() {
                     return url;
@@ -399,22 +365,7 @@ public interface MAGRequest {
                     return isPublic;
                 }
 
-                @Override
-                public long getTimeout() {
-                    return timeout;
-                }
-
-                @Override
-                public TimeUnit getTimeUnit() {
-                    return timeUnit;
-                }
             };
-
-            if (sign) {
-                return new JwtSignRequest(request);
-            } else {
-                return request;
-            }
         }
     }
 }

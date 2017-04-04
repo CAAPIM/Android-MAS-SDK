@@ -68,7 +68,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
 
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
                 .post(MASRequestBody.jsonBody(requestData))
-                .sign(0, null)
+                //TODO .sign(0, null)
                 .build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
@@ -100,7 +100,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
 
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
                 .post(MASRequestBody.jsonBody(requestData))
-                .sign(500, TimeUnit.SECONDS)
+                //TODO .sign(500, TimeUnit.SECONDS)
                 .build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);

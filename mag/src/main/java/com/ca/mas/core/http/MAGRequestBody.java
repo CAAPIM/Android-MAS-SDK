@@ -8,9 +8,11 @@
 
 package com.ca.mas.core.http;
 
+import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,6 +26,7 @@ import java.util.List;
 import static com.ca.mas.core.io.Charsets.UTF8;
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
+
 /**
  * Base class for http api request.
  */
@@ -48,6 +51,10 @@ public abstract class MAGRequestBody {
      */
     public abstract void write(OutputStream outputStream) throws IOException;
 
+    public Object getContentAsJsonValue() {
+        return null;
+    }
+
     /**
      * @param body The request body as byte[]
      * @return A new request body with content of byte[]
@@ -71,6 +78,11 @@ public abstract class MAGRequestBody {
             @Override
             public void write(OutputStream outputStream) throws IOException {
                 outputStream.write(content);
+            }
+
+            @Override
+            public Object getContentAsJsonValue() {
+                return Base64.encodeToString(body, Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE);
             }
         };
     }
@@ -99,6 +111,11 @@ public abstract class MAGRequestBody {
             public void write(OutputStream outputStream) throws IOException {
                 if (DEBUG) Log.d(TAG, String.format("Content: %s", body));
                 outputStream.write(content);
+            }
+
+            @Override
+            public Object getContentAsJsonValue() {
+                return body;
             }
         };
     }
@@ -131,6 +148,11 @@ public abstract class MAGRequestBody {
                     }
                 }
                 outputStream.write(content);
+            }
+
+            @Override
+            public Object getContentAsJsonValue() {
+                return jsonObject;
             }
         };
     }
@@ -182,8 +204,29 @@ public abstract class MAGRequestBody {
                 if (DEBUG) Log.d(TAG, String.format("Content: %s", new String(getContent())));
                 outputStream.write(content);
             }
+
+            @Override
+            public Object getContentAsJsonValue() {
+                JSONObject jsonObject = new JSONObject();
+                for (Pair<String, String> pair : form) {
+                    if (pair.first != null) {
+                        try {
+                            JSONArray jsonArray = (JSONArray) jsonObject.opt(pair.first);
+                            if (jsonArray == null) {
+                                jsonArray = new JSONArray();
+                                jsonObject.put(pair.first, jsonArray);
+                            }
+                            if (pair.second != null) {
+                                jsonArray.put(pair.second);
+                            }
+                        } catch (JSONException e) {
+                            //ignore
+                        }
+                    }
+                }
+                return jsonObject;
+            }
         };
     }
-
 
 }

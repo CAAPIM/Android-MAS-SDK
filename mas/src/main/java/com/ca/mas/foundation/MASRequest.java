@@ -20,7 +20,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * An Http Api Request. Instances of this class are immutable.
@@ -37,6 +36,8 @@ public interface MASRequest extends MAGRequest {
     class MASRequestBuilder extends MAGRequestBuilder {
 
         private boolean notifyOnCancel = false;
+        private boolean sign = false;
+        private MASClaims claim;
 
         public MASRequestBuilder(URI uri) {
             super(ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(uri.toString()));
@@ -112,15 +113,26 @@ public interface MASRequest extends MAGRequest {
             return this;
         }
 
-        @Override
+        /**
+         * Signs the request with the device registered private key and injects JWT claims based on the user information.
+         * This method will use a default value of 5 minutes for the JWS 'exp' claim.
+         * @return The builder
+         */
         public MASRequestBuilder sign() {
-            return (MASRequestBuilder) super.sign();
+            this.sign = true;
+            return this;
         }
 
-        @Override
-        public MASRequestBuilder sign(long timeout, TimeUnit unit) {
-            return (MASRequestBuilder) super.sign(timeout, unit);
+        /**
+         * Signs the request with the user's private key and injects JWT claims based on the user information.
+         * A timeout of 0 will not inject a 'exp' claim into the JWS.
+         * @return The builder
+         */
+        public MASRequestBuilder sign(MASClaims claim) {
+            this.claim = claim;
+            return this;
         }
+
 
         public MASRequest build() {
             final MAGRequest request = super.build();
@@ -176,15 +188,6 @@ public interface MASRequest extends MAGRequest {
                     return request.isPublic();
                 }
 
-                @Override
-                public long getTimeout() {
-                    return request.getTimeout();
-                }
-
-                @Override
-                public TimeUnit getTimeUnit() {
-                    return request.getTimeUnit();
-                }
             };
         }
     }

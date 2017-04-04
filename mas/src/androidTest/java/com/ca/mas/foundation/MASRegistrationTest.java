@@ -40,8 +40,9 @@ public class MASRegistrationTest extends MASStartTestBase {
     public void testRenewCertification() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
 
         setDispatcher(new GatewayDefaultDispatcher() {
+
             @Override
-            protected MockResponse registerDeviceResponse() {
+            protected MockResponse registerDeviceResponse(RecordedRequest request) {
                 // Expired cert to trigger renew
                 String cert = "-----BEGIN CERTIFICATE-----\n" +
                         "MIIB1jCCAT+gAwIBAgIJAMgniDRduPzqMA0GCSqGSIb3DQEBBQUAMC0xCzAJBgNV\n" +
@@ -62,6 +63,7 @@ public class MASRegistrationTest extends MASStartTestBase {
                         .setHeader("id-token", "dummy-idToken")
                         .setHeader("id-token-type", "dummy-idTokenType")
                         .setBody(cert);
+
             }
         });
 

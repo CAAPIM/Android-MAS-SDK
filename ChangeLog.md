@@ -20,6 +20,9 @@
 
 ### Deprecated Methods
 - `MASSocialLogin` class is deprecated. Please use `MASCustomTabs` to display social login web URL from `MASAuthenticationProvider` and use `MASAuthorizationResponse` class to handle incoming response from `CustomTabs`. [US279228]
+- `MASLoginFragment` login template has been removed. Please use `MASLoginActivity` to display the Login Dialog.  [US279228]
+- `MASFilteredRequestBuilder.setTotalResults` has been removed.  Please use `setPagination` to handle result pagination. [DE275216]
+- Resource files `xml/prefs.xml` and `xml/authenticator_ca_mas.xml` are removed from the Mobile SDK. [DE265344]
 
 
 # Version 1.3.00-CR1

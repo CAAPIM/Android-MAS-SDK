@@ -9,8 +9,7 @@
   -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_enabled="false"
-          android:drawable="@mipmap/salesforce_disable" />
-    <item android:drawable="@mipmap/salesforce_enable" />
+    <item android:drawable="@drawable/salesforce_disabled" android:state_enabled="false" />
+    <item android:drawable="@drawable/salesforce_enabled" />
 
 </selector>

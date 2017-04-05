@@ -11,18 +11,18 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '24.0.2'
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     lintOptions {
         abortOnError false
     }
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 24
-        versionCode 33
-        versionName "3.3"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 40
+        versionName "4.0.00"
     }
     buildTypes {
         release {
@@ -57,25 +57,18 @@ task javadoc(type: Javadoc) {
     include '**/MAGResponseBody.java'
 
     exclude '**/BluetoothLePeripheral.java'
-
 }
 
 dependencies {
-
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.madgag:scprov-jdk15on:1.47.0.3'
-    compile 'com.android.support:support-annotations:24.2.1'
-    compile 'com.google.zxing:core:3.2.0'
+    compile "com.android.support:support-annotations:$rootProject.ext.supportAnnotationsVersion"
+    compile "com.google.zxing:core:$rootProject.ext.zxingVersion"
 }
 
 //jcenter integration
-def siteUrl = 'https://github.com/CAAPIM/Android-MAS-SDK'
-def gitUrl = 'https://github.com/CAAPIM/Android-MAS-SDK.git'
-def issueUrl = 'https://github.com/CAAPIM/Android-MAS-SDK/issues'
-
 group 'com.ca'
 
-project.version = "3.3"
+project.version = mag_version
 bintray {
     user = bintray_user
     key = bintray_api_key
@@ -85,7 +78,7 @@ bintray {
         repo = 'maven'
         name = 'mag'
         userOrg = 'caapim'
-        desc = 'CA Mobile API Gateway provides enterprises with a secure mobile backend that integrates systems and allows control over which users, devices and applications can access your APIs. The gateway enables developers to leverage standards for API security such as (OAuth2, OpenID Connect, PKI) through client SDKs for Android and iOS.'
+        desc = 'SDK to support the CA Mobile API Gateway and CA Mobile App Services.'
         websiteUrl = siteUrl
         issueTrackerUrl = issueUrl
         vcsUrl = gitUrl

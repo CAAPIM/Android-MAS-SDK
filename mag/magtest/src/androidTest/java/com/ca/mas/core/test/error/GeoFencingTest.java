@@ -28,9 +28,11 @@ import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertTrue;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class GeoFencingTest extends BaseTest {
 
+    @Deprecated
     @Test
     public void missingGeoLocationHeader() throws InterruptedException, URISyntaxException {
 
@@ -49,6 +51,7 @@ public class GeoFencingTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void InvalidGeoLocationHeader() throws InterruptedException, URISyntaxException {
 

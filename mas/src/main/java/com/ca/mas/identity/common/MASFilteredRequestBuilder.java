@@ -12,7 +12,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.ca.mas.foundation.MASException;
+import com.ca.mas.messaging.MASMessageException;
 import com.ca.mas.foundation.MASRequest;
 
 import java.util.List;
@@ -78,18 +78,18 @@ public interface MASFilteredRequestBuilder {
      * <b>Description:</b> The list of attributes that should be returned in the result.
      *
      * @param attributes the list of allowable attributes.
-     * @throws MASException if both attributes and excludedAttributes are trying to be set.
+     * @throws MASMessageException if both attributes and excludedAttributes are trying to be set.
      */
-    MASFilteredRequestBuilder setAttributes(List<String> attributes) throws MASException;
+    MASFilteredRequestBuilder setAttributes(List<String> attributes) throws MASMessageException;
 
     /**
      * <b>Pre-Conditions:</b> None.<br>
      * <b>Description:</b> The list of attributes that should NOT be returned in the result.
      *
      * @param excludedAttributes
-     * @throws MASException if both attributes and excludedAttributes are trying to be set.
+     * @throws MASMessageException if both attributes and excludedAttributes are trying to be set.
      */
-    MASFilteredRequestBuilder setExcludedAttributes(List<String> excludedAttributes) throws MASException;
+    MASFilteredRequestBuilder setExcludedAttributes(List<String> excludedAttributes) throws MASMessageException;
 
     /**
      * <b>Description:</b> The Uri for the request is created based on the supplied filter(s).
@@ -192,12 +192,5 @@ public interface MASFilteredRequestBuilder {
      * @param attribute
      */
     MASFilteredRequestBuilder setSortOrder(SortOrder sortOrder, @NonNull String attribute);
-
-    /**
-     * <b>Description:</b> Is there another page to retrieve?.
-     *
-     * @return boolean
-     */
-    boolean hasNext();
 
 }

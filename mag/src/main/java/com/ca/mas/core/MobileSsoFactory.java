@@ -27,6 +27,7 @@ import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.MssoClient;
 import com.ca.mas.core.service.MssoIntents;
+import com.ca.mas.core.token.IdToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -179,8 +180,12 @@ public final class MobileSsoFactory {
     }
 
     private static boolean isSwitchGateway(JSONObject newConfig) {
-        Server current = ConfigurationManager.getInstance().getConnectedGateway();
-        return !current.equals(new Server(newConfig));
+        try {
+            Server current = ConfigurationManager.getInstance().getConnectedGateway();
+            return !current.equals(new Server(newConfig));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -230,29 +235,10 @@ public final class MobileSsoFactory {
             }
 
             @Override
-            public boolean isAppLogon() {
-                return mssoContext.isAppLogon();
-            }
-
-            @Override
             public boolean isLogin() {
                 return mssoContext.isLogin();
             }
 
-            @Override
-            public String getUserProfile() {
-                return mssoContext.getUserProfile();
-            }
-
-            @Override
-            public void logoffApp() {
-                mssoContext.logoffApp();
-            }
-
-            @Override
-            public void logoutDevice() {
-                removeDeviceRegistration();
-            }
 
             @Override
             public boolean isDeviceRegistered() {
@@ -276,7 +262,7 @@ public final class MobileSsoFactory {
                         JSONObject jsonObject = new JSONObject(url);
                         String provider_url = jsonObject.getString("provider_url");
                         if (resultReceiver instanceof AuthResultReceiver) {
-                            ((AuthResultReceiver) resultReceiver).setJson(jsonObject);
+                            ((AuthResultReceiver) resultReceiver).setData(jsonObject);
                         }
                         builder = new MAGRequest.MAGRequestBuilder(getURI(provider_url));
                     } catch (JSONException e) {
@@ -324,6 +310,16 @@ public final class MobileSsoFactory {
             }
 
             @Override
+            public void authenticate(String authCode, String state, MAGResultReceiver<JSONObject> resultReceiver) {
+                mssoClient.authenticate(authCode, state, resultReceiver);
+            }
+
+            @Override
+            public void authenticate(IdToken idToken, MAGResultReceiver<JSONObject> resultReceiver) {
+                mssoClient.authenticate(idToken, resultReceiver);
+            }
+
+            @Override
             public void setMobileSsoListener(MobileSsoListener mobileSsoListener) {
                 ConfigurationManager.getInstance().setMobileSsoListener(mobileSsoListener);
             }
@@ -333,13 +329,14 @@ public final class MobileSsoFactory {
                 mssoClient.processPendingRequests();
             }
 
-            public void cancelRequest(long requestId) {
-                mssoClient.cancelRequest(requestId);
+            @Override
+            public void cancelRequest(long requestId, Bundle data) {
+                mssoClient.cancelRequest(requestId, data);
             }
 
             @Override
-            public void cancelAllRequests() {
-                mssoClient.cancelAll();
+            public void cancelAllRequests(Bundle data) {
+                mssoClient.cancelAll(data);
             }
         };
     }

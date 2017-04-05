@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016 CA. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
 package com.ca.mas.core.test;
 
 import android.support.test.runner.AndroidJUnit4;
@@ -18,6 +26,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class RenewDeviceTest extends BaseTest {
 
@@ -44,8 +53,8 @@ public class RenewDeviceTest extends BaseTest {
                         .setResponseCode(200)
                         .setHeader("device-status", "activated")
                         .setHeader("mag-identifier", "test-device")
-                        .setHeader("id-token", "dummy-idToken")
-                        .setHeader("id-token-type", "dummy-idTokenType")
+                        .setHeader("id-token", getIdToken())
+                        .setHeader("id-token-type", getIdTokenType())
                         .setBody(cert);
             }
         });

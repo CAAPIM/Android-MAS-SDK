@@ -24,6 +24,7 @@ import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.ParcelUuid;
 
 import com.ca.mas.core.MAGResultReceiver;
@@ -50,7 +51,7 @@ public class BluetoothLePeripheral {
 
     private static BluetoothLePeripheral instance = new BluetoothLePeripheral();
 
-    private Context context;
+    private Context appContext;
     private ConfigurationProvider configurationProvider;
     private BluetoothLePeripheralCallback callback;
 
@@ -68,7 +69,7 @@ public class BluetoothLePeripheral {
     }
 
     public void init(ConfigurationProvider configurationProvider, Context context) {
-        this.context = context;
+        this.appContext = context.getApplicationContext();
         this.configurationProvider = configurationProvider;
         stop();
     }
@@ -86,6 +87,7 @@ public class BluetoothLePeripheral {
             return;
         }
 
+        final Context context = appContext;
         if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             notifyWithError(BluetoothLe.BLE_ERROR_NOT_SUPPORTED);
             return;
@@ -247,7 +249,7 @@ public class BluetoothLePeripheral {
                                 }
 
                                 @Override
-                                public void onRequestCancelled() {
+                                public void onRequestCancelled(Bundle bundle) {
 
                                 }
                             });

@@ -27,7 +27,7 @@ import static com.ca.mas.core.MAG.TAG;
 /**
  * Interface for receiving a callback result from {@link MobileSso#processRequest(com.ca.mas.core.http.MAGRequest, ResultReceiver)}.
  * Use this by creating a subclass and implement {@link #onSuccess(MAGResponse<T>)}, {@link #onError(MAGError)},
- * {@link #onRequestCancelled()}
+ * {@link #onRequestCancelled(Bundle)} )}
  *
  * @param <T> To provide the data type of the expected response object. The SDK converts the
  *           response stream data to the provided data type. By define this generic type, it only provides
@@ -68,7 +68,7 @@ public abstract class MAGResultReceiver<T> extends ResultReceiver {
                     }
                     break;
                 case MssoIntents.RESULT_CODE_ERR_CANCELED:
-                    onRequestCancelled();
+                    onRequestCancelled(resultData);
                     break;
                 default:
                     MAGError error = (MAGError) resultData.getSerializable(MssoIntents.RESULT_ERROR);
@@ -101,6 +101,6 @@ public abstract class MAGResultReceiver<T> extends ResultReceiver {
     /**
      * Callback when the request is cancelled.
      */
-    public abstract void onRequestCancelled();
+    public abstract void onRequestCancelled(Bundle data);
 
 }

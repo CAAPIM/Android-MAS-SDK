@@ -8,13 +8,12 @@
 
 package com.ca.mas.core.test.error;
 
+import android.os.Bundle;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
-import com.ca.mas.core.auth.otp.model.OtpResponseBody;
-import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.request.internal.OAuthTokenRequest;
@@ -40,6 +39,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class JWTValidationTest extends BaseTest {
 
@@ -67,6 +67,7 @@ public class JWTValidationTest extends BaseTest {
             "XoYtMDN0dQ5lBNIyJB5rWtCixZgfacHp538bMPMskLePU3dxNdCqhas=\n" +
             "-----END CERTIFICATE-----";
 
+    @Deprecated
     @Test
     public void invalidSignature() throws InterruptedException {
 
@@ -106,7 +107,7 @@ public class JWTValidationTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });
@@ -124,6 +125,7 @@ public class JWTValidationTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void invalidAud() throws InterruptedException {
 
@@ -172,7 +174,7 @@ public class JWTValidationTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });
@@ -190,6 +192,7 @@ public class JWTValidationTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void invalidAzp() throws InterruptedException {
 
@@ -230,7 +233,7 @@ public class JWTValidationTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });
@@ -248,6 +251,7 @@ public class JWTValidationTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void invalidExp() throws InterruptedException {
 
@@ -297,7 +301,7 @@ public class JWTValidationTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });
@@ -305,7 +309,7 @@ public class JWTValidationTest extends BaseTest {
 
             @Override
             public void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler) {
-                
+
             }
         });
         processRequest(new OAuthTokenRequest());
@@ -320,11 +324,8 @@ public class JWTValidationTest extends BaseTest {
         IdToken idToken = new IdToken("eyJ0eXAiOiJKV1QiLA0KICJhbGciOiJIUzI1NiJ9.ewogImV4cCI6IDE0MDA3OTQ2MjEsCiAiYXpwIjogImQ5YjM4YjIyLTE0YTItNDU3My04MGI3LWI5NWRlOTJiMThoZSIsCiAic3ViIjogIngiLAogImF1ZCI6ICI4Mjk4YmM1MS1mMjQyLTRjNmQtYjU0Ny1kMWQ4ZTg1MTljYjQiLAogImlzcyI6ICJodHRwOi8vbS5sYXllcjd0ZWNoLmNvbS9jb25uZWN0IiwKICJpYXQiOiAxNDAwNzk0NjIxCn0.H4Yvz9d-uzoWGWeshgYTFLm110B1M1pb63vrwrJsIIg", "urn:ietf:params:oauth:grant-type:jwt-bearer");
         assertTrue(JWTValidation.isIdTokenExpired(idToken));
 
-
         idToken = new IdToken("eyJ0eXAiOiJKV1QiLA0KICJhbGciOiJIUzI1NiJ9.ewogImV4cCI6IDI0MDA4Nzg1OTEsCiAiYXpwIjogInRlc3QtZGV2aWNlIiwKICJzdWIiOiAieCIsCiAiYXVkIjogImR1bW15IiwKICJpc3MiOiAiaHR0cDovL20ubGF5ZXI3dGVjaC5jb20vY29ubmVjdCIsCiAiaWF0IjogMTQwMDg3ODU5MQp9.zenKvXlhDtpXym_auPCbukBiVqr3rqZrcoeDyfsvftA", "urn:ietf:params:oauth:grant-type:jwt-bearer");
         assertFalse(JWTValidation.isIdTokenExpired(idToken));
-
-
 
     }
 }

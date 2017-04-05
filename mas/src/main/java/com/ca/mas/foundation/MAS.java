@@ -5,14 +5,15 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.foundation;
 
 import android.app.Activity;
 import android.app.Application;
-import android.app.DialogFragment;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -23,19 +24,23 @@ import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
+import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.error.MAGErrorCode;
+import com.ca.mas.core.http.MAGHttpClient;
+import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.oauth.GrantProvider;
 import com.ca.mas.core.service.AuthenticationProvider;
+import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.foundation.notify.Callback;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.List;
@@ -51,47 +56,75 @@ import static com.ca.mas.core.MAG.TAG;
  * can be found and utilized.
  */
 public class MAS {
-
-    public static Context ctx;
+    private static Context appContext;
     private static Activity currentActivity;
     private static boolean hasRegisteredActivityCallback;
     private static MASAuthenticationListener masAuthenticationListener;
+    private static int state;
 
-    private static synchronized void init(@NonNull Context context) {
+    private static synchronized void init(@NonNull final Context context) {
         stop();
         // Initialize the MASConfiguration
-        ctx = context.getApplicationContext();
+        appContext = context.getApplicationContext();
         if (context instanceof Activity) {
             currentActivity = (Activity) context;
         }
 
-        registerActivityLifecycleCallbacks((Application) ctx);
+        registerActivityLifecycleCallbacks((Application) appContext);
 
         // This is important, don't remove this
-        new MASConfiguration(ctx);
-        ConfigurationManager.getInstance().setMobileSsoListener(new MobileSsoListener() {
-            @Override
-            public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
-                if (masAuthenticationListener == null) {
-                    DialogFragment df = getLoginFragment(requestId, new MASAuthenticationProviders(provider));
-                    if (df != null) {
-                        df.show(currentActivity.getFragmentManager(), "logonDialog");
-                    } else {
-                        if (DEBUG) Log.w(TAG, MASUserLoginWithUserCredentialsListener.class.getSimpleName() + " is required for user authentication.");
+        new MASConfiguration(appContext);
+        ConfigurationManager.getInstance().setMobileSsoListener(new MASMobileSsoListener(appContext));
+    }
+
+    private static class MASMobileSsoListener implements MobileSsoListener {
+
+        private Context mAppContext;
+
+        MASMobileSsoListener(Context context) {
+            mAppContext = context;
+        }
+
+        @Override
+        public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
+            if (masAuthenticationListener == null) {
+                Class<Activity> loginActivity = getLoginActivity();
+                if (loginActivity != null) {
+                    if (mAppContext != null) {
+                        Intent intent = new Intent(mAppContext, loginActivity);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
+                        intent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, new MASAuthenticationProviders(provider));
+                        mAppContext.startActivity(intent);
                     }
                 } else {
-                    masAuthenticationListener.onAuthenticateRequest(currentActivity, requestId, new MASAuthenticationProviders(provider));
+                    if (DEBUG)
+                        Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for user authentication.");
                 }
+            } else {
+                masAuthenticationListener.onAuthenticateRequest(currentActivity, requestId, new MASAuthenticationProviders(provider));
             }
+        }
 
-            @Override
-            public void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler) {
-                if (masAuthenticationListener != null) {
-                    masAuthenticationListener.onOtpAuthenticateRequest(currentActivity, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
+        @Override
+        public void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler) {
+            if (masAuthenticationListener == null) {
+                Class<Activity> otpActivity = getOtpActivity();
+                if (otpActivity != null) {
+                    if (mAppContext != null) {
+                        Intent intent = new Intent(mAppContext, otpActivity);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra(MssoIntents.EXTRA_OTP_HANDLER, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
+                        mAppContext.startActivity(intent);
+                    }
+                } else {
+                    if (DEBUG)
+                        Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for otp authentication.");
                 }
+            } else {
+                masAuthenticationListener.onOtpAuthenticateRequest(currentActivity, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
             }
-        });
-        MASConnectaManager.getInstance().start(ctx);
+        }
     }
 
     private static void registerActivityLifecycleCallbacks(Application application) {
@@ -130,25 +163,39 @@ public class MAS {
 
             @Override
             public void onActivityDestroyed(Activity activity) {
-                if (currentActivity == activity) {
-                    currentActivity = null;
+                if (currentActivity != null) {
+                    Activity currentActivity = MAS.currentActivity;
+                    if (currentActivity == activity) {
+                        MAS.currentActivity = null;
+                    }
                 }
             }
         });
     }
 
     /**
-     * Return the MASLoginFragment from MASUI components if MASUI library is included in the classpath.
+     * Return the MASLoginActivity from MASUI components if MASUI library is included in the classpath.
      *
-     * @param requestID The request id
-     * @param providers Authentication Providers
-     * @return A DialogFragment to capture the user credentials or null if error.
+     * @return A LoginActivity to capture the user credentials or null if error.
      */
-    private static DialogFragment getLoginFragment(long requestID, MASAuthenticationProviders providers) {
+    private static Class<Activity> getLoginActivity() {
 
         try {
-            Class c = Class.forName("com.ca.mas.ui.MASLoginFragment");
-            return (DialogFragment) c.getMethod("newInstance", long.class, MASAuthenticationProviders.class).invoke(null, requestID, providers);
+            return (Class<Activity>) Class.forName("com.ca.mas.ui.MASLoginActivity");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Return the MASOtpActivity from MASUI components if MASUI library is included in the classpath.
+     *
+     * @return A OtpActivity to capture the otp or null if error.
+     */
+    private static Class<Activity> getOtpActivity() {
+
+        try {
+            return (Class<Activity>) Class.forName("com.ca.mas.ui.otp.MASOtpActivity");
         } catch (Exception e) {
             return null;
         }
@@ -169,6 +216,7 @@ public class MAS {
     public static void start(@NonNull Context context) {
         init(context);
         MobileSsoFactory.getInstance(context);
+        state = MASConstants.MAS_STATE_STARTED;
     }
 
     /**
@@ -183,6 +231,7 @@ public class MAS {
     public static void start(@NonNull Context context, boolean shouldUseDefault) {
         init(context);
         MobileSsoFactory.getInstance(context, shouldUseDefault);
+        state = MASConstants.MAS_STATE_STARTED;
     }
 
     /**
@@ -194,6 +243,7 @@ public class MAS {
     public static void start(@NonNull Context context, JSONObject jsonConfiguration) {
         init(context);
         MobileSsoFactory.getInstance(context, jsonConfiguration);
+        state = MASConstants.MAS_STATE_STARTED;
     }
 
     /**
@@ -205,6 +255,61 @@ public class MAS {
     public static void start(@NonNull Context context, URL url) {
         init(context);
         MobileSsoFactory.getInstance(context, url);
+        state = MASConstants.MAS_STATE_STARTED;
+    }
+
+    /**
+     * Starts the lifecycle of the MAS processes with given JSON configuration enrolment URL or null.
+     * This method will overwrite JSON configuration (if they are different) that was stored in keychain when configuration file path or enrolment URL is provided.
+     * When URL is recognized as null, this method will initialize SDK by using last used JSON configuration that is stored,
+     * or load JSON configuration from defined default configuration file name.
+     * <p>
+     * Enrolment URL is an URL from gateway containing some of credentials required to establish secure connection.
+     * The gateway must be configured to generate and handle enrolment process with client side SDK.
+     * The enrolment URL can be retrieved in many ways which has to be configured properly along with the gateway in regards of the enrolment process.
+     * MASFoundation SDK does not request, or retrieve the enrolment URL by itself.
+     *
+     * @param url      The enrollment URL
+     *                 If the enrollment url is null, {@link MAS#start(Context)} will be used to start the
+     *                 lifecycle of the MAS processes..
+     * @param callback The callback to notify when a response is available, or if there is an error.
+     */
+    public static void start(@NonNull final Context context, final URL url, final MASCallback<Void> callback) {
+        if (url == null) {
+            try {
+                MAS.start(context);
+                Callback.onSuccess(callback, null);
+            } catch (Exception e) {
+                Callback.onError(callback, e);
+            }
+            return;
+        }
+
+        Uri uri = Uri.parse(url.toString());
+        final String publicKeyHash = uri.getQueryParameter("subjectKeyHash");
+        if (publicKeyHash == null || publicKeyHash.trim().isEmpty()) {
+            Callback.onError(callback, new IllegalArgumentException("subjectKeyHash is not provided."));
+            return;
+        }
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+               try {
+                   MAGHttpClient client = new MAGHttpClient(publicKeyHash);
+                   MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
+                           responseBody(MAGResponseBody.jsonBody()).build();
+                   MAGResponse<JSONObject> response = client.execute(request);
+                    if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                        throw ServerClient.createServerException(response, MASServerException.class);
+                    }
+                    MAS.start(context, response.getBody().getContent());
+                    Callback.onSuccess(callback, null);
+                } catch (Exception e) {
+                    Callback.onError(callback, e);
+                }
+                return null;
+            }
+        }.execute((Void) null);
     }
 
     /**
@@ -263,16 +368,24 @@ public class MAS {
             }
 
             @Override
-            public void onRequestCancelled() {
+            public void onRequestCancelled(Bundle data) {
                 if (request.notifyOnCancel()) {
-                    Callback.onError(callback, new RequestCancelledException());
+                    Callback.onError(callback, new RequestCancelledException(data));
                 }
             }
         });
     }
 
     public static class RequestCancelledException extends Exception {
+        private Bundle data;
 
+        public RequestCancelledException(Bundle data) {
+            this.data = data;
+        }
+
+        public Bundle getData() {
+            return data;
+        }
     }
 
     /**
@@ -340,13 +453,13 @@ public class MAS {
                 ConfigurationManager.getInstance().setDefaultGrantProvider(GrantProvider.PASSWORD);
                 break;
             default:
-                throw new MASRuntimeException(MAGErrorCode.TYPE_UNSUPPORTED, "Flow Type Unsupported");
+                throw new IllegalArgumentException("Invalid Flow Type");
         }
     }
 
     @Internal
     public static Context getContext() {
-        return ctx;
+        return appContext;
     }
 
     @Internal
@@ -357,12 +470,28 @@ public class MAS {
     /**
      * Cancels the specified request ID. If the response notification has not already been delivered
      * by the time this method executes, a response notification will never occur for the specified request ID
-     * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set
+     * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set.
      *
      * @param requestId the request ID to cancel.
      */
     public static void cancelRequest(long requestId) {
-        MobileSsoFactory.getInstance().cancelRequest(requestId);
+        MobileSsoFactory.getInstance().cancelRequest(requestId, null);
+    }
+
+    /**
+     * Cancels the specified request ID with additional information. If the response notification has not already been delivered
+     * by the time this method executes, a response notification will never occur for the specified request ID
+     * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set.
+     * <p>
+     * When {@link MASRequest.MASRequestBuilder#notifyOnCancel} is set, {@link MASCallback#onError(Throwable)}
+     * will be triggered with {@link RequestCancelledException}.
+     * The additional information can be retrieved with {@link RequestCancelledException#getData()}
+     *
+     * @param requestId the request ID to cancel.
+     * @param data      the additional information to the request.
+     */
+    public static void cancelRequest(long requestId, Bundle data) {
+        MobileSsoFactory.getInstance().cancelRequest(requestId, data);
     }
 
     /**
@@ -371,7 +500,22 @@ public class MAS {
      * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set.
      */
     public static void cancelAllRequests() {
-        MobileSsoFactory.getInstance().cancelAllRequests();
+        MobileSsoFactory.getInstance().cancelAllRequests(null);
+    }
+
+    /**
+     * Cancels all requests with additional information. If the response notification has not already been delivered
+     * by the time this method executes, a response notification will never occur,
+     * except {@link MASRequest.MASRequestBuilder#notifyOnCancel()} is set.
+     * <p>
+     * When {@link MASRequest.MASRequestBuilder#notifyOnCancel} is set, {@link MASCallback#onError(Throwable)}
+     * will be triggered with {@link RequestCancelledException}.
+     * The additional information can be retrieved with {@link RequestCancelledException#getData()}
+     *
+     * @param data the additional information to the request.
+     */
+    public static void cancelAllRequest(Bundle data) {
+        MobileSsoFactory.getInstance().cancelAllRequests(data);
     }
 
     /**
@@ -388,8 +532,50 @@ public class MAS {
     }
 
     /**
+     * Returns current {@link MASState} value.  The value can be used to determine which state SDK is currently at.
+     *
+     * @return return {@link MASState} of current state.
+     */
+    public static
+    @MASState
+    int getState(Context context) {
+        if (state != 0) {
+            return state;
+        }
+        // Determine the state
+        ConfigurationManager.getInstance().init(context);
+        try {
+            ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
+            ConfigurationManager.getInstance().reset();
+            state = MASConstants.MAS_STATE_NOT_INITIALIZED;
+        } catch (Exception e) {
+            state = MASConstants.MAS_STATE_NOT_CONFIGURED;
+        }
+        return state;
+    }
+
+    /**
+     * Enable PKCE extension to OAuth.
+     *
+     * @param enablePKCE True to enable PKCE extension, False to disable PKCE Extension. Default to true.
+     */
+    public static void enablePKCE(boolean enablePKCE) {
+        ConfigurationManager.getInstance().enablePKCE(enablePKCE);
+    }
+
+    /**
+     * Determines whether PKCE extension is enabled.
+     *
+     * @return true if PKCE extension is enabled, false otherwise
+     */
+    public static boolean isPKCEEnabled() {
+        return ConfigurationManager.getInstance().isPKCEEnabled();
+    }
+
+    /**
      * Stops the lifecycle of all MAS processes.
      */
     public static void stop() {
+        state = MASConstants.MAS_STATE_STOPPED;
     }
 }

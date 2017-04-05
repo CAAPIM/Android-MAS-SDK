@@ -19,7 +19,7 @@ import android.text.TextUtils;
 
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.foundation.MASException;
+import com.ca.mas.messaging.MASMessageException;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.masmessagingsample.R;
 import com.ca.mas.masmessagingsample.mas.DataManager;
@@ -89,8 +89,8 @@ public class BaseActivity extends AppCompatActivity {
                             String messageText = new String(messageData);
 
                             builder.setContentTitle(senderName).setContentText(messageText);
-                        } catch (MASException me) {
-                            builder.setContentTitle(MASException.class.getSimpleName())
+                        } catch (MASMessageException me) {
+                            builder.setContentTitle(MASMessageException.class.getSimpleName())
                                     .setContentText("Could not extract the message.");
                         }
 

@@ -15,13 +15,6 @@ public class MAGError extends Error {
 
     private int resultCode;
 
-    public MAGError() {
-    }
-
-    public MAGError(String detailMessage) {
-        super(detailMessage);
-    }
-
     public MAGError(String detailMessage, Throwable throwable) {
         super(detailMessage, throwable);
     }

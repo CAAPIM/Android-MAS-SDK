@@ -26,6 +26,7 @@ import java.util.concurrent.CountDownLatch;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class TokenTest extends BaseTest {
 

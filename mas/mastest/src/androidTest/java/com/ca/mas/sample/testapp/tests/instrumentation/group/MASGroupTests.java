@@ -23,6 +23,7 @@ import com.ca.mas.sample.testapp.tests.instrumentation.base.MASIntegrationBaseTe
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -69,7 +70,6 @@ public class MASGroupTests extends MASIntegrationBaseTest {
         } else {
             temp = null;
         }
-
     }
 
     @Test
@@ -333,6 +333,7 @@ public class MASGroupTests extends MASIntegrationBaseTest {
 
     }
 
+    @Ignore("owner.value may not exist for MAS IDP")
     @Test
     public void removeMembersFromGroupWhenNotTheOwnerOfGroup() throws Exception {
         final CountDownLatch latch = new CountDownLatch(2);
@@ -371,7 +372,7 @@ public class MASGroupTests extends MASIntegrationBaseTest {
             @Override
             public void onError(Throwable e) {
                 latch.countDown();
-
+                latch.countDown();
             }
         });
         await(latch);

@@ -8,15 +8,13 @@
 
 package com.ca.mas.core.test.error;
 
+import android.os.Bundle;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
-import com.ca.mas.core.auth.otp.model.OtpResponseBody;
-import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
-import com.ca.mas.core.clientcredentials.ClientCredentialsServerException;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.TargetApiException;
@@ -39,6 +37,7 @@ import java.net.HttpURLConnection;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class MAGEndpointTest extends BaseTest {
 
@@ -48,6 +47,7 @@ public class MAGEndpointTest extends BaseTest {
         assumeMockServer();
     }
 
+    @Deprecated
     @Test
     public void initializeClientCredentialsTest() throws InterruptedException {
         final int expectedErrorCode = 1002201;
@@ -64,6 +64,7 @@ public class MAGEndpointTest extends BaseTest {
         assertTrue(error.getCause() instanceof InvalidClientCredentialException);
     }
 
+    @Deprecated
     @Test
     public void registerWithInvalidClientCredentials() throws InterruptedException {
         final boolean[] override = {true};
@@ -98,7 +99,7 @@ public class MAGEndpointTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });
@@ -114,6 +115,7 @@ public class MAGEndpointTest extends BaseTest {
         assertTrue(registrationError[0].getCause() instanceof InvalidClientCredentialException);
     }
 
+    @Deprecated
     @Test
     public void registerWithInvalidResourceOwner() throws InterruptedException {
 
@@ -148,7 +150,7 @@ public class MAGEndpointTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
                 });
@@ -169,6 +171,7 @@ public class MAGEndpointTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void appEndpointError() throws Exception {
         final String expectedErrorMessage = "{ \"error\":\"This is App Error\" }";

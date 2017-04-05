@@ -8,17 +8,10 @@
 
 package com.ca.mas.core.test.dynamicConfig;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.ca.mas.core.EventDispatcher;
-import com.ca.mas.core.MAGConstants;
-import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.MobileSsoListener;
@@ -26,9 +19,7 @@ import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.Server;
 import com.ca.mas.core.datasource.KeystoreDataSource;
-import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.store.ClientCredentialContainer;
 import com.ca.mas.core.store.OAuthTokenContainer;
@@ -51,6 +42,7 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class DynamicConfigTest extends BaseTest {
 
@@ -64,6 +56,7 @@ public class DynamicConfigTest extends BaseTest {
         assertNotSame(mobileSso1, mobileSso3);
     }
 
+    @Deprecated
     @Test
     public void restoreConnectedGatewayAfterShutdown() throws Exception {
 
@@ -84,6 +77,7 @@ public class DynamicConfigTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void storageContainsMultipleGatewayData() throws Exception {
 
@@ -92,21 +86,7 @@ public class DynamicConfigTest extends BaseTest {
         mobileSso.setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
-
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -129,20 +109,7 @@ public class DynamicConfigTest extends BaseTest {
             @Override
             public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
 
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -170,6 +137,7 @@ public class DynamicConfigTest extends BaseTest {
     }
 
 
+    @Deprecated
     @Test
     public void onlyDeregisterWithConnectedGateway() throws Exception {
 
@@ -179,21 +147,7 @@ public class DynamicConfigTest extends BaseTest {
         mobileSso.setMobileSsoListener(new MobileSsoListener() {
             @Override
             public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
-
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -212,20 +166,7 @@ public class DynamicConfigTest extends BaseTest {
             @Override
             public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
 
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override
@@ -255,6 +196,7 @@ public class DynamicConfigTest extends BaseTest {
         }
     }
 
+    @Deprecated
     @Test
     public void testDestroyAllTokens() throws Exception {
         storageContainsMultipleGatewayData();
@@ -282,6 +224,7 @@ public class DynamicConfigTest extends BaseTest {
         assertEquals(gateway1, gateway3);
     }
 
+    @Deprecated
     @Test
     public void testSwitchReceiver() throws Exception {
         ConfigurationManager.getInstance().setConfigurationFileName(getConfigJsonFileName());
@@ -311,6 +254,7 @@ public class DynamicConfigTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void testClientUpdate() throws Exception {
         //Connect to Gateway1
@@ -320,20 +264,7 @@ public class DynamicConfigTest extends BaseTest {
             @Override
             public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
 
-                mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                    @Override
-                    public void onSuccess(MAGResponse response) {
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                    }
-
-                    @Override
-                    public void onRequestCancelled() {
-
-                    }
-                });
+                mobileSso.authenticate(getUsername(), getPassword(), null);
             }
 
             @Override

@@ -13,11 +13,9 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
@@ -80,10 +78,9 @@ public class UserIdentityManager {
             @Override
             public void onSuccess(MASResponse<JSONObject> result) {
                 try {
-                    List<MASUser> container = new ArrayList<>();
-                    processUsersByFilter(filteredRequest, result.getBody().getContent(), container, callback);
-                } catch (Exception je) {
-                    onError(new MAGError(je));
+                    Callback.onSuccess(callback, parse(result.getBody().getContent()));
+                } catch (JSONException e) {
+                    Callback.onError(callback, e);
                 }
             }
 
@@ -111,8 +108,8 @@ public class UserIdentityManager {
             public void onSuccess(MASResponse<JSONObject> result) {
                 try {
                     Callback.onSuccess(callback, processUserById(result.getBody().getContent()));
-                } catch (Exception je) {
-                    onError(new MAGError(je));
+                } catch (JSONException e) {
+                    Callback.onError(callback, e);
                 }
             }
 
@@ -138,8 +135,8 @@ public class UserIdentityManager {
                     JSONObject jsonObject = result.getBody().getContent();
                     UserAttributes userAttributes = getAttributes(jsonObject);
                     Callback.onSuccess(callback, userAttributes);
-                } catch (MASException e) {
-                    onError(new MAGError(e));
+                } catch (JSONException e) {
+                    Callback.onError(callback, e);
                 }
             }
 
@@ -180,92 +177,43 @@ public class UserIdentityManager {
     }
 
     /*
-    Helper method for retrieving users when paging is involved.
-     */
-    private void getUsers(final MASFilteredRequest filteredRequest, final List<MASUser> masUsers, final MASCallback<List<MASUser>> callback) throws MASException {
-        Uri uri = filteredRequest.createUri(MAS.getContext());
-        MASRequest masRequest = new MASRequest.MASRequestBuilder(uri)
-                .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
-                .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
-                .responseBody(MAGResponseBody.jsonBody())
-                .get()
-                .build();
-
-        MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
-            @Override
-            public void onSuccess(MASResponse<JSONObject> result) {
-                try {
-                    processUsersByFilter(filteredRequest, result.getBody().getContent(), masUsers, callback);
-                } catch (Exception e) {
-                    Callback.onError(callback, e);
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Callback.onError(callback, e);
-            }
-        });
-    }
-
-    /*
     Helper method for populating attributes.
      */
-    private UserAttributes getAttributes(JSONObject jsonObject) throws MASException {
+    private UserAttributes getAttributes(JSONObject jsonObject) throws JSONException {
         String id = jsonObject.optString(IdentityConsts.KEY_ID);
         if (TextUtils.isEmpty(id)) {
-            throw new MASException("The ID cannot be null!");
+            throw new IllegalArgumentException("The ID cannot be null!");
         }
 
-        try {
-            if (id.equals(IdentityConsts.SCHEMA_USER)) {
-                UserAttributes userAttributes = new UserAttributes();
-                userAttributes.populate(jsonObject);
-                return userAttributes;
-            } else {
-                return null;
-            }
-        } catch (JSONException je) {
-            throw new MASException(je);
+        if (id.equals(IdentityConsts.SCHEMA_USER)) {
+            UserAttributes userAttributes = new UserAttributes();
+            userAttributes.populate(jsonObject);
+            return userAttributes;
+        } else {
+            return null;
         }
     }
 
     /*
     Helper method for processing users.
      */
-    private void processUsersByFilter(MASFilteredRequest filteredRequest, JSONObject jsonObject, List<MASUser> container, MASCallback<List<MASUser>> callback) throws JSONException, MASException {
+    private List<MASUser> parse(JSONObject jsonObject) throws JSONException {
 
+        List<MASUser> result = new ArrayList<>();
         // get the array 'Resources'
         if (jsonObject.has(IdentityConsts.KEY_RESOURCES)) {
             JSONArray jsonArray = jsonObject.getJSONArray(IdentityConsts.KEY_RESOURCES);
             if (jsonArray.length() > 0) {
-                // <i>setTotalResults</i> can be called repeatedly. Calling it with
-                // the same value that it is currently set does not alter the functionality.
-                int totalResults = jsonObject.optInt(IdentityConsts.KEY_TOTAL_RESULTS);
-                filteredRequest.setTotalResults(totalResults);
-
                 // iterate through the array, creating a user for each entry
                 for (int i = 0; i < jsonArray.length(); i++) {
                     User ident = new User();
                     JSONObject arrElem = jsonArray.getJSONObject(i);
                     ident.populate(arrElem);
-                    container.add(createMASUser(ident));
+                    result.add(createMASUser(ident));
                 }
-
-                if (filteredRequest.hasNext()) {
-                    getUsers(filteredRequest, container, callback);
-                } else {
-                    Callback.onSuccess(callback, container);
-                }
-            } else {
-                Callback.onSuccess(callback, container);
-            }
-        } else {
-            int totalResults = jsonObject.optInt(IdentityConsts.KEY_TOTAL_RESULTS);
-            if (totalResults == 0) {
-                Callback.onSuccess(callback, container);
             }
         }
+        return result;
     }
 
     private static MASUser createMASUser(final ScimUser scimUser) {
@@ -344,7 +292,7 @@ public class UserIdentityManager {
 
             @Override
             public List<MASEmail> getEmailList() {
-                return null;
+                return scimUser.getEmailList();
             }
 
             @Override

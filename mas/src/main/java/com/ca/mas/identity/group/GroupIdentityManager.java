@@ -12,11 +12,9 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASRequestBody;
@@ -73,7 +71,7 @@ public class GroupIdentityManager implements MASGroupIdentity {
                 try {
                     Callback.onSuccess(callback, processGroupById(result.getBody().getContent()));
                 } catch (JSONException je) {
-                    onError(new MAGError(je));
+                    Callback.onError(callback, je);
                 }
             }
 
@@ -85,7 +83,7 @@ public class GroupIdentityManager implements MASGroupIdentity {
     }
 
     @Override
-    public void getGroupByMember(MASUser member, final MASCallback<List<MASGroup>> callback){
+    public void getGroupByMember(MASUser member, final MASCallback<List<MASGroup>> callback) {
         final String userId = member.getId();
 
         getGroupMetaData(new MASCallback<GroupAttributes>() {
@@ -149,11 +147,9 @@ public class GroupIdentityManager implements MASGroupIdentity {
             @Override
             public void onSuccess(MASResponse<JSONObject> result) {
                 try {
-                    List<MASGroup> container = new ArrayList<>();
-                    JSONObject jsonObject = result.getBody().getContent();
-                    processGroupsByFilter(filteredRequest, jsonObject, container, callback);
-                } catch (Exception e) {
-                    onError(new MAGError(e));
+                    Callback.onSuccess(callback, parse(result.getBody().getContent()));
+                } catch (JSONException je) {
+                    Callback.onError(callback, je);
                 }
             }
 
@@ -181,7 +177,7 @@ public class GroupIdentityManager implements MASGroupIdentity {
                         group.populate(result.getBody().getContent());
                         Callback.onSuccess(callback, group);
                     } catch (JSONException je) {
-                        onError(new MAGError(je));
+                        Callback.onError(callback, je);
                     }
                 }
 
@@ -239,8 +235,8 @@ public class GroupIdentityManager implements MASGroupIdentity {
             public void onSuccess(MASResponse<JSONObject> result) {
                 try {
                     Callback.onSuccess(callback, doPopulateAttributes(result.getBody().getContent()));
-                } catch (MASException me) {
-                    onError(new MAGError(me));
+                } catch (JSONException e) {
+                    Callback.onError(callback, e);
                 }
             }
 
@@ -259,23 +255,19 @@ public class GroupIdentityManager implements MASGroupIdentity {
         }
     }
 
-    private GroupAttributes doPopulateAttributes(JSONObject jsonObject) throws MASException {
+    private GroupAttributes doPopulateAttributes(JSONObject jsonObject) throws JSONException {
         String id = jsonObject.optString(IdentityConsts.KEY_ID);
         if (TextUtils.isEmpty(id)) {
-            throw new MASException("The ID cannot be null!");
+            throw new IllegalArgumentException("The ID cannot be null!");
         }
 
         // -------- GROUP ATTRIBUTES ------------------------------
-        try {
-            if (id.equals(IdentityConsts.SCHEMA_GROUP)) {
-                GroupAttributes groupAttributes = new GroupAttributes();
-                groupAttributes.populate(jsonObject);
-                return groupAttributes;
-            } else {
-                return null;
-            }
-        } catch (JSONException je) {
-            throw new MASException(je);
+        if (id.equals(IdentityConsts.SCHEMA_GROUP)) {
+            GroupAttributes groupAttributes = new GroupAttributes();
+            groupAttributes.populate(jsonObject);
+            return groupAttributes;
+        } else {
+            return null;
         }
     }
 
@@ -296,8 +288,8 @@ public class GroupIdentityManager implements MASGroupIdentity {
                         MASGroup updated = MASGroup.newInstance();
                         updated.populate(result.getBody().getContent());
                         Callback.onSuccess(callback, updated);
-                    } catch (JSONException je) {
-                        onError(new MAGError(je));
+                    } catch (JSONException e) {
+                        Callback.onError(callback, e);
                     }
                 }
 
@@ -335,35 +327,9 @@ public class GroupIdentityManager implements MASGroupIdentity {
         return group;
     }
 
-    private void getGroups(final MASFilteredRequest filteredRequest, final List<MASGroup> container, final MASCallback<List<MASGroup>> callback) throws MASException {
-        Uri uri = filteredRequest.createUri(MAS.getContext());
-        MASRequest masRequest = new MASRequest.MASRequestBuilder(uri)
-                .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
-                .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
-                .responseBody(MAGResponseBody.jsonBody())
-                .get()
-                .build();
+    private List<MASGroup> parse(JSONObject jsonObject) throws JSONException {
 
-        MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
-            @Override
-            public void onSuccess(MASResponse<JSONObject> result) {
-                try {
-                    processGroupsByFilter(filteredRequest, result.getBody().getContent(), container, callback);
-                } catch (Exception e) {
-                    Callback.onError(callback, e);
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Callback.onError(callback, e);
-            }
-        });
-
-    }
-
-    private void processGroupsByFilter(MASFilteredRequest filteredRequest, JSONObject jsonObject, List<MASGroup> container, MASCallback<List<MASGroup>> callback) throws JSONException, MASException {
-
+        List<MASGroup> result = new ArrayList<>();
         // get the array 'Resources'
         if (jsonObject.has(IdentityConsts.KEY_RESOURCES)) {
             JSONArray jsonArray = jsonObject.getJSONArray(IdentityConsts.KEY_RESOURCES);
@@ -371,21 +337,17 @@ public class GroupIdentityManager implements MASGroupIdentity {
             // the same value that it is currently set does not alter the functionality.
             int totalResults = jsonObject.optInt(IdentityConsts.KEY_TOTAL_RESULTS);
             if (jsonArray.length() > 0) {
-                filteredRequest.setTotalResults(totalResults);
 
                 // iterate through the array, creating a user for each entry
                 for (int i = 0; i < jsonArray.length(); i++) {
                     MASGroup ident = MASGroup.newInstance();
                     JSONObject arrElem = jsonArray.getJSONObject(i);
                     ident.populate(arrElem);
-                    container.add(ident);
-                }// && totalResults == mGroupFilteredRequestBuilder.getCount()
-                if (filteredRequest.hasNext()) {
-                    getGroups(filteredRequest, container, callback);
+                    result.add(ident);
                 }
             }
         }
-        Callback.onSuccess(callback, container);
+        return result;
     }
 
 }

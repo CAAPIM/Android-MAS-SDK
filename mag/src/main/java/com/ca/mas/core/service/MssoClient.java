@@ -5,25 +5,29 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.service;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.context.MssoContext;
+import com.ca.mas.core.creds.AuthorizationCodeCredentials;
 import com.ca.mas.core.creds.Credentials;
+import com.ca.mas.core.creds.JWTCredentials;
 import com.ca.mas.core.creds.PasswordCredentials;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
 import com.ca.mas.core.security.SecureLockException;
+import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.util.Functions;
+
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
@@ -31,8 +35,7 @@ import static com.ca.mas.core.MAG.TAG;
  * Encapsulates use of the MssoService.
  */
 public class MssoClient {
-
-    private final Context sysContext;
+    private final Context appContext;
     private final MssoContext mssoContext;
 
     /**
@@ -47,7 +50,7 @@ public class MssoClient {
         if (mssoContext == null)
             throw new NullPointerException("mssoContext");
         this.mssoContext = mssoContext;
-        this.sysContext = sysContext;
+        this.appContext = sysContext.getApplicationContext();
     }
 
     /**
@@ -64,9 +67,10 @@ public class MssoClient {
         MssoRequestQueue.getInstance().addRequest(mssoRequest);
 
         final long requestId = mssoRequest.getId();
-        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, sysContext, MssoService.class);
+        Context context = appContext;
+        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, context, MssoService.class);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-        sysContext.startService(intent);
+        context.startService(intent);
         return requestId;
     }
 
@@ -82,32 +86,127 @@ public class MssoClient {
      * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
      */
     public void authenticate(final String username, final char[] password, final MAGResultReceiver resultReceiver) {
+        final MssoRequest mssoRequest = new MssoRequest(this, mssoContext, new AuthenticateRequest(), resultReceiver);
+        MssoRequestQueue.getInstance().addRequest(mssoRequest);
+        long requestId = mssoRequest.getId();
+
+        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
+        Credentials credentials = new PasswordCredentials(username, password);
+        intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
+        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
+
+        new MssoClientLogoutAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
+    }
+
+    private static class MssoClientLogoutAsyncTask extends AsyncTask<Void, Void, Void> {
+        private Context appContext;
+        private MAGResultReceiver aResultReceiver;
+        private Intent aIntent;
+        private MssoContext aMssoContext;
+
+        MssoClientLogoutAsyncTask(Context context, MssoContext mssoContext, MAGResultReceiver resultReceiver, Intent intent) {
+            appContext = context;
+            aResultReceiver = resultReceiver;
+            aMssoContext = mssoContext;
+            aIntent = intent;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                aMssoContext.logout(true);
+            } catch (SecureLockException e) {
+                if (aResultReceiver != null) {
+                    aResultReceiver.onError(new MAGError(e));
+                }
+                return null;
+            } catch (Exception ignore) {
+                if (DEBUG) Log.w(TAG, ignore);
+            }
+
+            Context context = appContext;
+            context.startService(aIntent);
+            return null;
+        }
+    }
+
+    /**
+     * Logs in a user with a username and password. The existing user session will be logout and login with the provided username
+     * and password.
+     * <p/>
+     * <p>The response to the request will eventually be delivered to the specified result receiver.</p>
+     * <p>This method returns immediately to the calling thread</p>
+     *
+     * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
+     */
+    public void authenticate(String authCode, String state, final MAGResultReceiver resultReceiver) {
 
         final MssoRequest mssoRequest = new MssoRequest(this, mssoContext, new AuthenticateRequest(), resultReceiver);
         MssoRequestQueue.getInstance().addRequest(mssoRequest);
         long requestId = mssoRequest.getId();
 
-        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, sysContext, MssoService.class);
-        Credentials credentials = new PasswordCredentials(username, password);
+        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
+        Credentials credentials = new AuthorizationCodeCredentials(authCode, state);
         intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
 
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                try {
-                    mssoContext.logout(true);
-                } catch (SecureLockException e) {
-                    resultReceiver.onError(new MAGError(e));
-                    return null;
-                } catch (Exception ignore) {
-                    if (DEBUG) Log.w(TAG, ignore);
-                }
-                sysContext.startService(intent);
-                return null;
-            }
-        }.execute((Void) null);
+        new MssoClientAuthenticateAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
     }
+
+    private static class MssoClientAuthenticateAsyncTask extends AsyncTask<Void, Void, Void> {
+        private Context aAppContext;
+        private MAGResultReceiver aResultReceiver;
+        private Intent aIntent;
+        private MssoContext aMssoContext;
+
+        MssoClientAuthenticateAsyncTask(Context context, MssoContext mssoContext, MAGResultReceiver resultReceiver, Intent intent) {
+            aAppContext = context;
+            aResultReceiver = resultReceiver;
+            aMssoContext = mssoContext;
+            aIntent = intent;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                aMssoContext.logout(true);
+            } catch (SecureLockException e) {
+                if (aResultReceiver != null) {
+                    aResultReceiver.onError(new MAGError(e));
+                }
+                return null;
+            } catch (Exception ignore) {
+                if (DEBUG) Log.w(TAG, ignore);
+            }
+            aAppContext.startService(aIntent);
+            return null;
+        }
+    }
+
+    /**
+     * Logs in a user with an IdToken
+     *
+     * <p/>
+     * <p>The response to the request will eventually be delivered to the specified result receiver.</p>
+     * <p>This method returns immediately to the calling thread</p>
+     *
+     * @param idToken       The idToken to log in with
+     * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
+     */
+    public void authenticate(final IdToken idToken, final MAGResultReceiver resultReceiver) {
+
+        final MssoRequest mssoRequest = new MssoRequest(this, mssoContext, new AuthenticateRequest(), resultReceiver);
+        MssoRequestQueue.getInstance().addRequest(mssoRequest);
+        long requestId = mssoRequest.getId();
+
+        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
+        Credentials credentials = new JWTCredentials(idToken);
+        intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
+        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
+
+        new MssoClientAuthenticateAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
+    }
+
 
     /**
      * Submit a wakeup message to the intent service, ensuring that any enqueued requests are being processed.
@@ -116,9 +215,9 @@ public class MssoClient {
         // Currently this should only be necessary when we have started the UNLOCK activity.
         // For the Log On activity, it should take care of signalling the MssoService when it should retry.
         if (MssoState.isExpectedUnlock()) {
-            Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, sysContext, MssoService.class);
+            Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, appContext, MssoService.class);
             intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, (long) -1);
-            sysContext.startService(intent);
+            appContext.startService(intent);
         }
     }
 
@@ -142,7 +241,7 @@ public class MssoClient {
      *
      * @param requestId the request ID to cancel.
      */
-    public void cancelRequest(long requestId) {
+    public void cancelRequest(long requestId, Bundle data) {
         MssoRequest request = null;
         MssoResponseQueue.getInstance().takeResponse(requestId);
         request = MssoRequestQueue.getInstance().takeRequest(requestId);
@@ -151,7 +250,7 @@ public class MssoClient {
         }
         if (request != null) {
             if (request.getResultReceiver() != null) {
-                request.getResultReceiver().send(MssoIntents.RESULT_CODE_ERR_CANCELED, null);
+                request.getResultReceiver().send(MssoIntents.RESULT_CODE_ERR_CANCELED, data);
             }
         }
     }
@@ -159,25 +258,25 @@ public class MssoClient {
     /**
      * Canceling any pending requests and responses that were created by this MssoClient.
      */
-    public void cancelAll() {
+    public void cancelAll(Bundle data) {
         MssoRequestQueue.getInstance().removeMatching(new Functions.Unary<Boolean, MssoRequest>() {
             @Override
             public Boolean call(MssoRequest mssoRequest) {
                 return mssoRequest.getCreator() == MssoClient.this;
             }
-        });
+        }, data);
         MssoResponseQueue.getInstance().removeMatching(new Functions.Unary<Boolean, MssoResponse>() {
             @Override
             public Boolean call(MssoResponse mssoResponse) {
                 return mssoResponse.getRequest().getCreator() == MssoClient.this;
             }
-        });
+        }, data);
 
         MssoActiveQueue.getInstance().removeMatching(new Functions.Unary<Boolean, MssoRequest>() {
             @Override
             public Boolean call(MssoRequest mssoRequest) {
                 return mssoRequest.getCreator() == MssoClient.this;
             }
-        });
+        }, data);
     }
 }

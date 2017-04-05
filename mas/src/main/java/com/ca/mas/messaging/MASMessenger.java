@@ -8,6 +8,7 @@
 
 package com.ca.mas.messaging;
 
+import com.ca.mas.foundation.Internal;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.messaging.topic.MASTopic;
@@ -24,6 +25,8 @@ public interface MASMessenger {
      * @param callback Callback with either the Success or the Error message
      */
 
+    @Internal
+    @Deprecated
     void startListeningToTopic(MASTopic topic, MASCallback<Void> callback);
 
     /**
@@ -33,6 +36,8 @@ public interface MASMessenger {
      * @param callback Callback with either the Success or the Error message.
      */
 
+    @Internal
+    @Deprecated
     void stopListeningToTopic(MASTopic topic, MASCallback<Void> callback);
 
     // --------------- USER Messaging -----------------------------------------

@@ -10,8 +10,8 @@ package com.ca.mas.messaging.topic;
 
 import com.ca.mas.connecta.client.MASConnectaClient;
 import com.ca.mas.connecta.util.ConnectaConsts;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.foundation.MASConstants;
-import com.ca.mas.foundation.MASException;
 
 /**
  * <p><b>MASTopicBuilder</b> is the concrete implementation of the MASTopic interface and provides structured topic creation through
@@ -38,11 +38,10 @@ public class MASTopicBuilder {
      *
      * @param qos the quality of service in the range [0, 2].
      * @return MASTopicBuilder the instance of this builder.
-     * @throws MASException is thrown if the qos value is not in the correct range.
      */
-    public MASTopicBuilder setQos(int qos) throws MASException {
+    public MASTopicBuilder setQos(int qos) {
         if (qos < MASConnectaClient.AT_MOST_ONCE || qos > MASConnectaClient.EXACTLY_ONCE) {
-            throw new MASException("Only QoS 0, 1, and 2 are supported.");
+            throw new IllegalArgumentException("Only QoS 0, 1, and 2 are supported.");
         }
         mQos = qos;
         return this;
@@ -53,9 +52,8 @@ public class MASTopicBuilder {
      *
      * @param userId the userId for this topic.
      * @return MASTopicBuilder the instance of this builder.
-     * @throws MASException if the builder user, group, app, or device ids are not mutually exclusive.
      */
-    public MASTopicBuilder setUserId(String userId) throws MASException {
+    public MASTopicBuilder setUserId(String userId) {
         mUserId = userId;
         return this;
     }
@@ -65,9 +63,8 @@ public class MASTopicBuilder {
      *
      * @param segment The Messaging segment
      * @return MASTopicBuilder the instance of this builder.
-     * @throws MASException if the builder user, group, app, or device ids are not mutually exclusive.
      */
-    public MASTopicBuilder setMessagingSegment(@MASMessagingSegment int segment) throws MASException {
+    public MASTopicBuilder setMessagingSegment(@MASMessagingSegment int segment) {
         this.mSegment = segment;
         return this;
     }
@@ -141,13 +138,20 @@ public class MASTopicBuilder {
     }
 
     private String createTopic() {
+        String prefix = ConfigurationManager.getInstance()
+                .getConnectedGatewayConfigurationProvider().getPrefix().trim();
+
+        if (prefix.length() > 0)  {
+            prefix = "/" + prefix;
+        }
+
         switch (mSegment) {
             case MASConstants.MAS_USER:
-                return String.format("/%s/users/%s/custom/%s", ConnectaConsts.TOPIC_VERSION_ORG, mUserId, mCustomTopic);
+                return String.format("%s/%s/users/%s/custom/%s", prefix, ConnectaConsts.TOPIC_VERSION_ORG, mUserId, mCustomTopic);
             case MASConstants.MAS_USER | MASConstants.MAS_APPLICATION:
-                return String.format("/%s/client/users/%s/custom/%s", ConnectaConsts.TOPIC_VERSION_ORG, mUserId, mCustomTopic);
+                return String.format("%s/%s/client/users/%s/custom/%s", prefix, ConnectaConsts.TOPIC_VERSION_ORG, mUserId, mCustomTopic);
             case MASConstants.MAS_APPLICATION:
-                return String.format("/%s/client/custom/%s", ConnectaConsts.TOPIC_VERSION_ORG, mCustomTopic);
+                return String.format("%s/%s/client/custom/%s", prefix, ConnectaConsts.TOPIC_VERSION_ORG, mCustomTopic);
             default:
                 throw new IllegalArgumentException("Messaging segment is not supported");
         }

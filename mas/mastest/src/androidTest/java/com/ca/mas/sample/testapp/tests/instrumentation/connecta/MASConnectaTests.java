@@ -20,7 +20,7 @@ import android.util.Log;
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.foundation.MASException;
+import com.ca.mas.messaging.MASMessageException;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
@@ -53,7 +53,6 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
             final CountDownLatch latch = new CountDownLatch(1);
             final Object[] result = {false, "unknown"};
             final Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            MASConnectaManager.getInstance().start(ctx);
 
             MASConnectaManager.getInstance().connect(new MASCallback<Void>() {
                 @Override
@@ -90,29 +89,22 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
             final CountDownLatch latch = new CountDownLatch(1);
             final Object[] result = {false, "unknown"};
             MASUser usr = MASUser.getCurrentUser();
-            try {
-                final MASTopic masTopic = new MASTopicBuilder().setUserId(usr.getId()).setCustomTopic(usr.getId()).build();
+            final MASTopic masTopic = new MASTopicBuilder().setUserId(usr.getId()).setCustomTopic(usr.getId()).build();
 
-                MASUser.getCurrentUser().startListeningToTopic(masTopic, new MASCallback<Void>() {
-                    @Override
-                    public void onSuccess(Void object) {
-                        result[0] = true;
-                        latch.countDown();
-                    }
+            MASUser.getCurrentUser().startListeningToTopic(masTopic, new MASCallback<Void>() {
+                @Override
+                public void onSuccess(Void object) {
+                    result[0] = true;
+                    latch.countDown();
+                }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        result[0] = false;
-                        result[1] = "Cant subscribe to  self topic ";
-                        latch.countDown();
-                    }
-                });
-            } catch (MASException e) {
-                Log.w(TAG, "testSubscribeSelfTopic exception subscribing to topic: ", e);
-                result[0] = false;
-                result[1] = "Cant create topic";
-                latch.countDown();
-            }
+                @Override
+                public void onError(Throwable e) {
+                    result[0] = false;
+                    result[1] = "Cant subscribe to  self topic ";
+                    latch.countDown();
+                }
+            });
             latch.await();
             if (!(boolean) result[0]) {
                 Log.w(TAG, "testSubscribeSelfTopic onError: " + result[1]);
@@ -178,15 +170,15 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
     @Test
     public void testSendEmptyMessage() throws Exception {
 
-            MASUser user = MASUser.getCurrentUser();
+        MASUser user = MASUser.getCurrentUser();
 
-            //setup topic
-            MASTopic topic = new MASTopicBuilder().setUserId(user.getId()).setCustomTopic(TOPIC_NAME).build();
+        //setup topic
+        MASTopic topic = new MASTopicBuilder().setUserId(user.getId()).setCustomTopic(TOPIC_NAME).build();
 
-            //setup message
-            MASMessage masMessage = MASMessage.newInstance();
+        //setup message
+        MASMessage masMessage = MASMessage.newInstance();
 
-            sendMessageToTopic(topic, masMessage, true);
+        sendMessageToTopic(topic, masMessage, true);
     }
 
     @Ignore
@@ -216,15 +208,15 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
     @Test
     public void testSendMessageToNullTopic() throws Exception {
 
-            //setup topic
-            MASTopic topic = null;
+        //setup topic
+        MASTopic topic = null;
 
-            //setup message
-            MASMessage masMessage = MASMessage.newInstance();
-            masMessage.setContentType(MessagingConsts.MT_TEXT_PLAIN);
-            masMessage.setPayload("test".getBytes());
+        //setup message
+        MASMessage masMessage = MASMessage.newInstance();
+        masMessage.setContentType(MessagingConsts.MT_TEXT_PLAIN);
+        masMessage.setPayload("test".getBytes());
 
-            sendMessageToTopic(topic, masMessage, true);
+        sendMessageToTopic(topic, masMessage, true);
     }
 
     @Ignore
@@ -636,30 +628,12 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
     public MASTopic configureTopicListeners(MASCallback callback) {
 
         // create the user topic listener
-        try {
-            String id = MASUser.getCurrentUser().getId();
-            final MASTopic masTopic = new MASTopicBuilder().setUserId(id).setCustomTopic(id).build();
+        String id = MASUser.getCurrentUser().getId();
+        final MASTopic masTopic = new MASTopicBuilder().setUserId(id).setCustomTopic(id).build();
 
-            MASUser.getCurrentUser().startListeningToTopic(masTopic, callback);
+        MASUser.getCurrentUser().startListeningToTopic(masTopic, callback);
 
-            return masTopic;
-        } catch (MASException me) {
-            Log.w(TAG, "configureTopicListeners current user exception " + me + "!!");
-        }
-
-        // create the user topic listener
-        try {
-            String id = MASUser.getCurrentUser().getId();
-            final MASTopic masTopic = new MASTopicBuilder().setUserId(id).setCustomTopic(TOPIC_NAME).build();
-
-            MASUser.getCurrentUser().startListeningToTopic(masTopic, callback);
-
-            return masTopic;
-        } catch (MASException me) {
-            Log.w(TAG, "configureTopicListeners " + TOPIC_NAME + " exception " + me + "!!");
-        }
-
-        return null;
+        return masTopic;
     }
 
     /**
@@ -686,7 +660,7 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
                                 final String m = new String(Base64.decode(msg, Base64.NO_WRAP));
                                 Log.w(TAG, "message receiver got text message from " + senderId + ", " + m);
                             }
-                        } catch (MASException me) {
+                        } catch (MASMessageException me) {
                             Log.w(TAG, "message receiver exception: " + me);
                         }
                     }

@@ -10,7 +10,6 @@ package com.ca.mas.sample.testapp.tests.instrumentation.base;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.AndroidTestCase;
 
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASDevice;
@@ -34,8 +33,12 @@ public abstract class MASIntegrationBaseTest {
 
     @BeforeClass
     public static void beforeClass() {
+        MAS.debug();
         MAS.start(InstrumentationRegistry.getInstrumentation().getTargetContext(), true);
+        login();
+    }
 
+    public static void login() {
         final CountDownLatch latch = new CountDownLatch(1);
         final boolean[] result = {false};
 
@@ -60,8 +63,8 @@ public abstract class MASIntegrationBaseTest {
         } catch (InterruptedException e) {
             fail();
         }
-
     }
+
 
     @AfterClass
     public static void afterClass() {

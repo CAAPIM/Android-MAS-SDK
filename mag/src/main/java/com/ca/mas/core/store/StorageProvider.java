@@ -23,6 +23,7 @@ import com.ca.mas.core.datasource.StringDataConverter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
@@ -32,12 +33,12 @@ import static com.ca.mas.core.MAG.TAG;
 public class StorageProvider {
 
     private ConfigurationProvider configurationProvider;
-    private Context context;
+    private Context appContext;
     private StorageConfig mStorageConfig;
 
     public StorageProvider(Context context, ConfigurationProvider configurationProvider) {
         this.configurationProvider = configurationProvider;
-        this.context = context;
+        this.appContext = context.getApplicationContext();
         mStorageConfig = new StorageConfig(configurationProvider);
     }
 
@@ -60,7 +61,7 @@ public class StorageProvider {
             } catch (JSONException e) {
                 if (DEBUG) Log.w(TAG, "failed to set sharing property " + e);
             }
-            DataSource storage = DataSourceFactory.getStorage(context, mStorageConfig.getStorageClass(), params, null);
+            DataSource storage = DataSourceFactory.getStorage(appContext, mStorageConfig.getStorageClass(), params, null);
             return new DefaultTokenManager(storage);
         } else {
             return (TokenManager) create(tm);
@@ -76,7 +77,7 @@ public class StorageProvider {
     public OAuthTokenContainer createOAuthTokenContainer() {
         String pt = configurationProvider.getProperty(MobileSsoConfig.PROP_PRIVATE_TOKEN_MANAGER);
         if (pt == null) {
-            DataSource storage = DataSourceFactory.getStorage(context, mStorageConfig.getStorageClass(), mStorageConfig.getStorageConfig(), new StringDataConverter());
+            DataSource storage = DataSourceFactory.getStorage(appContext, mStorageConfig.getStorageClass(), mStorageConfig.getStorageConfig(), new StringDataConverter());
             return new PrivateTokenStorage(storage);
         } else {
             return (OAuthTokenContainer) create(pt);
@@ -91,7 +92,7 @@ public class StorageProvider {
     public ClientCredentialContainer createClientCredentialContainer() {
         String cc = configurationProvider.getProperty(MobileSsoConfig.PROP_CLIENT_CREDENTIAL_MANAGER);
         if (cc == null) {
-            DataSource storage = DataSourceFactory.getStorage(context, mStorageConfig.getStorageClass(), mStorageConfig.getStorageConfig(), new StringDataConverter());
+            DataSource storage = DataSourceFactory.getStorage(appContext, mStorageConfig.getStorageClass(), mStorageConfig.getStorageConfig(), new StringDataConverter());
             return new ClientCredentialStorage(storage);
         } else {
             return (ClientCredentialContainer) create(cc);
@@ -113,7 +114,7 @@ public class StorageProvider {
      * @return True the storage is ready to use, False when the storage is not ready to use.
      */
     public boolean hasValidStore() {
-        DataSource temp = DataSourceFactory.getStorage(context, mStorageConfig.getStorageClass(), mStorageConfig.getStorageConfig(), new StringDataConverter());
+        DataSource temp = DataSourceFactory.getStorage(appContext, mStorageConfig.getStorageClass(), mStorageConfig.getStorageConfig(), new StringDataConverter());
         if (temp != null && temp.isReady()) {
             return true;
         } else {

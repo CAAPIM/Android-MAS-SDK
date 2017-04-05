@@ -17,7 +17,6 @@ import com.ca.mas.core.io.http.TrustedCertificateConfigurationTrustManager;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 
-import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
@@ -30,6 +29,7 @@ import javax.net.ssl.TrustManager;
 public class MAGSocketFactory {
 
     private static final String SSL_TLS_PROTOCOL = "TLS";
+
     private static final SecureRandom secureRandom = new SecureRandom();
     private TrustedCertificateConfiguration trustConfig;
     private PrivateKey clientCertPrivateKey = null;
@@ -38,7 +38,7 @@ public class MAGSocketFactory {
     /**
      * Create an SocketFactory factory that will create clients that trust the specified server certs and that use the specified client cert
      * for client cert authentication.
-
+     * <p>
      * it retrieves the trustConfig, clientCertPrivateKey
      * and clientCertChain from the {@link com.ca.mas.core.store.TokenManager}
      */
@@ -47,15 +47,12 @@ public class MAGSocketFactory {
         this.trustConfig = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
         StorageProvider storageProvider = new StorageProvider(context);
         TokenManager tokenManager = storageProvider.createTokenManager();
-        KeyPair keyPair = tokenManager.getClientKeyPair();
-        if (keyPair != null) {
-            clientCertPrivateKey = keyPair.getPrivate();
-        }
+        clientCertPrivateKey = tokenManager.getClientPrivateKey();
         clientCertChain = tokenManager.getClientCertificateChain();
     }
 
-    public SSLSocketFactory createSSLSocketFactory() {
-        return createSslContext().getSocketFactory();
+    public SSLSocketFactory createTLSSocketFactory() {
+        return new TLSSocketFactory(createSslContext().getSocketFactory());
     }
 
     private SSLContext createSslContext() {

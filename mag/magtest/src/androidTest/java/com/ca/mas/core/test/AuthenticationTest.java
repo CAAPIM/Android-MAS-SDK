@@ -8,6 +8,7 @@
 
 package com.ca.mas.core.test;
 
+import android.os.Bundle;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.core.MAGResultReceiver;
@@ -33,9 +34,11 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class AuthenticationTest extends BaseTest {
 
+    @Deprecated
     @Test
     public void mobileSsoListenerTest() throws JSONException, InterruptedException {
 
@@ -57,7 +60,7 @@ public class AuthenticationTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
 
@@ -76,6 +79,7 @@ public class AuthenticationTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void testCallbackWithAuthenticateFailed() throws JSONException, InterruptedException {
 
@@ -118,7 +122,7 @@ public class AuthenticationTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
 
@@ -143,6 +147,7 @@ public class AuthenticationTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void testCallbackWithAuthenticateFailedAndCancel() throws JSONException, InterruptedException {
 
@@ -167,7 +172,7 @@ public class AuthenticationTest extends BaseTest {
             public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
 
                 if (failCount[0] > 0) {
-                    mobileSso.cancelRequest(requestId);
+                    mobileSso.cancelRequest(requestId, null);
                     return;
                 }
 
@@ -183,7 +188,7 @@ public class AuthenticationTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
 
@@ -204,6 +209,7 @@ public class AuthenticationTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void authenticateTest() throws InterruptedException {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -225,7 +231,7 @@ public class AuthenticationTest extends BaseTest {
                     }
 
                     @Override
-                    public void onRequestCancelled() {
+                    public void onRequestCancelled(Bundle data) {
 
                     }
 
@@ -238,7 +244,7 @@ public class AuthenticationTest extends BaseTest {
             }
 
             @Override
-            public void onRequestCancelled() {
+            public void onRequestCancelled(Bundle data) {
 
             }
 
@@ -248,6 +254,7 @@ public class AuthenticationTest extends BaseTest {
         assertTrue(success[0]);
     }
 
+    @Deprecated
     @Test
     public void testAuthenticationFail() throws InterruptedException {
 
@@ -282,7 +289,7 @@ public class AuthenticationTest extends BaseTest {
             }
 
             @Override
-            public void onRequestCancelled() {
+            public void onRequestCancelled(Bundle data) {
 
             }
         });
@@ -297,6 +304,7 @@ public class AuthenticationTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test(expected = NullPointerException.class)
     public void authenticateTestWithNullUsername() {
         mobileSso.authenticate(null, getPassword(), new MAGResultReceiver<JSONObject>(null) {
@@ -312,15 +320,16 @@ public class AuthenticationTest extends BaseTest {
             }
 
             @Override
-            public void onRequestCancelled() {
+            public void onRequestCancelled(Bundle data) {
 
             }
         });
     }
 
+    @Deprecated
     @Test(expected = NullPointerException.class)
     public void authenticateTestWithNullPassword() {
-        mobileSso.authenticate(getUsername(), null, new MAGResultReceiver<JSONObject>(null) {
+        mobileSso.authenticate(getUsername(), (char[]) null, new MAGResultReceiver<JSONObject>(null) {
 
             @Override
             public void onSuccess(MAGResponse<JSONObject> response) {
@@ -333,7 +342,7 @@ public class AuthenticationTest extends BaseTest {
             }
 
             @Override
-            public void onRequestCancelled() {
+            public void onRequestCancelled(Bundle data) {
 
             }
         });

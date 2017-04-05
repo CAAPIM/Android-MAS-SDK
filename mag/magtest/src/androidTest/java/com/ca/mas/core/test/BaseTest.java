@@ -9,10 +9,10 @@
 package com.ca.mas.core.test;
 
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ServiceTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.AndroidTestCase;
 import android.util.Log;
 
 import com.ca.mas.core.MAGResultReceiver;
@@ -39,6 +39,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
@@ -88,23 +89,7 @@ public abstract class BaseTest {
             mobileSso.setMobileSsoListener(new MobileSsoListener() {
                 @Override
                 public void onAuthenticateRequest(final long requestId, AuthenticationProvider provider) {
-
-                    mobileSso.authenticate(getUsername(), getPassword(), new MAGResultReceiver() {
-                        @Override
-                        public void onSuccess(MAGResponse response) {
-
-                        }
-
-                        @Override
-                        public void onError(MAGError error) {
-
-                        }
-
-                        @Override
-                        public void onRequestCancelled() {
-
-                        }
-                    });
+                    mobileSso.authenticate(getUsername(), getPassword(), null);
                 }
 
                 @Override
@@ -258,7 +243,7 @@ public abstract class BaseTest {
             }
 
             @Override
-            public void onRequestCancelled() {
+            public void onRequestCancelled(Bundle data) {
                 latch.countDown();
             }
 
@@ -268,6 +253,16 @@ public abstract class BaseTest {
         return requestId;
     }
 
+    protected <T> T getValue(Object instance, String attribute, Class<T> returnType) {
+        Field field = null;
+        try {
+            field = instance.getClass().getDeclaredField(attribute);
+            field.setAccessible(true);
+            return returnType.cast(field.get(instance));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
     protected void assumeMockServer() {
         Assume.assumeTrue(useMockServer());
     }

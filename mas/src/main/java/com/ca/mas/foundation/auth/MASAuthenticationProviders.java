@@ -47,7 +47,7 @@ public class MASAuthenticationProviders implements Parcelable {
 
     /**
      *
-     * Retrieves the MASAuthenticationProviders from the server.
+     * Send an authorization request to MAG and retrieves the MASAuthenticationProviders from the server.
      * <emp>Important</emp> Authentication providers will not be retrieved if the user is already authenticated.
      *
      * @param callback Notify caller for the result.

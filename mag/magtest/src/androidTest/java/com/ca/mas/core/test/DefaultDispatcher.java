@@ -13,6 +13,7 @@ import com.squareup.okhttp.mockwebserver.Dispatcher;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
+import java.net.HttpURLConnection;
 import java.util.Date;
 
 public class DefaultDispatcher extends Dispatcher {
@@ -28,8 +29,8 @@ public class DefaultDispatcher extends Dispatcher {
     public static final String CONNECT_DEVICE_RENEW = "/connect/device/renew";
     public static final String CONNECT_DEVICE_REMOVE = "/connect/device/remove";
     public static final String CONNECT_SESSION_LOGOUT = "/connect/session/logout";
-    public static final String OTP_PROTECTED_URL="/otpProtected";
-    public static final String AUTH_OTP="/auth/generateOTP";
+    public static final String OTP_PROTECTED_URL = "/otpProtected";
+    public static final String AUTH_OTP = "/auth/generateOTP";
 
     public static String TARGET_RESPONSE = "{ \"products\": [\n" +
             "    {\"id\": 1, \"name\": \"Red Stapler\", \"price\": \"54.44\"},\n" +
@@ -46,11 +47,11 @@ public class DefaultDispatcher extends Dispatcher {
     @Override
     public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         request.getBody();
-        if (request.getPath().contains(CONNECT_DEVICE_REGISTER)){
+        if (request.getPath().contains(CONNECT_DEVICE_REGISTER)) {
             return registerDeviceResponse();
-        } else if (request.getPath().contains(CONNECT_CLIENT_INITIALIZE)){
+        } else if (request.getPath().contains(CONNECT_CLIENT_INITIALIZE)) {
             return initializeResponse();
-        } else if (request.getPath().contains(AUTH_OAUTH_V2_TOKEN)){
+        } else if (request.getPath().contains(AUTH_OAUTH_V2_TOKEN)) {
             return retrieveTokenResponse();
         } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS)) {
             return secureServiceResponse();
@@ -58,7 +59,7 @@ public class DefaultDispatcher extends Dispatcher {
             Thread.sleep(1000);
             return secureServiceResponse();
         } else if (request.getPath().contains(TEST_NO_CONTENT)) {
-            return secureServiceResponse();
+            return secureServiceResponseWithNoContent();
         } else if (request.getPath().contains(AUTH_OAUTH_V2_AUTHORIZE)) {
             return authorizeResponse();
         } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER_CLIENT)) {
@@ -76,8 +77,7 @@ public class DefaultDispatcher extends Dispatcher {
             } else {
                 return otpProtectedResponse();
             }
-        }
-        else if(request.getPath().contains(AUTH_OTP)){
+        } else if (request.getPath().contains(AUTH_OTP)) {
             return generateOtp();
         }
         return new MockResponse().setResponseCode(404);
@@ -221,22 +221,29 @@ public class DefaultDispatcher extends Dispatcher {
 
 
     }
-    protected MockResponse otpProtectedResponse(){
-        return new MockResponse().setResponseCode(200)
-                .addHeader("Content-type",ContentType.TEXT_PLAIN);
+
+    protected MockResponse secureServiceResponseWithNoContent() {
+        return new MockResponse().setResponseCode(HttpURLConnection.HTTP_NO_CONTENT);
     }
-    protected MockResponse otpMissingHeader(){
+
+    protected MockResponse otpProtectedResponse() {
+        return new MockResponse().setResponseCode(200)
+                .addHeader("Content-type", ContentType.TEXT_PLAIN);
+    }
+
+    protected MockResponse otpMissingHeader() {
         return new MockResponse().setResponseCode(401)
-                .setHeader("X-OTP","required")
-                .setHeader("X-OTP-CHANNEL","EMAIL,SMS,QRCODE")
-                .setHeader("x-ca-err","8000140")
+                .setHeader("X-OTP", "required")
+                .setHeader("X-OTP-CHANNEL", "EMAIL,SMS,QRCODE")
+                .setHeader("x-ca-err", "8000140")
                 .setBody("{\n" +
                         "error\":\"otp_select_channel\",\n" +
                         "\"error_description\":\"This page is OTP protected. Please select the channel for OTP delivery.\"\n" +
                         "}\n");
     }
-    protected MockResponse generateOtp(){
+
+    protected MockResponse generateOtp() {
         return new MockResponse().setResponseCode(200)
-                .setHeader("X-OTP","generated");
+                .setHeader("X-OTP", "generated");
     }
 }

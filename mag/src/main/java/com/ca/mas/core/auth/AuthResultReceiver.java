@@ -17,21 +17,7 @@ import org.json.JSONObject;
  * Abstract interface for cross device result receiver.
  * Use the result receiver under {@link com.ca.mas.core.MobileSso#authorize}
  */
-public abstract class AuthResultReceiver extends ResultReceiver {
+public interface AuthResultReceiver {
 
-    protected JSONObject json;
-    /**
-     * Create a new ResultReceive to receive results.  Your
-     * {@link #onReceiveResult} method will be called from the thread running
-     * <var>handler</var> if given, or from an arbitrary thread if null.
-     *
-     * @param handler
-     */
-    public AuthResultReceiver(Handler handler) {
-        super(handler);
-    }
-
-    public void setJson(JSONObject json) {
-        this.json = json;
-    }
+    void setData(JSONObject data);
 }

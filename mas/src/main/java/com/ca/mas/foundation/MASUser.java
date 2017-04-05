@@ -93,11 +93,41 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
     /**
      * Authenticate a user with username and password.
+     *
+     * @deprecated Please use {@link #login(String, char[], MASCallback)}
      */
+    @Deprecated
     public static void login(@NonNull String userName, @NonNull String password, final MASCallback<MASUser> callback) {
+        login(userName, password.toCharArray(), callback);
+    }
+
+    /**
+     * Authenticate a user with username and password.
+     */
+    public static void login(@NonNull String userName, @NonNull char[] cPassword, final MASCallback<MASUser> callback) {
         MobileSso mobileSso = FoundationUtil.getMobileSso();
 
-        mobileSso.authenticate(userName, password.toCharArray(), new MASResultReceiver<JSONObject>() {
+        mobileSso.authenticate(userName, cPassword, new MASResultReceiver<JSONObject>() {
+            @Override
+            public void onSuccess(MAGResponse<JSONObject> response) {
+                login(callback);
+            }
+
+            @Override
+            public void onError(MAGError error) {
+                current = null;
+                Callback.onError(callback, error);
+            }
+        });
+    }
+
+    /**
+     * Authenticate a user with ID Token
+     */
+    public static void login(MASIdToken idToken, final MASCallback<MASUser> callback) {
+        MobileSso mobileSso = FoundationUtil.getMobileSso();
+
+        mobileSso.authenticate(idToken, new MASResultReceiver<JSONObject>() {
             @Override
             public void onSuccess(MAGResponse<JSONObject> response) {
                 login(callback);
@@ -133,22 +163,48 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
     }
 
     /**
+     * Authenticates a user with authorization code,
+     *
+     * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3.1">
+     */
+    public static void login(@NonNull MASAuthorizationResponse authorizationResponse, final MASCallback<MASUser> callback) {
+
+        MobileSso mobileSso = FoundationUtil.getMobileSso();
+        mobileSso.authenticate(authorizationResponse.getAuthorizationCode(),
+                authorizationResponse.getState(), new MASResultReceiver<JSONObject>() {
+                    @Override
+                    public void onSuccess(MAGResponse<JSONObject> response) {
+                        login(callback);
+                    }
+
+                    @Override
+                    public void onError(MAGError error) {
+                        current = null;
+                        Callback.onError(callback, error);
+                    }
+                });
+    }
+
+
+    /**
      * Retrieves the currently authenticated user.
      *
      * @return The currently authenticated user.
      */
     public static MASUser getCurrentUser() {
-        String userProfile = MobileSsoFactory.getInstance().getUserProfile();
         if (current == null) {
-            if (userProfile != null) {
+            TokenManager tokenManager = createTokenManager();
+            if (tokenManager.getUserProfile() != null) {
                 current = createMASUser();
             }
-        } else {
-            if (userProfile == null) {
-                //The user's session has been removed,
-                //may perform device de-registration or resetLocally
-                current = null;
-            }
+        }
+        if (current != null &&
+                !current.isAuthenticated() &&
+                !current.isSessionLocked()) {
+            //The user's session has been removed,
+            //The Grant flow has been switch from user to client credential
+            //Device has been de-registered or resetLocally
+            current = null;
         }
         return current;
     }
@@ -336,17 +392,13 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                 execute(new Functions.NullaryVoid() {
                     @Override
                     public void call() {
-                        try {
-                            String userId = user.getId();
-                            MASTopic masTopic = new MASTopicBuilder()
-                                    .setUserId(userId)
-                                    .setCustomTopic(topic)
-                                    .build();
+                        String userId = user.getId();
+                        MASTopic masTopic = new MASTopicBuilder()
+                                .setUserId(userId)
+                                .setCustomTopic(topic)
+                                .build();
 
-                            MASConnectaManager.getInstance().publish(masTopic, message, callback);
-                        } catch (MASException me) {
-                            callback.onError(me);
-                        }
+                        MASConnectaManager.getInstance().publish(masTopic, message, callback);
                     }
                 }, callback);
             }
@@ -356,17 +408,13 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                 execute(new Functions.NullaryVoid() {
                     @Override
                     public void call() {
-                        try {
-                            String userId = current.getId();
-                            MASTopic masTopic = new MASTopicBuilder()
-                                    .setUserId(userId)
-                                    .setCustomTopic(userId)
-                                    .build();
+                        String userId = current.getId();
+                        MASTopic masTopic = new MASTopicBuilder()
+                                .setUserId(userId)
+                                .setCustomTopic("#")
+                                .build();
 
-                            startListeningToTopic(masTopic, callback);
-                        } catch (MASException me) {
-                            callback.onError(me);
-                        }
+                        startListeningToTopic(masTopic, callback);
                     }
                 }, callback);
             }
@@ -376,17 +424,13 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                 execute(new Functions.NullaryVoid() {
                     @Override
                     public void call() {
-                        try {
-                            String userId = current.getId();
-                            MASTopic masTopic = new MASTopicBuilder()
-                                    .setUserId(userId)
-                                    .setCustomTopic(userId)
-                                    .build();
+                        String userId = current.getId();
+                        MASTopic masTopic = new MASTopicBuilder()
+                                .setUserId(userId)
+                                .setCustomTopic("#")
+                                .build();
 
-                            stopListeningToTopic(masTopic, callback);
-                        } catch (MASException me) {
-                            callback.onError(me);
-                        }
+                        stopListeningToTopic(masTopic, callback);
                     }
                 }, callback);
             }
@@ -488,10 +532,12 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
                         try {
                             JSONObject source = scimUser.getSource();
+                            //make sure not to store the password
                             source.remove(IdentityConsts.KEY_PASSWORD);
                             tokenManager.saveUserProfile(source.toString());
                         } catch (Exception e) {
-                            if (DEBUG) Log.w(TAG, "Unable to persist user profile to local storage.", e);
+                            if (DEBUG)
+                                Log.w(TAG, "Unable to persist user profile to local storage.", e);
                         }
                         Callback.onSuccess(callback, null);
                     }
@@ -526,11 +572,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                     } else if (isSessionLocked()) {
                         Callback.onSuccess(callback, null);
                     } else {
-                        // Remove access and refresh tokens
-                        StorageProvider storageProvider = createStorageProvider();
-                        OAuthTokenContainer container = storageProvider.createOAuthTokenContainer();
-                        container.clear();
-
                         // Retrieve the ID token
                         TokenManager keyChainManager = createTokenManager();
                         IdToken idToken = keyChainManager.getIdToken();
@@ -540,15 +581,17 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             return;
                         }
 
+                        StorageProvider storageProvider = createStorageProvider();
+                        OAuthTokenContainer container = storageProvider.createOAuthTokenContainer();
+                        container.clear();
+
                         // Move the ID token from the Keychain to the fingerprint protected shared Keystore
                         Parcel idTokenParcel = Parcel.obtain();
                         idToken.writeToParcel(idTokenParcel, 0);
                         byte[] idTokenBytes = idTokenParcel.marshall();
 
                         // Delete any previously generated key due to improper closure
-                        if (mKeyStoreProvider.getKey(SESSION_LOCK_ALIAS) != null) {
-                            mKeyStoreProvider.removeKey(SESSION_LOCK_ALIAS);
-                        }
+                        mKeyStoreProvider.removeKey(SESSION_LOCK_ALIAS);
 
                         // Save the encrypted token
                         EncryptionProvider encryptionProvider = getSessionLockEncryptionProvider();
@@ -568,7 +611,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             return;
                         }
 
-                        mKeyStoreProvider.lock();
+                        mKeyStoreProvider.lock(SESSION_LOCK_ALIAS);
                         idTokenParcel.recycle();
 
                         Callback.onSuccess(callback, null);

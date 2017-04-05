@@ -87,6 +87,11 @@ public interface MASRequest extends MAGRequest {
         }
 
         @Override
+        public MASRequestBuilder setPublic() {
+            return (MASRequestBuilder) super.setPublic();
+        }
+
+        @Override
         public MASRequestBuilder header(String name, String value) {
             return (MASRequestBuilder) super.header(name, value);
         }
@@ -154,6 +159,11 @@ public interface MASRequest extends MAGRequest {
                 @Override
                 public String getScope() {
                     return request.getScope();
+                }
+
+                @Override
+                public boolean isPublic() {
+                    return request.isPublic();
                 }
             };
         }

@@ -71,7 +71,7 @@ public class MssoContext {
      */
     private static final int MAX_REQUEST_ATTEMPTS = 4;
 
-    private Context context;
+    private Context appContext;
 
     private ConfigurationProvider configurationProvider;
     private PolicyManager policyManager;
@@ -137,7 +137,7 @@ public class MssoContext {
      * @throws MssoException if the token store cannot be prepared
      */
     public void init(Context context) throws MssoException {
-        this.context = context;
+        this.appContext = context.getApplicationContext();
         this.configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
 
         StorageProvider storageProvider = new StorageProvider(context, configurationProvider);
@@ -169,7 +169,7 @@ public class MssoContext {
         if (policyManager == null) {
             policyManager = new PolicyManager(this);
         }
-        policyManager.init(context);
+        policyManager.init(appContext);
     }
 
     /**
@@ -218,6 +218,22 @@ public class MssoContext {
     public boolean isSsoEnabled() {
         Boolean ssoEnabled = configurationProvider.getProperty(ConfigurationProvider.PROP_SSO_ENABLED);
         return ssoEnabled != null && ssoEnabled;
+    }
+
+    public void clearUserProfile() {
+        try {
+            tokenManager.deleteUserProfile();
+        } catch (TokenStoreException e) {
+            throw new MssoException("Failed to remove User Profile: " + e.getMessage(), e);
+        }
+    }
+
+    public void clearIdToken() {
+        try {
+            tokenManager.deleteIdToken();
+        } catch (TokenStoreException e) {
+            throw new MssoException("Failed to remove ID token: " + e.getMessage(), e);
+        }
     }
 
     public IdToken getIdToken() {
@@ -283,7 +299,7 @@ public class MssoContext {
         if (client != null)
             return client;
 
-        client = new MAGHttpClient(context) {
+        client = new MAGHttpClient(appContext) {
             @Override
             protected void onConnectionObtained(HttpURLConnection connection) {
                 super.onConnectionObtained(connection);
@@ -306,6 +322,7 @@ public class MssoContext {
      * @param idToken the ID token.  Required.
      */
     public void onIdTokenAvailable(IdToken idToken) throws JWTValidationException {
+        clearCredentials();
         String deviceIdentifier = tokenManager.getMagIdentifier();
         String clientId = getClientId();
         String clientSecret = getClientSecret();
@@ -320,7 +337,6 @@ public class MssoContext {
             setIdToken(idToken);
         }
 
-        clearCredentials();
     }
 
     /**
@@ -340,10 +356,11 @@ public class MssoContext {
      * @param expiresInSec number of seconds until the access token should be considered expired.  Required.
      */
     public void onAccessTokenAvailable(String accessToken, String refreshToken, long expiresInSec, String grantedScope) {
-        privateTokens.saveAccessToken(accessToken, refreshToken, expiresInSec, grantedScope);
-        if (accessToken != null)
+        if (accessToken != null) {
             clearCredentials();
-    }
+        }
+        privateTokens.saveAccessToken(accessToken, refreshToken, expiresInSec, grantedScope);
+   }
 
     /**
      * Clear the access token, forcing the next request to obtain a new one.
@@ -418,6 +435,14 @@ public class MssoContext {
         MAGStateException lastError = null;
         for (; requestInfo.getNumAttempts() < MAX_REQUEST_ATTEMPTS; requestInfo.incrementNumAttempts()) {
             try {
+                //Do not execute the policy if this request is target to an unprotected endpoint.
+                if (request.isPublic()) {
+                    if (!request.getURL().getHost().equals(getConfigurationProvider().getTokenHost())) {
+                        throw new IllegalArgumentException(
+                                "This method is valid only for the host that has defined in the configuration");
+                    }
+                    return getMAGHttpClient().execute(internalRequest);
+                }
                 policyManager.processRequest(requestInfo);
                 MAGResponse response;
                 if (internalRequest.isLocalRequest()) {
@@ -429,17 +454,23 @@ public class MssoContext {
                 return response;
             } catch (MAGServerException e) {
                 if (DEBUG) Log.d(TAG, String.format("Server return x-ca-err %d", e.getErrorCode()));
-                rethrow(e);
+                try {
+                    rethrow(e);
+                } catch (RetryRequestException rre) {
+                    lastError = rre;
+                    rre.recover(this);
+                    if (DEBUG) Log.d(TAG, "Attempting to retry request. " + e.getClass());
+                }
             } catch (RetryRequestException e) {
                 lastError = e;
                 e.recover(this);
                 if (DEBUG) Log.d(TAG, "Attempting to retry request. " + e.getClass());
             }
         }
-        if (lastError != null && lastError.getCause() != null) {
-            throw (Exception) lastError.getCause();
+        if (lastError != null ) {
+            throw lastError;
         }
-        throw new IOException("Too many attempts, giving up: " + (lastError == null ? null : lastError.getMessage()));
+        throw new IOException("Too many attempts, giving up");
     }
 
     /**
@@ -645,42 +676,17 @@ public class MssoContext {
     }
 
     /**
-     * Check the App has been logon.
-     *
-     * @return true if the access token has been acquired. False is access Token is not available.
-     */
-    public boolean isAppLogon() {
-        return getAccessToken() != null;
-    }
-
-    /**
      * Check if the user has already been logon.
      *
      * @return true if the id token has been acquired and stored in the the device. false if the id token is not available.
      * For SSO disabled, id token is not issued by the server, check access token and refresh token instead.
      */
     public boolean isLogin() {
-        return getIdToken() != null ||
-                (!isSsoEnabled() && getAccessToken() != null && getRefreshToken() != null);
-    }
 
-    public String getUserProfile() {
-        return tokenManager != null
-                ? tokenManager.getUserProfile()
-                : null;
-    }
+        //The access token is granted by Client Credential if refresh token is null
+        //Please refer to https://tools.ietf.org/html/rfc6749#section-4.4.3 for detail
+        return getIdToken() != null || getRefreshToken() != null;
 
-    /**
-     * Logoff the App by clear the access token.
-     *
-     * @throws MssoException if there is an error while accessing the storage .
-     */
-    public void logoffApp() throws MssoException {
-        try {
-            clearAccessToken();
-        } catch (DataSourceException e) {
-            throw new MssoException(e);
-        }
     }
 
     public void setClientCredentials(ClientCredentials clientCredentials) {
@@ -725,7 +731,7 @@ public class MssoContext {
      * @return device-id
      */
     private String generateDeviceId() {
-        return (new DeviceIdentifier(context)).toString();
+        return (new DeviceIdentifier(appContext)).toString();
     }
 
 }

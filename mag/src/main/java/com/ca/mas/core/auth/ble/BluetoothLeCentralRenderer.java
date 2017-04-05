@@ -138,12 +138,9 @@ public class BluetoothLeCentralRenderer extends PollingRenderer {
         }
 
         scanner = manager.getAdapter().getBluetoothLeScanner();
-        if (!BluetoothLePeripheral.getInstance().isAuthenticating()) {
-            startScan();
-            callback.onStatusUpdate(BluetoothLeCentralCallback.BLE_STATE_SCAN_STARTED);
-        }
+        startScan();
+        callback.onStatusUpdate(BluetoothLeCentralCallback.BLE_STATE_SCAN_STARTED);
     }
-
 
     /**
      * Notify the host application when any error occur.

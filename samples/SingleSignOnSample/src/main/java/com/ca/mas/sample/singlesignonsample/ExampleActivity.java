@@ -9,7 +9,6 @@
 package com.ca.mas.sample.singlesignonsample;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,6 +38,7 @@ import android.widget.Toast;
 
 import com.ca.mas.core.auth.otp.OtpConstants;
 import com.ca.mas.core.error.TargetApiException;
+import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthenticationListener;
 import com.ca.mas.foundation.MASCallback;
@@ -56,8 +56,8 @@ import com.ca.mas.foundation.auth.MASProximityLoginBLEUserConsentHandler;
 import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 import com.ca.mas.ui.MASEnterpriseBrowserFragment;
-import com.ca.mas.ui.MASLoginFragment;
-import com.ca.mas.ui.otp.MASOtpDialogFragment;
+import com.ca.mas.ui.MASLoginActivity;
+import com.ca.mas.ui.otp.MASOtpActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -116,22 +116,6 @@ public class ExampleActivity extends AppCompatActivity {
             }
         });
 
-        MAS.setAuthenticationListener(new MASAuthenticationListener() {
-
-            @Override
-            public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {
-                android.app.DialogFragment loginFragment = MASLoginFragment.newInstance(requestId, providers);
-                loginFragment.show(((Activity) context).getFragmentManager(), "logonDialog");
-            }
-
-            @Override
-            public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {
-                //Should not trigger this if other then OtpResponseHeaders.X_CA_ERROR.GENERATED or OtpResponseHeaders.X_CA_ERROR.REQUIRED.
-                android.app.DialogFragment otpFragment = MASOtpDialogFragment.newInstance(handler);
-                otpFragment.show(((Activity) context).getFragmentManager(), "OTPDialog");
-            }
-        });
-
         MAS.start(this, true);
 
         setContentView(R.layout.main);
@@ -141,10 +125,8 @@ public class ExampleActivity extends AppCompatActivity {
 
         final Button listButton = (Button) findViewById(R.id.listItemsButton);
         listButton.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
-
                 clearItem();
                 //Android M Permission
                 checkPermission();
@@ -152,7 +134,6 @@ public class ExampleActivity extends AppCompatActivity {
                 final MASRequest request = new MASRequest.MASRequestBuilder(getProductListDownloadUri()).build();
 
                 MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
-
                     @Override
                     public Handler getHandler() {
                         return new Handler(Looper.getMainLooper());
@@ -180,10 +161,8 @@ public class ExampleActivity extends AppCompatActivity {
                         }
                     }
                 });
-
             }
         });
-
 
         final Button otpProtectedlistButton = (Button) findViewById(R.id.listOtpProtectedItemsButton);
         otpProtectedlistButton.setOnClickListener(new View.OnClickListener() {
@@ -194,9 +173,7 @@ public class ExampleActivity extends AppCompatActivity {
                 intent.setPackage(getBaseContext().getPackageName());
                 startActivity(intent);
             }
-
         });
-
 
         final Button logOutButton = (Button) findViewById(R.id.logOutButton);
         logOutButton.setOnClickListener(new View.OnClickListener() {
@@ -206,7 +183,6 @@ public class ExampleActivity extends AppCompatActivity {
             }
         });
         registerForContextMenu(logOutButton);
-
     }
 
     private void checkPermission() {
@@ -222,7 +198,6 @@ public class ExampleActivity extends AppCompatActivity {
                         0);
             }
         }
-
     }
 
     private void clearItem() {
@@ -241,7 +216,6 @@ public class ExampleActivity extends AppCompatActivity {
         menu.add(MENU_GROUP_LOGOUT, MENU_ITEM_REMOVE_DEVICE_REGISTRATION, Menu.NONE, "Unregister Device");
         menu.add(MENU_GROUP_LOGOUT, MENU_ITEM_DESTROY_TOKEN_STORE, Menu.NONE, "Destroy Token Store");
     }
-
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
@@ -282,7 +256,6 @@ public class ExampleActivity extends AppCompatActivity {
 
     // Tell the token server to un-register this device, without affecting the client-side token caches in any way.
     private void doServerUnregisterDevice() {
-
         MASDevice.getCurrentDevice().deregister(new MASCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
@@ -317,7 +290,6 @@ public class ExampleActivity extends AppCompatActivity {
 
         if (MASUser.getCurrentUser() != null) {
             MASDevice.getCurrentDevice().startAsBluetoothPeripheral(new MASProximityLoginBLEPeripheralListener() {
-
                 @Override
                 public void onStatusUpdate(int state) {
                     switch (state) {

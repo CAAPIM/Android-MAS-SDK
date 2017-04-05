@@ -8,7 +8,6 @@
   ~
   -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_enabled="false"
-          android:drawable="@mipmap/enterprise_disable" />
-    <item android:drawable="@mipmap/enterprise_enable" />
+    <item android:drawable="@drawable/enterprise_disabled" android:state_enabled="false" />
+    <item android:drawable="@drawable/enterprise_enabled" />
 </selector>

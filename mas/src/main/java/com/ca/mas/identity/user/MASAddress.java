@@ -10,6 +10,7 @@ package com.ca.mas.identity.user;
 
 import android.support.annotation.NonNull;
 
+import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASTransformable;
 import com.ca.mas.identity.util.IdentityConsts;
 
@@ -18,7 +19,7 @@ import org.json.JSONObject;
 
 /**
  * The <p><b>MASAddress</b> interface contains the common attribute {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.2">address</a>}
- * components of a single user's address. This interface will be populated as a result of a successful call to SCIM using the {@link MASUserIdentity#getUserById(String)} API method.
+ * components of a single user's address. This interface will be populated as a result of a successful call to SCIM using the {@link com.ca.mas.foundation.MASUser#getUserById(String, MASCallback)} )} API method.
  * A physical mailing address for this user.  Canonical type values of "work", "home", and "other".</p>
  * <pre>
  *  {
@@ -76,11 +77,7 @@ public class MASAddress implements MASTransformable {
         mRegion = addrObj.optString(IdentityConsts.KEY_ADDR_REGION);
         mPostalCode = addrObj.optString(IdentityConsts.KEY_ADDR_POSTAL);
         mCountry = addrObj.optString(IdentityConsts.KEY_ADDR_COUNTRY);
-        if (addrObj.has(IdentityConsts.KEY_ADDR_IS_ACTIVE)) {
-            mIsPrimary = addrObj.getBoolean(IdentityConsts.KEY_ADDR_IS_ACTIVE);
-        } else {
-            mIsPrimary = false;
-        }
+        mIsPrimary = addrObj.optBoolean(IdentityConsts.KEY_ADDR_PRIMARY);
     }
 
     @Override
@@ -93,7 +90,7 @@ public class MASAddress implements MASTransformable {
         jobj.put(IdentityConsts.KEY_ADDR_REGION, mRegion);
         jobj.put(IdentityConsts.KEY_ADDR_POSTAL, mPostalCode);
         jobj.put(IdentityConsts.KEY_ADDR_COUNTRY, mCountry);
-        jobj.put(IdentityConsts.KEY_ADDR_IS_ACTIVE, mIsPrimary);
+        jobj.put(IdentityConsts.KEY_ADDR_PRIMARY, mIsPrimary);
         return jobj;
     }
 

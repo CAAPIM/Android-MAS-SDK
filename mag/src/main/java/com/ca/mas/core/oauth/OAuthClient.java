@@ -11,10 +11,13 @@ package com.ca.mas.core.oauth;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.Base64;
+import android.util.Log;
 import android.util.Pair;
 
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.client.ServerClient;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGErrorCode;
@@ -36,11 +39,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
+import static com.ca.mas.core.MAG.DEBUG;
 
 /**
  * Utility class that encapsulates talking to the token server into Java method calls.
@@ -68,6 +78,9 @@ public class OAuthClient extends ServerClient {
     public static final String ID_TOKEN_TYPE = "id_token_type";
     public static final String LOGOUT_APPS = "logout_apps";
     public static final String AUTHORIZATION = "authorization";
+    public static final String CODE_CHALLENGE = "code_challenge";
+    public static final String CODE_CHALLENGE_METHOD = "code_challenge_method";
+    public static final String STATE = "state";
 
     public OAuthClient(MssoContext mssoContext) {
         super(mssoContext);
@@ -115,8 +128,22 @@ public class OAuthClient extends ServerClient {
                 b.appendQueryParameter(SCOPE, scope.trim());
             }
             b.appendQueryParameter(REDIRECT_URI, redirectUri);
-            MAGHttpClient httpClient = mssoContext.getMAGHttpClient();
 
+            if (ConfigurationManager.getInstance().isPKCEEnabled()) {
+                PKCE pkce = generateCodeChallenge();
+                if (pkce != null) {
+                    b.appendQueryParameter(CODE_CHALLENGE, pkce.codeChallenge);
+                    b.appendQueryParameter(CODE_CHALLENGE_METHOD, pkce.codeChallengeMethod);
+                    SecureRandom secureRandom = new SecureRandom();
+                    byte[] random = new byte[16];
+                    secureRandom.nextBytes(random);
+                    String key = Base64.encodeToString(random, Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE);
+                    CodeVerifierCache.getInstance().store(key, pkce.codeVerifier);
+                    b.appendQueryParameter(STATE, key);
+                }
+            }
+
+            MAGHttpClient httpClient = mssoContext.getMAGHttpClient();
 
             try {
                 MAGRequest.MAGRequestBuilder builder = new MAGRequest.MAGRequestBuilder(new URI(b.build().toString()))
@@ -192,12 +219,42 @@ public class OAuthClient extends ServerClient {
             obtainServerResponseToPostedForm(request);
         } catch (MAGException e) {
             throw new OAuthException(MAGErrorCode.UNKNOWN, e);
-        } catch (MAGServerException e) {
+        } catch (OAuthServerException e) {
             if (e.getErrorCode() == INVALID_CLIENT_CREDENTIALS) {
                 mssoContext.clearClientCredentials();
             }
-            throw new OAuthServerException(e);
+            throw e;
         }
     }
 
+    private PKCE generateCodeChallenge() {
+        int encodeFlags = Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE;
+        byte[] randomBytes = new byte[64];
+        new SecureRandom().nextBytes(randomBytes);
+        String codeVerifier = Base64.encodeToString(randomBytes, encodeFlags);
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(codeVerifier.getBytes("ISO_8859_1"));
+            byte[] digestBytes = messageDigest.digest();
+            return new PKCE("S256", Base64.encodeToString(digestBytes, encodeFlags), codeVerifier);
+        } catch (NoSuchAlgorithmException e) {
+            if (DEBUG) Log.w("SHA-256 not supported", e);
+            return new PKCE("plain", codeVerifier, codeVerifier);
+        } catch (UnsupportedEncodingException e) {
+            if (DEBUG) Log.e("PKCE not supported", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    private static class PKCE {
+        String codeChallenge;
+        String codeChallengeMethod;
+        String codeVerifier;
+
+        public PKCE(String codeChallengeMethod, String codeChallenge, String codeVerifier) {
+            this.codeChallenge = codeChallenge;
+            this.codeChallengeMethod = codeChallengeMethod;
+            this.codeVerifier = codeVerifier;
+        }
+    }
 }

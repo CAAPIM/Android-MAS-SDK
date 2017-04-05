@@ -24,7 +24,7 @@ import com.ca.mas.connecta.util.ConnectaUtil;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.request.internal.StateRequest;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.foundation.MASException;
+import com.ca.mas.messaging.MASMessageException;
 import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.foundation.util.FoundationUtil;
 import com.ca.mas.messaging.MASMessage;
@@ -125,7 +125,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
                             @Override
                             public void onSuccess(IMqttToken iMqttToken) {
                                 //Once reconnected, re-subscribe the topic
-                                for (MASTopic topic: subscribedTopic) {
+                                for (MASTopic topic : subscribedTopic) {
                                     subscribe(topic, null);
                                 }
 
@@ -178,14 +178,14 @@ public class ConnectaService extends Service implements MASConnectaClient {
         }
     }
 
-    private void initMqttClient() throws MASException, MqttException {
+    private void initMqttClient() throws MASMessageException, MqttException {
         initMqttClient(null);
     }
 
     /*
     Called once the secure socket factory has been created to perform the Mqtt initialization.
      */
-    private void initMqttClient(String magIdentifier) throws MASException, MqttException {
+    private void initMqttClient(String magIdentifier) throws MASMessageException, MqttException {
         if (mMqttClient != null) {
             return;
         }
@@ -195,16 +195,17 @@ public class ConnectaService extends Service implements MASConnectaClient {
         // we use a UUID instead of the device ID so there are no restrictions
         // on the number of unique connections that can be made.
         String brokerClientId;
-        if (this.clientId == null || brokerUrl.contains(FoundationUtil.getHost())) {
+        if (clientId == null || brokerUrl.contains(FoundationUtil.getHost())) {
             // Client ID was not set, or if connecting to the gateway, generate a client id
-            this.clientId = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getClientId();
-            brokerClientId = ConnectaUtil.getMqttClientId(clientId, magIdentifier, mConnectOptions.isGateway());
+            brokerClientId = ConnectaUtil.getMqttClientId(ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getClientId()
+                    , magIdentifier, mConnectOptions.isGateway());
         } else {
             // Client ID was set, use it
             brokerClientId = this.clientId;
         }
 
-        if (DEBUG) Log.d(TAG, "CONNECTA: clientId: " + clientId + ", CONNECTA: brokerClientId: " + brokerClientId);
+        if (DEBUG)
+            Log.d(TAG, "CONNECTA: clientId: " + clientId + ", CONNECTA: brokerClientId: " + brokerClientId);
 
         final MemoryPersistence memoryPersistence = new MemoryPersistence();
 
@@ -213,7 +214,8 @@ public class ConnectaService extends Service implements MASConnectaClient {
                 new MqttCallback() {
                     @Override
                     public void connectionLost(Throwable throwable) {
-                        if (DEBUG) Log.d(TAG, "Connections was lost: " + throwable.getMessage() + ", " + throwable.getCause());
+                        if (DEBUG)
+                            Log.d(TAG, "Connections was lost: " + throwable.getMessage() + ", " + throwable.getCause());
                         //Try to reconnect for gateway connect
                         if (mConnectOptions.isGateway()) {
                             mConnectOptions = null;
@@ -226,7 +228,8 @@ public class ConnectaService extends Service implements MASConnectaClient {
 
                     @Override
                     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
-                        if (DEBUG) Log.d(TAG, "Message Arrived: QOS: " + mqttMessage.getQos() + ", duplicate?" + mqttMessage.isDuplicate() + ", retained? " + mqttMessage.isRetained());
+                        if (DEBUG)
+                            Log.d(TAG, "Message Arrived: QOS: " + mqttMessage.getQos() + ", duplicate?" + mqttMessage.isDuplicate() + ", retained? " + mqttMessage.isRetained());
                         try {
                             MASMessage masMessage = ConnectaUtil.createMASMessageFromMqtt(mqttMessage);
                             masMessage.setTopic(topic);
@@ -241,7 +244,8 @@ public class ConnectaService extends Service implements MASConnectaClient {
                     @Override
                     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
                         try {
-                            if (DEBUG) Log.d(TAG, "Delivery Complete: token message: " + iMqttDeliveryToken.getMessage());
+                            if (DEBUG)
+                                Log.d(TAG, "Delivery Complete: token message: " + iMqttDeliveryToken.getMessage());
                             if (connectaListener != null) {
                                 connectaListener.onDeliveryCompletedSuccess();
                             }
@@ -263,14 +267,15 @@ public class ConnectaService extends Service implements MASConnectaClient {
     @Override
     public void disconnect(final MASCallback<Void> callback) {
         subscribedTopic.clear();
+        mConnectOptions = null;
+        mMqttClient = null;
+
         if (isConnected()) {
             if (DEBUG) Log.d(TAG, "MQTT Client Disconnected.");
             try {
                 mMqttClient.disconnect(null, new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken iMqttToken) {
-                        mConnectOptions = null;
-                        mMqttClient = null;
                         Callback.onSuccess(callback, null);
                     }
 
@@ -283,7 +288,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
                 Callback.onError(callback, e);
             }
         } else {
-            Callback.onError(callback, new ConnectaException(getResources().getString(R.string.could_not_disconnect)));
+            Callback.onError(callback, new ConnectaException(getResources().getString(R.string.client_already_disconnected)));
         }
     }
 
@@ -346,7 +351,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
             mqttMessage.setQos(message.getQos());
             mqttMessage.setRetained(message.isRetained());
             publish(masTopic, mqttMessage, callback);
-        } catch (MASException me) {
+        } catch (MASMessageException me) {
             Callback.onError(callback, me);
         }
     }

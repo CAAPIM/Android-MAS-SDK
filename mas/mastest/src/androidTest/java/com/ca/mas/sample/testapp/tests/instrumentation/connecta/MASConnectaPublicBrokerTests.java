@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016 CA. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
 package com.ca.mas.sample.testapp.tests.instrumentation.connecta;
 
 import android.content.Context;
@@ -34,7 +42,6 @@ public class MASConnectaPublicBrokerTests {
             final CountDownLatch latch = new CountDownLatch(1);
             final Object[] result = {false, "unknown"};
             final Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            MASConnectaManager.getInstance().start(ctx);
 
             MASConnectOptions connectOptions = new MASConnectOptions();
             connectOptions.setServerURIs(new String[]{"tcp://mobile-autotest-services.l7tech.com:1883"});

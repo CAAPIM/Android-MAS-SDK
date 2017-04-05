@@ -12,7 +12,6 @@ package ca.com.maspubsubsample;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +22,6 @@ import android.widget.TextView;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.messaging.topic.MASTopic;
 import com.ca.mas.messaging.topic.MASTopicBuilder;
@@ -114,8 +112,6 @@ public class SubscribeFragment extends Fragment implements View.OnClickListener 
                     });
                     break;
             }
-        } catch (MASException e) {
-            Log.d(TAG, e.getMessage());
         } finally {
             Util.hideKeyboard(getActivity());
             editTextTopicName.setText("");

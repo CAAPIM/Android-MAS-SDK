@@ -283,12 +283,7 @@ public class KeystoreDataSource<K, V> implements DataSource<K, V> {
     public void unlock() {
 
         try {
-            Intent intent;
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                intent = new Intent("android.credentials.UNLOCK");
-            } else {
-                intent = new Intent("com.android.credentials.UNLOCK");
-            }
+            Intent intent = new Intent("com.android.credentials.UNLOCK");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
 

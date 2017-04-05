@@ -6,15 +6,11 @@
  *
  */
 
-
-
-
-
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '24.0.2'
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     lintOptions {
         abortOnError false
@@ -22,8 +18,8 @@ android {
 
     defaultConfig {
         applicationId "com.ca.mas.masusermanagementsample"
-        minSdkVersion 19
-        targetSdkVersion 24
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
     }
@@ -38,10 +34,9 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.android.support:support-v4:24.2.1'
-    compile 'com.android.support:recyclerview-v7:24.2.1'
-    compile 'com.android.support:design:24.2.1'
+    compile "com.android.support:recyclerview-v7:$rootProject.ext.recyclerViewVersion"
+    compile "com.android.support:design:$rootProject.ext.designVersion"
+
     compile project(':mag')
     compile project(':mas')
     compile project(':masui')

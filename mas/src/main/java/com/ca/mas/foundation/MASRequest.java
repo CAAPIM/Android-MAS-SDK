@@ -18,6 +18,7 @@ import com.ca.mas.core.oauth.GrantProvider;
 
 import java.net.URI;
 import java.net.URL;
+import java.security.PrivateKey;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +39,7 @@ public interface MASRequest extends MAGRequest {
         private boolean notifyOnCancel = false;
         private boolean sign = false;
         private MASClaims claim;
+        private PrivateKey privateKey;
 
         public MASRequestBuilder(URI uri) {
             super(ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(uri.toString()));
@@ -124,8 +126,8 @@ public interface MASRequest extends MAGRequest {
         }
 
         /**
-         * Signs the request with the user's private key and injects JWT claims based on the user information.
-         * A timeout of 0 will not inject a 'exp' claim into the JWS.
+         * Signs the request with the device registered private key and injects JWT claims based on the user information.
+         * This method will use a default value of 5 minutes for the JWS 'exp' claim if not provided.
          * @return The builder
          */
         public MASRequestBuilder sign(MASClaims claim) {
@@ -134,6 +136,15 @@ public interface MASRequest extends MAGRequest {
             return this;
         }
 
+        /**
+         * Signs the request with the provided private key and injects JWT claims based on the user information.
+         * @return The builder
+         */
+        public MASRequestBuilder sign(PrivateKey privateKey) {
+            this.sign = true;
+            this.privateKey = privateKey;
+            return this;
+        }
 
         public MASRequest build() {
             final MAGRequest request = super.build();
@@ -167,7 +178,7 @@ public interface MASRequest extends MAGRequest {
                 @Override
                 public MAGRequestBody getBody() {
                     if (sign) {
-                        return MASRequestBody.jwtClaimsBody(claim, request.getBody());
+                        return MASRequestBody.jwtClaimsBody(claim, privateKey, request.getBody());
                     } else {
                         return request.getBody();
                     }

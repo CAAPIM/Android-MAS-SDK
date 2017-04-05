@@ -17,6 +17,7 @@ import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.util.KeyUtils;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
@@ -30,13 +31,23 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -212,5 +223,36 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         Assert.assertEquals(requestData.get("jsonName"), (new JSONObject(payload.get("content").toString())).get("jsonName"));
 
     }
+
+    @Test
+    public void testSignWithInvalidPrivateKey() throws MASException, CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyStoreException, NoSuchProviderException, InvalidAlgorithmParameterException, JSONException, URISyntaxException, ExecutionException, InterruptedException, ParseException, JOSEException {
+        KeyUtils.deletePrivateKey("TEST");
+
+        PrivateKey privateKey = KeyUtils.generateRsaPrivateKey(InstrumentationRegistry.getInstrumentation().getTargetContext(), 2048, "TEST", "dn=test", false, false, -1, false);
+        JSONObject requestData = new JSONObject();
+        requestData.put("jsonName", "jsonValue");
+        requestData.put("jsonName2", 1234);
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+                .post(MASRequestBody.jsonBody(requestData))
+                .sign(privateKey)
+                .build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        callback.get();
+
+        RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS);
+        String magIdentifier = rr.getHeader("mag-identifier");
+        DataSource.Device device = DataSource.getInstance().getDevice(magIdentifier);
+        String signedDoc = rr.getBody().readUtf8();
+        JWSObject signedObject = JWSObject.parse(signedDoc);
+        JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) device.getRegisteredPublicKey());
+        Assert.assertFalse(signedObject.verify(verifier));
+
+        KeyUtils.deletePrivateKey("TEST");
+
+    }
+
 
 }

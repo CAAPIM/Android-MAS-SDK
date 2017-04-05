@@ -31,6 +31,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.PrivateKey;
 import java.util.List;
 
 public abstract class MASRequestBody extends MAGRequestBody {
@@ -68,7 +69,7 @@ public abstract class MASRequestBody extends MAGRequestBody {
         return transform(MAGRequestBody.urlEncodedFormBody(form));
     }
 
-    static MASRequestBody jwtClaimsBody(final MASClaims claims, final MAGRequestBody body) {
+    static MASRequestBody jwtClaimsBody(final MASClaims claims, final PrivateKey privateKey, final MAGRequestBody body) {
 
         return new MASRequestBody() {
 
@@ -93,7 +94,11 @@ public abstract class MASRequestBody extends MAGRequestBody {
 
                 String compactJws = null;
                 try {
-                    compactJws = MAS.sign(masClaims);
+                    if (privateKey == null) {
+                        compactJws = MAS.sign(masClaims);
+                    } else {
+                        compactJws = MAS.sign(masClaims, privateKey);
+                    }
                 } catch (MASException e) {
                     throw new IOException(e);
                 }

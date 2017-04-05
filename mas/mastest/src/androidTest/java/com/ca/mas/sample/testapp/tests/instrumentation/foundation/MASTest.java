@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
@@ -96,7 +97,9 @@ public class MASTest extends MASIntegrationBaseTest {
     @Test
     public void testSignRequestWithJsonBody() throws Exception {
 
-        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/echo2"))
+        KeyUtils.deletePrivateKey("TEST");
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/jwt"))
                 .post(MASRequestBody.jsonBody(new JSONObject("{\"test\" : \"value\"}")))
                 .sign()
                 .build();
@@ -119,6 +122,8 @@ public class MASTest extends MASIntegrationBaseTest {
             }
         });
         await(latch);
+
+        KeyUtils.deletePrivateKey("TEST");
 
         assertTrue(result[0]);
     }

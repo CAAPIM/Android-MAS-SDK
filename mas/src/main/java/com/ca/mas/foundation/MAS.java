@@ -599,10 +599,29 @@ public class MAS {
         }, JSONObject.class);
     }
 
+    /**
+     * Signs the provided JWT {@link MASClaims} object with the device registered private key using SHA-256 hash algorithm
+     * and injects JWT claims based on the user information.
+     * This method will use a default value of 5 minutes for the JWS 'exp' claim if not provided.
+     *
+     * @param masClaims The JWT Claims
+     * @return The JWT format consisting of Base64URL-encoded parts delimited by period ('.') characters.
+     * @throws MASException Failed to sign
+     */
     public static String sign(final MASClaims masClaims) throws MASException {
         return sign(masClaims, StorageProvider.getInstance().getTokenManager().getClientPrivateKey());
     }
 
+    /**
+     * Signs the provided JWT {@link MASClaims} object with the provided RSA private key using SHA-256 hash algorithm
+     * and injects JWT claims based on the user information.
+     * This method will use a default value of 5 minutes for the JWS 'exp' claim if not provided.
+     *
+     * @param masClaims  The JWT Claims
+     * @param privateKey The private RSA key.
+     * @return The JWT format consisting of Base64URL-encoded parts delimited by period ('.') characters.
+     * @throws MASException Failed to sign
+     */
     public static String sign(MASClaims masClaims, PrivateKey privateKey) throws MASException {
         if (!MASDevice.getCurrentDevice().isRegistered()) {
             throw new IllegalStateException("Device not registered.");

@@ -53,17 +53,17 @@ public interface MASClaims {
         public MASClaimsBuilder() {
         }
 
-        MASClaimsBuilder expirationTime(final Date exp) {
+        public MASClaimsBuilder expirationTime(final Date exp) {
             this.exp = exp;
             return this;
         }
 
-        MASClaimsBuilder claim(@MASClaimsConstants String name, Object value) {
+        public MASClaimsBuilder claim(@MASClaimsConstants String name, Object value) {
             claims.put(name, value);
             return this;
         }
 
-        MASClaims build () {
+        public MASClaims build () {
 
             return new MASClaims() {
 

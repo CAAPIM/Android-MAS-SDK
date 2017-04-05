@@ -177,7 +177,7 @@ public interface MASRequest extends MAGRequest {
 
                 @Override
                 public MAGRequestBody getBody() {
-                    if (sign) {
+                    if (sign && request.getBody() != null) {
                         return MASRequestBody.jwtClaimsBody(claim, privateKey, request.getBody());
                     } else {
                         return request.getBody();

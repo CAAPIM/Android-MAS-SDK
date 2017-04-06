@@ -7,24 +7,16 @@
 
 package com.ca.mas.foundation;
 
-import android.content.Context;
-import android.util.Base64;
-
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
-import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.MASStartTestBase;
-import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
-
-import junit.framework.Assert;
 
 import org.json.JSONObject;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -32,7 +24,6 @@ import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 
 public class MASRegistrationTest extends MASStartTestBase {
 

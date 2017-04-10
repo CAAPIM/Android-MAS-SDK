@@ -18,7 +18,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.ca.mas.connecta.client.MASConnectaManager;
+import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MAG;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoFactory;
@@ -577,5 +577,7 @@ public class MAS {
      */
     public static void stop() {
         state = MASConstants.MAS_STATE_STOPPED;
+        EventDispatcher.STOP.notifyObservers();
+        MobileSsoFactory.reset();
     }
 }

@@ -59,7 +59,7 @@ public final class MobileSsoFactory {
         if (ret != null) {
             return ret;
         } else {
-            throw new IllegalStateException("Mobile SSO has not been initialized.");
+            throw new IllegalStateException("MAS SDK has not been initialized.");
         }
     }
 

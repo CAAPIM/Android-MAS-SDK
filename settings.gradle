@@ -32,7 +32,7 @@ project(':MASSecureAPISample').projectDir = new File('samples/MASSecureAPISample
 project(':MASPubSubSample').projectDir = new File('samples/MASPubSubSample')
 
 //MASUnit
-include ':MASUnit'
+//include ':MASUnit'
 
 //Knox
 //include ':Knox', ':SmcControllerSample', ':SamsungLicenseActivationSample'

@@ -9,11 +9,14 @@
 package com.ca.mas;
 
 import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthenticationListener;
+import com.ca.mas.foundation.MASConstants;
 import com.ca.mas.foundation.MASDevice;
 import com.ca.mas.foundation.MASOtpAuthenticationHandler;
+import com.ca.mas.foundation.MASState;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 
@@ -37,7 +40,7 @@ public abstract class MASStartTestBase extends MASTestBase {
 
             }
         });
-   }
+    }
 
     @After
     public void masStop() {

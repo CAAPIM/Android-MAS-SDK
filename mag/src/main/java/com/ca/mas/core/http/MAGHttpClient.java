@@ -33,15 +33,12 @@ public class MAGHttpClient {
 
     private SSLSocketFactory sslSocketFactory;
 
-    public MAGHttpClient(Context context) {
-        sslSocketFactory = new MAGSocketFactory(context).createTLSSocketFactory();
+    public MAGHttpClient() {
+        sslSocketFactory = new MAGSocketFactory().createTLSSocketFactory();
     }
 
     public MAGHttpClient(String publicKeyHash) {
         sslSocketFactory = new MAGPinningSocketFactory(publicKeyHash).createTLSSocketFactory();
-    }
-
-    public MAGHttpClient() {
     }
 
     /**
@@ -81,18 +78,19 @@ public class MAGHttpClient {
                 }
             }
 
-            if (request.getBody() != null) {
+            MAGRequestBody body = request.getBody();
+            if (body != null) {
                 urlConnection.setDoOutput(true);
 
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                    if (request.getBody().getContentLength() > 0) {
-                        urlConnection.setFixedLengthStreamingMode(request.getBody().getContentLength());
+                    if (body.getContentLength() > 0) {
+                        urlConnection.setFixedLengthStreamingMode(body.getContentLength());
                     } else {
                         urlConnection.setChunkedStreamingMode(0);
                     }
                 }
-                if (request.getBody().getContentType() != null) {
-                    urlConnection.setRequestProperty("Content-Type", request.getBody().getContentType().toString());
+                if (body.getContentType() != null) {
+                    urlConnection.setRequestProperty("Content-Type", body.getContentType().toString());
                 }
                 if (request.getConnectionListener() != null) {
                     request.getConnectionListener().onConnected(urlConnection);
@@ -100,7 +98,7 @@ public class MAGHttpClient {
                 if (ConfigurationManager.getInstance().getConnectionListener() != null) {
                     ConfigurationManager.getInstance().getConnectionListener().onConnected(urlConnection);
                 }
-                request.getBody().write(urlConnection.getOutputStream());
+                body.write(urlConnection.getOutputStream());
             } else {
                 if (request.getConnectionListener() != null) {
                     request.getConnectionListener().onConnected(urlConnection);

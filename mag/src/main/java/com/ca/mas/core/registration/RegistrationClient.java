@@ -149,7 +149,7 @@ public class RegistrationClient extends ServerClient {
         }
         builder.header(CERT_FORMAT, PEM);
 
-        builder.post(MAGRequestBody.byteArrayBody(Base64.encode(certificateSigningRequest, Base64.DEFAULT)));
+        builder.post(MAGRequestBody.byteArrayBody(Base64.encode(certificateSigningRequest, Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE)));
 
         MAGHttpClient httpClient = mssoContext.getMAGHttpClient();
         final MAGResponse response;

@@ -115,7 +115,7 @@ public class MASAuthenticationProvider implements Parcelable {
 
         @Override
         protected MAGResponse<JSONObject> doInBackground(Void... params) {
-            MAGHttpClient magHttpClient = new MAGHttpClient(context) {
+            MAGHttpClient magHttpClient = new MAGHttpClient() {
                 @Override
                 protected void onConnectionObtained(HttpURLConnection connection) {
                     connection.setInstanceFollowRedirects(false);

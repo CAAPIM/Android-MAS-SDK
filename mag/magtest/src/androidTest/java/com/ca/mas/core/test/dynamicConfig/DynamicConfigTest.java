@@ -279,14 +279,12 @@ public class DynamicConfigTest extends BaseTest {
         mobileSso = MobileSsoFactory.getInstance(InstrumentationRegistry.getInstrumentation().getTargetContext(),
                 getConfig(useMockServer(), "test_msso_config2.json"));
 
-        StorageProvider sp = new StorageProvider(InstrumentationRegistry.getInstrumentation().getTargetContext(),
-                ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider());
-        ClientCredentialContainer cc = sp.createClientCredentialContainer();
+        ClientCredentialContainer cc = StorageProvider.getInstance().getClientCredentialContainer();
         assertNull(cc.getMasterClientId());
         assertNull(cc.getClientId());
         assertNull(cc.getClientSecret());
 
-        OAuthTokenContainer oAuthTokenContainer = sp.createOAuthTokenContainer();
+        OAuthTokenContainer oAuthTokenContainer = StorageProvider.getInstance().getOAuthTokenContainer();
         assertNull(oAuthTokenContainer.getAccessToken());
         assertNull(oAuthTokenContainer.getRefreshToken());
         assertNull(oAuthTokenContainer.getGrantedScope());

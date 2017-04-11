@@ -65,6 +65,10 @@ public class ConfigurationManager {
         return instance;
     }
 
+    public Context getContext() {
+        return appContext;
+    }
+
     public void enablePKCE(boolean enablePKCE) {
         this.enablePKCE = enablePKCE;
     }
@@ -80,6 +84,7 @@ public class ConfigurationManager {
     public void init(Context context) {
         this.appContext = context.getApplicationContext();
     }
+
 
     public void setAppConfigs(List<Config> appConfigs) {
         this.appConfigs = appConfigs;
@@ -400,22 +405,23 @@ public class ConfigurationManager {
 
         @Override
         public void onUpdated(Context context, ConfigurationProvider provider) {
-            StorageProvider sp = new StorageProvider(context, provider);
+            StorageProvider.getInstance().reset();
 
-            if (!sp.hasValidStore()) {
+            if (!StorageProvider.getInstance().hasValidStore()) {
                 Log.w(TAG, "Failed to access the secure device storage, " +
                         "please verify the storage configuration, and make sure the device " +
                         "has Secure lock screen setup.");
                 return;
             }
 
-            ClientCredentialContainer container = sp.createClientCredentialContainer();
-            String masterClientId = container.getMasterClientId();
+            String masterClientId = StorageProvider.getInstance()
+                    .getClientCredentialContainer()
+                    .getMasterClientId();
+
             //The masterClientId may be null due to SDK upgrade.
             if (masterClientId == null || !masterClientId.equals(provider.getClientId())) {
-                container.clear();
-                OAuthTokenContainer oAuthTokenContainer = sp.createOAuthTokenContainer();
-                oAuthTokenContainer.clear();
+                StorageProvider.getInstance().getClientCredentialContainer().clear();
+                StorageProvider.getInstance().getOAuthTokenContainer().clear();
             }
         }
     }

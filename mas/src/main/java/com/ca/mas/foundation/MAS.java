@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.core.MAG;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoFactory;
@@ -34,8 +33,20 @@ import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.oauth.GrantProvider;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.MssoIntents;
+import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.foundation.notify.Callback;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+
+import net.minidev.json.JSONStyle;
+import net.minidev.json.JSONValue;
+import net.minidev.json.reader.JsonWriterI;
 
 import org.json.JSONObject;
 
@@ -43,6 +54,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
+import java.security.PrivateKey;
 import java.util.List;
 import java.util.Map;
 
@@ -78,7 +90,6 @@ public class MAS {
     }
 
     private static class MASMobileSsoListener implements MobileSsoListener {
-
         private Context mAppContext;
 
         MASMobileSsoListener(Context context) {
@@ -294,11 +305,11 @@ public class MAS {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-               try {
-                   MAGHttpClient client = new MAGHttpClient(publicKeyHash);
-                   MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
-                           responseBody(MAGResponseBody.jsonBody()).build();
-                   MAGResponse<JSONObject> response = client.execute(request);
+                try {
+                    MAGHttpClient client = new MAGHttpClient(publicKeyHash);
+                    MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
+                            responseBody(MAGResponseBody.jsonBody()).build();
+                    MAGResponse<JSONObject> response = client.execute(request);
                     if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
                         throw ServerClient.createServerException(response, MASServerException.class);
                     }
@@ -577,5 +588,66 @@ public class MAS {
      */
     public static void stop() {
         state = MASConstants.MAS_STATE_STOPPED;
+    }
+
+
+    static {
+        JSONValue.defaultWriter.registerWriter(new JsonWriterI<JSONObject>() {
+            public void writeJSONString(JSONObject value, Appendable out, JSONStyle compression) throws IOException {
+                out.append(value.toString());
+            }
+        }, JSONObject.class);
+    }
+
+    /**
+     * Signs the provided JWT {@link MASClaims} object with the device registered private key using SHA-256 hash algorithm
+     * and injects JWT claims based on the user information.
+     * This method will use a default value of 5 minutes for the JWS 'exp' claim if not provided.
+     *
+     * @param masClaims The JWT Claims
+     * @return The JWT format consisting of Base64URL-encoded parts delimited by period ('.') characters.
+     * @throws MASException Failed to sign
+     */
+    public static String sign(final MASClaims masClaims) throws MASException {
+        return sign(masClaims, StorageProvider.getInstance().getTokenManager().getClientPrivateKey());
+    }
+
+    /**
+     * Signs the provided JWT {@link MASClaims} object with the provided RSA private key using SHA-256 hash algorithm
+     * and injects JWT claims based on the user information.
+     * This method will use a default value of 5 minutes for the JWS 'exp' claim if not provided.
+     *
+     * @param masClaims  The JWT Claims
+     * @param privateKey The private RSA key.
+     * @return The JWT format consisting of Base64URL-encoded parts delimited by period ('.') characters.
+     * @throws MASException Failed to sign
+     */
+    public static String sign(MASClaims masClaims, PrivateKey privateKey) throws MASException {
+        if (!MASDevice.getCurrentDevice().isRegistered()) {
+            throw new IllegalStateException("Device not registered.");
+        }
+        JWSSigner signer = new RSASSASigner(privateKey);
+        JWTClaimsSet.Builder claimBuilder = new JWTClaimsSet.Builder();
+
+        claimBuilder.jwtID(masClaims.getJwtId())
+                .issuer(masClaims.getIssuer())
+                .notBeforeTime(masClaims.getNotBefore())
+                .expirationTime(masClaims.getExpirationTime())
+                .issueTime(masClaims.getIssuedAt())
+                .audience(masClaims.getAudience())
+                .subject(masClaims.getSubject());
+
+        for (Map.Entry<String, Object> entry : masClaims.getClaims().entrySet()) {
+            claimBuilder.claim(entry.getKey(), entry.getValue());
+        }
+
+        JWSHeader rs256Header = new JWSHeader(JWSAlgorithm.RS256);
+        SignedJWT claimsToken = new SignedJWT(rs256Header, claimBuilder.build());
+        try {
+            claimsToken.sign(signer);
+            return claimsToken.serialize();
+        } catch (JOSEException e) {
+            throw new MASException(e);
+        }
     }
 }

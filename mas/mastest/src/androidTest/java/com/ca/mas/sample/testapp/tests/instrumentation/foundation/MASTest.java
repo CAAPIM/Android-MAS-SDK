@@ -9,6 +9,9 @@
 package com.ca.mas.sample.testapp.tests.instrumentation.foundation;
 
 
+import android.support.test.InstrumentationRegistry;
+
+import com.ca.mas.core.util.KeyUtils;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConfiguration;
@@ -16,12 +19,18 @@ import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASRequestBody;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.sample.testapp.tests.instrumentation.base.MASIntegrationBaseTest;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.RSAKey;
 
 import org.json.JSONObject;
 import org.junit.Test;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertTrue;
@@ -57,6 +66,69 @@ public class MASTest extends MASIntegrationBaseTest {
     }
 
     @Test
+    public void testSignRequest() throws Exception {
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/echo?fromAcc=1234&toAcc=2345&amount=100"))
+                .sign()
+                .build();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+
+            @Override
+            public void onSuccess(MASResponse<JSONObject> response) {
+                if (HttpURLConnection.HTTP_OK == response.getResponseCode()) {
+                    JSONObject j = response.getBody().getContent();
+                    result[0] = true;
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                latch.countDown();
+            }
+        });
+        await(latch);
+
+        assertTrue(result[0]);
+    }
+
+    @Test
+    public void testSignRequestWithJsonBody() throws Exception {
+
+        KeyUtils.deletePrivateKey("TEST");
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/jwt"))
+                .post(MASRequestBody.jsonBody(new JSONObject("{\"test\" : \"value\"}")))
+                .sign()
+                .build();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] result = {false};
+        MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+
+            @Override
+            public void onSuccess(MASResponse<JSONObject> response) {
+                if (HttpURLConnection.HTTP_OK == response.getResponseCode()) {
+                    JSONObject j = response.getBody().getContent();
+                    result[0] = true;
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                latch.countDown();
+            }
+        });
+        await(latch);
+
+        KeyUtils.deletePrivateKey("TEST");
+
+        assertTrue(result[0]);
+    }
+
+    @Test
     public void testAccessUserInfo() throws Exception {
 
         String userinfoEndPoint = MASConfiguration.getCurrentConfiguration().getEndpointPath("mas.url.user_info");
@@ -84,7 +156,6 @@ public class MASTest extends MASIntegrationBaseTest {
 
         assertTrue(result[0]);
     }
-
 
 
     @Test

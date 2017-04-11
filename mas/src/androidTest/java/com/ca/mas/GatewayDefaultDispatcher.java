@@ -8,6 +8,8 @@
 
 package com.ca.mas;
 
+import android.util.Base64;
+
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.io.IoUtils;
 import com.squareup.okhttp.mockwebserver.Dispatcher;
@@ -21,6 +23,9 @@ import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
 import java.util.Date;
+import java.util.UUID;
+
+import sun.security.pkcs.PKCS10;
 
 public class GatewayDefaultDispatcher extends QueueDispatcher {
 
@@ -66,7 +71,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
         } else if (request.getPath().contains(CONNECT_DEVICE_EXPIRED_CONFIG)) {
             return expiredConfigDeviceResponse();
         } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER)) {
-            return registerDeviceResponse();
+            return registerDeviceResponse(request);
         } else if (request.getPath().contains(CONNECT_CLIENT_INITIALIZE)) {
             return initializeResponse();
         } else if (request.getPath().contains(AUTH_OAUTH_V2_TOKEN)) {
@@ -83,7 +88,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
         } else if (request.getPath().contains(AUTH_OAUTH_V2_AUTHORIZE)) {
             return authorizeResponse();
         } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER_CLIENT)) {
-            return registerDeviceResponse();
+            return registerDeviceResponse(request);
         } else if (request.getPath().contains(CONNECT_DEVICE_RENEW)) {
             return renewDeviceResponse();
         } else if (request.getPath().contains(CONNECT_SESSION_LOGOUT)) {
@@ -140,7 +145,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                     .setBody(jsonObject.toString())
                     .addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
 
@@ -156,12 +161,22 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                     .setBody(jsonObject.toString())
                     .addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
 
 
-    protected MockResponse registerDeviceResponse() {
+    protected MockResponse registerDeviceResponse(RecordedRequest request) {
+
+        String magIdentifier = UUID.randomUUID().toString();
+
+        PKCS10 pkcs10 = null;
+        try {
+            pkcs10 = new PKCS10(Base64.decode(request.getBody().readByteArray(),  Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE));
+        } catch (Exception e) {
+            return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        }
+        DataSource.getInstance().store(magIdentifier, new DataSource.Device(pkcs10.getSubjectPublicKeyInfo()));
 
         //Mock response for device registration
         String cert = "-----BEGIN CERTIFICATE-----\n" +
@@ -183,7 +198,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
         return new MockResponse()
                 .setResponseCode(200)
                 .setHeader("device-status", "activated")
-                .setHeader("mag-identifier", "test-device")
+                .setHeader("mag-identifier", magIdentifier)
                 .setHeader("id-token", ID_TOKEN)
                 .setHeader("id-token-type", ID_TOKEN_TYPE)
                 .setBody(cert);
@@ -294,7 +309,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                     .addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
 
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
 
 

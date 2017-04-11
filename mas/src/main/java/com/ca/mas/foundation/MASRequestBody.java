@@ -12,11 +12,26 @@ import android.util.Pair;
 
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.http.MAGRequestBody;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+
+import net.minidev.json.JSONStyle;
+import net.minidev.json.JSONValue;
+import net.minidev.json.reader.JsonWriter;
+import net.minidev.json.reader.JsonWriterI;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.PrivateKey;
 import java.util.List;
 
 public abstract class MASRequestBody extends MAGRequestBody {
@@ -52,7 +67,45 @@ public abstract class MASRequestBody extends MAGRequestBody {
      */
     public static MASRequestBody urlEncodedFormBody(final List<? extends Pair<String, String>> form) {
         return transform(MAGRequestBody.urlEncodedFormBody(form));
+    }
 
+    static MASRequestBody jwtClaimsBody(final MASClaims claims, final PrivateKey privateKey, final MAGRequestBody body) {
+
+        return new MASRequestBody() {
+
+            @Override
+            public ContentType getContentType() {
+                return ContentType.TEXT_PLAIN;
+            }
+
+            @Override
+            public long getContentLength() {
+                return -1; //Size it unknown
+            }
+
+            @Override
+            public void write(OutputStream outputStream) throws IOException {
+                MASClaims.MASClaimsBuilder builder = new MASClaims.MASClaimsBuilder(claims);
+                builder.claim(MASClaims.CONTENT, body.getContentAsJsonValue());
+                if (body.getContentType() != null) {
+                    builder.claim(MASClaims.CONTENT_TYPE, body.getContentType().getMimeType());
+                }
+                MASClaims masClaims = builder.build();
+
+                String compactJws = null;
+                try {
+                    if (privateKey == null) {
+                        compactJws = MAS.sign(masClaims);
+                    } else {
+                        compactJws = MAS.sign(masClaims, privateKey);
+                    }
+                } catch (MASException e) {
+                    throw new IOException(e);
+                }
+
+                outputStream.write(compactJws.getBytes(getContentType().getCharset()));
+            }
+        };
     }
 
     private static MASRequestBody transform(final MAGRequestBody requestBody) {
@@ -71,6 +124,11 @@ public abstract class MASRequestBody extends MAGRequestBody {
             @Override
             public void write(OutputStream outputStream) throws IOException {
                 requestBody.write(outputStream);
+            }
+
+            @Override
+            public Object getContentAsJsonValue() {
+                return requestBody.getContentAsJsonValue();
             }
         };
     }

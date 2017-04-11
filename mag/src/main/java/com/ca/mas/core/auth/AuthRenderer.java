@@ -99,15 +99,14 @@ public abstract class AuthRenderer {
 
 
         try {
-            final StorageProvider sp = new StorageProvider(context);
             MAGRequest request = new MAGRequest.MAGRequestBuilder(new URL(provider.getPollUrl()))
                     .responseBody(MAGResponseBody.jsonBody())
                     .build();
-            MAGHttpClient httpClient = new MAGHttpClient(context) {
+            MAGHttpClient httpClient = new MAGHttpClient() {
                 @Override
                 protected void onConnectionObtained(HttpURLConnection connection) {
                     super.onConnectionObtained(connection);
-                    TokenManager tokenManager = sp.createTokenManager();
+                    TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
                     String magIdentifier = tokenManager.getMagIdentifier();
                     if (magIdentifier != null) {
                         connection.setRequestProperty(ServerClient.MAG_IDENTIFIER, magIdentifier);

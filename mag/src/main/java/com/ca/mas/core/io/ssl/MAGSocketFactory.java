@@ -43,12 +43,10 @@ public class MAGSocketFactory {
      * and clientCertChain from the {@link com.ca.mas.core.store.TokenManager}
      */
 
-    public MAGSocketFactory(Context context) {
+    public MAGSocketFactory() {
         this.trustConfig = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
-        StorageProvider storageProvider = new StorageProvider(context);
-        TokenManager tokenManager = storageProvider.createTokenManager();
-        clientCertPrivateKey = tokenManager.getClientPrivateKey();
-        clientCertChain = tokenManager.getClientCertificateChain();
+        clientCertPrivateKey = StorageProvider.getInstance().getTokenManager().getClientPrivateKey();
+        clientCertChain = StorageProvider.getInstance().getTokenManager().getClientCertificateChain();
     }
 
     public SSLSocketFactory createTLSSocketFactory() {

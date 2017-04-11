@@ -63,8 +63,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.foundation.MASDevice.createStorageProvider;
-import static com.ca.mas.foundation.MASDevice.createTokenManager;
 import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN;
 
 /**
@@ -193,7 +191,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
      */
     public static MASUser getCurrentUser() {
         if (current == null) {
-            TokenManager tokenManager = createTokenManager();
+            TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
             if (tokenManager.getUserProfile() != null) {
                 current = createMASUser();
             }
@@ -212,7 +210,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
     private static MASUser createMASUser() {
 
         return new MASUser() {
-            private TokenManager tokenManager = new StorageProvider(MAS.getContext()).createTokenManager();
             private ScimUser scimUser = getLocalUserProfile();
             private LockableKeyStorageProvider mKeyStoreProvider = new LockableKeyStorageProvider();
 
@@ -534,7 +531,9 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             JSONObject source = scimUser.getSource();
                             //make sure not to store the password
                             source.remove(IdentityConsts.KEY_PASSWORD);
-                            tokenManager.saveUserProfile(source.toString());
+                            StorageProvider.getInstance()
+                                    .getTokenManager().
+                                    saveUserProfile(source.toString());
                         } catch (Exception e) {
                             if (DEBUG)
                                 Log.w(TAG, "Unable to persist user profile to local storage.", e);
@@ -552,7 +551,9 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
             private ScimUser getLocalUserProfile() {
                 User user = new User();
                 try {
-                    String userProfile = tokenManager.getUserProfile();
+                    String userProfile = StorageProvider.getInstance()
+                            .getTokenManager()
+                            .getUserProfile();
                     if (userProfile != null) {
                         user.populate(new JSONObject(userProfile));
                     }
@@ -572,18 +573,19 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                     } else if (isSessionLocked()) {
                         Callback.onSuccess(callback, null);
                     } else {
+
                         // Retrieve the ID token
-                        TokenManager keyChainManager = createTokenManager();
-                        IdToken idToken = keyChainManager.getIdToken();
+                        IdToken idToken = StorageProvider.getInstance()
+                                .getTokenManager()
+                                .getIdToken();
 
                         if (idToken == null) {
                             Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_RETRIEVE_ID_TOKEN));
                             return;
                         }
 
-                        StorageProvider storageProvider = createStorageProvider();
-                        OAuthTokenContainer container = storageProvider.createOAuthTokenContainer();
-                        container.clear();
+                        // Remove access and refresh tokens
+                        StorageProvider.getInstance().getOAuthTokenContainer().clear();
 
                         // Move the ID token from the Keychain to the fingerprint protected shared Keystore
                         Parcel idTokenParcel = Parcel.obtain();
@@ -597,7 +599,9 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                         EncryptionProvider encryptionProvider = getSessionLockEncryptionProvider();
                         byte[] encryptedData = encryptionProvider.encrypt(idTokenBytes);
                         try {
-                            keyChainManager.saveSecureIdToken(encryptedData);
+                            StorageProvider.getInstance()
+                                    .getTokenManager()
+                                    .saveSecureIdToken(encryptedData);
                         } catch (TokenStoreException e) {
                             Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_SECURE_ID_TOKEN, e));
                             return;
@@ -605,7 +609,9 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
                         // Remove the unencrypted token
                         try {
-                            keyChainManager.deleteIdToken();
+                            StorageProvider.getInstance()
+                                    .getTokenManager()
+                                    .deleteIdToken();
                         } catch (TokenStoreException e) {
                             Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_ID_TOKEN, e));
                             return;
@@ -623,10 +629,11 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
             public void unlockSession(MASSessionUnlockCallback<Void> callback) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (isSessionLocked()) {
-                        TokenManager keyChainManager = createTokenManager();
 
                         // Unlock the ID token from the Keystore and places the decrypted ID token back to the Keychain
-                        byte[] secureIdToken = keyChainManager.getSecureIdToken();
+                        byte[] secureIdToken = StorageProvider.getInstance()
+                                .getTokenManager()
+                                .getSecureIdToken();
 
                         EncryptionProvider encryptionProvider = getSessionLockEncryptionProvider();
                         // Read the decrypted data, reconstruct it as a Parcel, then as an IdToken
@@ -640,7 +647,9 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             IdToken idToken = IdToken.CREATOR.createFromParcel(parcel);
                             try {
                                 // Save the unlocked ID token
-                                keyChainManager.saveIdToken(idToken);
+                                StorageProvider.getInstance()
+                                        .getTokenManager()
+                                        .saveIdToken(idToken);
                             } catch (TokenStoreException e) {
                                 Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_ID_TOKEN, e));
                                 return;
@@ -648,7 +657,9 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
                             try {
                                 // Remove the locked ID token
-                                keyChainManager.deleteSecureIdToken();
+                                StorageProvider.getInstance()
+                                        .getTokenManager()
+                                        .deleteSecureIdToken();
                             } catch (TokenStoreException e) {
                                 Callback.onError(callback, new SecureLockException(SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN, e));
                                 return;
@@ -686,8 +697,9 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
             @Override
             public boolean isSessionLocked() {
-                TokenManager keyChainManager = createTokenManager();
-                return keyChainManager.getSecureIdToken() != null;
+                return StorageProvider.getInstance()
+                        .getTokenManager()
+                        .getSecureIdToken() != null;
             }
 
             @Override
@@ -697,8 +709,9 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                     Callback.onSuccess(callback, null);
                 } else {
                     try {
-                        TokenManager keyChainManager = createTokenManager();
-                        keyChainManager.deleteSecureIdToken();
+                        StorageProvider.getInstance()
+                                .getTokenManager()
+                                .deleteSecureIdToken();
                         Callback.onSuccess(callback, null);
                     } catch (TokenStoreException e) {
                         Callback.onError(callback, new SecureLockException(SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN, e));

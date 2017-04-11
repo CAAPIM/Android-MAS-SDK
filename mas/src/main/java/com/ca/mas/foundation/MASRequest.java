@@ -18,6 +18,7 @@ import com.ca.mas.core.oauth.GrantProvider;
 
 import java.net.URI;
 import java.net.URL;
+import java.security.PrivateKey;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,9 @@ public interface MASRequest extends MAGRequest {
     class MASRequestBuilder extends MAGRequestBuilder {
 
         private boolean notifyOnCancel = false;
+        private boolean sign = false;
+        private MASClaims claim;
+        private PrivateKey privateKey;
 
         public MASRequestBuilder(URI uri) {
             super(ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(uri.toString()));
@@ -111,6 +115,36 @@ public interface MASRequest extends MAGRequest {
             return this;
         }
 
+        /**
+         * Signs the request with the device registered private key and injects JWT claims based on the user information.
+         * This method will use a default value of 5 minutes for the JWS 'exp' claim.
+         * @return The builder
+         */
+        public MASRequestBuilder sign() {
+            this.sign = true;
+            return this;
+        }
+
+        /**
+         * Signs the request with the device registered private key and injects JWT claims based on the user information.
+         * This method will use a default value of 5 minutes for the JWS 'exp' claim if not provided.
+         * @return The builder
+         */
+        public MASRequestBuilder sign(MASClaims claim) {
+            this.sign = true;
+            this.claim = claim;
+            return this;
+        }
+
+        /**
+         * Signs the request with the provided private key and injects JWT claims based on the user information.
+         * @return The builder
+         */
+        public MASRequestBuilder sign(PrivateKey privateKey) {
+            this.sign = true;
+            this.privateKey = privateKey;
+            return this;
+        }
 
         public MASRequest build() {
             final MAGRequest request = super.build();
@@ -143,7 +177,11 @@ public interface MASRequest extends MAGRequest {
 
                 @Override
                 public MAGRequestBody getBody() {
-                    return request.getBody();
+                    if (sign && request.getBody() != null) {
+                        return MASRequestBody.jwtClaimsBody(claim, privateKey, request.getBody());
+                    } else {
+                        return request.getBody();
+                    }
                 }
 
                 @Override
@@ -165,6 +203,7 @@ public interface MASRequest extends MAGRequest {
                 public boolean isPublic() {
                     return request.isPublic();
                 }
+
             };
         }
     }

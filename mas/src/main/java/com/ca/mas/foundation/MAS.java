@@ -76,7 +76,8 @@ public class MAS {
     private static int state;
 
     private static synchronized void init(@NonNull final Context context) {
-        stop(context);
+        ConfigurationManager.getInstance().setContext(context);
+        stop();
         // Initialize the MASConfiguration
         appContext = context.getApplicationContext();
         if (context instanceof Activity) {
@@ -205,7 +206,6 @@ public class MAS {
      * @return A OtpActivity to capture the otp or null if error.
      */
     private static Class<Activity> getOtpActivity() {
-
         try {
             return (Class<Activity>) Class.forName("com.ca.mas.ui.otp.MASOtpActivity");
         } catch (Exception e) {
@@ -587,10 +587,10 @@ public class MAS {
     /**
      * Stops the lifecycle of all MAS processes.
      */
-    public static void stop(Context appContext) {
+    public static void stop() {
         state = MASConstants.MAS_STATE_STOPPED;
         EventDispatcher.STOP.notifyObservers();
-        MobileSsoFactory.reset(appContext);
+        MobileSsoFactory.reset();
     }
 
 

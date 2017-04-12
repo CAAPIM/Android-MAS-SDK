@@ -76,7 +76,6 @@ public class MAS {
     private static int state;
 
     private static synchronized void init(@NonNull final Context context) {
-        ConfigurationManager.getInstance().setContext(context);
         stop();
         // Initialize the MASConfiguration
         appContext = context.getApplicationContext();

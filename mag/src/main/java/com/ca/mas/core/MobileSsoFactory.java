@@ -197,8 +197,12 @@ public final class MobileSsoFactory {
     public static void reset() {
         synchronized (mobileSso) {
             mobileSso.set(null);
-            ConfigurationManager.getInstance().reset();
-            StorageProvider.getInstance().reset();
+            try {
+                StorageProvider.getInstance().reset();
+                ConfigurationManager.getInstance().reset();
+            } catch (Exception ignore) {
+                //Ignore, the StorageProvider or ConfigurationManager can be uninitialized.
+            }
         }
     }
 

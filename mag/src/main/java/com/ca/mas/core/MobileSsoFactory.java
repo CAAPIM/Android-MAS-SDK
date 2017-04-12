@@ -194,10 +194,12 @@ public final class MobileSsoFactory {
      * will be reset, and a new MobileSso instance will be created during the next call of
      * {@link #getInstance()} or {@link #getInstance(Context, JSONObject)}
      */
-    public static void reset() {
+    public static void reset(Context appContext) {
         synchronized (mobileSso) {
             mobileSso.set(null);
-            ConfigurationManager.getInstance().reset();
+            ConfigurationManager manager = ConfigurationManager.getInstance();
+            manager.setContext(appContext);
+            manager.reset();
             StorageProvider.getInstance().reset();
         }
     }

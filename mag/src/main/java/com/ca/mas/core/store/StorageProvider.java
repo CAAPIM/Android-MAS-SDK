@@ -5,10 +5,8 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.store;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoConfig;
@@ -33,13 +31,10 @@ import static com.ca.mas.core.MAG.TAG;
 public class StorageProvider {
 
     private StorageConfig mStorageConfig;
-
     private TokenManager tokenManager;
     private OAuthTokenContainer oAuthTokenContainer;
     private ClientCredentialContainer clientCredentialContainer;
-
     private static StorageProvider instance;
-
     private static Object mutex = new Object();
 
     private StorageProvider(ConfigurationProvider configurationProvider) {
@@ -110,7 +105,6 @@ public class StorageProvider {
      *
      * @return The {@link OAuthTokenContainer}
      */
-
     private OAuthTokenContainer createOAuthTokenContainer() {
         String pt = ConfigurationManager.getInstance()
                 .getConnectedGatewayConfigurationProvider()
@@ -169,7 +163,6 @@ public class StorageProvider {
         return temp != null && temp.isReady();
     }
 
-
     /**
      * The SDK's Storage Configuration. say
      * {@code
@@ -186,10 +179,8 @@ public class StorageProvider {
      * - Falls back to the default, if there is no valid Storage configuration.
      */
     private static class StorageConfig {
-
         Class storageClass;
         JSONObject storageConfig = new JSONObject();
-
         /**
          * Common config properties expected for DataSource. Storage specif properties should be defined
          * in the individual DataSource files
@@ -215,7 +206,6 @@ public class StorageProvider {
                     throw new DataSourceException("Invalid Storage Config", e);
                 }
             }
-
         }
 
         Class getStorageClass() {
@@ -226,6 +216,4 @@ public class StorageProvider {
             return storageConfig;
         }
     }
-
-
 }

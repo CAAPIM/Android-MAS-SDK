@@ -76,7 +76,7 @@ public class MAS {
     private static int state;
 
     private static synchronized void init(@NonNull final Context context) {
-        stop();
+        stop(context);
         // Initialize the MASConfiguration
         appContext = context.getApplicationContext();
         if (context instanceof Activity) {
@@ -587,10 +587,10 @@ public class MAS {
     /**
      * Stops the lifecycle of all MAS processes.
      */
-    public static void stop() {
+    public static void stop(Context appContext) {
         state = MASConstants.MAS_STATE_STOPPED;
         EventDispatcher.STOP.notifyObservers();
-        MobileSsoFactory.reset();
+        MobileSsoFactory.reset(appContext);
     }
 
 

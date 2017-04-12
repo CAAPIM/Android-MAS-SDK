@@ -201,7 +201,7 @@ public final class MobileSsoFactory {
                 StorageProvider.getInstance().reset();
                 ConfigurationManager.getInstance().reset();
             } catch (Exception ignore) {
-                //Ignore, the StorageProvider or ConfigurationManager can be uninitialized.
+                //Ignore, the StorageProvider or ConfigurationManager may be uninitialized.
             }
         }
     }

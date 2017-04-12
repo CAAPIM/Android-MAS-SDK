@@ -63,10 +63,6 @@ public class ConfigurationManager {
         return instance;
     }
 
-    public void setContext(Context appContext) {
-        this.appContext = appContext;
-    }
-
     public Context getContext() {
         return appContext;
     }

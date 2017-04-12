@@ -14,7 +14,7 @@ import com.ca.mas.identity.user.User;
 import org.json.JSONException;
 
 /**
- * <p>The <b>MASOwner</b> is a thinly wrapped User object that represents the one and only owner of an ad-hoc group.</p>
+ * <p><b>MASOwner</b> is a thinly wrapped User object that represents the one and only owner of an ad-hoc group.</p>
  * {@code
  * "owner": {
  * "value": "string",

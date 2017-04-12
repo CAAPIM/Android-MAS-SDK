@@ -17,7 +17,7 @@ import com.ca.mas.identity.common.MASFilteredRequest;
 import java.util.List;
 
 /**
- * This interface enables the Identity Management feature for the authenticated user.
+ * The <b>MASUserIdentity</b> interface enables the Identity Management feature for the authenticated user.
  */
 public interface MASUserIdentity {
 

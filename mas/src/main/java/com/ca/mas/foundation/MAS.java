@@ -205,7 +205,6 @@ public class MAS {
      * @return A OtpActivity to capture the otp or null if error.
      */
     private static Class<Activity> getOtpActivity() {
-
         try {
             return (Class<Activity>) Class.forName("com.ca.mas.ui.otp.MASOtpActivity");
         } catch (Exception e) {

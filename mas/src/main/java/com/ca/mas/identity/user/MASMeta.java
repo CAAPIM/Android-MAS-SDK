@@ -17,7 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * The <p><b>MASMeta</b> class implements the SCIM resourceType {@link <a href="https://tools.ietf.org/html/rfc7643#section-3.1">meta</a>}
+ * <p>The <b>MASMeta</b> class implements the SCIM resourceType {@link <a href="https://tools.ietf.org/html/rfc7643#section-3.1">meta</a>} attribute.</p>
  */
 public class MASMeta implements MASTransformable {
 

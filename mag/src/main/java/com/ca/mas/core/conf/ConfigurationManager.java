@@ -16,8 +16,6 @@ import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.oauth.GrantProvider;
-import com.ca.mas.core.store.ClientCredentialContainer;
-import com.ca.mas.core.store.OAuthTokenContainer;
 import com.ca.mas.core.store.StorageProvider;
 
 import org.json.JSONArray;
@@ -85,7 +83,6 @@ public class ConfigurationManager {
         this.appContext = context.getApplicationContext();
     }
 
-
     public void setAppConfigs(List<Config> appConfigs) {
         this.appConfigs = appConfigs;
     }
@@ -144,7 +141,6 @@ public class ConfigurationManager {
                 jsonConfig.append(str);
             }
             connectedGatewayConfigurationProvider = create(new JSONObject(jsonConfig.toString()));
-
         } catch (IOException | JSONException e) {
             //Unable to load the cached one.
             activateDefault();

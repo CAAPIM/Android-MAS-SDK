@@ -25,7 +25,6 @@ import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
 import com.ca.mas.core.security.LockableKeyStorageProvider;
 import com.ca.mas.core.security.SecureLockException;
-import com.ca.mas.core.store.OAuthTokenContainer;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
@@ -622,6 +621,8 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
                         Callback.onSuccess(callback, null);
                     }
+                } else {
+                    Callback.onError(callback, new IllegalAccessException(MASFoundationStrings.API_TARGET_EXCEPTION));
                 }
             }
 

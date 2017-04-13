@@ -15,6 +15,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import com.ca.mas.R;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
@@ -133,10 +134,13 @@ public class MASAuthenticationProvider implements Parcelable {
         @Override
         protected void onPostExecute(MAGResponse magResponse) {
             super.onPostExecute(magResponse);
-            String location = null;
-            Map<String, List<String>> headers = magResponse.getHeaders();
-            location = headers.get("Location").get(0);
-            callback.onSuccess(Uri.parse(location));
+            if (magResponse != null) {
+                Map<String, List<String>> headers = magResponse.getHeaders();
+                String location = headers.get("Location").get(0);
+                callback.onSuccess(Uri.parse(location));
+            } else {
+                callback.onError(new Exception(context.getString(R.string.no_response)));
+            }
         }
     }
 

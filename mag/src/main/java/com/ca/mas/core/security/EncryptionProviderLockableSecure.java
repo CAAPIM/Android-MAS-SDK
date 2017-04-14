@@ -26,8 +26,6 @@ import static com.ca.mas.core.util.KeyUtilsAsymmetric.generateRsaPrivateKey;
 
 public class EncryptionProviderLockableSecure extends EncryptionProviderLockable {
 
-    protected Context ctx = null;
-    protected String keyAlias = "lockable";
     protected static final int KEY_SIZE = 2048;
 
     /**
@@ -39,12 +37,11 @@ public class EncryptionProviderLockableSecure extends EncryptionProviderLockable
 
 
     public EncryptionProviderLockableSecure(@NonNull Context ctx) {
-        this.ctx = ctx;
+        super(ctx);
     }
 
-    public EncryptionProviderLockableSecure(@NonNull Context ctx, @NonNull String alias) {
-        this.ctx = ctx;
-        this.keyAlias = alias;
+    public EncryptionProviderLockableSecure(@NonNull Context ctx, @NonNull String keyAlias) {
+        super(ctx, keyAlias);
     }
 
 

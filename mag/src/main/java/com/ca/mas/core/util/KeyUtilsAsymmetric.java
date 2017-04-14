@@ -17,18 +17,23 @@ import android.security.keystore.KeyProperties;
 import android.util.Log;
 
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
 import javax.security.auth.x500.X500Principal;
 
 import static android.security.keystore.KeyProperties.BLOCK_MODE_CBC;
@@ -138,6 +143,7 @@ public class KeyUtilsAsymmetric {
             java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
             java.security.NoSuchProviderException, java.security.cert.CertificateException,
             java.security.UnrecoverableKeyException {
+
         // use a minimum of 2048
         if (keysize < 2048)
             keysize = 2048;
@@ -361,13 +367,16 @@ public class KeyUtilsAsymmetric {
     public static PublicKey getRsaPublicKey(String alias)
             throws java.io.IOException, java.security.KeyStoreException,
             java.security.NoSuchAlgorithmException, java.security.cert.CertificateException {
+
         KeyStore keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
         keyStore.load(null);
         Certificate cert = keyStore.getCertificate(alias);
-        if (cert != null)
+        if (cert != null) {
             return cert.getPublicKey();
-        else
+        }
+        else {
             return null;
+        }
     }
 
 
@@ -478,7 +487,8 @@ public class KeyUtilsAsymmetric {
 
 
     /**
-     * Encrypt data using an RSA public key.
+     * Encrypt data using an RSA public key, as long as the
+     *      content is less than an eighth of the key size.
      * If the key is stored in the AndroidKeyStore, it will
      *      not have to be unlocked prior to encryption.
      * The maximum data size for encryption is dependent
@@ -492,22 +502,71 @@ public class KeyUtilsAsymmetric {
      * @returns encrypted bytes
      * @throws
      */
-    public static byte[] encrypt(PublicKey publicKey, byte[] contentToEncrypt)
+    public static byte[] encryptSection(PublicKey publicKey, byte[] contentToEncrypt)
        throws javax.crypto.NoSuchPaddingException, java.security.InvalidKeyException,
             java.security.InvalidParameterException, javax.crypto.BadPaddingException,
             javax.crypto.BadPaddingException, java.security.NoSuchAlgorithmException,
-            javax.crypto.IllegalBlockSizeException
+            javax.crypto.IllegalBlockSizeException, InvalidAlgorithmParameterException
     {
-        String cipherName = CIPHER_ENCRYPTION_ANDROID_M_PLUS;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-            cipherName = CIPHER_ENCRYPTION_ANDROID_PRE_M;
+        Cipher cipher = null;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            cipher = Cipher.getInstance(CIPHER_ENCRYPTION_ANDROID_PRE_M);
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        } else {
+            cipher = Cipher.getInstance(CIPHER_ENCRYPTION_ANDROID_M_PLUS);
+            // ensure OAEP padding works with AndroidKeyStore
+            cipher.init(
+                    Cipher.ENCRYPT_MODE,
+                    publicKey,
+                    new OAEPParameterSpec(
+                            "SHA-256",
+                            "MGF1",
+                            MGF1ParameterSpec.SHA1,
+                            PSource.PSpecified.DEFAULT));
+        }
 
-        Cipher cipher = Cipher.getInstance(cipherName);
-        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         byte[] encryptedBytes = cipher.doFinal(contentToEncrypt);
         return encryptedBytes;
     }
 
+
+    /**
+     * Decrypt data using an RSA private key, as long as the byte
+     *      length is around 70% less than the key size.
+     * If the key is stored in the AndroidKeyStore, the keystore must
+     *      be unlocked prior to use.
+     *
+     * @param privateKey an RSA private key
+     * @param contentToDecrypt the bytes to decrypt
+     * @returns the decrypted bytes
+     * @throws
+     */
+    public static byte[] decryptSection(PrivateKey privateKey, byte[] contentToDecrypt)
+            throws javax.crypto.NoSuchPaddingException, java.security.InvalidKeyException,
+            java.security.InvalidParameterException, javax.crypto.BadPaddingException,
+            javax.crypto.BadPaddingException, java.security.NoSuchAlgorithmException,
+            javax.crypto.IllegalBlockSizeException, IllegalArgumentException, InvalidAlgorithmParameterException
+    {
+        Cipher cipher;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            cipher = Cipher.getInstance(CIPHER_ENCRYPTION_ANDROID_PRE_M);
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        } else {
+            cipher = Cipher.getInstance(CIPHER_ENCRYPTION_ANDROID_M_PLUS);
+            // ensure OAEP padding works with AndroidKeyStore
+            cipher.init(
+                    Cipher.DECRYPT_MODE,
+                    privateKey,
+                    new OAEPParameterSpec(
+                            "SHA-256",
+                            "MGF1",
+                            MGF1ParameterSpec.SHA1,
+                            PSource.PSpecified.DEFAULT));
+        }
+
+        byte decryptedBytes[] = cipher.doFinal(contentToDecrypt);
+        return decryptedBytes;
+    }
 
     /**
      * Decrypt data using an RSA private key.
@@ -519,20 +578,100 @@ public class KeyUtilsAsymmetric {
      * @returns the decrypted bytes
      * @throws
      */
-    public static byte[] decrypt(PrivateKey privateKey, byte[] contentToDecrypt)
+    public static byte[] decrypt(PrivateKey privateKey, int keysize, byte[] contentToDecrypt)
             throws javax.crypto.NoSuchPaddingException, java.security.InvalidKeyException,
             java.security.InvalidParameterException, javax.crypto.BadPaddingException,
             javax.crypto.BadPaddingException, java.security.NoSuchAlgorithmException,
-            javax.crypto.IllegalBlockSizeException
+            javax.crypto.IllegalBlockSizeException, InvalidAlgorithmParameterException
     {
-        String cipherName = CIPHER_ENCRYPTION_ANDROID_M_PLUS;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-            cipherName = CIPHER_ENCRYPTION_ANDROID_PRE_M;
+        int encryptedSize = 256; //keysize / 8;
 
-        Cipher cipher = Cipher.getInstance(cipherName);
-        cipher.init(Cipher.DECRYPT_MODE, privateKey);
-        byte decryptedBytes[] = cipher.doFinal(contentToDecrypt);
-        return decryptedBytes;
+        ArrayList<byte[]> encryptedParts = arraySplit(contentToDecrypt, encryptedSize);
+        // now decrypt the lists
+        ArrayList<byte[]> decrypted = new ArrayList<byte[]>();
+        for (byte bytesToDecrypt[] : encryptedParts) {
+            byte decryptedBytes[] = decryptSection(privateKey, bytesToDecrypt);
+            decrypted.add(decryptedBytes);
+        }
+        byte bytesDecrypted[] = arrayConcat(decrypted);
+        return bytesDecrypted;
+    }
+
+    /**
+     * Encrypt data using an RSA public key,.
+     * If the key is stored in the AndroidKeyStore, it will
+     *      not have to be unlocked prior to encryption.
+     * The maximum data size for encryption is dependent
+     *      upon the size of the key.  For 2048-bit keys,
+     *      the limit is (256 - padding/11).
+     *
+     * @param publicKey an RSA public key
+     * @param contentToEncrypt the bytes to encrypt - if the size
+     *    exceeds 256 bytes then the data cannot be encrypted using
+     *    this method
+     * @returns encrypted bytes
+     * @throws
+     */
+    public static byte[] encrypt(PublicKey publicKey, int keysize, byte[] contentToEncrypt)
+            throws javax.crypto.NoSuchPaddingException, java.security.InvalidKeyException,
+            java.security.InvalidParameterException, javax.crypto.BadPaddingException,
+            javax.crypto.BadPaddingException, java.security.NoSuchAlgorithmException,
+            javax.crypto.IllegalBlockSizeException, InvalidAlgorithmParameterException {
+
+        int encryptedSize = 256; //keysize / 8;
+        int originalChunk = 128; //(encryptedSize * 7) / 10;
+
+        ArrayList<byte[]> original = arraySplit(contentToEncrypt, originalChunk);
+        ArrayList<byte[]> encrypted = new ArrayList<byte[]>();
+        for (byte bytesToEncrypt[] : original) {
+            byte encryptedBytes[] = encryptSection(publicKey, bytesToEncrypt);
+            encrypted.add(encryptedBytes);
+        }
+        byte bytesEncryptedFull[] = arrayConcat(encrypted);
+        return bytesEncryptedFull;
+    }
+
+
+
+    /**
+     * Combine the arrays
+     *
+     * @param byteArrayList list of byte arrays
+     * @return combined byte array
+     */
+    protected static byte[] arrayConcat(ArrayList<byte[]> byteArrayList) {
+        int lengthTotal = 0;
+        for (byte byteArray[] : byteArrayList)
+            lengthTotal += byteArray.length;
+        byte[] result = new byte[lengthTotal];
+        int lengthCurrent = 0;
+        for (byte byteArray[] : byteArrayList) {
+            System.arraycopy(byteArray, 0, result, lengthCurrent, byteArray.length);
+            lengthCurrent += byteArray.length;
+        }
+        return result;
+    }
+
+    /**
+     * Split the byte array into even chunks, last will be whatever is left over
+     *
+     * @param bytes the byte array to split
+     * @param eachLength the value to split by
+     * @return list of byte arrays
+     */
+    protected static ArrayList<byte[]> arraySplit(byte bytes[], int eachLength) {
+        ArrayList<byte[]> result = new ArrayList<byte[]>();
+        int lengthTotal = 0;
+        while (lengthTotal < bytes.length) {
+            int lengthCurrent = bytes.length - lengthTotal;
+            if (lengthCurrent > eachLength)
+                lengthCurrent = eachLength;
+            byte section[] = new byte[lengthCurrent];
+            System.arraycopy(bytes, lengthTotal, section, 0, lengthCurrent);
+            result.add(section);
+            lengthTotal += lengthCurrent;
+        }
+        return result;
     }
 
 

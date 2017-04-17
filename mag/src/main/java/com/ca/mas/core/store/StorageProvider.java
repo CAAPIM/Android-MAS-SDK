@@ -86,9 +86,7 @@ public class StorageProvider {
             try {
                 params = new JSONObject(mStorageConfig.getStorageConfig().toString());
                 params.put(StorageConfig.PROP_SHARE_STATUS,
-                        provider.getProperty(ConfigurationProvider.PROP_SSO_ENABLED) ?
-                                Boolean.TRUE :
-                                Boolean.FALSE);
+                        provider.getProperty(ConfigurationProvider.PROP_SSO_ENABLED));
             } catch (JSONException e) {
                 if (DEBUG) Log.w(TAG, "failed to set sharing property " + e);
             }

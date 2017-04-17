@@ -25,10 +25,13 @@ import com.ca.mas.core.store.PrivateTokenStorage;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
+import junit.framework.Assert;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -158,7 +161,7 @@ public class MASTest extends MASLoginTestBase {
         newToken[0] = true;
 
         //Remove Access Token
-        DataSource<String, String> dataSource = DataSourceFactory.getStorage(InstrumentationRegistry.getTargetContext(),
+        DataSource<String, String> dataSource = DataSourceFactory.getStorage(getContext(),
                 KeystoreDataSource.class, null, null);
         for (String k : dataSource.getKeys(null)) {
             if (k.contains(PrivateTokenStorage.KEY.PREF_ACCESS_TOKEN.name())) {
@@ -569,5 +572,21 @@ public class MASTest extends MASLoginTestBase {
         assertNotNull(callback.get());
         assertTrue(onObtained[0]);
         assertTrue(onConnected[0]);
+    }
+
+    @Test
+    public void testStop() throws Exception {
+        MAS.stop();
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+                .build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+
+        try {
+            MAS.invoke(request, callback);
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertEquals(MASConstants.MAS_STATE_STOPPED, MAS.getState(getContext()));
+            MAS.start(getContext());
+        }
     }
 }

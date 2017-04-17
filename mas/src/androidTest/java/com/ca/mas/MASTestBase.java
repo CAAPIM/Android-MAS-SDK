@@ -18,7 +18,6 @@ import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASConnectionListener;
 import com.squareup.okhttp.internal.SslContextBuilder;
 import com.squareup.okhttp.mockwebserver.Dispatcher;
-import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
@@ -33,9 +32,6 @@ import java.util.HashMap;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.fail;
-
 @RunWith(AndroidJUnit4.class)
 public abstract class MASTestBase {
 
@@ -44,12 +40,13 @@ public abstract class MASTestBase {
     private static MockWebServer ssg;
     private HashMap<String, RecordedRequest> recordedRequests = new HashMap<>();
     private int requestTaken = 0;
-    private GatewayDefaultDispatcher gatewayDefaultDispatcher = new GatewayDefaultDispatcher();
+    private GatewayDefaultDispatcher gatewayDefaultDispatcher;
 
     @Before
     public void startServer() throws Exception {
 
         ssg = new MockWebServer();
+        gatewayDefaultDispatcher = new GatewayDefaultDispatcher();
         ssg.setDispatcher(gatewayDefaultDispatcher);
         ssg.useHttps(SslContextBuilder.localhost().getSocketFactory(), false);
         ssg.start(41979);
@@ -60,7 +57,10 @@ public abstract class MASTestBase {
         MAS.setConnectionListener(new MASConnectionListener() {
             @Override
             public void onObtained(HttpURLConnection connection) {
-                ((HttpsURLConnection) connection).setSSLSocketFactory(SslContextBuilder.localhost().getSocketFactory());
+                //If connect to localhost
+                if (connection.getURL().getHost().equals("localhost")) {
+                    ((HttpsURLConnection) connection).setSSLSocketFactory(SslContextBuilder.localhost().getSocketFactory());
+                }
             }
 
             @Override
@@ -75,6 +75,8 @@ public abstract class MASTestBase {
         if (ssg != null) {
             ssg.shutdown();
         }
+        recordedRequests.clear();
+        requestTaken = 0;
     }
 
     private void flushRequest() throws InterruptedException {

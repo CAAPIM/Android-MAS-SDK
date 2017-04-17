@@ -14,7 +14,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:2.3.1'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
     }
@@ -27,17 +27,18 @@ allprojects {
 }
 
 ext {
-    appAuthVersion = '0.5.0'
     appCompatVersion = '25.1.0'
+    appAuthVersion = '0.5.1'
     buildToolsVersion = '25.0.2'
     compileSdkVersion = 25
     designVersion = '25.1.0'
     gridLayoutVersion = '25.1.0'
     minSdkVersion = 19
+    nimbusJoseVersion = '4.9'
     recyclerViewVersion = '25.1.0'
     supportAnnotationsVersion = '25.1.0'
     targetSdkVersion = 25
-    versionCode = 40
-    versionName = '4.0.00'
+    versionCode = 14
+    versionName = '1.4.00'
     zxingVersion = '3.2.0'
 }

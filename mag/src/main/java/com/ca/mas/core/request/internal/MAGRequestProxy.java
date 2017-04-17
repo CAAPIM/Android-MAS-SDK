@@ -16,6 +16,7 @@ import com.ca.mas.core.oauth.GrantProvider;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public abstract class MAGRequestProxy implements MAGRequest {
 
@@ -65,4 +66,5 @@ public abstract class MAGRequestProxy implements MAGRequest {
     public boolean isPublic() {
         return request.isPublic();
     }
+
 }

@@ -16,8 +16,6 @@ import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.oauth.GrantProvider;
-import com.ca.mas.core.store.ClientCredentialContainer;
-import com.ca.mas.core.store.OAuthTokenContainer;
 import com.ca.mas.core.store.StorageProvider;
 
 import org.json.JSONArray;
@@ -63,6 +61,10 @@ public class ConfigurationManager {
 
     public static ConfigurationManager getInstance() {
         return instance;
+    }
+
+    public Context getContext() {
+        return appContext;
     }
 
     public void enablePKCE(boolean enablePKCE) {
@@ -139,7 +141,6 @@ public class ConfigurationManager {
                 jsonConfig.append(str);
             }
             connectedGatewayConfigurationProvider = create(new JSONObject(jsonConfig.toString()));
-
         } catch (IOException | JSONException e) {
             //Unable to load the cached one.
             activateDefault();
@@ -400,22 +401,23 @@ public class ConfigurationManager {
 
         @Override
         public void onUpdated(Context context, ConfigurationProvider provider) {
-            StorageProvider sp = new StorageProvider(context, provider);
+            StorageProvider.getInstance().reset();
 
-            if (!sp.hasValidStore()) {
+            if (!StorageProvider.getInstance().hasValidStore()) {
                 Log.w(TAG, "Failed to access the secure device storage, " +
                         "please verify the storage configuration, and make sure the device " +
                         "has Secure lock screen setup.");
                 return;
             }
 
-            ClientCredentialContainer container = sp.createClientCredentialContainer();
-            String masterClientId = container.getMasterClientId();
+            String masterClientId = StorageProvider.getInstance()
+                    .getClientCredentialContainer()
+                    .getMasterClientId();
+
             //The masterClientId may be null due to SDK upgrade.
             if (masterClientId == null || !masterClientId.equals(provider.getClientId())) {
-                container.clear();
-                OAuthTokenContainer oAuthTokenContainer = sp.createOAuthTokenContainer();
-                oAuthTokenContainer.clear();
+                StorageProvider.getInstance().getClientCredentialContainer().clear();
+                StorageProvider.getInstance().getOAuthTokenContainer().clear();
             }
         }
     }

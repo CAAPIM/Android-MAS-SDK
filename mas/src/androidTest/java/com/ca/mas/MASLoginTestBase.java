@@ -23,7 +23,7 @@ public abstract class MASLoginTestBase extends MASStartTestBase {
     @Before
     public void login() throws InterruptedException, ExecutionException {
         MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
-        MASUser.login("test", "test".toCharArray(), callback);
+        MASUser.login("admin", "7layer".toCharArray(), callback);
         Assert.assertNotNull(callback.get());
     }
 

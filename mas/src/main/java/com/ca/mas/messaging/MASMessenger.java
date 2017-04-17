@@ -14,7 +14,7 @@ import com.ca.mas.foundation.MASUser;
 import com.ca.mas.messaging.topic.MASTopic;
 
 /**
- * This interface enables messaging feature to the authenticated user
+ * <b>MASMessenger</b> is an interface which enables messaging feature for the authenticated user.
  */
 public interface MASMessenger {
 

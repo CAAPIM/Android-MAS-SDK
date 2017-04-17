@@ -27,6 +27,7 @@ import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.MssoClient;
 import com.ca.mas.core.service.MssoIntents;
+import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.token.IdToken;
 
 import org.json.JSONException;
@@ -59,7 +60,7 @@ public final class MobileSsoFactory {
         if (ret != null) {
             return ret;
         } else {
-            throw new IllegalStateException("Mobile SSO has not been initialized.");
+            throw new IllegalStateException("MAS SDK has not been initialized.");
         }
     }
 
@@ -196,7 +197,12 @@ public final class MobileSsoFactory {
     public static void reset() {
         synchronized (mobileSso) {
             mobileSso.set(null);
-            ConfigurationManager.getInstance().reset();
+            try {
+                StorageProvider.getInstance().reset();
+                ConfigurationManager.getInstance().reset();
+            } catch (Exception ignore) {
+                //Ignore, the StorageProvider or ConfigurationManager may be uninitialized.
+            }
         }
     }
 

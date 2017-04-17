@@ -101,6 +101,7 @@ public class DefaultTokenManager implements TokenManager {
     public void clear() throws TokenStoreException {
         deleteIdToken();
         deleteUserProfile();
+        deleteSecureIdToken();
         KeyUtilsAsymmetric.deletePrivateKey(MSSO_CLIENT_PRIVATE_KEY);
         KeyUtilsAsymmetric.clearCertificateChain(MSSO_CLIENT_CERT_CHAIN_PREFIX);
         deleteSecureItem(MSSO_MAG_IDENTIFIER);

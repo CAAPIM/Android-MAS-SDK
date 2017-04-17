@@ -92,6 +92,7 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
     };
 
     private MASConnectaManager() {
+        EventDispatcher.STOP.addObserver(this);
         EventDispatcher.LOGOUT.addObserver(this);
         EventDispatcher.DE_REGISTER.addObserver(this);
         EventDispatcher.RESET_LOCALLY.addObserver(this);

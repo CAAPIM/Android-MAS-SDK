@@ -53,8 +53,7 @@ public class MASUserTests extends MASIntegrationBaseTest {
     @Test
     public void testPersistUserProfile() throws Exception {
         Assert.assertNotNull(MASUser.getCurrentUser());
-        StorageProvider sp = new StorageProvider(InstrumentationRegistry.getInstrumentation().getTargetContext());
-        TokenManager tm = sp.createTokenManager();
+        TokenManager tm = StorageProvider.getInstance().getTokenManager();
         String storedUserProfile = tm.getUserProfile();
         Assert.assertNotNull(storedUserProfile);
         JSONObject source = new JSONObject(storedUserProfile);

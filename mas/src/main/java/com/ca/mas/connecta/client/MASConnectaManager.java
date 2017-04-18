@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import com.ca.mas.connecta.serviceprovider.ConnectaService;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.core.EventDispatcher;
+import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.messaging.MASMessage;
@@ -33,7 +34,6 @@ import java.util.Observer;
  */
 public class MASConnectaManager implements MASConnectaClient, Observer {
 
-    private Context mContext;
     private static MASConnectaManager instance = new MASConnectaManager();
     private ConnectaService mMASTransportService;
     private long mTimeOutInMillis;
@@ -54,6 +54,7 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
 
             if (mMASTransportService != null) {
                 mMASTransportService.setClientId(clientId);
+                mMASTransportService.setConnectaListener(connectaListener);
                 mMASTransportService.setTimeOutInMillis(getTimeOutInMillis());
                 mMASTransportService.setConnectOptions(mConnectOptions);
                 mMASTransportService.connect(new MASCallback<Void>() {
@@ -91,6 +92,7 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
     };
 
     private MASConnectaManager() {
+        EventDispatcher.STOP.addObserver(this);
         EventDispatcher.LOGOUT.addObserver(this);
         EventDispatcher.DE_REGISTER.addObserver(this);
         EventDispatcher.RESET_LOCALLY.addObserver(this);
@@ -103,13 +105,6 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
 
     public void setConnectaListener(MASConnectaListener listener) {
         connectaListener = listener;
-        if (mMASTransportService != null) {
-            mMASTransportService.setConnectaListener(listener);
-        }
-    }
-
-    public void start(@NonNull Context context) {
-        mContext = context.getApplicationContext();
     }
 
     public void stop() {
@@ -124,8 +119,8 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
         }
         if (mMASTransportService == null) {
             connectCallback = callback;
-            Intent intent = new Intent(mContext, ConnectaService.class);
-            mContext.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+            Intent intent = new Intent(MAS.getContext(), ConnectaService.class);
+            MAS.getContext().bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         } else {
             mMASTransportService.connect(callback);
         }
@@ -133,9 +128,11 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
 
     @Override
     public void disconnect(MASCallback<Void> callback) {
-        if (isConnected()) {
-            mConnectOptions = null;
+        mConnectOptions = null;
+        if (mMASTransportService != null) {
             mMASTransportService.disconnect(callback);
+            MAS.getContext().unbindService(mServiceConnection);
+            mMASTransportService = null;
         }
     }
 
@@ -151,7 +148,7 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
     }
 
     private void subscribeTopic(@NonNull final MASTopic topic, final MASCallback<Void> callback) {
-        Handler h = new Handler(mContext.getMainLooper());
+        Handler h = new Handler(MAS.getContext().getMainLooper());
         h.post(new Runnable() {
             @Override
             public void run() {
@@ -227,7 +224,7 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
 
     private void publishTopic(@NonNull final MASTopic masTopic, @NonNull final byte[] message, final MASCallback<Void> callback) {
 
-        Handler h = new Handler(mContext.getMainLooper());
+        Handler h = new Handler(MAS.getContext().getMainLooper());
         h.post(new Runnable() {
             @Override
             public void run() {
@@ -266,6 +263,10 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        disconnect(null);
+        try {
+            disconnect(null);
+        } catch (Exception ignore)  {
+            //Ignore
+        }
     }
 }

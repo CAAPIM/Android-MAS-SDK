@@ -17,7 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * The <p><b>MASName</b> interface contains the common attribute {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">name</a>}
+ * <p>The <b>MASName</b> interface contains the common attribute {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">name</a>}
  * components of the user's name. Service providers MAY return just the full name as a single string in the formatted
  * sub-attribute, or they MAY return just the individual component attributes using the other sub-attributes, or they MAY return
  * both.</p>

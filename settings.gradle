@@ -18,6 +18,7 @@ include ':MASAccessAPISample'
 include ':MASUserManagementSample'
 include ':MASMessagingSample'
 include ':MASSessionUnlockSample'
+include ':MASSecureAPISample'
 include ':MASPubSubSample'
 
 project(':magtest').projectDir = new File('mag/magtest')
@@ -28,6 +29,7 @@ project(':MASAccessAPISample').projectDir = new File('samples/MASAccessAPISample
 project(':MASUserManagementSample').projectDir = new File('samples/MASUserManagementSample')
 project(':MASMessagingSample').projectDir = new File('samples/MASMessagingSample')
 project(':MASSessionUnlockSample').projectDir = new File('samples/MASSessionUnlockSample')
+project(':MASSecureAPISample').projectDir = new File('samples/MASSecureAPISample')
 project(':MASPubSubSample').projectDir = new File('samples/MASPubSubSample')
 
 //MASUnit

@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * An Http Api Request. Instances of this class are immutable.
@@ -113,6 +114,9 @@ public interface MAGRequest {
         private String scope;
         private MAGConnectionListener listener;
         private boolean isPublic = false;
+        private boolean sign;
+        private long timeout;
+        private TimeUnit timeUnit;
 
         /**
          * Create a builder with the provided {@link URI}.
@@ -303,7 +307,6 @@ public interface MAGRequest {
          * @return An immutable {@link MAGRequest} object.
          */
         public MAGRequest build() {
-
             Map<String, List<String>> newHeaders = new HashMap<>();
             for (String key : headers.keySet()) {
                 List<String> headerValues = new ArrayList<>();
@@ -361,6 +364,7 @@ public interface MAGRequest {
                 public boolean isPublic() {
                     return isPublic;
                 }
+
             };
         }
     }

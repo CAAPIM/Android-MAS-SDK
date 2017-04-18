@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+import android.util.Pair;
 
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.http.MAGRequest;
@@ -22,9 +23,6 @@ import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.service.Provider;
 import com.ca.mas.foundation.MASCallback;
 
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
@@ -102,7 +100,7 @@ public class MASAuthenticationProvider implements Parcelable {
         }
     };
 
-    private static class MagTask extends AsyncTask<Void, Void, MAGResponse> {
+    private static class MagTask extends AsyncTask<Void, Void, Pair<MAGResponse<Object>, Exception>> {
         Context context;
         MAGRequest request;
         MASCallback<Uri> callback;
@@ -114,29 +112,35 @@ public class MASAuthenticationProvider implements Parcelable {
         }
 
         @Override
-        protected MAGResponse<JSONObject> doInBackground(Void... params) {
-            MAGHttpClient magHttpClient = new MAGHttpClient(context) {
+        protected Pair<MAGResponse<Object>, Exception> doInBackground(Void... params) {
+            MAGHttpClient magHttpClient = new MAGHttpClient() {
                 @Override
                 protected void onConnectionObtained(HttpURLConnection connection) {
                     connection.setInstanceFollowRedirects(false);
                 }
             };
             try {
-                return magHttpClient.execute(request);
-            } catch (IOException e) {
+                return new Pair<>(magHttpClient.execute(request), null);
+            } catch (Exception e) {
                 Log.d("", e.getMessage());
+                return new Pair<>(null, e);
             }
-
-            return null;
         }
 
         @Override
-        protected void onPostExecute(MAGResponse magResponse) {
+        protected void onPostExecute(Pair<MAGResponse<Object>, Exception> magResponse) {
             super.onPostExecute(magResponse);
-            String location = null;
-            Map<String, List<String>> headers = magResponse.getHeaders();
-            location = headers.get("Location").get(0);
-            callback.onSuccess(Uri.parse(location));
+            if (magResponse != null) {
+                MAGResponse response = magResponse.first;
+                Exception ex = magResponse.second;
+                if (response != null) {
+                    Map<String, List<String>> headers = response.getHeaders();
+                    String location = headers.get("Location").get(0);
+                    callback.onSuccess(Uri.parse(location));
+                } else if (ex != null) {
+                    callback.onError(ex);
+                }
+            }
         }
     }
 

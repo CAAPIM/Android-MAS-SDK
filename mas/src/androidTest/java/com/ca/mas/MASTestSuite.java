@@ -14,6 +14,7 @@ import com.ca.mas.foundation.MASDeviceTest;
 import com.ca.mas.foundation.MASDynamicSDKTest;
 import com.ca.mas.foundation.MASEnrollmentStartTest;
 import com.ca.mas.foundation.MASGeoFencingTest;
+import com.ca.mas.foundation.MASJwtSigningTest;
 import com.ca.mas.foundation.MASLoginTest;
 import com.ca.mas.foundation.MASOAuthLoginTest;
 import com.ca.mas.foundation.MASOAuthTest;
@@ -40,6 +41,8 @@ import org.junit.runners.Suite;
         MASPhoneNumberTest.class,
         MASOAuthTest.class,
         MASOAuthLoginTest.class,
+        MASDeviceTest.class,
+        MASJwtSigningTest.class,
         MASDynamicSDKTest.class,
         MASRegistrationTest.class,
         MASAuthorizationCodeFlowTest.class,

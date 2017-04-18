@@ -33,7 +33,7 @@ public class MAGPinningSocketFactory {
         this.publicKeyHash = IoUtils.hexDump(Base64.decode(publicKeyHash, Base64.URL_SAFE));
     }
 
-    public SSLSocketFactory createSSLSocketFactory() {
+    public SSLSocketFactory createTLSSocketFactory() {
         try {
             SSLContext sslContext = SSLContext.getInstance(SSL_TLS_PROTOCOL);
             TrustManager[] trustManagers = {new X509TrustManager() {
@@ -63,7 +63,7 @@ public class MAGPinningSocketFactory {
                 }
             }};
             sslContext.init(new KeyManager[0], trustManagers, new SecureRandom());
-            return sslContext.getSocketFactory();
+            return new TLSSocketFactory(sslContext.getSocketFactory());
 
         } catch (Exception e) {
             throw new RuntimeException("Unable to create SSL Context: " + e.getMessage(), e);

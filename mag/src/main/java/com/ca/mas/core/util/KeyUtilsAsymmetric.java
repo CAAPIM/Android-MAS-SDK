@@ -394,7 +394,7 @@ public class KeyUtilsAsymmetric {
             keyStore.load(null);
             keyStore.deleteEntry(alias);
         } catch (Exception e) {
-            if (DEBUG) Log.e(TAG, "Unable delete privage key: " + e.getMessage(), e);
+            if (DEBUG) Log.e(TAG, "Unable delete private key: " + e.getMessage(), e);
         }
     }
 

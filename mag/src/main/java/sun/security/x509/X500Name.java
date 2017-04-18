@@ -1420,7 +1420,7 @@ public class X500Name implements GeneralNameInterface, Principal {
      * Retrieve the Constructor and Field we need for reflective access
      * and make them accessible.
      */
-    /* SANDY
+    /* This constructor has been removed since it is not needed for cert req
     static {
         PrivilegedExceptionAction<Object[]> pa =
                 new PrivilegedExceptionAction<Object[]>() {
@@ -1443,7 +1443,7 @@ public class X500Name implements GeneralNameInterface, Principal {
                 + "X500Principal access").initCause(e);
         }
     }
-    SANDY */
+    end of removed constructor */
 
     /**
      * Get an X500Principal backed by this X500Name.

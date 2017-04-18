@@ -8,7 +8,9 @@
 
 package com.ca.mas.core.security;
 
+import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -16,56 +18,78 @@ import android.util.Log;
 import com.ca.mas.core.util.KeyUtils;
 
 import java.io.IOException;
+import java.security.cert.CertificateException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
-public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
+/**
+ * This class supports key storage.  It will require a screen lock,
+ *   but the screen lock can change.  For Android pre-N, this is 
+ *   managed entirely by checking KeyguardManager.isDeviceSecure()
+ *   to determine if there is still a screen lock.  If the screen
+ *   lock, pin/swipe/password, is removed entirely, the keys are
+ *   deleted.  For Android.N, the keys are also protected inside
+ *   the AndroidKeyStore requiring a screen lock.
+ */
 
-    // For Android.M+, use the AndroidKeyStore
-    // Otherwise, encrypt using RSA key with "RSA/ECB/PKCS1Padding"
-    //    which actually doesn't implement ECB mode encryption.
-    //    It should have been called "RSA/None/PKCS1Padding" as it can only be used to
-    //    encrypt a single block of plaintext (The secret key)
-    //    This may be naming mistake.
+class KeyStorageScreenLockCanChange extends SharedPreferencesKeyStorageProvider {
 
-    protected DefaultKeySymmetricManager keyMgr;
-
-    protected static final String ASYM_KEY_ALIAS = "ASYM_KEY";
-    public static final String RSA_ECB_PKCS1_PADDING = "RSA/ECB/PKCS1PADDING";
-
-    protected Context context;
+    public static final String PREFS_NAME = "SECRET_PREFS";
+    private SharedPreferences sharedpreferences;
 
     /**
-     * Default constructor generates a DefaultKeySymmetricManager
+     * Constructor to KeyStorageProvider
      *
-     * @param ctx context
+     * @param ctx requires context of the calling application
      */
-    public KeyStoreKeyStorageProvider(@NonNull Context ctx) {
-        context = ctx.getApplicationContext();
+    public KeyStorageScreenLockCanChange(@NonNull Context ctx) {
+        super(ctx);
 
         // Symmetric Key Manager creates symmetric keys,
         //   stored inside AndroidKeyStore for Android.M+
-        keyMgr = new DefaultKeySymmetricManager("AES", 256, true, false, -1, false);
-
+        keyMgr = new DefaultKeySymmetricManager("AES", 256, false, false, 100000, false);
     }
+
+
+    /**
+     * Determine if there is a screen lock
+     */
+    protected boolean deviceHasScreenLock()
+    {
+        try {
+            KeyguardManager km = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if ( km.isDeviceSecure() )
+                    return true;
+                else
+                    return false;
+            } else {
+                if ( km.isKeyguardSecure() )
+                    return true;
+                else
+                    return false;
+            }
+        } catch (Exception x) {
+            Log.e(TAG, "Exception determining if screen has a lock (pin/swipe/password), will be assuming it does not", x);
+            return false;
+        }
+    }
+
 
     /**
      * Retrieve the SecretKey from Storage
@@ -75,6 +99,14 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
      */
     @Override
     public SecretKey getKey(String alias) {
+
+        // if there is no screen lock, then delete the key and return nothing!!!
+        if (! deviceHasScreenLock()) {
+            Log.w(TAG, "KeyStorageScreenLockCanChange getKey there is no screen lock (pin/swipe/password), so the key will be deleted");
+            removeKey(alias);
+            throw new RuntimeException("KeyStorageScreenLockCanChange getKey there is no screen lock (pin/swipe/password), so the encryption key has been deleted");
+        }
+
         // For Android.M+, if this key was created we'll find it here
         SecretKey secretKey = keyMgr.retrieveKey(alias);
 
@@ -118,41 +150,6 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
 
 
     /**
-     * Remove the key
-     *
-     * @param alias the alias of the key to remove
-     */
-    @Override
-    public boolean removeKey(String alias) {
-        keyMgr.deleteKey(alias);
-        deleteSecretKeyLocally(alias);
-        return true;
-    }
-
-
-    /**
-     * @param alias              The alias to store the key against.
-     * @param encryptedSecretKey The encrypted secret key to store.
-     * @return
-     */
-    abstract boolean storeSecretKeyLocally(String alias, byte[] encryptedSecretKey);
-
-    /**
-     * @param alias The alias for the required secret key.
-     * @return the encrypted bytes
-     */
-    abstract byte[] getEncryptedSecretKey(String alias);
-
-    /**
-     * Delete the secret key locally.
-     *
-     * @param alias
-     * @return success / fail
-     */
-    abstract boolean deleteSecretKeyLocally(String alias);
-
-
-    /**
      * This method encrypts a SecretKey using an RSA key.
      * This is intended for Pre-Android.M, where the
      * SecretKey cannot be stored in the AndroidKeyStore
@@ -163,7 +160,6 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
         try {
             PublicKey publicKey = KeyUtils.getRsaPublicKey(ASYM_KEY_ALIAS);
             if (publicKey == null) {
-
                 KeyUtils.generateRsaPrivateKey(context, 2048,
                         ASYM_KEY_ALIAS, String.format("CN=%s, OU=%s", ASYM_KEY_ALIAS, "com.ca"),
                         false, false, -1, false);
@@ -184,34 +180,6 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
         }
     }
 
-    /**
-     * This method decrypts a SecretKey using an RSA key.
-     * This is intended for Pre-Android.M, where the
-     * SecretKey cannot be stored in the AndroidKeyStore
-     *
-     * @param encryptedSecretKey the encrypted bytes of the secret key
-     */
-    protected SecretKey decryptSecretKey(byte encryptedSecretKey[]) {
-        try {
-            PrivateKey privateKey = KeyUtils.getRsaPrivateKey(ASYM_KEY_ALIAS);
-
-            Cipher cipher = Cipher.getInstance(RSA_ECB_PKCS1_PADDING);
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            byte[] decryptedSecretkey = cipher.doFinal(encryptedSecretKey);
-            return new SecretKeySpec(decryptedSecretkey, "AES");
-
-        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException
-                | BadPaddingException | IllegalBlockSizeException
-                | IOException | KeyStoreException | CertificateException
-                | UnrecoverableKeyException e) {
-            if (DEBUG) Log.e(TAG, "Error while decrypting SecretKey", e);
-            throw new RuntimeException("Error while decrypting SecretKey", e);
-        }
 
 
-    }
-
-    public Context getContext() {
-        return context;
-    }
 }

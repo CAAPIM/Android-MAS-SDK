@@ -254,5 +254,16 @@ public class MASJwtSigningTest extends MASLoginTestBase {
 
     }
 
+    @Test(expected = IllegalStateException.class )
+    public void testSignWithNonRegisteredDevice() throws Exception, MASException {
+        if (MASDevice.getCurrentDevice().isRegistered()) {
+            MASCallbackFuture<Void> deregisterCallback = new MASCallbackFuture<Void>();
+            MASDevice.getCurrentDevice().deregister(deregisterCallback);
+            Assert.assertNull(deregisterCallback.get());
+        }
+        MASClaims claims = new MASClaims.MASClaimsBuilder().build();
+        MAS.sign(claims);
 
+
+    }
 }

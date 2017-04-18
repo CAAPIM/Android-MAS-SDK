@@ -9,6 +9,8 @@ package com.ca.mas.messaging;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Base64;
 
@@ -27,7 +29,19 @@ import org.json.JSONObject;
  * {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html">MqttConnectOptions</a>}
  * class.</p>
  */
-public abstract class MASMessage implements MASPayload {
+public abstract class MASMessage implements MASPayload, Parcelable{
+    private String mSenderId;
+    private String mVersion = "1.0";
+    private byte[] mPayload = new byte[0];
+    private boolean mIsDuplicate;
+    private boolean mIsRetained;
+    private long mSentTime = 0L;
+    private String mDisplayName;
+    private String mSenderType = ScimIdentifiable.ResourceType.User.toString();
+    private String mContentType = MessagingConsts.DEFAULT_TEXT_PLAIN_CONTENT_TYPE;
+    private String mContentEncoding = MessagingConsts.DEFAULT_BASE64_ENCODING;
+    private int mQos = 2;
+    private String mTopic;
 
     public static MASMessage newInstance(Intent intent) throws MASMessageException {
         MASMessage m = MASMessage.newInstance();
@@ -38,6 +52,16 @@ public abstract class MASMessage implements MASPayload {
     public static MASMessage newInstance() {
 
         return new MASMessage() {
+            @Override
+            public int describeContents() {
+                return 0;
+            }
+
+            @Override
+            public void writeToParcel(Parcel dest, int flags) {
+
+            }
+
             private String mSenderId;
             private String mVersion = "1.0";
             private byte[] mPayload = new byte[0];

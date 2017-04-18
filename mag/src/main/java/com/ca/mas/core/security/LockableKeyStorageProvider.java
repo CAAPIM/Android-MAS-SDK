@@ -40,7 +40,7 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
     {
         // Symmetric keys will be generated in memory then stored in AndroidKeyStore
         if (keyMgr == null)
-            keyMgr = new DefaultKeySymmetricManager("AES", 256, true, true, 10);
+            keyMgr = new DefaultKeySymmetricManager("AES", 256, true, true, 10, false);
 
         SecretKey secretKey = secretKeys.get(alias);
         if (secretKey == null) {
@@ -64,7 +64,7 @@ public class LockableKeyStorageProvider implements KeyStorageProvider {
     public boolean removeKey(String alias)
     {
         if (keyMgr == null)
-            keyMgr = new DefaultKeySymmetricManager("AES", 256, true, true, 10);
+            keyMgr = new DefaultKeySymmetricManager("AES", 256, true, true, 10, false);
 
         secretKeys.remove(alias);
         keyMgr.deleteKey(alias);

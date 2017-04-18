@@ -39,6 +39,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
@@ -252,6 +253,16 @@ public abstract class BaseTest {
         return requestId;
     }
 
+    protected <T> T getValue(Object instance, String attribute, Class<T> returnType) {
+        Field field = null;
+        try {
+            field = instance.getClass().getDeclaredField(attribute);
+            field.setAccessible(true);
+            return returnType.cast(field.get(instance));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
     protected void assumeMockServer() {
         Assume.assumeTrue(useMockServer());
     }

@@ -42,6 +42,7 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
+@Deprecated
 @RunWith(AndroidJUnit4.class)
 public class DynamicConfigTest extends BaseTest {
 
@@ -55,6 +56,7 @@ public class DynamicConfigTest extends BaseTest {
         assertNotSame(mobileSso1, mobileSso3);
     }
 
+    @Deprecated
     @Test
     public void restoreConnectedGatewayAfterShutdown() throws Exception {
 
@@ -75,6 +77,7 @@ public class DynamicConfigTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void storageContainsMultipleGatewayData() throws Exception {
 
@@ -134,6 +137,7 @@ public class DynamicConfigTest extends BaseTest {
     }
 
 
+    @Deprecated
     @Test
     public void onlyDeregisterWithConnectedGateway() throws Exception {
 
@@ -192,6 +196,7 @@ public class DynamicConfigTest extends BaseTest {
         }
     }
 
+    @Deprecated
     @Test
     public void testDestroyAllTokens() throws Exception {
         storageContainsMultipleGatewayData();
@@ -219,6 +224,7 @@ public class DynamicConfigTest extends BaseTest {
         assertEquals(gateway1, gateway3);
     }
 
+    @Deprecated
     @Test
     public void testSwitchReceiver() throws Exception {
         ConfigurationManager.getInstance().setConfigurationFileName(getConfigJsonFileName());
@@ -248,6 +254,7 @@ public class DynamicConfigTest extends BaseTest {
 
     }
 
+    @Deprecated
     @Test
     public void testClientUpdate() throws Exception {
         //Connect to Gateway1

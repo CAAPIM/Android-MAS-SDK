@@ -2,23 +2,24 @@
   "server": {
     "hostname": "localhost",
     "port": 41979,
+    "prefix": "",
     "server_certs": [
       [
         "-----BEGIN CERTIFICATE-----",
-        "MIIC9jCCAd6gAwIBAgIIMbBDMTgUjlQwDQYJKoZIhvcNAQEMBQAwGTEXMBUGA1UEAxMObGJzLWRt",
-        "ei5jYS5jb20wHhcNMTUwNzI3MjIyMTM3WhcNMjUwNzI0MjIyMTM3WjAZMRcwFQYDVQQDEw5sYnMt",
-        "ZG16LmNhLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKAEppgDsbe6jZu/a8E3",
-        "t1g5JU3mDbNFL4gAl3LlPeiS0qI9xTtaFAr8oM/1qsK9Ma/cX5IPfMEO9wA0xwYcCMpO6td79y8m",
-        "EYU7bNUAvjErzC5cuYRlc2Kbb2/C7avO5YmSpmNwjExdO45rDrfrMbzVxYcS1VCPsIn6V4yzztKL",
-        "82mUvfEWJCWhaRiwD3uHnifmeMbzfB632t5BWCQ9yTzxg338ZW4uPxNywt7qW/qyszTr0d5qey1u",
-        "ChRvMBRtrpTbU7vwM/DVl/xWuss7des5dJPE7+IZuk5YBoOwlIqW2bISWVuNWQYSAeih+BMgdfka",
-        "02Z+Xe9PFuYpBZhlhPsCAwEAAaNCMEAwHQYDVR0OBBYEFNm4q/8KmMQm+n+AzXIs2YZttYbeMB8G",
-        "A1UdIwQYMBaAFNm4q/8KmMQm+n+AzXIs2YZttYbeMA0GCSqGSIb3DQEBDAUAA4IBAQBuCqXAfXjT",
-        "s9V0op8Wquqsi575g7dtA+5ygv/mXN+YjWEcMWXI9NBG17vbqPrYEYbIS3HyPi2iU7rNmXaFTzEB",
-        "9CR0QBr/lfWIckt5ZD2Fv/EICwtlouOJwwPEJ1lQzSCMurtYekU/jPI/l5SRqdjdQzKER8VVMrZb",
-        "oQIlUofvetXguYgt/gXLJeX8J6bjgXPjIMu1OCW5jKhHvQ1YqJ49pwC+tk+jI2j7E7Uo8l0WTZwc",
-        "Fa5GI50kVjjRt+u3SKLGVQXGlB3wTujlrNiNJcyvjt3j+Tct71Puf5qHOdiMZ87v0Hsj2DUl65KK",
-        "r2rlkJ+8wG1S/8tdV5x3PtRYD6kR",
+        "MIIDGDCCAgCgAwIBAgIIaJHtKa4XQj4wDQYJKoZIhvcNAQEMBQAwKjEoMCYGA1UEAxMfbW9iaWxl",
+        "LXN0YWdpbmctbXlzcWwubDd0ZWNoLmNvbTAeFw0xNzAxMDQxNzI2MzlaFw0yNzAxMDIxNzI2Mzla",
+        "MCoxKDAmBgNVBAMTH21vYmlsZS1zdGFnaW5nLW15c3FsLmw3dGVjaC5jb20wggEiMA0GCSqGSIb3",
+        "DQEBAQUAA4IBDwAwggEKAoIBAQDsr6QwY8DL7J4aa1MWt+qmJKDGk/4M7Cx7sSUiMvuc9S3cGddQ",
+        "lYOaQsg1a6H8DzsCE7WkX/CcYvJSQ/V26pQfbuwp39C7kTofo5OXZNbQX0EYJjUDfJsZ0lo1GUkn",
+        "dCX0ugR1/NXAzmZYcTGIFVi/y2mMynZHLeEZUKL/O3vS3uniEw4qcxQ2Jz1qT4gGJJNcHHM+4SqV",
+        "17yXm5trvr1aHey3G3KgQWVo0OQ/vZoiRSURADUvWRsym+6CALp73KS1wtbsopE2VtSLrm4ztBbH",
+        "EfH/mp4PkZjpNisoaJwyqCCP+f7ITYSXnjuiGrC/z1KrENGCzXSJl3lHjUFOiZYnAgMBAAGjQjBA",
+        "MB0GA1UdDgQWBBRF0EYejzI/wOSIrB+kz+FgATJdcDAfBgNVHSMEGDAWgBRF0EYejzI/wOSIrB+k",
+        "z+FgATJdcDANBgkqhkiG9w0BAQwFAAOCAQEAOKKUsR3RsYCtiJ+3omovqDFmexlWlW02we0ELwia",
+        "312ATazQPFTxjiHnOyhG+K67ItqTbz3X7vQP8yvQ91JWTHesebnYSxJEAqTEiBC2uLPP7XqUWnJa",
+        "J/XGMAhRVIbkaHfzleWl+BtG++B4tclHqhRWrPfP5S1Ys3SCvmhte09XAmuuPYnuzsoZwJVpx/UJ",
+        "lYxOuSIkYxUOCzGVp7qUYBVzMVW2MEKOiJvAuXM0aeY5+D5Z6uMs+F58W5nbYCgjLTVXRAm46ntG",
+        "NP9R2i3LWnjHhdN+WLtSsmj6dFtzjQbrS9LXa8bR4GRncA34UdW/LMsyiJzd2Iy8mfe2sQu3Zg==",
         "-----END CERTIFICATE-----"
       ]
     ]
@@ -26,19 +27,24 @@
   "oauth": {
     "client": {
       "organization": "CA Technologies",
-      "description": "Example application for Mobile SSO demonstrations",
-      "client_name": "AppA",
+      "description": "PhoneGap example application for Mobile SSO demonstrations",
+      "client_name": "AppC",
       "client_type": "confidential",
       "registered_by": "admin",
+      "client_custom": {},
       "client_ids": [
         {
-          "client_id": "6438edb0-3e74-48b6-8f08-9034140bd797",
+          "client_id": "8298bc51-f242-4c6d-b547-d1d8e8519cb4",
           "client_secret": "",
-          "scope": "openid msso phone profile address email ",
-          "redirect_uri": "https://ios.ssosdk.ca.com/ios",
-          "environment": "iOS",
+
+          "scope": "openid msso phone profile address email msso_register msso_client_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups",
+          "redirect_uri": "camsso:/com.camsso.appc",
+          "environment": "Android",
           "status": "ENABLED",
-          "registered_by": "admin"
+          "registered_by": "admin",
+          "service_ids": "",
+          "account_plan_mapping_ids": "",
+          "client_key_custom": {}
         }
       ]
     },
@@ -53,10 +59,15 @@
       "userinfo_endpoint_path": "/openid/connect/v1/userinfo"
     }
   },
+  "mas": {
+    "scim-path": "/SCIM/MAS-IIP/v2",
+    "mas-storage-path": "/MASS/v1/Client"
+  },
   "mag": {
     "system_endpoints": {
       "device_register_endpoint_path": "/connect/device/register",
-      "device_register_client_endpoint_path": "/connect/device/register/client",
+      "device_renew_endpoint_path": "/connect/device/renew",
+      "device_client_register_endpoint_path": "/connect/device/register/client",
       "device_remove_endpoint_path": "/connect/device/remove",
       "client_credential_init_endpoint_path": "/connect/client/initialize",
       "authenticate_otp_endpoint_path": "/auth/generateOTP"

@@ -68,7 +68,7 @@ public class DefaultConfiguration implements ConfigurationProvider {
      * @param clientSecret   the application's client secret for the initial OAuth token request, eg "6ed4ffcb-4110-4c68-b280-cda17f127374".  Required.
      * @param organization   the organization name for the O component of the client certificate DN, eg "Exampletronics Ltd".  Optional.
      */
-    public DefaultConfiguration(JSONObject raw, String tokenHost, String tokenUriPrefix, String clientId, String clientSecret, String organization) {
+    public DefaultConfiguration(JSONObject raw, String tokenHost, Integer port, String tokenUriPrefix, String clientId, String clientSecret, String organization) {
         if (tokenHost == null)
             throw new NullPointerException("tokenHost");
         if (clientId == null)
@@ -88,7 +88,10 @@ public class DefaultConfiguration implements ConfigurationProvider {
         putProperty(PROP_SSO_ENABLED, true);
         putProperty(PROP_LOCATION_ENABLED, false);
         putProperty(PROP_TOKEN_PORT_HTTP, 8080);
-        putProperty(PROP_TOKEN_PORT_HTTPS, 8443);
+        if (port == null) {
+            port = 8443;
+        }
+        putProperty(PROP_TOKEN_PORT_HTTPS, port);
         putProperty(PROP_CLIENT_CERT_RSA_KEYBITS, 2048);
         putProperty(PROP_RESPONSE_BUFFERING_ENABLED, true);
         putProperty(PROP_RESPONSE_BUFFERING_MAX_SIZE, 10485760);
@@ -201,6 +204,9 @@ public class DefaultConfiguration implements ConfigurationProvider {
      */
     protected String getTokenUrlSuffix(String operation) {
         String prefix = getProperty(PROP_TOKEN_URI_PREFIX);
+        if (prefix == null) {
+            prefix = "";
+        }
         String suffix = operationUriSuffixes.get(operation);
         return prefix + suffix;
     }

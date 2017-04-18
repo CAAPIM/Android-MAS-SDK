@@ -25,10 +25,6 @@ public class CodeVerifierCache {
         return instance;
     }
 
-    public String getCurrentCodeVerifier() {
-        return codeVerifier;
-    }
-
     public void store(String state, String codeVerifier) {
         this.state = state;
         this.codeVerifier = codeVerifier;

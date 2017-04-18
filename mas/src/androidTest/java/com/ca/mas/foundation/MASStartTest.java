@@ -8,12 +8,68 @@
 
 package com.ca.mas.foundation;
 
+import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.ca.mas.MASTestBase;
+import com.ca.mas.core.MobileSso;
+import com.ca.mas.core.MobileSsoFactory;
+
+import junit.framework.Assert;
+
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
+
 @RunWith(AndroidJUnit4.class)
-public class MASStartTest {
+public class MASStartTest extends MASTestBase {
+
+    private String config = "{\n" +
+            "  \"server\": {\n" +
+            "    \"hostname\": \"test.ca.com\"\n" +
+            "  },\n" +
+            "  \"oauth\": {\n" +
+            "    \"client\": {\n" +
+            "      \"organization\": \"CA Technologies\"," +
+            "      \"client_ids\": [\n" +
+            "        {\n" +
+            "          \"client_id\": \"3f27bb4f-b5aa-458b-962b-14d352b7977c\"\n" +
+            "        }\n" +
+            "      ]\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+
+    @Test
+    public void startWithFileIRL() {
+        File file = new File(getContext().getFilesDir(), "test.json");
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file));
+            outputStreamWriter.write(config);
+            outputStreamWriter.close();
+
+            MAS.start(getContext(), file.toURI().toURL());
+
+        } catch (Exception e) {
+            fail();
+        } finally {
+            file.delete();
+
+        }
+
+        Assert.assertEquals("test.ca.com", MASConfiguration.getCurrentConfiguration().getGatewayHostName());
+    }
 
 
 }

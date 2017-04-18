@@ -14,6 +14,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
+apply plugin: 'jacoco'
 
 println '------> Executing mas library build.gradle'
 repositories {
@@ -42,6 +43,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            testCoverageEnabled true
         }
     }
 
@@ -77,6 +82,38 @@ dependencies {
     androidTestCompile "com.android.support:support-annotations:$rootProject.ext.supportAnnotationsVersion"
     androidTestCompile 'com.android.support.test:runner:0.5'
     androidTestCompile 'com.android.support.test:rules:0.5'
+}
+
+//Coverage
+jacoco {
+    toolVersion "0.7.9"
+    reportsDir = file("$buildDir/customJacocoReportDir")
+}
+
+def coverageSourceDirs = ['mas/src/main/java']
+task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest") {
+    group = "Reporting"
+    description = "Generate Jacoco coverage reports after running tests."
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+    classDirectories = fileTree(
+            dir: './build/intermediates/classes/debug',
+            excludes: ['**/R*.class',
+                       '**/*$InjectAdapter.class',
+                       '**/*$ModuleAdapter.class',
+                       '**/*$ViewInjector*.class'
+            ])
+    sourceDirectories = files(coverageSourceDirs)
+    executionData = files("$buildDir/jacoco/testDebug.exec")
+
+    // this allows the coverage report to be generated even if some tests fail
+    project.gradle.taskGraph.whenReady {
+        connectedDebugAndroidTest {
+            ignoreFailures = true
+        }
+    }
 }
 
 //jcenter integration

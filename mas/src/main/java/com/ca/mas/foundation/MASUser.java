@@ -21,9 +21,7 @@ import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.security.DefaultEncryptionProvider;
-import com.ca.mas.core.security.EncryptionProvider;
-import com.ca.mas.core.security.LockableKeyStorageProvider;
+import com.ca.mas.core.security.EncryptionProviderLockable;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
@@ -210,7 +208,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
         return new MASUser() {
             private ScimUser scimUser = getLocalUserProfile();
-            private LockableKeyStorageProvider mKeyStoreProvider = new LockableKeyStorageProvider();
 
             @Override
             public boolean isAuthenticated() {
@@ -591,12 +588,13 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                         idToken.writeToParcel(idTokenParcel, 0);
                         byte[] idTokenBytes = idTokenParcel.marshall();
 
-                        // Delete any previously generated key due to improper closure
-                        mKeyStoreProvider.removeKey(SESSION_LOCK_ALIAS);
-
                         // Save the encrypted token
-                        EncryptionProvider encryptionProvider = getSessionLockEncryptionProvider();
-                        byte[] encryptedData = encryptionProvider.encrypt(idTokenBytes);
+                        EncryptionProviderLockable encryptionProviderLockable
+                                      = new EncryptionProviderLockable(MAS.getContext(), SESSION_LOCK_ALIAS);
+                        // Delete any previously generated key due to improper closure
+                        encryptionProviderLockable.clear();
+                        // now encrypt the data
+                        byte[] encryptedData = encryptionProviderLockable.encrypt(idTokenBytes);
                         try {
                             StorageProvider.getInstance()
                                     .getTokenManager()
@@ -616,7 +614,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             return;
                         }
 
-                        mKeyStoreProvider.lock(SESSION_LOCK_ALIAS);
                         idTokenParcel.recycle();
 
                         Callback.onSuccess(callback, null);
@@ -636,12 +633,13 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                                 .getTokenManager()
                                 .getSecureIdToken();
 
-                        EncryptionProvider encryptionProvider = getSessionLockEncryptionProvider();
+                        EncryptionProviderLockable encryptionProviderLockable 
+                                      = new EncryptionProviderLockable(MAS.getContext(), SESSION_LOCK_ALIAS);
                         // Read the decrypted data, reconstruct it as a Parcel, then as an IdToken
                         Parcel parcel = Parcel.obtain();
                         try {
                             // Decrypt the encrypted ID token
-                            byte[] decryptedData = encryptionProvider.decrypt(secureIdToken);
+                            byte[] decryptedData = encryptionProviderLockable.decrypt(secureIdToken);
                             parcel.unmarshall(decryptedData, 0, decryptedData.length);
                             parcel.setDataPosition(0);
 
@@ -667,7 +665,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             }
 
                             // Delete the previously generated key after successfully decrypting
-                            mKeyStoreProvider.removeKey(SESSION_LOCK_ALIAS);
+                            encryptionProviderLockable.clear();
 
                             boolean isTokenExpired = JWTValidation.isIdTokenExpired(idToken);
                             if (!isTokenExpired) {
@@ -718,15 +716,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                         Callback.onError(callback, new SecureLockException(SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN, e));
                     }
                 }
-            }
-
-            private EncryptionProvider getSessionLockEncryptionProvider() {
-                return new DefaultEncryptionProvider(MAS.getContext(), mKeyStoreProvider) {
-                    @Override
-                    protected String getKeyAlias() {
-                        return SESSION_LOCK_ALIAS;
-                    }
-                };
             }
         };
     }

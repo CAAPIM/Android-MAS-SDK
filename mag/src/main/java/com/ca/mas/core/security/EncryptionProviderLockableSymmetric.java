@@ -23,6 +23,10 @@ import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
 
+/**
+ * If this is used for locking a session, be sure to lock when 
+ *    removing the unencrypted token and recycle the existing token
+ */
 public class EncryptionProviderLockableSymmetric implements EncryptionProvider {
     protected Context ctx = null;
     protected String keyAlias = "secret";

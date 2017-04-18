@@ -614,7 +614,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             return;
                         }
 
-                        encryptionProviderLockable.lock();
                         idTokenParcel.recycle();
 
                         Callback.onSuccess(callback, null);

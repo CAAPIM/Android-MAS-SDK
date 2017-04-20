@@ -15,9 +15,9 @@ import android.text.TextUtils;
 import android.util.Base64;
 
 import com.ca.mas.connecta.util.ConnectaConsts;
-import com.ca.mas.identity.ScimIdentifiable;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.util.FoundationConsts;
+import com.ca.mas.identity.ScimIdentifiable;
 import com.ca.mas.messaging.util.MessagingConsts;
 
 import org.json.JSONException;
@@ -29,24 +29,11 @@ import org.json.JSONObject;
  * {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html">MqttConnectOptions</a>}
  * class.</p>
  */
+
 public abstract class MASMessage implements MASPayload, Parcelable{
-    private String mSenderId;
-    private String mVersion = "1.0";
-    private byte[] mPayload = new byte[0];
-    private boolean mIsDuplicate;
-    private boolean mIsRetained;
-    private long mSentTime = 0L;
-    private String mDisplayName;
-    private String mSenderType = ScimIdentifiable.ResourceType.User.toString();
-    private String mContentType = MessagingConsts.DEFAULT_TEXT_PLAIN_CONTENT_TYPE;
-    private String mContentEncoding = MessagingConsts.DEFAULT_BASE64_ENCODING;
-    private int mQos = 2;
-    private String mTopic;
 
     public static MASMessage newInstance(Intent intent) throws MASMessageException {
-        MASMessage m = MASMessage.newInstance();
-        m.createMASMessageFromJSONString(intent.getStringExtra(FoundationConsts.KEY_MESSAGE));
-        return m;
+        return intent.getParcelableExtra(FoundationConsts.KEY_MESSAGE);
     }
 
     public static MASMessage newInstance() {
@@ -60,6 +47,18 @@ public abstract class MASMessage implements MASPayload, Parcelable{
             @Override
             public void writeToParcel(Parcel dest, int flags) {
 
+                dest.writeString(this.mSenderId);
+                dest.writeString(this.mVersion);
+                dest.writeByteArray(this.mPayload);
+                dest.writeByte(this.mIsDuplicate ? (byte) 1 : (byte) 0);
+                dest.writeByte(this.mIsRetained ? (byte) 1 : (byte) 0);
+                dest.writeLong(this.mSentTime);
+                dest.writeString(this.mDisplayName);
+                dest.writeString(this.mSenderType);
+                dest.writeString(this.mContentType);
+                dest.writeString(this.mContentEncoding);
+                dest.writeInt(this.mQos);
+                dest.writeString(this.mTopic);
             }
 
             private String mSenderId;

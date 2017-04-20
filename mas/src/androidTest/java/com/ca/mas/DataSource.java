@@ -12,10 +12,6 @@ import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by andy on 2017-03-13.
- */
-
 public class DataSource {
 
     private Map<String, Device> devices = new HashMap<>();
@@ -29,7 +25,7 @@ public class DataSource {
         return instance;
     }
 
-    public void store(String key, Device value) {
+    public void storeDevice(String key, Device value) {
         devices.put(key, value);
     }
 

@@ -12,7 +12,7 @@ import android.util.Base64;
 
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.io.IoUtils;
-import com.squareup.okhttp.mockwebserver.Dispatcher;
+import com.ca.mas.storage.StorageDispatcher;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.QueueDispatcher;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
@@ -29,6 +29,7 @@ import sun.security.pkcs.PKCS10;
 
 public class GatewayDefaultDispatcher extends QueueDispatcher {
 
+    //Endpoints
     public static final String CONNECT_DEVICE_CONFIG = "/connect/device/config";
     public static final String CONNECT_DEVICE_EXPIRED_CONFIG = "/connect/device/expiredConfig";
     public static final String CONNECT_DEVICE_REGISTER = "/connect/device/register";
@@ -62,6 +63,8 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
             "  \"device_geo\": \"\",\n" +
             "  \"clientCert.subject\": \"CN=admin, OU=000000000000000, DC=sdk, O=Exampletronics Ltd\"\n" +
             "}\n";
+
+    private StorageDispatcher storageDispatcher = new StorageDispatcher();
 
     @Override
     public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -106,6 +109,11 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
             return generateOtp();
         } else if (request.getPath().contains(USER_INFO)) {
             return userInfo();
+        }
+
+        MockResponse response = storageDispatcher.dispatch(request);
+        if (response != null) {
+            return response;
         }
         return other();
     }
@@ -176,7 +184,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
         } catch (Exception e) {
             return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
-        DataSource.getInstance().store(magIdentifier, new DataSource.Device(pkcs10.getSubjectPublicKeyInfo()));
+        DataSource.getInstance().storeDevice(magIdentifier, new DataSource.Device(pkcs10.getSubjectPublicKeyInfo()));
 
         //Mock response for device registration
         String cert = "-----BEGIN CERTIFICATE-----\n" +

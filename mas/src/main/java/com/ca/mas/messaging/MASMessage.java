@@ -30,7 +30,6 @@ import org.json.JSONObject;
  * class.</p>
  */
 public abstract class MASMessage implements MASPayload, Parcelable {
-
     public static MASMessage newInstance(Intent intent) throws MASMessageException {
         return intent.getParcelableExtra(FoundationConsts.KEY_MESSAGE);
     }

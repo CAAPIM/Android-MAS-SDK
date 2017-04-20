@@ -9,7 +9,6 @@ package com.ca.mas.foundation;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.test.InstrumentationRegistry;
 import android.util.Pair;
 
 import com.ca.mas.GatewayDefaultDispatcher;
@@ -31,12 +30,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
@@ -50,10 +49,23 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 public class MASTest extends MASLoginTestBase {
-
     @Test
     public void testAccessProtectedEndpoint() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+        assertNotNull(callback.get().getBody().getContent());
+        RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS);
+        assertNotNull(rr.getHeader("Authorization"));
+    }
+
+    @Test
+    public void testAccessProtectedEndpointWithURL() throws Exception {
+        MASRequest request = new MASRequest.MASRequestBuilder(new URL(
+                MASConfiguration.getCurrentConfiguration().getGatewayUrl() +
+                        GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
         assertNotNull(callback.get());
@@ -175,7 +187,6 @@ public class MASTest extends MASLoginTestBase {
 
         RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS);
         assertTrue(rr.getHeader("Authorization").contains(NEW_ACCESS_TOKEN));
-
     }
 
     @Test
@@ -230,7 +241,6 @@ public class MASTest extends MASLoginTestBase {
     }
 
     private static class JSONArrayResponse extends MASResponseBody<JSONArray> {
-
         @Override
         public JSONArray getContent() {
             try {
@@ -238,7 +248,6 @@ public class MASTest extends MASLoginTestBase {
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
-
         }
     }
 
@@ -271,7 +280,6 @@ public class MASTest extends MASLoginTestBase {
                     new String(((TargetApiException) (e.getCause()).getCause()).getResponse().getBody().getRawContent()));
             assertEquals(HttpURLConnection.HTTP_INTERNAL_ERROR,
                     ((TargetApiException) (e.getCause()).getCause()).getResponse().getResponseCode());
-
         }
     }
 
@@ -335,9 +343,7 @@ public class MASTest extends MASLoginTestBase {
 
         RecordedRequest recordedRequest = getRecordRequest(uri.getPath());
         assertEquals(request.getMethod(), recordedRequest.getMethod());
-
     }
-
 
     @Test
     public void testHttpPost() throws Exception {
@@ -403,6 +409,7 @@ public class MASTest extends MASLoginTestBase {
         MASRequest request = new MASRequest.MASRequestBuilder(uri)
                 .post(MASRequestBody.jsonBody(requestData))
                 .header(RESPONSE_HEADER_NAME, RESPONSE_HEADER_VALUE)
+                .removeHeader("test")
                 .build();
 
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
@@ -418,7 +425,89 @@ public class MASTest extends MASLoginTestBase {
         assertEquals(requestData.toString(), new String(recordedRequest.getBody().readUtf8()));
         assertEquals(RESPONSE_HEADER_VALUE, recordedRequest.getHeader(RESPONSE_HEADER_NAME));
         assertTrue(uri.toString().endsWith(recordedRequest.getPath()));
+    }
 
+    @Test
+    public void testExplicitJSONResponseType() throws Exception {
+        final JSONObject responseData = new JSONObject();
+        responseData.put("jsonName", "jsonValue");
+        responseData.put("jsonName2", 1234);
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK).
+                        setHeader("Content-type", ContentType.APPLICATION_JSON).
+                        setBody(responseData.toString());
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .responseBody(MASResponseBody.jsonBody())
+                .build();
+
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        assertEquals(responseData.toString(), callback.get().getBody().getContent().toString());
+    }
+
+    @Test
+    public void testExplicitStringResponseType() throws Exception {
+        final String responseData = "test";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK).
+                        setHeader("Content-type", ContentType.TEXT_PLAIN).
+                        setBody(responseData);
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .responseBody(MASResponseBody.stringBody())
+                .build();
+
+        MASCallbackFuture<MASResponse<String>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        assertEquals(responseData, callback.get().getBody().getContent());
+    }
+
+    @Test
+    public void testExplicitByteResponseType() throws Exception {
+        final String responseData = "test";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK).
+                        setHeader("Content-type", ContentType.APPLICATION_OCTET_STREAM).
+                        setBody(responseData);
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .responseBody(MASResponseBody.byteArrayBody())
+                .build();
+
+        MASCallbackFuture<MASResponse<byte[]>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        assertEquals(responseData, new String(callback.get().getBody().getContent()));
     }
 
     @Test
@@ -454,7 +543,6 @@ public class MASTest extends MASLoginTestBase {
         assertEquals("formfield1=field1Value&formfield2=field2Value&formfield3=field3Value", s);
         assertEquals(request.getMethod(), recordedRequest.getMethod());
         assertTrue(uri.toString().endsWith(recordedRequest.getPath()));
-
     }
 
     @Test
@@ -524,12 +612,10 @@ public class MASTest extends MASLoginTestBase {
         } catch (ExecutionException e) {
             throw e.getCause().getCause();
         }
-
     }
 
     @Test
     public void testMagIdentifier() throws Exception {
-
 
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
@@ -547,7 +633,6 @@ public class MASTest extends MASLoginTestBase {
 
         RecordedRequest deRegisterRequest = getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_REMOVE);
         assertNotNull(deRegisterRequest.getHeader(ServerClient.MAG_IDENTIFIER));
-
     }
 
     @Test
@@ -572,6 +657,19 @@ public class MASTest extends MASLoginTestBase {
         assertNotNull(callback.get());
         assertTrue(onObtained[0]);
         assertTrue(onConnected[0]);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    @SuppressWarnings("ResourceType")
+    public void testInvalidGrantFlow() throws Exception {
+        MAS.setGrantFlow(4);
+    }
+
+    @Test
+    public void testGatewayIsReachable() throws Exception {
+        MASCallbackFuture<Boolean> callback = new MASCallbackFuture<>();
+        MAS.gatewayIsReachable(callback);
+        Assert.assertTrue(callback.get());
     }
 
     @Test

@@ -6,19 +6,17 @@
  *
  */
 
-package com.ca.mas;
+package com.ca.mas.storage;
 
-import com.ca.mas.foundation.MASFoundationTestSuite;
-import com.ca.mas.storage.MASStorageTestSuite;
-
+import org.junit.experimental.categories.Categories;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-@RunWith(Suite.class)
+@RunWith(Categories.class)
 @Suite.SuiteClasses({
-        MASFoundationTestSuite.class,
-        MASStorageTestSuite.class,
+        MASSecureLocalStorageUserTest.class,
+        MASSecureLocalStorageApplicationTest.class,
 })
 
-public class MASTestSuite {
+public class MASStorageTestSuite {
 }

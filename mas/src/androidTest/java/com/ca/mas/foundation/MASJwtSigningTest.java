@@ -52,7 +52,6 @@ import java.util.concurrent.ExecutionException;
 import static junit.framework.Assert.assertTrue;
 
 public class MASJwtSigningTest extends MASLoginTestBase {
-
     @Test
     public void testJSONDefaultTimeoutPost() throws Exception {
         JSONObject requestData = new JSONObject();
@@ -196,7 +195,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         JWSObject signedObject = JWSObject.parse(signedDoc);
 
         net.minidev.json.JSONObject payload = signedObject.getPayload().toJSONObject();
-        Assert.assertEquals("test", new String(Base64.decode((String)payload.get(MASClaims.CONTENT), Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_PADDING)));
+        Assert.assertEquals("test", new String(Base64.decode((String) payload.get(MASClaims.CONTENT), Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_PADDING)));
     }
 
     @Test
@@ -221,7 +220,6 @@ public class MASJwtSigningTest extends MASLoginTestBase {
 
         net.minidev.json.JSONObject payload = JWSObject.parse(signedJWT).getPayload().toJSONObject();
         Assert.assertEquals(requestData.get("jsonName"), (new JSONObject(payload.get("content").toString())).get("jsonName"));
-
     }
 
     @Test
@@ -251,10 +249,9 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         Assert.assertFalse(signedObject.verify(verifier));
 
         KeyUtils.deletePrivateKey("TEST");
-
     }
 
-    @Test(expected = IllegalStateException.class )
+    @Test(expected = IllegalStateException.class)
     public void testSignWithNonRegisteredDevice() throws Exception, MASException {
         if (MASDevice.getCurrentDevice().isRegistered()) {
             MASCallbackFuture<Void> deregisterCallback = new MASCallbackFuture<Void>();
@@ -263,7 +260,5 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         }
         MASClaims claims = new MASClaims.MASClaimsBuilder().build();
         MAS.sign(claims);
-
-
     }
 }

@@ -23,7 +23,6 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 public abstract class MASStorageTest extends MASLoginTestBase {
-
     abstract
     @MASStorageSegment
     int getMode();
@@ -45,7 +44,6 @@ public abstract class MASStorageTest extends MASLoginTestBase {
 
     @Test(expected = NullPointerException.class)
     public void testSaveNull() throws Throwable {
-
         String key = "key";
         String value = null;
         MASCallbackFuture<Void> callbackFuture = new MASCallbackFuture<>();
@@ -57,7 +55,6 @@ public abstract class MASStorageTest extends MASLoginTestBase {
             throw ((MASException) e.getCause()).getRootCause();
         }
     }
-
 
     @Test(expected = TypeNotPresentException.class)
     public void testSaveUnsupportedData() throws Throwable {
@@ -85,7 +82,6 @@ public abstract class MASStorageTest extends MASLoginTestBase {
         MASCallbackFuture<String> findByKeyCallbackFuture = new MASCallbackFuture<>();
         getMASStorage().findByKey(key, getMode(), findByKeyCallbackFuture);
         assertEquals(expectedValue, findByKeyCallbackFuture.get());
-
     }
 
     @Test
@@ -104,7 +100,6 @@ public abstract class MASStorageTest extends MASLoginTestBase {
         MASCallbackFuture<JSONObject> findByKeyCallbackFuture = new MASCallbackFuture<>();
         getMASStorage().findByKey(expectedKey, getMode(), findByKeyCallbackFuture);
         assertEquals(jsonObject.toString(), findByKeyCallbackFuture.get().toString());
-
     }
 
     @Test
@@ -119,7 +114,6 @@ public abstract class MASStorageTest extends MASLoginTestBase {
         MASCallbackFuture<byte[]> findByKeyCallbackFuture = new MASCallbackFuture<>();
         getMASStorage().findByKey("key", getMode(), findByKeyCallbackFuture);
         assertTrue(Arrays.equals(expectedValue, findByKeyCallbackFuture.get()));
-
     }
 
     @Test
@@ -136,7 +130,6 @@ public abstract class MASStorageTest extends MASLoginTestBase {
         MASCallbackFuture<byte[]> findByKeyCallbackFuture = new MASCallbackFuture<>();
         getMASStorage().findByKey("doesNotExist", getMode(), findByKeyCallbackFuture);
         assertNull(findByKeyCallbackFuture.get());
-
     }
 
     @Test
@@ -145,7 +138,5 @@ public abstract class MASStorageTest extends MASLoginTestBase {
         MASCallbackFuture<Void> callbackFuture = new MASCallbackFuture<>();
         getMASStorage().delete("doesNotExist", getMode(), callbackFuture);
         callbackFuture.get();
-
     }
-
 }

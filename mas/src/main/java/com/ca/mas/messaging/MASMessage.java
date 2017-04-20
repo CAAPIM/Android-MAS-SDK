@@ -29,9 +29,7 @@ import org.json.JSONObject;
  * {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html">MqttConnectOptions</a>}
  * class.</p>
  */
-
-public abstract class MASMessage implements MASPayload, Parcelable{
-
+public abstract class MASMessage implements MASPayload, Parcelable {
     public static MASMessage newInstance(Intent intent) throws MASMessageException {
         return intent.getParcelableExtra(FoundationConsts.KEY_MESSAGE);
     }
@@ -46,7 +44,6 @@ public abstract class MASMessage implements MASPayload, Parcelable{
 
             @Override
             public void writeToParcel(Parcel dest, int flags) {
-
                 dest.writeString(this.mSenderId);
                 dest.writeString(this.mVersion);
                 dest.writeByteArray(this.mPayload);

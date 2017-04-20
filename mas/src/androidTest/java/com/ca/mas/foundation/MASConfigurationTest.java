@@ -4,7 +4,6 @@
  *  This software may be modified and distributed under the terms
  *  of the MIT license.  See the LICENSE file for details.
  */
-
 package com.ca.mas.foundation;
 
 import com.ca.mas.MASStartTestBase;
@@ -18,7 +17,6 @@ import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 
 public class MASConfigurationTest extends MASStartTestBase {
-
     @Test
     public void testConfiguration() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
         Assert.assertEquals("https://localhost:41979", MASConfiguration.getCurrentConfiguration().getGatewayUrl().toString());
@@ -41,7 +39,5 @@ public class MASConfigurationTest extends MASStartTestBase {
         Assert.assertEquals(41979, MASConfiguration.getCurrentConfiguration().getGatewayPort());
         Assert.assertEquals("", MASConfiguration.getCurrentConfiguration().getGatewayPrefix());
         Assert.assertTrue(MASConfiguration.getCurrentConfiguration().isSsoEnabled());
-
     }
-
 }

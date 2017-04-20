@@ -590,7 +590,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
 
                         // Save the encrypted token
                         EncryptionProviderLockable encryptionProviderLockable
-                                      = new EncryptionProviderLockable(MAS.getContext(), SESSION_LOCK_ALIAS);
+                                      = new EncryptionProviderLockable(SESSION_LOCK_ALIAS);
                         // Delete any previously generated key due to improper closure
                         encryptionProviderLockable.clear();
                         // now encrypt the data
@@ -634,7 +634,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                                 .getSecureIdToken();
 
                         EncryptionProviderLockable encryptionProviderLockable 
-                                      = new EncryptionProviderLockable(MAS.getContext(), SESSION_LOCK_ALIAS);
+                                      = new EncryptionProviderLockable(SESSION_LOCK_ALIAS);
                         // Read the decrypted data, reconstruct it as a Parcel, then as an IdToken
                         Parcel parcel = Parcel.obtain();
                         try {

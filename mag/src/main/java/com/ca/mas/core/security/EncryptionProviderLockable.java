@@ -27,23 +27,17 @@ import static com.ca.mas.core.util.KeyUtilsAsymmetric.generateRsaPrivateKey;
 public class EncryptionProviderLockable implements EncryptionProvider {
 
     protected Context ctx = null;
-    protected String keyAlias = "secret";
-    protected static final int KEY_SIZE = 2048;
+    private String keyAlias = "com.ca.mas.LOCKABLE_SECRET";
+    private static final int KEY_SIZE = 2048;
 
-    public EncryptionProviderLockable(@NonNull Context ctx) {
-        this.ctx = ctx;
-    }
-
-    public EncryptionProviderLockable(@NonNull Context ctx, @NonNull String keyAlias) {
-        this.ctx = ctx;
+    public EncryptionProviderLockable(@NonNull String keyAlias) {
         this.keyAlias = keyAlias;
     }
-
 
     /**
      * Encrypts the given data.
      *
-     * @param data  the data to encrypt
+     * @param data the data to encrypt
      * @return encrypted data as byte[]
      */
     public byte[] encrypt(byte[] data) {
@@ -51,15 +45,15 @@ public class EncryptionProviderLockable implements EncryptionProvider {
             // retrieve the key if it exists
             PublicKey pubkey = KeyUtilsAsymmetric.getRsaPublicKey(keyAlias);
             if (pubkey == null) {
-                PrivateKey privkey = generateRsaPrivateKey(
+                //Do not remove, this will generate private/public key in keychain
+                generateRsaPrivateKey(
                         ctx, KEY_SIZE, keyAlias, "cn=" + keyAlias,
                         true, true, 4, false);
                 pubkey = KeyUtilsAsymmetric.getRsaPublicKey(keyAlias);
             }
-            byte bytesEncrypted[] = KeyUtilsAsymmetric.encrypt(pubkey, KEY_SIZE, data);
-            return bytesEncrypted;
+            return KeyUtilsAsymmetric.encrypt(pubkey, KEY_SIZE, data);
         } catch (Exception x) {
-            if (DEBUG) Log.e(TAG, "Unable to encrypt given data " + data);
+            if (DEBUG) Log.e(TAG, "Unable to encrypt given data");
             throw new RuntimeException(x);
         }
     }
@@ -74,11 +68,10 @@ public class EncryptionProviderLockable implements EncryptionProvider {
         try {
             // retrieve the key if it exists
             PrivateKey privkey = KeyUtilsAsymmetric.getRsaPrivateKey(keyAlias);
-            byte bytesDecrypted[] = KeyUtilsAsymmetric.decrypt(privkey, KEY_SIZE, encryptedData);
-            return bytesDecrypted;
+            return KeyUtilsAsymmetric.decrypt(privkey, KEY_SIZE, encryptedData);
 
         } catch (Exception x) {
-            if (DEBUG) Log.e(TAG, "Unable to decrypt given data " + encryptedData);
+            if (DEBUG) Log.e(TAG, "Unable to decrypt given data.");
             throw new RuntimeException(x);
         }
     }
@@ -89,13 +82,9 @@ public class EncryptionProviderLockable implements EncryptionProvider {
      *
      * @return true if removed
      */
-    public boolean clear()
-    {
+    public boolean clear() {
         KeyUtilsAsymmetric.deletePrivateKey(keyAlias);
         return true;
     }
-
-
-
 
 }

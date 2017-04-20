@@ -75,7 +75,7 @@ public class EncryptionProviderScreenLockCanChange implements EncryptionProvider
     protected SecretKey getKey(String alias) {
 
         // if there is no screen lock, then delete the key and return nothing!!!
-        if (! deviceHasScreenLock()) {
+        if (!deviceHasScreenLock()) {
             Log.w(TAG, "EncryptionProviderScreenLockCanChange getKey there is no screen lock (pin/swipe/password), so the key will be deleted");
             KeyUtilsSymmetric.deleteKey(alias);
             throw new RuntimeException("EncryptionProviderScreenLockCanChange getKey there is no screen lock (pin/swipe/password), so the encryption key has been deleted");
@@ -97,20 +97,14 @@ public class EncryptionProviderScreenLockCanChange implements EncryptionProvider
      *
      * @return true if screen lock present
      */
-    protected boolean deviceHasScreenLock()
+    private boolean deviceHasScreenLock()
     {
         try {
             KeyguardManager km = (KeyguardManager) ctx.getSystemService(Context.KEYGUARD_SERVICE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if ( km.isDeviceSecure() )
-                    return true;
-                else
-                    return false;
+                return km.isDeviceSecure();
             } else {
-                if ( km.isKeyguardSecure() )
-                    return true;
-                else
-                    return false;
+                return km.isKeyguardSecure();
             }
         } catch (Exception x) {
             Log.e(TAG, "Exception determining if screen has a lock (pin/swipe/password), will be assuming it does not", x);

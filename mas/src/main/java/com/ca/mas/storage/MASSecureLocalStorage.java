@@ -17,7 +17,7 @@ import com.ca.mas.core.datasource.DataSourceFactory;
 import com.ca.mas.core.datasource.LocalStoreDataSource;
 import com.ca.mas.core.datasource.LocalStoreEntity;
 import com.ca.mas.core.datasource.LocalStoreKey;
-import com.ca.mas.core.security.DefaultEncryptionProvider;
+import com.ca.mas.core.security.EncryptionProviderScreenLockCanChange;
 import com.ca.mas.core.security.EncryptionProvider;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.util.Functions;
@@ -38,15 +38,10 @@ public class MASSecureLocalStorage extends AbstractMASStorage {
     private EncryptionProvider encProvider;
 
     public MASSecureLocalStorage() {
-        this(new DefaultEncryptionProvider(MAS.getContext()));
-    }
-
-    public MASSecureLocalStorage(EncryptionProvider encryptionProvider) {
 
         this.context = MAS.getContext();
 
-        //Set Default MASEncryptionProvider.
-        setEncryptionProvider(encryptionProvider);
+        encProvider = new EncryptionProviderScreenLockCanChange(MAS.getContext());
 
         //Register all default DataMarshaller
         setDefaultDataMarshallers();
@@ -166,9 +161,6 @@ public class MASSecureLocalStorage extends AbstractMASStorage {
         }, segment, callback);
     }
 
-    private void setEncryptionProvider(@NonNull EncryptionProvider provider) {
-        encProvider = provider;
-    }
 
     private void execute(final Functions.UnaryVoid<String> function, @MASStorageSegment int segment, final MASCallback callback) {
         switch (segment) {

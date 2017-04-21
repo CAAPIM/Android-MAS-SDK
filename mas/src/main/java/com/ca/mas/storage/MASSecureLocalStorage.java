@@ -38,10 +38,15 @@ public class MASSecureLocalStorage extends AbstractMASStorage {
     private EncryptionProvider encProvider;
 
     public MASSecureLocalStorage() {
+        this(new DefaultEncryptionProvider(MAS.getContext()));
+    }
+
+    public MASSecureLocalStorage(EncryptionProvider encryptionProvider) {
 
         this.context = MAS.getContext();
 
-        encProvider = new EncryptionProviderScreenLockCanChange(MAS.getContext());
+        //Set Default MASEncryptionProvider.
+        setEncryptionProvider(encryptionProvider);
 
         //Register all default DataMarshaller
         setDefaultDataMarshallers();
@@ -159,6 +164,10 @@ public class MASSecureLocalStorage extends AbstractMASStorage {
                 }
             }
         }, segment, callback);
+    }
+
+    private void setEncryptionProvider(@NonNull EncryptionProvider provider) {
+        encProvider = provider;
     }
 
 

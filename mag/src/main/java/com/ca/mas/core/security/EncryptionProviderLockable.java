@@ -15,9 +15,6 @@ import com.ca.mas.core.util.KeyUtilsAsymmetric;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.crypto.SecretKey;
 
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
@@ -27,10 +24,15 @@ import static com.ca.mas.core.util.KeyUtilsAsymmetric.generateRsaPrivateKey;
 public class EncryptionProviderLockable implements EncryptionProvider {
 
     protected Context ctx = null;
-    private String keyAlias = "com.ca.mas.LOCKABLE_SECRET";
-    private static final int KEY_SIZE = 2048;
+    protected String keyAlias = "secret";
+    protected static final int KEY_SIZE = 2048;
 
-    public EncryptionProviderLockable(@NonNull String keyAlias) {
+    public EncryptionProviderLockable(@NonNull Context ctx) {
+        this.ctx = ctx;
+    }
+
+    public EncryptionProviderLockable(@NonNull Context ctx, @NonNull String keyAlias) {
+        this.ctx = ctx;
         this.keyAlias = keyAlias;
     }
 
@@ -82,9 +84,13 @@ public class EncryptionProviderLockable implements EncryptionProvider {
      *
      * @return true if removed
      */
-    public boolean clear() {
+    public boolean clear()
+    {
         KeyUtilsAsymmetric.deletePrivateKey(keyAlias);
         return true;
     }
+
+
+
 
 }

@@ -33,12 +33,26 @@ public class EncryptionProviderScreenLockCanChange implements EncryptionProvider
 
     protected Context ctx = null;
     protected String keyAlias = "SCREEN_LOCK";
+    // only used for pre-M
+    protected KeyStoreKeyStorageProvider keyStorageProvider = null;
 
     /**
      * Constructor
      */
     public EncryptionProviderScreenLockCanChange(@NonNull Context ctx) {
         this.ctx = ctx;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            keyStorageProvider = new SharedPreferencesKeyStorageProvider(ctx);
+        }
+    }
+
+    /**
+     * Constructor for Android Pre-M, allows for setting
+     *     KeyStoreKeyStorageProvider
+     */
+    public EncryptionProviderScreenLockCanChange(@NonNull Context ctx, KeyStoreKeyStorageProvider keyStorageProvider) {
+        this.ctx = ctx;
+        this.keyStorageProvider = keyStorageProvider;
     }
 
 
@@ -75,17 +89,23 @@ public class EncryptionProviderScreenLockCanChange implements EncryptionProvider
     protected SecretKey getKey(String alias) {
 
         // if there is no screen lock, then delete the key and return nothing!!!
-        if (!deviceHasScreenLock()) {
+        if (! deviceHasScreenLock()) {
             Log.w(TAG, "EncryptionProviderScreenLockCanChange getKey there is no screen lock (pin/swipe/password), so the key will be deleted");
             KeyUtilsSymmetric.deleteKey(alias);
+            keyStorageProvider.removeKey(alias);
             throw new RuntimeException("EncryptionProviderScreenLockCanChange getKey there is no screen lock (pin/swipe/password), so the encryption key has been deleted");
         }
 
         // otherwise, we can get or create one
-        SecretKey secretKey = KeyUtilsSymmetric.retrieveKey(alias);
-        if (secretKey == null) {
-            secretKey = KeyUtilsSymmetric.generateKey(alias, "AES", 256,
-                                     false, true, 100000, false);
+        SecretKey secretKey = null;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            secretKey = keyStorageProvider.getKey(keyAlias);
+        } else {
+            secretKey = KeyUtilsSymmetric.retrieveKey(alias);
+            if (secretKey == null) {
+                secretKey = KeyUtilsSymmetric.generateKey(alias, "AES", 256,
+                        false, true, 100000, false);
+            }
         }
 
         return secretKey;
@@ -97,19 +117,24 @@ public class EncryptionProviderScreenLockCanChange implements EncryptionProvider
      *
      * @return true if screen lock present
      */
-    private boolean deviceHasScreenLock()
+    protected boolean deviceHasScreenLock()
     {
         try {
             KeyguardManager km = (KeyguardManager) ctx.getSystemService(Context.KEYGUARD_SERVICE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                return km.isDeviceSecure();
+                if ( km.isDeviceSecure() )
+                    return true;
+                else
+                    return false;
             } else {
-                return km.isKeyguardSecure();
+                if ( km.isKeyguardSecure() )
+                    return true;
+                else
+                    return false;
             }
         } catch (Exception x) {
             Log.e(TAG, "Exception determining if screen has a lock (pin/swipe/password), will be assuming it does not", x);
             return false;
         }
     }
-
 }

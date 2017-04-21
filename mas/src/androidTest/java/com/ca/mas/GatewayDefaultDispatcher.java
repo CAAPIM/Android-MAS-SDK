@@ -12,6 +12,7 @@ import android.util.Base64;
 
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.io.IoUtils;
+import com.ca.mas.identity.IdentityDispatcher;
 import com.ca.mas.storage.StorageDispatcher;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.QueueDispatcher;
@@ -65,6 +66,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
             "}\n";
 
     private StorageDispatcher storageDispatcher = new StorageDispatcher();
+    private IdentityDispatcher identityDispatcher = new IdentityDispatcher();
 
     @Override
     public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -115,6 +117,13 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
         if (response != null) {
             return response;
         }
+        response = identityDispatcher.dispatch(request);
+        if (response != null) {
+            return response;
+        }
+
+
+
         return other();
     }
 

@@ -265,7 +265,8 @@ public class EncryptionProviderTest {
     public void testEncryptionProviderLockable() throws Exception {
 
         final String alias = "MY_KEY_ALIAS";
-        EncryptionProviderLockable encryptionProviderLockable = new EncryptionProviderLockable(alias);
+        EncryptionProviderLockable encryptionProviderLockable = new EncryptionProviderLockable(
+                                          InstrumentationRegistry.getTargetContext().getApplicationContext(), alias);
         KeyUtilsSymmetric.deleteKey(alias);
         String dataString = "CA Technologies";
         byte[] data = dataString.getBytes("UTF-8");

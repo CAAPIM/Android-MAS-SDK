@@ -17,7 +17,7 @@ import com.ca.mas.core.datasource.DataSourceFactory;
 import com.ca.mas.core.datasource.LocalStoreDataSource;
 import com.ca.mas.core.datasource.LocalStoreEntity;
 import com.ca.mas.core.datasource.LocalStoreKey;
-import com.ca.mas.core.security.EncryptionProviderScreenLockCanChange;
+import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.util.Functions;

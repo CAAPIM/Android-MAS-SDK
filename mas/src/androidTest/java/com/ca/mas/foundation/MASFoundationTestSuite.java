@@ -50,6 +50,7 @@ import org.junit.runners.Suite;
         MASOneTimePasswordTest.class,
         MASDeviceTest.class,
         MASConfigurationTest.class,
+        MASAuthorizationProviderTest.class,
 })
 
 public class MASFoundationTestSuite {

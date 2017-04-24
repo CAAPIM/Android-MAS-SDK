@@ -360,7 +360,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                         "  \"sub\": \"6vKMGM8Xsw6o54D-FurMX1zXDhYLrf9fBBPFr-HwWXY\",\n" +
                         "  \"given_name\": \"Sarek\",\n" +
                         "  \"family_name\": \"Jensen\",\n" +
-                        "  \"preferred_username\": \"spock\",\n" +
+                        "  \"preferred_username\": \"sarek\",\n" +
                         "  \"picture\": \"https://photos.example.com/profilephoto/72930000000Ccne/F\",\n" +
                         "  \"email\": \"sarek@layer7tech.com\",\n" +
                         "  \"phone_number\": \"555-555-5555\",\n" +

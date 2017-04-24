@@ -25,6 +25,7 @@ import com.ca.mas.identity.user.UserAttributes;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,18 +49,20 @@ public class MASUserIdentityTest extends MASLoginTestBase {
         MASCallbackFuture<UserAttributes> userAttributesMASCallback = new MASCallbackFuture<>();
         MASUser.getCurrentUser().getUserMetaData(userAttributesMASCallback);
         userAttributes = userAttributesMASCallback.get();
-
     }
 
     @Test
-    public void testGetUserByFilter() throws InterruptedException, ExecutionException {
+    public void testGetUserByFilter() throws InterruptedException, ExecutionException, JSONException {
         MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
         MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES).contains("username", "a");
         MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
         List<MASUser> users = callbackFuture.get();
         assertNotNull(users);
         assertEquals(11, users.size());
-
+        for (MASUser user: users) {
+            assertNotNull(user.getAsJSONObject());
+            assertNotNull(user.getUserName());
+        }
     }
 
     @Test

@@ -46,7 +46,7 @@ android {
         }
 
         debug {
-            testCoverageEnabled false
+            testCoverageEnabled true
         }
     }
 
@@ -103,7 +103,8 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
             excludes: ['**/R*.class',
                        '**/*$InjectAdapter.class',
                        '**/*$ModuleAdapter.class',
-                       '**/*$ViewInjector*.class'
+                       '**/*$ViewInjector*.class',
+                       '**/MASSocialLogin.class'
             ])
     sourceDirectories = files(coverageSourceDirs)
     executionData = files("$buildDir/jacoco/testDebug.exec")

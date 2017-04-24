@@ -9,6 +9,7 @@ package com.ca.mas.foundation;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Pair;
 
 import com.ca.mas.GatewayDefaultDispatcher;
@@ -59,6 +60,16 @@ public class MASTest extends MASLoginTestBase {
         assertNotNull(callback.get().getBody().getContent());
         RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS);
         assertNotNull(rr.getHeader("Authorization"));
+    }
+
+    @Test
+    public void testAccessProtectedEndpointRunOnMainThread() throws Exception {
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>(new Handler(getContext().getMainLooper()));
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+        assertNotNull(callback.get().getBody().getContent());
     }
 
     @Test
@@ -226,6 +237,34 @@ public class MASTest extends MASLoginTestBase {
             assertEquals(expectedErrorMessage, (error.getResponse().getBody().getContent().toString()));
         }
     }
+
+    @Test
+    public void appEndpointErrorOnMainThread() throws URISyntaxException, InterruptedException {
+        final String expectedErrorMessage = "{\"error\":\"This is App Error\"}";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse secureServiceResponse() {
+                return new MockResponse().setResponseCode(HttpURLConnection.HTTP_FORBIDDEN)
+                        .addHeader("Content-type", ContentType.APPLICATION_JSON.toString())
+                        .setBody(expectedErrorMessage);
+            }
+        });
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/products?operation=listProducts")).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>(new Handler(getContext().getMainLooper()));
+        MAS.invoke(request, callback);
+        try {
+            assertNotNull(callback.get());
+            fail();
+        } catch (ExecutionException e) {
+            TargetApiException error = (TargetApiException) e.getCause().getCause();
+            assertTrue(((MASException) e.getCause()).getRootCause() instanceof TargetApiException);
+            assertEquals(HttpURLConnection.HTTP_FORBIDDEN, error.getResponse().getResponseCode());
+            assertEquals(expectedErrorMessage, (error.getResponse().getBody().getContent().toString()));
+        }
+    }
+
 
     @Test
     public void testOverrideResponseWithJSONArray() throws Exception {

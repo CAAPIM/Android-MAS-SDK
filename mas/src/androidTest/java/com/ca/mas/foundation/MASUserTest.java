@@ -13,8 +13,10 @@ import junit.framework.Assert;
 
 import org.json.JSONObject;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
@@ -80,5 +82,50 @@ public class MASUserTest extends MASLoginTestBase {
 
         assertTrue(masUser.isActive());
         assertNotNull(masUser.getSource());
+
+        JSONObject nameJson = masUser.getName().getAsJSONObject();
+
+        String expected = "{\n" +
+                "  \"formatted\": \"Ms. Barbara J Jensen, III\",\n" +
+                "  \"familyName\": \"Admin\",\n" +
+                "  \"givenName\": \"Admin\",\n" +
+                "  \"middleName\": \"Jane\",\n" +
+                "  \"honorificPrefix\": \"Ms.\",\n" +
+                "  \"honorificSuffix\": \"III\"\n" +
+                "}";
+        JSONAssert.assertEquals(expected, nameJson, false);
+
+
+        JSONObject addressJson = masUser.getAddressList().get(0).getAsJSONObject();
+
+        expected = "{\n" +
+                "  \"formatted\": \"100 Universal City Plaza\\nHollywood, CA 91608 USA\",\n" +
+                "  \"type\": \"work\",\n" +
+                "  \"streetAddress\": \"100 Universal City Plaza\",\n" +
+                "  \"locality\": \"Hollywood\",\n" +
+                "  \"region\": \"CA\",\n" +
+                "  \"postalCode\": \"91608\",\n" +
+                "  \"country\": \"USA\",\n" +
+                "  \"primary\": true\n" +
+                "}";
+        JSONAssert.assertEquals(expected, addressJson, false);
+
+        JSONObject emailJson = masUser.getEmailList().get(0).getAsJSONObject();
+
+        expected = "{\n" +
+                "  \"type\": \"work\",\n" +
+                "  \"value\": \"sarek@layer7tech.com\",\n" +
+                "  \"primary\": false\n" +
+                "}";
+
+        JSONAssert.assertEquals(expected, emailJson, false);
+
+
+        assertNotNull(masUser.getAsJSONObject());
+        assertNotNull(masUser.getThumbnailImage());
+
+
+
+
     }
 }

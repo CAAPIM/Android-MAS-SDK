@@ -17,6 +17,7 @@ import com.ca.mas.foundation.MASUser;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.group.GroupAttributes;
 import com.ca.mas.identity.group.MASMember;
+import com.ca.mas.identity.user.UserAttributes;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
@@ -207,5 +209,15 @@ public class MASGroupIdentityTest extends MASLoginTestBase {
         assertTrue(groupAttributes.getAttributes().contains("members.$ref"));
         assertTrue(groupAttributes.getAttributes().contains("members.type"));
         assertTrue(groupAttributes.getAttributes().contains("members.display"));
+
+
+        groupAttributes.save(getContext());
+
+        GroupAttributes savedAttributes = new GroupAttributes();
+        assertFalse(savedAttributes.getAttributes().isEmpty());
+        savedAttributes.clear(getContext());
+
+        GroupAttributes nonSavedAttributes = new GroupAttributes();
+        assertTrue(nonSavedAttributes.getAttributes().isEmpty());
     }
 }

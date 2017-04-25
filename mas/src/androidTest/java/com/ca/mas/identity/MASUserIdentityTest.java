@@ -36,7 +36,9 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
@@ -127,7 +129,7 @@ public class MASUserIdentityTest extends MASLoginTestBase {
     }
 
     @Test
-    public void testGetUserMetaData() throws InterruptedException, ExecutionException {
+    public void testGetUserMetaData() throws InterruptedException, ExecutionException, JSONException {
         MASCallbackFuture<UserAttributes> userAttributesMASCallback = new MASCallbackFuture<>();
         MASUser.getCurrentUser().getUserMetaData(userAttributesMASCallback);
         UserAttributes userAttributes = userAttributesMASCallback.get();
@@ -151,5 +153,18 @@ public class MASUserIdentityTest extends MASLoginTestBase {
         assertTrue(userAttributes.getAttributes().contains("groups.$ref"));
         assertTrue(userAttributes.getAttributes().contains("groups.display"));
         assertTrue(userAttributes.getAttributes().contains("groups.type"));
+
+        userAttributes.save(getContext());
+
+        UserAttributes savedAttributes = new UserAttributes();
+        assertFalse(savedAttributes.getAttributes().isEmpty());
+        savedAttributes.clear(getContext());
+
+        UserAttributes nonSavedAttributes = new UserAttributes();
+        assertTrue(nonSavedAttributes.getAttributes().isEmpty());
+
+
+
+
     }
 }

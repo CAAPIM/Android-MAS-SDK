@@ -52,7 +52,10 @@ public class MAGHttpClient {
     public <T> MAGResponse<T> execute(MAGRequest request) throws IOException {
         final HttpURLConnection urlConnection = (HttpURLConnection) request.getURL().openConnection();
 
-        if (DEBUG) Log.d(TAG, String.format("API Request Url: %s", request.getURL()));
+        if (DEBUG) {
+            Log.d(TAG, String.format("API Request Url: %s", request.getURL()));
+            Log.d(TAG, String.format("API Request Method: %s", request.getMethod()));
+        }
 
         try {
             onConnectionObtained(urlConnection);

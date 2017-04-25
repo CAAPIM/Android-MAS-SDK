@@ -54,6 +54,7 @@ public class MASAuthorizationCodeFlowTest extends MASStartTestBase {
     public void testAccessProtectedEndpointWithAuthCodeWithoutPKCE() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
 
         MAS.enablePKCE(false);
+        assertFalse(MAS.isPKCEEnabled());
         final boolean[] success = {false};
         final String[] codeVerifier = new String[]{null};
         final MASCallbackFuture<MASUser> loginCallback = new MASCallbackFuture<>();

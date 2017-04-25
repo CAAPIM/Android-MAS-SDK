@@ -66,6 +66,37 @@ public class MASEnrollmentStartTest extends MASTestBase {
 
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testEnrollmentWithoutKeyHash() throws Throwable {
+
+        MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .encodedAuthority(getHost() + ":" + getPort())
+                .appendPath("connect")
+                .appendPath("device")
+                .appendPath("config")
+                .build();
+
+        MAS.start(InstrumentationRegistry.getTargetContext(), new URL(uri.toString()), callback);
+
+        try {
+            callback.get();
+            Assert.fail();
+        } catch (Exception e) {
+            throw ((MASException) e.getCause()).getRootCause();
+        }
+    }
+
+    @Test
+    public void startWithNullUrl() throws Exception {
+        MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
+        MAS.start(InstrumentationRegistry.getTargetContext(), null, callback);
+        callback.get();
+        Assert.assertEquals(MASConfiguration.getCurrentConfiguration().getGatewayHostName(), "localhost");
+    }
+
     @Test
     public void testEnrollmentWithInvalidHashKey() throws Exception {
 
@@ -77,7 +108,7 @@ public class MASEnrollmentStartTest extends MASTestBase {
                 .appendPath("connect")
                 .appendPath("device")
                 .appendPath("config")
-                .appendQueryParameter("subjectKeyHash","PX7agsaKVqzj3ee1C2sxE15z5KSJOEaEZCxdRKWlMD0=")
+                .appendQueryParameter("subjectKeyHash", "PX7agsaKVqzj3ee1C2sxE15z5KSJOEaEZCxdRKWlMD0=")
                 .build();
 
         MAS.setConnectionListener(null);
@@ -88,7 +119,7 @@ public class MASEnrollmentStartTest extends MASTestBase {
             Assert.fail();
         } catch (Exception e) {
             Assert.assertTrue(e.getCause().getCause() instanceof SSLHandshakeException);
-            Assert.assertTrue(((MASException)e.getCause()).getRootCause() instanceof SSLHandshakeException);
+            Assert.assertTrue(((MASException) e.getCause()).getRootCause() instanceof SSLHandshakeException);
         }
     }
 
@@ -117,7 +148,7 @@ public class MASEnrollmentStartTest extends MASTestBase {
             Assert.fail();
         } catch (Exception e) {
             Assert.assertTrue(e.getCause().getCause() instanceof MASServerException);
-            Assert.assertTrue(((MASException)e.getCause()).getRootCause() instanceof MASServerException);
+            Assert.assertTrue(((MASException) e.getCause()).getRootCause() instanceof MASServerException);
         }
 
     }

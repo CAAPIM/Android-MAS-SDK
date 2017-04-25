@@ -146,7 +146,8 @@ public class MASConfiguration {
      * Determines SDK is enabled for public key pinning for authentication challenge. This read only value is within the JSON configuration file.
      */
     public boolean isEnabledPublicKeyPinning() {
-        return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getTrustedCertificatePinnedPublicKeyHashes() != null;
+        return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getTrustedCertificatePinnedPublicKeyHashes() != null &&
+                ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getTrustedCertificatePinnedPublicKeyHashes().size() > 0;
     }
 
     /**
@@ -185,11 +186,11 @@ public class MASConfiguration {
         return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(key);
     }
 
-    public void setCertificateAdvancedRenewTimeframe(int numDays){
+    public void setCertificateAdvancedRenewTimeframe(int numDays) {
         ConfigurationManager.getInstance().setCertificateAdvancedRenewTimeframe(numDays);
     }
 
-    public int getCertificateAdvancedRenewTimeframe(){
+    public int getCertificateAdvancedRenewTimeframe() {
         return ConfigurationManager.getInstance().getCertificateAdvancedRenewTimeframe();
     }
 }

@@ -44,7 +44,7 @@ public class MessageBroadcaster {
         Intent intent = new Intent();
         intent.setAction(ConnectaConsts.MAS_CONNECTA_BROADCAST_MESSAGE_ARRIVED);
         intent.putExtra(FoundationConsts.KEY_EVENT_TYPE, FoundationConsts.KEY_ON_MESSAGE);
-        intent.putExtra(FoundationConsts.KEY_MESSAGE, masMessage.createJSONStringFromMASMessage(mContext));
+        intent.putExtra(FoundationConsts.KEY_MESSAGE, masMessage);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 }

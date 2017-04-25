@@ -71,5 +71,4 @@ public class MASStartTest extends MASTestBase {
         Assert.assertEquals("test.ca.com", MASConfiguration.getCurrentConfiguration().getGatewayHostName());
     }
 
-
 }

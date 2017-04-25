@@ -590,6 +590,8 @@ public class KeyUtilsSymmetric {
             cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParams);
             return cipher.doFinal(encryptedData);
         } catch (Exception e) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                checkDeleteKeys(key, e);
             if (DEBUG) Log.i(TAG, "Error while decrypting an cipher instance", e);
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -669,7 +671,8 @@ public class KeyUtilsSymmetric {
     @TargetApi(Build.VERSION_CODES.M)
     protected static void checkDeleteKeys(String alias, Exception e)
     {
-        if (e instanceof android.security.keystore.UserNotAuthenticatedException) {
+        if ((e instanceof android.security.keystore.UserNotAuthenticatedException)
+             || (e instanceof android.security.keystore.KeyPermanentlyInvalidatedException)) {
             deleteKey(alias);
             if (DEBUG) Log.e(TAG, "deleted key " + alias + " since User not authenticated");
         }

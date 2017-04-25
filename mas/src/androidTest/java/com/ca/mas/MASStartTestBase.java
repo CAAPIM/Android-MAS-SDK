@@ -13,6 +13,7 @@ import android.support.test.InstrumentationRegistry;
 
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthenticationListener;
+import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASConstants;
 import com.ca.mas.foundation.MASDevice;
 import com.ca.mas.foundation.MASOtpAuthenticationHandler;
@@ -54,6 +55,10 @@ public abstract class MASStartTestBase extends MASTestBase {
         MASDevice.getCurrentDevice().resetLocally();
         MAS.cancelAllRequests();
         MAS.stop();
+    }
+
+    protected boolean isLocal() {
+        return MASConfiguration.getCurrentConfiguration().getGatewayHostName().equals("localhost");
     }
 
 }

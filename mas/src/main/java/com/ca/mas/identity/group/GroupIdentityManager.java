@@ -57,7 +57,7 @@ public class GroupIdentityManager implements MASGroupIdentity {
 
     @Override
     public void getGroupById(String id, final MASCallback<MASGroup> callback) {
-        MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(IdentityUtil.getGroupPath(MAS.getContext())
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(IdentityUtil.getGroupPath()
                 + FoundationConsts.FSLASH + id))
                 .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
                 .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
@@ -162,7 +162,7 @@ public class GroupIdentityManager implements MASGroupIdentity {
 
     private void createAdHocGroup(MASGroup group, final MASCallback<MASGroup> callback) {
         try {
-            MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(IdentityUtil.getGroupPath(MAS.getContext())))
+            MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(IdentityUtil.getGroupPath()))
                     .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
                     .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
                     .responseBody(MAGResponseBody.jsonBody())
@@ -197,7 +197,7 @@ public class GroupIdentityManager implements MASGroupIdentity {
 
     public void deleteAdHocGroup(MASGroup group, final MASCallback<Void> callback) {
         try {
-            String url = IdentityUtil.getGroupPath(MAS.getContext()) + IdentityConsts.FSLASH + group.getId();
+            String url = IdentityUtil.getGroupPath() + IdentityConsts.FSLASH + group.getId();
             MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(url))
                     .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
                     .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
@@ -223,7 +223,7 @@ public class GroupIdentityManager implements MASGroupIdentity {
 
     @Override
     public void getGroupMetaData(final MASCallback<GroupAttributes> callback) {
-        String schemaPath = IdentityUtil.getSchemasPath(MAS.getContext()) + FoundationConsts.FSLASH;
+        String schemaPath = IdentityUtil.getSchemasPath() + FoundationConsts.FSLASH;
         MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(schemaPath
                 + IdentityConsts.SCHEMA_GROUP))
                 .responseBody(MAGResponseBody.jsonBody())
@@ -273,7 +273,7 @@ public class GroupIdentityManager implements MASGroupIdentity {
 
     private void groupUpdate(final MASGroup group, final MASCallback<MASGroup> callback) {
         try {
-            String updateUrl = IdentityUtil.getGroupPath(MAS.getContext()) + FoundationConsts.FSLASH + group.getId();
+            String updateUrl = IdentityUtil.getGroupPath() + FoundationConsts.FSLASH + group.getId();
             MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(updateUrl))
                     .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
                     .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)

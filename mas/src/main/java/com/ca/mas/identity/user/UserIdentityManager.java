@@ -93,7 +93,7 @@ public class UserIdentityManager {
 
     public void getUserById(String id, final MASCallback<MASUser> callback) {
         Uri.Builder builder = new Uri.Builder();
-        String path = IdentityUtil.getUserPath(MAS.getContext());
+        String path = IdentityUtil.getUserPath();
         builder.appendEncodedPath(path.startsWith(IdentityConsts.FSLASH) ? path.substring(1) : path);
         builder.appendPath(id);
         MASRequest masRequest = new MASRequest.MASRequestBuilder(builder.build())
@@ -122,7 +122,7 @@ public class UserIdentityManager {
 
     // --------- META-DATA ----------------------------------------------------
     public void getUserMetaData(final MASCallback<UserAttributes> callback) {
-        String schemaPath = IdentityUtil.getSchemasPath(MAS.getContext()) + FoundationConsts.FSLASH;
+        String schemaPath = IdentityUtil.getSchemasPath() + FoundationConsts.FSLASH;
         MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(schemaPath + IdentityConsts.SCHEMA_USER))
                 .responseBody(MAGResponseBody.jsonBody())
                 .get()

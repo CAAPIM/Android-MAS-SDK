@@ -24,15 +24,15 @@ public class MASUserTest extends MASLoginTestBase {
     public void getCurrentUserTest() throws Exception {
         Assert.assertNotNull(MASUser.getCurrentUser());
         MASUser masUser = MASUser.getCurrentUser();
-        assertEquals("sarek", masUser.getUserName());
-        assertEquals("sarek", masUser.getId());
-        assertEquals("Sarek", masUser.getName().getFamilyName());
+        assertEquals("admin", masUser.getUserName());
+        assertEquals("admin", masUser.getId());
+        assertEquals("Admin", masUser.getName().getFamilyName());
         assertEquals("Ms. Barbara J Jensen, III", masUser.getName().getFormatted());
-        assertEquals("Sarek", masUser.getName().getGivenName());
+        assertEquals("Admin", masUser.getName().getGivenName());
         assertEquals("Jane", masUser.getName().getMiddleName());
         assertEquals("Ms.", masUser.getName().getHonorificPrefix());
         assertEquals("III", masUser.getName().getHonorificSuffix());
-        assertEquals("Sarek", masUser.getDisplayName());
+        assertEquals("Admin", masUser.getDisplayName());
         assertEquals("Babs", masUser.getNickName());
         assertEquals("https://login.example.com/bjensen", masUser.getProfileUrl());
         assertEquals("sarek@layer7tech.com", masUser.getEmailList().get(0).getValue());
@@ -77,5 +77,8 @@ public class MASUserTest extends MASLoginTestBase {
         assertEquals(3, masUser.getGroupList().size());
         assertEquals("e9e30dba-f08f-4109-8486-d5c6a331660a", masUser.getGroupList().get(0).getValue());
         assertEquals("https://example.com/v2/Groups/e9e30dba-f08f-4109-8486-d5c6a331660a", masUser.getGroupList().get(0).getReference());
+
+        assertTrue(masUser.isActive());
+        assertNotNull(masUser.getSource());
     }
 }

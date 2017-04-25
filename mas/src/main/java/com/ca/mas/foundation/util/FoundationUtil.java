@@ -73,20 +73,7 @@ public class FoundationUtil {
         return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getTokenPort();
     }
 
-    /**
-     * <b>Pre-Conditions:</b> The MAG SDK must be initialized.<br>
-     * <b>Description:</b> This method creates a fully qualified host and port representation of the web service base.
-     *
-     * @return - the FQDN as 'https://<host>:<port></port>
-     */
-    public static String getFqdn() {
-        String scheme = FoundationConsts.HTTPS_SCIM_SCHEME;
-        String host = FoundationUtil.getHost();
-        int port = getPort();
-        return scheme + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH + host + FoundationConsts.COLON + port;
-    }
-
-    public static String getBrokerUrl( Context context ) throws IllegalStateException {
+    public static String getBrokerUrl(Context context) throws IllegalStateException {
         return getBrokerUrl(context, null);
     }
 

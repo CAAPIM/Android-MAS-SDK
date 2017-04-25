@@ -169,10 +169,10 @@ public class MASFilteredRequest implements MASFilteredRequestBuilder, MASPaginat
         mQueryComponents = new ArrayList<>();
         StringBuilder fullUrl = new StringBuilder();
         if(mFilterType.equals(IdentityConsts.KEY_USER_ATTRIBUTES)) {
-            fullUrl.append(IdentityUtil.getUserPath(context));
+            fullUrl.append(IdentityUtil.getUserPath());
         }
         if(mFilterType.equals(IdentityConsts.KEY_GROUP_ATTRIBUTES)) {
-            fullUrl.append(IdentityUtil.getGroupPath(context));
+            fullUrl.append(IdentityUtil.getGroupPath());
         }
 
         if(!TextUtils.isEmpty(mQueryCondition)) {

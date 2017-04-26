@@ -227,12 +227,12 @@ public class UserIdentityManager {
 
             @Override
             public boolean isCurrentUser() {
-                return true;
+                return false;
             }
 
             @Override
             public void requestUserInfo(MASCallback<Void> callback) {
-                new UserNotAuthenticatedException();
+                throw new UserNotAuthenticatedException();
             }
 
             @Override

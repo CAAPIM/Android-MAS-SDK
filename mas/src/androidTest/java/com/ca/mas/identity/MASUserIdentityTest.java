@@ -22,8 +22,13 @@ import com.ca.mas.foundation.MASUser;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.common.MASFilteredRequestBuilder;
 import com.ca.mas.identity.user.UserAttributes;
+import com.ca.mas.identity.user.UserNotAuthenticatedException;
 import com.ca.mas.identity.util.IdentityConsts;
+import com.ca.mas.messaging.MASMessage;
+import com.ca.mas.messaging.topic.MASTopic;
 import com.squareup.okhttp.mockwebserver.MockResponse;
+
+import junit.framework.Assert;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,7 +66,7 @@ public class MASUserIdentityTest extends MASLoginTestBase {
         List<MASUser> users = callbackFuture.get();
         assertNotNull(users);
         assertEquals(11, users.size());
-        for (MASUser user: users) {
+        for (MASUser user : users) {
             assertNotNull(user.getAsJSONObject());
             assertNotNull(user.getUserName());
         }
@@ -129,6 +134,97 @@ public class MASUserIdentityTest extends MASLoginTestBase {
     }
 
     @Test
+    public void testNotAuthenticatedUserOperation() throws Exception {
+        MASCallbackFuture<MASUser> masUserMASCallbackFuture = new MASCallbackFuture<>();
+        MASUser.getCurrentUser().getUserById("sarek", masUserMASCallbackFuture);
+        MASUser masUser = masUserMASCallbackFuture.get();
+        try {
+            masUser.requestUserInfo(null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
+        assertFalse(masUser.isAuthenticated());
+        assertFalse(masUser.isCurrentUser());
+
+        try {
+            masUser.startListeningToMyMessages(null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
+        try {
+            masUser.sendMessage((MASTopic)null, null, null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
+        try {
+            masUser.sendMessage((MASMessage) null, null, null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
+        try {
+            masUser.sendMessage(null, null, null, null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
+        try {
+            masUser.stopListeningToMyMessages(null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
+        try {
+            masUser.logout(null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
+        try {
+            masUser.getUserById(null, null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
+        try {
+            masUser.getUsersByFilter(null, null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
+        try {
+            masUser.getUserMetaData(null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
+        Assert.assertNotNull(masUser.getThumbnailImage());
+
+        try {
+            masUser.lockSession(null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
+        try {
+            masUser.unlockSession(null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
+        Assert.assertFalse(masUser.isSessionLocked());
+
+        try {
+            masUser.removeSessionLock(null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+    }
+
+    @Test
     public void testGetUserMetaData() throws InterruptedException, ExecutionException, JSONException {
         MASCallbackFuture<UserAttributes> userAttributesMASCallback = new MASCallbackFuture<>();
         MASUser.getCurrentUser().getUserMetaData(userAttributesMASCallback);
@@ -162,8 +258,6 @@ public class MASUserIdentityTest extends MASLoginTestBase {
 
         UserAttributes nonSavedAttributes = new UserAttributes();
         assertTrue(nonSavedAttributes.getAttributes().isEmpty());
-
-
 
 
     }

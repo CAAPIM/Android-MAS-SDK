@@ -54,7 +54,7 @@ public class IdentityBase implements MASTransformable {
         JSONObject jobj = new JSONObject();
         jobj.put(FoundationConsts.KEY_TYPE, mType);
         jobj.put(FoundationConsts.KEY_VALUE, mValue);
-        return null;
+        return jobj;
     }
 
     @Override

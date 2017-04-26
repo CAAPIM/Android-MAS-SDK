@@ -60,7 +60,7 @@
     }
   },
   "mas": {
-    "scim-path": "/SCIM/MAS-IIP/v2",
+    "scim-path": "/SCIM/MAS/v2",
     "mas-storage-path": "/MASS/v1/Client"
   },
   "mag": {

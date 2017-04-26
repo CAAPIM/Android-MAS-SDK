@@ -312,7 +312,7 @@ public class User implements ScimUser {
 
     @Override
     public String getNickName() {
-        return null;
+        return mNickName;
     }
 
     @Override

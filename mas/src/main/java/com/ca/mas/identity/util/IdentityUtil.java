@@ -81,55 +81,32 @@ public class IdentityUtil extends FoundationUtil {
     /**
      * <b>Description:</b> Create and return the path component of a URI of the form
      * /SCIM/MAS/v2/Schemas
-     * @param context
      * @return String the schemas path.
      */
-    public static String getSchemasPath(Context context){
-        return getPath(context, IdentityConsts.SCIM_SCHEMAS);
+    public static String getSchemasPath(){
+        return getPath(IdentityConsts.SCIM_SCHEMAS);
     }
 
     /**
      * <b>Pre-Conditions:</b> The msso_config must be parsed.<br>
      * <b>Description:</b> This helper method returns the User's URI as defined in the msso_config.json endpoint description.
-     * @param context the Android runtime environment.
      * @return String the formatted URI for accessing Users, ex: SCIM/[provider]/v2/Users.
      */
-    public static String getUserPath(Context context) {
-        return getPath(context, IdentityConsts.SCIM_USERS);
+    public static String getUserPath() {
+        return getPath(IdentityConsts.SCIM_USERS);
     }
 
-    public static String getGroupPath(Context context) {
-        return getPath(context, IdentityConsts.SCIM_GROUPS);
+    public static String getGroupPath() {
+        return getPath(IdentityConsts.SCIM_GROUPS);
     }
 
-    /*
-    Creates the general URL used by SCIM. This method attaches the provider described in the
-    msso_config.json file.
-     */
-    private static String getUrl(Context context, String entity) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(FoundationUtil.getFqdn());
-        String scimPath = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider()
-                .getProperty(FoundationConsts.KEY_CONFIG_SCIM_PATH);
-        if (scimPath == null) {
-            scimPath = "/SCIM/MAS/v2";
-        }
-        sb.append(scimPath);
-        if (!TextUtils.isEmpty(entity)) {
-            sb.append(FoundationConsts.FSLASH);
-            sb.append(entity);
-        }
-        if (DEBUG) Log.d(TAG, "SCIM URL" + sb.toString());
-        return sb.toString();
-    }
 
     /**
-     * Like {@link #getUrl(Context, String)} but only returns the path component of the URL.
-     * @param context
+     * Returns the path component of the URL.
      * @param entity
      * @return
      */
-    private static String getPath(Context context, String entity) {
+    private static String getPath(String entity) {
         StringBuilder sb = new StringBuilder();
         String scimPath = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider()
                 .getProperty(FoundationConsts.KEY_CONFIG_SCIM_PATH);

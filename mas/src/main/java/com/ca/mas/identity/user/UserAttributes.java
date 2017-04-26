@@ -29,8 +29,6 @@ import java.util.List;
  */
 public class UserAttributes extends Attributes {
 
-    private List<Attribute> mUserAttributes;
-
     /**
      * <b>Description:</b> No args constructor.
      */

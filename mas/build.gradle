@@ -46,7 +46,7 @@ android {
         }
 
         debug {
-            testCoverageEnabled false
+            testCoverageEnabled true
         }
     }
 
@@ -82,6 +82,7 @@ dependencies {
     androidTestCompile "com.android.support:support-annotations:$rootProject.ext.supportAnnotationsVersion"
     androidTestCompile 'com.android.support.test:runner:0.5'
     androidTestCompile 'com.android.support.test:rules:0.5'
+    androidTestCompile 'org.skyscreamer:jsonassert:1.5.0'
 }
 
 //Coverage
@@ -103,7 +104,8 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
             excludes: ['**/R*.class',
                        '**/*$InjectAdapter.class',
                        '**/*$ModuleAdapter.class',
-                       '**/*$ViewInjector*.class'
+                       '**/*$ViewInjector*.class',
+                       '**/MASSocialLogin.class'
             ])
     sourceDirectories = files(coverageSourceDirs)
     executionData = files("$buildDir/jacoco/testDebug.exec")

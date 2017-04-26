@@ -157,7 +157,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
             } else {
                 // For public broker connection
                 // MASConnectOptions has been set
-                mConnectOptions.setConnectionTimeout(ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(this), mTimeOutInMillis).getConnectionTimeout());
+                mConnectOptions.setConnectionTimeout(ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(), mTimeOutInMillis).getConnectionTimeout());
                 if (DEBUG) Log.d(TAG, "CONNECTA: onSuccess()");
                 initMqttClient();
                 mMqttClient.connect(mConnectOptions, null, new IMqttActionListener() {
@@ -189,13 +189,13 @@ public class ConnectaService extends Service implements MASConnectaClient {
         if (mMqttClient != null) {
             return;
         }
-        String brokerUrl = ConnectaUtil.getBrokerUrl(getApplicationContext(), mConnectOptions);
+        String brokerUrl = ConnectaUtil.getBrokerUrl(mConnectOptions);
         if (DEBUG) Log.d(TAG, "CONNECTA: brokerUrl: " + brokerUrl);
 
         // we use a UUID instead of the device ID so there are no restrictions
         // on the number of unique connections that can be made.
         String brokerClientId;
-        if (clientId == null || brokerUrl.contains(FoundationUtil.getHost())) {
+        if (clientId == null || brokerUrl.contains(ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getTokenHost())) {
             // Client ID was not set, or if connecting to the gateway, generate a client id
             brokerClientId = ConnectaUtil.getMqttClientId(ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getClientId()
                     , magIdentifier, mConnectOptions.isGateway());

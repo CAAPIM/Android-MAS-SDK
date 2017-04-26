@@ -39,6 +39,7 @@ public abstract class MASTestBase {
 
     private static MockWebServer ssg;
     private HashMap<String, RecordedRequest> recordedRequests = new HashMap<>();
+    private HashMap<String, RecordedRequest> recordRequestWithQueryParameters = new HashMap<>();
     private int requestTaken = 0;
     private GatewayDefaultDispatcher gatewayDefaultDispatcher;
 
@@ -76,6 +77,7 @@ public abstract class MASTestBase {
             ssg.shutdown();
         }
         recordedRequests.clear();
+        recordRequestWithQueryParameters.clear();
         requestTaken = 0;
     }
 
@@ -86,6 +88,7 @@ public abstract class MASTestBase {
             RecordedRequest rr = ssg.takeRequest();
             Uri uri = Uri.parse(rr.getPath());
             recordedRequests.put(uri.getPath(), rr);
+            recordRequestWithQueryParameters.put(rr.getPath(), rr);
         }
         requestTaken = ssg.getRequestCount();
     }
@@ -94,6 +97,12 @@ public abstract class MASTestBase {
         flushRequest();
         return recordedRequests.get(path);
     }
+
+    protected RecordedRequest getRecordRequestWithQueryParameter(String url) throws InterruptedException {
+        flushRequest();
+        return recordRequestWithQueryParameters.get(url);
+    }
+
 
     protected void setDispatcher(Dispatcher dispatcher) {
         ssg.setDispatcher(dispatcher);

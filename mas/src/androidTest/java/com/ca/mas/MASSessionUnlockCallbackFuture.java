@@ -5,12 +5,9 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas;
 
-import android.os.Handler;
-
-import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASSessionUnlockCallback;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -18,24 +15,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-/**
- * A Future represents the result of the MASCallback asynchronous result.
- * @param <T> The result type returned by this Future's get method
- */
-public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
-
+public class MASSessionUnlockCallbackFuture<T> extends MASSessionUnlockCallback<T> implements Future<T> {
     private CountDownLatch countDownLatch = new CountDownLatch(1);
     private boolean done = false;
     private T result;
     private Throwable throwableResult;
-    private Handler handler;
-
-    public MASCallbackFuture() {
-    }
-
-    public MASCallbackFuture(Handler handler) {
-        this.handler = handler;
-    }
 
     @Override
     public void onSuccess(T result) {
@@ -89,7 +73,9 @@ public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
     }
 
     @Override
-    public Handler getHandler() {
-        return handler;
+    public void onUserAuthenticationRequired() {
+        this.done = true;
+        this.throwableResult = new Exception("User authentication required.");
+        countDownLatch.countDown();
     }
 }

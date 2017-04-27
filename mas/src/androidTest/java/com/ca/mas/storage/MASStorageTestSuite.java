@@ -16,6 +16,9 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
         MASSecureLocalStorageUserTest.class,
         MASSecureLocalStorageApplicationTest.class,
+        MASSecureStorageUserTest.class,
+        MASSecureStorageAppTest.class,
+        MASSecureStorageUserAppTest.class,
 })
 
 public class MASStorageTestSuite {

@@ -10,6 +10,7 @@ package com.ca.mas;
 
 import com.ca.mas.foundation.MASFoundationTestSuite;
 import com.ca.mas.identity.MASIdentityTestSuite;
+import com.ca.mas.messaging.MASMessagingTestSuite;
 import com.ca.mas.storage.MASStorageTestSuite;
 
 import org.junit.runner.RunWith;
@@ -20,6 +21,7 @@ import org.junit.runners.Suite;
         MASFoundationTestSuite.class,
         MASStorageTestSuite.class,
         MASIdentityTestSuite.class,
+        MASMessagingTestSuite.class,
 })
 
 public class MASTestSuite {

@@ -1,0 +1,51 @@
+{
+  "enterprise-apps": [
+    {
+      "app": {
+        "id": "appa",
+        "name": "This is app A",
+        "icon_url": "http://mobile-staging-androidautomation.l7tech.com:8080/connect/enterprise/browser/icon/appa",
+        "auth_url": "",
+        "native_url": "camsso://com.camsso.appa",
+        "custom": {}
+      }
+    },
+    {
+      "app": {
+        "id": "appb",
+        "name": "This is app B",
+        "icon_url": "http://mobile-staging-androidautomation.l7tech.com:8080/connect/enterprise/browser/icon/appb",
+        "auth_url": "",
+        "native_url": "camsso://com.camsso.appb",
+        "custom": {
+          "custom-key": "custom-value"
+        }
+      }
+    },
+    {
+      "app": {
+        "id": "appc",
+        "name": "This is app C",
+        "icon_url": "http://mobile-staging-androidautomation.l7tech.com:8080/connect/enterprise/browser/icon/appc",
+        "auth_url": "https://localhost:41979/connect/enterprise/browser/websso/authorize/appc",
+        "native_url": "",
+        "custom": {
+          "employees": [
+            {
+              "firstName": "John",
+              "lastName": "Doe"
+            },
+            {
+              "firstName": "Anna",
+              "lastName": "Smith"
+            },
+            {
+              "firstName": "Peter",
+              "lastName": "Jones"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

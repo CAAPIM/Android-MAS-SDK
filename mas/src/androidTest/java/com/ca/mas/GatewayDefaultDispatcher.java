@@ -22,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.UUID;
@@ -50,6 +51,9 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String USER_INFO = "/openid/connect/v1/userinfo";
     public static final String OTHER = "other";
 
+    public static final String ENTERPRISE_BROWSER = "/connect/enterprise/browser";
+    public static final String ENTERPRISE_BROWSER_APPC = "/connect/enterprise/browser/websso/authorize/appc";
+
     public static final String ID_TOKEN = "dummy-idToken";
     public static final String ID_TOKEN_TYPE = "dummy-idTokenType";
 
@@ -70,61 +74,68 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
     @Override
     public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        request.getBody();
-        if (request.getPath().contains(CONNECT_DEVICE_CONFIG)) {
-            return configDeviceResponse();
-        } else if (request.getPath().contains(CONNECT_DEVICE_EXPIRED_CONFIG)) {
-            return expiredConfigDeviceResponse();
-        } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER)) {
-            return registerDeviceResponse(request);
-        } else if (request.getPath().contains(CONNECT_CLIENT_INITIALIZE)) {
-            return initializeResponse();
-        } else if (request.getPath().contains(AUTH_OAUTH_V2_TOKEN)) {
-            return retrieveTokenResponse();
-        } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY)) {
-            return secureServiceResponseAsArray();
-        } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS)) {
-            return secureServiceResponse();
-       } else if (request.getPath().contains(PROTECTED_RESOURCE_SLOW)) {
-            Thread.sleep(1000);
-            return secureServiceResponse();
-        } else if (request.getPath().contains(TEST_NO_CONTENT)) {
-            return secureServiceResponseWithNoContent();
-        } else if (request.getPath().contains(AUTH_OAUTH_V2_AUTHORIZE)) {
-            return authorizeResponse();
-        } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER_CLIENT)) {
-            return registerDeviceResponse(request);
-        } else if (request.getPath().contains(CONNECT_DEVICE_RENEW)) {
-            return renewDeviceResponse();
-        } else if (request.getPath().contains(CONNECT_SESSION_LOGOUT)) {
-            return logout();
-        } else if (request.getPath().contains(CONNECT_DEVICE_REMOVE)) {
-            return deRegister();
-        } else if (request.getPath().contains(OTP_PROTECTED_URL)) {
-            String xOtp = request.getHeader("X-OTP");
-            if (xOtp == null) {
-                return otpMissingHeader();
-            } else {
-                return otpProtectedResponse();
+        try {
+            request.getBody();
+            if (request.getPath().contains(CONNECT_DEVICE_CONFIG)) {
+                return configDeviceResponse();
+            } else if (request.getPath().contains(CONNECT_DEVICE_EXPIRED_CONFIG)) {
+                return expiredConfigDeviceResponse();
+            } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER)) {
+                return registerDeviceResponse(request);
+            } else if (request.getPath().contains(CONNECT_CLIENT_INITIALIZE)) {
+                return initializeResponse();
+            } else if (request.getPath().contains(AUTH_OAUTH_V2_TOKEN)) {
+                return retrieveTokenResponse();
+            } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY)) {
+                return secureServiceResponseAsArray();
+            } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS)) {
+                return secureServiceResponse();
+            } else if (request.getPath().contains(PROTECTED_RESOURCE_SLOW)) {
+                Thread.sleep(1000);
+                return secureServiceResponse();
+            } else if (request.getPath().contains(TEST_NO_CONTENT)) {
+                return secureServiceResponseWithNoContent();
+            } else if (request.getPath().contains(AUTH_OAUTH_V2_AUTHORIZE)) {
+                return authorizeResponse();
+            } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER_CLIENT)) {
+                return registerDeviceResponse(request);
+            } else if (request.getPath().contains(CONNECT_DEVICE_RENEW)) {
+                return renewDeviceResponse();
+            } else if (request.getPath().contains(CONNECT_SESSION_LOGOUT)) {
+                return logout();
+            } else if (request.getPath().contains(CONNECT_DEVICE_REMOVE)) {
+                return deRegister();
+            } else if (request.getPath().contains(OTP_PROTECTED_URL)) {
+                String xOtp = request.getHeader("X-OTP");
+                if (xOtp == null) {
+                    return otpMissingHeader();
+                } else {
+                    return otpProtectedResponse();
+                }
+            } else if (request.getPath().contains(AUTH_OTP)) {
+                return generateOtp();
+            } else if (request.getPath().contains(USER_INFO)) {
+                return userInfo();
+            } else if (request.getPath().startsWith(ENTERPRISE_BROWSER)) {
+                return enterpriseBrowser(request);
             }
-        } else if (request.getPath().contains(AUTH_OTP)) {
-            return generateOtp();
-        } else if (request.getPath().contains(USER_INFO)) {
-            return userInfo();
+
+            MockResponse response = storageDispatcher.dispatch(request);
+            if (response != null) {
+                return response;
+            }
+            response = identityDispatcher.dispatch(request);
+            if (response != null) {
+                return response;
+            }
+
+
+            return other();
+        } catch (Exception e) {
+            return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR).
+                    setBody(e.toString());
+
         }
-
-        MockResponse response = storageDispatcher.dispatch(request);
-        if (response != null) {
-            return response;
-        }
-        response = identityDispatcher.dispatch(request);
-        if (response != null) {
-            return response;
-        }
-
-
-
-        return other();
     }
 
     protected MockResponse other() {
@@ -189,7 +200,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
         PKCS10 pkcs10 = null;
         try {
-            pkcs10 = new PKCS10(Base64.decode(request.getBody().readByteArray(),  Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE));
+            pkcs10 = new PKCS10(Base64.decode(request.getBody().readByteArray(), Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE));
         } catch (Exception e) {
             return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
@@ -372,6 +383,13 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                         "    \"country\": \"USA\"\n" +
                         "  }\n" +
                         "}");
+    }
+
+    protected MockResponse enterpriseBrowser(RecordedRequest request) throws IOException, JSONException {
+        return new MockResponse().setResponseCode(200)
+                .setHeader("Content-type", ContentType.APPLICATION_JSON)
+                .setBody(TestUtils.getJSONObject(request.getPath()).toString());
+
     }
 
 

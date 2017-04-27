@@ -5,14 +5,13 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-package com.ca.mas.foundation;
+
+package com.ca.mas.messaging;
 
 import android.util.Base64;
 
 import com.ca.mas.connecta.client.MASConnectaClient;
 import com.ca.mas.connecta.util.ConnectaConsts;
-import com.ca.mas.messaging.MASMessage;
-import com.ca.mas.messaging.MASMessageException;
 
 import org.json.JSONException;
 import org.junit.Before;
@@ -23,7 +22,7 @@ import java.util.Arrays;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
-public class MASMessageTest {
+public class MASMessagingTest {
 
     private MASMessage mMessage;
     private String mSenderId = "admin";

@@ -6,7 +6,7 @@
  *
  */
 
-package com.ca.mas.storage;
+package com.ca.mas.messaging;
 
 import org.junit.experimental.categories.Categories;
 import org.junit.runner.RunWith;
@@ -14,12 +14,8 @@ import org.junit.runners.Suite;
 
 @RunWith(Categories.class)
 @Suite.SuiteClasses({
-        MASSecureLocalStorageUserTest.class,
-        MASSecureLocalStorageApplicationTest.class,
-        MASSecureStorageUserTest.class,
-        MASSecureStorageAppTest.class,
-        MASSecureStorageUserAppTest.class,
+        MASMessagingTest.class,
 })
 
-public class MASStorageTestSuite {
+public class MASMessagingTestSuite {
 }

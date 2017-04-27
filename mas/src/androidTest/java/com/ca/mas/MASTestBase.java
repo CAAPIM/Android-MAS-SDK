@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 
@@ -132,6 +133,17 @@ public abstract class MASTestBase {
             field = instance.getClass().getDeclaredField(attribute);
             field.setAccessible(true);
             return returnType.cast(field.get(instance));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected <T> T invoke(Object instance, String methodName, Class<?>[] parameterTypes, Object[] args, Class<T> returnType) {
+        Method method = null;
+        try {
+            method = instance.getClass().getDeclaredMethod(methodName, parameterTypes);
+            method.setAccessible(true);
+            return returnType.cast(method.invoke(instance, args));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

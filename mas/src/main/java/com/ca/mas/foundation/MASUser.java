@@ -17,6 +17,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
+import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.error.MAGError;
@@ -60,8 +61,11 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Observable;
+import java.util.Observer;
 
 import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN;
 
 /**
@@ -76,6 +80,7 @@ import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_D
 public abstract class MASUser implements MASTransformable, MASMessenger, MASUserIdentity, ScimUser {
     private static final String SESSION_LOCK_ALIAS = "com.ca.mas.SESSION_LOCK";
     private static List<UserRepository> userRepositories = new ArrayList<>();
+    private static MASUser current;
 
     static {
         // For Social Login, the SCIM endpoint should failed and fallback to /userinfo.
@@ -83,10 +88,16 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
         userRepositories = new ArrayList<>();
         userRepositories.add(new ScimUserRepository());
         userRepositories.add(new UserInfoRepository());
+
+        EventDispatcher.STOP.addObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                current = null;
+            }
+        });
+
     }
 
-    protected static final String TAG = MASUser.class.getSimpleName();
-    private static MASUser current;
 
     /**
      * Authenticate a user with username and password.
@@ -209,6 +220,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
     private static MASUser createMASUser() {
 
         return new MASUser() {
+
             private ScimUser scimUser = getLocalUserProfile();
             private LockableKeyStorageProvider mKeyStoreProvider = new LockableKeyStorageProvider();
 

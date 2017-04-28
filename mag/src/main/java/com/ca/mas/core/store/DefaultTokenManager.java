@@ -35,7 +35,7 @@ import static com.ca.mas.core.MAG.TAG;
  * If it doesn't, it may be necessary to start the android.credentials.UNLOCK intent to give the user a
  * chance to set an unlock code and/or unlock the device.
  */
-public class DefaultTokenManager implements TokenManager {
+class DefaultTokenManager implements TokenManager {
 
     private static final String MSSO_USER_PROFILE = "msso.userProfile";
     private static final String MSSO_MAG_IDENTIFIER = "msso.magIdentifier";
@@ -47,7 +47,7 @@ public class DefaultTokenManager implements TokenManager {
     private static final String MSSO_SECURE_ID_TOKEN = "msso.secureIdToken";
     protected DataSource<String, byte[]> storage;
 
-    public DefaultTokenManager(@NonNull DataSource storage) {
+    DefaultTokenManager(@NonNull DataSource storage) {
         this.storage = storage;
     }
 
@@ -64,7 +64,7 @@ public class DefaultTokenManager implements TokenManager {
     @Override
     public void saveClientCertificateChain(X509Certificate[] chain) throws TokenStoreException {
         try {
-            KeyUtils.setCertificateChain(MSSO_CLIENT_CERT_CHAIN_PREFIX, chain);
+            KeyUtils.setCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX), chain);
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to save client certificate chain: " + e.getMessage(), e);
         }
@@ -102,8 +102,8 @@ public class DefaultTokenManager implements TokenManager {
         deleteIdToken();
         deleteUserProfile();
         deleteSecureIdToken();
-        KeyUtils.deletePrivateKey(MSSO_CLIENT_PRIVATE_KEY);
-        KeyUtils.clearCertificateChain(MSSO_CLIENT_CERT_CHAIN_PREFIX);
+        KeyUtils.deletePrivateKey(getKey(MSSO_CLIENT_PRIVATE_KEY));
+        KeyUtils.clearCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX));
         deleteSecureItem(MSSO_MAG_IDENTIFIER);
     }
 
@@ -155,7 +155,7 @@ public class DefaultTokenManager implements TokenManager {
             if (storage instanceof AccountManagerStoreDataSource) {
 
                 // don't require a pin/password/swipe
-                return KeyUtils.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_PRIVATE_KEY,
+                return KeyUtils.generateRsaPrivateKey(ctx, keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
                         MSSO_DN, false, false, -1, false);
 
             } else {
@@ -164,7 +164,7 @@ public class DefaultTokenManager implements TokenManager {
                 //    which will encrypt the keys at rest
                 // otherwise, the keys are already protected from extraction and use
                 //    except by apps with same signing key + shared user id
-                return KeyUtils.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_PRIVATE_KEY,
+                return KeyUtils.generateRsaPrivateKey(ctx, keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
                         MSSO_DN, true, false, -1, false);
             }
 
@@ -177,7 +177,7 @@ public class DefaultTokenManager implements TokenManager {
     @Override
     public PrivateKey getClientPrivateKey() {
         try {
-            return KeyUtils.getRsaPrivateKey(MSSO_CLIENT_PRIVATE_KEY);
+            return KeyUtils.getRsaPrivateKey(getKey(MSSO_CLIENT_PRIVATE_KEY));
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to get client private key: " + e.getMessage(), e);
             return null;
@@ -187,7 +187,7 @@ public class DefaultTokenManager implements TokenManager {
     @Override
     public PublicKey getClientPublicKey() {
         try {
-            return KeyUtils.getRsaPublicKey(MSSO_CLIENT_PRIVATE_KEY);
+            return KeyUtils.getRsaPublicKey(getKey(MSSO_CLIENT_PRIVATE_KEY));
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to get client public key: " + e.getMessage(), e);
             return null;
@@ -198,7 +198,7 @@ public class DefaultTokenManager implements TokenManager {
     @Override
     public boolean isClientCertificateChainAvailable() {
         try {
-            return KeyUtils.getCertificateChain(MSSO_CLIENT_CERT_CHAIN_PREFIX) != null;
+            return KeyUtils.getCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX)) != null;
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to access client cert chain: " + e.getMessage(), e);
             return false;
@@ -208,7 +208,7 @@ public class DefaultTokenManager implements TokenManager {
     @Override
     public X509Certificate[] getClientCertificateChain() {
         try {
-            return KeyUtils.getCertificateChain(MSSO_CLIENT_CERT_CHAIN_PREFIX);
+            return KeyUtils.getCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX));
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to access client cert chain: " + e.getMessage(), e);
             return null;
@@ -247,7 +247,7 @@ public class DefaultTokenManager implements TokenManager {
         }
     }
 
-    void deleteSecureItem(String name) throws TokenStoreException {
+    private void deleteSecureItem(String name) throws TokenStoreException {
         try {
             storage.remove(getKey(name));
         } catch (Exception e) {
@@ -255,7 +255,7 @@ public class DefaultTokenManager implements TokenManager {
         }
     }
 
-    void storeSecureItem(String name, byte[] item) throws TokenStoreException {
+    private void storeSecureItem(String name, byte[] item) throws TokenStoreException {
         try {
             storage.put(getKey(name), item);
         } catch (Exception e) {
@@ -263,7 +263,7 @@ public class DefaultTokenManager implements TokenManager {
         }
     }
 
-    byte[] retrieveSecureItem(String name) throws TokenStoreException {
+    private byte[] retrieveSecureItem(String name) throws TokenStoreException {
         try {
             return storage.get(getKey(name));
         } catch (Exception e) {

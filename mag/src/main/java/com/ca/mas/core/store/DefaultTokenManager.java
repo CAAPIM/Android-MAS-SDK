@@ -35,7 +35,7 @@ import static com.ca.mas.core.MAG.TAG;
  * If it doesn't, it may be necessary to start the android.credentials.UNLOCK intent to give the user a
  * chance to set an unlock code and/or unlock the device.
  */
-public class DefaultTokenManager implements TokenManager {
+class DefaultTokenManager implements TokenManager {
 
     private static final String MSSO_USER_PROFILE = "msso.userProfile";
     private static final String MSSO_MAG_IDENTIFIER = "msso.magIdentifier";
@@ -47,7 +47,7 @@ public class DefaultTokenManager implements TokenManager {
     private static final String MSSO_SECURE_ID_TOKEN = "msso.secureIdToken";
     protected DataSource<String, byte[]> storage;
 
-    public DefaultTokenManager(@NonNull DataSource storage) {
+    DefaultTokenManager(@NonNull DataSource storage) {
         this.storage = storage;
     }
 
@@ -247,7 +247,7 @@ public class DefaultTokenManager implements TokenManager {
         }
     }
 
-    void deleteSecureItem(String name) throws TokenStoreException {
+    private void deleteSecureItem(String name) throws TokenStoreException {
         try {
             storage.remove(getKey(name));
         } catch (Exception e) {
@@ -255,7 +255,7 @@ public class DefaultTokenManager implements TokenManager {
         }
     }
 
-    void storeSecureItem(String name, byte[] item) throws TokenStoreException {
+    private void storeSecureItem(String name, byte[] item) throws TokenStoreException {
         try {
             storage.put(getKey(name), item);
         } catch (Exception e) {
@@ -263,7 +263,7 @@ public class DefaultTokenManager implements TokenManager {
         }
     }
 
-    byte[] retrieveSecureItem(String name) throws TokenStoreException {
+    private byte[] retrieveSecureItem(String name) throws TokenStoreException {
         try {
             return storage.get(getKey(name));
         } catch (Exception e) {

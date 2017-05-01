@@ -21,17 +21,17 @@ import static com.ca.mas.core.MAG.TAG;
 import static com.ca.mas.core.util.KeyUtilsAsymmetric.generateRsaPrivateKey;
 
 
-public class EncryptionProviderLockable implements EncryptionProvider {
+public class LockableEncryptionProvider implements EncryptionProvider {
 
     protected Context ctx = null;
     protected String keyAlias = "secret";
     protected static final int KEY_SIZE = 2048;
 
-    public EncryptionProviderLockable(@NonNull Context ctx) {
+    public LockableEncryptionProvider(@NonNull Context ctx) {
         this.ctx = ctx;
     }
 
-    public EncryptionProviderLockable(@NonNull Context ctx, @NonNull String keyAlias) {
+    public LockableEncryptionProvider(@NonNull Context ctx, @NonNull String keyAlias) {
         this.ctx = ctx;
         this.keyAlias = keyAlias;
     }

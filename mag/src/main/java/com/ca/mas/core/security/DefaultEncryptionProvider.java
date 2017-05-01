@@ -23,13 +23,9 @@ import static com.ca.mas.core.MAG.TAG;
 public class DefaultEncryptionProvider implements EncryptionProvider {
     private KeyStorageProvider ksp;
     private static final String KEY_ALIAS = "secret";
-    private static final String ALGORITHM = "AES";
-    private static final int KEY_SIZE = 256;
-    private static final String AES_GCM_NO_PADDING = "AES/GCM/NoPadding";
-    private static final String HMAC_SHA256 = "HmacSHA256";
-    private static final int IV_LENGTH = 12;
 
     public DefaultEncryptionProvider(@NonNull Context ctx) {
+        //The Secret key will be encrypted and stored on SharedPreferences for Pre-M
         this(ctx, new SharedPreferencesKeyStorageProvider(ctx));
     }
 

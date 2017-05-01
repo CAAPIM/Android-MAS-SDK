@@ -22,7 +22,7 @@ import android.util.Log;
 
 import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
-import com.ca.mas.core.security.EncryptionProviderLockable;
+import com.ca.mas.core.security.LockableEncryptionProvider;
 import com.ca.mas.core.security.KeyStorageProvider;
 import com.ca.mas.core.util.KeyUtilsSymmetric;
 
@@ -265,17 +265,17 @@ public class EncryptionProviderTest {
     public void testEncryptionProviderLockable() throws Exception {
 
         final String alias = "MY_KEY_ALIAS";
-        EncryptionProviderLockable encryptionProviderLockable = new EncryptionProviderLockable(
+        LockableEncryptionProvider lockableEncryptionProvider = new LockableEncryptionProvider(
                                           InstrumentationRegistry.getTargetContext().getApplicationContext(), alias);
         KeyUtilsSymmetric.deleteKey(alias);
         String dataString = "CA Technologies";
         byte[] data = dataString.getBytes("UTF-8");
-        byte[] encryptedData = encryptionProviderLockable.encrypt(data);
+        byte[] encryptedData = lockableEncryptionProvider.encrypt(data);
         Log.i(TAG, "Encrypted Data: " + Base64.encodeToString(encryptedData, Base64.DEFAULT));
 
         //Should get user not authenticated error
         try {
-            encryptionProviderLockable.decrypt(encryptedData);
+            lockableEncryptionProvider.decrypt(encryptedData);
             fail();
         } catch (Exception e) {
             // EncryptionProviderLockable throws Runtime instead of UserNotAuthenticatedException

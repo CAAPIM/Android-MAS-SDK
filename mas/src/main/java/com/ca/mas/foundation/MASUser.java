@@ -22,7 +22,7 @@ import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.security.EncryptionProviderLockable;
+import com.ca.mas.core.security.LockableEncryptionProvider;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
@@ -601,12 +601,12 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                         byte[] idTokenBytes = idTokenParcel.marshall();
 
                         // Save the encrypted token
-                        EncryptionProviderLockable encryptionProviderLockable
-                                      = new EncryptionProviderLockable(MAS.getContext(), SESSION_LOCK_ALIAS);
+                        LockableEncryptionProvider lockableEncryptionProvider
+                                      = new LockableEncryptionProvider(MAS.getContext(), SESSION_LOCK_ALIAS);
                         // Delete any previously generated key due to improper closure
-                        encryptionProviderLockable.clear();
+                        lockableEncryptionProvider.clear();
                         // now encrypt the data
-                        byte[] encryptedData = encryptionProviderLockable.encrypt(idTokenBytes);
+                        byte[] encryptedData = lockableEncryptionProvider.encrypt(idTokenBytes);
                         try {
                             StorageProvider.getInstance()
                                     .getTokenManager()
@@ -645,13 +645,13 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                                 .getTokenManager()
                                 .getSecureIdToken();
 
-                        EncryptionProviderLockable encryptionProviderLockable 
-                                      = new EncryptionProviderLockable(MAS.getContext(), SESSION_LOCK_ALIAS);
+                        LockableEncryptionProvider lockableEncryptionProvider
+                                      = new LockableEncryptionProvider(MAS.getContext(), SESSION_LOCK_ALIAS);
                         // Read the decrypted data, reconstruct it as a Parcel, then as an IdToken
                         Parcel parcel = Parcel.obtain();
                         try {
                             // Decrypt the encrypted ID token
-                            byte[] decryptedData = encryptionProviderLockable.decrypt(secureIdToken);
+                            byte[] decryptedData = lockableEncryptionProvider.decrypt(secureIdToken);
                             parcel.unmarshall(decryptedData, 0, decryptedData.length);
                             parcel.setDataPosition(0);
 
@@ -677,7 +677,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             }
 
                             // Delete the previously generated key after successfully decrypting
-                            encryptionProviderLockable.clear();
+                            lockableEncryptionProvider.clear();
 
                             boolean isTokenExpired = JWTValidation.isIdTokenExpired(idToken);
                             if (!isTokenExpired) {

@@ -22,35 +22,34 @@ import static com.ca.mas.core.MAG.TAG;
 
 /**
  * This class supports key storage.  It will require a screen lock,
- *   but the screen lock can change.  For Android pre-N, this is
- *   managed entirely by checking KeyguardManager.isDeviceSecure()
- *   to determine if there is still a screen lock.  If the screen
- *   lock, pin/swipe/password, is removed entirely, the keys are
- *   deleted.  For Android.N, the keys are also protected inside
- *   the AndroidKeyStore requiring a screen lock.
+ * but the screen lock can change.  For Android pre-N, this is
+ * managed entirely by checking KeyguardManager.isDeviceSecure()
+ * to determine if there is still a screen lock.  If the screen
+ * lock, pin/swipe/password, is removed entirely, the keys are
+ * deleted.  For Android.N, the keys are also protected inside
+ * the AndroidKeyStore requiring a screen lock.
  */
-public class EncryptionProviderScreenLockCanChange implements EncryptionProvider {
+public class ScreenLockEncryptionProvider implements EncryptionProvider {
 
     protected Context ctx = null;
-    protected String keyAlias = "SCREEN_LOCK";
+    private String keyAlias = "com.ca.mas.SCREEN_LOCK_SECRET";
     // only used for pre-M
-    protected KeyStoreKeyStorageProvider keyStorageProvider = null;
+    private KeyStoreKeyStorageProvider keyStorageProvider = null;
 
     /**
      * Constructor
      */
-    public EncryptionProviderScreenLockCanChange(@NonNull Context ctx) {
+    public ScreenLockEncryptionProvider(@NonNull Context ctx) {
         this.ctx = ctx;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            keyStorageProvider = new SharedPreferencesKeyStorageProvider(ctx);
-        }
+        //The Secret key will be encrypted and stored on SharedPreferences for Pre-M
+        keyStorageProvider = new SharedPreferencesKeyStorageProvider(ctx);
     }
 
     /**
      * Constructor for Android Pre-M, allows for setting
-     *     KeyStoreKeyStorageProvider
+     * KeyStoreKeyStorageProvider
      */
-    public EncryptionProviderScreenLockCanChange(@NonNull Context ctx, KeyStoreKeyStorageProvider keyStorageProvider) {
+    public ScreenLockEncryptionProvider(@NonNull Context ctx, KeyStoreKeyStorageProvider keyStorageProvider) {
         this.ctx = ctx;
         this.keyStorageProvider = keyStorageProvider;
     }
@@ -59,7 +58,7 @@ public class EncryptionProviderScreenLockCanChange implements EncryptionProvider
     /**
      * Encrypts the given data.
      *
-     * @param data  the data to encrypt
+     * @param data the data to encrypt
      * @return encrypted data as byte[]
      */
     public byte[] encrypt(byte[] data) {
@@ -89,7 +88,7 @@ public class EncryptionProviderScreenLockCanChange implements EncryptionProvider
     protected SecretKey getKey(String alias) {
 
         // if there is no screen lock, then delete the key and return nothing!!!
-        if (! deviceHasScreenLock()) {
+        if (!deviceHasScreenLock()) {
             Log.w(TAG, "EncryptionProviderScreenLockCanChange getKey there is no screen lock (pin/swipe/password), so the key will be deleted");
             KeyUtilsSymmetric.deleteKey(alias);
             keyStorageProvider.removeKey(alias);
@@ -117,17 +116,16 @@ public class EncryptionProviderScreenLockCanChange implements EncryptionProvider
      *
      * @return true if screen lock present
      */
-    protected boolean deviceHasScreenLock()
-    {
+    protected boolean deviceHasScreenLock() {
         try {
             KeyguardManager km = (KeyguardManager) ctx.getSystemService(Context.KEYGUARD_SERVICE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if ( km.isDeviceSecure() )
+                if (km.isDeviceSecure())
                     return true;
                 else
                     return false;
             } else {
-                if ( km.isKeyguardSecure() )
+                if (km.isKeyguardSecure())
                     return true;
                 else
                     return false;

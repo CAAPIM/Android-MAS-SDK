@@ -90,7 +90,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
 
             // if still no key, generate one
             if (secretKey == null) {
-                secretKey = KeyUtilsSymmetric.generateKey(alias, "AES", 256, false, false, 100000, false);
+                secretKey = KeyUtilsSymmetric.generateKey(alias, "AES", 256, false, false, -1, false);
 
                 // if this is Pre- Android.M, we need to store it locally
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -102,11 +102,11 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
                 //   and we can now store the SecretKey in the AndroidKeyStore
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     KeyUtilsSymmetric.storeKeyAndroidN(alias, secretKey,
-                            false, 100000, false);
+                            false, -1, false);
                     deleteSecretKeyLocally(alias);
                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     KeyUtilsSymmetric.storeKeyAndroidM(alias, secretKey,
-                            false, 100000);
+                            false, -1);
                     deleteSecretKeyLocally(alias);
                 }
             }

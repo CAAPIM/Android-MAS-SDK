@@ -8,16 +8,8 @@
 
 package com.ca.mas.identity;
 
-import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
-import com.ca.mas.core.policy.exceptions.MobileNumberInvalidException;
-import com.ca.mas.core.policy.exceptions.MobileNumberRequiredException;
-import com.ca.mas.foundation.MAS;
-import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.foundation.MASException;
-import com.ca.mas.foundation.MASRequest;
-import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.common.MASFilteredRequestBuilder;
@@ -26,24 +18,20 @@ import com.ca.mas.identity.user.UserNotAuthenticatedException;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
-import com.squareup.okhttp.mockwebserver.MockResponse;
+import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import junit.framework.Assert;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
@@ -59,7 +47,7 @@ public class MASUserIdentityTest extends MASLoginTestBase {
     }
 
     @Test
-    public void testGetUserByFilter() throws InterruptedException, ExecutionException, JSONException {
+    public void testGetUserByFilterContains() throws InterruptedException, ExecutionException, JSONException {
         MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
         MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES).contains("username", "a");
         MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
@@ -154,7 +142,7 @@ public class MASUserIdentityTest extends MASLoginTestBase {
         }
 
         try {
-            masUser.sendMessage((MASTopic)null, null, null);
+            masUser.sendMessage((MASTopic) null, null, null);
             fail();
         } catch (UserNotAuthenticatedException ignored) {
         }
@@ -258,7 +246,153 @@ public class MASUserIdentityTest extends MASLoginTestBase {
 
         UserAttributes nonSavedAttributes = new UserAttributes();
         assertTrue(nonSavedAttributes.getAttributes().isEmpty());
+    }
+
+    @Test
+    public void testGetUserByFilterLessThenOrEqual() throws InterruptedException, ExecutionException, JSONException {
+
+        MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
+        MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES).isLessThanOrEqual("username", "z");
+        MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
+        callbackFuture.get();
+        if (isLocal()) {
+            RecordedRequest recordedRequest = getRecordRequestWithQueryParameter("/SCIM/MAS/v2/Users?filter=username%20le%20%22z%22");
+            assertNotNull(recordedRequest);
+        }
 
 
     }
+    @Test
+    public void testGetUserByFilterLessThan() throws InterruptedException, ExecutionException, JSONException {
+
+        MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
+        MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES).isLessThan("username", "z");
+        MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
+        callbackFuture.get();
+        if (isLocal()) {
+            RecordedRequest recordedRequest = getRecordRequestWithQueryParameter("/SCIM/MAS/v2/Users?filter=username%20lt%20%22z%22");
+            assertNotNull(recordedRequest);
+        }
+    }
+
+    @Test
+    public void testGetUserByFilterGreaterThanOrEqual() throws InterruptedException, ExecutionException, JSONException {
+        MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
+        MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES).isGreaterThanOrEqual("username", "z");
+        MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
+        callbackFuture.get();
+        if (isLocal()) {
+            RecordedRequest recordedRequest = getRecordRequestWithQueryParameter("/SCIM/MAS/v2/Users?filter=username%20ge%20%22z%22");
+            assertNotNull(recordedRequest);
+        }
+    }
+
+    @Test
+    public void testGetUserByFilterGreaterThan() throws InterruptedException, ExecutionException, JSONException {
+        MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
+        MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES).isGreaterThan("username", "z");
+        MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
+        callbackFuture.get();
+        if (isLocal()) {
+            RecordedRequest recordedRequest = getRecordRequestWithQueryParameter("/SCIM/MAS/v2/Users?filter=username%20gt%20%22z%22");
+            assertNotNull(recordedRequest);
+        }
+    }
+
+    @Test
+    public void testGetUserByFilterIsPresent() throws InterruptedException, ExecutionException, JSONException {
+
+        MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
+        MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES).isPresent("username");
+        MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
+        callbackFuture.get();
+        if (isLocal()) {
+            RecordedRequest recordedRequest = getRecordRequestWithQueryParameter("/SCIM/MAS/v2/Users?filter=username%20pr");
+            assertNotNull(recordedRequest);
+        }
+    }
+
+    @Test
+    public void testGetUserByFilterEndWith() throws InterruptedException, ExecutionException, JSONException {
+        MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
+        MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES).endsWith("username", "z");
+        MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
+        callbackFuture.get();
+        if (isLocal()) {
+            RecordedRequest recordedRequest = getRecordRequestWithQueryParameter("/SCIM/MAS/v2/Users?filter=username%20ew%20%22z%22");
+            assertNotNull(recordedRequest);
+        }
+    }
+
+    @Test
+    public void testGetUserByFilterStartWith() throws InterruptedException, ExecutionException, JSONException {
+        MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
+        MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES).startsWith("username", "z");
+        MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
+        callbackFuture.get();
+        if (isLocal()) {
+            RecordedRequest recordedRequest = getRecordRequestWithQueryParameter("/SCIM/MAS/v2/Users?filter=username%20sw%20%22z%22");
+            assertNotNull(recordedRequest);
+        }
+    }
+
+    @Test
+    public void testGetUserByFilterIsNotEqual() throws InterruptedException, ExecutionException, JSONException {
+        MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
+        MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES).isNotEqualTo("username", "z");
+        MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
+        callbackFuture.get();
+        if (isLocal()) {
+            RecordedRequest recordedRequest = getRecordRequestWithQueryParameter("/SCIM/MAS/v2/Users?filter=username%20ne%20%22z%22");
+            assertNotNull(recordedRequest);
+        }
+    }
+
+    @Test
+    public void testGetUserByFilterWithSortOrder() throws InterruptedException, ExecutionException, JSONException {
+        MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
+        MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES)
+                .setSortOrder(MASFilteredRequestBuilder.SortOrder.ascending, "username");
+        MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
+        callbackFuture.get();
+        if (isLocal()) {
+            RecordedRequest recordedRequest = getRecordRequestWithQueryParameter("/SCIM/MAS/v2/Users?sortBy=username&sortOrder=ascending");
+            assertNotNull(recordedRequest);
+        }
+    }
+
+    @Test
+    public void testGetUserByFilterWithPagination() throws InterruptedException, ExecutionException, JSONException {
+        MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
+        MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES)
+                .setPagination(1, 2);
+        MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
+        callbackFuture.get();
+        if (isLocal()) {
+            RecordedRequest recordedRequest = getRecordRequestWithQueryParameter("/SCIM/MAS/v2/Users?startIndex=1&count=2");
+            assertNotNull(recordedRequest);
+        }
+    }
+
+    @Test
+    public void testGetUserByFilterCompound() throws InterruptedException, ExecutionException, JSONException {
+        MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
+        MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES)
+                .setPagination(1, 2)
+                .setSortOrder(MASFilteredRequestBuilder.SortOrder.descending, "username")
+                .startsWith("username", "a");
+
+        MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
+        callbackFuture.get();
+        if (isLocal()) {
+            RecordedRequest recordedRequest = getRecordRequestWithQueryParameter("/SCIM/MAS/v2/Users?filter=username%20sw%20%22a%22&sortBy=username&sortOrder=descending&startIndex=1&count=2");
+            assertNotNull(recordedRequest);
+        }
+    }
+
+
+
+
+
+
 }

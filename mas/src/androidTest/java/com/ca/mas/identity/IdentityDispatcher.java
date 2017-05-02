@@ -23,8 +23,8 @@ public class IdentityDispatcher extends QueueDispatcher {
     public static final String SCHEMAS_GROUP = String.format("/%s/%s/Schemas/urn:ietf:params:scim:schemas:core:2.0:Group", MODULE, VERSION);
     public static final String USERS = String.format("/%s/%s/Users/", MODULE, VERSION);
     public static final String GROUPS = String.format("/%s/%s/Groups", MODULE, VERSION);
-    public static final String USERS_FILTER = String.format("/%s/%s/Users?filter=", MODULE, VERSION);
-    public static final String GROUPS_FILTER = String.format("/%s/%s/Groups?filter=", MODULE, VERSION);
+    public static final String USERS_FILTER = String.format("/%s/%s/Users?", MODULE, VERSION);
+    public static final String GROUPS_FILTER = String.format("/%s/%s/Groups?", MODULE, VERSION);
 
     public static final String NOT_FOUND = "{\"detail\",\"Data with key %s not found\"}";
 

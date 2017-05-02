@@ -38,6 +38,7 @@ public class ConnectaConsts extends FoundationConsts {
     public static final String KEY_SENT_TIME = "SentTime";
     public static final String KEY_PAYLOAD = "Payload";
     public static final String KEY_TOPIC = "Topic";
+    public static final String KEY_QOS = "QoS";
 
     /**
      * Topic Structure

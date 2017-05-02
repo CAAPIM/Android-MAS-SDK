@@ -89,6 +89,7 @@ public class MASMessagingTest extends MASTestBase {
                 "\"" + ConnectaConsts.KEY_CONTENT_TYPE + "\":\"" + mContentType + "\"," +
                 "\"" + ConnectaConsts.KEY_CONTENT_ENCODING + "\":\"" + mContentEncoding + "\"," +
                 "\"" + ConnectaConsts.KEY_PAYLOAD + "\":\"" + mPayloadString + "\"," +
+                "\"" + ConnectaConsts.KEY_QOS + "\":" + mQos + "," +
                 "\"" + ConnectaConsts.KEY_TOPIC + "\":\"" + mTopic + "\"" +
                 "}";
         mMessage.createMASMessageFromJSONString(input);
@@ -100,6 +101,7 @@ public class MASMessagingTest extends MASTestBase {
         assertEquals(mMessage.getSentTime(), mSentTime);
         assertEquals(mMessage.getContentType(), mContentType);
         assertEquals(mMessage.getContentEncoding(), mContentEncoding);
+        assertEquals(mMessage.getQos(), mQos);
         assertEquals(mMessage.getTopic(), mTopic);
         assertTrue(Arrays.equals(mMessage.getPayload(), Base64.decode(mPayload, Base64.NO_WRAP)));
     }
@@ -115,6 +117,7 @@ public class MASMessagingTest extends MASTestBase {
                 "\"" + ConnectaConsts.KEY_SENT_TIME + "\":\"" + mSentTime + "\"," +
                 "\"" + ConnectaConsts.KEY_CONTENT_TYPE + "\":\"" + mContentType + "\"," +
                 "\"" + ConnectaConsts.KEY_CONTENT_ENCODING + "\":\"" + mContentEncoding + "\"," +
+                "\"" + ConnectaConsts.KEY_QOS + "\":" + mQos + "," +
                 "\"" + ConnectaConsts.KEY_PAYLOAD + "\":\"" + mPayloadString + "\"," +
                 "\"" + ConnectaConsts.KEY_TOPIC + "\":\"" + mTopic + "\"" +
                 "}";
@@ -127,6 +130,7 @@ public class MASMessagingTest extends MASTestBase {
         assertEquals(mMessage.getSentTime(), mSentTime);
         assertEquals(mMessage.getContentType(), mContentType);
         assertEquals(mMessage.getContentEncoding(), mContentEncoding);
+        assertEquals(mMessage.getQos(), mQos);
         assertEquals(mMessage.getTopic(), mTopic);
         assertTrue(Arrays.equals(mMessage.getPayload(), Base64.decode(mPayload, Base64.NO_WRAP)));
     }
@@ -152,6 +156,7 @@ public class MASMessagingTest extends MASTestBase {
                 "\"" + ConnectaConsts.KEY_SENT_TIME + "\":" + mSentTime + "," +
                 "\"" + ConnectaConsts.KEY_CONTENT_TYPE + "\":\"" + mContentType + "\"," +
                 "\"" + ConnectaConsts.KEY_CONTENT_ENCODING + "\":\"" + mContentEncoding + "\"," +
+                "\"" + ConnectaConsts.KEY_QOS + "\":" + mQos + "," +
                 "\"" + ConnectaConsts.KEY_PAYLOAD + "\":\"" + new String(Base64.encode(mPayload, Base64.NO_WRAP)) + "\"," +
                 "\"" + ConnectaConsts.KEY_TOPIC + "\":\"" + mTopic + "\"" +
                 "}";
@@ -190,6 +195,7 @@ public class MASMessagingTest extends MASTestBase {
             assertTrue(startTime <= sentTime && sentTime <= System.currentTimeMillis());
             assertEquals(jsonObject.getString(ConnectaConsts.KEY_CONTENT_TYPE), MessagingConsts.DEFAULT_TEXT_PLAIN_CONTENT_TYPE);
             assertEquals(jsonObject.getString(ConnectaConsts.KEY_CONTENT_ENCODING), MessagingConsts.DEFAULT_BASE64_ENCODING);
+            assertEquals(jsonObject.getInt(ConnectaConsts.KEY_QOS), MASConnectaClient.EXACTLY_ONCE);
             assertEquals(jsonObject.getString(ConnectaConsts.KEY_PAYLOAD), expectedPayload);
         } catch (MASMessageException e) {
             throw (JSONException) e.getCause();
@@ -205,6 +211,7 @@ public class MASMessagingTest extends MASTestBase {
         mMessage.setSenderType("");
         mMessage.setContentType("");
         mMessage.setContentEncoding("");
+        mMessage.setQos(0);
         long startTime = System.currentTimeMillis();
 
         String expectedPayload = new String(Base64.encode(mPayload, Base64.NO_WRAP));
@@ -219,6 +226,7 @@ public class MASMessagingTest extends MASTestBase {
             assertTrue(startTime <= sentTime && sentTime <= System.currentTimeMillis());
             assertEquals(jsonObject.getString(ConnectaConsts.KEY_CONTENT_TYPE), MessagingConsts.DEFAULT_TEXT_PLAIN_CONTENT_TYPE);
             assertEquals(jsonObject.getString(ConnectaConsts.KEY_CONTENT_ENCODING), MessagingConsts.DEFAULT_BASE64_ENCODING);
+            assertEquals(jsonObject.getInt(ConnectaConsts.KEY_QOS), MASConnectaClient.AT_MOST_ONCE);
             assertEquals(jsonObject.getString(ConnectaConsts.KEY_PAYLOAD), expectedPayload);
         } catch (MASMessageException e) {
             throw (JSONException) e.getCause();

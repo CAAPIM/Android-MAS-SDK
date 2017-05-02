@@ -12,6 +12,7 @@ import android.os.Parcel;
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
+import com.ca.mas.foundation.auth.MASAuthenticationProvider;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.squareup.okhttp.mockwebserver.MockResponse;
@@ -30,6 +31,7 @@ import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 
 public class MASAuthorizationProviderTest extends MASStartTestBase {
 
@@ -45,6 +47,32 @@ public class MASAuthorizationProviderTest extends MASStartTestBase {
         authenticationProviders = MASAuthenticationProviders.CREATOR.createFromParcel(parcel);
         Assert.assertEquals(6, authenticationProviders.getProviders().size());
         Assert.assertEquals("all", authenticationProviders.getIdp());
+
+        assertTrue(authenticationProviders.getProviders().get(0).isFacebook());
+        assertEquals("facebook", authenticationProviders.getProviders().get(0).getIdentifier());
+
+        assertTrue(authenticationProviders.getProviders().get(1).isGoogle());
+        assertEquals("google", authenticationProviders.getProviders().get(1).getIdentifier());
+
+        assertTrue(authenticationProviders.getProviders().get(2).isSalesForce());
+        assertEquals("salesforce", authenticationProviders.getProviders().get(2).getIdentifier());
+
+        assertTrue(authenticationProviders.getProviders().get(3).isLinkedIn());
+        assertEquals("linkedin", authenticationProviders.getProviders().get(3).getIdentifier());
+
+        assertTrue(authenticationProviders.getProviders().get(4).isEnterprise());
+        assertEquals("enterprise", authenticationProviders.getProviders().get(4).getIdentifier());
+
+        assertTrue(authenticationProviders.getProviders().get(5).isProximityLogin());
+        assertEquals("qrcode", authenticationProviders.getProviders().get(5).getIdentifier());
+        assertNotNull(authenticationProviders.getProviders().get(5).getPollUrl());
+        assertNotNull(authenticationProviders.getProviders().get(5).getAuthenticationUrl());
+
+
+
+
+
+
 
     }
 }

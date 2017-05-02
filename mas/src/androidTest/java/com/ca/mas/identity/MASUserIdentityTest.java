@@ -26,6 +26,7 @@ import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -389,6 +390,40 @@ public class MASUserIdentityTest extends MASLoginTestBase {
             assertNotNull(recordedRequest);
         }
     }
+
+    @Test
+    public void testGetUserByFilterExcludeAttributes() throws InterruptedException, ExecutionException, JSONException {
+        MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
+        MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES)
+                .setExcludedAttributes(Collections.singletonList("displayName"))
+                .setSortOrder(MASFilteredRequestBuilder.SortOrder.descending, "username")
+                .startsWith("username", "a");
+
+        MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
+        callbackFuture.get();
+        if (isLocal()) {
+            RecordedRequest recordedRequest = getRecordRequestWithQueryParameter("/SCIM/MAS/v2/Users?filter=username%20sw%20%22a%22&sortBy=username&sortOrder=descending&excludedAttributes=displayName");
+            assertNotNull(recordedRequest);
+        }
+    }
+
+    @Test
+    public void testGetUserByFilterAttributes() throws InterruptedException, ExecutionException, JSONException {
+        MASCallbackFuture<List<MASUser>> callbackFuture = new MASCallbackFuture<>();
+        MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(userAttributes.getAttributes(), IdentityConsts.KEY_USER_ATTRIBUTES)
+                .setAttributes(Collections.singletonList("displayName"))
+                .setSortOrder(MASFilteredRequestBuilder.SortOrder.descending, "username")
+                .startsWith("username", "a");
+
+        MASUser.getCurrentUser().getUsersByFilter(request, callbackFuture);
+        callbackFuture.get();
+        if (isLocal()) {
+            RecordedRequest recordedRequest = getRecordRequestWithQueryParameter("/SCIM/MAS/v2/Users?filter=username%20sw%20%22a%22&sortBy=username&sortOrder=descending&attributes=displayName");
+            assertNotNull(recordedRequest);
+        }
+    }
+
+
 
 
 

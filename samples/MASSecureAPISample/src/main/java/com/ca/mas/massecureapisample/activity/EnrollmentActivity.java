@@ -29,7 +29,7 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.ca.mas.core.util.KeyUtils;
+import com.ca.mas.core.util.KeyUtilsAsymmetric;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConnectionListener;
@@ -182,7 +182,7 @@ public class EnrollmentActivity extends AppCompatActivity {
 //            KeyUtils.generateRsaPrivateKey(this, 2048,
 //                    ASYM_KEY_ALIAS, String.format("CN=%s, OU=%s", ASYM_KEY_ALIAS, "com.ca"),
 //            false, false, -1, false);
-            PublicKey publicKey = KeyUtils.getRsaPublicKey(sampleKeyAlias);
+            PublicKey publicKey = KeyUtilsAsymmetric.getRsaPublicKey(sampleKeyAlias);
             if (publicKey != null) {
                 JWK publicKeyJWK = new RSAKey.Builder((RSAPublicKey) publicKey)
                         .keyID(UUID.randomUUID().toString())

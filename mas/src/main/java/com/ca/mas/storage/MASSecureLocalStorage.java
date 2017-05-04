@@ -170,6 +170,7 @@ public class MASSecureLocalStorage extends AbstractMASStorage {
         encProvider = provider;
     }
 
+
     private void execute(final Functions.UnaryVoid<String> function, @MASStorageSegment int segment, final MASCallback callback) {
         switch (segment) {
             case MASConstants.MAS_USER:

@@ -87,6 +87,8 @@ public class MssoContext {
 
     private volatile Credentials credentials;
 
+    private static final String MSSO_CONTEXT_NOT_INITIALIZED = "MssoContext not initialized, no token manager.";
+
     /**
      * Retain the container description.  If this app is not running in a container,
      * the value will be "".  If it is, then values include "-knox1", "-knox100", "-knox101"
@@ -275,6 +277,7 @@ public class MssoContext {
         try {
             return tokenManager != null && tokenManager.isClientCertificateChainAvailable();
         } catch (DataSourceException e) {
+            if (DEBUG) Log.w(TAG, "Device not registered: " + e);
             return false;
         }
     }
@@ -529,7 +532,7 @@ public class MssoContext {
         if (configurationProvider == null)
             throw new IllegalStateException("MssoContext not initialized, no configuration provider");
         if (tokenManager == null)
-            throw new IllegalStateException("MssoContext not initialized, no token manager");
+            throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
         final IdToken idToken = getIdToken();
 
         Exception exception = null;
@@ -606,17 +609,17 @@ public class MssoContext {
      *
      * @throws MssoException if there is an error while attempting to tell the token server to unregister this device.
      */
-    public void removeDeviceRegistration() throws MssoException {
+    public void removeDeviceRegistration() throws Exception {
         EventDispatcher.DE_REGISTER.notifyObservers();
         if (tokenManager == null)
-            throw new IllegalStateException("MssoContext not initialized, no token manager");
+            throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
         try {
             if (isDeviceRegistered()) {
                 new RegistrationClient(this).removeDeviceRegistration();
             }
         } catch (Exception e) {
-            if (DEBUG) Log.w(TAG,
-                    "Error in removing Device registration details from the server " + e);
+            if (DEBUG) Log.w(TAG, "Error in removing device registration details from the server " + e);
+            throw e;
         } finally {
             resetHttpClient();
         }
@@ -635,7 +638,7 @@ public class MssoContext {
      */
     public void destroyAllPersistentTokens() throws MssoException {
         if (tokenManager == null)
-            throw new IllegalStateException("MssoContext not initialized, no token manager");
+            throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
         setCredentials(null);
         try {
             privateTokens.clearAll();
@@ -661,7 +664,7 @@ public class MssoContext {
      */
     public void destroyPersistentTokens() throws MssoException {
         if (tokenManager == null)
-            throw new IllegalStateException("MssoContext not initialized, no token manager");
+            throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
         setCredentials(null);
         try {
             privateTokens.clear();

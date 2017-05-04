@@ -17,6 +17,7 @@ import com.ca.mas.core.util.KeyUtilsSymmetric;
 
 import javax.crypto.SecretKey;
 
+import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
 
@@ -89,10 +90,19 @@ public class ScreenLockEncryptionProvider implements EncryptionProvider {
 
         // if there is no screen lock, then delete the key and return nothing!!!
         if (!deviceHasScreenLock()) {
-            Log.w(TAG, "EncryptionProviderScreenLockCanChange getKey there is no screen lock (pin/swipe/password), so the key will be deleted");
-            KeyUtilsSymmetric.deleteKey(alias);
-            keyStorageProvider.removeKey(alias);
-            throw new RuntimeException("EncryptionProviderScreenLockCanChange getKey there is no screen lock (pin/swipe/password), so the encryption key has been deleted");
+            Log.w(TAG, "ScreenLockEncryptionProvider getKey there is no screen lock (pin/swipe/password), so the key will be deleted");
+            try {
+                KeyUtilsSymmetric.deleteKey(alias);
+            } catch (Exception x) {
+                // continue to delete in storage even if error
+            }
+            try {
+                keyStorageProvider.removeKey(alias);
+            } catch (Exception x) { 
+                // continue to runtime exception even if error
+            }
+            if (DEBUG) Log.d(TAG, "ScreenLockEncryptionProvider getKey there is no screen lock (pin/swipe/password), so the encryption key has been deleted");
+            throw new RuntimeException("ScreenLockEncryptionProvider getKey there is no screen lock (pin/swipe/password), so the encryption key has been deleted");
         }
 
         // otherwise, we can get or create one

@@ -254,6 +254,9 @@ public abstract class MASMessage implements MASPayload, Parcelable {
                     }
                     jobj.put(ConnectaConsts.KEY_CONTENT_ENCODING, contentEnc);
 
+                    int qos = getQos();
+                    jobj.put(ConnectaConsts.KEY_QOS, qos);
+
                     byte[] payload = getPayload();
                     if (payload != null && payload.length > 0) {
                         jobj.put(ConnectaConsts.KEY_PAYLOAD, new String(Base64.encode(payload, Base64.NO_WRAP)));

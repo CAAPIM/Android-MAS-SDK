@@ -4,12 +4,12 @@
  *  This software may be modified and distributed under the terms
  *  of the MIT license.  See the LICENSE file for details.
  */
-
 package com.ca.mas.foundation;
 
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
+import com.ca.mas.core.registration.RegistrationServerException;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
@@ -24,14 +24,12 @@ import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 
 public class MASRegistrationTest extends MASStartTestBase {
-
     @Test
     public void testRenewCertification() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
-
         setDispatcher(new GatewayDefaultDispatcher() {
-
             @Override
             protected MockResponse registerDeviceResponse(RecordedRequest request) {
                 // Expired cert to trigger renew
@@ -54,7 +52,6 @@ public class MASRegistrationTest extends MASStartTestBase {
                         .setHeader("id-token", "dummy-idToken")
                         .setHeader("id-token-type", "dummy-idTokenType")
                         .setBody(cert);
-
             }
         });
 
@@ -73,7 +70,38 @@ public class MASRegistrationTest extends MASStartTestBase {
 
         //Make sure it has invoke renew endpoint
         assertNotNull(getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_RENEW));
-
     }
 
+    @Test
+    public void testDeregisterDeviceWithExceptionResponse() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse deRegister() {
+                return new MockResponse()
+                        .setResponseCode(404);
+            }
+        });
+
+        MASCallbackFuture<Void> callback2 = new MASCallbackFuture<>();
+        MASDevice.getCurrentDevice().deregister(callback2);
+        try {
+            callback2.get();
+        } catch (Exception e) {
+            assertNotNull(e);
+            Throwable cause = e.getCause().getCause().getCause();
+            if (cause instanceof RegistrationServerException) {
+                RegistrationServerException re = (RegistrationServerException) cause;
+                assertEquals(re.getStatus(), 404);
+
+                // Can't test the IOException portion, but we can verify the other failure case
+                assertTrue(cause instanceof RegistrationServerException);
+            }
+        }
+    }
 }

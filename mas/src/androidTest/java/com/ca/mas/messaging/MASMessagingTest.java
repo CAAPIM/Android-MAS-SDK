@@ -5,25 +5,33 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.messaging;
 
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 import android.util.Base64;
 
+import com.ca.mas.MASCallbackFuture;
+import com.ca.mas.MASTestBase;
 import com.ca.mas.connecta.client.MASConnectaClient;
 import com.ca.mas.connecta.util.ConnectaConsts;
+import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASUser;
+import com.ca.mas.messaging.util.MessagingConsts;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
-public class MASMessagingTest {
-
+public class MASMessagingTest extends MASTestBase {
+    protected static final int DEFAULT_MAX = 10485760;
     private MASMessage mMessage;
     private String mSenderId = "admin";
     private String mVersion = "1.1";
@@ -32,8 +40,8 @@ public class MASMessagingTest {
     private boolean mDuplicate = true;
     private boolean mRetained = true;
     private long mSentTime = 1234567890L;
-    private String mDisplayName = "Admin";
-    private String mSenderType = "Employee";
+    private String mDisplayName = "admin";
+    private String mSenderType = "User";
     private String mTopic = "Test topic";
     private int mQos = MASConnectaClient.EXACTLY_ONCE;
     private String mContentType = "Test type";
@@ -131,6 +139,117 @@ public class MASMessagingTest {
             mMessage.createMASMessageFromJSONString(invalidInput);
         } catch (MASMessageException e) {
             throw (JSONException) e.getCause();
+        }
+    }
+
+    @Test
+    public void testCreateJSONStringFromMASMessage() throws Exception {
+        String expected = "{" +
+                "\"" + ConnectaConsts.KEY_VERSION + "\":\"" + mVersion + "\"," +
+                "\"" + ConnectaConsts.KEY_SENDER_ID + "\":\"" + mSenderId + "\"," +
+                "\"" + ConnectaConsts.KEY_SENDER_TYPE + "\":\"" + mSenderType.toUpperCase() + "\"," +
+                "\"" + ConnectaConsts.KEY_DISPLAY_NAME + "\":\"" + mDisplayName + "\"," +
+                "\"" + ConnectaConsts.KEY_SENT_TIME + "\":" + mSentTime + "," +
+                "\"" + ConnectaConsts.KEY_CONTENT_TYPE + "\":\"" + mContentType + "\"," +
+                "\"" + ConnectaConsts.KEY_CONTENT_ENCODING + "\":\"" + mContentEncoding + "\"," +
+                "\"" + ConnectaConsts.KEY_PAYLOAD + "\":\"" + new String(Base64.encode(mPayload, Base64.NO_WRAP)) + "\"," +
+                "\"" + ConnectaConsts.KEY_TOPIC + "\":\"" + mTopic + "\"" +
+                "}";
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        try {
+            String jsonString = mMessage.createJSONStringFromMASMessage(context);
+            assertEquals(expected, jsonString);
+        } catch (MASMessageException e) {
+            throw (JSONException) e.getCause();
+        }
+    }
+
+    private void login() throws Exception {
+        MAS.start(getContext(), getConfig("/msso_config.json"));
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASUser.login("admin", "7layer".toCharArray(), callback);
+        assertNotNull(callback.get());
+    }
+
+    @Test
+    public void testCreateJSONStringFromNewMASMessageWithDefaultAttributes() throws Exception {
+        login();
+        mMessage = MASMessage.newInstance();
+        mMessage.setPayload(mPayload);
+        long startTime = System.currentTimeMillis();
+
+        String expectedPayload = new String(Base64.encode(mPayload, Base64.NO_WRAP));
+        try {
+            String jsonString = mMessage.createJSONStringFromMASMessage(getContext());
+            JSONObject jsonObject = new JSONObject(jsonString);
+            assertEquals(jsonObject.getString(ConnectaConsts.KEY_VERSION), "1.0");
+            assertEquals(jsonObject.getString(ConnectaConsts.KEY_SENDER_ID), mSenderId);
+            assertEquals(jsonObject.getString(ConnectaConsts.KEY_SENDER_TYPE), mSenderType.toUpperCase());
+            assertEquals(jsonObject.getString(ConnectaConsts.KEY_DISPLAY_NAME), mDisplayName);
+            long sentTime = jsonObject.getLong(ConnectaConsts.KEY_SENT_TIME);
+            assertTrue(startTime <= sentTime && sentTime <= System.currentTimeMillis());
+            assertEquals(jsonObject.getString(ConnectaConsts.KEY_CONTENT_TYPE), MessagingConsts.DEFAULT_TEXT_PLAIN_CONTENT_TYPE);
+            assertEquals(jsonObject.getString(ConnectaConsts.KEY_CONTENT_ENCODING), MessagingConsts.DEFAULT_BASE64_ENCODING);
+            assertEquals(jsonObject.getString(ConnectaConsts.KEY_PAYLOAD), expectedPayload);
+        } catch (MASMessageException e) {
+            throw (JSONException) e.getCause();
+        }
+    }
+
+    @Test
+    public void testCreateJSONStringFromNewMASMessageWithEmptyAttributes() throws Exception {
+        login();
+        mMessage = MASMessage.newInstance();
+        mMessage.setPayload(mPayload);
+        mMessage.setVersion("");
+        mMessage.setSenderType("");
+        mMessage.setContentType("");
+        mMessage.setContentEncoding("");
+        long startTime = System.currentTimeMillis();
+
+        String expectedPayload = new String(Base64.encode(mPayload, Base64.NO_WRAP));
+        try {
+            String jsonString = mMessage.createJSONStringFromMASMessage(getContext());
+            JSONObject jsonObject = new JSONObject(jsonString);
+            assertEquals(jsonObject.getString(ConnectaConsts.KEY_VERSION), "1.0");
+            assertEquals(jsonObject.getString(ConnectaConsts.KEY_SENDER_ID), mSenderId);
+            assertEquals(jsonObject.getString(ConnectaConsts.KEY_SENDER_TYPE), mSenderType.toUpperCase());
+            assertEquals(jsonObject.getString(ConnectaConsts.KEY_DISPLAY_NAME), mDisplayName);
+            long sentTime = jsonObject.getLong(ConnectaConsts.KEY_SENT_TIME);
+            assertTrue(startTime <= sentTime && sentTime <= System.currentTimeMillis());
+            assertEquals(jsonObject.getString(ConnectaConsts.KEY_CONTENT_TYPE), MessagingConsts.DEFAULT_TEXT_PLAIN_CONTENT_TYPE);
+            assertEquals(jsonObject.getString(ConnectaConsts.KEY_CONTENT_ENCODING), MessagingConsts.DEFAULT_BASE64_ENCODING);
+            assertEquals(jsonObject.getString(ConnectaConsts.KEY_PAYLOAD), expectedPayload);
+        } catch (MASMessageException e) {
+            throw (JSONException) e.getCause();
+        }
+    }
+
+    @Test(expected = MASMessageException.class)
+    public void testCreateJSONStringFromNullPayloadMASMessage() throws Exception {
+        login();
+
+        mMessage = MASMessage.newInstance();
+        mMessage.setPayload(null);
+        try {
+            mMessage.createJSONStringFromMASMessage(getContext());
+        } catch (MASMessageException e) {
+            assertEquals(e.getMessage(), "Parameter cannot be empty or null.");
+            throw e;
+        }
+    }
+
+    @Test(expected = MASMessageException.class)
+    public void testCreateJSONStringFromEmptyPayloadMASMessage() throws Exception {
+        login();
+
+        mMessage = MASMessage.newInstance();
+        try {
+            mMessage.createJSONStringFromMASMessage(getContext());
+            mMessage.setPayload(new byte[0]);
+        } catch (MASMessageException e) {
+            assertEquals(e.getMessage(), "Parameter cannot be empty or null.");
+            throw e;
         }
     }
 }

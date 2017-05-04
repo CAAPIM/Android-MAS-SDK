@@ -8,6 +8,7 @@
 
 package com.ca.mas;
 
+import android.net.Uri;
 import android.util.Base64;
 
 import com.ca.mas.core.http.ContentType;
@@ -96,7 +97,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
             } else if (request.getPath().contains(TEST_NO_CONTENT)) {
                 return secureServiceResponseWithNoContent();
             } else if (request.getPath().contains(AUTH_OAUTH_V2_AUTHORIZE)) {
-                return authorizeResponse();
+                return authorizeResponse(request);
             } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER_CLIENT)) {
                 return registerDeviceResponse(request);
             } else if (request.getPath().contains(CONNECT_DEVICE_RENEW)) {
@@ -151,11 +152,11 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
         return new MockResponse().setResponseCode(200).setBody(result);
     }
 
-    protected MockResponse authorizeResponse() {
-        String result = "{\"idp\":\"all\",\"providers\":[{\"provider\":{\"id\":\"facebook\",\"auth_url\":\"https:\\/\\/lbs-dmz.ca.com:8443\\/prefix\\/facebook\\/login?sessionID=51c3904b-013b-4b48-84db-c1b680669aae\"}},{\"provider\":{\"id\":\"google\",\"auth_url\":\"https:\\/\\/lbs-dmz.ca.com:8443\\/prefix\\/google\\/login?sessionID=51c3904b-013b-4b48-84db-c1b680669aae\"}},{\"provider\":{\"id\":\"salesforce\",\"auth_url\":\"https:\\/\\/lbs-dmz.ca.com:8443\\/prefix\\/salesforce\\/login?sessionID=51c3904b-013b-4b48-84db-c1b680669aae\"}},{\"provider\":{\"id\":\"linkedin\",\"auth_url\":\"https:\\/\\/lbs-dmz.ca.com:8443\\/prefix\\/linkedin\\/login?sessionID=51c3904b-013b-4b48-84db-c1b680669aae\"}},{\"provider\":{\"id\":\"enterprise\",\"auth_url\":\"https:\\/\\/lbs-dmz.ca.com:8443\\/prefix\\/enterprise\\/login?sessionID=51c3904b-013b-4b48-84db-c1b680669aae\"}},{\"provider\":{\"id\":\"qrcode\",\"auth_url\":\"https:\\/\\/lbs-dmz.ca.com:8443\\/prefix\\/auth\\/qrcode\\/authorization?sessionID=51c3904b-013b-4b48-84db-c1b680669aae\",\"poll_url\":\"https:\\/\\/lbs-dmz.ca.com:8443\\/prefix\\/auth\\/qrcode\\/login\\/poll64c1e2c560b94b58b76a8f3ada3ee287db32c29b76b84080a101b20164a60981\"}}]}";
+    protected MockResponse authorizeResponse(RecordedRequest request) throws IOException, JSONException {
+        Uri uri = Uri.parse(request.getPath());
         return new MockResponse()
                 .setResponseCode(200)
-                .setBody(result);
+                .setBody(TestUtils.getJSONObject(uri.getPath()).toString());
     }
 
     protected MockResponse deRegister() {

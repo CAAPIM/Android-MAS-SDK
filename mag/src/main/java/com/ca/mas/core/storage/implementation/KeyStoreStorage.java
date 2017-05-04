@@ -181,7 +181,6 @@ public final class KeyStoreStorage extends Storage {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
             returnError = new StorageException(StorageException.OPERATION_FAILED);
         }
 
@@ -228,7 +227,6 @@ public final class KeyStoreStorage extends Storage {
                 returnValue.setData(stringValue);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             returnError = new StorageException(StorageException.OPERATION_FAILED);
         }
 
@@ -480,7 +478,6 @@ public final class KeyStoreStorage extends Storage {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
             returnError = new StorageException(StorageException.OPERATION_FAILED);
         }
 

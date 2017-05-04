@@ -110,6 +110,8 @@ class DefaultTokenManager implements TokenManager {
     @Override
     public void clearAll() throws TokenStoreException {
         storage.removeAll(null);
+        KeyUtils.deletePrivateKey(getKey(MSSO_CLIENT_PRIVATE_KEY));
+        KeyUtils.clearCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX));
     }
 
     @Override

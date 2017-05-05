@@ -236,8 +236,13 @@ public final class MobileSsoFactory {
 
             @Override
             public void removeDeviceRegistration() {
-                mssoContext.removeDeviceRegistration();
-                mssoContext.destroyPersistentTokens();
+                try {
+                    mssoContext.removeDeviceRegistration();
+                } catch (Exception e) {
+                    throw e;
+                } finally {
+                    mssoContext.destroyPersistentTokens();
+                }
             }
 
             @Override

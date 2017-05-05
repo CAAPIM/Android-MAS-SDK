@@ -40,6 +40,8 @@ import static com.ca.mas.core.MAG.TAG;
 
 public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
 
+    private static final int VALIDITY_SECONDS = 7200;// 2 hours
+
     // For Android.M+, use the AndroidKeyStore
     // Otherwise, encrypt using RSA key with "RSA/ECB/PKCS1Padding"
     //    which actually doesn't implement ECB mode encryption.
@@ -68,7 +70,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
      * @return The SecretKey
      */
     @Override
-    public SecretKey getKey(String alias) {
+    public SecretKey getKey(String alias, boolean userAuthenticationRequired) {
         // For Android.M+, if this key was created we'll find it here
         SecretKey secretKey = KeyUtilsSymmetric.retrieveKey(alias);
 
@@ -90,7 +92,11 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
 
             // if still no key, generate one
             if (secretKey == null) {
-                secretKey = KeyUtilsSymmetric.generateKey(alias, "AES", 256, false, false, -1, false);
+                if (userAuthenticationRequired) {
+                    secretKey = KeyUtilsSymmetric.generateKey(alias, "AES", 256, false, true, VALIDITY_SECONDS, false);
+                } else {
+                    secretKey = KeyUtilsSymmetric.generateKey(alias, "AES", 256, false, false, -1, false);
+                }
 
                 // if this is Pre- Android.M, we need to store it locally
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {

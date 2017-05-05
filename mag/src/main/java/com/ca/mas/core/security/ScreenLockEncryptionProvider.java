@@ -106,18 +106,8 @@ public class ScreenLockEncryptionProvider implements EncryptionProvider {
         }
 
         // otherwise, we can get or create one
-        SecretKey secretKey = null;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            secretKey = keyStorageProvider.getKey(keyAlias);
-        } else {
-            secretKey = KeyUtilsSymmetric.retrieveKey(alias);
-            if (secretKey == null) {
-                secretKey = KeyUtilsSymmetric.generateKey(alias, "AES", 256,
-                        false, true, 100000, false);
-            }
-        }
 
-        return secretKey;
+        return keyStorageProvider.getKey(keyAlias, true);
     }
 
 

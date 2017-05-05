@@ -312,8 +312,9 @@ public class EncryptionProviderTest {
 
         //Encrypt the ID TOKEN with passcode
         EncryptionProvider pinKeyEP = new DefaultEncryptionProvider(InstrumentationRegistry.getInstrumentation().getTargetContext(), new KeyStorageProvider() {
+
             @Override
-            public SecretKey getKey(String alias) {
+            public SecretKey getKey(String alias, boolean userAuthenticationRequired) {
                 return passcode2;
             }
 
@@ -337,7 +338,7 @@ public class EncryptionProviderTest {
         EncryptionProvider ep2 = new DefaultEncryptionProvider(InstrumentationRegistry.getInstrumentation().getTargetContext(), new KeyStorageProvider() {
 
             @Override
-            public SecretKey getKey(String alias) {
+            public SecretKey getKey(String alias, boolean userAuthenticationRequired) {
                 return secretKey2;
             }
 

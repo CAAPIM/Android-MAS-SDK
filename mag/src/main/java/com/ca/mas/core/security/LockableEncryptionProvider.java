@@ -24,8 +24,8 @@ import static com.ca.mas.core.util.KeyUtilsAsymmetric.generateRsaPrivateKey;
 public class LockableEncryptionProvider implements EncryptionProvider {
 
     protected Context ctx = null;
-    protected String keyAlias = "secret";
-    protected static final int KEY_SIZE = 2048;
+    private String keyAlias = "com.ca.mas.LOCKABLE_KEY";
+    private static final int KEY_SIZE = 2048;
 
     public LockableEncryptionProvider(@NonNull Context ctx) {
         this.ctx = ctx;

@@ -21,7 +21,6 @@ import com.ca.mas.core.datasource.KeystoreDataSource;
 import com.ca.mas.core.store.ClientCredentialContainer;
 import com.ca.mas.core.store.OAuthTokenContainer;
 import com.ca.mas.core.store.StorageProvider;
-import com.ca.mas.core.util.KeyUtils;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 
 import org.json.JSONObject;

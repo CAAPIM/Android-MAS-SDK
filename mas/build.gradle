@@ -112,9 +112,11 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
 
     // this allows the coverage report to be generated even if some tests fail
     project.gradle.taskGraph.whenReady {
+        /*
         connectedDebugAndroidTest {
             ignoreFailures = true
         }
+        */
     }
 }
 

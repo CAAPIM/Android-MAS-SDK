@@ -13,14 +13,12 @@ import android.support.annotation.NonNull;
 
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.TargetApiException;
-import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConstants;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASRequestBody;
 import com.ca.mas.foundation.MASResponse;
-import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.foundation.util.FoundationConsts;
 

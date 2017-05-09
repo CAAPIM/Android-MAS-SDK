@@ -9,19 +9,15 @@
 package com.ca.mas.foundation;
 
 import android.util.Base64;
-import android.util.Log;
 
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
-import com.ca.mas.core.http.MAGRequest;
-import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import org.json.JSONObject;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;

@@ -10,9 +10,6 @@ package com.ca.mas.foundation;
 
 import android.content.Context;
 
-import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
-import com.ca.mas.core.auth.otp.model.OtpResponseBody;
-import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 
 /**

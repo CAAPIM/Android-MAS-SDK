@@ -40,7 +40,6 @@ dependencies {
     })
     compile "com.android.support:design:$rootProject.ext.designVersion"
 
-    compile project(':mag')
     compile project(':mas')
     compile project(':masui')
 }

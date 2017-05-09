@@ -10,7 +10,7 @@ package com.ca.mas.foundation;
 
 import android.support.test.runner.AndroidJUnit4;
 
-import com.ca.mas.MASTestBase;
+import com.ca.mas.MASMockGatewayTestBase;
 
 import junit.framework.Assert;
 
@@ -24,7 +24,7 @@ import java.io.OutputStreamWriter;
 import static junit.framework.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
-public class MASStartTest extends MASTestBase {
+public class MASStartTest extends MASMockGatewayTestBase {
 
     private String config = "{\n" +
             "  \"server\": {\n" +

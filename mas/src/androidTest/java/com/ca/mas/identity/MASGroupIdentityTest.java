@@ -17,7 +17,6 @@ import com.ca.mas.foundation.MASUser;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.group.GroupAttributes;
 import com.ca.mas.identity.group.MASMember;
-import com.ca.mas.identity.user.UserAttributes;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 

@@ -8,6 +8,7 @@
 
 package com.ca.mas;
 
+import com.ca.mas.core.CoreTestSuite;
 import com.ca.mas.foundation.MASFoundationTestSuite;
 import com.ca.mas.identity.MASIdentityTestSuite;
 import com.ca.mas.messaging.MASMessagingTestSuite;
@@ -18,6 +19,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+        CoreTestSuite.class,
         MASFoundationTestSuite.class,
         MASStorageTestSuite.class,
         MASIdentityTestSuite.class,

@@ -13,7 +13,6 @@ import android.content.Context;
 import com.ca.mas.core.auth.ble.BluetoothLeConsentHandler;
 import com.ca.mas.core.auth.ble.BluetoothLePeripheralCallback;
 import com.ca.mas.foundation.MAS;
-import com.ca.mas.foundation.auth.MASProximityLoginBLEUserConsentHandler;
 
 public abstract class MASProximityLoginBLEPeripheralListener implements BluetoothLePeripheralCallback {
 

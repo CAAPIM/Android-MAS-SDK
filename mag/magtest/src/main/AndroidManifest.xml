@@ -31,13 +31,13 @@
             android:exported="true" >
         </service>
 
-        <service android:name="com.ca.mas.core.service.MssoService"
+        <service android:name="MssoService"
             android:exported="false">
         </service>
 
 
         <!-- AMS Service -->
-        <service android:name="com.ca.mas.core.storage.implementation.AMSAuthenticatorService" >
+        <service android:name="AMSAuthenticatorService" >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>

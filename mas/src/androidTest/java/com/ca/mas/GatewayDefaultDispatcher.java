@@ -129,8 +129,6 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
             if (response != null) {
                 return response;
             }
-
-
             return other();
         } catch (Exception e) {
             return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR).

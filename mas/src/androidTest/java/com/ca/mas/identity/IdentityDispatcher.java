@@ -6,8 +6,6 @@ import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.QueueDispatcher;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
-import org.json.JSONObject;
-
 import java.net.HttpURLConnection;
 
 public class IdentityDispatcher extends QueueDispatcher {

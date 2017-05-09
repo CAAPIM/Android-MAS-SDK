@@ -14,9 +14,16 @@ public class TestUtils {
     public static JSONObject getJSONObject(String path) throws IOException, JSONException {
         //Support window machine file path.
         path = path.replace(":", ".");
-        path = path + ".json";
-        byte[] bytes = IoUtils.slurpStream(TestUtils.class.getResourceAsStream(path), DEFAULT_MAX);
-        return new JSONObject(new String(bytes));
-
+        if (!path.endsWith(".json")) {
+            path = path + ".json";
+        }
+        return new JSONObject(getString(path));
     }
+
+    public static String getString(String path) throws IOException {
+        byte[] bytes = IoUtils.slurpStream(TestUtils.class.getResourceAsStream(path), DEFAULT_MAX);
+        return new String(bytes);
+    }
+
+
 }

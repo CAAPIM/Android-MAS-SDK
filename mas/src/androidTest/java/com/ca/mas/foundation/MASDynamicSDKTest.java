@@ -13,6 +13,7 @@ import android.support.test.runner.AndroidJUnit4;
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
+import com.ca.mas.TestUtils;
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.Server;
@@ -51,7 +52,7 @@ public class MASDynamicSDKTest extends MASStartTestBase {
 
         assertEquals("", MASConfiguration.getCurrentConfiguration().getGatewayPrefix());
 
-        MAS.start(getContext(), getConfig("/msso_config_dynamic_test.json"));
+        MAS.start(getContext(), TestUtils.getJSONObject("/msso_config_dynamic_test.json"));
 
         assertEquals("test", MASConfiguration.getCurrentConfiguration().getGatewayPrefix());
 
@@ -105,7 +106,7 @@ public class MASDynamicSDKTest extends MASStartTestBase {
         Thread.sleep(1000);
 
         //Perform Gateway Switch
-        MAS.start(getContext(), getConfig("/msso_config_dynamic_test.json"));
+        MAS.start(getContext(), TestUtils.getJSONObject("/msso_config_dynamic_test.json"));
 
         MASRequest request2 = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
         MASCallbackFuture<MASResponse<JSONObject>> callback2 = new MASCallbackFuture<>();
@@ -179,9 +180,11 @@ public class MASDynamicSDKTest extends MASStartTestBase {
                 MASConfiguration.getCurrentConfiguration().getGatewayPort(),
                 MASConfiguration.getCurrentConfiguration().getGatewayPrefix());
 
-        //Perform Gateway Switch
+        //Wait for request
+        Thread.sleep(1000);
 
-        MAS.start(getContext(), getConfig("/msso_config_dynamic_test.json"));
+        //Perform Gateway Switch
+        MAS.start(getContext(), TestUtils.getJSONObject("/msso_config_dynamic_test.json"));
 
         MASRequest request2 = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
         MASCallbackFuture<MASResponse<JSONObject>> callback2 = new MASCallbackFuture<>();
@@ -241,7 +244,7 @@ public class MASDynamicSDKTest extends MASStartTestBase {
             }
         });
 
-        MAS.start(getContext(), getConfig("/msso_config_dynamic_test.json"));
+        MAS.start(getContext(), TestUtils.getJSONObject("/msso_config_dynamic_test.json"));
 
         countDownLatch.await();
 
@@ -270,7 +273,7 @@ public class MASDynamicSDKTest extends MASStartTestBase {
         assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
 
         //Client updated
-        MAS.start(getContext(), getConfig("/msso_config2.json"));
+        MAS.start(getContext(), TestUtils.getJSONObject("/msso_config2.json"));
 
         ClientCredentialContainer cc = StorageProvider.getInstance().getClientCredentialContainer();
         assertNull(cc.getMasterClientId());

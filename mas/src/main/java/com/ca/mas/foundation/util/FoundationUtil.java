@@ -8,18 +8,13 @@
 
 package com.ca.mas.foundation.util;
 
-import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 
 import com.ca.mas.connecta.client.MASConnectOptions;
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.conf.ConfigurationManager;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * <p>The <b>FoundationUtil</b></p> class provides common request header and URL formatting that is used in web services.

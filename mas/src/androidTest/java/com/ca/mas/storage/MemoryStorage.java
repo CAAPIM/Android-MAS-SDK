@@ -10,8 +10,6 @@ package com.ca.mas.storage;
 
 import android.util.Base64;
 
-import com.ca.mas.core.http.ContentType;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,7 +17,6 @@ import org.json.JSONObject;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 public class MemoryStorage {
 

@@ -8,11 +8,7 @@
 
 package com.ca.mas.sample.testapp.tests.instrumentation.Identity;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-import android.text.TextUtils;
 
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
@@ -22,8 +18,6 @@ import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.common.MASFilteredRequestBuilder;
 import com.ca.mas.identity.user.UserAttributes;
 import com.ca.mas.identity.util.IdentityConsts;
-import com.ca.mas.identity.util.IdentityUtil;
-import com.ca.mas.messaging.util.MessagingConsts;
 import com.ca.mas.sample.testapp.tests.instrumentation.base.MASIntegrationBaseTest;
 
 import junit.framework.Assert;

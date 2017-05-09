@@ -8,7 +8,6 @@
 
 package com.ca.mas.identity.util;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
@@ -21,14 +20,11 @@ import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.util.FoundationConsts;
 import com.ca.mas.foundation.util.FoundationUtil;
-import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.user.MASPhoto;
 
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

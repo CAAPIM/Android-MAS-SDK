@@ -16,23 +16,18 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.auth.NFCRenderer;
 import com.ca.mas.core.auth.NfcResultReceiver;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.oauth.OAuthException;
-import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.Provider;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.messaging.MASMessageException;
 import com.ca.mas.foundation.notify.Callback;
 
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.util.UUID;
 
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;

@@ -12,7 +12,8 @@ import android.support.test.InstrumentationRegistry;
 import android.util.Base64;
 
 import com.ca.mas.MASCallbackFuture;
-import com.ca.mas.MASTestBase;
+import com.ca.mas.MASMockGatewayTestBase;
+import com.ca.mas.TestUtils;
 import com.ca.mas.connecta.client.MASConnectaClient;
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.foundation.MAS;
@@ -30,7 +31,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
-public class MASMessagingTest extends MASTestBase {
+public class MASMessagingTest extends MASMockGatewayTestBase {
     protected static final int DEFAULT_MAX = 10485760;
     private MASMessage mMessage;
     private String mSenderId = "admin";
@@ -165,7 +166,7 @@ public class MASMessagingTest extends MASTestBase {
     }
 
     private void login() throws Exception {
-        MAS.start(getContext(), getConfig("/msso_config.json"));
+        MAS.start(getContext(), TestUtils.getJSONObject("/msso_config.json"));
         MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
         MASUser.login("admin", "7layer".toCharArray(), callback);
         assertNotNull(callback.get());

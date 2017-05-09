@@ -73,8 +73,8 @@ task javadoc(type: Javadoc) {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile "com.google.zxing:core:$rootProject.ext.zxingVersion"
     compile "com.android.support:appcompat-v7:$rootProject.ext.appCompatVersion"
-    compile project(':mag')
     compile 'com.nimbusds:nimbus-jose-jwt:4.23'
 
     //Test
@@ -86,37 +86,51 @@ dependencies {
 }
 
 //Coverage
+
 jacoco {
-    toolVersion "0.7.9"
+    toolVersion = "0.7.6.201602180812"
     reportsDir = file("$buildDir/customJacocoReportDir")
 }
 
-def coverageSourceDirs = ['mas/src/main/java']
-task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest") {
-    group = "Reporting"
-    description = "Generate Jacoco coverage reports after running tests."
-    reports {
-        xml.enabled = true
-        html.enabled = true
-    }
-    classDirectories = fileTree(
-            dir: './build/intermediates/classes/debug',
-            excludes: ['**/R*.class',
-                       '**/*$InjectAdapter.class',
-                       '**/*$ModuleAdapter.class',
-                       '**/*$ViewInjector*.class',
-                       '**/MASSocialLogin.class'
-            ])
-    sourceDirectories = files(coverageSourceDirs)
-    executionData = files("$buildDir/jacoco/testDebug.exec")
+task jacocoTestReport(type:JacocoReport, dependsOn: "connectedDebugAndroidTest") {
 
-    // this allows the coverage report to be generated even if some tests fail
+    group = "Reporting"
+
+    description = "Generate Jacoco coverage reports"
+
+    // exclude auto-generated classes and tests
+    def fileFilter = ['**/R.class',
+                      '**/R$*.class',
+                      '**/BuildConfig.*',
+                      '**/Manifest*.*',
+                      '**/*IScript*.*',
+                      'android/**/*.*',
+                      '**/*MASSocialLogin*',
+                      '**/*sun*']
+
+    def debugTree = fileTree(dir:
+            "${project.buildDir}/intermediates/classes/debug",
+            excludes: fileFilter)
+
+    def mainSrc = "${project.projectDir}/src/main/java"
+
+    sourceDirectories = files([mainSrc])
+    classDirectories = files([debugTree])
+
+    executionData = fileTree(dir: project.projectDir, includes:
+            ['**/*.exec', '**/*.ec'])
+
     project.gradle.taskGraph.whenReady {
-        /*
         connectedDebugAndroidTest {
             ignoreFailures = true
         }
-        */
+    }
+    reports {
+        xml.enabled = true
+        xml.destination = "${buildDir}/jacocoTestReport.xml"
+        csv.enabled = false
+        html.enabled = true
+        html.destination = "${buildDir}/reports/jacoco"
     }
 }
 

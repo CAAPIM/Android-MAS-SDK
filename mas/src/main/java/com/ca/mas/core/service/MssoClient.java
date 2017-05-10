@@ -86,6 +86,9 @@ public class MssoClient {
      * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
      */
     public void authenticate(final String username, final char[] password, final MAGResultReceiver resultReceiver) {
+        if (username == null || password == null) {
+            throw new NullPointerException("Username or password cannot be null");
+        }
         final MssoRequest mssoRequest = new MssoRequest(this, mssoContext, new AuthenticateRequest(), resultReceiver);
         MssoRequestQueue.getInstance().addRequest(mssoRequest);
         long requestId = mssoRequest.getId();

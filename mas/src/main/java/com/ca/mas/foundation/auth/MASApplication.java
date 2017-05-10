@@ -10,14 +10,16 @@ package com.ca.mas.foundation.auth;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.ca.mas.core.MobileSsoConfig;
-import com.ca.mas.core.app.App;
-import com.ca.mas.core.app.ImageFetcher;
 import com.ca.mas.core.ent.InvalidResponseException;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
@@ -30,12 +32,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * The Enterprise browser manages a trusted group of enterprise approved applications on a device.
@@ -45,7 +52,6 @@ public abstract class MASApplication {
     private MASApplication() {
     }
 
-    private static String TAG = MASApplication.class.getCanonicalName();
     private static MASApplicationLauncher mLauncher = new MASApplicationLauncher() {
         @Override
         public void onWebAppLaunch(MASApplication application) {
@@ -126,36 +132,49 @@ public abstract class MASApplication {
                         JSONArray apps = result.getBody().getContent().optJSONArray("enterprise-apps");
                         if (apps != null) {
                             for (int i = 0; i < apps.length(); i++) {
-                                final App a = new App(((JSONObject) apps.get(i)).getJSONObject("app"));
+                                final JSONObject app = ((JSONObject) apps.get(i)).getJSONObject("app");
+                                final String id = app.getString("id");
+                                final String name = app.optString("name");
+                                final String iconUrl = app.optString("icon_url");
+                                final String authUrl = app.optString("auth_url");
+                                final String nativeUri = app.optString("native_url");
+                                final String custom = app.optString("custom");
                                 applications.add(new MASApplication() {
                                     @Override
                                     public String getIdentifier() {
-                                        return a.getId();
+                                        return id;
                                     }
 
                                     @Override
                                     public String getName() {
-                                        return a.getName();
+                                        return name;
                                     }
 
                                     @Override
                                     public String getIconUrl() {
-                                        return a.getIconUrl();
+                                        return iconUrl;
                                     }
 
                                     @Override
                                     public String getAuthUrl() {
-                                        return a.getAuthUrl();
+                                        return authUrl;
                                     }
 
                                     @Override
                                     public String getNativeUri() {
-                                        return a.getNativeUri();
+                                        return nativeUri;
                                     }
 
                                     @Override
                                     public JSONObject getCustom() {
-                                        return a.getCustom();
+                                        if (custom != null) {
+                                            try {
+                                                return new JSONObject(custom);
+                                            } catch (JSONException e) {
+                                                if (DEBUG) Log.e(TAG, e.getMessage(), e);
+                                            }
+                                        }
+                                        return null;
                                     }
 
                                     @Override
@@ -200,6 +219,65 @@ public abstract class MASApplication {
             });
         } catch (URISyntaxException e) {
             Callback.onError(callback, e);
+        }
+    }
+
+    private static class ImageFetcher extends AsyncTask<Object, Object, Object> {
+
+        //Use 1/24th of the available memory for image cache.
+        private static LruCache<String, Bitmap> cache = new LruCache<String, Bitmap>((int) (Runtime.getRuntime().maxMemory() / 1024 / 24));
+        ImageView imageView;
+        private HttpURLConnection connection;
+        private InputStream is;
+        private Bitmap bitmap;
+
+        public ImageFetcher(ImageView mImageView) {
+            imageView = mImageView;
+        }
+
+        @Override
+        protected Object doInBackground(Object... params) {
+
+            Bitmap cached = cache.get((String) params[0]);
+
+            if (cached != null)  {
+                return cached;
+            }
+            try {
+                URL url = new URL((String) params[0]);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.setUseCaches(true);
+                connection.connect();
+                is = connection.getInputStream();
+                bitmap = BitmapFactory.decodeStream(is);
+                is.close();
+            } catch (Exception e) {
+                if (DEBUG) Log.e(TAG, "Error in downloading the image", e);
+            } finally {
+                try {
+                    if (is != null) {
+                        is.close();
+                    }
+                    if (connection != null) {
+                        connection.disconnect();
+                    }
+                } catch (IOException e) {
+                    if (DEBUG) Log.w(TAG, "Failed to clear up connection.", e);
+                }
+            }
+            if (bitmap != null) {
+                cache.put((String) params[0], bitmap);
+            }
+            return bitmap;
+        }
+
+        @Override
+        protected void onPostExecute(Object result) {
+            super.onPostExecute(result);
+            if (null != result) {
+                imageView.setImageBitmap((Bitmap) result);
+            }
         }
     }
 

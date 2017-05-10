@@ -28,8 +28,8 @@ import java.lang.reflect.Constructor;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 /**
  * Utility class that encapsulates talking to the token server into Java method calls.
  * This handles just the network protocol for communicating with the token server to register a device, obtain an access token, etc.

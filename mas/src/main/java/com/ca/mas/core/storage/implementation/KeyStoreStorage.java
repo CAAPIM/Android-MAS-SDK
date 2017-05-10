@@ -20,8 +20,8 @@ import com.ca.mas.core.storage.StorageResultReceiver;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * KeyStore backed Storage implementation.

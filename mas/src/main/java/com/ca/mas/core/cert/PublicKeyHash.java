@@ -28,7 +28,7 @@ public class PublicKeyHash implements Serializable {
     private static final Pattern SHA256_HEX_PATTERN = Pattern.compile("[a-f0-9]{64}");
     private final String hash;
 
-    PublicKeyHash(String hash) {
+    private PublicKeyHash(String hash) {
         this.hash = hash;
     }
 
@@ -135,7 +135,7 @@ public class PublicKeyHash implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || ((Object) this).getClass() != o.getClass()) return false;
+        if (o == null || (this).getClass() != o.getClass()) return false;
 
         PublicKeyHash that = (PublicKeyHash) o;
 

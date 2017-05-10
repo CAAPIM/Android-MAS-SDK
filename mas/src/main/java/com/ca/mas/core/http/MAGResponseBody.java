@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * An API HTTP response body.

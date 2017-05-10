@@ -27,8 +27,8 @@ import java.util.List;
 import sun.security.pkcs.PKCS10;
 import sun.security.x509.X500Signer;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 
 /**
@@ -36,19 +36,8 @@ import static com.ca.mas.core.MAG.TAG;
  */
 public class CertUtils {
 
-    static final String PEM_CERT_BEGIN_MARKER = "-----BEGIN CERTIFICATE-----";
-    static final String PEM_CERT_END_MARKER = "-----END CERTIFICATE-----";
-
-    // Key usage bits (as used by bouncy castle; or them together to make a key usage)
-    static final int KU_encipherOnly = 1;
-    static final int KU_cRLSign = 2;
-    static final int KU_keyCertSign = 4;
-    static final int KU_keyAgreement = 8;
-    static final int KU_dataEncipherment = 16;
-    static final int KU_keyEncipherment = 32;
-    static final int KU_nonRepudiation = 64;
-    static final int KU_digitalSignature = 128;
-    static final int KU_decipherOnly = 32768;
+    private static final String PEM_CERT_BEGIN_MARKER = "-----BEGIN CERTIFICATE-----";
+    private static final String PEM_CERT_END_MARKER = "-----END CERTIFICATE-----";
 
     /**
      * Decode an X.509 certificate that is encoded as Base-64, with or without PEM "BEGIN CERTIFICATE" markers.
@@ -106,7 +95,7 @@ public class CertUtils {
 
             pkcs10.encodeAndSign(new X500Signer(signature, x500Name));
             return pkcs10.getEncoded();
-        } catch (Throwable t) {
+        } catch (Exception t) {
             if (DEBUG) Log.e(TAG, "Unable to generate certificate signing request: " + t, t);
             throw new CertificateException("Unable to generate certificate signing request: " + t);
         }
@@ -120,8 +109,8 @@ public class CertUtils {
      * @return a same-length array of type X509Certificate[].
      * @throws ClassCastException if at least one certificate is not an X509Certificate.
      */
-    static X509Certificate[] toX509CertArray(Collection<? extends Certificate> certs) {
-        List<X509Certificate> x509Certs = new ArrayList<X509Certificate>();
+    private static X509Certificate[] toX509CertArray(Collection<? extends Certificate> certs) {
+        List<X509Certificate> x509Certs = new ArrayList<>();
         for (Certificate cert : certs) {
             x509Certs.add((X509Certificate) cert);
         }

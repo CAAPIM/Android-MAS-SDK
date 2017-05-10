@@ -51,8 +51,8 @@ import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 
 import java.util.List;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * A sample activity that allows you to log in with username/password credentials,

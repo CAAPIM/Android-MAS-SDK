@@ -29,8 +29,8 @@ import org.json.JSONException;
 
 import java.io.IOException;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Proximity login with Near Field Communication (NFC).

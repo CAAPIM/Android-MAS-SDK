@@ -35,7 +35,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.foundation.MAS.DEBUG;
 
 /**
  * The Enterprise browser manages a trusted group of enterprise approved applications on a device.

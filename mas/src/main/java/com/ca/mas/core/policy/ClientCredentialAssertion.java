@@ -21,8 +21,8 @@ import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.token.ClientCredentials;
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 import java.util.UUID;
 

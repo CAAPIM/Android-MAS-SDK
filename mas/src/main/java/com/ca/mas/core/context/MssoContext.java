@@ -49,8 +49,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Date;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Top-level context used by mobile single-sign-on library.

@@ -28,8 +28,8 @@ import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.util.Functions;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Encapsulates use of the MssoService.

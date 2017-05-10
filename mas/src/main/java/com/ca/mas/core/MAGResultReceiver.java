@@ -21,8 +21,8 @@ import com.ca.mas.core.service.MssoClient;
 import com.ca.mas.core.service.MssoIntents;
 
 import java.net.HttpURLConnection;
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Interface for receiving a callback result from {@link MobileSso#processRequest(com.ca.mas.core.http.MAGRequest, ResultReceiver)}.

@@ -24,8 +24,8 @@ import java.net.URLEncoder;
 import java.util.List;
 
 import static com.ca.mas.core.io.Charsets.UTF8;
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Base class for http api request.

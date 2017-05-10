@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * <p><b>IdentityUtil</b> implements helper methods used in creating {@link <a href="https://tools.ietf.org/html/rfc7644">SCIM</a>} URIs,

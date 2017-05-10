@@ -15,8 +15,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 public class App implements Parcelable {
 

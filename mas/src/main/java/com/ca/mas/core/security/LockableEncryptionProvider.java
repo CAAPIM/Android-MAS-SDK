@@ -16,8 +16,8 @@ import com.ca.mas.core.util.KeyUtilsAsymmetric;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 import static com.ca.mas.core.util.KeyUtilsAsymmetric.generateRsaPrivateKey;
 
 

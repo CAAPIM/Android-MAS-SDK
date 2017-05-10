@@ -34,8 +34,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * The <i>GroupIdentityManager</i> behaves as the controller between the MAS SDK and the

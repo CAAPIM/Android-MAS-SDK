@@ -25,8 +25,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.UUID;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * NFC for cross device session sharing
@@ -60,6 +60,7 @@ public class NFCRenderer extends PollingRenderer {
         return null;
     }
 
+    @SuppressWarnings("MissingPermission")
     @Override
     public void onRenderCompleted() {
         adapter = NfcAdapter.getDefaultAdapter(context);
@@ -118,6 +119,7 @@ public class NFCRenderer extends PollingRenderer {
     public void onError(int code, String message, Exception e) {
     }
 
+    @SuppressWarnings("MissingPermission")
     @Override
     public void close() {
         super.close();
@@ -139,6 +141,7 @@ public class NFCRenderer extends PollingRenderer {
 
         private BluetoothServerSocket serverSocket;
 
+        @SuppressWarnings("MissingPermission")
         public ListenerThread() throws Exception {
             BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
             if (adapter != null) {

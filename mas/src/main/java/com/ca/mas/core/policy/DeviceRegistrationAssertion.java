@@ -42,8 +42,8 @@ import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Ensures that the device is registered.

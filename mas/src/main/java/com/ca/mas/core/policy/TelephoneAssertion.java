@@ -19,8 +19,8 @@ import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.MobileNumberInvalidException;
 import com.ca.mas.core.policy.exceptions.MobileNumberRequiredException;
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * A policy that adds telephone information to outbound requests.

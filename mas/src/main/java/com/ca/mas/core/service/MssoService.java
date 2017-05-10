@@ -51,8 +51,8 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * An IntentService that receives outbound HTTP requests encoded into Intents and returns the eventual responses

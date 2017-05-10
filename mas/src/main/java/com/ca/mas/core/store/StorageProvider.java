@@ -22,8 +22,8 @@ import com.ca.mas.core.datasource.StringDataConverter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Utility class to retrieve the Storage interface.

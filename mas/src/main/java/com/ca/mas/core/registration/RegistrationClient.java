@@ -34,8 +34,8 @@ import java.net.URI;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Utility class that encapsulates talking to the token server into Java method calls.

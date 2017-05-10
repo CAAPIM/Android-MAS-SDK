@@ -44,8 +44,8 @@ import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE;
 import static android.security.keystore.KeyProperties.PURPOSE_DECRYPT;
 import static android.security.keystore.KeyProperties.PURPOSE_ENCRYPT;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 
 /**

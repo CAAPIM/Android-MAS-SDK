@@ -11,8 +11,8 @@ package com.ca.mas.core.security;
 import android.util.Log;
 
 import java.lang.reflect.Method;
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Adapter that provides a common interface {@link com.ca.mas.core.security.KeyStore} for various

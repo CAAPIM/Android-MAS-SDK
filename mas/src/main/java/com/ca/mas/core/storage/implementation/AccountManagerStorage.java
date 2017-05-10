@@ -22,8 +22,8 @@ import com.ca.mas.core.storage.StorageResultReceiver;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /***
  * Android Account based storage implementation. This leverages the {@link android.accounts.AccountManager}

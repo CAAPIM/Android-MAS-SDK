@@ -15,8 +15,8 @@ import com.ca.mas.core.storage.StorageException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Factory that creates the the Storage instance.

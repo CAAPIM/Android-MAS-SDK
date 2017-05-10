@@ -26,8 +26,8 @@ import java.net.HttpURLConnection;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * A policy that adds location information to outbound requests.

@@ -22,8 +22,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Manager class that takes care of account creation. This internally uses AccountManager.

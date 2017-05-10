@@ -19,7 +19,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
-import com.ca.mas.core.MAG;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.MobileSsoListener;
@@ -59,9 +58,6 @@ import java.security.PrivateKey;
 import java.util.List;
 import java.util.Map;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
-
 /**
  * The top level MAS object represents the Mobile App Services SDK in its entirety.
  * It is where the framework lifecycle begins, and ends if necessary.
@@ -69,6 +65,10 @@ import static com.ca.mas.core.MAG.TAG;
  * can be found and utilized.
  */
 public class MAS {
+
+    public static String TAG = "MAS";
+    public static boolean DEBUG = android.util.Log.isLoggable(TAG,  android.util.Log.VERBOSE);
+
     private static Context appContext;
     private static Activity currentActivity;
     private static boolean hasRegisteredActivityCallback;
@@ -216,7 +216,7 @@ public class MAS {
      * Turn on debug mode
      */
     public static void debug() {
-        MAG.DEBUG = true;
+        MAS.DEBUG = true;
     }
 
     /**

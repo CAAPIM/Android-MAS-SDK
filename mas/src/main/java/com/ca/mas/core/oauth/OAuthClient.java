@@ -48,7 +48,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.foundation.MAS.DEBUG;
 
 /**
  * Utility class that encapsulates talking to the token server into Java method calls.

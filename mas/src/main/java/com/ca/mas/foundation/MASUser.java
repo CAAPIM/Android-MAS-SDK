@@ -62,8 +62,8 @@ import java.util.NoSuchElementException;
 import java.util.Observable;
 import java.util.Observer;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN;
 
 /**

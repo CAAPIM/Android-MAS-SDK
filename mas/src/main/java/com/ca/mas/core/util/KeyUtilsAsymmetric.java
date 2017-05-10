@@ -51,8 +51,8 @@ import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_RSA_OAE
 import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1;
 import static android.security.keystore.KeyProperties.SIGNATURE_PADDING_RSA_PKCS1;
 import static android.security.keystore.KeyProperties.SIGNATURE_PADDING_RSA_PSS;
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Utility methods for working with keys and key pairs.

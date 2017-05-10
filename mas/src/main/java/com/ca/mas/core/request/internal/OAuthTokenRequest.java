@@ -23,8 +23,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * A request to retrieve the OAuth Tokens as a JSON Message

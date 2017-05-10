@@ -21,8 +21,8 @@ import com.ca.mas.identity.util.IdentityUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * <p><b>MASFilteredRequest</b> describes the APIs for user's to specify scim filters. This interface would be the backing set of APIs

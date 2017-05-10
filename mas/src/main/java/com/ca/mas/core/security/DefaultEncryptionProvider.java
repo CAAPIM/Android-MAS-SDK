@@ -17,8 +17,8 @@ import javax.crypto.SecretKey;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 public class DefaultEncryptionProvider implements EncryptionProvider {
     private KeyStorageProvider ksp;

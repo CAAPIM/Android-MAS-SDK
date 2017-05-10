@@ -32,8 +32,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * <p>A simple {@link Fragment} subclass.

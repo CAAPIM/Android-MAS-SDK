@@ -18,9 +18,8 @@ import static com.ca.mas.core.MAG.TAG;
 
 public class JWTHmac {
 
-
-    public JWTHmac () {
-
+    private JWTHmac() {
+        throw new IllegalAccessError("Utility class");
     }
 
     public static  boolean validateHMacSignature(byte[] header, byte[] payload, byte[] clientSecret, byte[] signature) throws JWTValidationException {

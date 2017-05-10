@@ -1,0 +1,84 @@
+/*
+ * Copyright (c) 2016 CA. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
+package com.ca.mas.core.error;
+
+public interface MAGErrorCode {
+
+    int UNKNOWN = -1;
+
+    //
+    // SDK start
+    //
+    int INVALID_URL = 100001;
+    int INVALID_JSON = 100002;
+
+    //
+    int TYPE_UNSUPPORTED = 100103;
+
+    //
+    // Configuration
+    //
+    int FAILED_FILE_NOT_FOUND = 100201;
+    int FAILED_JSON_SERIALIZATION = 100202;
+    int FAILED_JSON_VALIDATION = 100203;
+    int INVALID_ENDPOINT = 100204;
+
+    //
+    // Geolocation
+    //
+    int GEOLOCATION_IS_INVALID = 100301;
+    int GEOLOCATION_IS_MISSING = 100302;
+
+
+    int MSISDN_IS_INVALID = 100304;
+    int MSISDN_IS_MISSING = 100305;
+
+    //
+    // Application
+    //
+    int APPLICATION_ALREADY_REGISTERED = 110001;
+    int APPLICATION_INVALID = 110002;
+    int APPLICATION_NOT_REGISTERED = 110003;
+    int APPLICATION_INVALID_MAG_IDENTIFER = 110004;
+
+    //
+    // Device
+    //
+    int DEVICE_ALREADY_REGISTERED = 120001;
+    int DEVICE_ALREADY_REGISTERED_WITH_DIFFERENT_FLOW = 120002;
+    int DEVICE_COULD_NOT_BE_DEREGISTERED = 120003;
+    int DEVICE_NOT_REGISTERED = 120004;
+    int DEVICE_NOT_LOGGED_IN = 120005;
+    int DEVICE_RECORD_IS_NOT_VALID = 120006;
+    int REGISTRATION_ATTEMPTED_WITH_UNREGISTERED_SCOPE = 120007;
+    int REGISTRATION_WITHOUT_REQUIRED_PARAMETERS = 120008;
+    int DEVICE_NOT_RENEWED = 120009;
+
+    //
+    // Token
+    //
+    int TOKEN_INVALID_ID_TOKEN = 13101;
+    int TOKEN_ID_TOKEN_EXPIRED = 130102;
+    int TOKEN_ID_TOKEN_INVALID_AUD = 130103;
+    int TOKEN_ID_TOKEN_INVALID_AZP = 130104;
+    int TOKEN_ID_TOKEN_INVALID_SIGNATURE = 130105;
+
+    int ACCESS_TOKEN_INVALID = 130201;
+
+    //
+    // Enterprise Browser
+    //
+    int ENTERPRISE_BROWSER_WEB_APP_INVALID_URL =140001;
+    int ENTERPRISE_BROWSER_NATIVE_APP_DOES_NOT_EXIST =140002;
+    int ENTERPRISE_BROWSER_NATIVE_APP_CANNOT_OPEN =140003;
+    int ENTERPRISE_BROWSER_APP_DOES_NOT_EXIST =140004;
+    int ENTERPRISE_BROWSER_INVALID_RESPONSE =140005;
+
+
+}

@@ -10,10 +10,10 @@ package com.ca.mas.core.token;
 
 public class ClientCredentials {
 
-    String masterClientId;
-    String clientId;
-    String clientSecret;
-    Long clientExpiration;
+    private String masterClientId;
+    private String clientId;
+    private String clientSecret;
+    private Long clientExpiration;
 
     public ClientCredentials (String masterClientId, String clientId, String clientSecret, Long clientExpiration) {
         this.masterClientId = masterClientId;

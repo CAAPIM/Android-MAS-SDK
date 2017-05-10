@@ -34,14 +34,14 @@ import java.util.Set;
  * A simple configuration provider to use if something more elaborate is not required.
  */
 public class DefaultConfiguration implements ConfigurationProvider {
-    final String clientId;
-    final String clientSecret;
-    final String tokenHost;
-    final Map<String, Object> properties = new HashMap<String, Object>();
-    final JSONObject raw;
-    final Server server;
+    private final String clientId;
+    private final String clientSecret;
+    private final String tokenHost;
+    private final Map<String, Object> properties = new HashMap<>();
+    private final JSONObject raw;
+    private final Server server;
 
-    Map<String, String> operationUriSuffixes = new HashMap<String, String>() {{
+    private Map<String, String> operationUriSuffixes = new HashMap<String, String>() {{
         put(PROP_TOKEN_URL_SUFFIX_REQUEST_TOKEN, "/auth/oauth/v2/token");
         put(PROP_TOKEN_URL_SUFFIX_REQUEST_TOKEN_SSO, "/auth/oauth/v2/token");
         put(PROP_TOKEN_URL_SUFFIX_REGISTER_DEVICE, "/connect/device/register");
@@ -54,9 +54,9 @@ public class DefaultConfiguration implements ConfigurationProvider {
         put(PROP_TOKEN_URL_SUFFIX_CLIENT_CREDENTIALS, "/connect/client/initialize");
     }};
 
-    List<X509Certificate> trustedCertificateAnchors = new ArrayList<X509Certificate>();
-    boolean alsoTrustPublicPki = true;
-    Set<PublicKeyHash> trustedCertificatePinnedPublicKeyHashes = new HashSet<PublicKeyHash>();
+    private List<X509Certificate> trustedCertificateAnchors = new ArrayList<X509Certificate>();
+    private boolean alsoTrustPublicPki = true;
+    private Set<PublicKeyHash> trustedCertificatePinnedPublicKeyHashes = new HashSet<PublicKeyHash>();
 
     /**
      * Create a DefaultConfiguration that uses the specified token hostname, client ID, client secret,

@@ -121,9 +121,11 @@ task jacocoTestReport(type:JacocoReport, dependsOn: "connectedDebugAndroidTest")
             ['**/*.exec', '**/*.ec'])
 
     project.gradle.taskGraph.whenReady {
+        /*
         connectedDebugAndroidTest {
             ignoreFailures = true
         }
+        */
     }
     reports {
         xml.enabled = true

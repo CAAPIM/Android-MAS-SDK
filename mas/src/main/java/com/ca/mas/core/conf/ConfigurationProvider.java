@@ -19,7 +19,7 @@ import java.net.URI;
 /**
  * Interface implemented by a provider of MSSO configuration information.
  */
-public interface ConfigurationProvider extends TrustedCertificateConfiguration, MobileSsoConfig, Serializable {
+public interface ConfigurationProvider extends TrustedCertificateConfiguration, MobileSsoConfig {
 
     JSONObject getRaw();
 

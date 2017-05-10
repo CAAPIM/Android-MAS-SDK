@@ -35,10 +35,6 @@ public class PasswordCredentials implements Credentials {
      * @param password the password.
      */
     public PasswordCredentials(String username, char[] password) {
-        if (username == null)
-            throw new NullPointerException("username");
-        if (password == null)
-            throw new NullPointerException("password");
         this.username = username;
         this.password = password;
     }
@@ -46,7 +42,7 @@ public class PasswordCredentials implements Credentials {
     /**
      * Clear the password from memory.  Call this when the password is no longer needed.
      */
-    public void clearPassword() {
+    private void clearPassword() {
         char[] p = password;
         this.password = null;
         if (p != null)
@@ -60,11 +56,7 @@ public class PasswordCredentials implements Credentials {
 
     @Override
     public boolean isValid() {
-        if (username == null || password == null ) {
-            return false;
-        } else {
-            return true;
-        }
+        return !(username == null || password == null);
     }
 
     @Override
@@ -78,7 +70,7 @@ public class PasswordCredentials implements Credentials {
 
     @Override
     public List<Pair<String, String>> getParams(MssoContext config) {
-        ArrayList<Pair<String, String>> params = new ArrayList<Pair<String, String>>();
+        ArrayList<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<String, String>("username", username));
         params.add(new Pair<String, String>("password", new String(password)));
         return params;

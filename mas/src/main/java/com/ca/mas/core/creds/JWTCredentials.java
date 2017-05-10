@@ -49,7 +49,7 @@ public class JWTCredentials implements Credentials {
 
     @Override
     public List<Pair<String, String>> getParams(MssoContext context) {
-        ArrayList<Pair<String, String>> params = new ArrayList<Pair<String, String>>();
+        ArrayList<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<String, String>(ServerClient.ASSERTION, idToken.getValue()));
         return params;
     }

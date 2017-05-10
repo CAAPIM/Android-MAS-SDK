@@ -161,7 +161,7 @@ public class MASSecureStorage extends AbstractMASStorage {
 
             @Override
             public void onSuccess(MASResponse<JSONObject> response) {
-                final Set<String> itemsL = new HashSet<String>();
+                final Set<String> itemsL = new HashSet<>();
                 try {
                     JSONObject items = response.getBody().getContent();
                     JSONArray itemArr = items.getJSONArray(StorageConsts.KEY_RESULTS);

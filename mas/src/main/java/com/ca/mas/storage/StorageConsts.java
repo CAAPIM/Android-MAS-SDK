@@ -16,18 +16,16 @@ import com.ca.mas.foundation.util.FoundationConsts;
 class StorageConsts extends FoundationConsts {
 
     // /Client/{clientId}/Data/{dataKey}
-    public static final String KEY_COMPONENT_CLIENT = "Client";
-    public static final String KEY_COMPONENT_USER = "User";
-    public static final String KEY_COMPONENT_DATA = "Data";
-    public static final String KEY_VALUE = "value";
-    public static final String KEY_MODIFIED_DATE = "modifiedDate";
-    public static final String KEY_TYPE = "type";
-    public static final String MAS_STORAGE_MASS = "MASS";
-    public static final String MAS_STORAGE_VERSION = "v1";
-    public static final String KEY_RESULTS = "results";
-    public static final String KEY_KEY = "key";
-    public static final String KEY_REFERENCE = "$ref";
+    static final String KEY_COMPONENT_CLIENT = "Client";
+    static final String KEY_COMPONENT_USER = "User";
+    static final String KEY_COMPONENT_DATA = "Data";
+    static final String KEY_MODIFIED_DATE = "modifiedDate";
+    static final String MAS_STORAGE_MASS = "MASS";
+    static final String MAS_STORAGE_VERSION = "v1";
+    static final String KEY_RESULTS = "results";
+    static final String KEY_KEY = "key";
+    static final String KEY_REFERENCE = "$ref";
 
-    public static final String DEFAULT_TYPE_STRING = "text/plain";
-    public static final String TYPE_JSON = "application/json";
+    static final String DEFAULT_TYPE_STRING = "text/plain";
+    static final String TYPE_JSON = "application/json";
 }

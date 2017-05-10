@@ -71,6 +71,7 @@ class StorageItem implements MASTransformable {
     public void setKey(@NonNull final String key) {
         this.key = key;
         storageKey = new StorageKey() {
+            @Override
             public String getDataKey() {
                 return key;
             }

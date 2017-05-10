@@ -8,20 +8,9 @@
 
 package com.ca.mas.core.datasource;
 
-public class DataSourceError extends Error {
+class DataSourceError extends Error {
 
-    public DataSourceError() {
-    }
-
-    public DataSourceError(String detailMessage) {
-        super(detailMessage);
-    }
-
-    public DataSourceError(String detailMessage, Throwable throwable) {
-        super(detailMessage, throwable);
-    }
-
-    public DataSourceError(Throwable throwable) {
+    DataSourceError(Throwable throwable) {
         super(throwable);
     }
 }

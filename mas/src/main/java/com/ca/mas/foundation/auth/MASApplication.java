@@ -55,7 +55,7 @@ public abstract class MASApplication {
     private static MASApplicationLauncher mLauncher = new MASApplicationLauncher() {
         @Override
         public void onWebAppLaunch(MASApplication application) {
-
+            //No action by default
         }
     };
 

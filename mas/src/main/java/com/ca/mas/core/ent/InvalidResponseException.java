@@ -16,18 +16,6 @@ import com.ca.mas.core.error.MAGErrorCode;
  */
 public class InvalidResponseException extends EnterpriseBrowserException {
 
-    public InvalidResponseException() {
-        super(MAGErrorCode.ENTERPRISE_BROWSER_INVALID_RESPONSE);
-    }
-
-    public InvalidResponseException(String detailMessage) {
-        super(MAGErrorCode.ENTERPRISE_BROWSER_INVALID_RESPONSE, detailMessage);
-    }
-
-    public InvalidResponseException(String detailMessage, Throwable throwable) {
-        super(MAGErrorCode.ENTERPRISE_BROWSER_INVALID_RESPONSE, detailMessage, throwable);
-    }
-
     public InvalidResponseException(Throwable throwable) {
         super(MAGErrorCode.ENTERPRISE_BROWSER_INVALID_RESPONSE, throwable);
     }

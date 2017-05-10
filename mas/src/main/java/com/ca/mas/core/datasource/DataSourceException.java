@@ -10,9 +10,6 @@ package com.ca.mas.core.datasource;
 
 public class DataSourceException extends RuntimeException {
 
-    public DataSourceException() {
-    }
-
     public DataSourceException(String detailMessage) {
         super(detailMessage);
     }

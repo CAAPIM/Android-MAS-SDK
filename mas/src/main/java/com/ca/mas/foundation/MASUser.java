@@ -111,7 +111,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
      * Authenticate a user with username and password.
      */
     public static void login(@NonNull String userName, @NonNull char[] cPassword, final MASCallback<MASUser> callback) {
-        MobileSso mobileSso = FoundationUtil.getMobileSso();
+        MobileSso mobileSso = MobileSsoFactory.getInstance();
 
         mobileSso.authenticate(userName, cPassword, new MASResultReceiver<JSONObject>() {
             @Override
@@ -131,7 +131,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
      * Authenticate a user with ID Token
      */
     public static void login(MASIdToken idToken, final MASCallback<MASUser> callback) {
-        MobileSso mobileSso = FoundationUtil.getMobileSso();
+        MobileSso mobileSso = MobileSsoFactory.getInstance();
 
         mobileSso.authenticate(idToken, new MASResultReceiver<JSONObject>() {
             @Override
@@ -175,7 +175,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
      */
     public static void login(@NonNull MASAuthorizationResponse authorizationResponse, final MASCallback<MASUser> callback) {
 
-        MobileSso mobileSso = FoundationUtil.getMobileSso();
+        MobileSso mobileSso = MobileSsoFactory.getInstance();
         mobileSso.authenticate(authorizationResponse.getAuthorizationCode(),
                 authorizationResponse.getState(), new MASResultReceiver<JSONObject>() {
                     @Override

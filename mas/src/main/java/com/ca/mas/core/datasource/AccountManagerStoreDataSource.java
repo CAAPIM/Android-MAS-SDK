@@ -25,12 +25,12 @@ import java.util.List;
  */
 public class AccountManagerStoreDataSource<K, V> implements DataSource<K, V> {
 
-    public static final String SHARE = "share";
+    private static final String SHARE = "share";
 
     private AccountManagerStorage storage;
     private DataConverter converter;
     private Context context;
-    private boolean share;
+    private boolean isShared;
 
 
     public AccountManagerStoreDataSource(Context context, JSONObject param, DataConverter converter) {
@@ -39,11 +39,11 @@ public class AccountManagerStoreDataSource<K, V> implements DataSource<K, V> {
 
         try {
             if (param != null) {
-                share = param.optBoolean(SHARE, false);
+                isShared = param.optBoolean(SHARE, false);
             }
 
             storage = (AccountManagerStorage) new MASStorageManager().getStorage(AccountManagerStorage.class,
-                    new Object[]{context, share});
+                    new Object[]{context, isShared});
         } catch (StorageException e) {
             throw new DataSourceException(e);
         }

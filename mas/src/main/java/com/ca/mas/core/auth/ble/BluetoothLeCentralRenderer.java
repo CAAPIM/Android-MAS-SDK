@@ -33,8 +33,6 @@ import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.auth.PollingRenderer;
 import com.ca.mas.core.conf.ConfigurationProvider;
-import com.ca.mas.core.auth.ble.BluetoothLe;
-import com.ca.mas.core.auth.ble.BluetoothLeCentralCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;

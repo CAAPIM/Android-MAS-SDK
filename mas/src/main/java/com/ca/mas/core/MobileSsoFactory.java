@@ -331,11 +331,6 @@ public final class MobileSsoFactory {
             }
 
             @Override
-            public void setMobileSsoListener(MobileSsoListener mobileSsoListener) {
-                ConfigurationManager.getInstance().setMobileSsoListener(mobileSsoListener);
-            }
-
-            @Override
             public void processPendingRequests() {
                 mssoClient.processPendingRequests();
             }

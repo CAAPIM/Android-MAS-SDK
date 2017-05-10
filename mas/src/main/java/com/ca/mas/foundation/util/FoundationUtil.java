@@ -38,16 +38,6 @@ public class FoundationUtil {
         return new Uri.Builder().path(userInfo).build();
     }
 
-    /**
-     * <b>Pre-Conditions:</b> The MAG SDK must be initialized.<br>
-     * <b>Description:</b> An accessor for returning the MobileSso instance.
-     *
-     * @return MobileSso
-     */
-    public static MobileSso getMobileSso() {
-        return MobileSsoFactory.getInstance();
-    }
-
     public static String getBrokerUrl() throws IllegalStateException {
         return getBrokerUrl(null);
     }

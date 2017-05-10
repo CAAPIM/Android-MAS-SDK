@@ -91,13 +91,6 @@ public interface MobileSso {
 
 
     /**
-     * Sets the {@link MobileSsoListener} that will receive various notifications and requests for MAG Client.
-     *
-     * @param mobileSsoListener an implementation of MobileSsoListener
-     */
-    void setMobileSsoListener(MobileSsoListener mobileSsoListener);
-
-    /**
      * <p>Requests that any pending queued requests be processed.</p>
      * <p>This can be called from an activity's onResume() method to ensure that
      * any pending requests waiting for an initial unlock code on the device get a chance to continue.</p>

@@ -58,7 +58,7 @@ public interface ConfigurationProvider extends TrustedCertificateConfiguration, 
      * @param <T> the expected return type of the property value.
      * @return the property value, or null if it is not recognized or not provided.
      */
-    public <T> T getProperty(String propertyName);
+    <T> T getProperty(String propertyName);
 
     /**
      * Get the complete URI for the given operation.

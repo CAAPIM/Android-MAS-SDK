@@ -48,13 +48,12 @@ public abstract class MASDevice implements Device {
 
                 @Override
                 public boolean isRegistered() {
-                    MobileSso mobileSso = FoundationUtil.getMobileSso();
-                    return mobileSso.isDeviceRegistered();
+                    return MobileSsoFactory.getInstance().isDeviceRegistered();
                 }
 
                 @Override
                 public void resetLocally() {
-                    FoundationUtil.getMobileSso().destroyAllPersistentTokens();
+                    MobileSsoFactory.getInstance().destroyAllPersistentTokens();
                 }
 
                 @Override

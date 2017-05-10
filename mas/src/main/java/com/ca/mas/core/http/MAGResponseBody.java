@@ -133,7 +133,7 @@ public class MAGResponseBody<T> {
                 s = new String(buffer);
                 JSONObject j = new JSONObject(s);
                 Log.d(TAG, String.format("Response content: %s", j.toString(4)));
-            } catch (Exception ignore) {
+            } catch (JSONException ignore) {
             }
             Log.d(TAG, String.format("Response content: %s", s));
         }

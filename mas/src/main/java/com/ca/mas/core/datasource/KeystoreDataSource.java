@@ -28,7 +28,7 @@ public class KeystoreDataSource<K, V> implements DataSource<K, V> {
     private KeyStoreStorage storage;
     private DataConverter converter;
     private Context context;
-    private boolean share;
+    private boolean isShared;
 
 
     public KeystoreDataSource(Context context, JSONObject param, DataConverter converter) {
@@ -37,10 +37,10 @@ public class KeystoreDataSource<K, V> implements DataSource<K, V> {
 
         try {
             if (param != null) {
-                share = param.optBoolean(SHARE, false);
+                isShared = param.optBoolean(SHARE, false);
             }
             storage = (KeyStoreStorage) new MASStorageManager().getStorage(KeyStoreStorage.class,
-                    new Object[]{context, share});
+                    new Object[]{context, isShared});
         } catch (StorageException e) {
             if (e.getCode() != StorageException.STORE_NOT_UNLOCKED) {
                 throw new DataSourceException(e);
@@ -251,7 +251,7 @@ public class KeystoreDataSource<K, V> implements DataSource<K, V> {
         if (storage == null) {
             try {
                 storage = (KeyStoreStorage) new MASStorageManager().getStorage(KeyStoreStorage.class,
-                        new Object[]{context, share});
+                        new Object[]{context, isShared});
             } catch (StorageException e) {
                 if (e.getCode() == StorageException.STORE_NOT_UNLOCKED) {
                     return false;

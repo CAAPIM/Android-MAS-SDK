@@ -8,7 +8,7 @@
 
 package com.ca.mas.storage;
 
-import com.ca.mas.foundation.util.FoundationConsts;
+import com.ca.mas.foundation.FoundationConsts;
 
 /**
  * <b>StorageConsts</b> Contains the constants used during both cloud and local encrypted storage operations.

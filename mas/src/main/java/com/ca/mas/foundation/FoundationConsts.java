@@ -6,7 +6,7 @@
  *
  */
 
-package com.ca.mas.foundation.util;
+package com.ca.mas.foundation;
 
 /**
  * <p><b>FoundationConsts</b> contains the base constants used by any classes in the hierarchy. The nature of these constants is

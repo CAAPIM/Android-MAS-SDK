@@ -31,7 +31,6 @@ import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.token.JWTValidation;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.notify.Callback;
-import com.ca.mas.foundation.util.FoundationUtil;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.user.MASAddress;
 import com.ca.mas.identity.user.MASEmail;

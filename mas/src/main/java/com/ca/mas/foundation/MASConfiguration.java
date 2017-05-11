@@ -13,7 +13,6 @@ import android.content.Context;
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.conf.Config;
 import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.foundation.util.FoundationConsts;
 
 import java.net.MalformedURLException;
 import java.net.URL;

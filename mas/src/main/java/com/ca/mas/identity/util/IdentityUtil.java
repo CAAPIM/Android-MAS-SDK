@@ -18,8 +18,7 @@ import android.util.Log;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
-import com.ca.mas.foundation.util.FoundationConsts;
-import com.ca.mas.foundation.util.FoundationUtil;
+import com.ca.mas.foundation.FoundationConsts;
 import com.ca.mas.identity.user.MASPhoto;
 
 import org.json.JSONObject;
@@ -37,7 +36,7 @@ import static com.ca.mas.foundation.MAS.TAG;
  * retreiving users and groups that have been retrieved via web service calls to SCIM, and for formatting date strings. Usages of
  * this class follow the static format of 'IdentityUtil.&lt;method name&gt;.</p>
  */
-public class IdentityUtil extends FoundationUtil {
+public class IdentityUtil {
 
     public static final Map<String, JSONObject> SCHEMA_MAP = new HashMap<>();
 

@@ -16,7 +16,7 @@ import android.util.Base64;
 
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.foundation.MASUser;
-import com.ca.mas.foundation.util.FoundationConsts;
+import com.ca.mas.foundation.FoundationConsts;
 import com.ca.mas.identity.ScimIdentifiable;
 import com.ca.mas.messaging.util.MessagingConsts;
 

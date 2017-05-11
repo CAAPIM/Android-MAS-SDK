@@ -9,12 +9,11 @@
 package com.ca.mas.identity.user;
 
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.foundation.MASTransformable;
 import com.ca.mas.foundation.MASUser;
-import com.ca.mas.foundation.util.FoundationConsts;
+import com.ca.mas.foundation.FoundationConsts;
 import com.ca.mas.identity.util.IdentityConsts;
 
 import org.json.JSONArray;

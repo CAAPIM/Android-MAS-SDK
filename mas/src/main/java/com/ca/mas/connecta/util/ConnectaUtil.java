@@ -10,9 +10,11 @@ package com.ca.mas.connecta.util;
 
 import android.support.annotation.NonNull;
 
+import com.ca.mas.connecta.client.MASConnectOptions;
+import com.ca.mas.core.conf.ConfigurationManager;
+import com.ca.mas.foundation.FoundationConsts;
 import com.ca.mas.messaging.MASMessageException;
 import com.ca.mas.foundation.MASUser;
-import com.ca.mas.foundation.util.FoundationUtil;
 import com.ca.mas.messaging.MASMessage;
 
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -26,7 +28,30 @@ import org.json.JSONException;
  * {@link <a href="http://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html">MqttConnectOptions</a>}
  * into MASConnectOptions objects.</p>
  */
-public class ConnectaUtil extends FoundationUtil {
+public class ConnectaUtil {
+
+    public static String getBrokerUrl() throws IllegalStateException {
+        return getBrokerUrl(null);
+    }
+
+    /**
+     * <b>Pre-Conditions</b> The MAG SDK has to be initialized prior to calling this method.<br>
+     * <b>Description</b> This method takes the information found in the ConfigurationProvider and
+     * uses it to create a URL representing an ssl connection to the MQTT broker.
+     *
+     * @return String of the form 'ssl://host.com:8883'
+     * @throws IllegalStateException
+     */
+    public static String getBrokerUrl(MASConnectOptions connectOptions) throws IllegalStateException {
+        if (connectOptions != null && connectOptions.getServerURIs() != null && connectOptions.getServerURIs().length > 0) {
+            // If MASConnectOptions have been set and server URIs have been set
+            return connectOptions.getServerURIs()[0];
+        } else {
+            return (ConnectaConsts.SSL_MESSAGING_SCHEME + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH) +
+                    ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getTokenHost() +
+                    FoundationConsts.COLON + ConnectaConsts.SSL_MESSAGING_PORT;
+        }
+    }
 
     /**
      * <mag_identifier>::<client_id>::<SCIM userID>

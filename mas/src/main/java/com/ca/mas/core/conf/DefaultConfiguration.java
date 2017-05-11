@@ -8,10 +8,13 @@
 
 package com.ca.mas.core.conf;
 
+import android.net.Uri;
+
 import com.ca.mas.core.cert.CertUtils;
 import com.ca.mas.core.cert.PublicKeyHash;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
+import com.ca.mas.foundation.FoundationConsts;
 
 import org.json.JSONObject;
 
@@ -235,6 +238,15 @@ public class DefaultConfiguration implements ConfigurationProvider {
         } catch (MalformedURLException | URISyntaxException e) {
             throw new MAGRuntimeException(MAGErrorCode.INVALID_ENDPOINT, "Unable to create URL for operation \"" + operation + "\": " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public Uri getUserInfoUri() {
+        String userInfo = getProperty(FoundationConsts.KEY_CONFIG_USER_INFO);
+        if (userInfo == null) {
+            userInfo = "/openid/connect/v1/userinfo";
+        }
+        return new Uri.Builder().path(userInfo).build();
     }
 
     @Override

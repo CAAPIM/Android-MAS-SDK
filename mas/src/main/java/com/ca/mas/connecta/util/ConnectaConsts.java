@@ -8,7 +8,7 @@
 
 package com.ca.mas.connecta.util;
 
-import com.ca.mas.foundation.util.FoundationConsts;
+import com.ca.mas.foundation.FoundationConsts;
 
 /**
  * <p>This collection of static values are the constants used in the connecta <i>transport layer</i> package.</p>

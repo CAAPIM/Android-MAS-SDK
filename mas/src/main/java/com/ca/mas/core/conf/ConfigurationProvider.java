@@ -8,12 +8,13 @@
 
 package com.ca.mas.core.conf;
 
+import android.net.Uri;
+
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.cert.TrustedCertificateConfiguration;
 
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.net.URI;
 
 /**
@@ -67,6 +68,14 @@ public interface ConfigurationProvider extends TrustedCertificateConfiguration, 
      * @return the URI, or null if no URI is available for the specified operation name.
      */
     URI getTokenUri(String operation);
+
+    /**
+     * Get the complete URI for the given operation.
+     *
+     * @return the URI, or null if no URI is available for the userinfo.
+     */
+    Uri getUserInfoUri();
+
 
     /**
      * Get the absolute URI for the given path.

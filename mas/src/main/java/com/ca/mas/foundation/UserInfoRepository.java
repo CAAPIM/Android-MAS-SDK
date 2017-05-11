@@ -8,8 +8,8 @@
 
 package com.ca.mas.foundation;
 
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.foundation.notify.Callback;
-import com.ca.mas.foundation.util.FoundationUtil;
 import com.ca.mas.identity.user.ScimUser;
 import com.ca.mas.identity.user.User;
 
@@ -25,7 +25,7 @@ class UserInfoRepository implements UserRepository {
     @Override
     public void findByUsername(final String username, final MASCallback<ScimUser> result) {
 
-        final MASRequest request = new MASRequest.MASRequestBuilder(FoundationUtil.getUserInfo())
+        final MASRequest request = new MASRequest.MASRequestBuilder(ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUserInfoUri())
                 .password()
                 .build();
 

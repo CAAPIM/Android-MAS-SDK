@@ -12,7 +12,6 @@ import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEPeripheralListener;
 import com.ca.mas.foundation.notify.Callback;
-import com.ca.mas.foundation.util.FoundationUtil;
 
 /**
  * <p>The <b>MASDevice</b> class is a local representation of device data.</p>

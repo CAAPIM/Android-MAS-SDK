@@ -11,7 +11,7 @@ package com.ca.mas.identity.user;
 import android.support.annotation.NonNull;
 
 import com.ca.mas.foundation.MASTransformable;
-import com.ca.mas.foundation.util.FoundationConsts;
+import com.ca.mas.foundation.FoundationConsts;
 
 import org.json.JSONException;
 import org.json.JSONObject;

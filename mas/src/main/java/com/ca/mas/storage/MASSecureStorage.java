@@ -20,7 +20,7 @@ import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASRequestBody;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.notify.Callback;
-import com.ca.mas.foundation.util.FoundationConsts;
+import com.ca.mas.foundation.FoundationConsts;
 
 import org.json.JSONArray;
 import org.json.JSONException;

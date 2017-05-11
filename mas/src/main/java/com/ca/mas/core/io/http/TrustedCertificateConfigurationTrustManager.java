@@ -114,7 +114,7 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String s) throws CertificateException {
         // Check pins first, if certificate public key pinning is in use
-        if (pinnedPublicKeys != null && pinnedPublicKeys.size() > 0) {
+        if (pinnedPublicKeys != null && !pinnedPublicKeys.isEmpty()) {
             boolean sawPin = false;
             for (X509Certificate cert : chain) {
                 if (pinnedPublicKeys.contains(PublicKeyHash.fromPublicKey(cert.getPublicKey()))) {

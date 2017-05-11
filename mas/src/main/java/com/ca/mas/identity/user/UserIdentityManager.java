@@ -22,7 +22,7 @@ import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASSessionUnlockCallback;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.notify.Callback;
-import com.ca.mas.foundation.util.FoundationConsts;
+import com.ca.mas.foundation.FoundationConsts;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.ca.mas.identity.util.IdentityUtil;

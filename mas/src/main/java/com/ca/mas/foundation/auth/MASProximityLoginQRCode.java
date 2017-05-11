@@ -25,8 +25,6 @@ import com.ca.mas.foundation.notify.Callback;
  */
 public class MASProximityLoginQRCode extends QRCodeRenderer implements MASProximityLogin {
 
-    public static final int QRCODE_ERROR = QRCodeRenderer.QRCODE_ERROR;
-
     public static void authorize(String authenticateUrl, final MASCallback<Void> callback) {
         MobileSsoFactory.getInstance().authorize(authenticateUrl, new MASResultReceiver(null) {
             @Override

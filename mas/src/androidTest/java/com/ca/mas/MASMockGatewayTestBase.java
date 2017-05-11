@@ -49,11 +49,7 @@ public abstract class MASMockGatewayTestBase extends MASTestBase {
         gatewayDefaultDispatcher = new GatewayDefaultDispatcher();
         ssg.setDispatcher(gatewayDefaultDispatcher);
         ssg.useHttps(SslContextBuilder.localhost().getSocketFactory(), false);
-        try {
-            ssg.start(41979);
-        } catch (Exception e) {
-            System.out.print(e);
-        }
+        ssg.start(41979);
 
         //Turn on debug by default
         MAS.debug();

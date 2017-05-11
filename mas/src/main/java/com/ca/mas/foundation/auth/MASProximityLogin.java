@@ -18,11 +18,6 @@ import com.ca.mas.core.auth.PollingRenderer;
  */
 public interface MASProximityLogin {
 
-    //The session id and poll url is invalid
-    int INVALID_SESSION_ID_OR_POLL_URL = PollingRenderer.INVALID_SESSION_ID_OR_POLL_URL;
-    //The proximity login session is expired.
-    int SESSION_EXPIRED = PollingRenderer.SESSION_EXPIRED;
-
     /**
      * Render the view for the Proximity login, the view can be a image, button or null for no view.
      * The view will put to the login dialog as one of the login provider.

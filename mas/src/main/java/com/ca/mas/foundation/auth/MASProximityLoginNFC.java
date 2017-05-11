@@ -37,20 +37,6 @@ import static com.ca.mas.foundation.MAS.TAG;
  */
 public class MASProximityLoginNFC extends NFCRenderer implements MASProximityLogin {
 
-    /**
-     * Error when NFC is not available
-     */
-    public static final int NFC_ERR = NFCRenderer.NFC_ERR;
-    /**
-     * Error when unable to start Bluetooth Service
-     */
-    public static final int BLUETOOTH_ERR = NFCRenderer.BLUETOOTH_ERR;
-    /**
-     * Error when failed to start Bluetooth server
-     */
-    public static final int BLUETOOTH_CONN_ERR = NFCRenderer.BLUETOOTH_CONN_ERR;
-
-
     @SuppressWarnings("MissingPermission")
     public static void authorize(String authenticateUrl, final MASCallback<Void> callback) {
 

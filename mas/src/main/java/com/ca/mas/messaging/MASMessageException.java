@@ -12,7 +12,7 @@ package com.ca.mas.messaging;
  * <p><b>MASMessageException</b> is a general exception wrapper used by the MAS SDK to
  * normalize protocol specific messaging implementations.</p>
  */
-public class MASMessageException extends Exception {
+public class MASMessageException extends RuntimeException {
 
     /**
      * <b>Description:</b> No args constructor.

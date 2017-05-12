@@ -15,6 +15,7 @@ import org.junit.runners.Suite;
 @RunWith(Categories.class)
 @Suite.SuiteClasses({
         MASMessagingTest.class,
+        MASSubscribePublishMessageTest.class,
 })
 
 public class MASMessagingTestSuite {

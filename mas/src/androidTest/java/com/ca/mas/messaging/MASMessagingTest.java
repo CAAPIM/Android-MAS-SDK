@@ -12,7 +12,9 @@ import android.support.test.InstrumentationRegistry;
 import android.util.Base64;
 
 import com.ca.mas.MASCallbackFuture;
+import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.MASMockGatewayTestBase;
+import com.ca.mas.MASTestBase;
 import com.ca.mas.TestUtils;
 import com.ca.mas.connecta.client.MASConnectaClient;
 import com.ca.mas.connecta.util.ConnectaConsts;
@@ -31,8 +33,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
-public class MASMessagingTest extends MASMockGatewayTestBase {
-    protected static final int DEFAULT_MAX = 10485760;
+public class MASMessagingTest extends MASLoginTestBase {
     private MASMessage mMessage;
     private String mSenderId = "admin";
     private String mVersion = "1.1";
@@ -165,16 +166,8 @@ public class MASMessagingTest extends MASMockGatewayTestBase {
         }
     }
 
-    private void login() throws Exception {
-        MAS.start(getContext(), TestUtils.getJSONObject("/msso_config.json"));
-        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
-        MASUser.login("admin", "7layer".toCharArray(), callback);
-        assertNotNull(callback.get());
-    }
-
     @Test
     public void testCreateJSONStringFromNewMASMessageWithDefaultAttributes() throws Exception {
-        login();
         mMessage = MASMessage.newInstance();
         mMessage.setPayload(mPayload);
         long startTime = System.currentTimeMillis();
@@ -199,7 +192,6 @@ public class MASMessagingTest extends MASMockGatewayTestBase {
 
     @Test
     public void testCreateJSONStringFromNewMASMessageWithEmptyAttributes() throws Exception {
-        login();
         mMessage = MASMessage.newInstance();
         mMessage.setPayload(mPayload);
         mMessage.setVersion("");
@@ -228,7 +220,6 @@ public class MASMessagingTest extends MASMockGatewayTestBase {
 
     @Test(expected = MASMessageException.class)
     public void testCreateJSONStringFromNullPayloadMASMessage() throws Exception {
-        login();
 
         mMessage = MASMessage.newInstance();
         mMessage.setPayload(null);
@@ -242,7 +233,6 @@ public class MASMessagingTest extends MASMockGatewayTestBase {
 
     @Test(expected = MASMessageException.class)
     public void testCreateJSONStringFromEmptyPayloadMASMessage() throws Exception {
-        login();
 
         mMessage = MASMessage.newInstance();
         try {

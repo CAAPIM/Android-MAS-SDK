@@ -64,7 +64,7 @@ class DefaultTokenManager implements TokenManager {
     @Override
     public void saveClientCertificateChain(X509Certificate[] chain) throws TokenStoreException {
         try {
-            KeyUtilsAsymmetric.setCertificateChain(MSSO_CLIENT_CERT_CHAIN_PREFIX, chain);
+            KeyUtilsAsymmetric.setCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX), chain);
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to save client certificate chain: " + e.getMessage(), e);
         }
@@ -102,8 +102,8 @@ class DefaultTokenManager implements TokenManager {
         deleteIdToken();
         deleteUserProfile();
         deleteSecureIdToken();
-        KeyUtilsAsymmetric.deletePrivateKey(MSSO_CLIENT_PRIVATE_KEY);
-        KeyUtilsAsymmetric.clearCertificateChain(MSSO_CLIENT_CERT_CHAIN_PREFIX);
+        KeyUtilsAsymmetric.deletePrivateKey(getKey(MSSO_CLIENT_PRIVATE_KEY));
+        KeyUtilsAsymmetric.clearCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX));
         deleteSecureItem(MSSO_MAG_IDENTIFIER);
     }
 
@@ -157,7 +157,7 @@ class DefaultTokenManager implements TokenManager {
             if (storage instanceof AccountManagerStoreDataSource) {
 
                 // don't require a pin/password/swipe
-                return KeyUtilsAsymmetric.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_PRIVATE_KEY,
+                return KeyUtilsAsymmetric.generateRsaPrivateKey(ctx, keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
                         MSSO_DN, false, false, -1, false);
 
             } else {
@@ -166,7 +166,7 @@ class DefaultTokenManager implements TokenManager {
                 //    which will encrypt the keys at rest
                 // otherwise, the keys are already protected from extraction and use
                 //    except by apps with same signing key + shared user id
-                return KeyUtilsAsymmetric.generateRsaPrivateKey(ctx, keyBits, MSSO_CLIENT_PRIVATE_KEY,
+                return KeyUtilsAsymmetric.generateRsaPrivateKey(ctx, keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
                         MSSO_DN, true, false, -1, false);
             }
 
@@ -179,7 +179,7 @@ class DefaultTokenManager implements TokenManager {
     @Override
     public PrivateKey getClientPrivateKey() {
         try {
-            return KeyUtilsAsymmetric.getRsaPrivateKey(MSSO_CLIENT_PRIVATE_KEY);
+            return KeyUtilsAsymmetric.getRsaPrivateKey(getKey(MSSO_CLIENT_PRIVATE_KEY));
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to get client private key: " + e.getMessage(), e);
             return null;
@@ -189,7 +189,7 @@ class DefaultTokenManager implements TokenManager {
     @Override
     public PublicKey getClientPublicKey() {
         try {
-            return KeyUtilsAsymmetric.getRsaPublicKey(MSSO_CLIENT_PRIVATE_KEY);
+            return KeyUtilsAsymmetric.getRsaPublicKey(getKey(MSSO_CLIENT_PRIVATE_KEY));
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to get client public key: " + e.getMessage(), e);
             return null;
@@ -200,7 +200,7 @@ class DefaultTokenManager implements TokenManager {
     @Override
     public boolean isClientCertificateChainAvailable() {
         try {
-            return KeyUtilsAsymmetric.getCertificateChain(MSSO_CLIENT_CERT_CHAIN_PREFIX) != null;
+            return KeyUtilsAsymmetric.getCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX)) != null;
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to access client cert chain: " + e.getMessage(), e);
             return false;
@@ -210,7 +210,7 @@ class DefaultTokenManager implements TokenManager {
     @Override
     public X509Certificate[] getClientCertificateChain() {
         try {
-            return KeyUtilsAsymmetric.getCertificateChain(MSSO_CLIENT_CERT_CHAIN_PREFIX);
+            return KeyUtilsAsymmetric.getCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX));
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to access client cert chain: " + e.getMessage(), e);
             return null;

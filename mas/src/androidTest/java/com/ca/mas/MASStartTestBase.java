@@ -9,15 +9,12 @@
 package com.ca.mas;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
 
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthenticationListener;
 import com.ca.mas.foundation.MASConfiguration;
-import com.ca.mas.foundation.MASConstants;
 import com.ca.mas.foundation.MASDevice;
 import com.ca.mas.foundation.MASOtpAuthenticationHandler;
-import com.ca.mas.foundation.MASState;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 
@@ -25,11 +22,11 @@ import org.junit.After;
 import org.junit.Before;
 
 
-public abstract class MASStartTestBase extends MASTestBase {
+public abstract class MASStartTestBase extends MASMockGatewayTestBase {
 
     @Before
     public void masStart() throws Exception {
-        MAS.start(getContext(), getConfig("/msso_config.json"));
+        MAS.start(getContext(), TestUtils.getJSONObject("/msso_config.json"));
         MAS.setAuthenticationListener(new MASAuthenticationListener() {
             @Override
             public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {

@@ -13,16 +13,14 @@ import android.support.annotation.NonNull;
 
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.TargetApiException;
-import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConstants;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASRequestBody;
 import com.ca.mas.foundation.MASResponse;
-import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.notify.Callback;
-import com.ca.mas.foundation.util.FoundationConsts;
+import com.ca.mas.foundation.FoundationConsts;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -163,7 +161,7 @@ public class MASSecureStorage extends AbstractMASStorage {
 
             @Override
             public void onSuccess(MASResponse<JSONObject> response) {
-                final Set<String> itemsL = new HashSet<String>();
+                final Set<String> itemsL = new HashSet<>();
                 try {
                     JSONObject items = response.getBody().getContent();
                     JSONArray itemArr = items.getJSONArray(StorageConsts.KEY_RESULTS);

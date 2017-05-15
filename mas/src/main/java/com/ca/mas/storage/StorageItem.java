@@ -18,8 +18,8 @@ import com.ca.mas.foundation.MASTransformable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * <p><b>StorageItem</b> is a class that contains 3 components;
@@ -71,6 +71,7 @@ class StorageItem implements MASTransformable {
     public void setKey(@NonNull final String key) {
         this.key = key;
         storageKey = new StorageKey() {
+            @Override
             public String getDataKey() {
                 return key;
             }

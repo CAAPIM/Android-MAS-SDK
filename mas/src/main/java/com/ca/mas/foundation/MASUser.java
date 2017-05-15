@@ -31,7 +31,6 @@ import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.token.JWTValidation;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.notify.Callback;
-import com.ca.mas.foundation.util.FoundationUtil;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.user.MASAddress;
 import com.ca.mas.identity.user.MASEmail;
@@ -62,8 +61,8 @@ import java.util.NoSuchElementException;
 import java.util.Observable;
 import java.util.Observer;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN;
 
 /**
@@ -111,7 +110,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
      * Authenticate a user with username and password.
      */
     public static void login(@NonNull String userName, @NonNull char[] cPassword, final MASCallback<MASUser> callback) {
-        MobileSso mobileSso = FoundationUtil.getMobileSso();
+        MobileSso mobileSso = MobileSsoFactory.getInstance();
 
         mobileSso.authenticate(userName, cPassword, new MASResultReceiver<JSONObject>() {
             @Override
@@ -131,7 +130,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
      * Authenticate a user with ID Token
      */
     public static void login(MASIdToken idToken, final MASCallback<MASUser> callback) {
-        MobileSso mobileSso = FoundationUtil.getMobileSso();
+        MobileSso mobileSso = MobileSsoFactory.getInstance();
 
         mobileSso.authenticate(idToken, new MASResultReceiver<JSONObject>() {
             @Override
@@ -175,7 +174,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
      */
     public static void login(@NonNull MASAuthorizationResponse authorizationResponse, final MASCallback<MASUser> callback) {
 
-        MobileSso mobileSso = FoundationUtil.getMobileSso();
+        MobileSso mobileSso = MobileSsoFactory.getInstance();
         mobileSso.authenticate(authorizationResponse.getAuthorizationCode(),
                 authorizationResponse.getState(), new MASResultReceiver<JSONObject>() {
                     @Override

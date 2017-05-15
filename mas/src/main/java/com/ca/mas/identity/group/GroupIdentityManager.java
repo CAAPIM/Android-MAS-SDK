@@ -21,7 +21,7 @@ import com.ca.mas.foundation.MASRequestBody;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.notify.Callback;
-import com.ca.mas.foundation.util.FoundationConsts;
+import com.ca.mas.foundation.FoundationConsts;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.common.MASFilteredRequestBuilder;
 import com.ca.mas.identity.util.IdentityConsts;
@@ -34,8 +34,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * The <i>GroupIdentityManager</i> behaves as the controller between the MAS SDK and the

@@ -7,17 +7,11 @@
  */
 package com.ca.mas.foundation;
 
-import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
-import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.DeviceIdentifier;
-import com.ca.mas.core.store.StorageProvider;
-import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEPeripheralListener;
 import com.ca.mas.foundation.notify.Callback;
-import com.ca.mas.foundation.util.FoundationUtil;
 
 /**
  * <p>The <b>MASDevice</b> class is a local representation of device data.</p>
@@ -53,13 +47,12 @@ public abstract class MASDevice implements Device {
 
                 @Override
                 public boolean isRegistered() {
-                    MobileSso mobileSso = FoundationUtil.getMobileSso();
-                    return mobileSso.isDeviceRegistered();
+                    return MobileSsoFactory.getInstance().isDeviceRegistered();
                 }
 
                 @Override
                 public void resetLocally() {
-                    FoundationUtil.getMobileSso().destroyAllPersistentTokens();
+                    MobileSsoFactory.getInstance().destroyAllPersistentTokens();
                 }
 
                 @Override

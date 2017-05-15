@@ -8,33 +8,19 @@
 package com.ca.mas.foundation;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
-import android.support.test.InstrumentationRegistry;
 
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
-import com.ca.mas.core.MobileSsoListener;
-import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
-import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.creds.AuthorizationCodeCredentials;
-import com.ca.mas.core.creds.Credentials;
-import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.oauth.CodeVerifierCache;
-import com.ca.mas.core.service.AuthenticationProvider;
-import com.ca.mas.core.service.MssoIntents;
-import com.ca.mas.core.service.MssoService;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
-import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import org.json.JSONObject;
-import org.junit.After;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;

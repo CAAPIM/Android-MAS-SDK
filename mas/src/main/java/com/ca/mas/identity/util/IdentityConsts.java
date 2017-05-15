@@ -8,7 +8,7 @@
 
 package com.ca.mas.identity.util;
 
-import com.ca.mas.foundation.util.FoundationConsts;
+import com.ca.mas.foundation.FoundationConsts;
 
 /**
  * <p><b>IdentityConsts</b> contains the set of constants used in this {@link <a href="https://tools.ietf.org/html/rfc7644">SCIM implementation</a>}.</p>

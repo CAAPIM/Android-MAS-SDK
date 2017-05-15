@@ -16,45 +16,26 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.auth.NFCRenderer;
 import com.ca.mas.core.auth.NfcResultReceiver;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.oauth.OAuthException;
-import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.Provider;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.messaging.MASMessageException;
 import com.ca.mas.foundation.notify.Callback;
 
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.util.UUID;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Proximity login with Near Field Communication (NFC).
  */
 public class MASProximityLoginNFC extends NFCRenderer implements MASProximityLogin {
-
-    /**
-     * Error when NFC is not available
-     */
-    public static final int NFC_ERR = NFCRenderer.NFC_ERR;
-    /**
-     * Error when unable to start Bluetooth Service
-     */
-    public static final int BLUETOOTH_ERR = NFCRenderer.BLUETOOTH_ERR;
-    /**
-     * Error when failed to start Bluetooth server
-     */
-    public static final int BLUETOOTH_CONN_ERR = NFCRenderer.BLUETOOTH_CONN_ERR;
-
 
     @SuppressWarnings("MissingPermission")
     public static void authorize(String authenticateUrl, final MASCallback<Void> callback) {

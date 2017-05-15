@@ -26,7 +26,6 @@ import com.ca.mas.core.request.internal.StateRequest;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.messaging.MASMessageException;
 import com.ca.mas.foundation.notify.Callback;
-import com.ca.mas.foundation.util.FoundationUtil;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
 
@@ -45,8 +44,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * <p>

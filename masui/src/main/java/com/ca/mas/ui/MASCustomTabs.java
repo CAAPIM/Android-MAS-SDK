@@ -28,8 +28,8 @@ import net.openid.appauth.browser.Browsers;
 import net.openid.appauth.browser.VersionRange;
 import net.openid.appauth.browser.VersionedBrowserMatcher;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * MASCustomTabs is a Custom Tabs implementation utilizing the AppAuth library (https://openid.github.io/AppAuth-Android/).

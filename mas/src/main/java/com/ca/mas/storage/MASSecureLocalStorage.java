@@ -63,6 +63,7 @@ public class MASSecureLocalStorage extends AbstractMASStorage {
             @Override
             public void call(String s) {
                 try {
+                    String createdBy = s;
                     DataMarshaller relevantM = findMarshaller(value);
                     byte[] data;
                     data = relevantM.marshall(value);
@@ -71,9 +72,9 @@ public class MASSecureLocalStorage extends AbstractMASStorage {
                         encryptedData = encProvider.encrypt(data);
                     }
                     if (segment == MASConstants.MAS_APPLICATION) {
-                        s = context.getPackageName();
+                        createdBy = context.getPackageName();
                     }
-                    dataSource.put(new Key(key, segment, s), new LocalStoreEntity(relevantM.getTypeAsString(), encryptedData));
+                    dataSource.put(new Key(key, segment, createdBy), new LocalStoreEntity(relevantM.getTypeAsString(), encryptedData));
                     Callback.onSuccess(callback, null);
                 } catch (Exception e) {
                     Callback.onError(callback, e);
@@ -153,8 +154,8 @@ public class MASSecureLocalStorage extends AbstractMASStorage {
             @Override
             public void call(String s) {
                 try {
-                    Set<LocalStoreKey> localStoreKeys = new HashSet<LocalStoreKey>(dataSource.getKeys(new Key(null, segment, s)));
-                    Set<String> keys = new HashSet<String>();
+                    Set<LocalStoreKey> localStoreKeys = new HashSet<>(dataSource.getKeys(new Key(null, segment, s)));
+                    Set<String> keys = new HashSet<>();
                     for (LocalStoreKey k : localStoreKeys) {
                         keys.add(k.getKey());
                     }

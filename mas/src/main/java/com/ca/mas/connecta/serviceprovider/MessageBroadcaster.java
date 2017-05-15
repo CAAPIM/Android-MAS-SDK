@@ -14,7 +14,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.messaging.MASMessageException;
-import com.ca.mas.foundation.util.FoundationConsts;
+import com.ca.mas.foundation.FoundationConsts;
 import com.ca.mas.messaging.MASMessage;
 
 /**

@@ -6,7 +6,7 @@
         "name": "This is app A",
         "icon_url": "http://mobile-staging-androidautomation.l7tech.com:8080/connect/enterprise/browser/icon/appa",
         "auth_url": "",
-        "native_url": "camsso://com.camsso.appa",
+        "native_url": "doesnotexist://com.camsso.appa",
         "custom": {}
       }
     },

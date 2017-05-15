@@ -35,7 +35,6 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':mas')
-    compile project(':mag')
     compile "com.android.support:design:$rootProject.ext.designVersion"
     compile "com.android.support:gridlayout-v7:$rootProject.ext.gridLayoutVersion"
     compile "net.openid:appauth:$rootProject.ext.appAuthVersion"

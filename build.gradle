@@ -14,7 +14,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
+        classpath 'com.android.tools.build:gradle:2.3.2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
     }
@@ -38,7 +38,7 @@ ext {
     recyclerViewVersion = '25.1.0'
     supportAnnotationsVersion = '25.1.0'
     targetSdkVersion = 25
-    versionCode = 14
-    versionName = '1.4.00'
+    versionCode = 15
+    versionName = '1.5.00'
     zxingVersion = '3.2.0'
 }

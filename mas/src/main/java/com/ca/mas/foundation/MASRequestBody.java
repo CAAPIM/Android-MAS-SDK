@@ -12,20 +12,6 @@ import android.util.Pair;
 
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.http.MAGRequestBody;
-import com.ca.mas.core.store.StorageProvider;
-import com.ca.mas.core.store.TokenManager;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-
-import net.minidev.json.JSONStyle;
-import net.minidev.json.JSONValue;
-import net.minidev.json.reader.JsonWriter;
-import net.minidev.json.reader.JsonWriterI;
 
 import org.json.JSONObject;
 

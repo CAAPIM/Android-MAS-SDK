@@ -8,6 +8,7 @@
 
 package com.ca.mas.identity.user;
 
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASRequest;
@@ -15,7 +16,6 @@ import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.UserRepository;
 import com.ca.mas.foundation.notify.Callback;
-import com.ca.mas.foundation.util.FoundationUtil;
 import com.ca.mas.identity.util.IdentityConsts;
 
 import org.json.JSONException;
@@ -33,7 +33,7 @@ public class ScimUserRepository implements UserRepository {
         //We should use /me instead of making 2 calls to retrieve the username and user profile.
         //The server will provide /me API in the near future.
         if (username == null) {
-            final MASRequest request = new MASRequest.MASRequestBuilder(FoundationUtil.getUserInfo())
+            final MASRequest request = new MASRequest.MASRequestBuilder(ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUserInfoUri())
                     .password()
                     .build();
 

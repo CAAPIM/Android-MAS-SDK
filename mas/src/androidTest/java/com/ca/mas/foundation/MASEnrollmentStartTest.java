@@ -12,7 +12,7 @@ import android.support.test.InstrumentationRegistry;
 import android.util.Base64;
 
 import com.ca.mas.MASCallbackFuture;
-import com.ca.mas.MASTestBase;
+import com.ca.mas.MASMockGatewayTestBase;
 
 import junit.framework.Assert;
 
@@ -36,7 +36,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-public class MASEnrollmentStartTest extends MASTestBase {
+public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
 
     @Test
     public void testEnrollment() throws Exception {

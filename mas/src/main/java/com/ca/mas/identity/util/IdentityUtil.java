@@ -8,7 +8,6 @@
 
 package com.ca.mas.identity.util;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
@@ -19,29 +18,25 @@ import android.util.Log;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
-import com.ca.mas.foundation.util.FoundationConsts;
-import com.ca.mas.foundation.util.FoundationUtil;
-import com.ca.mas.identity.common.MASFilteredRequest;
+import com.ca.mas.foundation.FoundationConsts;
 import com.ca.mas.identity.user.MASPhoto;
 
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * <p><b>IdentityUtil</b> implements helper methods used in creating {@link <a href="https://tools.ietf.org/html/rfc7644">SCIM</a>} URIs,
  * retreiving users and groups that have been retrieved via web service calls to SCIM, and for formatting date strings. Usages of
  * this class follow the static format of 'IdentityUtil.&lt;method name&gt;.</p>
  */
-public class IdentityUtil extends FoundationUtil {
+public class IdentityUtil {
 
     public static final Map<String, JSONObject> SCHEMA_MAP = new HashMap<>();
 

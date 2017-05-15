@@ -10,8 +10,6 @@ package com.ca.mas.foundation;
 import com.ca.mas.core.store.StorageProvider;
 import com.nimbusds.jwt.util.DateUtils;
 
-import org.json.JSONObject;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;

@@ -9,13 +9,11 @@ package com.ca.mas.ui.otp;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.foundation.MASOtpAuthenticationHandler;
-import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.ui.R;
 import com.ca.mas.ui.listener.MASFragmentAttachDismissListener;
 

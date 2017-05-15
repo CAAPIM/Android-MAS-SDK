@@ -72,9 +72,9 @@ public abstract class MASRequestBody extends MAGRequestBody {
             @Override
             public void write(OutputStream outputStream) throws IOException {
                 MASClaims.MASClaimsBuilder builder = new MASClaims.MASClaimsBuilder(claims);
-                builder.claim(MASClaims.CONTENT, body.getContentAsJsonValue());
+                builder.claim(MASClaimsConstants.CONTENT, body.getContentAsJsonValue());
                 if (body.getContentType() != null) {
-                    builder.claim(MASClaims.CONTENT_TYPE, body.getContentType().getMimeType());
+                    builder.claim(MASClaimsConstants.CONTENT_TYPE, body.getContentType().getMimeType());
                 }
                 MASClaims masClaims = builder.build();
 

@@ -1,30 +1,27 @@
 /*
- *  Copyright (c) 2016 CA. All rights reserved.
+ * Copyright (c) 2016 CA. All rights reserved.
  *
- *  This software may be modified and distributed under the terms
- *  of the MIT license.  See the LICENSE file for details.
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ *
  */
-
 package com.ca.mas.foundation;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.StringDef;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
 /**
- * <table>
- * <caption>Summary</caption>
- * <thead>
- * <tr><th>Value</th><th>Description</th></tr>
- * </thead>
- * <tbody>
- * <tr><td>MASConstants.MAS_STATE_STOPPED</td><td>State that SDK did stop; at this state, SDK is properly stopped and should be able to re-start.<td></tr>
- * </tbody>
- * </table>
+ * Registered claim names.
  */
-@Retention(RetentionPolicy.SOURCE)
-@StringDef(value = {MASClaims.CONTENT, MASClaims.CONTENT_TYPE})
-public @interface MASClaimsConstants {
+public final class MASClaimsConstants {
+    private MASClaimsConstants() {
+        throw new IllegalAccessError("Strings class");
+    }
+
+    static final String ISSUER = "iss";
+    static final String SUBJECT = "sub";
+    static final String AUDIENCE = "aud";
+    static final String EXPIRATION = "exp";
+    static final String NOT_BEFORE = "nbf";
+    static final String ISSUED_AT = "iat";
+    static final String JWT_ID = "jti";
+    static final String CONTENT = "content";
+    static final String CONTENT_TYPE = "content-type";
 }

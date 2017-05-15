@@ -10,7 +10,7 @@ package com.ca.mas.foundation;
 /**
  * Registered claim names.
  */
-final class MASClaimsConstants {
+public final class MASClaimsConstants {
     private MASClaimsConstants() {
         throw new IllegalAccessError("Strings class");
     }

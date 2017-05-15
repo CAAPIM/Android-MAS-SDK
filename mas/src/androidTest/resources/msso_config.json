@@ -27,8 +27,8 @@
   "oauth": {
     "client": {
       "organization": "CA Technologies",
-      "description": "PhoneGap example application for Mobile SSO demonstrations",
-      "client_name": "AppC",
+      "description": "AutomationTestApp",
+      "client_name": "AppA",
       "client_type": "confidential",
       "registered_by": "admin",
       "client_custom": {},
@@ -60,7 +60,7 @@
     }
   },
   "mas": {
-    "scim-path": "/SCIM/MAS-IIP/v2",
+    "scim-path": "/SCIM/MAS/v2",
     "mas-storage-path": "/MASS/v1/Client"
   },
   "mag": {

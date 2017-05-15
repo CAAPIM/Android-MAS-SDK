@@ -8,46 +8,21 @@
 
 package com.ca.mas;
 
-import com.ca.mas.foundation.MASAuthorizationCodeFlowTest;
-import com.ca.mas.foundation.MASClientCredentialTest;
-import com.ca.mas.foundation.MASDeviceTest;
-import com.ca.mas.foundation.MASDynamicSDKTest;
-import com.ca.mas.foundation.MASEnrollmentStartTest;
-import com.ca.mas.foundation.MASGeoFencingTest;
-import com.ca.mas.foundation.MASJwtSigningTest;
-import com.ca.mas.foundation.MASLoginTest;
-import com.ca.mas.foundation.MASOAuthLoginTest;
-import com.ca.mas.foundation.MASOAuthTest;
-import com.ca.mas.foundation.MASOneTimePasswordTest;
-import com.ca.mas.foundation.MASPhoneNumberTest;
-import com.ca.mas.foundation.MASRegistrationTest;
-import com.ca.mas.foundation.MASStartTest;
-import com.ca.mas.foundation.MASTest;
-import com.ca.mas.foundation.MASUserTest;
+import com.ca.mas.foundation.MASFoundationTestSuite;
+import com.ca.mas.identity.MASIdentityTestSuite;
+import com.ca.mas.messaging.MASMessagingTestSuite;
+import com.ca.mas.storage.MASStorageTestSuite;
 
-import org.junit.experimental.categories.Categories;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-@RunWith(Categories.class)
+@RunWith(Suite.class)
 @Suite.SuiteClasses({
-        MASUserTest.class,
-        MASLoginTest.class,
-        MASEnrollmentStartTest.class,
-        MASClientCredentialTest.class,
-        MASTest.class,
-        MASStartTest.class,
-        MASGeoFencingTest.class,
-        MASPhoneNumberTest.class,
-        MASOAuthTest.class,
-        MASOAuthLoginTest.class,
-        MASDeviceTest.class,
-        MASJwtSigningTest.class,
-        MASDynamicSDKTest.class,
-        MASRegistrationTest.class,
-        MASAuthorizationCodeFlowTest.class,
-        MASOneTimePasswordTest.class,
-        MASDeviceTest.class})
+        MASFoundationTestSuite.class,
+        MASStorageTestSuite.class,
+        MASIdentityTestSuite.class,
+        MASMessagingTestSuite.class,
+})
 
 public class MASTestSuite {
 }

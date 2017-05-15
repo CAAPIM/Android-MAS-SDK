@@ -16,6 +16,7 @@ import com.ca.mas.MASStartTestBase;
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.Server;
+import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.datasource.KeystoreDataSource;
 import com.ca.mas.core.store.ClientCredentialContainer;
 import com.ca.mas.core.store.OAuthTokenContainer;
@@ -28,6 +29,9 @@ import org.junit.runner.RunWith;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.security.KeyStore;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -64,10 +68,21 @@ public class MASDynamicSDKTest extends MASStartTestBase {
     @Test
     public void storageContainsMultipleGatewayData() throws Exception {
 
+        final CountDownLatch countDownLatch = new CountDownLatch(2);
         MAS.setAuthenticationListener(new MASAuthenticationListener() {
             @Override
             public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {
-                MASUser.login("test", "test".toCharArray(), null);
+                MASUser.login("test", "test".toCharArray(), new MASCallback<MASUser>() {
+                    @Override
+                    public void onSuccess(MASUser result) {
+                        countDownLatch.countDown();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+                });
             }
 
             @Override
@@ -86,6 +101,9 @@ public class MASDynamicSDKTest extends MASStartTestBase {
                 MASConfiguration.getCurrentConfiguration().getGatewayPort(),
                 MASConfiguration.getCurrentConfiguration().getGatewayPrefix());
 
+        //Wait for request
+        Thread.sleep(1000);
+
         //Perform Gateway Switch
         MAS.start(getContext(), getConfig("/msso_config_dynamic_test.json"));
 
@@ -100,17 +118,39 @@ public class MASDynamicSDKTest extends MASStartTestBase {
 
 
         //Validate the result
-        KeystoreDataSource<String, Object> keystoreDataSource = new KeystoreDataSource(getContext(),
-                null, null);
+        DataSource clientCredentialStorage = getValue(StorageProvider.getInstance().getClientCredentialContainer(), "storage", DataSource.class );
 
-        List<String> keys = keystoreDataSource.getKeys(null);
-        assertTrue(!keys.isEmpty());
+        //It should only return the client credentials, however it returns everything in the key chain.
+        List<String> keys = clientCredentialStorage.getKeys(null);
+        assertEquals(16, keys.size());
 
-        for (String k : keystoreDataSource.getKeys(null)) {
+        for (String k : keys) {
             if (!k.contains(server1.toString()) && !k.contains(server2.toString())) {
                 fail();
             }
         }
+
+        countDownLatch.await();
+        DataSource shareStorage = getValue(StorageProvider.getInstance().getTokenManager(), "storage", DataSource.class );
+        keys = shareStorage.getKeys(null);
+        assertEquals(8, keys.size());
+
+        for (String k : keys) {
+            if (!k.contains(server1.toString()) && !k.contains(server2.toString())) {
+                fail();
+            }
+        }
+
+        KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+        keyStore.load(null);
+        Enumeration<String> enumeration = keyStore.aliases();
+
+        List<String> storedKeys = Collections.list(enumeration);
+        storedKeys.contains(server1.toString()+"msso.clientCertPrivateKey");
+        storedKeys.contains(server2.toString()+"msso.clientCertPrivateKey");
+        storedKeys.contains(server1.toString()+"msso.clientCertChain_1");
+        storedKeys.contains(server2.toString()+"msso.clientCertChain_1");
+
     }
 
 
@@ -140,6 +180,7 @@ public class MASDynamicSDKTest extends MASStartTestBase {
                 MASConfiguration.getCurrentConfiguration().getGatewayPrefix());
 
         //Perform Gateway Switch
+
         MAS.start(getContext(), getConfig("/msso_config_dynamic_test.json"));
 
         MASRequest request2 = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();

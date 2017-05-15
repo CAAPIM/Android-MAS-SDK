@@ -113,7 +113,7 @@ abstract class AbstractMASStorage implements MASStorage {
     /**
      * Converts a Serializable to byte[] and back.
      */
-    public class ParcelDataMarshaller implements DataMarshaller<Parcel> {
+    public static class ParcelDataMarshaller implements DataMarshaller<Parcel> {
 
         //public String typeString = "parcelable";
 
@@ -148,7 +148,7 @@ abstract class AbstractMASStorage implements MASStorage {
     /**
      * Converts a Serializable to byte[] and back.
      */
-    public class SerializableDataMarshaller implements DataMarshaller<Serializable> {
+    public static class SerializableDataMarshaller implements DataMarshaller<Serializable> {
 
         @Override
         public Serializable unmarshall(byte[] content) throws IOException, ClassNotFoundException {

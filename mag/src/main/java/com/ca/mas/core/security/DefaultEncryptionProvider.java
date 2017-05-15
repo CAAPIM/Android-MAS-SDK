@@ -7,41 +7,25 @@
  */
 package com.ca.mas.core.security;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.AlgorithmParameterSpec;
-import java.util.Arrays;
+import com.ca.mas.core.util.KeyUtilsSymmetric;
 
-import javax.crypto.Cipher;
-import javax.crypto.Mac;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
+
 import static com.ca.mas.core.MAG.DEBUG;
 import static com.ca.mas.core.MAG.TAG;
 
 public class DefaultEncryptionProvider implements EncryptionProvider {
     private KeyStorageProvider ksp;
     private static final String KEY_ALIAS = "secret";
-    private static final String ALGORITHM = "AES";
-    private static final int KEY_SIZE = 256;
-    private static final String AES_GCM_NO_PADDING = "AES/GCM/NoPadding";
-    private static final String HMAC_SHA256 = "HmacSHA256";
-    private static final int IV_LENGTH = 12;
 
     public DefaultEncryptionProvider(@NonNull Context ctx) {
+        //The Secret key will be encrypted and stored on SharedPreferences for Pre-M
         this(ctx, new SharedPreferencesKeyStorageProvider(ctx));
     }
 
@@ -67,33 +51,8 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
 
         byte[] encryptedData;
         try {
-            SecretKey secretKey = ksp.getKey(getKeyAlias());
-            Cipher cipher = Cipher.getInstance(AES_GCM_NO_PADDING);
-
-            byte[] iv;
-            AlgorithmParameterSpec ivParams;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-                iv = cipher.getIV();
-            } else {
-                iv = new byte[IV_LENGTH];
-                SecureRandom secureRandom = new SecureRandom();
-                secureRandom.nextBytes(iv);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    ivParams = new GCMParameterSpec(128, iv);
-                } else {
-                    /**
-                     * GCMParameterSpec does not work in Android 19
-                     */
-                    ivParams = new IvParameterSpec(iv);
-                }
-
-                cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivParams);
-            }
-
-            encryptedData = cipher.doFinal(data);
-            byte[] mac = computeMac(getKeyAlias(), encryptedData);
-            encryptedData = concatArrays(mac, iv, encryptedData);
+            SecretKey secretKey = ksp.getKey(getKeyAlias(), false);
+            encryptedData = KeyUtilsSymmetric.encrypt(data, secretKey, getKeyAlias());
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "inside exception of encrypt function: ", e);
             throw new RuntimeException(e.getMessage(), e);
@@ -105,102 +64,17 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
      * @param encryptedData : data to be decrypted
      * @return byte[] of decrypted data
      */
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public byte[] decrypt(byte[] encryptedData) {
-        Cipher cipher;
         try {
-            cipher = Cipher.getInstance(AES_GCM_NO_PADDING);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            if (DEBUG) Log.e(TAG, "Error while getting an cipher instance", e);
-            throw new RuntimeException("Error while getting an cipher instance", e);
-        }
-
-        int ivlength = IV_LENGTH;
-        int macLength;
-        try {
-            macLength = Mac.getInstance(HMAC_SHA256).getMacLength();
-        } catch (NoSuchAlgorithmException e) {
-            if (DEBUG) Log.e(TAG, "Error while instantiating MAC", e);
-            throw new RuntimeException("Error while instantiating MAC", e);
-        }
-        int encryptedDataLength = encryptedData.length - ivlength - macLength;
-        byte[] macFromMessage = getArraySubset(encryptedData, 0, macLength);
-
-        byte[] iv = getArraySubset(encryptedData, macLength, ivlength);
-        encryptedData = getArraySubset(encryptedData, macLength + ivlength, encryptedDataLength);
-        byte[] mac = computeMac(getKeyAlias(), encryptedData);
-
-        if (!Arrays.equals(mac, macFromMessage)) {
-            if (DEBUG) Log.e(TAG, "MAC signature could not be verified");
-            throw new RuntimeException("MAC signature could not be verified");
-        }
-
-        AlgorithmParameterSpec ivParams;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ivParams = new GCMParameterSpec(128, iv);
-        } else {
-            ivParams = new IvParameterSpec(iv);
-        }
-
-        try {
-            SecretKey secretKey = ksp.getKey(getKeyAlias());
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParams);
-            return cipher.doFinal(encryptedData);
+            SecretKey secretKey = ksp.getKey(getKeyAlias(), false);
+            return KeyUtilsSymmetric.decrypt(encryptedData, secretKey, getKeyAlias());
         } catch (Exception e) {
             if (DEBUG) Log.i(TAG, "Error while decrypting an cipher instance", e);
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-    /**
-     * Computes the mac signature for the encrypted array
-     *
-     * @param key         : Key to use to generate a secret key for MAC operation
-     * @param cipherText: the data for which the signature has to be calculated
-     * @return
-     */
-    private byte[] computeMac(String key, byte[] cipherText) {
-        Mac hm;
-        SecretKey secretKey = null;
-        try {
-            hm = Mac.getInstance(HMAC_SHA256);
-            secretKey = new SecretKeySpec(key.getBytes("UTF-8"), HMAC_SHA256);
-            hm.init(secretKey);
-            return hm.doFinal(cipherText);
-        } catch (NoSuchAlgorithmException | InvalidKeyException | UnsupportedEncodingException e) {
-            if (DEBUG) Log.e(TAG, "Error while calculating signature", e);
-            throw new RuntimeException("Error while calculating signature", e);
-        } finally {
-            destroyKey(secretKey);
-        }
-    }
-
-    /**
-     * Combine the mac,iv and encrypted data arrays into one array
-     *
-     * @param mac
-     * @param iv
-     * @param cipherText
-     * @return
-     */
-    private byte[] concatArrays(byte[] mac, byte[] iv, byte[] cipherText) {
-        int macLength = mac.length;
-        int ivLength = iv.length;
-        int cipherTextLength = cipherText.length;
-        int totalLength = macLength + ivLength + cipherTextLength;
-        byte[] result = new byte[totalLength];
-        System.arraycopy(mac, 0, result, 0, macLength);
-        System.arraycopy(iv, 0, result, macLength, ivLength);
-        System.arraycopy(cipherText, 0, result, macLength + ivLength, cipherTextLength);
-        return result;
-    }
-
-    private byte[] getArraySubset(byte[] array, int start, int length) {
-        byte[] result = new byte[length];
-        System.arraycopy(array, start, result, 0, length);
-        return result;
-    }
 
     /**
      * Destroys the ephemeral key, in this case the Secret key generated for MAC, if the key implements Destroyable

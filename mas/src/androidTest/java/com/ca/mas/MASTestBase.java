@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 
@@ -39,6 +40,7 @@ public abstract class MASTestBase {
 
     private static MockWebServer ssg;
     private HashMap<String, RecordedRequest> recordedRequests = new HashMap<>();
+    private HashMap<String, RecordedRequest> recordRequestWithQueryParameters = new HashMap<>();
     private int requestTaken = 0;
     private GatewayDefaultDispatcher gatewayDefaultDispatcher;
 
@@ -76,6 +78,7 @@ public abstract class MASTestBase {
             ssg.shutdown();
         }
         recordedRequests.clear();
+        recordRequestWithQueryParameters.clear();
         requestTaken = 0;
     }
 
@@ -86,6 +89,7 @@ public abstract class MASTestBase {
             RecordedRequest rr = ssg.takeRequest();
             Uri uri = Uri.parse(rr.getPath());
             recordedRequests.put(uri.getPath(), rr);
+            recordRequestWithQueryParameters.put(rr.getPath(), rr);
         }
         requestTaken = ssg.getRequestCount();
     }
@@ -94,6 +98,12 @@ public abstract class MASTestBase {
         flushRequest();
         return recordedRequests.get(path);
     }
+
+    protected RecordedRequest getRecordRequestWithQueryParameter(String url) throws InterruptedException {
+        flushRequest();
+        return recordRequestWithQueryParameters.get(url);
+    }
+
 
     protected void setDispatcher(Dispatcher dispatcher) {
         ssg.setDispatcher(dispatcher);
@@ -123,6 +133,17 @@ public abstract class MASTestBase {
             field = instance.getClass().getDeclaredField(attribute);
             field.setAccessible(true);
             return returnType.cast(field.get(instance));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected <T> T invoke(Object instance, String methodName, Class<?>[] parameterTypes, Object[] args, Class<T> returnType) {
+        Method method = null;
+        try {
+            method = instance.getClass().getDeclaredMethod(methodName, parameterTypes);
+            method.setAccessible(true);
+            return returnType.cast(method.invoke(instance, args));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

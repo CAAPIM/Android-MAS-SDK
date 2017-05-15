@@ -53,41 +53,8 @@ public class FoundationUtil {
         return MobileSsoFactory.getInstance();
     }
 
-    /**
-     * <b>Pre-Conditions:</b> The MAG SDK must be initialized.<br>
-     * <b>Description:</b> Convenience accessor for getting the current host defined in the msso_config.json file.
-     *
-     * @return String - the host name.
-     */
-    public static String getHost() {
-        return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getTokenHost();
-    }
-
-    /**
-     * <b>Pre-Conditions:</b> The MAG SDK must be initialized.<br>
-     * <b>Description:</b> Convenience accessor for retrieving the port as defined in the msso_config file.
-     *
-     * @return int - the port number.
-     */
-    public static int getPort() {
-        return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getTokenPort();
-    }
-
-    /**
-     * <b>Pre-Conditions:</b> The MAG SDK must be initialized.<br>
-     * <b>Description:</b> This method creates a fully qualified host and port representation of the web service base.
-     *
-     * @return - the FQDN as 'https://<host>:<port></port>
-     */
-    public static String getFqdn() {
-        String scheme = FoundationConsts.HTTPS_SCIM_SCHEME;
-        String host = FoundationUtil.getHost();
-        int port = getPort();
-        return scheme + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH + host + FoundationConsts.COLON + port;
-    }
-
-    public static String getBrokerUrl( Context context ) throws IllegalStateException {
-        return getBrokerUrl(context, null);
+    public static String getBrokerUrl() throws IllegalStateException {
+        return getBrokerUrl(null);
     }
 
     /**
@@ -95,16 +62,17 @@ public class FoundationUtil {
      * <b>Description</b> This method takes the information found in the ConfigurationProvider and
      * uses it to create a URL representing an ssl connection to the MQTT broker.
      *
-     * @param context
      * @return String of the form 'ssl://host.com:8883'
      * @throws IllegalStateException
      */
-    public static String getBrokerUrl(Context context, MASConnectOptions connectOptions) throws IllegalStateException {
+    public static String getBrokerUrl(MASConnectOptions connectOptions) throws IllegalStateException {
         if (connectOptions != null && connectOptions.getServerURIs() != null && connectOptions.getServerURIs().length > 0) {
             // If MASConnectOptions have been set and server URIs have been set
             return connectOptions.getServerURIs()[0];
         } else {
-            return (ConnectaConsts.SSL_MESSAGING_SCHEME + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH) + getHost() + FoundationConsts.COLON + ConnectaConsts.SSL_MESSAGING_PORT;
+            return (ConnectaConsts.SSL_MESSAGING_SCHEME + FoundationConsts.COLON + FoundationConsts.FSLASH + FoundationConsts.FSLASH) +
+                    ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getTokenHost() +
+                    FoundationConsts.COLON + ConnectaConsts.SSL_MESSAGING_PORT;
         }
     }
 

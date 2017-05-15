@@ -120,7 +120,7 @@ public class MASName implements MASTransformable {
      * @return String the honorific prefix of the user's name. This attribute may contain white-space or be null.
      */
     public String getHonorificPrefix() {
-        return mHonorificSuffix;
+        return mHonorificPrefix;
     }
 
     /**
@@ -129,7 +129,7 @@ public class MASName implements MASTransformable {
      * @return String the honorificSuffix of the user's name. This attribute may contain white-space or be null.
      */
     public String getHonorificSuffix() {
-        return mHonorificPrefix;
+        return mHonorificSuffix;
     }
 
 }

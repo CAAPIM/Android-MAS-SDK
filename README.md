@@ -41,8 +41,8 @@ For more information about our mobile products see [the website][mas.ca.com].
 Edit your build.gradle file and add below dependency:
 ```gradle
     dependencies {
-        compile 'com.ca:mas:1.3.01'
-        compile 'com.ca:masui:1.3.01' //Only requires when using MASUI Template
+        compile 'com.ca:mas:1.4.00'
+        compile 'com.ca:masui:1.4.00' //Only requires when using MASUI Template
     }
 ```
 

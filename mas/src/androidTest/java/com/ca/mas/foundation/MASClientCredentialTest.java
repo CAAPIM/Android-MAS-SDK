@@ -9,6 +9,7 @@
 package com.ca.mas.foundation;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
@@ -33,6 +34,7 @@ import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
@@ -159,51 +161,59 @@ public class MASClientCredentialTest extends MASStartTestBase {
 
     @Test
     public void testClientCredentialsMASSetGrantType() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
-        final boolean[] result = {true};
+        try {
+            final boolean[] result = {true};
 
-        setDispatcher(new GatewayDefaultDispatcher() {
+            setDispatcher(new GatewayDefaultDispatcher() {
 
-            @Override
-            protected MockResponse registerDeviceResponse(RecordedRequest request) {
-                return noIdTokenRegisterDeviceResponse();
-            }
-        });
+                @Override
+                protected MockResponse registerDeviceResponse(RecordedRequest request) {
+                    return noIdTokenRegisterDeviceResponse();
+                }
+            });
 
-        MAS.setAuthenticationListener(new MASAuthenticationListener() {
-            @Override
-            public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {
-                result[0] = false;
-            }
+            MAS.setAuthenticationListener(new MASAuthenticationListener() {
+                @Override
+                public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {
+                    result[0] = false;
+                }
 
-            @Override
-            public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {
+                @Override
+                public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {
 
-            }
-        });
+                }
+            });
 
-        MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_CLIENT_CREDENTIALS);
-        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
-                .build();
+            MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_CLIENT_CREDENTIALS);
+            MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+                    .build();
 
-        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
-        MAS.invoke(request, callback);
-        assertNotNull(callback.get());
+            MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+            MAS.invoke(request, callback);
+            assertNotNull(callback.get());
 
-        //Make sure the register request doesn't contain authorization header
-        RecordedRequest registerRequest = getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_REGISTER_CLIENT);
-        assertNull(registerRequest.getHeader("authorization"));
+            //Make sure the register request doesn't contain authorization header
+            RecordedRequest registerRequest = getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_REGISTER_CLIENT);
+            assertNull(registerRequest.getHeader("authorization"));
 
-        //Make sure the access token request use client_credentials grant type
-        RecordedRequest accessTokenRequest = getRecordRequest(GatewayDefaultDispatcher.AUTH_OAUTH_V2_TOKEN);
-        String s = new String(accessTokenRequest.getBody().readByteArray(), "US-ASCII");
-        assertTrue(s.contains("grant_type=" + new ClientCredentials().getGrantType()));
+            //Make sure the access token request use client_credentials grant type
+            RecordedRequest accessTokenRequest = getRecordRequest(GatewayDefaultDispatcher.AUTH_OAUTH_V2_TOKEN);
+            String s = new String(accessTokenRequest.getBody().readByteArray(), "US-ASCII");
+            assertTrue(s.contains("grant_type=" + new ClientCredentials().getGrantType()));
 
-        assertNull(MASUser.getCurrentUser());
-        assertTrue(result[0]);
+            assertNull(MASUser.getCurrentUser());
+            assertTrue(result[0]);
 
-        //reset to default
-        MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_PASSWORD);
-    }
+            MASClaims claims = new MASClaims.MASClaimsBuilder().build();
+            Uri uri = Uri.parse(MASConfiguration.getCurrentConfiguration().getGatewayUrl() + "/test?" + s);
+            String clientId = uri.getQueryParameter("client_id");
+            assertEquals(clientId, claims.getSubject());
+
+        } finally {
+            //reset to default
+            MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_PASSWORD);
+        }
+   }
 
     private MockResponse noIdTokenRegisterDeviceResponse() {
 

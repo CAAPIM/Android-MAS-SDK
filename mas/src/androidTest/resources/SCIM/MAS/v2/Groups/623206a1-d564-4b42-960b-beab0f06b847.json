@@ -1,0 +1,26 @@
+{
+  "schemas": [
+    "urn:ietf:params:scim:schemas:core:2.0:Group"
+  ],
+  "meta": {
+    "resourceType": "Group",
+    "location": "https://mobile-staging-androidautomation.l7tech.com:8443/SCIM/MAS/v2/Groups/83a8c2fc-34b7-42d1-aa3d-750984cbbbcd",
+    "created": "2017-04-25T18:00:31.061Z",
+    "lastModified": "2017-04-25T18:00:31.061Z"
+  },
+  "id": "623206a1-d564-4b42-960b-beab0f06b847",
+  "displayName": "TEST_GROUP_1",
+  "owner": {
+    "value": "admin",
+    "$ref": "https://mobile-staging-androidautomation.l7tech.com:8443/SCIM/MAS/v2/Users/admin",
+    "display": "Admin"
+  },
+  "members": [
+    {
+      "type": "User",
+      "value": "sarek",
+      "$ref": "https://mobile-staging-androidautomation.l7tech.com:8443/SCIM/MAS/v2/Users/sarek",
+      "display": "Sarek"
+    }
+  ]
+}

@@ -349,6 +349,11 @@ public class MASLoginTest extends MASStartTestBase {
         Assert.assertEquals(rr.getHeader("x-authorization-type"), MASIdToken.JWT_DEFAULT);
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testLoginWithIDTokenNullValue() throws Exception {
+        new MASIdToken.Builder().build();
+    }
+
     @Test
     public void testCallbackWithAuthenticateFailedAndCancel() throws JSONException, InterruptedException, URISyntaxException {
 

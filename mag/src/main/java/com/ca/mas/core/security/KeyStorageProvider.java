@@ -20,7 +20,7 @@ public interface KeyStorageProvider {
      * @param alias : The alias to find the Key
      * @return The SecretKey
      */
-    SecretKey getKey(String alias);
+    SecretKey getKey(String alias, boolean userAuthenticationRequired);
 
     /**
      * Remove the key

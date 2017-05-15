@@ -17,13 +17,12 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
+import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.security.DefaultEncryptionProvider;
-import com.ca.mas.core.security.EncryptionProvider;
-import com.ca.mas.core.security.LockableKeyStorageProvider;
+import com.ca.mas.core.security.LockableEncryptionProvider;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
@@ -60,8 +59,11 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Observable;
+import java.util.Observer;
 
 import static com.ca.mas.core.MAG.DEBUG;
+import static com.ca.mas.core.MAG.TAG;
 import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN;
 
 /**
@@ -76,6 +78,7 @@ import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_D
 public abstract class MASUser implements MASTransformable, MASMessenger, MASUserIdentity, ScimUser {
     private static final String SESSION_LOCK_ALIAS = "com.ca.mas.SESSION_LOCK";
     private static List<UserRepository> userRepositories = new ArrayList<>();
+    private static MASUser current;
 
     static {
         // For Social Login, the SCIM endpoint should failed and fallback to /userinfo.
@@ -83,10 +86,16 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
         userRepositories = new ArrayList<>();
         userRepositories.add(new ScimUserRepository());
         userRepositories.add(new UserInfoRepository());
+
+        EventDispatcher.STOP.addObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                current = null;
+            }
+        });
+
     }
 
-    protected static final String TAG = MASUser.class.getSimpleName();
-    private static MASUser current;
 
     /**
      * Authenticate a user with username and password.
@@ -209,8 +218,8 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
     private static MASUser createMASUser() {
 
         return new MASUser() {
+
             private ScimUser scimUser = getLocalUserProfile();
-            private LockableKeyStorageProvider mKeyStoreProvider = new LockableKeyStorageProvider();
 
             @Override
             public boolean isAuthenticated() {
@@ -591,12 +600,13 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                         idToken.writeToParcel(idTokenParcel, 0);
                         byte[] idTokenBytes = idTokenParcel.marshall();
 
-                        // Delete any previously generated key due to improper closure
-                        mKeyStoreProvider.removeKey(SESSION_LOCK_ALIAS);
-
                         // Save the encrypted token
-                        EncryptionProvider encryptionProvider = getSessionLockEncryptionProvider();
-                        byte[] encryptedData = encryptionProvider.encrypt(idTokenBytes);
+                        LockableEncryptionProvider lockableEncryptionProvider
+                                      = new LockableEncryptionProvider(MAS.getContext(), SESSION_LOCK_ALIAS);
+                        // Delete any previously generated key due to improper closure
+                        lockableEncryptionProvider.clear();
+                        // now encrypt the data
+                        byte[] encryptedData = lockableEncryptionProvider.encrypt(idTokenBytes);
                         try {
                             StorageProvider.getInstance()
                                     .getTokenManager()
@@ -616,7 +626,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             return;
                         }
 
-                        mKeyStoreProvider.lock(SESSION_LOCK_ALIAS);
                         idTokenParcel.recycle();
 
                         Callback.onSuccess(callback, null);
@@ -636,12 +645,13 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                                 .getTokenManager()
                                 .getSecureIdToken();
 
-                        EncryptionProvider encryptionProvider = getSessionLockEncryptionProvider();
+                        LockableEncryptionProvider lockableEncryptionProvider
+                                      = new LockableEncryptionProvider(MAS.getContext(), SESSION_LOCK_ALIAS);
                         // Read the decrypted data, reconstruct it as a Parcel, then as an IdToken
                         Parcel parcel = Parcel.obtain();
                         try {
                             // Decrypt the encrypted ID token
-                            byte[] decryptedData = encryptionProvider.decrypt(secureIdToken);
+                            byte[] decryptedData = lockableEncryptionProvider.decrypt(secureIdToken);
                             parcel.unmarshall(decryptedData, 0, decryptedData.length);
                             parcel.setDataPosition(0);
 
@@ -667,7 +677,7 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                             }
 
                             // Delete the previously generated key after successfully decrypting
-                            mKeyStoreProvider.removeKey(SESSION_LOCK_ALIAS);
+                            lockableEncryptionProvider.clear();
 
                             boolean isTokenExpired = JWTValidation.isIdTokenExpired(idToken);
                             if (!isTokenExpired) {
@@ -718,15 +728,6 @@ public abstract class MASUser implements MASTransformable, MASMessenger, MASUser
                         Callback.onError(callback, new SecureLockException(SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN, e));
                     }
                 }
-            }
-
-            private EncryptionProvider getSessionLockEncryptionProvider() {
-                return new DefaultEncryptionProvider(MAS.getContext(), mKeyStoreProvider) {
-                    @Override
-                    protected String getKeyAlias() {
-                        return SESSION_LOCK_ALIAS;
-                    }
-                };
             }
         };
     }

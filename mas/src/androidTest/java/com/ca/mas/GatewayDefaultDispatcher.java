@@ -8,11 +8,13 @@
 
 package com.ca.mas;
 
+import android.net.Uri;
 import android.util.Base64;
 
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.io.IoUtils;
-import com.squareup.okhttp.mockwebserver.Dispatcher;
+import com.ca.mas.identity.IdentityDispatcher;
+import com.ca.mas.storage.StorageDispatcher;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.QueueDispatcher;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
@@ -21,6 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.UUID;
@@ -29,6 +32,7 @@ import sun.security.pkcs.PKCS10;
 
 public class GatewayDefaultDispatcher extends QueueDispatcher {
 
+    //Endpoints
     public static final String CONNECT_DEVICE_CONFIG = "/connect/device/config";
     public static final String CONNECT_DEVICE_EXPIRED_CONFIG = "/connect/device/expiredConfig";
     public static final String CONNECT_DEVICE_REGISTER = "/connect/device/register";
@@ -48,6 +52,9 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String USER_INFO = "/openid/connect/v1/userinfo";
     public static final String OTHER = "other";
 
+    public static final String ENTERPRISE_BROWSER = "/connect/enterprise/browser";
+    public static final String ENTERPRISE_BROWSER_APPC = "/connect/enterprise/browser/websso/authorize/appc";
+
     public static final String ID_TOKEN = "dummy-idToken";
     public static final String ID_TOKEN_TYPE = "dummy-idTokenType";
 
@@ -63,51 +70,73 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
             "  \"clientCert.subject\": \"CN=admin, OU=000000000000000, DC=sdk, O=Exampletronics Ltd\"\n" +
             "}\n";
 
+    private StorageDispatcher storageDispatcher = new StorageDispatcher();
+    private IdentityDispatcher identityDispatcher = new IdentityDispatcher();
+
     @Override
     public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        request.getBody();
-        if (request.getPath().contains(CONNECT_DEVICE_CONFIG)) {
-            return configDeviceResponse();
-        } else if (request.getPath().contains(CONNECT_DEVICE_EXPIRED_CONFIG)) {
-            return expiredConfigDeviceResponse();
-        } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER)) {
-            return registerDeviceResponse(request);
-        } else if (request.getPath().contains(CONNECT_CLIENT_INITIALIZE)) {
-            return initializeResponse();
-        } else if (request.getPath().contains(AUTH_OAUTH_V2_TOKEN)) {
-            return retrieveTokenResponse();
-        } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY)) {
-            return secureServiceResponseAsArray();
-        } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS)) {
-            return secureServiceResponse();
-       } else if (request.getPath().contains(PROTECTED_RESOURCE_SLOW)) {
-            Thread.sleep(1000);
-            return secureServiceResponse();
-        } else if (request.getPath().contains(TEST_NO_CONTENT)) {
-            return secureServiceResponseWithNoContent();
-        } else if (request.getPath().contains(AUTH_OAUTH_V2_AUTHORIZE)) {
-            return authorizeResponse();
-        } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER_CLIENT)) {
-            return registerDeviceResponse(request);
-        } else if (request.getPath().contains(CONNECT_DEVICE_RENEW)) {
-            return renewDeviceResponse();
-        } else if (request.getPath().contains(CONNECT_SESSION_LOGOUT)) {
-            return logout();
-        } else if (request.getPath().contains(CONNECT_DEVICE_REMOVE)) {
-            return deRegister();
-        } else if (request.getPath().contains(OTP_PROTECTED_URL)) {
-            String xOtp = request.getHeader("X-OTP");
-            if (xOtp == null) {
-                return otpMissingHeader();
-            } else {
-                return otpProtectedResponse();
+        try {
+            request.getBody();
+            if (request.getPath().contains(CONNECT_DEVICE_CONFIG)) {
+                return configDeviceResponse();
+            } else if (request.getPath().contains(CONNECT_DEVICE_EXPIRED_CONFIG)) {
+                return expiredConfigDeviceResponse();
+            } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER)) {
+                return registerDeviceResponse(request);
+            } else if (request.getPath().contains(CONNECT_CLIENT_INITIALIZE)) {
+                return initializeResponse();
+            } else if (request.getPath().contains(AUTH_OAUTH_V2_TOKEN)) {
+                return retrieveTokenResponse();
+            } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY)) {
+                return secureServiceResponseAsArray();
+            } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS)) {
+                return secureServiceResponse();
+            } else if (request.getPath().contains(PROTECTED_RESOURCE_SLOW)) {
+                Thread.sleep(1000);
+                return secureServiceResponse();
+            } else if (request.getPath().contains(TEST_NO_CONTENT)) {
+                return secureServiceResponseWithNoContent();
+            } else if (request.getPath().contains(AUTH_OAUTH_V2_AUTHORIZE)) {
+                return authorizeResponse(request);
+            } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER_CLIENT)) {
+                return registerDeviceResponse(request);
+            } else if (request.getPath().contains(CONNECT_DEVICE_RENEW)) {
+                return renewDeviceResponse();
+            } else if (request.getPath().contains(CONNECT_SESSION_LOGOUT)) {
+                return logout();
+            } else if (request.getPath().contains(CONNECT_DEVICE_REMOVE)) {
+                return deRegister();
+            } else if (request.getPath().contains(OTP_PROTECTED_URL)) {
+                String xOtp = request.getHeader("X-OTP");
+                if (xOtp == null) {
+                    return otpMissingHeader();
+                } else {
+                    return otpProtectedResponse();
+                }
+            } else if (request.getPath().contains(AUTH_OTP)) {
+                return generateOtp();
+            } else if (request.getPath().contains(USER_INFO)) {
+                return userInfo();
+            } else if (request.getPath().startsWith(ENTERPRISE_BROWSER)) {
+                return enterpriseBrowser(request);
             }
-        } else if (request.getPath().contains(AUTH_OTP)) {
-            return generateOtp();
-        } else if (request.getPath().contains(USER_INFO)) {
-            return userInfo();
+
+            MockResponse response = storageDispatcher.dispatch(request);
+            if (response != null) {
+                return response;
+            }
+            response = identityDispatcher.dispatch(request);
+            if (response != null) {
+                return response;
+            }
+
+
+            return other();
+        } catch (Exception e) {
+            return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR).
+                    setBody(e.toString());
+
         }
-        return other();
     }
 
     protected MockResponse other() {
@@ -123,11 +152,11 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
         return new MockResponse().setResponseCode(200).setBody(result);
     }
 
-    protected MockResponse authorizeResponse() {
-        String result = "{\"idp\":\"all\",\"providers\":[{\"provider\":{\"id\":\"facebook\",\"auth_url\":\"https:\\/\\/lbs-dmz.ca.com:8443\\/prefix\\/facebook\\/login?sessionID=51c3904b-013b-4b48-84db-c1b680669aae\"}},{\"provider\":{\"id\":\"google\",\"auth_url\":\"https:\\/\\/lbs-dmz.ca.com:8443\\/prefix\\/google\\/login?sessionID=51c3904b-013b-4b48-84db-c1b680669aae\"}},{\"provider\":{\"id\":\"salesforce\",\"auth_url\":\"https:\\/\\/lbs-dmz.ca.com:8443\\/prefix\\/salesforce\\/login?sessionID=51c3904b-013b-4b48-84db-c1b680669aae\"}},{\"provider\":{\"id\":\"linkedin\",\"auth_url\":\"https:\\/\\/lbs-dmz.ca.com:8443\\/prefix\\/linkedin\\/login?sessionID=51c3904b-013b-4b48-84db-c1b680669aae\"}},{\"provider\":{\"id\":\"enterprise\",\"auth_url\":\"https:\\/\\/lbs-dmz.ca.com:8443\\/prefix\\/enterprise\\/login?sessionID=51c3904b-013b-4b48-84db-c1b680669aae\"}},{\"provider\":{\"id\":\"qrcode\",\"auth_url\":\"https:\\/\\/lbs-dmz.ca.com:8443\\/prefix\\/auth\\/qrcode\\/authorization?sessionID=51c3904b-013b-4b48-84db-c1b680669aae\",\"poll_url\":\"https:\\/\\/lbs-dmz.ca.com:8443\\/prefix\\/auth\\/qrcode\\/login\\/poll64c1e2c560b94b58b76a8f3ada3ee287db32c29b76b84080a101b20164a60981\"}}]}";
+    protected MockResponse authorizeResponse(RecordedRequest request) throws IOException, JSONException {
+        Uri uri = Uri.parse(request.getPath());
         return new MockResponse()
                 .setResponseCode(200)
-                .setBody(result);
+                .setBody(TestUtils.getJSONObject(uri.getPath()).toString());
     }
 
     protected MockResponse deRegister() {
@@ -172,11 +201,11 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
         PKCS10 pkcs10 = null;
         try {
-            pkcs10 = new PKCS10(Base64.decode(request.getBody().readByteArray(),  Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE));
+            pkcs10 = new PKCS10(Base64.decode(request.getBody().readByteArray(), Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE));
         } catch (Exception e) {
             return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
-        DataSource.getInstance().store(magIdentifier, new DataSource.Device(pkcs10.getSubjectPublicKeyInfo()));
+        DataSource.getInstance().storeDevice(magIdentifier, new DataSource.Device(pkcs10.getSubjectPublicKeyInfo()));
 
         //Mock response for device registration
         String cert = "-----BEGIN CERTIFICATE-----\n" +
@@ -341,9 +370,9 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 .setHeader("Content-type", ContentType.APPLICATION_JSON)
                 .setBody("{\n" +
                         "  \"sub\": \"6vKMGM8Xsw6o54D-FurMX1zXDhYLrf9fBBPFr-HwWXY\",\n" +
-                        "  \"given_name\": \"Sarek\",\n" +
-                        "  \"family_name\": \"Jensen\",\n" +
-                        "  \"preferred_username\": \"spock\",\n" +
+                        "  \"given_name\": \"Admin\",\n" +
+                        "  \"family_name\": \"Admin\",\n" +
+                        "  \"preferred_username\": \"admin\",\n" +
                         "  \"picture\": \"https://photos.example.com/profilephoto/72930000000Ccne/F\",\n" +
                         "  \"email\": \"sarek@layer7tech.com\",\n" +
                         "  \"phone_number\": \"555-555-5555\",\n" +
@@ -355,6 +384,13 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                         "    \"country\": \"USA\"\n" +
                         "  }\n" +
                         "}");
+    }
+
+    protected MockResponse enterpriseBrowser(RecordedRequest request) throws IOException, JSONException {
+        return new MockResponse().setResponseCode(200)
+                .setHeader("Content-type", ContentType.APPLICATION_JSON)
+                .setBody(TestUtils.getJSONObject(request.getPath()).toString());
+
     }
 
 

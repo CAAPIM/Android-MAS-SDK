@@ -8,12 +8,9 @@
 
 package com.ca.mas.foundation;
 
-import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.MASTestBase;
-import com.ca.mas.core.MobileSso;
-import com.ca.mas.core.MobileSsoFactory;
 
 import junit.framework.Assert;
 
@@ -21,15 +18,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.MalformedURLException;
-import java.net.URI;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
@@ -70,6 +61,5 @@ public class MASStartTest extends MASTestBase {
 
         Assert.assertEquals("test.ca.com", MASConfiguration.getCurrentConfiguration().getGatewayHostName());
     }
-
 
 }

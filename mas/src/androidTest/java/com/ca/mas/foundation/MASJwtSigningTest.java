@@ -16,7 +16,7 @@ import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.core.http.ContentType;
-import com.ca.mas.core.util.KeyUtils;
+import com.ca.mas.core.util.KeyUtilsAsymmetric;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;
@@ -52,7 +52,6 @@ import java.util.concurrent.ExecutionException;
 import static junit.framework.Assert.assertTrue;
 
 public class MASJwtSigningTest extends MASLoginTestBase {
-
     @Test
     public void testJSONDefaultTimeoutPost() throws Exception {
         JSONObject requestData = new JSONObject();
@@ -196,15 +195,15 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         JWSObject signedObject = JWSObject.parse(signedDoc);
 
         net.minidev.json.JSONObject payload = signedObject.getPayload().toJSONObject();
-        Assert.assertEquals("test", new String(Base64.decode((String)payload.get(MASClaims.CONTENT), Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_PADDING)));
+        Assert.assertEquals("test", new String(Base64.decode((String) payload.get(MASClaims.CONTENT), Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_PADDING)));
     }
 
     @Test
     public void testSignWithPrivateKey() throws Exception, MASException {
-        KeyUtils.deletePrivateKey("TEST");
+        KeyUtilsAsymmetric.deletePrivateKey("TEST");
 
-        PrivateKey privateKey = KeyUtils.generateRsaPrivateKey(InstrumentationRegistry.getInstrumentation().getTargetContext(), 2048, "TEST", "dn=test", false, false, -1, false);
-        PublicKey publicKey = KeyUtils.getRsaPublicKey("TEST");
+        PrivateKey privateKey = KeyUtilsAsymmetric.generateRsaPrivateKey(InstrumentationRegistry.getInstrumentation().getTargetContext(), 2048, "TEST", "dn=test", false, false, -1, false);
+        PublicKey publicKey = KeyUtilsAsymmetric.getRsaPublicKey("TEST");
 
         JSONObject requestData = new JSONObject();
         requestData.put("jsonName", "jsonValue");
@@ -217,18 +216,17 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         assertTrue(JWSObject.parse(signedJWT).verify(verifier));
 
         //Clean up for the test
-        KeyUtils.deletePrivateKey("TEST");
+        KeyUtilsAsymmetric.deletePrivateKey("TEST");
 
         net.minidev.json.JSONObject payload = JWSObject.parse(signedJWT).getPayload().toJSONObject();
         Assert.assertEquals(requestData.get("jsonName"), (new JSONObject(payload.get("content").toString())).get("jsonName"));
-
     }
 
     @Test
     public void testSignWithInvalidPrivateKey() throws MASException, CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyStoreException, NoSuchProviderException, InvalidAlgorithmParameterException, JSONException, URISyntaxException, ExecutionException, InterruptedException, ParseException, JOSEException {
-        KeyUtils.deletePrivateKey("TEST");
+        KeyUtilsAsymmetric.deletePrivateKey("TEST");
 
-        PrivateKey privateKey = KeyUtils.generateRsaPrivateKey(InstrumentationRegistry.getInstrumentation().getTargetContext(), 2048, "TEST", "dn=test", false, false, -1, false);
+        PrivateKey privateKey = KeyUtilsAsymmetric.generateRsaPrivateKey(InstrumentationRegistry.getInstrumentation().getTargetContext(), 2048, "TEST", "dn=test", false, false, -1, false);
         JSONObject requestData = new JSONObject();
         requestData.put("jsonName", "jsonValue");
         requestData.put("jsonName2", 1234);
@@ -250,9 +248,17 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) device.getRegisteredPublicKey());
         Assert.assertFalse(signedObject.verify(verifier));
 
-        KeyUtils.deletePrivateKey("TEST");
-
+        KeyUtilsAsymmetric.deletePrivateKey("TEST");
     }
 
-
+    @Test(expected = IllegalStateException.class)
+    public void testSignWithNonRegisteredDevice() throws Exception, MASException {
+        if (MASDevice.getCurrentDevice().isRegistered()) {
+            MASCallbackFuture<Void> deregisterCallback = new MASCallbackFuture<Void>();
+            MASDevice.getCurrentDevice().deregister(deregisterCallback);
+            Assert.assertNull(deregisterCallback.get());
+        }
+        MASClaims claims = new MASClaims.MASClaimsBuilder().build();
+        MAS.sign(claims);
+    }
 }

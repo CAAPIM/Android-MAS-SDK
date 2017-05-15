@@ -45,19 +45,6 @@ public class IdentityUtil extends FoundationUtil {
 
     public static final Map<String, JSONObject> SCHEMA_MAP = new HashMap<>();
 
-    /**
-     * <b>Pre-Conditions:</b> The MAG SDK must be initialized.<br>
-     * <b>Description:</b> This helper method creates a user name filter used for retrieving 0 or more
-     * users from the SCIM provider.
-     *
-     * @param date any Java util date.
-     * @return String  the date formatted as '2011-08-01T21:32:44.882Z'.
-     */
-    public static String getMetaDateString(Date date) {
-        SimpleDateFormat formatter = new SimpleDateFormat(IdentityConsts.META_DATE_FORMAT);
-        return formatter.format(date);
-    }
-
    public static Bitmap getThumbnail(List<MASPhoto> photoList) {
         return getPhoto(photoList);
     }
@@ -92,138 +79,34 @@ public class IdentityUtil extends FoundationUtil {
     }
 
     /**
-     * <b>Description:</b> Helper to turn the names from the users in the user map into a string array.
-     *
-     * @param usersList the List object representation of the MASUser array.
-     * @return String[] the array containing the MASUser userNames, only.
-     */
-    public static String[] getUserNamesAsStrings(List<MASUser> usersList) {
-        String[] userArr = new String[usersList.size()];
-        for (int i = 0; i < usersList.size(); i++) {
-            userArr[i] = usersList.get(i).getUserName();
-        }
-        return userArr;
-    }
-
-    /**
-     * <b>Pre-Conditions:</b> The msso_config must be parsed.<br>
-     * <b>Description:</b> Create and return a url of the form
-     * https://somehost.com:1111/SCIM/MAS/v2/Schemas
-     *
-     * @param context
-     * @return String the schemas Url.
-     */
-    public static String getSchemasUrl(Context context) {
-        return getUrl(context, IdentityConsts.SCIM_SCHEMAS);
-    }
-
-    /**
      * <b>Description:</b> Create and return the path component of a URI of the form
      * /SCIM/MAS/v2/Schemas
-     * @param context
      * @return String the schemas path.
      */
-    public static String getSchemasPath(Context context){
-        return getPath(context, IdentityConsts.SCIM_SCHEMAS);
+    public static String getSchemasPath(){
+        return getPath(IdentityConsts.SCIM_SCHEMAS);
     }
 
     /**
      * <b>Pre-Conditions:</b> The msso_config must be parsed.<br>
      * <b>Description:</b> This helper method returns the User's URI as defined in the msso_config.json endpoint description.
-     *
-     * @param context the Android runtime environment.
-     * @return String the formatted URI for accessing Users, ex: 'https://host.com:8443/SCIM/[provider]/v2/Users.
-     */
-    public static String getUserUrl(Context context) {
-        return getUrl(context, IdentityConsts.SCIM_USERS);
-    }
-
-    /**
-     * <b>Pre-Conditions:</b> The msso_config must be parsed.<br>
-     * <b>Description:</b> This helper method returns the User's URI as defined in the msso_config.json endpoint description.
-     * @param context the Android runtime environment.
      * @return String the formatted URI for accessing Users, ex: SCIM/[provider]/v2/Users.
      */
-    public static String getUserPath(Context context) {
-        return getPath(context, IdentityConsts.SCIM_USERS);
+    public static String getUserPath() {
+        return getPath(IdentityConsts.SCIM_USERS);
     }
+
+    public static String getGroupPath() {
+        return getPath(IdentityConsts.SCIM_GROUPS);
+    }
+
 
     /**
-     * <b>Pre-Conditions:</b> The msso_config must be parsed.<br>
-     * <b>Description:</b>  This helper method returns the URL used in creating a resource on the SCIM server.
-     *
-     * @param context the Android runtime environment.
-     * @return the URL for creating an entity on the SCIM server.
-     */
-    public static String getCreateUrl(Context context) {
-        return getUrl(context, null);
-    }
-
-    /**
-     * <b>Pre-Conditions:</b> The msso_config must be parsed.<br>
-     * <b>Description:</b> This helper method returns the URL used in deleting a resource from the SCIM server.
-     *
-     * @param context the Android runtime environment.
-     * @return the URL for deleting an entity on the SCIM server.
-     */
-    public static String getDeleteUrl(Context context, String id) {
-        return getUrl(context, id);
-    }
-
-    /**
-     * <b>Pre-Conditions:</b> The msso_config must be parsed.<br>
-     * <b>Description:</b> This helper method returns the URL used in updating an existing resource on the SCIM server.
-     *
-     * @param context the Android runtime environment.
-     * @return the URL for updating an entity on the SCIM server.
-     */
-    public static String getUpdateUrl(Context context, String id) {
-        return getUrl(context, id);
-    }
-
-    /**
-     * <b>Pre-Conditions:</b> The MAG SDK must be initialized.<br>
-     * <b>Description:</b> This helper method returns the Groups's URI as defined in the msso_config.json endpoint description.
-     *
-     * @param context this application context.
-     * @return String the formatted URI for accessing Users, ex: 'https://host.com:8443/SCIM/[provider]/v2/Groups.
-     */
-    public static String getGroupUrl(Context context) {
-        return getUrl(context, IdentityConsts.SCIM_GROUPS);
-    }
-
-    public static String getGroupPath(Context context) {
-        return getPath(context, IdentityConsts.SCIM_GROUPS);
-    }
-
-    /*
-    Creates the general URL used by SCIM. This method attaches the provider described in the
-    msso_config.json file.
-     */
-    private static String getUrl(Context context, String entity) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(FoundationUtil.getFqdn());
-        String scimPath = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider()
-                .getProperty(FoundationConsts.KEY_CONFIG_SCIM_PATH);
-        if (scimPath == null) {
-            scimPath = "/SCIM/MAS/v2";
-        }
-        sb.append(scimPath);
-        if (!TextUtils.isEmpty(entity)) {
-            sb.append(FoundationConsts.FSLASH);
-            sb.append(entity);
-        }
-        if (DEBUG) Log.d(TAG, "SCIM URL" + sb.toString());
-        return sb.toString();
-    }
-
-    /**
-     * Like {@link #getUrl(Context, String)} but only returns the path component of the URL.
-     * @param context
+     * Returns the path component of the URL.
      * @param entity
      * @return
      */
-    private static String getPath(Context context, String entity) {
+    private static String getPath(String entity) {
         StringBuilder sb = new StringBuilder();
         String scimPath = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider()
                 .getProperty(FoundationConsts.KEY_CONFIG_SCIM_PATH);
@@ -258,65 +141,6 @@ public class IdentityUtil extends FoundationUtil {
             }
         }
         return null;
-    }
-
-    /**
-     * <b>Description:</b> Given a filter, an operator, and an attribute, initiate the existing
-     * {@link MASFilteredRequest}. For example, to create a
-     * UserIdentity MASFilteredRequest for retrieving all users with the userName starting with 'joe'
-     * you would call it as follows;
-     * <pre><code>
-     *     MASFilteredRequest frb = createFilter(attributesList, IdentityConsts.KEY_USER_ATTRIBUTES, "joe", IdentityConsts.OP_SW, "userName");
-     * </code></pre>
-     *
-     * @param attributes     the allowed attributes for this filter
-     * @param attributesType the type of attributes such as USER or GROUP.
-     * @param filter         the expression that is applied to the operator.
-     * @param op             one of the operators supported in this implementation such as {@link IdentityConsts#OP_CONTAINS} or {@link IdentityConsts#OP_EQUAL}
-     * @param attribute      the attribute that is used for matching the filter when applied to the operator.
-     */
-    public static MASFilteredRequest createFilter(List<String> attributes, String attributesType, String filter, String op, String attribute) {
-        MASFilteredRequest frb = new MASFilteredRequest(attributes, attributesType);
-        if (op.equals(IdentityConsts.OP_EQUAL)) {
-            frb.isEqualTo(attribute, filter);
-        }
-
-        if (op.equals(IdentityConsts.OP_NOT_EQUAL)) {
-            frb.isNotEqualTo(attribute, filter);
-        }
-
-        if (op.equals(IdentityConsts.OP_CONTAINS)) {
-            frb.contains(attribute, filter);
-        }
-
-        if (op.equals(IdentityConsts.OP_STARTS_WITH)) {
-            frb.startsWith(attribute, filter);
-        }
-
-        if (op.equals(IdentityConsts.OP_ENDS_WITH)) {
-            frb.endsWith(attribute, filter);
-        }
-
-        // the only unary operator
-        if (op.equals(IdentityConsts.OP_IS_PRESENT)) {
-            frb.isPresent(attribute);
-        }
-
-        if (op.equals(IdentityConsts.OP_GREATER_THAN)) {
-            frb.isGreaterThan(attribute, filter);
-        }
-
-        if (op.equals(IdentityConsts.OP_GREATER_THAN_OR_EQUAL)) {
-            frb.isGreaterThanOrEqual(attribute, filter);
-        }
-
-        if (op.equals(IdentityConsts.OP_LESS_THAN)) {
-            frb.isLessThan(attribute, filter);
-        }
-        if (op.equals(IdentityConsts.OP_LESS_THAN_OR_EQUAL)) {
-            frb.isLessThanOrEqual(attribute, filter);
-        }
-        return frb;
     }
 
 }

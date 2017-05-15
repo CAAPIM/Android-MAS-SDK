@@ -8,6 +8,8 @@
 
 package com.ca.mas;
 
+import android.os.Handler;
+
 import com.ca.mas.foundation.MASCallback;
 
 import java.util.concurrent.CountDownLatch;
@@ -26,6 +28,14 @@ public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
     private boolean done = false;
     private T result;
     private Throwable throwableResult;
+    private Handler handler;
+
+    public MASCallbackFuture() {
+    }
+
+    public MASCallbackFuture(Handler handler) {
+        this.handler = handler;
+    }
 
     @Override
     public void onSuccess(T result) {
@@ -76,5 +86,10 @@ public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
             throw new ExecutionException(throwableResult);
         }
         return result;
+    }
+
+    @Override
+    public Handler getHandler() {
+        return handler;
     }
 }

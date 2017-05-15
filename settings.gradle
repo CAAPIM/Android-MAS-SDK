@@ -6,10 +6,11 @@
  *
  */
 
-include ':mag', ':magtest', ':mastest'
+//include ':mag'
+//, ':magtest', ':mastest'
 
-include ':mas', ':masui'
-
+//include ':mas' , ':masui'
+/*
 //Example App
 include ':SingleSignOnSample'
 include ':MASStorageSample'
@@ -33,6 +34,31 @@ project(':MASPubSubSample').projectDir = new File('samples/MASPubSubSample')
 
 //MASUnit
 include ':MASUnit'
+
+*/
+//Fido
+include ':fido'
+//Fido-NNL Provider
+//include ':nnl'
+//project(':nnl').projectDir = new File('fido/providers/nnl')
+
+//Fido-SDS Provider
+include ':sds'
+project(':sds').projectDir = new File('fido/providers/sds')
+include ':client-sdk-1.4.1'
+project(':client-sdk-1.4.1').projectDir = new File('fido/providers/sds/libs/client-sdk-1.4.1')
+include ':samsungsds-ccom-1.4.1'
+project(':samsungsds-ccom-1.4.1').projectDir = new File('fido/providers/sds/libs/samsungsds-ccom-1.4.1')
+include ':samsungsds-sm-1.4.1'
+project(':samsungsds-sm-1.4.1').projectDir = new File('fido/providers/sds/libs/samsungsds-sm-1.4.1')
+include ':uaf-client-1.4.1'
+project(':uaf-client-1.4.1').projectDir = new File('fido/providers/sds/libs/uaf-client-1.4.1')
+
+
+//FidoSample
+include ':fidosample'
+project(':fidosample').projectDir = new File('fido/samples/FidoSample')
+
 
 //Knox
 //include ':Knox', ':SmcControllerSample', ':SamsungLicenseActivationSample'

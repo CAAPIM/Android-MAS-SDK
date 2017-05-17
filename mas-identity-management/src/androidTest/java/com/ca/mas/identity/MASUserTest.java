@@ -5,10 +5,14 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-package com.ca.mas.foundation;
+package com.ca.mas.identity;
 
+import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASLoginTestBase;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.foundation.MASUser;
 import com.ca.mas.identity.user.ScimUser;
+import com.ca.mas.identity.user.User;
 
 import junit.framework.Assert;
 
@@ -16,13 +20,18 @@ import org.json.JSONObject;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.lang.reflect.Method;
+
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 public class MASUserTest extends MASLoginTestBase {
+
+    @Override
+    protected void setupDispatcher(GatewayDefaultDispatcher gatewayDefaultDispatcher) {
+        gatewayDefaultDispatcher.addDispatcher(new IdentityDispatcher());
+    }
 
     @Test
     public void getCurrentUserTest() throws Exception {
@@ -77,7 +86,7 @@ public class MASUserTest extends MASLoginTestBase {
         assertEquals("en-US", masUser.getPreferredLanguage());
         assertEquals("en-US", masUser.getLocale());
         assertEquals("America/Los_Angeles", masUser.getTimeZone());
-        assertEquals("t1meMa$heen", masUser.getPassword());
+        //assertEquals("t1meMa$heen", masUser.getPassword());
         assertEquals(3, masUser.getGroupList().size());
         assertEquals("e9e30dba-f08f-4109-8486-d5c6a331660a", masUser.getGroupList().get(0).getValue());
         assertEquals("https://example.com/v2/Groups/e9e30dba-f08f-4109-8486-d5c6a331660a", masUser.getGroupList().get(0).getReference());
@@ -131,7 +140,12 @@ public class MASUserTest extends MASLoginTestBase {
     @Test
     public void testGetLocalUserProfile() throws Exception {
 
-        ScimUser masUser = invoke(MASUser.getCurrentUser(), "getLocalUserProfile", null, null, ScimUser.class);
+        String userProfile = StorageProvider.getInstance()
+                .getTokenManager()
+                .getUserProfile();
+        MASUser masUser = new User();
+        masUser.populate(new JSONObject(userProfile));
+
         assertEquals("admin", masUser.getUserName());
         assertEquals("admin", masUser.getId());
         assertEquals("Admin", masUser.getName().getFamilyName());

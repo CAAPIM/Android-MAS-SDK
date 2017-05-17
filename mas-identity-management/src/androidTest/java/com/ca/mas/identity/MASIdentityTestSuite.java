@@ -16,6 +16,7 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
         MASUserIdentityTest.class,
         MASGroupIdentityTest.class,
+        MASUserTest.class
 })
 
 public class MASIdentityTestSuite {

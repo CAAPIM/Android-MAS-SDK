@@ -8,16 +8,9 @@
 
 package com.ca.mas.core.datasource;
 
-import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.AndroidTestCase;
 
 import com.ca.mas.MASTestBase;
-import com.ca.mas.core.datasource.DataConverter;
-import com.ca.mas.core.datasource.DataSource;
-import com.ca.mas.core.datasource.DataSourceFactory;
-import com.ca.mas.core.datasource.KeystoreDataSource;
-import com.ca.mas.core.datasource.StringDataConverter;
 
 import org.junit.After;
 import org.junit.Ignore;

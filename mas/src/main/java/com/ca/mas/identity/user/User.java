@@ -8,13 +8,20 @@
 
 package com.ca.mas.identity.user;
 
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 
+import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASGroup;
+import com.ca.mas.foundation.MASSessionUnlockCallback;
 import com.ca.mas.foundation.MASTransformable;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.FoundationConsts;
+import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.util.IdentityConsts;
+import com.ca.mas.identity.util.IdentityUtil;
+import com.ca.mas.messaging.MASMessage;
+import com.ca.mas.messaging.topic.MASTopic;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,7 +33,7 @@ import java.util.List;
 /**
  * See {@link MASUser}.
  */
-public class User implements ScimUser {
+public class User extends MASUser {
 
     protected String mId;
     private String mExternalId;
@@ -367,6 +374,91 @@ public class User implements ScimUser {
     @Override
     public List<MASGroup> getGroupList() {
         return mGroupList;
+    }
+
+    @Override
+    public void getUserById(String id, MASCallback<MASUser> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    public void getUsersByFilter(MASFilteredRequest filteredRequest, MASCallback<List<MASUser>> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    public void getUserMetaData(MASCallback<UserAttributes> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    public Bitmap getThumbnailImage() {
+        return IdentityUtil.getThumbnail(getPhotoList());
+    }
+
+    @Override
+    public void sendMessage(MASTopic topic, MASMessage message, MASCallback<Void> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    public void sendMessage(MASMessage message, MASUser user, MASCallback<Void> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    public void sendMessage(MASMessage message, MASUser user, String topic, MASCallback<Void> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    public void startListeningToMyMessages(MASCallback<Void> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    public void stopListeningToMyMessages(MASCallback<Void> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    public void logout(MASCallback<Void> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    public boolean isAuthenticated() {
+        return false;
+    }
+
+    @Override
+    public boolean isCurrentUser() {
+        return false;
+    }
+
+    @Override
+    public void requestUserInfo(MASCallback<Void> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    public void lockSession(MASCallback<Void> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    public void unlockSession(MASSessionUnlockCallback<Void> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    public boolean isSessionLocked() {
+        return false;
+    }
+
+    @Override
+    public void removeSessionLock(MASCallback<Void> callback) {
+        throw new UserNotAuthenticatedException();
     }
 
     /**

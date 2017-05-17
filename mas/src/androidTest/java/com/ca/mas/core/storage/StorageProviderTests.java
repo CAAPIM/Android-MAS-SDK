@@ -10,7 +10,6 @@ package com.ca.mas.core.storage;
 
 import android.support.test.runner.AndroidJUnit4;
 
-import com.ca.mas.MASMockGatewayTestBase;
 import com.ca.mas.MASTestBase;
 import com.ca.mas.TestUtils;
 import com.ca.mas.core.datasource.DataSourceException;

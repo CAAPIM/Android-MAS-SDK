@@ -10,11 +10,10 @@ package com.ca.mas.foundation;
 
 import android.support.annotation.NonNull;
 
-import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.group.GroupAttributes;
-import com.ca.mas.identity.group.GroupIdentityManager;
 import com.ca.mas.identity.group.MASGroupIdentity;
+import com.ca.mas.identity.group.MASGroupRepository;
 import com.ca.mas.identity.group.MASMember;
 import com.ca.mas.identity.group.MASOwner;
 import com.ca.mas.identity.user.MASMeta;
@@ -31,9 +30,14 @@ import java.util.List;
  * <p>The <b>MASGroup</b> class is a local representation of group data.</p>
  */
 public abstract class MASGroup implements MASTransformable, MASGroupIdentity {
+
     public static MASGroup newInstance() {
 
-        return new MASGroup() {
+        MASGroup masGroup = new MASGroup() {
+
+            @MASExtension
+            MASGroupRepository masGroupRepository;
+
             private String mId;
             private String mValue;
             private String mReference;
@@ -183,59 +187,47 @@ public abstract class MASGroup implements MASTransformable, MASGroupIdentity {
 
             @Override
             public void save(MASCallback<MASGroup> callback) {
-                GroupIdentityManager.getInstance().save(this, callback);
+                masGroupRepository.save(this, callback);
             }
 
             @Override
             public void delete(MASCallback<Void> callback) {
-                GroupIdentityManager.getInstance().deleteAdHocGroup(this, callback);
+                masGroupRepository.delete(this, callback);
             }
 
             @Override
-            public void getAllGroups(String userId, final MASCallback<List<MASGroup>> callback) {
-                if (MASUser.getCurrentUser() != null && MASUser.getCurrentUser().getUserName() != null) {
-                    GroupIdentityManager.getInstance().getAllGroups(MASUser.getCurrentUser().getUserName(), callback);
-                } else {
-                    MASUser.login(new MASCallback<MASUser>() {
-                        @Override
-                        public void onSuccess(MASUser result) {
-                            GroupIdentityManager.getInstance().getAllGroups(result.getUserName(), callback);
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            Callback.onError(callback, e);
-                        }
-                    });
-                }
+            public void getAllGroups(String owner, MASCallback<List<MASGroup>> callback) {
+                masGroupRepository.getAllGroups(owner, callback);
             }
 
             @Override
             public void getGroupByGroupName(String groupName, MASCallback<List<MASGroup>> callback) {
-                GroupIdentityManager.getInstance().getGroupByGroupName(groupName, callback);
+                masGroupRepository.getGroupByGroupName(groupName, callback);
+            }
+
+            @Override
+            public void getGroupByMember(MASUser member, MASCallback<List<MASGroup>> callback) {
+                masGroupRepository.getGroupByMember(member, callback);
             }
 
             @Override
             public void getGroupById(String id, MASCallback<MASGroup> callback) {
-                GroupIdentityManager.getInstance().getGroupById(id, callback);
-            }
-
-            @Override
-            public void getGroupByMember(MASUser user, MASCallback<List<MASGroup>> callback) {
-                GroupIdentityManager.getInstance().getGroupByMember(user, callback);
+                masGroupRepository.getGroupById(id, callback);
             }
 
             @Override
             public void getGroupsByFilter(MASFilteredRequest filteredRequest,
                                           MASCallback<List<MASGroup>> callback) {
-                GroupIdentityManager.getInstance().getGroupsByFilter(filteredRequest, callback);
+                masGroupRepository.getGroupsByFilter(filteredRequest, callback);
             }
 
             @Override
             public void getGroupMetaData(MASCallback<GroupAttributes> callback) {
-                GroupIdentityManager.getInstance().getGroupMetaData(callback);
+                masGroupRepository.getGroupMetaData(callback);
             }
         };
+        Extension.inject(masGroup);
+        return masGroup;
     }
 
     /**

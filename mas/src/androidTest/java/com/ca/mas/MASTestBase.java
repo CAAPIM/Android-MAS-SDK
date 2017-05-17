@@ -9,27 +9,13 @@
 package com.ca.mas;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.ca.mas.foundation.MAS;
-import com.ca.mas.foundation.MASConnectionListener;
-import com.squareup.okhttp.internal.SslContextBuilder;
-import com.squareup.okhttp.mockwebserver.Dispatcher;
-import com.squareup.okhttp.mockwebserver.MockWebServer;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
-
-import org.junit.After;
-import org.junit.Before;
 import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.util.HashMap;
-
-import javax.net.ssl.HttpsURLConnection;
 
 @RunWith(AndroidJUnit4.class)
 public abstract class MASTestBase {

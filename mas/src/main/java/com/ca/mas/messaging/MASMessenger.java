@@ -11,34 +11,13 @@ package com.ca.mas.messaging;
 import com.ca.mas.foundation.Internal;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
+import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
 
 /**
  * <b>MASMessenger</b> is an interface which enables messaging feature for the authenticated user.
  */
 public interface MASMessenger {
-
-    /**
-     * This method subscribes the current user to a specific topic.
-     *
-     * @param topic    The topic to subscribe to.
-     * @param callback Callback with either the Success or the Error message
-     */
-
-    @Internal
-    @Deprecated
-    void startListeningToTopic(MASTopic topic, MASCallback<Void> callback);
-
-    /**
-     * This method unsubscribes the current user from a specific topic.
-     *
-     * @param topic    The topic to unsubscribe from.
-     * @param callback Callback with either the Success or the Error message.
-     */
-
-    @Internal
-    @Deprecated
-    void stopListeningToTopic(MASTopic topic, MASCallback<Void> callback);
 
     // --------------- USER Messaging -----------------------------------------
 

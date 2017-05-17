@@ -12,7 +12,7 @@ import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyProperties;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.AndroidTestCase;
+
 
 import com.ca.mas.MASTestBase;
 

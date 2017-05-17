@@ -8,12 +8,9 @@
 
 package com.ca.mas;
 
-import android.content.Context;
 import android.net.Uri;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.ca.mas.core.io.IoUtils;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASConnectionListener;
 import com.squareup.okhttp.internal.SslContextBuilder;
@@ -21,13 +18,10 @@ import com.squareup.okhttp.mockwebserver.Dispatcher;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 
@@ -47,6 +41,7 @@ public abstract class MASMockGatewayTestBase extends MASTestBase {
 
         ssg = new MockWebServer();
         gatewayDefaultDispatcher = new GatewayDefaultDispatcher();
+        setupDispatcher(gatewayDefaultDispatcher);
         ssg.setDispatcher(gatewayDefaultDispatcher);
         ssg.useHttps(SslContextBuilder.localhost().getSocketFactory(), false);
         ssg.start(41979);
@@ -102,6 +97,9 @@ public abstract class MASMockGatewayTestBase extends MASTestBase {
         return recordRequestWithQueryParameters.get(url);
     }
 
+    protected void setupDispatcher(GatewayDefaultDispatcher gatewayDefaultDispatcher) {
+
+    }
 
     protected void setDispatcher(Dispatcher dispatcher) {
         ssg.setDispatcher(dispatcher);

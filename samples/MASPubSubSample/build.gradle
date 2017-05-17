@@ -42,4 +42,5 @@ dependencies {
 
     compile project(':mas')
     compile project(':masui')
+    compile project(':mas-connecta')
 }

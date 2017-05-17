@@ -12,7 +12,6 @@ import android.os.Build;
 
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
-import com.ca.mas.MASSessionUnlockCallbackFuture;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;

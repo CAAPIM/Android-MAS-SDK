@@ -42,9 +42,7 @@ public class AccountManagerStorageTests extends BaseStorageTests {
             currentStorage = new MASStorageManager().getStorage(MASStorageManager.MASStorageType.TYPE_AMS, new Object[]{getContext(), false});
             assertNotNull(currentStorage);
         } catch (StorageException e) {
-            e.printStackTrace();
             fail("Failed to initialize storage of type TYPE_AMS " + e);
-
         }
     }
 

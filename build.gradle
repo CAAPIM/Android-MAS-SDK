@@ -42,3 +42,4 @@ ext {
     versionName = '1.5.00'
     zxingVersion = '3.2.0'
 }
+

@@ -46,9 +46,4 @@ public interface MASUserIdentity {
      */
     void getUserMetaData(MASCallback<UserAttributes> callback);
 
-    /**
-     * Retrieve the thumbnail {@link Bitmap} of the 'MASUser'.
-     */
-    Bitmap getThumbnailImage();
-
 }

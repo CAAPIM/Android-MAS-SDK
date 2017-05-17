@@ -37,4 +37,5 @@ dependencies {
     compile "com.android.support:appcompat-v7:$rootProject.ext.appCompatVersion"
     compile project(':mas')
     compile project(':masui')
+    compile project(':mas-storage')
 }

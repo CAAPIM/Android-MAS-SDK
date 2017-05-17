@@ -23,7 +23,7 @@ import org.json.JSONObject;
 class UserInfoRepository implements UserRepository {
 
     @Override
-    public void findByUsername(final String username, final MASCallback<ScimUser> result) {
+    public void getCurrentUser(final MASCallback<MASUser> result) {
 
         final MASRequest request = new MASRequest.MASRequestBuilder(ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUserInfoUri())
                 .password()
@@ -34,9 +34,8 @@ class UserInfoRepository implements UserRepository {
             @Override
             public void onSuccess(MASResponse<JSONObject> response) {
                 //Transform the userinfo to scim result
-                ScimUser user = null;
                 try {
-                    user = transform(response.getBody().getContent());
+                    MASUser user = transform(response.getBody().getContent());
                     Callback.onSuccess(result, user);
                 } catch (JSONException e) {
                     Callback.onError(result, e);
@@ -50,7 +49,7 @@ class UserInfoRepository implements UserRepository {
         });
     }
 
-    private ScimUser transform(JSONObject jsonObject) throws JSONException {
+    private MASUser transform(JSONObject jsonObject) throws JSONException {
         User user =  new User();
         user.populate(jsonObject);
         return user;

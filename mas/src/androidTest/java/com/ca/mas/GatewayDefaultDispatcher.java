@@ -13,8 +13,7 @@ import android.util.Base64;
 
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.io.IoUtils;
-import com.ca.mas.identity.IdentityDispatcher;
-import com.ca.mas.storage.StorageDispatcher;
+import com.squareup.okhttp.mockwebserver.Dispatcher;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.QueueDispatcher;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
@@ -25,7 +24,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import sun.security.pkcs.PKCS10;
@@ -70,8 +71,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
             "  \"clientCert.subject\": \"CN=admin, OU=000000000000000, DC=sdk, O=Exampletronics Ltd\"\n" +
             "}\n";
 
-    private StorageDispatcher storageDispatcher = new StorageDispatcher();
-    private IdentityDispatcher identityDispatcher = new IdentityDispatcher();
+    private List<Dispatcher> dispatchers = new ArrayList<>();
 
     @Override
     public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -121,13 +121,11 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return enterpriseBrowser(request);
             }
 
-            MockResponse response = storageDispatcher.dispatch(request);
-            if (response != null) {
-                return response;
-            }
-            response = identityDispatcher.dispatch(request);
-            if (response != null) {
-                return response;
+            for (Dispatcher d: dispatchers) {
+                MockResponse response = d.dispatch(request);
+                if (response != null) {
+                    return response;
+                }
             }
             return other();
         } catch (Exception e) {
@@ -389,6 +387,10 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 .setHeader("Content-type", ContentType.APPLICATION_JSON)
                 .setBody(TestUtils.getJSONObject(request.getPath()).toString());
 
+    }
+
+    public void addDispatcher(Dispatcher queueDispatcher) {
+        this.dispatchers.add(queueDispatcher);
     }
 
 

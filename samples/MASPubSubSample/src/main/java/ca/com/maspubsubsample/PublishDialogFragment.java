@@ -28,7 +28,7 @@ import com.ca.mas.foundation.MASUser;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
 import com.ca.mas.messaging.topic.MASTopicBuilder;
-import com.ca.mas.messaging.util.MessagingConsts;
+import com.ca.mas.messaging.MessagingConsts;
 
 public class PublishDialogFragment extends DialogFragment implements DialogInterface.OnClickListener, DialogInterface.OnShowListener {
 

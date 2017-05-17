@@ -72,7 +72,9 @@ task javadoc(type: Javadoc) {
 }
 
 dependencies {
+
     compile fileTree(include: ['*.jar'], dir: 'libs')
+
     compile "com.google.zxing:core:$rootProject.ext.zxingVersion"
     compile "com.android.support:appcompat-v7:$rootProject.ext.appCompatVersion"
     compile "com.nimbusds:nimbus-jose-jwt:$rootProject.ext.nimbusJoseVersion"
@@ -91,7 +93,7 @@ jacoco {
     reportsDir = file("$buildDir/customJacocoReportDir")
 }
 
-task jacocoTestReport(type:JacocoReport, dependsOn: "connectedDebugAndroidTest") {
+task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest") {
 
     group = "Reporting"
 
@@ -120,11 +122,9 @@ task jacocoTestReport(type:JacocoReport, dependsOn: "connectedDebugAndroidTest")
             ['**/*.exec', '**/*.ec'])
 
     project.gradle.taskGraph.whenReady {
-        /*
         connectedDebugAndroidTest {
             ignoreFailures = true
         }
-        */
     }
     reports {
         xml.enabled = true

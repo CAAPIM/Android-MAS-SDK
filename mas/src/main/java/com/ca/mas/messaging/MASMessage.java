@@ -14,11 +14,8 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.FoundationConsts;
-import com.ca.mas.identity.ScimIdentifiable;
-import com.ca.mas.messaging.util.MessagingConsts;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +35,7 @@ public class MASMessage implements MASPayload, Parcelable {
     private boolean mIsRetained;
     private long mSentTime = 0L;
     private String mDisplayName;
-    private String mSenderType = ScimIdentifiable.ResourceType.User.toString();
+    private String mSenderType = "User";
     private String mContentType = MessagingConsts.DEFAULT_TEXT_PLAIN_CONTENT_TYPE;
     private String mContentEncoding = MessagingConsts.DEFAULT_BASE64_ENCODING;
     private int mQos = 2;
@@ -163,19 +160,19 @@ public class MASMessage implements MASPayload, Parcelable {
     public void createMASMessageFromJSONString(String jsonStr) throws MASMessageException {
         try {
             JSONObject jobj = new JSONObject(jsonStr);
-            mVersion = jobj.optString(ConnectaConsts.KEY_VERSION, MessagingConsts.DEFAULT_VERSION);
-            mSenderId = jobj.optString(ConnectaConsts.KEY_SENDER_ID);
-            mSenderType = jobj.optString(ConnectaConsts.KEY_SENDER_TYPE);
+            mVersion = jobj.optString(MessagingConsts.KEY_VERSION, MessagingConsts.DEFAULT_VERSION);
+            mSenderId = jobj.optString(MessagingConsts.KEY_SENDER_ID);
+            mSenderType = jobj.optString(MessagingConsts.KEY_SENDER_TYPE);
             if (!TextUtils.isEmpty(mSenderType)) {
                 mSenderType = mSenderType.toUpperCase();
             }
-            mDisplayName = jobj.optString(ConnectaConsts.KEY_DISPLAY_NAME);
-            mSentTime = jobj.getLong(ConnectaConsts.KEY_SENT_TIME);
-            mContentType = jobj.optString(ConnectaConsts.KEY_CONTENT_TYPE);
-            mContentEncoding = jobj.optString(ConnectaConsts.KEY_CONTENT_ENCODING, FoundationConsts.ENC_UTF8);
-            String payloadBefore = jobj.optString(ConnectaConsts.KEY_PAYLOAD, FoundationConsts.EMPTY);
+            mDisplayName = jobj.optString(MessagingConsts.KEY_DISPLAY_NAME);
+            mSentTime = jobj.getLong(MessagingConsts.KEY_SENT_TIME);
+            mContentType = jobj.optString(MessagingConsts.KEY_CONTENT_TYPE);
+            mContentEncoding = jobj.optString(MessagingConsts.KEY_CONTENT_ENCODING, FoundationConsts.ENC_UTF8);
+            String payloadBefore = jobj.optString(MessagingConsts.KEY_PAYLOAD, FoundationConsts.EMPTY);
             mPayload = Base64.decode(payloadBefore.getBytes(), Base64.NO_WRAP);
-            mTopic = jobj.optString(ConnectaConsts.KEY_TOPIC);
+            mTopic = jobj.optString(MessagingConsts.KEY_TOPIC);
         } catch (JSONException je) {
             throw new MASMessageException(je);
         }
@@ -189,55 +186,55 @@ public class MASMessage implements MASPayload, Parcelable {
             if (TextUtils.isEmpty(ver)) {
                 ver = MessagingConsts.DEFAULT_VERSION;
             }
-            jobj.put(ConnectaConsts.KEY_VERSION, ver);
+            jobj.put(MessagingConsts.KEY_VERSION, ver);
 
             String id = getSenderId();
             if (TextUtils.isEmpty(id)) {
                 MASUser masUser = MASUser.getCurrentUser();
                 id = masUser.getId();
             }
-            jobj.put(ConnectaConsts.KEY_SENDER_ID, id);
+            jobj.put(MessagingConsts.KEY_SENDER_ID, id);
 
             String senderType = getSenderType();
             if (TextUtils.isEmpty(senderType)) {
                 senderType = MessagingConsts.DEFAULT_SENDER_TYPE;
             }
-            jobj.put(ConnectaConsts.KEY_SENDER_TYPE, senderType.toUpperCase());
+            jobj.put(MessagingConsts.KEY_SENDER_TYPE, senderType.toUpperCase());
 
             String dispName = getDisplayName();
             if (TextUtils.isEmpty(dispName)) {
                 dispName = id;
             }
-            jobj.put(ConnectaConsts.KEY_DISPLAY_NAME, dispName);
+            jobj.put(MessagingConsts.KEY_DISPLAY_NAME, dispName);
 
             long sentTime = getSentTime();
             if (sentTime == 0) {
                 sentTime = System.currentTimeMillis();
             }
-            jobj.put(ConnectaConsts.KEY_SENT_TIME, sentTime);
+            jobj.put(MessagingConsts.KEY_SENT_TIME, sentTime);
 
             String contentType = getContentType();
             if (TextUtils.isEmpty(contentType)) {
                 contentType = MessagingConsts.DEFAULT_TEXT_PLAIN_CONTENT_TYPE;
             }
-            jobj.put(ConnectaConsts.KEY_CONTENT_TYPE, contentType);
+            jobj.put(MessagingConsts.KEY_CONTENT_TYPE, contentType);
 
             String contentEnc = getContentEncoding();
             if (TextUtils.isEmpty(contentEnc)) {
                 contentEnc = MessagingConsts.DEFAULT_BASE64_ENCODING;
             }
-            jobj.put(ConnectaConsts.KEY_CONTENT_ENCODING, contentEnc);
+            jobj.put(MessagingConsts.KEY_CONTENT_ENCODING, contentEnc);
 
             byte[] payload = getPayload();
             if (payload != null && payload.length > 0) {
-                jobj.put(ConnectaConsts.KEY_PAYLOAD, new String(Base64.encode(payload, Base64.NO_WRAP)));
+                jobj.put(MessagingConsts.KEY_PAYLOAD, new String(Base64.encode(payload, Base64.NO_WRAP)));
             } else {
                 throw new MASMessageException("Parameter cannot be empty or null.");
             }
 
             String topic = getTopic();
             if (!TextUtils.isEmpty(topic)) {
-                jobj.put(ConnectaConsts.KEY_TOPIC, topic);
+                jobj.put(MessagingConsts.KEY_TOPIC, topic);
             }
         } catch (JSONException je) {
             throw new MASMessageException(je);

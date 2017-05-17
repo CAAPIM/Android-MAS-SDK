@@ -84,10 +84,7 @@
       "enable_public_key_pinning": false,
       "trusted_public_pki": false,
       "trusted_cert_pinned_public_key_hashes": [],
-      "client_cert_rsa_keybits": 1024,
-      "storage":{
-        "class":"com.ca.mas.core.datasource.AccountManagerStoreDataSource"
-      }
+      "client_cert_rsa_keybits": 1024
     },
     "ble": {
       "msso_ble_service_uuid": "980c2f36-bde3-11e4-8dfc-aa07a5b093db",

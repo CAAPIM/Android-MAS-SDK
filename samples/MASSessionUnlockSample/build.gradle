@@ -37,6 +37,6 @@ dependencies {
     compile "com.android.support:recyclerview-v7:$rootProject.ext.recyclerViewVersion"
     compile "com.android.support:design:$rootProject.ext.designVersion"
 
-    compile project(':mas')
+    compile project(':mas-foundation')
     compile project(':masui')
 }

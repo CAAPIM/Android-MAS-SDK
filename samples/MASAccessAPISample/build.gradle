@@ -36,6 +36,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile "com.android.support:appcompat-v7:$rootProject.ext.appCompatVersion"
 
-    compile project(':mas')
+    compile project(':mas-foundation')
     compile project(':masui')
 }

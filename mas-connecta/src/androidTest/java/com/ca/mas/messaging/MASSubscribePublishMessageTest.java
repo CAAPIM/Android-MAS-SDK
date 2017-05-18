@@ -93,7 +93,4 @@ public class MASSubscribePublishMessageTest extends MASLoginTestBase {
         }
     }
 
-    @After
-    public void tearDown() throws Exception {
-    }
 }

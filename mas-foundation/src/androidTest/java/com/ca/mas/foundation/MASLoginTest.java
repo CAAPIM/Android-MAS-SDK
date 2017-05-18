@@ -66,6 +66,7 @@ public class MASLoginTest extends MASStartTestBase {
 
     @After
     public void deregister() throws InterruptedException, ExecutionException {
+        if (isSkipped) return;
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<Void>();
         if (MASUser.getCurrentUser() != null) {
             MASUser.getCurrentUser().logout(logoutCallback);

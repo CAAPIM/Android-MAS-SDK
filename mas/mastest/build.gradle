@@ -56,9 +56,6 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':mas')
-    compile project(':mas-connecta')
-    compile project(':mas-storage')
-    compile project(':mas-identity-management')
     // Testing-only dependencies
     // Force usage of support annotations in the test app, since it is internally used by the runner module.
     androidTestCompile "com.android.support:support-annotations:$rootProject.ext.supportAnnotationsVersion"

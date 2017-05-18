@@ -7,7 +7,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.ca.mas.foundation">
+          package="com.ca.mas">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -23,8 +23,7 @@
         </service>
 
         <!-- AMS Service -->
-        <!-- AMS Service -->
-        <service android:name="com.ca.mas.core.storage.implementation.AMSAuthenticatorService">
+        <service android:name="com.ca.mas.core.storage.implementation.AMSAuthenticatorService" >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>

@@ -65,11 +65,6 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
         project.tasks.findAll { it.name =~ /connected.+AndroidTest/ }.each {
             it.ignoreFailures = true
         }
-        /*
-        connectedDebugAndroidTest {
-            ignoreFailures = true
-        }
-        */
     }
     reports {
         xml.enabled = true

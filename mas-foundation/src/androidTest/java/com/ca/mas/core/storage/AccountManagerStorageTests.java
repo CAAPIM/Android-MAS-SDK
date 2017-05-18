@@ -50,6 +50,7 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     @Override
     @After
     public void tearDown() throws Exception {
+        if (isSkipped) return;
         currentStorage.deleteAll();
     }
 

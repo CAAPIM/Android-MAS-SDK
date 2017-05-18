@@ -11,9 +11,12 @@ package com.ca.mas;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
@@ -40,15 +43,21 @@ public abstract class MASTestBase {
             "com.ca.mas.messaging",
     };
 
+    @Rule
+    public TestName name = new TestName();
+
     @Before
     public void check() throws Exception {
         isSkipped = true;
+
         for (String t: includeTest) {
             if (this.getClass().getName().startsWith(t)) {
                 isSkipped = false;
                 return;
             }
         }
+
+        Log.i("MASTest Skipped: ", name.getMethodName());
         Assume.assumeTrue(false);
 
     }

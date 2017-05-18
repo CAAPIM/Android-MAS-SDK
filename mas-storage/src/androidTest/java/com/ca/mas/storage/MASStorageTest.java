@@ -36,7 +36,8 @@ public abstract class MASStorageTest extends MASLoginTestBase {
     }
 
     @After
-    public void after() throws Exception {
+    public void cleanupStorage() throws Exception {
+        if (isSkipped) return;
         MASStorage mgr = getMASStorage();
         MASCallbackFuture<Set<String>> keySetCallbackFuture = new MASCallbackFuture<>();
         mgr.keySet(getMode(), keySetCallbackFuture);

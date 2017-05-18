@@ -53,6 +53,7 @@ public abstract class BaseStorageTests extends MASTestBase {
 
     @After
     public void tearDown() throws Exception {
+        if (isSkipped) return;
         try {
             currentStorage.deleteAll();
         } catch (Exception e) {

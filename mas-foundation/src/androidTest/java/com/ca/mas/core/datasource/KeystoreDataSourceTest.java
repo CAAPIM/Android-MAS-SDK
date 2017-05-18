@@ -31,7 +31,8 @@ public class KeystoreDataSourceTest extends MASTestBase {
     private final String VALUE2 = "VALUE2";
 
     @After
-    public void after() {
+    public void cleanupStoredData() {
+        if (isSkipped) return;
         DataSource<String, String> d = DataSourceFactory.getStorage(getContext(),
                 KeystoreDataSource.class, null, null);
         d.remove(KEY);

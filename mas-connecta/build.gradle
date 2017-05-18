@@ -36,17 +36,6 @@ android {
 }
 
 
-task initBaseTest(type: Copy) {
-    from('../mas-foundation/src/main/res/xml') {
-        include '**/mastest.xml'
-        include '**/prefs.xml'
-    }
-    into 'src/main/res/xml'
-    includeEmptyDirs = false
-}
-
-preBuild {}.dependsOn initBaseTest
-
 jacoco {
     toolVersion = "0.7.6.201602180812"
     reportsDir = file("$buildDir/customJacocoReportDir")

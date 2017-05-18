@@ -33,7 +33,8 @@ public class AccountManagerStoreDataSourceTest extends MASTestBase {
 
 
     @After
-    public void after() {
+    public void cleanupData() {
+        if (isSkipped) return;
         DataSource<String, String> d = DataSourceFactory.getStorage(getContext(),
                 AccountManagerStoreDataSource.class, param, null);
         d.remove(KEY);

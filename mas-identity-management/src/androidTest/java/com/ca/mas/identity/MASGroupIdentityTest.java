@@ -57,6 +57,7 @@ public class MASGroupIdentityTest extends MASLoginTestBase {
 
     @After
     public void after() throws Exception {
+        if (isSkipped) return;
         MASCallbackFuture<List<MASGroup>> callbackFuture = new MASCallbackFuture<>();
         MASFilteredRequest request = (MASFilteredRequest) new MASFilteredRequest(groupAttributes.getAttributes(), IdentityConsts.KEY_GROUP_ATTRIBUTES)
                 .isEqualTo("owner.value", "admin");

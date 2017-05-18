@@ -67,6 +67,7 @@ public abstract class MASMockGatewayTestBase extends MASTestBase {
 
     @After
     public void shutDownServer() throws Exception {
+        if (isSkipped) return;
         if (ssg != null) {
             ssg.shutdown();
         }

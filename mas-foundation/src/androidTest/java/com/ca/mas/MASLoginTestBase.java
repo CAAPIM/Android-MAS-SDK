@@ -29,6 +29,8 @@ public abstract class MASLoginTestBase extends MASStartTestBase {
 
     @After
     public void deregister() throws InterruptedException, ExecutionException {
+        if (isSkipped) return;
+
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<Void>();
         MASUser currentUser = MASUser.getCurrentUser();
         if (currentUser != null) {

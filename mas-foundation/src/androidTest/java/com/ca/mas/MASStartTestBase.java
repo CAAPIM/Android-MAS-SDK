@@ -42,6 +42,8 @@ public abstract class MASStartTestBase extends MASMockGatewayTestBase {
 
     @After
     public void masStop() {
+        if (isSkipped) return;
+
         MASCallbackFuture<Void> masCallback = new MASCallbackFuture<>();
         MASDevice.getCurrentDevice().deregister(masCallback);
         try {

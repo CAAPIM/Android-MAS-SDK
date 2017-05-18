@@ -12,6 +12,8 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
@@ -19,6 +21,37 @@ import java.lang.reflect.Method;
 
 @RunWith(AndroidJUnit4.class)
 public abstract class MASTestBase {
+
+    protected boolean isSkipped;
+
+    //- Classes created under AndroidTest are not sharable with other depended modules.
+    //- Module which depends on mas-foundation are required to use the *TestBase defined under AndroidTest.
+    //- Using common module to store common test classes does not work, it has circular dependency mas-test -> mas-foundation -> mas-test
+    //- Using sourceSets to include common test classes, however when we run jacocoTestReport on submodule, it executes all test cases in the sourceSets.
+    //- The includeTest is to control which test module to run, if only want to generate coverage report for identity, please comment out other modules
+    //in the list.
+
+    private String[] includeTest = {
+            "com.ca.mas.core",
+            "com.ca.mas.foundation",
+            "com.ca.mas.storage",
+            "com.ca.mas.identity",
+            "com.ca.mas.connecta",
+            "com.ca.mas.messaging",
+    };
+
+    @Before
+    public void check() throws Exception {
+        isSkipped = true;
+        for (String t: includeTest) {
+            if (this.getClass().getName().startsWith(t)) {
+                isSkipped = false;
+                return;
+            }
+        }
+        Assume.assumeTrue(false);
+
+    }
 
     protected Context getContext() {
         return InstrumentationRegistry.getInstrumentation().getTargetContext();

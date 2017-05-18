@@ -2,18 +2,17 @@ apply plugin: 'com.android.library'
 apply plugin: 'jacoco'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
-
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -23,23 +22,11 @@ android {
 
     sourceSets {
         androidTest {
-            java.srcDirs += "../mas/src/androidTest/java"
-            resources.srcDirs += "../mas/src/androidTest/resources"
+            java.srcDirs += "../mas-foundation/src/androidTest/java"
+            resources.srcDirs += "../mas-foundation/src/androidTest/resources"
         }
     }
 }
-
-
-task initBaseTest(type: Copy) {
-    from('../mas/src/main/res/xml') {
-        include '**/mastest.xml'
-        include '**/prefs.xml'
-    }
-    into 'src/main/res/xml'
-    includeEmptyDirs = false
-}
-
-preBuild {}.dependsOn initBaseTest
 
 jacoco {
     toolVersion = "0.7.6.201602180812"
@@ -75,9 +62,14 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
             ['**/*.exec', '**/*.ec'])
 
     project.gradle.taskGraph.whenReady {
+        project.tasks.findAll { it.name =~ /connected.+AndroidTest/ }.each {
+            it.ignoreFailures = true
+        }
+        /*
         connectedDebugAndroidTest {
             ignoreFailures = true
         }
+        */
     }
     reports {
         xml.enabled = true
@@ -91,7 +83,7 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile project(':mas')
+    compile project(':mas-foundation')
 
     androidTestCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
     androidTestCompile 'com.android.support.test:runner:0.5'

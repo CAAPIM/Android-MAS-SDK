@@ -15,7 +15,7 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.ca.mas.R;
+import com.ca.mas.foundation.R;
 import com.ca.mas.connecta.client.ConnectaException;
 import com.ca.mas.connecta.client.MASConnectOptions;
 import com.ca.mas.connecta.client.MASConnectaClient;

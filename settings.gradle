@@ -6,7 +6,7 @@
  *
  */
 
-include ':mas', ':masui', ':mastest', ':mas-connecta', ':mas-storage', ':mas-identity-management'
+include ':mas', ':masui', ':mastest', ':mas-connecta', ':mas-storage', ':mas-identity-management', ':mas-foundation'
 
 //Example App
 include ':SingleSignOnSample'

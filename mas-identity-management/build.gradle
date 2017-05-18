@@ -2,17 +2,15 @@ apply plugin: 'com.android.library'
 apply plugin: 'jacoco'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
-
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
     buildTypes {
         release {
@@ -27,8 +25,8 @@ android {
 
     sourceSets {
         androidTest {
-            java.srcDirs += "../mas/src/androidTest/java"
-            resources.srcDirs += "../mas/src/androidTest/resources"
+            java.srcDirs += "../mas-foundation/src/androidTest/java"
+            resources.srcDirs += "../mas-foundation/src/androidTest/resources"
         }
     }
 }
@@ -79,9 +77,14 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
             ['**/*.exec', '**/*.ec'])
 
     project.gradle.taskGraph.whenReady {
+        project.tasks.findAll { it.name =~ /connected.+AndroidTest/ }.each {
+            it.ignoreFailures = true
+        }
+        /*
         connectedDebugAndroidTest {
             ignoreFailures = true
         }
+        */
     }
     reports {
         xml.enabled = true
@@ -95,7 +98,7 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
 dependencies {
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':mas')
+    compile project(':mas-foundation')
 
     testCompile 'junit:junit:4.12'
 

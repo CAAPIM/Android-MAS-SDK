@@ -204,7 +204,7 @@ public class MASClientCredentialTest extends MASStartTestBase {
             assertNull(MASUser.getCurrentUser());
             assertTrue(result[0]);
 
-            MASClaims claims = new MASClaims.MASClaimsBuilder().build();
+            MASClaims claims = new MASClaimsBuilder().build();
             Uri uri = Uri.parse(MASConfiguration.getCurrentConfiguration().getGatewayUrl() + "/test?" + s);
             String clientId = uri.getQueryParameter("client_id");
             assertEquals(clientId, claims.getSubject());

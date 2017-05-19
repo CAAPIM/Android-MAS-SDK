@@ -54,22 +54,7 @@ android {
     }
 }
 
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    println "Source: $source"
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    println "Classpath: $source"
-    options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
-    destinationDir = file("../docs/mas_javadoc/")
-    failOnError false
 
-    include '**/*MAS*.java'
-    include '**/Device.java'
-    include '**/ScimUser.java'
-
-    exclude '**/MASTransformable.java'
-    exclude '**/MASResultReceiver.java'
-}
 
 dependencies {
 
@@ -142,6 +127,23 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
     }
 }
 
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    println "Source: $source"
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    println "Classpath: $source"
+    options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+    destinationDir = file("../docs/mas_javadoc/")
+    failOnError false
+
+    include '**/*MAS*.java'
+    include '**/Device.java'
+    include '**/ScimUser.java'
+
+    exclude '**/MASTransformable.java'
+    exclude '**/MASResultReceiver.java'
+}
+
 //jcenter integration
 group 'com.ca'
 
@@ -153,14 +155,12 @@ bintray {
     configurations = ['archives'] //When uploading configuration files
     pkg {
         repo = 'maven'
-        name = 'mas'
+        name = 'mas-foundation'
         userOrg = 'caapim'
 
-        desc = 'CA Mobile App Services is an extension of the CA Mobile API Gateway and provides powerful features through SDKs and APIs ' +
-                'for developers to help accelerate the app development process.' +
-                'CA Mobile API Gateway provides enterprises with a secure mobile backend that integrates systems and allows for control over ' +
-                'which users, devices and applications can access your APIs. The gateway enables developers to leverage standards for ' +
-                'API security such as (OAuth2, OpenID Connect, PKI) through client SDKs for Android and iOS.'
+        desc = 'MASFoundation is the core iOS framework of the Mobile SDK, which is part of CA Mobile App Services. ' +
+                'MASFoundation handles the communication and authentication layer of the Mobile SDK, ' +
+                'making it easy for developers to establish a secure connection (TLS, Mutual SSL) to any CA Mobile API Gateway (MAG).'
         websiteUrl = siteUrl
         issueTrackerUrl = issueUrl
         vcsUrl = gitUrl

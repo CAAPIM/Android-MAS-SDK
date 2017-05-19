@@ -1,3 +1,5 @@
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.android.library'
 
 android {
@@ -51,5 +53,91 @@ dependencies {
     androidTestCompile 'com.android.support.test:rules:0.5'
     androidTestCompile 'org.skyscreamer:jsonassert:1.5.0'
 
-    testCompile 'junit:junit:4.12'}
+    testCompile 'junit:junit:4.12'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    println "Source: $source"
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    println "Classpath: $source"
+    options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+    destinationDir = file("../docs/mas_javadoc/")
+    failOnError false
+}
+
+//jcenter integration
+group 'com.ca'
+
+project.version = mas_version
+bintray {
+    user = bintray_user
+    key = bintray_api_key
+
+    configurations = ['archives'] //When uploading configuration files
+    pkg {
+        repo = 'maven'
+        name = 'mas'
+        userOrg = 'caapim'
+
+        desc = 'CA Mobile App Services is an extension of the CA Mobile API Gateway and provides powerful features through SDKs and APIs ' +
+                'for developers to help accelerate the app development process.' +
+                'CA Mobile API Gateway provides enterprises with a secure mobile backend that integrates systems and allows for control over ' +
+                'which users, devices and applications can access your APIs. The gateway enables developers to leverage standards for ' +
+                'API security such as (OAuth2, OpenID Connect, PKI) through client SDKs for Android and iOS.'
+        websiteUrl = siteUrl
+        issueTrackerUrl = issueUrl
+        vcsUrl = gitUrl
+        licenses = ['MIT']
+        labels = ['aar', 'android', 'oauth', 'security']
+        publicDownloadNumbers = true
+
+        version {
+            name = project.version
+            desc = 'CA Mobile App Services'
+        }
+    }
+}
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+                name 'CA Mobile App Services'
+                url siteUrl
+                licenses {
+                    license {
+                        name 'MIT'
+                        url 'https://github.com/CAAPIM/Android-MAS-SDK/blob/develop/LICENSE'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+task findConventions << {
+    println project.getConvention()
+}
 

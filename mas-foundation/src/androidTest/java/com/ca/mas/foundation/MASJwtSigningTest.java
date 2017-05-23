@@ -134,7 +134,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         JWSObject signedObject = JWSObject.parse(signedDoc);
 
         net.minidev.json.JSONObject payload = signedObject.getPayload().toJSONObject();
-        Assert.assertEquals("test", payload.get(MASClaims.CONTENT));
+        Assert.assertEquals("test", payload.get(MASClaimsConstants.CONTENT));
     }
 
     @Test
@@ -176,7 +176,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         JWSObject signedObject = JWSObject.parse(signedDoc);
 
         net.minidev.json.JSONObject payload = signedObject.getPayload().toJSONObject();
-        Assert.assertEquals(expected.get("formfield1"), (new JSONObject(payload.get(MASClaims.CONTENT).toString())).get("formfield1"));
+        Assert.assertEquals(expected.get("formfield1"), (new JSONObject(payload.get(MASClaimsConstants.CONTENT).toString())).get("formfield1"));
     }
 
     @Test
@@ -195,7 +195,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         JWSObject signedObject = JWSObject.parse(signedDoc);
 
         net.minidev.json.JSONObject payload = signedObject.getPayload().toJSONObject();
-        Assert.assertEquals("test", new String(Base64.decode((String) payload.get(MASClaims.CONTENT), Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_PADDING)));
+        Assert.assertEquals("test", new String(Base64.decode((String) payload.get(MASClaimsConstants.CONTENT), Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_PADDING)));
     }
 
     @Test
@@ -209,7 +209,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         requestData.put("jsonName", "jsonValue");
         requestData.put("jsonName2", 1234);
 
-        MASClaims claims = new MASClaims.MASClaimsBuilder().claim(MASClaims.CONTENT, requestData).build();
+        MASClaims claims = new MASClaims.MASClaimsBuilder().claim(MASClaimsConstants.CONTENT, requestData).build();
         String signedJWT = MAS.sign(claims, privateKey);
 
         JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) publicKey);

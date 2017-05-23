@@ -4,7 +4,6 @@
  *  This software may be modified and distributed under the terms
  *  of the MIT license.  See the LICENSE file for details.
  */
-
 package com.ca.mas.foundation;
 
 import com.ca.mas.core.store.StorageProvider;
@@ -17,12 +16,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.ca.mas.foundation.MASClaimsConstants.EXPIRATION;
+import static com.ca.mas.foundation.MASClaimsConstants.ISSUED_AT;
+import static com.ca.mas.foundation.MASClaimsConstants.JWT_ID;
+
 public interface MASClaims {
 
-    String CONTENT = "content";
-    String CONTENT_TYPE = "content-type";
-
-    //Registered Claim
+    //Registered claim convenience methods
     String getIssuer();
     String getSubject();
     List<String> getAudience();
@@ -31,55 +31,91 @@ public interface MASClaims {
     Date getIssuedAt();
     String getJwtId();
 
-    //Private Claim
+    //Claims object
     Map<String, Object> getClaims();
 
-
     class MASClaimsBuilder {
-
-        private Date exp;
         private Map<String, Object> claims = new HashMap<>();
 
         public MASClaimsBuilder(MASClaims masClaims) {
             if (masClaims != null) {
-                //Only allow to overwrite the private claim and the exp claim
                 claims.putAll(masClaims.getClaims());
-                exp = masClaims.getExpirationTime();
             }
         }
 
         public MASClaimsBuilder() {
         }
 
-        public MASClaimsBuilder expirationTime(final Date exp) {
-            this.exp = exp;
-            return this;
-        }
-
-        public MASClaimsBuilder claim(@MASClaimsConstants String name, Object value) {
+        public MASClaimsBuilder claim(String name, Object value) {
             claims.put(name, value);
             return this;
         }
 
-        public MASClaims build () {
+        public MASClaimsBuilder issuer(String issuer) {
+            claims.put(MASClaimsConstants.ISSUER, issuer);
+            return this;
+        }
+
+        public MASClaimsBuilder subject(String subject) {
+            claims.put(MASClaimsConstants.SUBJECT, subject);
+            return this;
+        }
+
+        public MASClaimsBuilder audience(List<String> aud) {
+            if (aud != null) {
+                claims.put(MASClaimsConstants.AUDIENCE, aud);
+            }
+            return this;
+        }
+
+        public MASClaimsBuilder audience(String aud) {
+            if (aud != null) {
+                claims.put(MASClaimsConstants.AUDIENCE, Collections.singletonList(aud));
+            }
+            return this;
+        }
+
+        public MASClaimsBuilder expirationTime(Date exp) {
+            claims.put(MASClaimsConstants.EXPIRATION, exp);
+            return this;
+        }
+
+        public MASClaimsBuilder notBeforeTime(Date nbf) {
+            claims.put(MASClaimsConstants.NOT_BEFORE, nbf);
+            return this;
+        }
+
+        public MASClaimsBuilder issueTime(Date iat) {
+            claims.put(MASClaimsConstants.ISSUED_AT, iat);
+            return this;
+        }
+
+        public MASClaimsBuilder jwtId(String jti) {
+            claims.put(MASClaimsConstants.JWT_ID, jti);
+            return this;
+        }
+
+        public MASClaims build() {
 
             return new MASClaims() {
-
                 long currentTime = System.currentTimeMillis() / 1000;
-                String jti = UUID.randomUUID().toString();
-                Date issuedAt = DateUtils.fromSecondsSinceEpoch(currentTime);
-                Date expDate = DateUtils.fromSecondsSinceEpoch(currentTime + 300L);
 
                 @Override
                 public String getIssuer() {
-                    return String.format("device://%s/%s",
-                            StorageProvider.getInstance().getTokenManager().getMagIdentifier(),
-                            StorageProvider.getInstance().getClientCredentialContainer().getClientId());
+                    if (claims.containsKey(MASClaimsConstants.ISSUER)) {
+                        return (String) claims.get(MASClaimsConstants.ISSUER);
+                    } else {
+                        return String.format("device://%s/%s",
+                                StorageProvider.getInstance().getTokenManager().getMagIdentifier(),
+                                StorageProvider.getInstance().getClientCredentialContainer().getClientId());
+                    }
                 }
 
                 @Override
                 public String getSubject() {
-                    if (MASUser.getCurrentUser() != null) {
+                    if (claims.containsKey(MASClaimsConstants.SUBJECT)) {
+                        return (String) claims.get(MASClaimsConstants.SUBJECT);
+                    } else if (MASUser.getCurrentUser() != null) {
                         return MASUser.getCurrentUser().getUserName();
                     } else {
                         return StorageProvider.getInstance().getClientCredentialContainer().getClientId();
@@ -88,44 +124,54 @@ public interface MASClaims {
 
                 @Override
                 public List<String> getAudience() {
-                    return Collections.singletonList(MASConfiguration.getCurrentConfiguration().getGatewayHostName());
+                    if (claims.containsKey(MASClaimsConstants.AUDIENCE)) {
+                        return (List<String>) claims.get(MASClaimsConstants.AUDIENCE);
+                    } else {
+                        return Collections.singletonList(MASConfiguration.getCurrentConfiguration().getGatewayHostName());
+                    }
                 }
 
                 @Override
                 public Date getExpirationTime() {
-                    if (exp == null) {
-                        return expDate;
+                    if (claims.containsKey(EXPIRATION)) {
+                        return (Date) claims.get(EXPIRATION);
                     } else {
-                        return exp;
+                        return DateUtils.fromSecondsSinceEpoch(currentTime + 300L);
                     }
                 }
 
                 @Override
                 public Date getNotBefore() {
-                    return null;
+                    if (claims.containsKey(MASClaimsConstants.NOT_BEFORE)) {
+                        return (Date) claims.get(MASClaimsConstants.NOT_BEFORE);
+                    } else {
+                        return null;
+                    }
                 }
 
                 @Override
                 public Date getIssuedAt() {
-                    return issuedAt;
+                    if (claims.containsKey(ISSUED_AT)) {
+                        return (Date) claims.get(ISSUED_AT);
+                    } else {
+                        return DateUtils.fromSecondsSinceEpoch(currentTime);
+                    }
                 }
 
                 @Override
                 public String getJwtId() {
-                    return jti;
+                    if (claims.containsKey(JWT_ID)) {
+                        return (String) claims.get(JWT_ID);
+                    } else {
+                        return UUID.randomUUID().toString();
+                    }
                 }
 
                 @Override
                 public Map<String, Object> getClaims() {
                     return claims;
                 }
-
             };
-
         }
-
-
     }
-
-
 }

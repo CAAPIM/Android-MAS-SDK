@@ -371,30 +371,34 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                     Callback.onError(callback, e);
                     return;
                 }
-                f.getCurrentUser(new MASCallback<MASUser>() {
-                    @Override
-                    public void onSuccess(MASUser result) {
+                try {
+                    f.getCurrentUser(new MASCallback<MASUser>() {
+                        @Override
+                        public void onSuccess(MASUser result) {
 
-                        try {
-                            JSONObject source = result.getSource();
-                            source.remove(IdentityConsts.KEY_PASSWORD);
-                            populate(source);
-                            //make sure not to store the password
-                            StorageProvider.getInstance()
-                                    .getTokenManager().
-                                    saveUserProfile(source.toString());
-                        } catch (Exception e) {
-                            if (DEBUG)
-                                Log.w(TAG, "Unable to persist user profile to local storage.", e);
+                            try {
+                                JSONObject source = result.getSource();
+                                source.remove(IdentityConsts.KEY_PASSWORD);
+                                populate(source);
+                                //make sure not to store the password
+                                StorageProvider.getInstance()
+                                        .getTokenManager().
+                                        saveUserProfile(source.toString());
+                            } catch (Exception e) {
+                                if (DEBUG)
+                                    Log.w(TAG, "Unable to persist user profile to local storage.", e);
+                            }
+                            Callback.onSuccess(callback, null);
                         }
-                        Callback.onSuccess(callback, null);
-                    }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        fetch(repositories, callback, e);
-                    }
-                });
+                        @Override
+                        public void onError(Throwable e) {
+                            fetch(repositories, callback, e);
+                        }
+                    });
+                } catch (Exception e1) {
+                    fetch(repositories, callback, e1);
+                }
             }
 
 

@@ -8,19 +8,14 @@
 package com.ca.mas.foundation;
 
 import com.ca.mas.MASLoginTestBase;
-import com.ca.mas.identity.user.ScimUser;
+import com.ca.mas.messaging.MASMessage;
 
 import junit.framework.Assert;
 
-import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
 
 public class MASUserTest extends MASLoginTestBase {
 
@@ -33,5 +28,25 @@ public class MASUserTest extends MASLoginTestBase {
         assertEquals("Admin", masUser.getName().getFamilyName());
 
     }
+
+    @Ignore("Remove mas-connecta from mas module to test")
+    @Test(expected = UnsupportedOperationException.class)
+    public void testUnsupportedMessagingModule() throws Exception {
+        MASUser.getCurrentUser().sendMessage((MASMessage)null, MASUser.getCurrentUser(), null);
+    }
+
+    @Ignore("Remove mas-identity-management from mas module to test")
+    @Test(expected = UnsupportedOperationException.class)
+    public void testUnsupportedIdentityModule() throws Exception {
+        MASUser.getCurrentUser().getUserById("test",null);
+    }
+
+    @Ignore("Remove mas-identity-management from mas module to test")
+    @Test(expected = UnsupportedOperationException.class)
+    public void testUnsupportedIdentyModuleForMASGroup() throws Exception {
+        MASGroup.newInstance().save(null);
+    }
+
+
 
 }

@@ -115,7 +115,7 @@ bintray {
         name = 'mas-storage'
         userOrg = 'caapim'
 
-        desc = 'MASStorage is the data peristence framework of the Mobile SDK, ' +
+        desc = 'MAS Storage is the data peristence framework of the Mobile SDK, ' +
                 'which is part of CA Mobile App Services. It stores, manages, and accesses data in a private local and cloud.'
         websiteUrl = siteUrl
         issueTrackerUrl = issueUrl

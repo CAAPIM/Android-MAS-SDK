@@ -158,8 +158,8 @@ bintray {
         name = 'mas-foundation'
         userOrg = 'caapim'
 
-        desc = 'MASFoundation is the core iOS framework of the Mobile SDK, which is part of CA Mobile App Services. ' +
-                'MASFoundation handles the communication and authentication layer of the Mobile SDK, ' +
+        desc = 'MAS Foundation is the core Android framework of the Mobile SDK, which is part of CA Mobile App Services. ' +
+                'MAS Foundation handles the communication and authentication layer of the Mobile SDK, ' +
                 'making it easy for developers to establish a secure connection (TLS, Mutual SSL) to any CA Mobile API Gateway (MAG).'
         websiteUrl = siteUrl
         issueTrackerUrl = issueUrl

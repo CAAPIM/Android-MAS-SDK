@@ -451,6 +451,17 @@ public class MAS {
     }
 
     /**
+     * Checks whether the consumer of MAS has set any authentication listener or not.
+     * This would help other frameworks to override the listener (and the login UI) as a fallback instead of default
+     * implementation of MASUI.
+     *
+     * @return boolean True if user has set an authentication listener, else false.
+     */
+    public static boolean isAuthenticationListenerRegistered() {
+        return masAuthenticationListener != null;
+    }
+
+    /**
      * Sets the grant type property. The default is {@link MASConstants#MAS_GRANT_FLOW_CLIENT_CREDENTIALS}.
      *
      * @param type Either {@link MASConstants#MAS_GRANT_FLOW_CLIENT_CREDENTIALS} or {@link MASConstants#MAS_GRANT_FLOW_PASSWORD}.

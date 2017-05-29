@@ -1,28 +1,7 @@
-/*
- * Copyright (c) 2016 CA. All rights reserved.
- *
- * This software may be modified and distributed under the terms
- * of the MIT license.  See the LICENSE file for details.
- *
- */
-
-//noinspection GradleCompatible
-// In order to build messaging using gradle 2 environment variables must be exportedd
-// 1. prefix - this is the aar prefix, for example 'android'
-// 2. versionName - this is the v.r.m formatted version name as used in the AndroidManifest.xml.
-// For example, 1.1.0
-apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-apply plugin: 'jacoco'
+apply plugin: 'com.android.library'
 
-println '------> Executing mas library build.gradle'
-repositories {
-    mavenCentral()
-    flatDir {
-        dirs 'libs'
-    }
-}
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -35,23 +14,46 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
-    lintOptions {
-        abortOnError false
-    }
-
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
 
-        debug {
-            testCoverageEnabled true
+    sourceSets {
+        androidTest {
+            java.srcDirs += "../mas-foundation/src/androidTest/java"
+            resources.srcDirs += "../mas-foundation/src/androidTest/resources"
         }
     }
+}
 
-    productFlavors {
+task initBaseTest(type: Copy) {
+    from('../mas-foundation/src/main/res/xml') {
+        include '**/mastest.xml'
+        include '**/prefs.xml'
     }
+    into 'src/main/res/xml'
+    includeEmptyDirs = false
+}
+
+preBuild {}.dependsOn initBaseTest
+
+dependencies {
+
+    compile project(':mas-foundation')
+    compile project(':mas-connecta')
+    compile project(':mas-storage')
+    compile project(':mas-identity-management')
+
+    //Test
+    androidTestCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
+    androidTestCompile 'org.skyscreamer:jsonassert:1.5.0'
+
+    testCompile 'junit:junit:4.12'
 }
 
 task javadoc(type: Javadoc) {
@@ -62,77 +64,6 @@ task javadoc(type: Javadoc) {
     options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
     destinationDir = file("../docs/mas_javadoc/")
     failOnError false
-
-    include '**/*MAS*.java'
-    include '**/Device.java'
-    include '**/ScimUser.java'
-
-    exclude '**/MASTransformable.java'
-    exclude '**/MASResultReceiver.java'
-}
-
-dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile "com.google.zxing:core:$rootProject.ext.zxingVersion"
-    compile "com.android.support:appcompat-v7:$rootProject.ext.appCompatVersion"
-    compile "com.nimbusds:nimbus-jose-jwt:$rootProject.ext.nimbusJoseVersion"
-
-    //Test
-    androidTestCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support.test:rules:0.5'
-    androidTestCompile 'org.skyscreamer:jsonassert:1.5.0'
-}
-
-//Coverage
-
-jacoco {
-    toolVersion = "0.7.6.201602180812"
-    reportsDir = file("$buildDir/customJacocoReportDir")
-}
-
-task jacocoTestReport(type:JacocoReport, dependsOn: "connectedDebugAndroidTest") {
-
-    group = "Reporting"
-
-    description = "Generate Jacoco coverage reports"
-
-    // exclude auto-generated classes and tests
-    def fileFilter = ['**/R.class',
-                      '**/R$*.class',
-                      '**/BuildConfig.*',
-                      '**/Manifest*.*',
-                      '**/*IScript*.*',
-                      'android/**/*.*',
-                      '**/*MASSocialLogin*',
-                      '**/*sun*']
-
-    def debugTree = fileTree(dir:
-            "${project.buildDir}/intermediates/classes/debug",
-            excludes: fileFilter)
-
-    def mainSrc = "${project.projectDir}/src/main/java"
-
-    sourceDirectories = files([mainSrc])
-    classDirectories = files([debugTree])
-
-    executionData = fileTree(dir: project.projectDir, includes:
-            ['**/*.exec', '**/*.ec'])
-
-    project.gradle.taskGraph.whenReady {
-        /*
-        connectedDebugAndroidTest {
-            ignoreFailures = true
-        }
-        */
-    }
-    reports {
-        xml.enabled = true
-        xml.destination = "${buildDir}/jacocoTestReport.xml"
-        csv.enabled = false
-        html.enabled = true
-        html.destination = "${buildDir}/reports/jacoco"
-    }
 }
 
 //jcenter integration
@@ -209,3 +140,4 @@ artifacts {
 task findConventions << {
     println project.getConvention()
 }
+

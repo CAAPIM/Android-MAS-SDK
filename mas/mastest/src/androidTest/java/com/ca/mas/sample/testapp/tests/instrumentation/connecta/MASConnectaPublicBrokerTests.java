@@ -20,7 +20,7 @@ import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
 import com.ca.mas.messaging.topic.MASTopicBuilder;
-import com.ca.mas.messaging.util.MessagingConsts;
+import com.ca.mas.messaging.MessagingConsts;
 
 import org.junit.Before;
 import org.junit.Test;

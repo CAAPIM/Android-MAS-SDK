@@ -1,0 +1,179 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'jacoco'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            testCoverageEnabled true
+        }
+    }
+
+    sourceSets {
+        androidTest {
+            java.srcDirs += "../mas-foundation/src/androidTest/java"
+            resources.srcDirs += "../mas-foundation/src/androidTest/resources"
+        }
+    }
+}
+
+jacoco {
+    toolVersion = "0.7.6.201602180812"
+    reportsDir = file("$buildDir/customJacocoReportDir")
+}
+
+task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest") {
+
+    group = "Reporting"
+
+    description = "Generate Jacoco coverage reports"
+
+    // exclude auto-generated classes and tests
+    def fileFilter = ['**/R.class',
+                      '**/R$*.class',
+                      '**/BuildConfig.*',
+                      '**/Manifest*.*',
+                      '**/*IScript*.*',
+                      'android/**/*.*',
+                      '**/*MASSocialLogin*',
+                      '**/*sun*']
+
+    def debugTree = fileTree(dir:
+            "${project.buildDir}/intermediates/classes/debug",
+            excludes: fileFilter)
+
+    def mainSrc = "${project.projectDir}/src/main/java"
+
+    sourceDirectories = files([mainSrc])
+    classDirectories = files([debugTree])
+
+    executionData = fileTree(dir: project.projectDir, includes:
+            ['**/*.exec', '**/*.ec'])
+
+    project.gradle.taskGraph.whenReady {
+        project.tasks.findAll { it.name =~ /connected.+AndroidTest/ }.each {
+            it.ignoreFailures = true
+        }
+    }
+    reports {
+        xml.enabled = true
+        xml.destination = "${buildDir}/jacocoTestReport.xml"
+        csv.enabled = false
+        html.enabled = true
+        html.destination = "${buildDir}/reports/jacoco"
+    }
+}
+
+dependencies {
+
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':mas-foundation')
+
+    testCompile 'junit:junit:4.12'
+
+    androidTestCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
+    androidTestCompile 'org.skyscreamer:jsonassert:1.5.0'
+
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    println "Source: $source"
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    println "Classpath: $source"
+    options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+    destinationDir = file("../docs/mas_identity_management_javadoc/")
+    failOnError false
+    include '**/*MAS*.java'
+}
+
+//jcenter integration
+group 'com.ca'
+
+project.version = mas_version
+bintray {
+    user = bintray_user
+    key = bintray_api_key
+
+    configurations = ['archives'] //When uploading configuration files
+    pkg {
+        repo = 'maven'
+        name = 'mas-identity-management'
+        userOrg = 'caapim'
+
+        desc = 'MAS Identity Management is the user and group management framework of the Mobile SDK, which is part of CA Mobile App Services. ' +
+                'It enables developers to securely access users and groups from enterprise identity providers like LDAP, MSAD, and others. ' +
+                'Supports creating groups on the fly (called ad hoc groups) for collaborative apps. The underlying protocol is SCIM.'
+        websiteUrl = siteUrl
+        issueTrackerUrl = issueUrl
+        vcsUrl = gitUrl
+        licenses = ['MIT']
+        labels = ['aar', 'android', 'oauth', 'security']
+        publicDownloadNumbers = true
+
+        version {
+            name = project.version
+            desc = 'CA Mobile App Services'
+        }
+    }
+}
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+                name 'CA Mobile App Services'
+                url siteUrl
+                licenses {
+                    license {
+                        name 'MIT'
+                        url 'https://github.com/CAAPIM/Android-MAS-SDK/blob/develop/LICENSE'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+task findConventions << {
+    println project.getConvention()
+}

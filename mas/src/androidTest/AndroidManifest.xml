@@ -21,10 +21,9 @@
         <service android:name="com.ca.mas.core.service.MssoService"
                  android:exported="false">
         </service>
-        <service android:name="com.ca.mas.connecta.serviceprovider.ConnectaService"/>
 
         <!-- AMS Service -->
-        <service android:name=".core.storage.implementation.AMSAuthenticatorService" >
+        <service android:name="com.ca.mas.core.storage.implementation.AMSAuthenticatorService" >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -34,6 +33,7 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/mastest" />
         </service>
+
 
 
     </application>

@@ -38,6 +38,6 @@ dependencies {
     compile "com.android.support:design:$rootProject.ext.designVersion"
     compile "com.nimbusds:nimbus-jose-jwt:$rootProject.ext.nimbusJoseVersion"
 
-    compile project(':mas')
+    compile project(':mas-foundation')
     compile project(':masui')
 }

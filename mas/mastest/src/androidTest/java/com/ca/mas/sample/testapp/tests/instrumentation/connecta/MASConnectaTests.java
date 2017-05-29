@@ -25,7 +25,7 @@ import com.ca.mas.foundation.MASUser;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
 import com.ca.mas.messaging.topic.MASTopicBuilder;
-import com.ca.mas.messaging.util.MessagingConsts;
+import com.ca.mas.messaging.MessagingConsts;
 import com.ca.mas.sample.testapp.MainActivity;
 import com.ca.mas.sample.testapp.tests.instrumentation.base.MASIntegrationBaseTest;
 
@@ -80,72 +80,6 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
             fail("" + t);
         }
 
-    }
-
-    @Test
-    public void testSubscribeSelfTopic() {
-
-        try {
-            final CountDownLatch latch = new CountDownLatch(1);
-            final Object[] result = {false, "unknown"};
-            MASUser usr = MASUser.getCurrentUser();
-            final MASTopic masTopic = new MASTopicBuilder().setUserId(usr.getId()).setCustomTopic(usr.getId()).build();
-
-            MASUser.getCurrentUser().startListeningToTopic(masTopic, new MASCallback<Void>() {
-                @Override
-                public void onSuccess(Void object) {
-                    result[0] = true;
-                    latch.countDown();
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    result[0] = false;
-                    result[1] = "Cant subscribe to  self topic ";
-                    latch.countDown();
-                }
-            });
-            latch.await();
-            if (!(boolean) result[0]) {
-                Log.w(TAG, "testSubscribeSelfTopic onError: " + result[1]);
-                fail("Reason: " + result[1]);
-            }
-        } catch (Throwable t) {
-            Log.w(TAG, "testSubscribeSelfTopic unable to get current user: ", t);
-            fail("" + t);
-        }
-    }
-
-    @Test
-    public void testSendValidMessageUser() {
-
-        try {
-            // set up the listeners
-            BroadcastReceiver receiver = initMessageReceiver();
-            MASCallback callback = getMASCallback();
-            MASTopic masTopic = configureTopicListeners(callback);
-
-            // get the current MASUser and create a user topic listener
-            MASUser user = MASUser.getCurrentUser();
-
-            //setup topic
-            MASTopic topic = new MASTopicBuilder().setUserId(user.getId()).setCustomTopic(TOPIC_NAME).build();
-
-            //setup message
-            MASMessage masMessage = MASMessage.newInstance();
-            masMessage.setContentType(MessagingConsts.MT_TEXT_PLAIN);
-            masMessage.setPayload("TEST Sample Message 1".getBytes());
-
-            sendMessageToTopic(topic, masMessage, false);
-
-            // clean up the listeners
-            //mActivityRule.getActivity().unregisterReceiver(receiver);
-            //MASUser.getCurrentUser(mActivityRule.getActivity()).stopListeningToTopic(masTopic, callback);
-
-        } catch (Exception e) {
-            Log.w(TAG, "testSendValidMessageUser EXCEPTION: ", e);
-            fail("" + e);
-        }
     }
 
     @Test
@@ -620,20 +554,6 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
         }
 
         return null;
-    }
-
-    /**
-     * This will configure topic listeners, currently only for current user
-     */
-    public MASTopic configureTopicListeners(MASCallback callback) {
-
-        // create the user topic listener
-        String id = MASUser.getCurrentUser().getId();
-        final MASTopic masTopic = new MASTopicBuilder().setUserId(id).setCustomTopic(id).build();
-
-        MASUser.getCurrentUser().startListeningToTopic(masTopic, callback);
-
-        return masTopic;
     }
 
     /**

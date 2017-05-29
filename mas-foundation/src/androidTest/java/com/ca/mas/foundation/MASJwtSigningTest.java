@@ -94,7 +94,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
         calendar.add(Calendar.MINUTE, 10);
 
-        MASClaims claims = new MASClaims.MASClaimsBuilder().expirationTime(calendar.getTime()).build();
+        MASClaims claims = new MASClaimsBuilder().expirationTime(calendar.getTime()).build();
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
                 .post(MASRequestBody.jsonBody(requestData))
                 .sign(claims)
@@ -209,7 +209,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         requestData.put("jsonName", "jsonValue");
         requestData.put("jsonName2", 1234);
 
-        MASClaims claims = new MASClaims.MASClaimsBuilder().claim(MASClaimsConstants.CONTENT, requestData).build();
+        MASClaims claims = new MASClaimsBuilder().claim(MASClaimsConstants.CONTENT, requestData).build();
         String signedJWT = MAS.sign(claims, privateKey);
 
         JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) publicKey);
@@ -258,7 +258,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
             MASDevice.getCurrentDevice().deregister(deregisterCallback);
             Assert.assertNull(deregisterCallback.get());
         }
-        MASClaims claims = new MASClaims.MASClaimsBuilder().build();
+        MASClaims claims = new MASClaimsBuilder().build();
         MAS.sign(claims);
     }
 }

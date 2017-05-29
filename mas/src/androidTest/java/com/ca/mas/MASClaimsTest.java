@@ -9,6 +9,7 @@
 package com.ca.mas;
 
 import com.ca.mas.foundation.MASClaims;
+import com.ca.mas.foundation.MASClaimsBuilder;
 
 import org.junit.Test;
 
@@ -36,7 +37,7 @@ public class MASClaimsTest extends MASLoginTestBase {
     public void testRegisteredClaims() {
         mAudience.add(mAudienceString);
 
-        MASClaims.MASClaimsBuilder builder = new MASClaims.MASClaimsBuilder();
+        MASClaimsBuilder builder = new MASClaimsBuilder();
         MASClaims claims = builder
                 .jwtId(mJwtId)
                 .audience(mAudience)
@@ -61,7 +62,7 @@ public class MASClaimsTest extends MASLoginTestBase {
     public void testRegisteredClaimsAudienceString() {
         mAudience.add(mAudienceString);
 
-        MASClaims.MASClaimsBuilder builder = new MASClaims.MASClaimsBuilder();
+        MASClaimsBuilder builder = new MASClaimsBuilder();
         MASClaims claims = builder
                 .jwtId(mJwtId)
                 .audience(mAudienceString)
@@ -86,7 +87,7 @@ public class MASClaimsTest extends MASLoginTestBase {
     public void testRegisteredClaimsAudienceNullString() {
         mAudience.add(mAudienceString);
 
-        MASClaims.MASClaimsBuilder builder = new MASClaims.MASClaimsBuilder();
+        MASClaimsBuilder builder = new MASClaimsBuilder();
         MASClaims claims = builder
                 .jwtId(mJwtId)
                 .audience((String) null)
@@ -111,7 +112,7 @@ public class MASClaimsTest extends MASLoginTestBase {
     public void testRegisteredClaimsAudienceNullList() {
         mAudience.add(mAudienceString);
 
-        MASClaims.MASClaimsBuilder builder = new MASClaims.MASClaimsBuilder();
+        MASClaimsBuilder builder = new MASClaimsBuilder();
         MASClaims claims = builder
                 .jwtId(mJwtId)
                 .audience((List<String>) null)
@@ -134,7 +135,7 @@ public class MASClaimsTest extends MASLoginTestBase {
 
     @Test
     public void testDefaultClaims() {
-        MASClaims.MASClaimsBuilder builder = new MASClaims.MASClaimsBuilder();
+        MASClaimsBuilder builder = new MASClaimsBuilder();
         MASClaims claims = builder.build();
 
         assertNotNull(claims);

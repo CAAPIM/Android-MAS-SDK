@@ -13,6 +13,7 @@ import android.os.ResultReceiver;
 
 import com.ca.mas.core.auth.ble.BluetoothLePeripheralCallback;
 import com.ca.mas.core.conf.ConfigurationProvider;
+import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.token.IdToken;
@@ -65,7 +66,7 @@ public interface MobileSso {
     void authenticate(String username, char[] password, MAGResultReceiver<JSONObject> resultReceiver);
 
     /**
-     * <p>Authenticates a user with a authorization code and state. The existing user session will be logged out and authenticated with the provided authorization code
+     * <p>Authenticates a user with an authorization code and state. The existing user session will be logged out and authenticated with the provided authorization code
      * </p>
      *
      * <p>The response to the request will eventually be delivered to the specified result receiver.</p>
@@ -78,8 +79,7 @@ public interface MobileSso {
     void authenticate(String authCode, String state, MAGResultReceiver<JSONObject> resultReceiver);
 
     /**
-     * <p>Authenticates a user with an Id Token
-     * </p>
+     * <p>Authenticates a user with an ID Token.</p>
      *
      * <p>The response to the request will eventually be delivered to the specified result receiver.</p>
      * <p>This method returns immediately to the calling thread</p>
@@ -89,6 +89,16 @@ public interface MobileSso {
      */
     void authenticate(IdToken idToken, MAGResultReceiver<JSONObject> resultReceiver);
 
+    /**
+     * <p>Authenticates a user with a MASAuthCredentials object.</p>
+     *
+     * <p>The response to the request will eventually be delivered to the specified result receiver.</p>
+     * <p>This method returns immediately to the calling thread</p>
+     *
+     * @param credentials the credentials to authenticate with
+     * @param resultReceiver the resultReceiver to notify when a response is available, or if there is an error. Required.
+     */
+    void authenticate(MASAuthCredentials credentials, MAGResultReceiver<JSONObject> resultReceiver);
 
     /**
      * <p>Requests that any pending queued requests be processed.</p>
@@ -228,7 +238,6 @@ public interface MobileSso {
      * @return the prefix configured for MAG
      */
     String getPrefix();
-
 
     /**
      * Retrieves the Authentication Providers from the server.

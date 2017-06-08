@@ -17,7 +17,7 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.context.MssoException;
-import com.ca.mas.core.creds.Credentials;
+import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
@@ -105,7 +105,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
             throw e;
         } finally {
             // If registration fails, clear any cached credentials so the user will be prompted again.
-            if (clearCredentials || (mssoContext.getCredentials() != null && !mssoContext.getCredentials().isReuseable())) {
+            if (clearCredentials || (mssoContext.getCredentials() != null && !mssoContext.getCredentials().isReusable())) {
                 mssoContext.clearCredentials();
             }
         }
@@ -119,7 +119,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
     private void registerDevice(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
 
         // Ensure credentials are available
-        Credentials creds = request.getRequest().getGrantProvider().getCredentials(mssoContext);
+        MASAuthCredentials creds = request.getRequest().getGrantProvider().getCredentials(mssoContext);
         if (creds == null || !creds.isValid())
             throw new CredentialRequiredException();
 

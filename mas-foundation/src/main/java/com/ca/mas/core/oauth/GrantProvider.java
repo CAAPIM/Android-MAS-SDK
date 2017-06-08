@@ -10,8 +10,8 @@ package com.ca.mas.core.oauth;
 
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.creds.ClientCredentials;
-import com.ca.mas.core.creds.Credentials;
+import com.ca.mas.foundation.MASAuthCredentialsClientCredentials;
+import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.util.Functions;
 
 import java.net.URI;
@@ -22,9 +22,9 @@ import java.net.URI;
 public enum GrantProvider {
 
     PASSWORD(
-            new Functions.Unary<Credentials, MssoContext>() {
+            new Functions.Unary<MASAuthCredentials, MssoContext>() {
                 @Override
-                public Credentials call(MssoContext context) {
+                public MASAuthCredentials call(MssoContext context) {
                     return context.getCredentials();
                 }
             },
@@ -42,10 +42,10 @@ public enum GrantProvider {
             }),
 
     CLIENT_CREDENTIALS(
-            new Functions.Unary<Credentials, MssoContext>() {
+            new Functions.Unary<MASAuthCredentials, MssoContext>() {
                 @Override
-                public Credentials call(MssoContext context) {
-                    return new ClientCredentials();
+                public MASAuthCredentials call(MssoContext context) {
+                    return new MASAuthCredentialsClientCredentials();
                 }
             },
             new Functions.Unary<URI, MssoContext>() {
@@ -61,20 +61,20 @@ public enum GrantProvider {
                 }
             });
 
-    private final Functions.Unary<Credentials, MssoContext> getCredentials;
+    private final Functions.Unary<MASAuthCredentials, MssoContext> getCredentials;
     private final Functions.Unary<URI, MssoContext> getRegistrationPath;
     private final Functions.Nullary<Boolean> isSessionSupported;
 
     /**
-     * @param getCredentials      Return {@link Credentials} subclass which the caller can use to authorize an MAG Request.
-     *                            Each implementation of Credentials can chose its own strategy for loading the credentials.
+     * @param getCredentials      Return {@link MASAuthCredentials} subclass which the caller can use to authorize an MAG Request.
+     *                            Each implementation of MASAuthCredentials can chose its own strategy for loading the credentials.
      *                            For example, an implementation might load the credentials from username/password form or
      *                            load clientId/ClientSecret.
      * @param getRegistrationPath Return MAG registration endpoint to perform the registration process.
      * @param isSessionSupported  Whether the grant type support session or not.
      */
     GrantProvider(
-            Functions.Unary<Credentials, MssoContext> getCredentials,
+            Functions.Unary<MASAuthCredentials, MssoContext> getCredentials,
             Functions.Unary<URI, MssoContext> getRegistrationPath,
             Functions.Nullary<Boolean> isSessionSupported) {
         this.getCredentials = getCredentials;
@@ -82,7 +82,7 @@ public enum GrantProvider {
         this.isSessionSupported = isSessionSupported;
     }
 
-    public Credentials getCredentials(MssoContext context) {
+    public MASAuthCredentials getCredentials(MssoContext context) {
         return getCredentials.call(context);
     }
 

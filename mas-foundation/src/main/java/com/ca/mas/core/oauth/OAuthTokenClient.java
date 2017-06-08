@@ -15,7 +15,7 @@ import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.creds.Credentials;
+import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
@@ -63,7 +63,7 @@ public class OAuthTokenClient extends ServerClient {
                                                            @NonNull String clientId,
                                                            @NonNull String clientSecret, boolean requestIdToken) throws OAuthException, OAuthServerException, AuthenticationException {
 
-        Credentials credentials = request.getGrantProvider().getCredentials(mssoContext);
+        MASAuthCredentials credentials = request.getGrantProvider().getCredentials(mssoContext);
         if (credentials == null)
             throw new NullPointerException("credentials");
 

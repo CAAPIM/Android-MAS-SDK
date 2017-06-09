@@ -50,11 +50,6 @@ public interface MASAuthCredentials extends Parcelable {
     String getGrantType();
 
     /**
-     * @return the authentication type, e.g. authorization code, JWT, password
-     */
-    String getAuthenticationType();
-
-    /**
      * @return true if the credentials can be used to register the device
      */
     boolean canRegisterDevice();

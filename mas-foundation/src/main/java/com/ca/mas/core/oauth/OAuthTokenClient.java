@@ -78,13 +78,13 @@ public class OAuthTokenClient extends ServerClient {
         List<Pair<String, String>> params = credentials.getParams(mssoContext);
         if (params != null) {
             for (Pair<String, String> param : params) {
-                form.add(new Pair<String, String>(param.first, param.second));
+                form.add(new Pair<>(param.first, param.second));
             }
         }
-        form.add(new Pair<String, String>(CLIENT_ID, clientId));
-        form.add(new Pair<String, String>(CLIENT_SECRET, clientSecret));
-        form.add(new Pair<String, String>(SCOPE, scope));
-        form.add(new Pair<String, String>(GRANT_TYPE, credentials.getGrantType()));
+        form.add(new Pair<>(CLIENT_ID, clientId));
+        form.add(new Pair<>(CLIENT_SECRET, clientSecret));
+        form.add(new Pair<>(SCOPE, scope));
+        form.add(new Pair<>(GRANT_TYPE, credentials.getGrantType()));
 
         URI uri = conf.getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_REQUEST_TOKEN);
         MAGRequest tokenRequest = new MAGRequest.MAGRequestBuilder(uri)

@@ -34,18 +34,25 @@ public interface MASAuthCredentials extends Parcelable {
      * @param context The Msso Context
      * @return the authorization headers
      */
+    @Internal
     Map<String, List<String>> getHeaders(MssoContext context);
 
     /**
      * @param context The Msso Context
      * @return the list of parameters sent to the gateway to retrieve tokens
      */
+    @Internal
     List<Pair<String,String>> getParams(MssoContext context);
 
     /**
-     * @return the credentials type, e.g. authorization code, JWT, password
+     * @return the credentials type, e.g. authorization code, , password
      */
     String getGrantType();
+
+    /**
+     * @return the authentication type, e.g. authorization code, JWT, password
+     */
+    String getAuthenticationType();
 
     /**
      * @return true if the credentials can be used to register the device

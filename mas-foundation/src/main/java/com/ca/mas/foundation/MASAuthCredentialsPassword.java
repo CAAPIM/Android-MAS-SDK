@@ -41,6 +41,7 @@ public class MASAuthCredentialsPassword implements MASAuthCredentials {
 
     private MASAuthCredentialsPassword(Parcel in) {
         this.username = in.readString();
+        this.password = new char[in.readInt()];
         in.readCharArray(this.password);
     }
 
@@ -114,6 +115,7 @@ public class MASAuthCredentialsPassword implements MASAuthCredentials {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(username);
+        dest.writeInt(password.length);
         dest.writeCharArray(password);
     }
 

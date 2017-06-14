@@ -18,6 +18,8 @@ import java.util.Map;
 
 public interface MASAuthCredentials extends Parcelable {
 
+    String REGISTRATION_TYPE = "registration_type";
+
     /**
      * Clear the credentials.
      */
@@ -45,7 +47,8 @@ public interface MASAuthCredentials extends Parcelable {
     List<Pair<String,String>> getParams(MssoContext context);
 
     /**
-     * @return the credentials type, e.g. authorization code, , password
+     * @return the credentials type,
+     * e.g. authorization code, urn:ietf:params:oauth:grant-type:jwt-bearer, password
      */
     String getGrantType();
 

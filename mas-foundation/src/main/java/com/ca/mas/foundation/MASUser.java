@@ -23,6 +23,10 @@ import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.security.LockableEncryptionProvider;
 import com.ca.mas.core.security.SecureLockException;
+import com.ca.mas.core.storage.Storage;
+import com.ca.mas.core.storage.StorageException;
+import com.ca.mas.core.storage.StorageResult;
+import com.ca.mas.core.storage.implementation.MASStorageManager;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
@@ -53,6 +57,7 @@ import java.util.Observer;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
+import static com.ca.mas.foundation.MAS.getContext;
 import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN;
 
 /**
@@ -210,10 +215,8 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
     private static MASUser createMASUser() {
 
         MASUser user = new User() {
-
             @MASExtension
             private MASMessenger masMessenger;
-
             @MASExtension
             private MASUserRepository userRepository;
 
@@ -363,15 +366,12 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                             } else {
                                 userRepository.getUserById(getUserName(), result);
                             }
-
                         }
                     });
                 }
                 repositories.add(new UserInfoRepository());
                 fetch(repositories, callback, null);
             }
-
-
 
             private void fetch(final LinkedList<UserRepository> repositories, final MASCallback<Void> callback, Throwable e) {
                 UserRepository f;
@@ -410,7 +410,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                     fetch(repositories, callback, e1);
                 }
             }
-
 
             @Override
             @TargetApi(23)
@@ -593,6 +592,26 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             user = new JSONObject(userProfile);
         }
         return user;
+    }
+
+    /**
+     * Returns the last authenticated session's type of auth credentials used.
+     *
+     * @return
+     */
+    public static String getAuthCredentialsType() {
+        String authType = "";
+        try {
+            Storage accountManager = new MASStorageManager()
+                    .getStorage(MASStorageManager.MASStorageType.TYPE_AMS,
+                            new Object[]{getContext(), false});
+            StorageResult result = accountManager.readData(MASAuthCredentials.REGISTRATION_TYPE);
+            authType = new String((byte[]) result.getData());
+        } catch (StorageException e) {
+            if (DEBUG) Log.w(TAG, "Unable to retrieve last authenticated credentials type from local storage.", e);
+        }
+
+        return authType;
     }
 
     public abstract Bitmap getThumbnailImage();

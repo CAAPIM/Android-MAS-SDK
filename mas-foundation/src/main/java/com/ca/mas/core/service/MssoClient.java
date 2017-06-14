@@ -74,6 +74,17 @@ public class MssoClient {
         return requestId;
     }
 
+    private Intent createAuthenticationIntent(MASAuthCredentials credentials, MAGResultReceiver resultReceiver) {
+        final MssoRequest mssoRequest = new MssoRequest(this, mssoContext, new AuthenticateRequest(), resultReceiver);
+        MssoRequestQueue.getInstance().addRequest(mssoRequest);
+        long requestId = mssoRequest.getId();
+
+        Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
+        intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
+        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
+        return intent;
+    }
+
     /**
      * Logs in a user with a username and password. The existing user session will be logout and login with the provided username
      * and password.
@@ -90,16 +101,8 @@ public class MssoClient {
             throw new NullPointerException("Username or password cannot be null");
         }
 
-        final MssoRequest mssoRequest = new MssoRequest(this, mssoContext, new AuthenticateRequest(), resultReceiver);
-        MssoRequestQueue.getInstance().addRequest(mssoRequest);
-        long requestId = mssoRequest.getId();
-
-        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
         MASAuthCredentials credentials = new MASAuthCredentialsPassword(username, password);
-
-        intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
-        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-
+        Intent intent = createAuthenticationIntent(credentials, resultReceiver);
         new MssoClientLogoutAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
     }
 
@@ -145,15 +148,8 @@ public class MssoClient {
      * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
      */
     public void authenticate(String authCode, String state, final MAGResultReceiver resultReceiver) {
-        final MssoRequest mssoRequest = new MssoRequest(this, mssoContext, new AuthenticateRequest(), resultReceiver);
-        MssoRequestQueue.getInstance().addRequest(mssoRequest);
-        long requestId = mssoRequest.getId();
-
-        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
         MASAuthCredentials credentials = new MASAuthCredentialsAuthCode(authCode, state);
-        intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
-        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-
+        Intent intent = createAuthenticationIntent(credentials, resultReceiver);
         new MssoClientAuthenticateAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
     }
 
@@ -166,15 +162,8 @@ public class MssoClient {
      * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
      */
     public void authenticate(final IdToken idToken, final MAGResultReceiver resultReceiver) {
-        final MssoRequest mssoRequest = new MssoRequest(this, mssoContext, new AuthenticateRequest(), resultReceiver);
-        MssoRequestQueue.getInstance().addRequest(mssoRequest);
-        long requestId = mssoRequest.getId();
-
-        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
         MASAuthCredentials credentials = new MASAuthCredentialsJWT(idToken);
-        intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
-        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-
+        Intent intent = createAuthenticationIntent(credentials, resultReceiver);
         new MssoClientAuthenticateAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
     }
 
@@ -187,14 +176,7 @@ public class MssoClient {
      * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
      */
     public void authenticate(final MASAuthCredentials credentials, final MAGResultReceiver resultReceiver) {
-        final MssoRequest mssoRequest = new MssoRequest(this, mssoContext, new AuthenticateRequest(), resultReceiver);
-        MssoRequestQueue.getInstance().addRequest(mssoRequest);
-        long requestId = mssoRequest.getId();
-
-        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
-        intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
-        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-
+        Intent intent = createAuthenticationIntent(credentials, resultReceiver);
         new MssoClientAuthenticateAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
     }
 

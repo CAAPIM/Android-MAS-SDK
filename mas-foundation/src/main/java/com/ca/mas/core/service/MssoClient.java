@@ -16,10 +16,6 @@ import android.util.Log;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.foundation.MASAuthCredentialsAuthCode;
-import com.ca.mas.foundation.MASAuthCredentials;
-import com.ca.mas.foundation.MASAuthCredentialsJWT;
-import com.ca.mas.foundation.MASAuthCredentialsPassword;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
@@ -27,6 +23,10 @@ import com.ca.mas.core.request.internal.AuthenticateRequest;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.util.Functions;
+import com.ca.mas.foundation.MASAuthCredentials;
+import com.ca.mas.foundation.MASAuthCredentialsAuthCode;
+import com.ca.mas.foundation.MASAuthCredentialsJWT;
+import com.ca.mas.foundation.MASAuthCredentialsPassword;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
@@ -90,10 +90,16 @@ public class MssoClient {
             throw new NullPointerException("Username or password cannot be null");
         }
 
-        MASAuthCredentials credentials = new MASAuthCredentialsPassword(username, password);
-        authenticate(credentials, resultReceiver);
+        final MssoRequest mssoRequest = new MssoRequest(this, mssoContext, new AuthenticateRequest(), resultReceiver);
+        MssoRequestQueue.getInstance().addRequest(mssoRequest);
+        long requestId = mssoRequest.getId();
 
         final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
+        MASAuthCredentials credentials = new MASAuthCredentialsPassword(username, password);
+
+        intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
+        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
+
         new MssoClientLogoutAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
     }
 
@@ -139,8 +145,16 @@ public class MssoClient {
      * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
      */
     public void authenticate(String authCode, String state, final MAGResultReceiver resultReceiver) {
+        final MssoRequest mssoRequest = new MssoRequest(this, mssoContext, new AuthenticateRequest(), resultReceiver);
+        MssoRequestQueue.getInstance().addRequest(mssoRequest);
+        long requestId = mssoRequest.getId();
+
+        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
         MASAuthCredentials credentials = new MASAuthCredentialsAuthCode(authCode, state);
-        authenticate(credentials, resultReceiver);
+        intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
+        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
+
+        new MssoClientAuthenticateAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
     }
 
     /**
@@ -152,8 +166,16 @@ public class MssoClient {
      * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
      */
     public void authenticate(final IdToken idToken, final MAGResultReceiver resultReceiver) {
+        final MssoRequest mssoRequest = new MssoRequest(this, mssoContext, new AuthenticateRequest(), resultReceiver);
+        MssoRequestQueue.getInstance().addRequest(mssoRequest);
+        long requestId = mssoRequest.getId();
+
+        final Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
         MASAuthCredentials credentials = new MASAuthCredentialsJWT(idToken);
-        authenticate(credentials, resultReceiver);
+        intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
+        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
+
+        new MssoClientAuthenticateAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
     }
 
     /**
@@ -247,7 +269,7 @@ public class MssoClient {
             request = MssoActiveQueue.getInstance().takeRequest(requestId);
         }
         if (request != null && request.getResultReceiver() != null) {
-                request.getResultReceiver().send(MssoIntents.RESULT_CODE_ERR_CANCELED, data);
+            request.getResultReceiver().send(MssoIntents.RESULT_CODE_ERR_CANCELED, data);
         }
     }
 

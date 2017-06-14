@@ -199,7 +199,7 @@ public class RegistrationClient extends ServerClient {
             try {
                 accountManager.writeData(REGISTRATION_TYPE, creds.getGrantType().getBytes());
             } catch (StorageException e) {
-                if (DEBUG) Log.e(TAG, "Failed to delete authentication type: ", e);
+                if (DEBUG) Log.e(TAG, "Failed to save authentication type: ", e);
             }
         }
 

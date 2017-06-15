@@ -353,6 +353,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 return IdentityUtil.getThumbnail(getPhotoList());
             }
 
+            @Override
             public void requestUserInfo(MASCallback<Void> callback) {
                 // For Social Login, the SCIM endpoint should failed and fallback to /userinfo.
                 // Try to get the SCIM profile first followed by the userinfo, this order is important.
@@ -600,18 +601,19 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * @return
      */
     public static String getAuthCredentialsType() {
-        String authType = "";
         try {
-            Storage accountManager = new MASStorageManager()
-                    .getStorage(MASStorageManager.MASStorageType.TYPE_AMS,
-                            new Object[]{getContext(), false});
+            Storage accountManager = new MASStorageManager().getStorage(
+                    MASStorageManager.MASStorageType.TYPE_AMS,
+                    new Object[]{getContext(), false});
             StorageResult result = accountManager.readData(MASAuthCredentials.REGISTRATION_TYPE);
-            authType = new String((byte[]) result.getData());
+            if (result.getStatus().equals(StorageResult.StorageOperationStatus.SUCCESS)) {
+                return new String((byte[]) result.getData());
+            }
         } catch (StorageException e) {
             if (DEBUG) Log.w(TAG, "Unable to retrieve last authenticated credentials type from local storage.", e);
         }
 
-        return authType;
+        return "";
     }
 
     public abstract Bitmap getThumbnailImage();

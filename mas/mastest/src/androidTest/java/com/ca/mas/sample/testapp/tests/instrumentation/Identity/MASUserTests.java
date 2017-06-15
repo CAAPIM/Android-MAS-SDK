@@ -13,6 +13,7 @@ import android.support.test.runner.AndroidJUnit4;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASDevice;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.common.MASFilteredRequestBuilder;
@@ -32,6 +33,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNotSame;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
@@ -437,7 +439,32 @@ public class MASUserTests extends MASIntegrationBaseTest {
         assertNotNull(user.getCardinality());
         assertNotNull(user.getDisplayName());
         assertNotNull(user.getId());
+    }
 
+    @Test
+    public void testGetAuthCredentialsLoggedIn() {
+        String authType = MASUser.getAuthCredentialsType();
+        assertNotNull(authType);
+        assertNotSame(authType, "");
+    }
+
+    @Test
+    public void testGetAuthCredentialsNotLoggedInRegistered() {
+        MASUser user = MASUser.getCurrentUser();
+        user.logout(null);
+        String authType = MASUser.getAuthCredentialsType();
+        assertNotNull(authType);
+        assertNotSame(authType, "");
+    }
+
+    @Test
+    public void testGetAuthCredentialsNotLoggedInDeregistered() {
+        MASUser user = MASUser.getCurrentUser();
+        user.logout(null);
+        MASDevice.getCurrentDevice().deregister(null);
+        String authType = MASUser.getAuthCredentialsType();
+        assertNotNull(authType);
+        assertEquals(authType, "");
     }
 
 }

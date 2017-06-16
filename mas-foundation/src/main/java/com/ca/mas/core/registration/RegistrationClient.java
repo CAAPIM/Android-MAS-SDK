@@ -5,7 +5,6 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.registration;
 
 import android.support.annotation.NonNull;
@@ -26,7 +25,11 @@ import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.io.IoUtils;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
+import com.ca.mas.core.storage.Storage;
+import com.ca.mas.core.storage.StorageException;
+import com.ca.mas.core.storage.implementation.MASStorageManager;
 import com.ca.mas.core.token.IdToken;
+import com.ca.mas.foundation.MASAuthCredentials;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -37,6 +40,8 @@ import java.util.Map;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
+import static com.ca.mas.foundation.MAS.getContext;
+import static com.ca.mas.foundation.MASAuthCredentials.REGISTRATION_TYPE;
 
 /**
  * Utility class that encapsulates talking to the token server into Java method calls.
@@ -44,16 +49,14 @@ import static com.ca.mas.foundation.MAS.TAG;
  * It does not deal with state management, token persistence, looking up credentials in the context, or anything other
  * higher-level issue.
  */
-
 public class RegistrationClient extends ServerClient {
-
     private static final int INVALID_CLIENT_CREDENTIALS = 1000201;
     private static final int INVALID_RESOURCE_OWNER_CREDENTIALS = 1000202;
+    private Storage mAccountManager;
 
     public RegistrationClient(MssoContext mssoContext) {
         super(mssoContext);
     }
-
 
     /**
      * Represents the type of registration that occurred.
@@ -63,7 +66,6 @@ public class RegistrationClient extends ServerClient {
          * Streamlined activation has succeeded.  The device can be used immediately.
          */
         ACTIVATED,
-
         /**
          * Manual activation is required.  The device has been registered and will be activated at a later time.
          */
@@ -131,7 +133,8 @@ public class RegistrationClient extends ServerClient {
 
         MAGRequest.MAGRequestBuilder builder = new MAGRequest.MAGRequestBuilder(tokenUri);
 
-        Map<String, List<String>> headers = request.getGrantProvider().getCredentials(mssoContext).getHeaders(mssoContext);
+        MASAuthCredentials creds = request.getGrantProvider().getCredentials(mssoContext);
+        Map<String, List<String>> headers = creds.getHeaders(mssoContext);
         if (headers != null) {
             for (String key : headers.keySet()) {
                 if (headers.get(key) != null) {
@@ -163,10 +166,9 @@ public class RegistrationClient extends ServerClient {
         if (DEBUG) Log.d(TAG,
                 String.format("%s response with status: %d",
                         request.getURL(),
-                        response.getResponseCode()) );
+                        response.getResponseCode()));
 
         if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
-
             RegistrationServerException e = ServerClient.createServerException(response, RegistrationServerException.class);
 
             if (e.getErrorCode() == INVALID_CLIENT_CREDENTIALS) {
@@ -192,6 +194,15 @@ public class RegistrationClient extends ServerClient {
         if (chain.length < 1)
             throw new RegistrationException(MAGErrorCode.DEVICE_RECORD_IS_NOT_VALID, "register_device response did not include a certificate chain");
 
+        Storage accountManager = getAccountManager();
+        if (accountManager != null) {
+            try {
+                accountManager.writeData(REGISTRATION_TYPE, creds.getGrantType().getBytes());
+            } catch (StorageException e) {
+                if (DEBUG) Log.e(TAG, "Failed to save authentication type: ", e);
+            }
+        }
+
         return new DeviceRegistrationResult() {
             @Override
             public DeviceStatus getDeviceStatus() {
@@ -214,8 +225,6 @@ public class RegistrationClient extends ServerClient {
             }
         };
     }
-
-
 
     private static DeviceStatus findDeviceStatus(MAGResponse response) throws RegistrationException {
         final DeviceStatus deviceStatus;
@@ -281,7 +290,6 @@ public class RegistrationClient extends ServerClient {
      * @throws RegistrationException       if there is an error other than a valid error JSON response from the token server
      */
     public void removeDeviceRegistration() throws RegistrationException, RegistrationServerException {
-
         MAGRequest.MAGRequestBuilder builder = new MAGRequest.MAGRequestBuilder(
                 conf.getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_REMOVE_DEVICE_X509))
                 .delete(null);
@@ -297,7 +305,32 @@ public class RegistrationClient extends ServerClient {
         if (HttpURLConnection.HTTP_OK != response.getResponseCode()) {
             throw ServerClient.createServerException(response, RegistrationServerException.class);
         }
+
+        removeAuthCredentialsType();
     }
 
+    private Storage getAccountManager() {
+        if (mAccountManager == null) {
+            try {
+                mAccountManager = new MASStorageManager().getStorage(
+                        MASStorageManager.MASStorageType.TYPE_AMS,
+                        new Object[]{getContext(), false});
+            } catch (StorageException e) {
+                if (DEBUG) Log.e(TAG, "Failed to retrieve account manager: ", e);
+            }
+        }
 
+        return mAccountManager;
+    }
+
+    private void removeAuthCredentialsType() {
+        Storage accountManager = getAccountManager();
+        if (accountManager != null) {
+            try {
+                accountManager.deleteData(REGISTRATION_TYPE);
+            } catch (StorageException e) {
+                if (DEBUG) Log.e(TAG, "Failed to delete authentication type: ", e);
+            }
+        }
+    }
 }

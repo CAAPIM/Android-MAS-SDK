@@ -23,6 +23,10 @@ import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.security.LockableEncryptionProvider;
 import com.ca.mas.core.security.SecureLockException;
+import com.ca.mas.core.storage.Storage;
+import com.ca.mas.core.storage.StorageException;
+import com.ca.mas.core.storage.StorageResult;
+import com.ca.mas.core.storage.implementation.MASStorageManager;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
@@ -53,6 +57,7 @@ import java.util.Observer;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
+import static com.ca.mas.foundation.MAS.getContext;
 import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN;
 
 /**
@@ -69,18 +74,16 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
     private static MASUser current;
 
     static {
-
         EventDispatcher.STOP.addObserver(new Observer() {
             @Override
             public void update(Observable o, Object arg) {
                 current = null;
             }
         });
-
     }
 
     /**
-     * Authenticate a user with username and password.
+     * Authenticates a user with a username and password.
      *
      * @deprecated Please use {@link #login(String, char[], MASCallback)}
      */
@@ -90,11 +93,10 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
     }
 
     /**
-     * Authenticate a user with username and password.
+     * Authenticates a user with a username and password.
      */
     public static void login(@NonNull String userName, @NonNull char[] cPassword, final MASCallback<MASUser> callback) {
         MobileSso mobileSso = MobileSsoFactory.getInstance();
-
         mobileSso.authenticate(userName, cPassword, new MASResultReceiver<JSONObject>() {
             @Override
             public void onSuccess(MAGResponse<JSONObject> response) {
@@ -110,12 +112,30 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
     }
 
     /**
-     * Authenticate a user with ID Token
+     * Authenticates a user with an ID token.
      */
     public static void login(MASIdToken idToken, final MASCallback<MASUser> callback) {
         MobileSso mobileSso = MobileSsoFactory.getInstance();
-
         mobileSso.authenticate(idToken, new MASResultReceiver<JSONObject>() {
+            @Override
+            public void onSuccess(MAGResponse<JSONObject> response) {
+                login(callback);
+            }
+
+            @Override
+            public void onError(MAGError error) {
+                current = null;
+                Callback.onError(callback, error);
+            }
+        });
+    }
+
+    /**
+     * Authenticates a user with a MASAuthCredentials object.
+     */
+    public static void login(MASAuthCredentials credentials, final MASCallback<MASUser> callback) {
+        MobileSso mobileSso = MobileSsoFactory.getInstance();
+        mobileSso.authenticate(credentials, new MASResultReceiver<JSONObject>() {
             @Override
             public void onSuccess(MAGResponse<JSONObject> response) {
                 login(callback);
@@ -134,7 +154,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * in {@link MASUser#getCurrentUser()} being populated from the endpoint.
      */
     public static void login(final MASCallback<MASUser> callback) {
-
         final MASUser user = createMASUser();
         user.requestUserInfo(new MASCallback<Void>() {
             @Override
@@ -151,12 +170,10 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
     }
 
     /**
-     * Authenticates a user with authorization code,
-     *
+     * Authenticates a user with an authorization code.
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3.1">
      */
     public static void login(@NonNull MASAuthorizationResponse authorizationResponse, final MASCallback<MASUser> callback) {
-
         MobileSso mobileSso = MobileSsoFactory.getInstance();
         mobileSso.authenticate(authorizationResponse.getAuthorizationCode(),
                 authorizationResponse.getState(), new MASResultReceiver<JSONObject>() {
@@ -173,10 +190,8 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 });
     }
 
-
     /**
      * Retrieves the currently authenticated user.
-     *
      * @return The currently authenticated user.
      */
     public static MASUser getCurrentUser() {
@@ -200,10 +215,8 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
     private static MASUser createMASUser() {
 
         MASUser user = new User() {
-
             @MASExtension
             private MASMessenger masMessenger;
-
             @MASExtension
             private MASUserRepository userRepository;
 
@@ -340,6 +353,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 return IdentityUtil.getThumbnail(getPhotoList());
             }
 
+            @Override
             public void requestUserInfo(MASCallback<Void> callback) {
                 // For Social Login, the SCIM endpoint should failed and fallback to /userinfo.
                 // Try to get the SCIM profile first followed by the userinfo, this order is important.
@@ -353,15 +367,12 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                             } else {
                                 userRepository.getUserById(getUserName(), result);
                             }
-
                         }
                     });
                 }
                 repositories.add(new UserInfoRepository());
                 fetch(repositories, callback, null);
             }
-
-
 
             private void fetch(final LinkedList<UserRepository> repositories, final MASCallback<Void> callback, Throwable e) {
                 UserRepository f;
@@ -400,7 +411,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                     fetch(repositories, callback, e1);
                 }
             }
-
 
             @Override
             @TargetApi(23)
@@ -583,6 +593,27 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             user = new JSONObject(userProfile);
         }
         return user;
+    }
+
+    /**
+     * Returns the last authenticated session's type of auth credentials used.
+     *
+     * @return
+     */
+    public static String getAuthCredentialsType() {
+        try {
+            Storage accountManager = new MASStorageManager().getStorage(
+                    MASStorageManager.MASStorageType.TYPE_AMS,
+                    new Object[]{getContext(), false});
+            StorageResult result = accountManager.readData(MASAuthCredentials.REGISTRATION_TYPE);
+            if (result.getStatus().equals(StorageResult.StorageOperationStatus.SUCCESS)) {
+                return new String((byte[]) result.getData());
+            }
+        } catch (StorageException e) {
+            if (DEBUG) Log.w(TAG, "Unable to retrieve last authenticated credentials type from local storage.", e);
+        }
+
+        return "";
     }
 
     public abstract Bitmap getThumbnailImage();

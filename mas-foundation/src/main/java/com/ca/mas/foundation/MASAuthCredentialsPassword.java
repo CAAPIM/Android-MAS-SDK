@@ -6,7 +6,7 @@
  *
  */
 
-package com.ca.mas.core.creds;
+package com.ca.mas.foundation;
 
 import android.os.Parcel;
 import android.util.Pair;
@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Credentials for Username & Password Grant Type
+ * MASAuthCredentials for Username & Password Grant Type
  */
-public class PasswordCredentials implements Credentials {
+public class MASAuthCredentialsPassword implements MASAuthCredentials {
     private final String username;
     private volatile char[] password;
 
@@ -34,9 +34,15 @@ public class PasswordCredentials implements Credentials {
      * @param username the username.  Required.
      * @param password the password.
      */
-    public PasswordCredentials(String username, char[] password) {
+    public MASAuthCredentialsPassword(String username, char[] password) {
         this.username = username;
         this.password = password;
+    }
+
+    private MASAuthCredentialsPassword(Parcel in) {
+        this.username = in.readString();
+        this.password = new char[in.readInt()];
+        in.readCharArray(this.password);
     }
 
     /**
@@ -71,8 +77,8 @@ public class PasswordCredentials implements Credentials {
     @Override
     public List<Pair<String, String>> getParams(MssoContext config) {
         ArrayList<Pair<String, String>> params = new ArrayList<>();
-        params.add(new Pair<String, String>("username", username));
-        params.add(new Pair<String, String>("password", new String(password)));
+        params.add(new Pair<>("username", username));
+        params.add(new Pair<>("password", new String(password)));
         return params;
     }
 
@@ -87,7 +93,12 @@ public class PasswordCredentials implements Credentials {
     }
 
     @Override
-    public boolean isReuseable() {
+    public boolean isReusable() {
+        return true;
+    }
+
+    @Override
+    public boolean canRegisterDevice() {
         return true;
     }
 
@@ -104,13 +115,14 @@ public class PasswordCredentials implements Credentials {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(username);
-        dest.writeString(new String(password));
+        dest.writeInt(password.length);
+        dest.writeCharArray(password);
     }
 
     /**
      * Factory for creating instances of the Parcelable class.
      */
-    public static final Creator<PasswordCredentials> CREATOR = new Creator<PasswordCredentials>() {
+    public static final Creator<MASAuthCredentialsPassword> CREATOR = new Creator<MASAuthCredentialsPassword>() {
 
         /**
          * This method will be called to instantiate a MyParcelableMessage
@@ -119,18 +131,16 @@ public class PasswordCredentials implements Credentials {
          * method should be read in the correct sequence during this method.
          */
         @Override
-        public PasswordCredentials createFromParcel(Parcel in) {
-            String username = in.readString();
-            String password = in.readString();
-            return new PasswordCredentials(username, password.toCharArray());
+        public MASAuthCredentialsPassword createFromParcel(Parcel in) {
+            return new MASAuthCredentialsPassword(in);
         }
 
         /**
          * Creates an array of our Parcelable object.
          */
         @Override
-        public PasswordCredentials[] newArray(int size) {
-            return new PasswordCredentials[size];
+        public MASAuthCredentialsPassword[] newArray(int size) {
+            return new MASAuthCredentialsPassword[size];
         }
     };
 }

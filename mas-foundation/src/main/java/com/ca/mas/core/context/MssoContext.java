@@ -17,7 +17,7 @@ import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
-import com.ca.mas.core.creds.Credentials;
+import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGServerException;
@@ -85,7 +85,7 @@ public class MssoContext {
 
     private volatile MAGHttpClient magHttpClient;
 
-    private volatile Credentials credentials;
+    private volatile MASAuthCredentials credentials;
 
     private static final String MSSO_CONTEXT_NOT_INITIALIZED = "MssoContext not initialized, no token manager.";
 
@@ -253,16 +253,16 @@ public class MssoContext {
         }
     }
 
-    public Credentials getCredentials() {
+    public MASAuthCredentials getCredentials() {
         return credentials;
     }
 
-    public void setCredentials(Credentials credentials) {
+    public void setCredentials(MASAuthCredentials credentials) {
         this.credentials = credentials;
     }
 
     public void clearCredentials() {
-        Credentials cred = getCredentials();
+        MASAuthCredentials cred = getCredentials();
         if (cred != null)
             cred.clear();
     }

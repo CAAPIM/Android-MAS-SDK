@@ -6,7 +6,7 @@
  *
  */
 
-package com.ca.mas.core.creds;
+package com.ca.mas.foundation;
 
 import android.annotation.SuppressLint;
 import android.os.Parcel;
@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Credentials for Client Credentials Grant Type
+ * MASAuthCredentials for Client Credentials Grant Type
  */
 @SuppressLint("ParcelCreator")
-public class ClientCredentials implements Credentials {
+public class MASAuthCredentialsClientCredentials implements MASAuthCredentials {
 
     @Override
     public void clear() {
@@ -54,7 +54,12 @@ public class ClientCredentials implements Credentials {
     }
 
     @Override
-    public boolean isReuseable() {
+    public boolean isReusable() {
+        return true;
+    }
+
+    @Override
+    public boolean canRegisterDevice() {
         return true;
     }
 

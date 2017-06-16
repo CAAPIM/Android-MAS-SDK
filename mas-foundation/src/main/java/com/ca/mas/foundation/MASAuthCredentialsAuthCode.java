@@ -6,7 +6,7 @@
  *
  */
 
-package com.ca.mas.core.creds;
+package com.ca.mas.foundation;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -24,15 +24,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Credentials for Authorization Code Grant Type
+ * MASAuthCredentials for Authorization Code Grant Type
  */
-public class AuthorizationCodeCredentials implements Credentials {
+public class MASAuthCredentialsAuthCode implements MASAuthCredentials {
 
     private String code;
     private String state;
     private String codeVerifier;
 
-    public AuthorizationCodeCredentials(String code, String state) {
+    public MASAuthCredentialsAuthCode(String code, String state) {
         this.code = code;
         this.state = state;
         if (ConfigurationManager.getInstance().isPKCEEnabled()) {
@@ -50,11 +50,7 @@ public class AuthorizationCodeCredentials implements Credentials {
 
     @Override
     public boolean isValid() {
-        if (code == null || code.length() < 1) {
-            return false;
-        } else {
-            return true;
-        }
+        return code != null && code.length() > 0;
     }
 
     @Override
@@ -78,7 +74,7 @@ public class AuthorizationCodeCredentials implements Credentials {
 
     @Override
     public List<Pair<String,String>> getParams(MssoContext context) {
-        ArrayList<Pair<String, String>> params = new ArrayList<Pair<String, String>>();
+        ArrayList<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<String, String>("code", code));
         if (codeVerifier != null) {
             params.add(new Pair<String, String>("code_verifier", codeVerifier));
@@ -105,8 +101,13 @@ public class AuthorizationCodeCredentials implements Credentials {
      * @return
      */
     @Override
-    public boolean isReuseable() {
+    public boolean isReusable() {
         return false;
+    }
+
+    @Override
+    public boolean canRegisterDevice() {
+        return true;
     }
 
     @Override
@@ -121,21 +122,21 @@ public class AuthorizationCodeCredentials implements Credentials {
         dest.writeString(this.codeVerifier);
     }
 
-    protected AuthorizationCodeCredentials(Parcel in) {
+    protected MASAuthCredentialsAuthCode(Parcel in) {
         this.code = in.readString();
         this.state = in.readString();
         this.codeVerifier = in.readString();
     }
 
-    public static final Parcelable.Creator<AuthorizationCodeCredentials> CREATOR = new Parcelable.Creator<AuthorizationCodeCredentials>() {
+    public static final Parcelable.Creator<MASAuthCredentialsAuthCode> CREATOR = new Parcelable.Creator<MASAuthCredentialsAuthCode>() {
         @Override
-        public AuthorizationCodeCredentials createFromParcel(Parcel source) {
-            return new AuthorizationCodeCredentials(source);
+        public MASAuthCredentialsAuthCode createFromParcel(Parcel source) {
+            return new MASAuthCredentialsAuthCode(source);
         }
 
         @Override
-        public AuthorizationCodeCredentials[] newArray(int size) {
-            return new AuthorizationCodeCredentials[size];
+        public MASAuthCredentialsAuthCode[] newArray(int size) {
+            return new MASAuthCredentialsAuthCode[size];
         }
     };
 }

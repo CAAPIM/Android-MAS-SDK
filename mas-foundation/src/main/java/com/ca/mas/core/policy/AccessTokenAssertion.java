@@ -16,7 +16,7 @@ import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.creds.Credentials;
+import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.http.MAGRequest;
@@ -202,11 +202,9 @@ class AccessTokenAssertion implements MssoAssertion {
      * @return a valid non-empty UsernamePassword.  Never null, and the contained username and password are always non-null (but may be empty).
      * @throws CredentialRequiredException if credentials are not available, or if either the username or password was null.
      */
-    private static Credentials getCredsOrThrow(MssoContext mssoContext, MAGInternalRequest request) throws CredentialRequiredException {
-        Credentials creds = request.getGrantProvider().getCredentials(mssoContext);
-        if (creds == null)
-            throw new CredentialRequiredException();
-        if (!creds.isValid())
+    private static MASAuthCredentials getCredsOrThrow(MssoContext mssoContext, MAGInternalRequest request) throws CredentialRequiredException {
+        MASAuthCredentials creds = request.getGrantProvider().getCredentials(mssoContext);
+        if (creds == null || !creds.isValid())
             throw new CredentialRequiredException();
         return creds;
     }
@@ -250,7 +248,7 @@ class AccessTokenAssertion implements MssoAssertion {
             gotToken = accessToken != null;
             return accessToken;
         } finally {
-            if (!gotToken || !request.getGrantProvider().getCredentials(mssoContext).isReuseable()) {
+            if (!gotToken || !request.getGrantProvider().getCredentials(mssoContext).isReusable()) {
                 // Clear cached credentials
                 mssoContext.setCredentials(null);
             }

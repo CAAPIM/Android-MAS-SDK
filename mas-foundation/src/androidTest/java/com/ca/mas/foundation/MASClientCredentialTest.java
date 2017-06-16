@@ -14,7 +14,6 @@ import android.net.Uri;
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
-import com.ca.mas.core.creds.ClientCredentials;
 import com.ca.mas.core.oauth.OAuthServerException;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.registration.RegistrationServerException;
@@ -153,7 +152,7 @@ public class MASClientCredentialTest extends MASStartTestBase {
         //Make sure the access token request use client_credentials grant type
         RecordedRequest accessTokenRequest = getRecordRequest(GatewayDefaultDispatcher.AUTH_OAUTH_V2_TOKEN);
         String s = new String(accessTokenRequest.getBody().readByteArray(), "US-ASCII");
-        assertTrue(s.contains("grant_type=" + new ClientCredentials().getGrantType()));
+        assertTrue(s.contains("grant_type=" + new MASAuthCredentialsClientCredentials().getGrantType()));
 
         assertNull(MASUser.getCurrentUser());
         assertTrue(result[0]);
@@ -199,7 +198,7 @@ public class MASClientCredentialTest extends MASStartTestBase {
             //Make sure the access token request use client_credentials grant type
             RecordedRequest accessTokenRequest = getRecordRequest(GatewayDefaultDispatcher.AUTH_OAUTH_V2_TOKEN);
             String s = new String(accessTokenRequest.getBody().readByteArray(), "US-ASCII");
-            assertTrue(s.contains("grant_type=" + new ClientCredentials().getGrantType()));
+            assertTrue(s.contains("grant_type=" + new MASAuthCredentialsClientCredentials().getGrantType()));
 
             assertNull(MASUser.getCurrentUser());
             assertTrue(result[0]);

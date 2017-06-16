@@ -23,7 +23,7 @@ import com.ca.mas.core.clientcredentials.ClientCredentialsException;
 import com.ca.mas.core.clientcredentials.ClientCredentialsServerException;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.creds.Credentials;
+import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.oauth.OAuthClient;
@@ -118,7 +118,7 @@ public class MssoService extends IntentService {
 
     private void onCredentialsObtained(Bundle extras, MssoRequest request) {
         // Make credentials available to this requests MssoContext
-        Credentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
+        MASAuthCredentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
         request.getMssoContext().setCredentials(creds);
 
         boolean originalRequestProcessed = false;

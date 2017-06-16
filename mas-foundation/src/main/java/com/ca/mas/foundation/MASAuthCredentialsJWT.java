@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2016 CA. All rights reserved.
+ * Copyright (c) 2016 CA. All rights reserved.
  *
- *  This software may be modified and distributed under the terms
- *  of the MIT license.  See the LICENSE file for details.
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
  *
  */
 
-package com.ca.mas.core.creds;
+package com.ca.mas.foundation;
 
 import android.os.Parcel;
 import android.util.Pair;
@@ -21,11 +21,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class JWTCredentials implements Credentials {
+/**
+ * MASAuthCredentials for JWT Grant Type
+ */
+public class MASAuthCredentialsJWT implements MASAuthCredentials {
 
     private volatile IdToken idToken;
 
-    public JWTCredentials(IdToken idToken) {
+    public MASAuthCredentialsJWT(IdToken idToken) {
         this.idToken = idToken;
     }
 
@@ -50,7 +53,7 @@ public class JWTCredentials implements Credentials {
     @Override
     public List<Pair<String, String>> getParams(MssoContext context) {
         ArrayList<Pair<String, String>> params = new ArrayList<>();
-        params.add(new Pair<String, String>(ServerClient.ASSERTION, idToken.getValue()));
+        params.add(new Pair<>(ServerClient.ASSERTION, idToken.getValue()));
         return params;
     }
 
@@ -65,8 +68,13 @@ public class JWTCredentials implements Credentials {
     }
 
     @Override
-    public boolean isReuseable() {
+    public boolean isReusable() {
         return false;
+    }
+
+    @Override
+    public boolean canRegisterDevice() {
+        return true;
     }
 
     @Override
@@ -79,19 +87,19 @@ public class JWTCredentials implements Credentials {
         dest.writeParcelable(this.idToken, flags);
     }
 
-    protected JWTCredentials(Parcel in) {
+    protected MASAuthCredentialsJWT(Parcel in) {
         this.idToken = in.readParcelable(IdToken.class.getClassLoader());
     }
 
-    public static final Creator<JWTCredentials> CREATOR = new Creator<JWTCredentials>() {
+    public static final Creator<MASAuthCredentialsJWT> CREATOR = new Creator<MASAuthCredentialsJWT>() {
         @Override
-        public JWTCredentials createFromParcel(Parcel source) {
-            return new JWTCredentials(source);
+        public MASAuthCredentialsJWT createFromParcel(Parcel source) {
+            return new MASAuthCredentialsJWT(source);
         }
 
         @Override
-        public JWTCredentials[] newArray(int size) {
-            return new JWTCredentials[size];
+        public MASAuthCredentialsJWT[] newArray(int size) {
+            return new MASAuthCredentialsJWT[size];
         }
     };
 }

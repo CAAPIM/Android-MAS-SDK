@@ -20,6 +20,7 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.conf.Server;
 import com.ca.mas.core.context.MssoContext;
+import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.core.http.MAGRequest;
@@ -328,6 +329,11 @@ public final class MobileSsoFactory {
             @Override
             public void authenticate(IdToken idToken, MAGResultReceiver<JSONObject> resultReceiver) {
                 mssoClient.authenticate(idToken, resultReceiver);
+            }
+
+            @Override
+            public void authenticate(MASAuthCredentials credentials, MAGResultReceiver<JSONObject> resultReceiver) {
+                mssoClient.authenticate(credentials, resultReceiver);
             }
 
             @Override

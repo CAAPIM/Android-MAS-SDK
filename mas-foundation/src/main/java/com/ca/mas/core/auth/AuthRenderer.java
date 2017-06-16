@@ -13,8 +13,8 @@ import android.content.Intent;
 import android.view.View;
 
 import com.ca.mas.core.client.ServerClient;
-import com.ca.mas.core.creds.AuthorizationCodeCredentials;
-import com.ca.mas.core.creds.Credentials;
+import com.ca.mas.foundation.MASAuthCredentialsAuthCode;
+import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.http.MAGResponse;
@@ -121,7 +121,7 @@ public abstract class AuthRenderer {
                         String code = json.getString("code");
                         String state = json.optString("state");
                         if (code != null && code.length() > 0) {
-                            sendCredentialsIntent(new AuthorizationCodeCredentials(code, state));
+                            sendCredentialsIntent(new MASAuthCredentialsAuthCode(code, state));
                             onAuthCodeReceived(code);
                         }
                     }
@@ -144,7 +144,7 @@ public abstract class AuthRenderer {
      *
      * @param credentials The Credential retrieved by the social login platform.
      */
-    public void sendCredentialsIntent(Credentials credentials) {
+    public void sendCredentialsIntent(MASAuthCredentials credentials) {
         Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, context, MssoService.class);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
         intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);

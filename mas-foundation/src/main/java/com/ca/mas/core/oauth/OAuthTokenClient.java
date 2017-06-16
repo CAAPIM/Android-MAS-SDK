@@ -15,7 +15,7 @@ import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.creds.Credentials;
+import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
@@ -63,7 +63,7 @@ public class OAuthTokenClient extends ServerClient {
                                                            @NonNull String clientId,
                                                            @NonNull String clientSecret, boolean requestIdToken) throws OAuthException, OAuthServerException, AuthenticationException {
 
-        Credentials credentials = request.getGrantProvider().getCredentials(mssoContext);
+        MASAuthCredentials credentials = request.getGrantProvider().getCredentials(mssoContext);
         if (credentials == null)
             throw new NullPointerException("credentials");
 
@@ -78,13 +78,13 @@ public class OAuthTokenClient extends ServerClient {
         List<Pair<String, String>> params = credentials.getParams(mssoContext);
         if (params != null) {
             for (Pair<String, String> param : params) {
-                form.add(new Pair<String, String>(param.first, param.second));
+                form.add(new Pair<>(param.first, param.second));
             }
         }
-        form.add(new Pair<String, String>(CLIENT_ID, clientId));
-        form.add(new Pair<String, String>(CLIENT_SECRET, clientSecret));
-        form.add(new Pair<String, String>(SCOPE, scope));
-        form.add(new Pair<String, String>(GRANT_TYPE, credentials.getGrantType()));
+        form.add(new Pair<>(CLIENT_ID, clientId));
+        form.add(new Pair<>(CLIENT_SECRET, clientSecret));
+        form.add(new Pair<>(SCOPE, scope));
+        form.add(new Pair<>(GRANT_TYPE, credentials.getGrantType()));
 
         URI uri = conf.getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_REQUEST_TOKEN);
         MAGRequest tokenRequest = new MAGRequest.MAGRequestBuilder(uri)

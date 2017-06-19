@@ -26,13 +26,13 @@ import java.util.Map;
 /**
  * MASAuthCredentials for Authorization Code Grant Type
  */
-public class MASAuthCredentialsAuthCode implements MASAuthCredentials {
+public class MASAuthCredentialsAuthenticationCode implements MASAuthCredentials {
 
     private String code;
     private String state;
     private String codeVerifier;
 
-    public MASAuthCredentialsAuthCode(String code, String state) {
+    public MASAuthCredentialsAuthenticationCode(String code, String state) {
         this.code = code;
         this.state = state;
         if (ConfigurationManager.getInstance().isPKCEEnabled()) {
@@ -122,21 +122,21 @@ public class MASAuthCredentialsAuthCode implements MASAuthCredentials {
         dest.writeString(this.codeVerifier);
     }
 
-    protected MASAuthCredentialsAuthCode(Parcel in) {
+    protected MASAuthCredentialsAuthenticationCode(Parcel in) {
         this.code = in.readString();
         this.state = in.readString();
         this.codeVerifier = in.readString();
     }
 
-    public static final Parcelable.Creator<MASAuthCredentialsAuthCode> CREATOR = new Parcelable.Creator<MASAuthCredentialsAuthCode>() {
+    public static final Parcelable.Creator<MASAuthCredentialsAuthenticationCode> CREATOR = new Parcelable.Creator<MASAuthCredentialsAuthenticationCode>() {
         @Override
-        public MASAuthCredentialsAuthCode createFromParcel(Parcel source) {
-            return new MASAuthCredentialsAuthCode(source);
+        public MASAuthCredentialsAuthenticationCode createFromParcel(Parcel source) {
+            return new MASAuthCredentialsAuthenticationCode(source);
         }
 
         @Override
-        public MASAuthCredentialsAuthCode[] newArray(int size) {
-            return new MASAuthCredentialsAuthCode[size];
+        public MASAuthCredentialsAuthenticationCode[] newArray(int size) {
+            return new MASAuthCredentialsAuthenticationCode[size];
         }
     };
 }

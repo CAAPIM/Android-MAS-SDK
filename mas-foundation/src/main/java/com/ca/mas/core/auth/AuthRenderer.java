@@ -13,7 +13,7 @@ import android.content.Intent;
 import android.view.View;
 
 import com.ca.mas.core.client.ServerClient;
-import com.ca.mas.foundation.MASAuthCredentialsAuthCode;
+import com.ca.mas.foundation.MASAuthCredentialsAuthenticationCode;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.http.MAGRequest;
@@ -121,7 +121,7 @@ public abstract class AuthRenderer {
                         String code = json.getString("code");
                         String state = json.optString("state");
                         if (code != null && code.length() > 0) {
-                            sendCredentialsIntent(new MASAuthCredentialsAuthCode(code, state));
+                            sendCredentialsIntent(new MASAuthCredentialsAuthenticationCode(code, state));
                             onAuthCodeReceived(code);
                         }
                     }

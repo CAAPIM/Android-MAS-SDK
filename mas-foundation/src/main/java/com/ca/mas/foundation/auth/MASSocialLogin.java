@@ -28,7 +28,7 @@ import android.webkit.WebViewDatabase;
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
-import com.ca.mas.foundation.MASAuthCredentialsAuthCode;
+import com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode;
 import com.ca.mas.core.io.http.TrustedCertificateConfigurationTrustManager;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.MssoService;
@@ -142,7 +142,7 @@ public abstract class MASSocialLogin {
                     String state = url.getQueryParameter("state");
                     Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, context, MssoService.class);
                     intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-                    intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, new MASAuthCredentialsAuthCode(code, state));
+                    intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, new MASAuthCredentialsAuthorizationCode(code, state));
                     context.startService(intent);
                     onAuthCodeReceived(code);
                     return true;

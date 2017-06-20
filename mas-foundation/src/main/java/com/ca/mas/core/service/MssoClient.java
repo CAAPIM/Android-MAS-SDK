@@ -24,7 +24,7 @@ import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.MASAuthCredentials;
-import com.ca.mas.foundation.MASAuthCredentialsAuthCode;
+import com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode;
 import com.ca.mas.foundation.MASAuthCredentialsJWT;
 import com.ca.mas.foundation.MASAuthCredentialsPassword;
 
@@ -148,7 +148,7 @@ public class MssoClient {
      * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
      */
     public void authenticate(String authCode, String state, final MAGResultReceiver resultReceiver) {
-        MASAuthCredentials credentials = new MASAuthCredentialsAuthCode(authCode, state);
+        MASAuthCredentials credentials = new MASAuthCredentialsAuthorizationCode(authCode, state);
         Intent intent = createAuthenticationIntent(credentials, resultReceiver);
         new MssoClientAuthenticateAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
     }

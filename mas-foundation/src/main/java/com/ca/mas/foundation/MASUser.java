@@ -171,6 +171,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
     /**
      * Authenticates a user with an authorization code.
+     *
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3.1">
      */
     public static void login(@NonNull MASAuthorizationResponse authorizationResponse, final MASCallback<MASUser> callback) {
@@ -192,6 +193,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
     /**
      * Retrieves the currently authenticated user.
+     *
      * @return The currently authenticated user.
      */
     public static MASUser getCurrentUser() {
@@ -252,6 +254,26 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                     @Override
                     public void call() {
                         masMessenger.sendMessage(message, user, topic, callback);
+                    }
+                }, callback);
+            }
+
+            @Override
+            public void sendMessage(@NonNull final MASMessage message, final MASGroup group, final MASCallback<Void> callback) {
+                execute(new Functions.NullaryVoid() {
+                    @Override
+                    public void call() {
+                        masMessenger.sendMessage(message, group, callback);
+                    }
+                }, callback);
+            }
+
+            @Override
+            public void sendMessage(@NonNull final MASMessage message, final MASGroup group, final String topic, final MASCallback<Void> callback) {
+                execute(new Functions.NullaryVoid() {
+                    @Override
+                    public void call() {
+                        masMessenger.sendMessage(message, group, topic, callback);
                     }
                 }, callback);
             }
@@ -610,7 +632,8 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 return new String((byte[]) result.getData());
             }
         } catch (StorageException e) {
-            if (DEBUG) Log.w(TAG, "Unable to retrieve last authenticated credentials type from local storage.", e);
+            if (DEBUG)
+                Log.w(TAG, "Unable to retrieve last authenticated credentials type from local storage.", e);
         }
 
         return "";

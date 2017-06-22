@@ -14,5 +14,11 @@
         android:icon="@drawable/ic_inbox_white_36dp"
         android:title="Inbox"
         app:showAsAction="always"/>
-
+    <item
+        android:id="@+id/action_logout"
+        android:icon="@drawable/ic_logout_blue_36dp"
+        android:title="Logout"
+        android:orderInCategory="100"
+        android:tint="@color/colorPrimary"
+        app:showAsAction="ifRoom" />
 </menu>

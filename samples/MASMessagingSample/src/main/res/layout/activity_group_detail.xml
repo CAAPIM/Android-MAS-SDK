@@ -61,4 +61,14 @@
         app:layout_anchor="@+id/group_detail_container"
         app:layout_anchorGravity="top|end"/>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_message_text_white_36dp"
+        app:layout_anchor="@+id/group_detail_container"
+        app:layout_anchorGravity="top|start"/>
+
 </android.support.design.widget.CoordinatorLayout>

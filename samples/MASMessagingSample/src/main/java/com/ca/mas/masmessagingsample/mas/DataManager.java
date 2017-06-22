@@ -26,6 +26,14 @@ public enum DataManager {
         mGroups = groups;
     }
 
+    public void addGroups(List<MASGroup> groups) {
+        for (MASGroup grp : groups) {
+            if (grp != null) {
+                mGroups.put(grp.getGroupName(), grp);
+            }
+        }
+    }
+
     public void setUsers(Map<String, MASUser> users) {
         mUsers = users;
     }

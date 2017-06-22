@@ -9,6 +9,7 @@
 package com.ca.mas.messaging;
 
 import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.messaging.topic.MASTopic;
 
@@ -46,6 +47,25 @@ public interface MASMessenger {
      * @param callback The Callback with either the Success or the Error message.
      */
     void sendMessage(MASMessage message, MASUser user, String topic, MASCallback<Void> callback);
+
+    /**
+     * This method sends a message from the current user to an existing group.
+     *
+     * @param message  The Message to be sent.
+     * @param group     The Group to send the message to.
+     * @param callback The Callback with either the Success or Error message.
+     */
+    void sendMessage(MASMessage message, MASGroup group, MASCallback<Void> callback);
+
+    /**
+     * This method sends a message from the current user to an existing group on a specified topic
+     *
+     * @param message  The Message to be sent.
+     * @param group     The Group to send the message to.
+     * @param topic     The topic on which the message to send.
+     * @param callback The Callback with either the Success or Error message.
+     */
+    void sendMessage(MASMessage message, MASGroup group,String topic, MASCallback<Void> callback);
 
     /**
      * This method enables incoming messages to the currently authenticated user.

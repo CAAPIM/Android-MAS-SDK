@@ -9,9 +9,17 @@ package com.ca.mas.messaging;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASException;
+import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.foundation.MASUser;
+import com.ca.mas.foundation.notify.Callback;
+import com.ca.mas.identity.group.MASMember;
 import com.ca.mas.messaging.topic.MASTopic;
 import com.ca.mas.messaging.topic.MASTopicBuilder;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MASMessengerImpl implements MASMessenger {
 
@@ -23,7 +31,8 @@ public class MASMessengerImpl implements MASMessenger {
     @Override
     public void sendMessage(MASMessage message, MASUser user, MASCallback<Void> callback) {
         String userId = user.getId();
-        sendMessage(message, user, userId, callback);}
+        sendMessage(message, user, userId, callback);
+    }
 
     @Override
     public void sendMessage(MASMessage message, MASUser user, String topic, MASCallback<Void> callback) {
@@ -33,6 +42,50 @@ public class MASMessengerImpl implements MASMessenger {
                 .setCustomTopic(topic)
                 .build();
         MASConnectaManager.getInstance().publish(masTopic, message, callback);
+    }
+
+    @Override
+    public void sendMessage(MASMessage message, MASGroup group, final MASCallback<Void> callback) {
+        sendMessage(message, group, null, callback);
+    }
+
+    @Override
+    public void sendMessage(MASMessage message, MASGroup group, String topic, final MASCallback<Void> callback) {
+        if (group == null) {
+            throw new IllegalArgumentException("Group cannot be null");
+        }
+        final List<MASMember> members = group.getMembers();
+        if (members.isEmpty()) {
+            Callback.onError(callback, new MASException("Group has no members", null));
+            return;
+        }
+        String userId = null;
+        MASCallback<Void> temp = null;
+        final AtomicInteger count = new AtomicInteger(0);
+        final AtomicBoolean bool = new AtomicBoolean(false);
+        for (final MASMember member : members) {
+            if (member != null) {
+                userId = member.getValue();
+                temp = new MASCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void result) {
+                        if (!bool.getAndSet(true)) {
+                            Callback.onSuccess(callback, null);
+                        }
+                        count.incrementAndGet();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        if (!bool.get() && count.getAndIncrement() == members.size()) {
+                            Callback.onError(callback, e);
+                        }
+                    }
+                };
+                MASTopic masTopic = new MASTopicBuilder().setUserId(userId).setCustomTopic(topic != null ? topic : userId).build();
+                MASConnectaManager.getInstance().publish(masTopic, message, temp);
+            }
+        }
     }
 
     @Override

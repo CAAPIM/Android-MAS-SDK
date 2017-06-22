@@ -8,14 +8,22 @@
 
 package com.ca.mas.masmessagingsample.activity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.foundation.MAS;
@@ -36,6 +44,7 @@ public class GroupListActivity extends BaseActivity {
     private final String TAG = GroupListActivity.class.getSimpleName();
     private Context mContext;
     private RecyclerView mRecyclerView;
+    private ProgressDialog mProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +56,27 @@ public class GroupListActivity extends BaseActivity {
         toolbar.setTitle(getTitle());
 
         mContext = this;
+        mProgress = new ProgressDialog(mContext);
         mRecyclerView = (RecyclerView) findViewById(R.id.group_list);
         assert mRecyclerView != null;
 
+        FloatingActionButton searchGroup = (FloatingActionButton) findViewById(R.id.search_group);
+        searchGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, SearchGroupActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        FloatingActionButton createGroup = (FloatingActionButton) findViewById(R.id.create_group);
+        createGroup.setOnClickListener(getCreateGroupListener());
+
+
         MAS.start(this, true);
-        MASUser.login("username", "password", getUserCallback());
+        //MASUser.login("manu", "dost1234".toCharArray(), getUserCallback());
+        MASUser.login(getUserCallback());
+        mProgress.show();
     }
 
     private MASCallback<MASUser> getUserCallback() {
@@ -76,6 +101,7 @@ public class GroupListActivity extends BaseActivity {
             @Override
             public void onError(Throwable e) {
                 Log.e(TAG, e.toString());
+                mProgress.dismiss();
             }
         };
     }
@@ -93,7 +119,7 @@ public class GroupListActivity extends BaseActivity {
 
                     DataManager.INSTANCE.setGroups(groupsMap);
                 }
-
+                mProgress.dismiss();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -108,6 +134,7 @@ public class GroupListActivity extends BaseActivity {
             public void onError(Throwable e) {
                 MAGError error = (MAGError) e;
                 Log.e(TAG, error.getMessage());
+                mProgress.dismiss();
             }
         };
     }
@@ -126,9 +153,82 @@ public class GroupListActivity extends BaseActivity {
                 Intent intent = new Intent(this, MessageListActivity.class);
                 startActivity(intent);
                 return true;
+            case R.id.action_logout:
+                if (MASUser.getCurrentUser() != null && MASUser.getCurrentUser().isAuthenticated()) {
+                    MASUser.getCurrentUser().logout(new MASCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            Snackbar.make(getWindow().getDecorView(), "Logout Done", Snackbar.LENGTH_SHORT).show();
+                            finish();
+                        }
+
+                        @Override
+                        public void onError(final Throwable e) {
+                            Snackbar.make(getWindow().getDecorView(), e.getMessage(), Snackbar.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    private View.OnClickListener getCreateGroupListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                EditText editText = new EditText(mContext);
+
+
+                int density = mContext.getResources().getDisplayMetrics().densityDpi;
+                int margin = Math.round(16 * density / DisplayMetrics.DENSITY_DEFAULT);
+
+                builder.setTitle(mContext.getString(R.string.title_create_group));
+                builder.setPositiveButton(mContext.getString(R.string.button_create), createGroupListener(editText));
+                builder.setNegativeButton(mContext.getString(R.string.button_cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setView(editText, margin, 0, margin, 0);
+                builder.show();
+            }
+        };
+    }
+
+    private DialogInterface.OnClickListener createGroupListener(final EditText editText) {
+        return new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                String groupName = editText.getEditableText().toString();
+                if (groupName == null || groupName.isEmpty() || groupName.trim().isEmpty()) {
+                    Snackbar.make(getWindow().getDecorView(), "Invalid Group Name entered", Snackbar.LENGTH_SHORT).show();
+                    dialogInterface.dismiss();
+                    return;
+                }
+                MASGroup group = MASGroup.newInstance();
+                group.setGroupName(groupName);
+                group.save(getGroupCallback());
+
+            }
+        };
+    }
+
+    private MASCallback<MASGroup> getGroupCallback() {
+        return new MASCallback<MASGroup>() {
+            @Override
+            public void onSuccess(MASGroup result) {
+                Snackbar.make(getWindow().getDecorView(), "Group created", Snackbar.LENGTH_SHORT).show();
+                MASGroup.newInstance().getAllGroups(MASUser.getCurrentUser().getId(), getGroupsCallback());
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Snackbar.make(getWindow().getDecorView(), "Group creation failed:" + e.getMessage(), Snackbar.LENGTH_LONG).show();
+            }
+        };
+    }
 }

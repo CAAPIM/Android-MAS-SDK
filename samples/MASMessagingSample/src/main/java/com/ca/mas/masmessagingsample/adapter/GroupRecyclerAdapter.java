@@ -19,8 +19,15 @@ import java.util.List;
 
 public class GroupRecyclerAdapter extends TwoLineRecyclerAdapter<MASGroup> {
 
+    private String callingActivity = null;
+
     public GroupRecyclerAdapter(List<MASGroup> items) {
         mGroups = items;
+    }
+
+    public GroupRecyclerAdapter(List<MASGroup> items, String caller) {
+        this(items);
+        this.callingActivity = caller;
     }
 
     @Override
@@ -37,6 +44,9 @@ public class GroupRecyclerAdapter extends TwoLineRecyclerAdapter<MASGroup> {
                 Context context = v.getContext();
                 Intent intent = new Intent(context, GroupDetailActivity.class);
                 intent.putExtra(GroupDetailFragment.GROUP_NAME, groupName);
+                if(callingActivity!=null){
+                    intent.putExtra("callingActivity",callingActivity);
+                }
 
                 context.startActivity(intent);
             }

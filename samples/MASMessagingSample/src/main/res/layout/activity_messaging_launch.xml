@@ -4,34 +4,19 @@
     android:layout_height="match_parent"
     android:layout_margin="16dp"
     android:gravity="center_horizontal"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/grey">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="MAS Messaging"
+        android:text="Click on the Pigeon"
+        android:textStyle="bold|italic"
         android:textSize="22sp" />
-
-   <!-- <Button
-        android:id="@+id/blinking_animation"
-        android:layout_width="fill_parent"
-        android:layout_height="100dp"
-        android:layout_marginTop="16dp"
-
-        android:drawableStart="@drawable/ic_launch_pigeon"
-        android:background="@drawable/button"/>-->
-
-    <!--<ImageView
-        android:id="@+id/blinking_animation"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:src="@drawable/ic_launch_pigeon"/>-->
-        <!--android:background="@drawable/button"/>-->
     <pl.droidsonroids.gif.GifImageView
         android:id="@+id/blinking_animation"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:src="@drawable/ic_launch_pigeon"
         />
 </LinearLayout>

@@ -72,7 +72,6 @@ public class MASMessengerImpl implements MASMessenger {
                         if (!bool.getAndSet(true)) {
                             Callback.onSuccess(callback, null);
                         }
-                        count.incrementAndGet();
                     }
 
                     @Override

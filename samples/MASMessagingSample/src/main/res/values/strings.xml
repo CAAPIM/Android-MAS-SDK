@@ -14,7 +14,9 @@
     <string name="title_inbox">Inbox</string>
     <string name="title_send_message">Send a message</string>
     <string name="title_create_group">Create Group</string>
+    <string name="title_delete_group">Delete Group</string>
     <string name="button_create">Create</string>
+    <string name="button_delete">Delete</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_send">Send</string>
 </resources>

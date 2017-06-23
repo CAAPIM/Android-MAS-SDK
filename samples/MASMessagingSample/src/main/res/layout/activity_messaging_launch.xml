@@ -5,18 +5,22 @@
     android:layout_margin="16dp"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:background="@color/grey">
+    android:background="@color/successDark">
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Click on the Pigeon"
-        android:textStyle="bold|italic"
-        android:textSize="22sp" />
+        android:text="MAS Messaging"
+        android:textSize="32sp"
+        android:textStyle="bold|italic" />
+
     <pl.droidsonroids.gif.GifImageView
         android:id="@+id/blinking_animation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginRight="@dimen/default_gap"
+        android:layout_marginLeft="@dimen/default_gap"
         android:src="@drawable/ic_launch_pigeon"
         />
 </LinearLayout>

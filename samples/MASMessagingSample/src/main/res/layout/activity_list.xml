@@ -52,4 +52,12 @@
         android:layout_gravity="bottom|left"
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/ic_plus_white_36dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/delete_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_minus_white_36dp" />
 </android.support.design.widget.CoordinatorLayout>

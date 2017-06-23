@@ -28,6 +28,7 @@ import android.widget.EditText;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.masmessagingsample.R;
@@ -70,13 +71,17 @@ public class GroupListActivity extends BaseActivity {
         });
 
         FloatingActionButton createGroup = (FloatingActionButton) findViewById(R.id.create_group);
-        createGroup.setOnClickListener(getCreateGroupListener());
+        createGroup.setOnClickListener(getGroupListener(false));
 
+        FloatingActionButton deleteGroup = (FloatingActionButton) findViewById(R.id.delete_group);
+        deleteGroup.setOnClickListener(getGroupListener(true));
+
+        mProgress.show();
 
         MAS.start(this, true);
         //MASUser.login("manu", "dost1234".toCharArray(), getUserCallback());
         MASUser.login(getUserCallback());
-        mProgress.show();
+
     }
 
     private MASCallback<MASUser> getUserCallback() {
@@ -100,8 +105,14 @@ public class GroupListActivity extends BaseActivity {
 
             @Override
             public void onError(Throwable e) {
-                Log.e(TAG, e.toString());
+                String msg = e.getMessage();
                 mProgress.dismiss();
+                Log.e(TAG, msg);
+                if (e instanceof MASException) {
+                    MASException err = (MASException) e;
+                    msg = err.getRootCause().getMessage();
+                }
+                Snackbar.make(getWindow().getDecorView(), msg, Snackbar.LENGTH_LONG).show();
             }
         };
     }
@@ -135,6 +146,7 @@ public class GroupListActivity extends BaseActivity {
                 MAGError error = (MAGError) e;
                 Log.e(TAG, error.getMessage());
                 mProgress.dismiss();
+                Snackbar.make(getWindow().getDecorView(), error.getMessage(), Snackbar.LENGTH_LONG).show();
             }
         };
     }
@@ -174,7 +186,7 @@ public class GroupListActivity extends BaseActivity {
         }
     }
 
-    private View.OnClickListener getCreateGroupListener() {
+    private View.OnClickListener getGroupListener(final boolean delete) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -185,8 +197,8 @@ public class GroupListActivity extends BaseActivity {
                 int density = mContext.getResources().getDisplayMetrics().densityDpi;
                 int margin = Math.round(16 * density / DisplayMetrics.DENSITY_DEFAULT);
 
-                builder.setTitle(mContext.getString(R.string.title_create_group));
-                builder.setPositiveButton(mContext.getString(R.string.button_create), createGroupListener(editText));
+                builder.setTitle(mContext.getString(!delete ? R.string.title_create_group : R.string.title_delete_group));
+                builder.setPositiveButton(mContext.getString(!delete ? R.string.button_create : R.string.button_delete), groupListener(editText, delete));
                 builder.setNegativeButton(mContext.getString(R.string.button_cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -199,7 +211,7 @@ public class GroupListActivity extends BaseActivity {
         };
     }
 
-    private DialogInterface.OnClickListener createGroupListener(final EditText editText) {
+    private DialogInterface.OnClickListener groupListener(final EditText editText, final boolean delete) {
         return new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -209,15 +221,53 @@ public class GroupListActivity extends BaseActivity {
                     dialogInterface.dismiss();
                     return;
                 }
-                MASGroup group = MASGroup.newInstance();
-                group.setGroupName(groupName);
-                group.save(getGroupCallback());
+
+                if (delete) {
+                    MASGroup.newInstance().getGroupByGroupName(groupName, getGroupCallback());
+                } else {
+                    MASGroup group = MASGroup.newInstance();
+                    group.setGroupName(groupName);
+                    group.save(getGroupCreateCallback());
+                }
 
             }
         };
     }
 
-    private MASCallback<MASGroup> getGroupCallback() {
+    private MASCallback<List<MASGroup>> getGroupCallback() {
+        return new MASCallback<List<MASGroup>>() {
+            @Override
+            public void onSuccess(List<MASGroup> result) {
+                for (final MASGroup grp : result) {
+                    if (MASUser.getCurrentUser().getUserName().equalsIgnoreCase(grp.getOwner().getValue())) {
+                        grp.delete(getGroupDeleteCallback());
+                    }
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Snackbar.make(getWindow().getDecorView(), "Group deletion failed:" + e.getMessage(), Snackbar.LENGTH_LONG).show();
+            }
+        };
+    }
+
+    private MASCallback<Void> getGroupDeleteCallback() {
+        return new MASCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                Snackbar.make(getWindow().getDecorView(), "Group deleted", Snackbar.LENGTH_SHORT).show();
+                MASGroup.newInstance().getAllGroups(MASUser.getCurrentUser().getId(), getGroupsCallback());
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Snackbar.make(getWindow().getDecorView(), "Group deletion failed:" + e.getMessage(), Snackbar.LENGTH_LONG).show();
+            }
+        };
+    }
+
+    private MASCallback<MASGroup> getGroupCreateCallback() {
         return new MASCallback<MASGroup>() {
             @Override
             public void onSuccess(MASGroup result) {

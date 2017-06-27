@@ -96,16 +96,19 @@ class DeviceRegistrationAssertion implements MssoAssertion {
             }
         }
 
-        boolean clearCredentials = false;
+        boolean clearCredentials = true;
         try {
             registerDevice(mssoContext, request);
         } catch (RetryRequestException e) {
-            //Need the credentials to retry
-            clearCredentials = true;
+            // Need the credentials to retry
+            clearCredentials = false;
             throw e;
         } finally {
+            Boolean ssoEnabledProp = mssoContext.getConfigurationProvider().getProperty(ConfigurationProvider.PROP_SSO_ENABLED);
+            boolean ssoEnabled = ssoEnabledProp != null && ssoEnabledProp;
+
             // If registration fails, clear any cached credentials so the user will be prompted again.
-            if (clearCredentials || (mssoContext.getCredentials() != null && !mssoContext.getCredentials().isReusable())) {
+            if (ssoEnabled && (clearCredentials || (mssoContext.getCredentials() != null && !mssoContext.getCredentials().isReusable()))) {
                 mssoContext.clearCredentials();
             }
         }

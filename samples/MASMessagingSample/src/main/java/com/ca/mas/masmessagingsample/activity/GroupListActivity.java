@@ -13,6 +13,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -46,6 +48,8 @@ public class GroupListActivity extends BaseActivity {
     private Context mContext;
     private RecyclerView mRecyclerView;
     private ProgressDialog mProgress;
+    private boolean _freshLaunch = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +61,9 @@ public class GroupListActivity extends BaseActivity {
         toolbar.setTitle(getTitle());
 
         mContext = this;
-        mProgress = new ProgressDialog(mContext);
+        _freshLaunch = true;
+        mProgress = new ProgressDialog(this);
+        mProgress.show();
         mRecyclerView = (RecyclerView) findViewById(R.id.group_list);
         assert mRecyclerView != null;
 
@@ -76,12 +82,20 @@ public class GroupListActivity extends BaseActivity {
         FloatingActionButton deleteGroup = (FloatingActionButton) findViewById(R.id.delete_group);
         deleteGroup.setOnClickListener(getGroupListener(true));
 
-        mProgress.show();
-
         MAS.start(this, true);
         //MASUser.login("manu", "dost1234".toCharArray(), getUserCallback());
         MASUser.login(getUserCallback());
 
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (!_freshLaunch && (MASUser.getCurrentUser() == null || !MASUser.getCurrentUser().isAuthenticated())) {
+            mProgress.dismiss();
+            finishActivity(1L);
+        }
+        _freshLaunch = false;
     }
 
     private MASCallback<MASUser> getUserCallback() {
@@ -113,8 +127,22 @@ public class GroupListActivity extends BaseActivity {
                     msg = err.getRootCause().getMessage();
                 }
                 Snackbar.make(getWindow().getDecorView(), msg, Snackbar.LENGTH_LONG).show();
+                finishActivity(2000L);
             }
         };
+    }
+
+    private void finishActivity(long pauseTime) {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                MAS.getCurrentActivity().finish();
+                Intent i = new Intent(MAS.getCurrentActivity(), MessagingLaunch.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                MAS.getCurrentActivity().startActivity(i);
+            }
+        }, pauseTime);
+
     }
 
     private MASCallback<List<MASGroup>> getGroupsCallback() {

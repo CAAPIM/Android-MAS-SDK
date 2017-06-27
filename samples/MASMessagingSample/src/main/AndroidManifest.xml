@@ -7,6 +7,12 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ca.mas.masmessagingsample">
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="true" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
         android:allowBackup="true"
@@ -34,6 +40,7 @@
             </intent-filter>
         </activity>
         <activity
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:name=".activity.GroupDetailActivity"
             android:label="@string/title_group_detail"
             android:parentActivityName=".activity.GroupListActivity"
@@ -51,10 +58,12 @@
             android:label="@string/title_inbox"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:name=".activity.SearchGroupActivity"
             android:label="@string/title_activity_group_search"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:name=".activity.GroupListActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"></activity>

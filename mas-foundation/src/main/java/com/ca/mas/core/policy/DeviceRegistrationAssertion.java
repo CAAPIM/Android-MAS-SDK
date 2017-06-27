@@ -88,7 +88,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
                 }
             }
 
-            //The mag identifier may be removed after the key reset.
+            // The MAG identifier may be removed after the key reset.
             if (tokenManager.getMagIdentifier() != null) {
                 if (DEBUG) Log.d(TAG,
                         String.format("Device is registered with identifier: %s", tokenManager.getMagIdentifier()));
@@ -96,12 +96,12 @@ class DeviceRegistrationAssertion implements MssoAssertion {
             }
         }
 
-        boolean clearCredentials = true;
+        boolean clearCredentials = false;
         try {
             registerDevice(mssoContext, request);
         } catch (RetryRequestException e) {
             //Need the credentials to retry
-            clearCredentials = false;
+            clearCredentials = true;
             throw e;
         } finally {
             // If registration fails, clear any cached credentials so the user will be prompted again.

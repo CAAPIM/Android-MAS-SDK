@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,7 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASGroup;
@@ -62,7 +62,7 @@ public class SearchGroupActivity extends BaseActivity {
                 if (mSearchView.getText() != null) {
                     String input = mSearchView.getText().toString();
                     if (input == null || input.isEmpty() || input.trim().isEmpty()) {
-                        Toast.makeText(mContext, "Please enter a valid group name", Toast.LENGTH_SHORT).show();
+                        Snackbar.make(getWindow().getDecorView(), "Please enter a valid group name", Snackbar.LENGTH_SHORT).show();
                         return false;
                     }
                 }
@@ -75,7 +75,7 @@ public class SearchGroupActivity extends BaseActivity {
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, "Failed to get group attributes: " + e);
-                        Toast.makeText(mContext, "Unable to fetch group attributes:" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Snackbar.make(getWindow().getDecorView(), "Unable to fetch group attributes:" + e.getMessage(), Snackbar.LENGTH_SHORT).show();
                     }
                 });
                 return true;
@@ -99,7 +99,7 @@ public class SearchGroupActivity extends BaseActivity {
             @Override
             public void onSuccess(List<MASGroup> result) {
                 if (result == null || result.isEmpty()) {
-                    Toast.makeText(mContext, "No groups found with this name", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(getWindow().getDecorView(), "No groups found with this name", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -109,7 +109,7 @@ public class SearchGroupActivity extends BaseActivity {
 
                 mResultList = getFilteredList(result);
                 if (mResultList == null || mResultList.isEmpty()) {
-                    Toast.makeText(mContext, "You are not member of this group", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(getWindow().getDecorView(), "You are not member of this group", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 DataManager.INSTANCE.addGroups(mResultList);
@@ -121,7 +121,7 @@ public class SearchGroupActivity extends BaseActivity {
             @Override
             public void onError(Throwable e) {
                 Log.e(TAG, "Failed to search for groups: " + e);
-                Toast.makeText(mContext, "Failed to search for groups:" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Snackbar.make(getWindow().getDecorView(), "Failed to search for groups:" + e.getMessage(), Snackbar.LENGTH_SHORT).show();
             }
 
             private List<MASGroup> getFilteredList(List<MASGroup> result) {

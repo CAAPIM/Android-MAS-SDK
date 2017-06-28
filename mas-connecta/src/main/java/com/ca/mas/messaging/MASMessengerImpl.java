@@ -60,8 +60,9 @@ public class MASMessengerImpl implements MASMessenger {
             return;
         }
         String userId = null;
+        final int size = members.size();
         MASCallback<Void> temp = null;
-        final AtomicInteger count = new AtomicInteger(0);
+        final AtomicInteger count = new AtomicInteger(1);
         final AtomicBoolean bool = new AtomicBoolean(false);
         for (final MASMember member : members) {
             if (member != null) {
@@ -76,7 +77,7 @@ public class MASMessengerImpl implements MASMessenger {
 
                     @Override
                     public void onError(Throwable e) {
-                        if (!bool.get() && count.getAndIncrement() == members.size()) {
+                        if (!bool.get() && (count.getAndIncrement() == size)) {
                             Callback.onError(callback, e);
                         }
                     }

@@ -89,7 +89,7 @@ public class GroupListActivity extends BaseActivity {
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         if (!_freshLaunch && (MASUser.getCurrentUser() == null || !MASUser.getCurrentUser().isAuthenticated())) {
             mProgress.dismiss();
@@ -124,7 +124,7 @@ public class GroupListActivity extends BaseActivity {
                 Log.e(TAG, msg);
                 if (e instanceof MASException) {
                     MASException err = (MASException) e;
-                    msg = err.getRootCause().getMessage();
+                    msg = err.getRootCause().getMessage() != null ? err.getRootCause().getMessage() : msg;
                 }
                 Snackbar.make(getWindow().getDecorView(), msg, Snackbar.LENGTH_LONG).show();
                 finishActivity(2000L);

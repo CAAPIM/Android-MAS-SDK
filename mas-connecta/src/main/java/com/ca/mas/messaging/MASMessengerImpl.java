@@ -60,11 +60,16 @@ public class MASMessengerImpl implements MASMessenger {
             return;
         }
         String userId = null;
-        final int size = members.size();
         MASCallback<Void> temp = null;
         final AtomicInteger count = new AtomicInteger(1);
         final AtomicBoolean bool = new AtomicBoolean(false);
-        for (final MASMember member : members) {
+        /*
+        Looping through all the memmbers and providing a temporary callback to each send call to ConnectaManager.
+        This is to make sure that final callback is returned only if,
+            Either one member success comes, then return a success callback to the App
+            or, if all member gets error then only return the final Error callback to the App.
+        **/
+        for (MASMember member : members) {
             if (member != null) {
                 userId = member.getValue();
                 temp = new MASCallback<Void>() {
@@ -77,7 +82,7 @@ public class MASMessengerImpl implements MASMessenger {
 
                     @Override
                     public void onError(Throwable e) {
-                        if (!bool.get() && (count.getAndIncrement() == size)) {
+                        if (!bool.get() && count.getAndIncrement() == members.size()) {
                             Callback.onError(callback, e);
                         }
                     }

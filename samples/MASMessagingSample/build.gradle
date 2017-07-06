@@ -17,7 +17,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.ca.mas.masmessagingsample"
+        applicationId "com.ic_ca.mas.masmessagingsample"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -33,13 +33,11 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
     compile "com.android.support:recyclerview-v7:$rootProject.ext.recyclerViewVersion"
     compile "com.android.support:design:$rootProject.ext.designVersion"
-    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.7'
 
     compile project(':masui')
     compile project(':mas-connecta')
     compile project(':mas-identity-management')
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    testCompile 'junit:junit:4.12'
 }

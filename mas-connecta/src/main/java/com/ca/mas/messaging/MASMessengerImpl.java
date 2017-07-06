@@ -51,9 +51,10 @@ public class MASMessengerImpl implements MASMessenger {
 
     @Override
     public void sendMessage(MASMessage message, MASGroup group, String topic, final MASCallback<Void> callback) {
-        if (group == null) {
-            throw new IllegalArgumentException("Group cannot be null");
+        if (group == null || message == null) {
+            throw new IllegalArgumentException("Invalid parameters, arguments cannot be null");
         }
+
         final List<MASMember> members = group.getMembers();
         if (members.isEmpty()) {
             Callback.onError(callback, new MASException("Group has no members", null));
@@ -68,7 +69,7 @@ public class MASMessengerImpl implements MASMessenger {
         This is to make sure that final callback is returned only if,
             Either one member success comes, then return a success callback to the App
             or, if all member gets error then only return the final Error callback to the App.
-        **/
+        */
         for (MASMember member : members) {
             if (member != null) {
                 userId = member.getValue();
@@ -92,6 +93,7 @@ public class MASMessengerImpl implements MASMessenger {
             }
         }
     }
+
 
     @Override
     public void startListeningToMyMessages(MASCallback<Void> callback) {

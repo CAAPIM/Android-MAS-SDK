@@ -83,15 +83,14 @@ public class GroupListActivity extends BaseActivity {
         deleteGroup.setOnClickListener(getGroupListener(true));
 
         MAS.start(this, true);
-        //MASUser.login("manu", "dost1234".toCharArray(), getUserCallback());
-        MASUser.login(getUserCallback());
-
+        MASUser.login("username", "password".toCharArray(), getUserCallback());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (!_freshLaunch && (MASUser.getCurrentUser() == null || !MASUser.getCurrentUser().isAuthenticated())) {
+        MASUser user = MASUser.getCurrentUser();
+        if (!_freshLaunch && (user == null || !user.isAuthenticated())) {
             mProgress.dismiss();
             finishActivity(1L);
         }
@@ -194,8 +193,9 @@ public class GroupListActivity extends BaseActivity {
                 startActivity(intent);
                 return true;
             case R.id.action_logout:
-                if (MASUser.getCurrentUser() != null && MASUser.getCurrentUser().isAuthenticated()) {
-                    MASUser.getCurrentUser().logout(new MASCallback<Void>() {
+                MASUser user = MASUser.getCurrentUser();
+                if (user != null && user.isAuthenticated()) {
+                    user.logout(new MASCallback<Void>() {
                         @Override
                         public void onSuccess(Void result) {
                             Snackbar.make(getWindow().getDecorView(), "Logout Done", Snackbar.LENGTH_SHORT).show();

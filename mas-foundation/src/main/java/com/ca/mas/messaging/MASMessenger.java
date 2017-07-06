@@ -58,11 +58,11 @@ public interface MASMessenger {
     void sendMessage(MASMessage message, MASGroup group, MASCallback<Void> callback);
 
     /**
-     * This method sends a message from the current user to an existing group on a specified topic
+     * This method sends a message from the current user to an existing group on a specified topic.
      *
      * @param message  The Message to be sent.
      * @param group     The Group to send the message to.
-     * @param topic     The topic on which the message to send.
+     * @param topic     The Topic on which the message to send.
      * @param callback The Callback with either the Success or Error message.
      */
     void sendMessage(MASMessage message, MASGroup group,String topic, MASCallback<Void> callback);

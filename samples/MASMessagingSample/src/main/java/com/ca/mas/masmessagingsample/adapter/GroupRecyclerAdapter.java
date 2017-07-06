@@ -44,8 +44,8 @@ public class GroupRecyclerAdapter extends TwoLineRecyclerAdapter<MASGroup> {
                 Context context = v.getContext();
                 Intent intent = new Intent(context, GroupDetailActivity.class);
                 intent.putExtra(GroupDetailFragment.GROUP_NAME, groupName);
-                if(callingActivity!=null){
-                    intent.putExtra("callingActivity",callingActivity);
+                if (callingActivity != null) {
+                    intent.putExtra("callingActivity", callingActivity);
                 }
 
                 context.startActivity(intent);

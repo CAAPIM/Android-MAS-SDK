@@ -75,7 +75,7 @@ public class SearchGroupActivity extends BaseActivity {
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, "Failed to get group attributes: " + e);
-                        Snackbar.make(getWindow().getDecorView(), "Unable to fetch group attributes:" + e.getMessage(), Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(getWindow().getDecorView(), "Unable to fetch group attributes: " + e.getMessage(), Snackbar.LENGTH_SHORT).show();
                     }
                 });
                 return true;
@@ -109,7 +109,7 @@ public class SearchGroupActivity extends BaseActivity {
 
                 mResultList = getFilteredList(result);
                 if (mResultList == null || mResultList.isEmpty()) {
-                    Snackbar.make(getWindow().getDecorView(), "You are not member of this group", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(getWindow().getDecorView(), "You are not a member of this group", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 DataManager.INSTANCE.addGroups(mResultList);
@@ -121,21 +121,22 @@ public class SearchGroupActivity extends BaseActivity {
             @Override
             public void onError(Throwable e) {
                 Log.e(TAG, "Failed to search for groups: " + e);
-                Snackbar.make(getWindow().getDecorView(), "Failed to search for groups:" + e.getMessage(), Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(getWindow().getDecorView(), "Failed to search for groups: " + e.getMessage(), Snackbar.LENGTH_SHORT).show();
             }
 
             private List<MASGroup> getFilteredList(List<MASGroup> result) {
                 List<MASGroup> finalList = new ArrayList<MASGroup>();
+                MASUser user = MASUser.getCurrentUser();
                 for (MASGroup grp : result) {
-                    if (grp == null || grp.getMembers() == null && grp.getMembers().isEmpty()) {
+                    if (grp == null || grp.getMembers() == null || grp.getMembers().isEmpty()) {
                         continue;
                     }
-                    if (MASUser.getCurrentUser().getUserName().equalsIgnoreCase(grp.getOwner().getValue())) {
+                    if (user.getUserName().equalsIgnoreCase(grp.getOwner().getValue())) {
                         finalList.add(grp);
                         continue;
                     }
                     for (MASMember member : grp.getMembers()) {
-                        if (MASUser.getCurrentUser().getUserName().equalsIgnoreCase(member.getValue())) {
+                        if (user.getUserName().equalsIgnoreCase(member.getValue())) {
                             finalList.add(grp);
                             break;
                         }

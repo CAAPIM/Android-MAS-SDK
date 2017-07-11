@@ -39,4 +39,5 @@ dependencies {
 
     compile project(':masui')
     compile project(':mas-connecta')
+    compile project(':mas-identity-management')
 }

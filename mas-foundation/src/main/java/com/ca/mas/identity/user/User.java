@@ -412,6 +412,16 @@ public class User extends MASUser {
     }
 
     @Override
+    public void sendMessage(MASMessage message, MASGroup group, MASCallback<Void> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    public void sendMessage(MASMessage message, MASGroup group, String topic, MASCallback<Void> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
     public void startListeningToMyMessages(MASCallback<Void> callback) {
         throw new UserNotAuthenticatedException();
     }

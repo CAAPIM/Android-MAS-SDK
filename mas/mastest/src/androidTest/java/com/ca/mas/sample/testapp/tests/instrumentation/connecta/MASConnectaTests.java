@@ -17,15 +17,18 @@ import android.support.test.rule.ActivityTestRule;
 import android.util.Base64;
 import android.util.Log;
 
+import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.messaging.MASMessageException;
+import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.foundation.MASUser;
+import com.ca.mas.identity.group.MASMember;
 import com.ca.mas.messaging.MASMessage;
+import com.ca.mas.messaging.MASMessageException;
+import com.ca.mas.messaging.MessagingConsts;
 import com.ca.mas.messaging.topic.MASTopic;
 import com.ca.mas.messaging.topic.MASTopicBuilder;
-import com.ca.mas.messaging.MessagingConsts;
 import com.ca.mas.sample.testapp.MainActivity;
 import com.ca.mas.sample.testapp.tests.instrumentation.base.MASIntegrationBaseTest;
 
@@ -34,7 +37,9 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
@@ -42,12 +47,16 @@ import static junit.framework.Assert.fail;
 public class MASConnectaTests extends MASIntegrationBaseTest {
     private static final String TAG = MASConnectaTests.class.getSimpleName();
     private static String TOPIC_NAME = "conectaTestTopic";
+    public static final String MY_GROUP_NAME = UUID.randomUUID().toString();
+    public static final String OTHER_USER_WITH_GROUP = "spock";
+    private MASGroup masGroup;
+    private MASGroup temp;
 
     /**
      * Initializes Connecta for all messaging related stuffs.
      */
     @Before
-    public void initConnecta() {
+    public void initConnecta() throws Exception {
 
         try {
             final CountDownLatch latch = new CountDownLatch(1);
@@ -79,7 +88,38 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
             Log.w(TAG, "initConnecta error: ", t);
             fail("" + t);
         }
+        masGroup = MASGroup.newInstance();
+        createGroup();
+    }
 
+    private void createGroup() throws InterruptedException, ExecutionException {
+
+        MASCallbackFuture<MASUser> masUserMASCallbackFuture = new MASCallbackFuture<>();
+        MASUser.getCurrentUser().getUserById(OTHER_USER_WITH_GROUP, masUserMASCallbackFuture);
+        MASUser masUser = masUserMASCallbackFuture.get();
+
+        temp = MASGroup.newInstance();
+        temp.setGroupName(MY_GROUP_NAME);
+        temp.addMember(new MASMember(masUser));
+
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        temp.save(new MASCallback<MASGroup>() {
+            @Override
+            public void onSuccess(MASGroup object) {
+                if (object.getId() != null) {
+                    temp = object;
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                latch.countDown();
+            }
+        });
+
+        await(latch);
     }
 
     @Test
@@ -250,6 +290,36 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
     }
 
     @Test
+    public void testSendMessageToNullGroup() throws Exception {
+        try {
+            final MASUser sender = MASUser.getCurrentUser();
+            final MASMessage masMessage = MASMessage.newInstance();
+            masMessage.setTopic("testTopic");
+            final CountDownLatch latch = new CountDownLatch(1);
+            final Object[] result = {false, "unknown"};
+
+            sender.sendMessage(masMessage, (MASGroup) null, new MASCallback<Void>() {
+                @Override
+                public void onSuccess(Void voids) {
+                    result[0] = true;
+                    latch.countDown();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    result[1] = e.toString();
+                    latch.countDown();
+                }
+            });
+            await(latch);
+            boolean testResult = (boolean) result[0];
+            assertEquals(testResult, false);
+        } catch (Exception e) {
+            Log.i(TAG, "Exception " + e);
+        }
+    }
+
+    @Test
     public void testSendNullMessageToValidUser() throws Exception {
         try {
             final MASUser sender = MASUser.getCurrentUser();
@@ -277,6 +347,34 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
     }
 
     @Test
+    public void testSendNullMessageToValidGroup() throws Exception {
+        try {
+            final MASUser sender = MASUser.getCurrentUser();
+            final MASMessage masMessage = null;
+
+            masGroup.getGroupById(temp.getId(), new MASCallback<MASGroup>() {
+
+                @Override
+                public void onSuccess(MASGroup object) {
+                    try {
+                        sendMessageToGroup(masMessage, object, true);
+                        fail("Expected a Null Exception ");
+                    } catch (Exception e) {
+                        Log.i(TAG, "Exception " + e);
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    fail("Expected a valid group.");
+                }
+            });
+        } catch (Exception e) {
+            Log.i(TAG, "Exception " + e);
+        }
+    }
+
+    @Test
     public void testSendEmptyMessageToValidUser() throws Exception {
         try {
             final MASUser sender = MASUser.getCurrentUser();
@@ -295,6 +393,33 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
                 @Override
                 public void onError(Throwable e) {
                     fail("Expected a valid user.");
+                }
+            });
+        } catch (Exception e) {
+            Log.i(TAG, "Exception " + e);
+        }
+    }
+
+    @Test
+    public void testSendEmptyMessageToValidGroup() throws Exception {
+        try {
+            final MASUser sender = MASUser.getCurrentUser();
+            final MASMessage masMessage = MASMessage.newInstance();
+
+            masGroup.getGroupById(temp.getId(), new MASCallback<MASGroup>() {
+
+                @Override
+                public void onSuccess(MASGroup object) {
+                    try {
+                        sendMessageToGroup(masMessage, object, false);
+                    } catch (Exception e) {
+                        Log.i(TAG, "Exception " + e);
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    fail("Expected a valid group.");
                 }
             });
         } catch (Exception e) {
@@ -330,6 +455,35 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
     }
 
     @Test
+    public void testSendValidMessageToValidGroup() throws Exception {
+        try {
+            final MASUser sender = MASUser.getCurrentUser();
+            final MASMessage masMessage = MASMessage.newInstance();
+            masMessage.setTopic("testTopic");
+            masMessage.setPayload("Hello".getBytes());
+
+            masGroup.getGroupById(temp.getId(), new MASCallback<MASGroup>() {
+
+                @Override
+                public void onSuccess(MASGroup object) {
+                    try {
+                        sendMessageToGroup(masMessage, object, false);
+                    } catch (Exception e) {
+                        Log.i(TAG, "Exception " + e);
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    fail("Expected a valid group.");
+                }
+            });
+        } catch (Exception e) {
+            Log.i(TAG, "Exception " + e);
+        }
+    }
+
+    @Test
     public void testSendMessageToValidUserWithNullTopic() throws Exception {
         try {
             final MASUser sender = MASUser.getCurrentUser();
@@ -349,6 +503,34 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
                 @Override
                 public void onError(Throwable e) {
                     fail("Expected a valid user.");
+                }
+            });
+        } catch (Exception e) {
+            Log.i(TAG, "Exception " + e);
+        }
+    }
+
+    @Test
+    public void testSendMessageToValidGroupWithNullTopic() throws Exception {
+        try {
+            final MASUser sender = MASUser.getCurrentUser();
+            final MASMessage message = MASMessage.newInstance();
+            final String topic = null;
+
+            masGroup.getGroupById(temp.getId(), new MASCallback<MASGroup>() {
+
+                @Override
+                public void onSuccess(MASGroup object) {
+                    try {
+                       sendMessageToGroupWithTopic(message,object,topic,false);
+                    } catch (Exception e) {
+                        Log.i(TAG, "Exception " + e);
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    fail("Expected a valid group.");
                 }
             });
         } catch (Exception e) {
@@ -380,6 +562,34 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
             });
         } catch (Exception e) {
             Log.i(TAG, "Exception: " + e);
+        }
+    }
+
+    @Test
+    public void testSendMessageToValidGroupWithTopic() throws Exception {
+        try {
+            final MASUser sender = MASUser.getCurrentUser();
+            final MASMessage message = MASMessage.newInstance();
+            final String topic = "test";
+
+            masGroup.getGroupById(temp.getId(), new MASCallback<MASGroup>() {
+
+                @Override
+                public void onSuccess(MASGroup object) {
+                    try {
+                        sendMessageToGroupWithTopic(message,object,topic,false);
+                    } catch (Exception e) {
+                        Log.i(TAG, "Exception " + e);
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    fail("Expected a valid group.");
+                }
+            });
+        } catch (Exception e) {
+            Log.i(TAG, "Exception " + e);
         }
     }
 
@@ -451,6 +661,78 @@ public class MASConnectaTests extends MASIntegrationBaseTest {
             assertEquals(result[0], true);
         } catch (Throwable t) {
             Log.w(TAG, "sendMessageToTopic EXCEPTION: ", t);
+            throw t;
+        }
+    }
+
+    private void sendMessageToGroup(MASMessage masMessage, MASGroup otherGroup, boolean shouldFail) throws Exception {
+        try {
+            final CountDownLatch latch = new CountDownLatch(1);
+            final Object[] result = {false, ""};
+            MASUser user = MASUser.getCurrentUser();
+
+            user.sendMessage(masMessage, otherGroup, new MASCallback<Void>() {
+                @Override
+                public void onSuccess(Void object) {
+                    result[0] = true;
+                    latch.countDown();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    result[1] = e.toString();
+                    latch.countDown();
+                }
+            });
+
+            await(latch);
+            if (shouldFail && (boolean) result[0]) {
+                Log.w(TAG, "sendMessageToGroup should have failed but didn't.");
+                fail("Expected sendMessageToGroup to fail.");
+            } else if (!(boolean) result[0]) {
+                Log.w(TAG, "sendMessageToGroup failed (but shouldn't): " + result[1]);
+                fail("Reason: " + result[1]);
+            }
+
+            assertEquals(result[0], true);
+        } catch (Throwable t) {
+            Log.w(TAG, "Exception: ", t);
+            throw t;
+        }
+    }
+
+    private void sendMessageToGroupWithTopic(MASMessage masMessage, MASGroup otherGroup, String topic, boolean shouldFail) throws Exception {
+        try {
+            final CountDownLatch latch = new CountDownLatch(1);
+            final Object[] result = {false, "unknown"};
+            MASUser user = MASUser.getCurrentUser();
+
+            user.sendMessage(masMessage, otherGroup, topic, new MASCallback<Void>() {
+                @Override
+                public void onSuccess(Void object) {
+                    result[0] = true;
+                    latch.countDown();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    result[1] = e.toString();
+                    latch.countDown();
+                }
+            });
+
+            await(latch);
+            if (shouldFail && (boolean) result[0]) {
+                Log.w(TAG, "sendMessageToGroupWithTopic should have failed but didn't.");
+                fail("Expected sendMessageToGroupWithTopic to fail.");
+            } else if (!(boolean) result[0]) {
+                Log.w(TAG, "sendMessageToGroupWithTopic failed (but shouldn't): " + result[1]);
+                fail("Reason: " + result[1]);
+            }
+
+            assertEquals(result[0], true);
+        } catch (Throwable t) {
+            Log.w(TAG, "sendMessageToGroupWithTopic EXCEPTION: ", t);
             throw t;
         }
     }

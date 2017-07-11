@@ -11,6 +11,7 @@ package com.ca.mas.identity;
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
+import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.common.MASFilteredRequestBuilder;
@@ -155,13 +156,25 @@ public class MASUserIdentityTest extends MASLoginTestBase {
         }
 
         try {
-            masUser.sendMessage((MASMessage) null, null, null);
+            masUser.sendMessage((MASMessage) null, (MASUser) null, null);
             fail();
         } catch (UserNotAuthenticatedException ignored) {
         }
 
         try {
-            masUser.sendMessage(null, null, null, null);
+            masUser.sendMessage((MASMessage) null, (MASGroup) null, null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
+        try {
+            masUser.sendMessage(null, (MASUser) null, null, null);
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
+        try {
+            masUser.sendMessage(null, (MASGroup) null, null, null);
             fail();
         } catch (UserNotAuthenticatedException ignored) {
         }

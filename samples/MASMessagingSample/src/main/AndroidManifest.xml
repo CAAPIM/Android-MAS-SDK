@@ -1,13 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2016 CA. All rights reserved.
   ~
   ~ This software may be modified and distributed under the terms
   ~ of the MIT license.  See the LICENSE file for details.
   ~
-  -->
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.ca.mas.masmessagingsample">
+    package="com.ca.mas.masmessagingsample">
+
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
         android:allowBackup="true"
@@ -16,34 +23,42 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activity.GroupListActivity"
+            android:name=".activity.MessagingLaunch"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".activity.GroupDetailActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_group_detail"
             android:parentActivityName=".activity.GroupListActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activity.GroupListActivity"/>
+                android:value=".activity.GroupListActivity" />
         </activity>
         <activity
             android:name=".activity.AddUsersActivity"
             android:label="@string/title_activity_search"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.MessageListActivity"
             android:label="@string/title_inbox"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activity.SearchGroupActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/title_activity_group_search"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".activity.GroupListActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

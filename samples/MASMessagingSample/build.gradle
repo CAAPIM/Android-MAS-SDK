@@ -17,7 +17,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.ic_ca.mas.masmessagingsample"
+        applicationId "com.ca.mas.masmessagingsample"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

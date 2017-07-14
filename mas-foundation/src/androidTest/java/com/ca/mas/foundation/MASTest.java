@@ -33,6 +33,7 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -41,6 +42,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertEquals;
@@ -88,7 +90,7 @@ public class MASTest extends MASLoginTestBase {
 
     @Test
     public void testAccessProtectedEndpointCancelOnExecutingRequest() throws URISyntaxException, InterruptedException, IOException {
-        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/slow"))
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_SLOW))
                 .notifyOnCancel()
                 .build();
         final String KEY = "key";
@@ -111,7 +113,7 @@ public class MASTest extends MASLoginTestBase {
 
     @Test
     public void testAccessProtectedEndpointCancelAllOnExecutingRequest() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
-        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/slow"))
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_SLOW))
                 .notifyOnCancel()
                 .build();
         final String KEY = "key";
@@ -725,5 +727,84 @@ public class MASTest extends MASLoginTestBase {
             Assert.assertEquals(MASConstants.MAS_STATE_STOPPED, MAS.getState(getContext()));
             MAS.start(getContext());
         }
+    }
+
+    @Test
+    public void testMultiThreadRequest() throws Exception {
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_SLOW))
+                .build();
+
+        long start = System.currentTimeMillis();
+        final CountDownLatch countDownLatch = new CountDownLatch(10);
+        for (int i = 0; i < 10; i++) {
+            MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+
+                @Override
+                public void onSuccess(MASResponse<JSONObject> result) {
+                    countDownLatch.countDown();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+        countDownLatch.await();
+        long end = System.currentTimeMillis();
+
+        BigDecimal duration = new BigDecimal(end - start).divide(new BigDecimal(1000));
+
+        //Before
+        assertTrue(duration.compareTo(new BigDecimal(10)) == 1);
+
+        //After
+        //assertTrue((duration.compareTo(new BigDecimal(1)) == 1) && (duration.compareTo(new BigDecimal(2)) == -1));
+
+    }
+
+    @Test
+    public void testMultiThreadRequestWithResponse() throws Exception {
+        Uri.Builder builder1 = new Uri.Builder();
+        builder1.encodedPath(GatewayDefaultDispatcher.ECHO);
+        builder1.appendQueryParameter("name", "name1");
+        MASRequest request1 = new MASRequest.MASRequestBuilder(builder1.build()).build();
+        MASCallbackFuture<MASResponse<String>> callback1 = new MASCallbackFuture<>();
+        MAS.invoke(request1, callback1);
+
+        Uri.Builder builder2 = new Uri.Builder();
+        builder2.encodedPath(GatewayDefaultDispatcher.ECHO);
+        builder2.appendQueryParameter("name", "name2");
+        MASRequest request2 = new MASRequest.MASRequestBuilder(builder2.build()).build();
+        MASCallbackFuture<MASResponse<String>> callback2 = new MASCallbackFuture<>();
+        MAS.invoke(request2, callback2);
+
+        Uri.Builder builder3 = new Uri.Builder();
+        builder3.encodedPath(GatewayDefaultDispatcher.ECHO);
+        builder3.appendQueryParameter("name", "name3");
+        MASRequest request3 = new MASRequest.MASRequestBuilder(builder3.build()).build();
+        MASCallbackFuture<MASResponse<String>> callback3 = new MASCallbackFuture<>();
+        MAS.invoke(request3, callback3);
+
+        Uri.Builder builder4 = new Uri.Builder();
+        builder4.encodedPath(GatewayDefaultDispatcher.ECHO);
+        builder4.appendQueryParameter("name", "name4");
+        MASRequest request4 = new MASRequest.MASRequestBuilder(builder4.build()).build();
+        MASCallbackFuture<MASResponse<String>> callback4 = new MASCallbackFuture<>();
+        MAS.invoke(request4, callback4);
+
+        Uri.Builder builder5 = new Uri.Builder();
+        builder5.encodedPath(GatewayDefaultDispatcher.ECHO);
+        builder5.appendQueryParameter("name", "name5");
+        MASRequest request5 = new MASRequest.MASRequestBuilder(builder5.build()).build();
+        MASCallbackFuture<MASResponse<String>> callback5 = new MASCallbackFuture<>();
+        MAS.invoke(request5, callback5);
+
+        assertEquals(callback1.get().getBody().getContent(), "name1");
+        assertEquals(callback2.get().getBody().getContent(), "name2");
+        assertEquals(callback3.get().getBody().getContent(), "name3");
+        assertEquals(callback4.get().getBody().getContent(), "name4");
+        assertEquals(callback5.get().getBody().getContent(), "name5");
+
     }
 }

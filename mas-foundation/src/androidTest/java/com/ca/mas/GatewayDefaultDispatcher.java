@@ -51,6 +51,8 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String OTP_PROTECTED_URL = "/otpProtected";
     public static final String AUTH_OTP = "/auth/generateOTP";
     public static final String USER_INFO = "/openid/connect/v1/userinfo";
+    public static final String ECHO = "/echo";
+
     public static final String OTHER = "other";
 
     public static final String ENTERPRISE_BROWSER = "/connect/enterprise/browser";
@@ -119,9 +121,11 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return userInfo();
             } else if (request.getPath().startsWith(ENTERPRISE_BROWSER)) {
                 return enterpriseBrowser(request);
+            } else if (request.getPath().contains(ECHO)) {
+                return echo(request);
             }
 
-            for (Dispatcher d: dispatchers) {
+            for (Dispatcher d : dispatchers) {
                 MockResponse response = d.dispatch(request);
                 if (response != null) {
                     return response;
@@ -133,6 +137,13 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                     setBody(e.toString());
 
         }
+    }
+
+    private MockResponse echo(RecordedRequest request) {
+        Uri uri = Uri.parse(request.getPath());
+        return new MockResponse().setResponseCode(HttpURLConnection.HTTP_OK)
+                .setBody(uri.getQueryParameter("name"))
+                .addHeader("Content-type", ContentType.TEXT_PLAIN.toString());
     }
 
     protected MockResponse other() {

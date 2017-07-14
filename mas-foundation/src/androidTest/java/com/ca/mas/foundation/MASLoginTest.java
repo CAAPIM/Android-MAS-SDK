@@ -464,5 +464,53 @@ public class MASLoginTest extends MASStartTestBase {
         MASUser.login("admin", (char[]) null, null);
     }
 
+    @Test
+    public void testPendingRequest() throws Exception {
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+                .build();
 
+        final CountDownLatch authenticationListenerCountDownLaunch = new CountDownLatch(10);
+
+        MAS.setAuthenticationListener(new MASAuthenticationListener() {
+
+            @Override
+            public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {
+                authenticationListenerCountDownLaunch.countDown();
+            }
+
+            @Override
+            public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {
+
+            }
+        });
+
+        final CountDownLatch requestCountDownLaunch = new CountDownLatch(10);
+
+        for (int i = 0; i < 10; i++) {
+            MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+
+                @Override
+                public void onSuccess(MASResponse<JSONObject> result) {
+                    requestCountDownLaunch.countDown();
+
+                }
+
+                @Override
+                public void onError(Throwable e) {
+
+                }
+            });
+        }
+        authenticationListenerCountDownLaunch.await();
+        //onAuthenticateRequest has been invoked 10 times
+        assertTrue(true);
+
+        MASUser.login("admin", "7layer".toCharArray(), null);
+
+        requestCountDownLaunch.await();
+        //All Pending request are executed after login
+        assertTrue(true);
+
+
+    }
 }

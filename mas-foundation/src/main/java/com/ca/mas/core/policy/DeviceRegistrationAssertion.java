@@ -70,7 +70,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
     }
 
     @Override
-    public void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
+    public synchronized void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
         X509Certificate[] clientCerts = tokenManager.getClientCertificateChain();
         if (clientCerts != null && clientCerts.length > 0) {
             // Device is registered
@@ -120,7 +120,6 @@ class DeviceRegistrationAssertion implements MssoAssertion {
     }
 
     private void registerDevice(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
-
         // Ensure credentials are available
         MASAuthCredentials creds = request.getRequest().getGrantProvider().getCredentials(mssoContext);
         if (creds == null || !creds.isValid())

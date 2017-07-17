@@ -5,7 +5,6 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.policy;
 
 import android.content.Context;
@@ -38,9 +37,8 @@ class ClientCredentialAssertion implements MssoAssertion {
     }
 
     @Override
-    public void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
-
-       String configuredClientSecret = mssoContext.getConfigurationProvider().getClientSecret();
+    public synchronized void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
+        String configuredClientSecret = mssoContext.getConfigurationProvider().getClientSecret();
         String configuredClientId = mssoContext.getConfigurationProvider().getClientId();
 
         if (configuredClientSecret != null && configuredClientSecret.trim().length() > 0) {
@@ -70,7 +68,6 @@ class ClientCredentialAssertion implements MssoAssertion {
         }
 
         if (DEBUG) Log.d(TAG, String.format("Client id: %s", mssoContext.getStoredClientId()));
-
     }
 
     @Override

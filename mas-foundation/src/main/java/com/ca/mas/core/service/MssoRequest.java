@@ -26,6 +26,7 @@ class MssoRequest {
     private final MssoContext mssoContext;
     private MAGRequest request;
     private final ResultReceiver resultReceiver;
+    private boolean started;
     //Extra data for the request
     private Bundle extra;
 
@@ -63,5 +64,13 @@ class MssoRequest {
 
     public Bundle getExtra() {
         return extra;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
+
+    public boolean isStarted() {
+        return started;
     }
 }

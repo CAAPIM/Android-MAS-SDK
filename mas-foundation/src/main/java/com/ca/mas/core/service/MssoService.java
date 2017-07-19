@@ -95,8 +95,8 @@ public class MssoService extends IntentService {
         } else if (MssoIntents.ACTION_CREDENTIALS_OBTAINED.equals(action)) {
             onCredentialsObtained(extras, request);
             return;
-            //Once we retrieve the OTP from the user
         } else if (MssoIntents.ACTION_VALIDATE_OTP.equals(action)) {
+            //Once we retrieve the OTP from the user
             onOtpObtained(extras, request);
             return;
         }
@@ -123,7 +123,7 @@ public class MssoService extends IntentService {
     }
 
     private void onCredentialsObtained(Bundle extras, final MssoRequest request) {
-        // Make credentials available to this request's MssoContext
+        //Make credentials available to this request's MssoContext
         MASAuthCredentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
         request.getMssoContext().setCredentials(creds);
 
@@ -145,17 +145,6 @@ public class MssoService extends IntentService {
         //Ensure we make at least one request to process the original request
         if (!originalRequestProcessed) {
             startThreadedRequest(request);
-        }
-    }
-
-    private void moveToFirst(MssoRequest request) {
-        MssoActiveQueue activeQueue = MssoActiveQueue.getInstance();
-        activeQueue.takeRequest(request.getId());
-        ArrayList<MssoRequest> requests = new ArrayList<>(activeQueue.getAllRequest());
-        activeQueue.addRequest(request);
-        for (MssoRequest r : requests) {
-            activeQueue.takeRequest(r.getId());
-            activeQueue.addRequest(r);
         }
     }
 
@@ -184,13 +173,13 @@ public class MssoService extends IntentService {
                 MssoResponse response = createMssoResponse(request, magResponse);
                 MssoResponseQueue.getInstance().addResponse(response);
                 respondSuccess(receiver, response.getId(), "OK");
-            } else {
-                //Request was canceled, don't bother enqueuing a response
             }
+            //Otherwise, the request was cancelled, so don't bother enqueuing a response.
+
             MssoState.setExpectingUnlock(false);
             return true;
         } catch (CredentialRequiredException e) {
-            if (DEBUG) Log.d(TAG, "Request for user credential");
+            if (DEBUG) Log.d(TAG, "Request for user credentials");
             //Notify listener
             MobileSsoListener mobileSsoListener = ConfigurationManager.getInstance().getMobileSsoListener();
             try {

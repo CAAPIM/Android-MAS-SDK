@@ -22,7 +22,6 @@ import com.ca.mas.core.clientcredentials.ClientCredentialsException;
 import com.ca.mas.core.clientcredentials.ClientCredentialsServerException;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.oauth.OAuthClient;
@@ -44,6 +43,7 @@ import com.ca.mas.core.token.JWTInvalidAUDException;
 import com.ca.mas.core.token.JWTInvalidAZPException;
 import com.ca.mas.core.token.JWTInvalidSignatureException;
 import com.ca.mas.core.token.JWTValidationException;
+import com.ca.mas.foundation.MASAuthCredentials;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -105,12 +105,12 @@ public class MssoService extends IntentService {
     }
 
     private void startThreadedRequest(final MssoRequest request) {
-        new Thread(new Runnable() {
+        MssoExecutorService.getInstance().execute(new Runnable() {
             @Override
             public void run() {
                 onProcessRequest(request);
             }
-        }).start();
+        });
     }
 
     private void onOtpObtained(Bundle extras, MssoRequest request) {
@@ -155,12 +155,7 @@ public class MssoService extends IntentService {
         }
     }
 
-    /**
-     * @param request request to process. Required.
-     * @return true if the request was handled to completion (requestFinished() was called)
-     * false if an activity was started (requestFinished() not called, request still pending)
-     */
-    private boolean onProcessRequest(final MssoRequest request) {
+    private void onProcessRequest(final MssoRequest request) {
         ResultReceiver receiver = request.getResultReceiver();
         boolean expectingUnlock = false;
 
@@ -168,7 +163,7 @@ public class MssoService extends IntentService {
         try {
             MAGResponse magResponse = mssoContext.executeRequest(request.getExtra(), request.getRequest());
 
-            //Success. Move to response queue and send a success notification.
+            //Success: move to response queue and send a success notification.
             if (requestFinished(request)) {
                 MssoResponse response = createMssoResponse(request, magResponse);
                 MssoResponseQueue.getInstance().addResponse(response);
@@ -177,7 +172,6 @@ public class MssoService extends IntentService {
             //Otherwise, the request was cancelled, so don't bother enqueuing a response.
 
             MssoState.setExpectingUnlock(false);
-            return true;
         } catch (CredentialRequiredException e) {
             if (DEBUG) Log.d(TAG, "Request for user credentials");
             //Notify listener
@@ -189,24 +183,18 @@ public class MssoService extends IntentService {
                 } else {
                     if (DEBUG) Log.w(TAG, "No Authentication listener is registered");
                 }
-                //Keep request pending, will revisit after CREDENTIALS_OBTAINED
-                return false;
             } catch (OAuthException | OAuthServerException e1) {
                 if (DEBUG) Log.e(TAG, e1.getMessage(), e1);
                 requestFinished(request);
                 respondError(request.getResultReceiver(), MssoIntents.RESULT_CODE_ERR_AUTHORIZE, new MAGError(e1));
-                return true;
             }
         } catch (TokenStoreUnavailableException e) {
             try {
                 expectingUnlock = true;
                 mssoContext.getTokenManager().getTokenStore().unlock();
-                //Keep request pending, will revisit after unlock has completed
-                return false;
             } catch (Exception e1) {
                 requestFinished(request);
                 respondError(receiver, MssoIntents.RESULT_CODE_ERR_UNKNOWN, new MAGError(e));
-                return true;
             }
         } catch (OtpException e) {
             OtpResponseHeaders otpResponseHeaders = e.getOtpResponseHeaders();
@@ -225,17 +213,14 @@ public class MssoService extends IntentService {
                     OtpAuthenticationHandler otpHandler = new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), true, selectedChannels);
                     mobileSsoListener.onOtpAuthenticationRequest(otpHandler);
                 }
-                return false;
             }
             if (DEBUG) Log.e(TAG, e.getMessage(), e);
             requestFinished(request);
             respondError(receiver, getErrorCode(e), new MAGError(e));
-            return true;
         } catch (Exception e2) {
             if (DEBUG) Log.e(TAG, e2.getMessage(), e2);
             requestFinished(request);
             respondError(receiver, getErrorCode(e2), new MAGError(e2));
-            return true;
         } finally {
             MssoState.setExpectingUnlock(expectingUnlock);
         }

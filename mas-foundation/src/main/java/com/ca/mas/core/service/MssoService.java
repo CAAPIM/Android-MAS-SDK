@@ -5,7 +5,6 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.service;
 
 import android.app.IntentService;
@@ -23,7 +22,6 @@ import com.ca.mas.core.clientcredentials.ClientCredentialsException;
 import com.ca.mas.core.clientcredentials.ClientCredentialsServerException;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.oauth.OAuthClient;
@@ -45,6 +43,7 @@ import com.ca.mas.core.token.JWTInvalidAUDException;
 import com.ca.mas.core.token.JWTInvalidAZPException;
 import com.ca.mas.core.token.JWTInvalidSignatureException;
 import com.ca.mas.core.token.JWTValidationException;
+import com.ca.mas.foundation.MASAuthCredentials;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -59,7 +58,6 @@ import static com.ca.mas.foundation.MAS.TAG;
  * via a ResultReceiver.
  */
 public class MssoService extends IntentService {
-
 
     public MssoService() {
         super("MssoService");
@@ -92,14 +90,13 @@ public class MssoService extends IntentService {
         }
 
         if (MssoIntents.ACTION_PROCESS_REQUEST.equals(action)) {
-            onProcessRequest(request);
+            startThreadedRequest(request);
             return;
         } else if (MssoIntents.ACTION_CREDENTIALS_OBTAINED.equals(action)) {
             onCredentialsObtained(extras, request);
             return;
-
-        } //Once we retrieve the OTP from the user
-        else if (MssoIntents.ACTION_VALIDATE_OTP.equals(action)) {
+        } else if (MssoIntents.ACTION_VALIDATE_OTP.equals(action)) {
+            //Once we retrieve the OTP from the user
             onOtpObtained(extras, request);
             return;
         }
@@ -107,69 +104,58 @@ public class MssoService extends IntentService {
         if (DEBUG) Log.w(TAG, "Ignoring intent with unrecognized action " + action);
     }
 
+    private void startThreadedRequest(final MssoRequest request) {
+        MssoExecutorService.getInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+                onProcessRequest(request);
+            }
+        });
+    }
+
     private void onOtpObtained(Bundle extras, MssoRequest request) {
         Bundle bundle = new Bundle();
         bundle.putString(OtpConstants.X_OTP, extras.getString(MssoIntents.EXTRA_OTP_VALUE));
         bundle.putString(OtpConstants.X_OTP_CHANNEL, extras.getString(MssoIntents.EXTRA_OTP_SELECTED_CHANNELS));
-        //associate the otp and selected channels to the request
+        //Associate the OTP and selected channels to the request
         request.setExtra(bundle);
-        onProcessRequest(request);
+        startThreadedRequest(request);
     }
 
-    private void onCredentialsObtained(Bundle extras, MssoRequest request) {
-        // Make credentials available to this requests MssoContext
+    private void onCredentialsObtained(Bundle extras, final MssoRequest request) {
+        //Make credentials available to this request's MssoContext
         MASAuthCredentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
         request.getMssoContext().setCredentials(creds);
 
         boolean originalRequestProcessed = false;
 
-        //Give highest priority to authenticate Request
+        //Give highest priority to any authenticate requests
         if (request.getRequest() instanceof AuthenticateRequest) {
-            moveToFirst(request);
-        }
-
-        final ArrayList<MssoRequest> requests = new ArrayList<MssoRequest>(MssoActiveQueue.getInstance().getAllRequest());
-        for (MssoRequest mssoRequest : requests) {
-            if (request == mssoRequest)
-                originalRequestProcessed = true;
-            if (!onProcessRequest(mssoRequest)) {
-                // Stop servicing queue now
-                break;
-            }
-        }
-
-        // Ensure we make at least one request to process the original request
-        if (!originalRequestProcessed)
             onProcessRequest(request);
-    }
+        }
 
+        final ArrayList<MssoRequest> requests = new ArrayList<>(MssoActiveQueue.getInstance().getAllRequest());
+        for (final MssoRequest mssoRequest : requests) {
+            if (request == mssoRequest) {
+                originalRequestProcessed = true;
+            }
+            startThreadedRequest(mssoRequest);
+        }
 
-    private void moveToFirst(MssoRequest request) {
-        MssoActiveQueue.getInstance().takeRequest(request.getId());
-        ArrayList<MssoRequest> requests = new ArrayList<>(MssoActiveQueue.getInstance().getAllRequest());
-        MssoActiveQueue.getInstance().addRequest(request);
-        for (MssoRequest r : requests) {
-            MssoActiveQueue.getInstance().takeRequest(r.getId());
-            MssoActiveQueue.getInstance().addRequest(r);
+        //Ensure we make at least one request to process the original request
+        if (!originalRequestProcessed) {
+            startThreadedRequest(request);
         }
     }
 
     private void onProcessAllPendingRequests() {
         final Collection<MssoRequest> requests = new ArrayList<>(MssoActiveQueue.getInstance().getAllRequest());
         for (MssoRequest mssoRequest : requests) {
-            if (!onProcessRequest(mssoRequest)) {
-                // Stop servicing queue now
-                break;
-            }
+            startThreadedRequest(mssoRequest);
         }
     }
 
-    /**
-     * @param request request to process. Required.
-     * @return true if the request was handled to completion (requestFinished() was called)
-     * false if an activity was started (requestFinished() not called, request still pending)
-     */
-    private boolean onProcessRequest(final MssoRequest request) {
+    private void onProcessRequest(final MssoRequest request) {
         ResultReceiver receiver = request.getResultReceiver();
         boolean expectingUnlock = false;
 
@@ -177,19 +163,17 @@ public class MssoService extends IntentService {
         try {
             MAGResponse magResponse = mssoContext.executeRequest(request.getExtra(), request.getRequest());
 
-            // Success. Move to response queue and send success notification.
+            //Success: move to response queue and send a success notification.
             if (requestFinished(request)) {
                 MssoResponse response = createMssoResponse(request, magResponse);
                 MssoResponseQueue.getInstance().addResponse(response);
                 respondSuccess(receiver, response.getId(), "OK");
-            } else {
-                // Request was canceled, don't bother enqueuing a response
             }
-            MssoState.setExpectingUnlock(false);
-            return true;
+            //Otherwise, the request was cancelled, so don't bother enqueuing a response.
 
+            MssoState.setExpectingUnlock(false);
         } catch (CredentialRequiredException e) {
-            if (DEBUG) Log.d(TAG, "Request for user credential");
+            if (DEBUG) Log.d(TAG, "Request for user credentials");
             //Notify listener
             MobileSsoListener mobileSsoListener = ConfigurationManager.getInstance().getMobileSsoListener();
             try {
@@ -199,25 +183,18 @@ public class MssoService extends IntentService {
                 } else {
                     if (DEBUG) Log.w(TAG, "No Authentication listener is registered");
                 }
-                // Keep request pending, will revisit after CREDENTIALS_OBTAINED
-                return false;
             } catch (OAuthException | OAuthServerException e1) {
                 if (DEBUG) Log.e(TAG, e1.getMessage(), e1);
                 requestFinished(request);
                 respondError(request.getResultReceiver(), MssoIntents.RESULT_CODE_ERR_AUTHORIZE, new MAGError(e1));
-                return true;
             }
-
         } catch (TokenStoreUnavailableException e) {
             try {
                 expectingUnlock = true;
                 mssoContext.getTokenManager().getTokenStore().unlock();
-                // Keep request pending, will revisit after unlock has completed
-                return false;
             } catch (Exception e1) {
                 requestFinished(request);
                 respondError(receiver, MssoIntents.RESULT_CODE_ERR_UNKNOWN, new MAGError(e));
-                return true;
             }
         } catch (OtpException e) {
             OtpResponseHeaders otpResponseHeaders = e.getOtpResponseHeaders();
@@ -236,23 +213,18 @@ public class MssoService extends IntentService {
                     OtpAuthenticationHandler otpHandler = new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), true, selectedChannels);
                     mobileSsoListener.onOtpAuthenticationRequest(otpHandler);
                 }
-                return false;
             }
             if (DEBUG) Log.e(TAG, e.getMessage(), e);
             requestFinished(request);
             respondError(receiver, getErrorCode(e), new MAGError(e));
-            return true;
-
-        } catch (Throwable t) {
-            if (DEBUG) Log.e(TAG, t.getMessage(), t);
+        } catch (Exception e2) {
+            if (DEBUG) Log.e(TAG, e2.getMessage(), e2);
             requestFinished(request);
-            respondError(receiver, getErrorCode(t), new MAGError(t));
-            return true;
+            respondError(receiver, getErrorCode(e2), new MAGError(e2));
         } finally {
             MssoState.setExpectingUnlock(expectingUnlock);
         }
     }
-
 
     private int getErrorCode(Throwable exception) {
         try {
@@ -296,8 +268,7 @@ public class MssoService extends IntentService {
         }
     }
 
-
-    private MssoResponse createMssoResponse(MssoRequest request, MAGResponse response) throws IOException {
+    private MssoResponse createMssoResponse(MssoRequest request, MAGResponse response) {
         return new MssoResponse(request, response);
     }
 
@@ -340,5 +311,4 @@ public class MssoService extends IntentService {
             receiver.send(MssoIntents.RESULT_CODE_SUCCESS, resultData);
         }
     }
-
 }

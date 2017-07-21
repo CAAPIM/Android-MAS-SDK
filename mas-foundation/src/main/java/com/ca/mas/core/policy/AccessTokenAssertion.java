@@ -56,8 +56,7 @@ class AccessTokenAssertion implements MssoAssertion {
     }
 
     @Override
-    public void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
-
+    public synchronized void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
         if (request.getRequest().getURL() != null) {
             if (request.getRequest().getURL().getHost() == null) {
                 throw new IllegalArgumentException("Host is not provided");
@@ -74,7 +73,6 @@ class AccessTokenAssertion implements MssoAssertion {
             //Clear any Authorization from the header before adding new one.
             request.getRequest().addHeader("Authorization", "Bearer " + accessToken);
         }
-
     }
 
     @Override

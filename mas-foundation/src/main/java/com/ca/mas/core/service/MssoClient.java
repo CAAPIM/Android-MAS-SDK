@@ -127,7 +127,6 @@ public class MssoClient {
                 if (aResultReceiver != null) {
                     aResultReceiver.onError(new MAGError(e));
                 }
-                return null;
             } catch (Exception ignore) {
                 if (DEBUG) Log.w(TAG, ignore);
             }
@@ -201,7 +200,6 @@ public class MssoClient {
                 if (aResultReceiver != null) {
                     aResultReceiver.onError(new MAGError(e));
                 }
-                return null;
             } catch (Exception ignore) {
                 if (DEBUG) Log.w(TAG, ignore);
             }
@@ -239,7 +237,7 @@ public class MssoClient {
 
     /**
      * Cancel the specified request ID.  If the response notification has not already been delivered (or is not already in progress)
-     * by the time this method executes, a response notification will never occur fo the specified request ID.
+     * by the time this method executes, a response notification will never occur for the specified request ID.
      *
      * @param requestId the request ID to cancel.
      */
@@ -271,7 +269,6 @@ public class MssoClient {
                 return mssoResponse.getRequest().getCreator() == MssoClient.this;
             }
         }, data);
-
         MssoActiveQueue.getInstance().removeMatching(new Functions.Unary<Boolean, MssoRequest>() {
             @Override
             public Boolean call(MssoRequest mssoRequest) {

@@ -31,7 +31,7 @@ class MssoExecutorService {
     private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
     private static final int CORE_POOL_SIZE = CPU_COUNT + 1;
     private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
-    private static final int KEEP_ALIVE = 1;
+    private static final int KEEP_ALIVE = 5;
 
     private static final BlockingQueue<Runnable> POOL_WORK_QUEUE = new LinkedBlockingQueue<>(128);
     private static final ThreadFactory THREAD_FACTORY = new ThreadFactory() {
@@ -49,7 +49,7 @@ class MssoExecutorService {
     private static ExecutorService executor;
 
     public static ExecutorService getInstance() {
-        if (executor == null) {
+        if (executor == null || executor.isShutdown()) {
             executor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE,
                             TimeUnit.SECONDS, POOL_WORK_QUEUE, THREAD_FACTORY);
         }

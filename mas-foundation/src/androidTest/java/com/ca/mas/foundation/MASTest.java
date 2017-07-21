@@ -759,7 +759,7 @@ public class MASTest extends MASLoginTestBase {
         //assertTrue(duration.compareTo(new BigDecimal(10)) == 1);
 
         //With Multi-thread, all requests should completed within 1-3 seconds.
-        assertTrue((duration.compareTo(new BigDecimal(1)) == 1) && (duration.compareTo(new BigDecimal(2)) == -1));
+        assertTrue((duration.compareTo(new BigDecimal(1)) == 1) && (duration.compareTo(new BigDecimal(3)) == -1));
 
     }
 

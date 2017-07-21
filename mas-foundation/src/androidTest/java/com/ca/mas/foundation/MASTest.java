@@ -755,11 +755,11 @@ public class MASTest extends MASLoginTestBase {
 
         BigDecimal duration = new BigDecimal(end - start).divide(new BigDecimal(1000));
 
-        //Before
-        assertTrue(duration.compareTo(new BigDecimal(10)) == 1);
+        //Without Multi-thread, all requests should completed more than 10 seconds.
+        //assertTrue(duration.compareTo(new BigDecimal(10)) == 1);
 
-        //After
-        //assertTrue((duration.compareTo(new BigDecimal(1)) == 1) && (duration.compareTo(new BigDecimal(2)) == -1));
+        //With Multi-thread, all requests should completed within 1-3 seconds.
+        assertTrue((duration.compareTo(new BigDecimal(1)) == 1) && (duration.compareTo(new BigDecimal(2)) == -1));
 
     }
 

@@ -131,6 +131,7 @@ public class MssoService extends IntentService {
 
         //Give highest priority to any authenticate requests
         if (request.getRequest() instanceof AuthenticateRequest) {
+            originalRequestProcessed = true;
             onProcessRequest(request);
         }
 
@@ -213,6 +214,7 @@ public class MssoService extends IntentService {
                     OtpAuthenticationHandler otpHandler = new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), true, selectedChannels);
                     mobileSsoListener.onOtpAuthenticationRequest(otpHandler);
                 }
+                return;
             }
             if (DEBUG) Log.e(TAG, e.getMessage(), e);
             requestFinished(request);

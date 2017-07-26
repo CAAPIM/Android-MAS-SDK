@@ -807,4 +807,39 @@ public class MASTest extends MASLoginTestBase {
         assertEquals(callback5.get().getBody().getContent(), "name5");
 
     }
+
+    @Test
+    public void testHttpPostWithJsonArray() throws Exception {
+
+        final JSONArray requestData = new JSONArray();
+        requestData.put("test1").put("test2");
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK).
+                        setHeader("Content-type", ContentType.APPLICATION_JSON).
+                        setBody(requestData.toString()); //Response with JSONArray
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .post(new JSONArrayRequestBody(requestData))
+                .responseBody(new JSONArrayResponse())
+                .build();
+
+        MASCallbackFuture<MASResponse<JSONArray>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        assertEquals(requestData.toString(), callback.get().getBody().getContent().toString());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+
+        RecordedRequest recordedRequest = getRecordRequest(uri.getPath());
+
+        assertEquals(requestData.toString(), new String(recordedRequest.getBody().readUtf8()));
+    }
 }

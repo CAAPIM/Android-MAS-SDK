@@ -54,6 +54,7 @@ public class MASConnectOptions extends MqttConnectOptions {
                 JSONObject jobj = response.getBody().getContent();
                 String oauthToken = jobj.optString(StateRequest.ACCESS_TOKEN);
                 final MqttConnectOptions connectOptions = ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(), timeOutInMillis);
+                //TODO MultiServer changes is required
                 SSLSocketFactory sslSocketFactory = new MAGSocketFactory().createTLSSocketFactory();
                 connectOptions.setSocketFactory(sslSocketFactory);
                 String uname = MASUser.getCurrentUser().getUserName();

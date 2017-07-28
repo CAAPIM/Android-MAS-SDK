@@ -10,6 +10,7 @@ package com.ca.mas.foundation;
 
 import android.content.Context;
 
+import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.conf.Config;
 import com.ca.mas.core.conf.ConfigurationManager;
@@ -19,6 +20,8 @@ import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Observable;
+import java.util.Observer;
 
 public class MASConfiguration {
 
@@ -31,6 +34,9 @@ public class MASConfiguration {
     private static Config APP_REGISTERED_BY = new Config(false, FoundationConsts.KEY_CONFIG_APP_REGISTERED_BY, "oauth.client.registered_by", String.class);
     private static Config APP_DESCRIPTION = new Config(false, FoundationConsts.KEY_CONFIG_APP_DESCRIPTION, "oauth.client.description", String.class);
     private static Config APP_TYPE = new Config(false, FoundationConsts.KEY_CONFIG_APP_TYPE, "oauth.client.client_type", String.class);
+
+    public static final EventDispatcher SECURITY_CONFIGURATION_CHANGED = new EventDispatcher();
+    public static final EventDispatcher SECURITY_CONFIGURATION_RESET = new EventDispatcher();
 
     private static MASConfiguration current;
 
@@ -47,6 +53,13 @@ public class MASConfiguration {
         ConfigurationManager.getInstance().setAppConfigs(Arrays.asList(USERINFO, MAS_SCIM, MAS_STORAGE, APP_NAME,
                 APP_ORGANIZATION, APP_REGISTERED_BY, APP_DESCRIPTION, APP_TYPE));
         current = this;
+        //TODO
+        SECURITY_CONFIGURATION_RESET.notifyObservers();
+        //May need to Synchronize for concurrent request.
+        //transform the msso config to MASSecurityConfiguration
+        //Rebuild the map which store the MASSecurityConfiguration, a indicator may required to identify which is the one from msso_config
+        //When rebuild the map, we don't want the old msso_config
+        //Add the msso_config MASSecurityConfiguration to the map.
     }
 
     /**
@@ -191,5 +204,20 @@ public class MASConfiguration {
 
     public int getCertificateAdvancedRenewTimeframe() {
         return ConfigurationManager.getInstance().getCertificateAdvancedRenewTimeframe();
+    }
+
+    //TODO MultiServer
+    public static void add(MASSecurityConfiguration securityConfiguration) {
+        SECURITY_CONFIGURATION_CHANGED.notifyObservers(securityConfiguration.getHost());
+    }
+
+    //TODO MultiServer
+    public static void removeSecurityConfiguration(String host) {
+        SECURITY_CONFIGURATION_CHANGED.notifyObservers(host);
+    }
+
+    //TODO MultiServer
+    public static MASSecurityConfiguration findByHost(String host) {
+        return null;
     }
 }

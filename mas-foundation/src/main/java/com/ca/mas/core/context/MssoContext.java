@@ -44,6 +44,7 @@ import com.ca.mas.core.token.ClientCredentials;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.token.JWTValidation;
 import com.ca.mas.core.token.JWTValidationException;
+import com.ca.mas.foundation.MASConfiguration;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -287,7 +288,8 @@ public class MssoContext {
      * Use this if the trusted certificate or client cert configuration changes.
      */
     public void resetHttpClient() {
-        magHttpClient = null;
+        //TODO MultiServer reset
+        MASConfiguration.SECURITY_CONFIGURATION_RESET.notifyObservers();
     }
 
     /**
@@ -301,7 +303,8 @@ public class MssoContext {
         if (client != null)
             return client;
 
-        client = new MAGHttpClient() {
+        //TODO MultiServer we inject the base on the MASSecurityConfiguration, not necessary to inject the header here.
+        client = new MAGHttpClient();/* {
             @Override
             protected void onConnectionObtained(HttpURLConnection connection) {
                 super.onConnectionObtained(connection);
@@ -311,6 +314,7 @@ public class MssoContext {
                 }
             }
         };
+        */
         magHttpClient = client;
         return client;
 

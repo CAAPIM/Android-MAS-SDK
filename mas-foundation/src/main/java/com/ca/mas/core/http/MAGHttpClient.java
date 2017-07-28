@@ -14,6 +14,7 @@ import android.util.Log;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.io.ssl.MAGPinningSocketFactory;
 import com.ca.mas.core.io.ssl.MAGSocketFactory;
+import com.ca.mas.foundation.MASSecurityConfiguration;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -30,14 +31,23 @@ import static com.ca.mas.foundation.MAS.TAG;
 
 public class MAGHttpClient {
 
-    private SSLSocketFactory sslSocketFactory;
+    //TODO MultiServer new interface for MAGHttpClient
 
+    /*
     public MAGHttpClient() {
-        sslSocketFactory = new MAGSocketFactory().createTLSSocketFactory();
     }
 
-    public MAGHttpClient(String publicKeyHash) {
+    public MAGHttpClient(String publicHashkey) {
         sslSocketFactory = new MAGPinningSocketFactory(publicKeyHash).createTLSSocketFactory();
+    }
+    */
+
+    public <T> MAGResponse<T> execute(MAGRequest request, MASSecurityConfiguration securityConfiguration) throws IOException {
+        return execute(request, SSLSocketFactoryProvider.getInstance().createSSLSocketFactory(securityConfiguration));
+    }
+
+    public <T> MAGResponse<T> execute(MAGRequest request) throws IOException {
+        return execute(request, SSLSocketFactoryProvider.getInstance().get(request.getURL().getHost()));
     }
 
     /**
@@ -48,7 +58,7 @@ public class MAGHttpClient {
      * @return The response to the request.
      * @throws IOException if any error occur or the connection was aborted.
      */
-    public <T> MAGResponse<T> execute(MAGRequest request) throws IOException {
+    public <T> MAGResponse<T> execute(MAGRequest request, SSLSocketFactory sslSocketFactory) throws IOException {
         final HttpURLConnection urlConnection = (HttpURLConnection) request.getURL().openConnection();
 
         if (DEBUG) {
@@ -57,6 +67,8 @@ public class MAGHttpClient {
         }
 
         try {
+            //TODO MultiServer inject mag-identifier if isPublic == false;
+
             onConnectionObtained(urlConnection);
             if (request.getConnectionListener() != null) {
                 request.getConnectionListener().onObtained(urlConnection);

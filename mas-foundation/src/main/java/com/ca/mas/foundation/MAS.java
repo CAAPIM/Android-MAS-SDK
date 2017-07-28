@@ -306,10 +306,13 @@ public class MAS {
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-                    MAGHttpClient client = new MAGHttpClient(publicKeyHash);
+                    //TODO MultiServer use new MAGHttpClient interface
+                    MASSecurityConfiguration.Builder builder = new MASSecurityConfiguration.Builder();
+                    MAGHttpClient client = new MAGHttpClient();
+                    //MAGHttpClient client = new MAGHttpClient(publicKeyHash);
                     MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
                             responseBody(MAGResponseBody.jsonBody()).build();
-                    MAGResponse<JSONObject> response = client.execute(request);
+                    MAGResponse<JSONObject> response = client.execute(request, builder.build());
                     if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
                         throw ServerClient.createServerException(response, MASServerException.class);
                     }

@@ -442,6 +442,7 @@ public class MssoContext {
         for (; requestInfo.getNumAttempts() < MAX_REQUEST_ATTEMPTS; requestInfo.incrementNumAttempts()) {
             try {
                 //Do not execute the policy if this request is targeting an unprotected endpoint.
+                //TODO MultiServer, similar logic for server which define isPublic = true.
                 if (request.isPublic()) {
                     if (!request.getURL().getHost().equals(getConfigurationProvider().getTokenHost())) {
                         throw new IllegalArgumentException(

@@ -145,6 +145,21 @@ public class MASMultiServerTest extends MASLoginTestBase {
         //ContainHas mag-identifier header
     }
 
+    @Test
+    public void testPublicCA() throws Exception {
+        //https://swapi.co/api/people/4/
+        //https://en.wikipedia.org/w/api.php?action=query&titles=CA_Technologies&prop=revisions&rvprop=content&format=json
+        //https://itunes.apple.com/search?term=red+hot+chili+peppers&entity=musicVideo
+        //https://www.googleapis.com/books/v1/volumes?q=patrick+rothfuss
+        //https://api.ipify.org?format=json
+
+        //May be with public key pinning only
+
+    }
+
+
+
+
     @After
     public void shutDownServer() throws Exception {
         if (mockServer != null) {

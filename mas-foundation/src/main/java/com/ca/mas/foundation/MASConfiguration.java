@@ -207,17 +207,17 @@ public class MASConfiguration {
     }
 
     //TODO MultiServer
-    public static void add(MASSecurityConfiguration securityConfiguration) {
+    public  void add(MASSecurityConfiguration securityConfiguration) {
         SECURITY_CONFIGURATION_CHANGED.notifyObservers(securityConfiguration.getHost());
     }
 
     //TODO MultiServer
-    public static void removeSecurityConfiguration(String host) {
+    public void removeSecurityConfiguration(String host) {
         SECURITY_CONFIGURATION_CHANGED.notifyObservers(host);
     }
 
     //TODO MultiServer
-    public static MASSecurityConfiguration findByHost(String host) {
+    public MASSecurityConfiguration findByHost(String host) {
         return null;
     }
 }

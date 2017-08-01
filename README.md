@@ -29,8 +29,7 @@ For more information about our mobile products see [the website][mas.ca.com].
 
 
 ## Get Started
-* Read the "[Getting Started][get-started]" guide or watch some [video tutorials][video].
-* Check out our [documentation][documentation] for more details and sample code.
+* Check out our [documentation][documentation] for more details and sample code, or watch some [video tutorials][video].
 
 
 ## Communication

@@ -30,8 +30,6 @@ public interface MASSecurityConfiguration {
 
         private boolean isPublic;
         private boolean isPrimary;
-        private boolean enforcePinning;
-        private boolean includeCredentials = true;
         private boolean trustPublicPKI;
 
         private PINNING_TYPE pinningType;
@@ -42,37 +40,27 @@ public interface MASSecurityConfiguration {
         private String host;
 
         //Only one MASSecurityConfiguration should ever represent the primary gateway
-        Builder isPrimary(boolean p) {
+        public Builder isPrimary(boolean p) {
             this.isPrimary = p;
             return this;
         }
 
-        Builder isPublic(boolean p) {
+        public Builder isPublic(boolean p) {
             this.isPublic = p;
             return this;
         }
 
-        Builder enforcePinning(boolean enforce) {
-            this.enforcePinning = enforce;
-            return this;
-        }
-
-        Builder includeCredentials(boolean include) {
-            this.includeCredentials = include;
-            return this;
-        }
-
-        Builder trustPublicPKI(boolean trust) {
+        public Builder trustPublicPKI(boolean trust) {
             this.trustPublicPKI = trust;
             return this;
         }
 
-        Builder host(String host) {
+        public Builder host(String host) {
             this.host = host;
             return this;
         }
 
-        Builder add(Certificate certificate) {
+        public Builder add(Certificate certificate) {
             if (certificates == null) {
                 certificates = new ArrayList<>();
             }
@@ -80,7 +68,7 @@ public interface MASSecurityConfiguration {
             return this;
         }
 
-        Builder add(String publicKeyHash) {
+        public Builder add(String publicKeyHash) {
             if (publicKeyHashes == null) {
                 publicKeyHashes = new ArrayList<>();
             }
@@ -88,7 +76,7 @@ public interface MASSecurityConfiguration {
             return this;
         }
 
-        MASSecurityConfiguration build() {
+        public MASSecurityConfiguration build() {
             if (host == null) {
                 throw new IllegalArgumentException("Missing host.");
             }

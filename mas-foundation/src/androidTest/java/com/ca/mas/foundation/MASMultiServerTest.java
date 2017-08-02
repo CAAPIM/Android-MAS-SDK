@@ -37,14 +37,18 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 import javax.security.auth.x500.X500Principal;
 
 public class MASMultiServerTest extends MASLoginTestBase {
@@ -157,8 +161,45 @@ public class MASMultiServerTest extends MASLoginTestBase {
 
     }
 
+    @Test
+    public void testGetCert() throws Exception {
+        Assert.assertNotNull(getCert());
+    }
 
+    private Certificate getCert() throws Exception {
 
+        //URL url = new URL("https://mobile-staging-androidautomation.l7tech.com:8443");
+        URL url = new URL("https://swapi.co");
+
+        SSLContext sslCtx = SSLContext.getInstance("TLS");
+        sslCtx.init(null, new TrustManager[]{new X509TrustManager() {
+
+            private X509Certificate[] accepted;
+
+            @Override
+            public void checkClientTrusted(X509Certificate[] xcs, String string) throws CertificateException {
+                throw new CertificateException("This trust manager is only for clients");
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] xcs, String string) throws CertificateException {
+                accepted = xcs;
+            }
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return accepted;
+            }
+        }}, null);
+
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+        connection.setSSLSocketFactory(sslCtx.getSocketFactory());
+        connection.getResponseCode();
+        Certificate[] certificates = connection.getServerCertificates();
+        connection.disconnect();
+        return certificates[0];
+    }
 
     @After
     public void shutDownServer() throws Exception {

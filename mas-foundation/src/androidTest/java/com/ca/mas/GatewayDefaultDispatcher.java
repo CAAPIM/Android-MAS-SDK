@@ -299,7 +299,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
         String token = "{\n" +
                 "  \"access_token\":\"caa5871c-7c0f-44c7-b03b-1783609170e4\",\n" +
                 "  \"token_type\":\"Bearer\",\n" +
-                "  \"expires_in\":" + new Date().getTime() + 3600 + ",\n" +
+                "  \"expires_in\":" + 3600 + ",\n" +
                 "  \"refresh_token\":\"19785fca-4b86-4f8e-a73c-7de1d420f88d\",\n" +
                 "  \"scope\":\"openid msso phone profile address email msso_register msso_client_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups\"\n" +
                 "}";

@@ -392,6 +392,11 @@ public class User extends MASUser {
     }
 
     @Override
+    public String getAccessToken() {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
     public Bitmap getThumbnailImage() {
         return IdentityUtil.getThumbnail(getPhotoList());
     }

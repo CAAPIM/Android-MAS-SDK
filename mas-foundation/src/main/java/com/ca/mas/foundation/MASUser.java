@@ -214,6 +214,11 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
         return current;
     }
 
+    /**
+     * @return OAuth Access Token
+     */
+    public abstract String getAccessToken();
+
     private static MASUser createMASUser() {
 
         MASUser user = new User() {
@@ -368,6 +373,15 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             @Override
             public void getUserMetaData(MASCallback<UserAttributes> callback) {
                 userRepository.getUserMetaData(callback);
+            }
+
+            @Override
+            public String getAccessToken() {
+                long expiry = StorageProvider.getInstance().getOAuthTokenContainer().getExpiry();
+                if (expiry <= 0 || System.currentTimeMillis() <= expiry) {
+                    return StorageProvider.getInstance().getOAuthTokenContainer().getAccessToken();
+                }
+                return null;
             }
 
             @Override

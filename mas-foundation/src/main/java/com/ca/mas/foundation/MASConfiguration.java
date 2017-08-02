@@ -5,10 +5,10 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.foundation;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MobileSsoConfig;
@@ -18,33 +18,32 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.Iterator;
+import java.util.List;
 
 public class MASConfiguration {
 
     private static Config USERINFO = new Config(false, FoundationConsts.KEY_CONFIG_USER_INFO, "oauth.oauth_protected_endpoints.userinfo_endpoint_path", String.class);
     private static Config MAS_SCIM = new Config(false, FoundationConsts.KEY_CONFIG_SCIM_PATH, "mas.scim-path", String.class);
     private static Config MAS_STORAGE = new Config(false, FoundationConsts.KEY_CONFIG_CLOUD_STORAGE_PATH, "mas.mas-storage-path", String.class);
-
     private static Config APP_NAME = new Config(false, FoundationConsts.KEY_CONFIG_APP_NAME, "oauth.client.client_name", String.class);
     private static Config APP_ORGANIZATION = new Config(false, FoundationConsts.KEY_CONFIG_APP_ORGANIZATION, "oauth.client.organization", String.class);
     private static Config APP_REGISTERED_BY = new Config(false, FoundationConsts.KEY_CONFIG_APP_REGISTERED_BY, "oauth.client.registered_by", String.class);
     private static Config APP_DESCRIPTION = new Config(false, FoundationConsts.KEY_CONFIG_APP_DESCRIPTION, "oauth.client.description", String.class);
     private static Config APP_TYPE = new Config(false, FoundationConsts.KEY_CONFIG_APP_TYPE, "oauth.client.client_type", String.class);
-
     public static final EventDispatcher SECURITY_CONFIGURATION_CHANGED = new EventDispatcher();
     public static final EventDispatcher SECURITY_CONFIGURATION_RESET = new EventDispatcher();
-
-    private static MASConfiguration current;
+    private static MASConfiguration primary;
+    private static List<MASSecurityConfiguration> securityConfigurations;
 
     public static MASConfiguration getCurrentConfiguration() {
-        if (current == null) {
+        if (primary == null) {
             throw new IllegalStateException("MAS.start() has not been invoked.");
         }
-        return current;
+        return primary;
     }
 
     protected MASConfiguration(Context context) {
@@ -52,7 +51,7 @@ public class MASConfiguration {
         ConfigurationManager.getInstance().init(appContext);
         ConfigurationManager.getInstance().setAppConfigs(Arrays.asList(USERINFO, MAS_SCIM, MAS_STORAGE, APP_NAME,
                 APP_ORGANIZATION, APP_REGISTERED_BY, APP_DESCRIPTION, APP_TYPE));
-        current = this;
+        primary = this;
         //TODO
         SECURITY_CONFIGURATION_RESET.notifyObservers();
         //May need to Synchronize for concurrent request.
@@ -60,6 +59,12 @@ public class MASConfiguration {
         //Rebuild the map which store the MASSecurityConfiguration, a indicator may required to identify which is the one from msso_config
         //When rebuild the map, we don't want the old msso_config
         //Add the msso_config MASSecurityConfiguration to the map.
+
+        MASSecurityConfiguration.Builder configBuilder = new MASSecurityConfiguration.Builder()
+                .isPrimary(true)
+                .host(getGatewayHostName())
+                .enforcePinning(isEnabledPublicKeyPinning())
+                .trustPublicPKI(isEnabledTrustedPublicPKI());
     }
 
     /**
@@ -69,7 +74,6 @@ public class MASConfiguration {
     public boolean isLoaded() {
         return true;
     }
-
 
     /**
      * The name of the applications.
@@ -207,17 +211,37 @@ public class MASConfiguration {
     }
 
     //TODO MultiServer
-    public  void add(MASSecurityConfiguration securityConfiguration) {
+    public void add(MASSecurityConfiguration securityConfiguration) {
+        if (securityConfigurations == null) {
+            securityConfigurations = new ArrayList<>();
+        }
+        securityConfigurations.add(securityConfiguration);
         SECURITY_CONFIGURATION_CHANGED.notifyObservers(securityConfiguration.getHost());
     }
 
     //TODO MultiServer
     public void removeSecurityConfiguration(String host) {
+        if (securityConfigurations != null) {
+            Iterator it = securityConfigurations.iterator();
+            while (it.hasNext()) {
+                MASSecurityConfiguration config = (MASSecurityConfiguration) it.next();
+                if (TextUtils.equals(config.getHost(), host)) {
+                    it.remove();
+                }
+            }
+        }
         SECURITY_CONFIGURATION_CHANGED.notifyObservers(host);
     }
 
     //TODO MultiServer
     public MASSecurityConfiguration findByHost(String host) {
+        if (securityConfigurations != null) {
+            for (MASSecurityConfiguration config : securityConfigurations) {
+                if (TextUtils.equals(config.getHost(), host)) {
+                    return config;
+                }
+            }
+        }
         return null;
     }
 }

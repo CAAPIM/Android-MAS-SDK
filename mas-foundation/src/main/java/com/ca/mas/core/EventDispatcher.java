@@ -11,7 +11,7 @@ package com.ca.mas.core;
 import java.util.Observable;
 
 /**
- * Dispatch event to Observer which listen for the event
+ * Dispatch an event to an Observer which listens for the event.
  */
 public class EventDispatcher extends Observable {
 

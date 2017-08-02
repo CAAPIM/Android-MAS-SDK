@@ -7,7 +7,7 @@
   -->
 
 <resources>
-    <string name="app_name">MessagingSdk</string>
+    <string name="app_name">Invoke Test</string>
     <!-- connecta messages -->
     <string name="connected">CONNECTED</string>
     <string name="client_already_connected">Already connected</string>

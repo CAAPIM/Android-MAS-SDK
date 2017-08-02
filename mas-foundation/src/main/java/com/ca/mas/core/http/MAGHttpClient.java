@@ -11,9 +11,10 @@ package com.ca.mas.core.http;
 import android.os.Build;
 import android.util.Log;
 
+import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.io.ssl.MAGPinningSocketFactory;
-import com.ca.mas.core.io.ssl.MAGSocketFactory;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.foundation.MASSecurityConfiguration;
 
 import java.io.IOException;
@@ -67,7 +68,14 @@ public class MAGHttpClient {
         }
 
         try {
-            //TODO MultiServer inject mag-identifier if isPublic == false;
+            if (!request.isPublic()) {
+                StorageProvider sp = StorageProvider.getInstance();
+                TokenManager tm = sp.getTokenManager();
+                String magIdentifier = tm.getMagIdentifier();
+
+                MAGRequest.MAGRequestBuilder builder = new MAGRequest.MAGRequestBuilder(request);
+                builder.header(ServerClient.MAG_IDENTIFIER, magIdentifier);
+            }
 
             onConnectionObtained(urlConnection);
             if (request.getConnectionListener() != null) {

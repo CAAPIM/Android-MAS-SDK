@@ -37,7 +37,7 @@ import static com.ca.mas.foundation.MAS.TAG;
 
 public class ConfigurationManager {
 
-    private final String CONNECTED_GATEWAY_CONFIG = "connected_gateway.json";
+    private static final String CONNECTED_GATEWAY_CONFIG = "connected_gateway.json";
     private ConfigurationProvider connectedGatewayConfigurationProvider = null;
     private Context appContext;
     private List<Config> appConfigs;
@@ -94,7 +94,6 @@ public class ConfigurationManager {
         }
         throw new IllegalStateException("Gateway configuration should be configured.");
     }
-
 
     public JSONObject getConnectedGatewayConfig() {
         load();
@@ -154,7 +153,6 @@ public class ConfigurationManager {
             }
         }
     }
-
 
     public void activateDefault() {
         JSONObject jsonObject = getConfig(getConfigurationFileName());
@@ -221,7 +219,6 @@ public class ConfigurationManager {
     }
 
     public ConfigurationProvider create(JSONObject jsonObject) throws JSONException {
-
         String tokenHost = getValue(HOSTNAME, jsonObject);
         String tokenUriPrefix = getValue(Config.PREFIX, jsonObject);
         Integer port = getValue(PORT, jsonObject);
@@ -353,7 +350,6 @@ public class ConfigurationManager {
             }
         }
     }
-
 
     public String getConfigurationFileName() {
         if (configurationFileName == null) {

@@ -149,6 +149,21 @@ public interface MAGRequest {
         }
 
         /**
+         * Convenience method for reconstructing a request as a builder
+         * @param request
+         */
+        public MAGRequestBuilder(MAGRequest request) {
+            this.method = request.getMethod();
+            this.body = request.getBody();
+            this.grantProvider = request.getGrantProvider();
+            this.scope = request.getScope();
+            this.responseBody = request.getResponseBody();
+            this.isPublic = request.isPublic();
+            this.headers = request.getHeaders();
+            this.listener = request.getConnectionListener();
+        }
+
+        /**
          * Create a build with provided {@link URL}
          *
          * @param url the provided URL

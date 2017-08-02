@@ -14,10 +14,8 @@ import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.auth.AuthenticationException;
-import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
-import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGServerException;
@@ -44,10 +42,10 @@ import com.ca.mas.core.token.ClientCredentials;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.token.JWTValidation;
 import com.ca.mas.core.token.JWTValidationException;
+import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASConfiguration;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.Date;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
@@ -299,25 +297,10 @@ public class MssoContext {
      * @return an MAGHttpClient instance.  Never null.
      */
     public MAGHttpClient getMAGHttpClient() {
-        MAGHttpClient client = magHttpClient;
-        if (client != null)
-            return client;
-
-        //TODO MultiServer we inject the base on the MASSecurityConfiguration, not necessary to inject the header here.
-        client = new MAGHttpClient();/* {
-            @Override
-            protected void onConnectionObtained(HttpURLConnection connection) {
-                super.onConnectionObtained(connection);
-                String magIdentifier = getTokenManager().getMagIdentifier();
-                if (magIdentifier != null) {
-                    connection.setRequestProperty(ServerClient.MAG_IDENTIFIER, magIdentifier);
-                }
-            }
-        };
-        */
-        magHttpClient = client;
-        return client;
-
+        if (magHttpClient == null) {
+            magHttpClient = new MAGHttpClient();
+        }
+        return magHttpClient;
     }
 
     /**

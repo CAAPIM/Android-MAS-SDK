@@ -842,4 +842,16 @@ public class MASTest extends MASLoginTestBase {
 
         assertEquals(requestData.toString(), new String(recordedRequest.getBody().readUtf8()));
     }
+
+    @Test
+    public void testOAuthTokenRequest() throws Exception {
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(new MASTokenRequest(), callback);
+
+        assertNotNull(callback.get().getBody().getContent().get("access_token"));
+        assertNotNull(callback.get().getBody().getContent().get("refresh_token"));
+        assertNotNull(callback.get().getBody().getContent().get("expires_in"));
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+
+    }
 }

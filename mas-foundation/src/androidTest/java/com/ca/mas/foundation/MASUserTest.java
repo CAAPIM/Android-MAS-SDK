@@ -16,6 +16,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 public class MASUserTest extends MASLoginTestBase {
 
@@ -26,7 +27,12 @@ public class MASUserTest extends MASLoginTestBase {
         assertEquals("admin", masUser.getUserName());
         assertEquals("admin", masUser.getId());
         assertEquals("Admin", masUser.getName().getFamilyName());
+    }
 
+    @Test
+    public void getAccessToken() throws Exception {
+        MASUser masUser = MASUser.getCurrentUser();
+        assertNotNull(masUser.getAccessToken());
     }
 
     @Ignore("Remove mas-connecta from mas module to test")

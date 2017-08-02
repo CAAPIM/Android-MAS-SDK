@@ -230,6 +230,13 @@ public class MASUserIdentityTest extends MASLoginTestBase {
             fail();
         } catch (UserNotAuthenticatedException ignored) {
         }
+
+        try {
+            masUser.getAccessToken();
+            fail();
+        } catch (UserNotAuthenticatedException ignored) {
+        }
+
     }
 
     @Test

@@ -63,7 +63,6 @@ public class MASConfiguration {
         MASSecurityConfiguration.Builder configBuilder = new MASSecurityConfiguration.Builder()
                 .isPrimary(true)
                 .host(getGatewayHostName())
-                .enforcePinning(isEnabledPublicKeyPinning())
                 .trustPublicPKI(isEnabledTrustedPublicPKI());
     }
 

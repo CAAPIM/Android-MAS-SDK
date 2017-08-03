@@ -84,7 +84,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
 
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .add(certificate)
-                .add(PublicKeyHash.fromPublicKey(certificate.getPublicKey()).getHash())
+                .add(PublicKeyHash.fromCertificate(certificate).getHashString())
                 .build();
 
         MASConfiguration.getCurrentConfiguration().add(configuration);

@@ -11,7 +11,6 @@ package com.ca.mas.core.io.ssl;
 import android.util.Base64;
 
 import com.ca.mas.core.cert.PublicKeyHash;
-import com.ca.mas.core.io.IoUtils;
 
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
@@ -27,10 +26,10 @@ public class MAGPinningSocketFactory {
 
     private static final String SSL_TLS_PROTOCOL = "TLS";
 
-    private String publicKeyHash;
+    private PublicKeyHash publicKeyHash;
 
     public MAGPinningSocketFactory(String publicKeyHash) {
-        this.publicKeyHash = IoUtils.hexDump(Base64.decode(publicKeyHash, Base64.URL_SAFE));
+        this.publicKeyHash = PublicKeyHash.fromHashString(publicKeyHash, Base64.URL_SAFE);
     }
 
     public SSLSocketFactory createTLSSocketFactory() {
@@ -46,15 +45,13 @@ public class MAGPinningSocketFactory {
                 public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
                     boolean sawPin = false;
                     for (X509Certificate cert : chain) {
-                        PublicKeyHash s = PublicKeyHash.fromPublicKey(cert.getPublicKey());
-                        if (PublicKeyHash.fromPublicKey(cert.getPublicKey()).equals(PublicKeyHash.fromHashString(publicKeyHash))) {
+                        if (publicKeyHash.matches(cert)) {
                             sawPin = true;
                             break;
                         }
                     }
                     if (!sawPin)
                         throw new CertificateException("Server certificate chain did not contain any of the pinned public keys");
-
                 }
 
                 @Override

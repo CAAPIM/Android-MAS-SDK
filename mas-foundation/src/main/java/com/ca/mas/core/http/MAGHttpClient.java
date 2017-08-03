@@ -72,9 +72,9 @@ public class MAGHttpClient {
                 StorageProvider sp = StorageProvider.getInstance();
                 TokenManager tm = sp.getTokenManager();
                 String magIdentifier = tm.getMagIdentifier();
-
-                MAGRequest.MAGRequestBuilder builder = new MAGRequest.MAGRequestBuilder(request);
-                builder.header(ServerClient.MAG_IDENTIFIER, magIdentifier);
+                if (magIdentifier != null) {
+                    urlConnection.setRequestProperty(ServerClient.MAG_IDENTIFIER, magIdentifier);
+                }
             }
 
             onConnectionObtained(urlConnection);

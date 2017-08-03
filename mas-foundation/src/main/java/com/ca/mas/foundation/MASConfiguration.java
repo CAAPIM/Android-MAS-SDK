@@ -61,19 +61,16 @@ public class MASConfiguration {
         manager.setAppConfigs(Arrays.asList(USERINFO, MAS_SCIM, MAS_STORAGE, APP_NAME,
                 APP_ORGANIZATION, APP_REGISTERED_BY, APP_DESCRIPTION, APP_TYPE));
         primary = this;
-        //TODO
+
         SECURITY_CONFIGURATION_RESET.notifyObservers();
-        //May need to Synchronize for concurrent request.
-        //transform the msso config to MASSecurityConfiguration
-        //Rebuild the map which store the MASSecurityConfiguration, a indicator may required to identify which is the one from msso_config
-        //When rebuild the map, we don't want the old msso_config
-        //Add the msso_config MASSecurityConfiguration to the map.
+        //Remove the previous MASSecurityConfiguration for the MSSO config gateway
         for (MASSecurityConfiguration config : securityConfigurations.values()) {
             if (config.isPrimary()) {
                 securityConfigurations.remove(config.getHost());
             }
         }
 
+        //Add the configuration back to the map
         MASSecurityConfiguration.Builder configBuilder = new MASSecurityConfiguration.Builder()
                 .isPrimary(true)
                 //Gateway by default is not public
@@ -81,8 +78,8 @@ public class MASConfiguration {
                 .host(getGatewayHostName())
                 .trustPublicPKI(isEnabledTrustedPublicPKI());
 
-        JSONObject jsonConfig = manager.getConnectedGatewayConfig();
         try {
+            JSONObject jsonConfig = manager.getConnectedGatewayConfig();
             configBuilder = extractCertificates(configBuilder, jsonConfig);
             configBuilder = extractPublicKeyHashes(configBuilder, jsonConfig);
         } catch (JSONException e) {

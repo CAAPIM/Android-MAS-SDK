@@ -210,6 +210,11 @@ public class MASConfiguration {
     }
 
     //TODO MultiServer
+
+    /**
+     * Add Security Configuration
+     * @param securityConfiguration The security Configuration
+     */
     public void add(MASSecurityConfiguration securityConfiguration) {
         if (securityConfigurations == null) {
             securityConfigurations = new ArrayList<>();

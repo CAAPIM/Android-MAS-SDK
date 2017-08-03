@@ -8,21 +8,29 @@
 package com.ca.mas.foundation;
 
 import android.content.Context;
-import android.text.TextUtils;
+import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MobileSsoConfig;
+import com.ca.mas.core.cert.CertUtils;
 import com.ca.mas.core.conf.Config;
 import com.ca.mas.core.conf.ConfigurationManager;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 public class MASConfiguration {
 
@@ -37,7 +45,7 @@ public class MASConfiguration {
     public static final EventDispatcher SECURITY_CONFIGURATION_CHANGED = new EventDispatcher();
     public static final EventDispatcher SECURITY_CONFIGURATION_RESET = new EventDispatcher();
     private static MASConfiguration primary;
-    private static List<MASSecurityConfiguration> securityConfigurations;
+    private static Map<String, MASSecurityConfiguration> securityConfigurations = new HashMap<>();
 
     public static MASConfiguration getCurrentConfiguration() {
         if (primary == null) {
@@ -48,8 +56,9 @@ public class MASConfiguration {
 
     protected MASConfiguration(Context context) {
         Context appContext = context.getApplicationContext();
-        ConfigurationManager.getInstance().init(appContext);
-        ConfigurationManager.getInstance().setAppConfigs(Arrays.asList(USERINFO, MAS_SCIM, MAS_STORAGE, APP_NAME,
+        ConfigurationManager manager = ConfigurationManager.getInstance();
+        manager.init(appContext);
+        manager.setAppConfigs(Arrays.asList(USERINFO, MAS_SCIM, MAS_STORAGE, APP_NAME,
                 APP_ORGANIZATION, APP_REGISTERED_BY, APP_DESCRIPTION, APP_TYPE));
         primary = this;
         //TODO
@@ -59,11 +68,79 @@ public class MASConfiguration {
         //Rebuild the map which store the MASSecurityConfiguration, a indicator may required to identify which is the one from msso_config
         //When rebuild the map, we don't want the old msso_config
         //Add the msso_config MASSecurityConfiguration to the map.
+        for (MASSecurityConfiguration config : securityConfigurations.values()) {
+            if (config.isPrimary()) {
+                securityConfigurations.remove(config.getHost());
+            }
+        }
 
         MASSecurityConfiguration.Builder configBuilder = new MASSecurityConfiguration.Builder()
                 .isPrimary(true)
+                //Gateway by default is not public
+                .isPublic(false)
                 .host(getGatewayHostName())
                 .trustPublicPKI(isEnabledTrustedPublicPKI());
+
+        JSONObject jsonConfig = manager.getConnectedGatewayConfig();
+        try {
+            configBuilder = extractCertificates(configBuilder, jsonConfig);
+            configBuilder = extractPublicKeyHashes(configBuilder, jsonConfig);
+        } catch (JSONException e) {
+            if (DEBUG) Log.e(TAG, "Failed to parse the MSSO config.");
+        }
+
+        MASSecurityConfiguration config = configBuilder.build();
+        securityConfigurations.put(config.getHost(), config);
+    }
+
+    private MASSecurityConfiguration.Builder extractCertificates(MASSecurityConfiguration.Builder configBuilder, JSONObject jsonConfig) throws JSONException {
+        JSONObject server = jsonConfig.getJSONObject("server");
+        JSONArray serverCerts = server.getJSONArray("server_certs");
+        int certsLength = serverCerts.length();
+        MASSecurityConfiguration.Builder result = configBuilder;
+        for (int i = 0; i < certsLength; i++) {
+            JSONArray certStrings = serverCerts.getJSONArray(i);
+            String certString = convertCertArrayToString(certStrings);
+            result = addDecodedPemCertificate(configBuilder, certString);
+        }
+
+        return result;
+    }
+
+    private String convertCertArrayToString(JSONArray certStrings) throws JSONException {
+        StringBuilder cert = new StringBuilder();
+        int certLength = certStrings.length();
+        for (int j = 0; j < certLength; j++) {
+            cert.append(certStrings.get(j));
+            if (j != certLength - 1) {
+                cert.append('\n');
+            }
+        }
+        return cert.toString();
+    }
+
+    private MASSecurityConfiguration.Builder addDecodedPemCertificate(MASSecurityConfiguration.Builder configBuilder, String certString) {
+        try {
+            X509Certificate cert = CertUtils.decodeCertFromPem(certString);
+            configBuilder.add(cert);
+        } catch (IOException e) {
+            if (DEBUG) Log.e(TAG, "Failed to decode the PEM certificate.");
+        }
+
+        return configBuilder;
+    }
+
+    private MASSecurityConfiguration.Builder extractPublicKeyHashes(MASSecurityConfiguration.Builder configBuilder, JSONObject jsonConfig) throws JSONException {
+        JSONObject oauth = jsonConfig.getJSONObject("mag");
+        JSONObject mobileSdk = oauth.getJSONObject("mobile_sdk");
+        JSONArray publicKeyHashes = mobileSdk.getJSONArray("trusted_cert_pinned_public_key_hashes");
+        int hashLength = publicKeyHashes.length();
+        for (int j = 0; j < hashLength; j++) {
+            String hash = publicKeyHashes.getString(j);
+            configBuilder.add(hash);
+        }
+
+        return configBuilder;
     }
 
     /**
@@ -210,28 +287,20 @@ public class MASConfiguration {
     }
 
     //TODO MultiServer
-
-    /**
-     * Add Security Configuration
-     * @param securityConfiguration The security Configuration
-     */
     public void add(MASSecurityConfiguration securityConfiguration) {
         if (securityConfigurations == null) {
-            securityConfigurations = new ArrayList<>();
+            securityConfigurations = new HashMap<>();
         }
-        securityConfigurations.add(securityConfiguration);
+        securityConfigurations.put(securityConfiguration.getHost(), securityConfiguration);
         SECURITY_CONFIGURATION_CHANGED.notifyObservers(securityConfiguration.getHost());
     }
 
     //TODO MultiServer
     public void removeSecurityConfiguration(String host) {
         if (securityConfigurations != null) {
-            Iterator it = securityConfigurations.iterator();
-            while (it.hasNext()) {
-                MASSecurityConfiguration config = (MASSecurityConfiguration) it.next();
-                if (TextUtils.equals(config.getHost(), host)) {
-                    it.remove();
-                }
+            MASSecurityConfiguration config = securityConfigurations.get(host);
+            if (config != null) {
+                securityConfigurations.remove(config);
             }
         }
         SECURITY_CONFIGURATION_CHANGED.notifyObservers(host);
@@ -240,11 +309,7 @@ public class MASConfiguration {
     //TODO MultiServer
     public MASSecurityConfiguration findByHost(String host) {
         if (securityConfigurations != null) {
-            for (MASSecurityConfiguration config : securityConfigurations) {
-                if (TextUtils.equals(config.getHost(), host)) {
-                    return config;
-                }
-            }
+            return securityConfigurations.get(host);
         }
         return null;
     }

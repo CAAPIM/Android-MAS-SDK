@@ -8,19 +8,14 @@
 package com.ca.mas.foundation;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MobileSsoConfig;
-import com.ca.mas.core.cert.CertUtils;
+import com.ca.mas.core.cert.PublicKeyHash;
 import com.ca.mas.core.conf.Config;
 import com.ca.mas.core.conf.ConfigurationManager;
+import com.ca.mas.core.conf.ConfigurationProvider;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.cert.X509Certificate;
@@ -28,9 +23,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.ca.mas.foundation.MAS.DEBUG;
-import static com.ca.mas.foundation.MAS.TAG;
 
 public class MASConfiguration {
 
@@ -45,7 +37,7 @@ public class MASConfiguration {
     public static final EventDispatcher SECURITY_CONFIGURATION_CHANGED = new EventDispatcher();
     public static final EventDispatcher SECURITY_CONFIGURATION_RESET = new EventDispatcher();
     private static MASConfiguration primary;
-    private static Map<String, MASSecurityConfiguration> securityConfigurations = new HashMap<>();
+    private static Map<URL, MASSecurityConfiguration> securityConfigurations = new HashMap<>();
 
     public static MASConfiguration getCurrentConfiguration() {
         if (primary == null) {
@@ -57,6 +49,7 @@ public class MASConfiguration {
     protected MASConfiguration(Context context) {
         Context appContext = context.getApplicationContext();
         ConfigurationManager manager = ConfigurationManager.getInstance();
+        ConfigurationProvider provider = manager.getConnectedGatewayConfigurationProvider();
         manager.init(appContext);
         manager.setAppConfigs(Arrays.asList(USERINFO, MAS_SCIM, MAS_STORAGE, APP_NAME,
                 APP_ORGANIZATION, APP_REGISTERED_BY, APP_DESCRIPTION, APP_TYPE));
@@ -70,74 +63,34 @@ public class MASConfiguration {
             }
         }
 
-        //Add the configuration back to the map
+        //Construct the MSSO config security configuration and put it back into the map
+        URL host = sanitizeURL(getGatewayUrl());
         MASSecurityConfiguration.Builder configBuilder = new MASSecurityConfiguration.Builder()
                 .isPrimary(true)
-                //Gateway by default is not public
+                //By default the gateway is not public
                 .isPublic(false)
-                .host(getGatewayHostName())
+                .host(host)
                 .trustPublicPKI(isEnabledTrustedPublicPKI());
 
-        try {
-            JSONObject jsonConfig = manager.getConnectedGatewayConfig();
-            configBuilder = extractCertificates(configBuilder, jsonConfig);
-            configBuilder = extractPublicKeyHashes(configBuilder, jsonConfig);
-        } catch (JSONException e) {
-            if (DEBUG) Log.e(TAG, "Failed to parse the MSSO config.");
+        //Add certificates, if any exist
+        Collection<X509Certificate> certificates = provider.getTrustedCertificateAnchors();
+        if (certificates != null) {
+            for (X509Certificate cert : certificates) {
+                configBuilder.add(cert);
+            }
+        }
+
+        //Add public key hashes, if any exist
+        Collection<PublicKeyHash> publicKeyHashes = provider.getTrustedCertificatePinnedPublicKeyHashes();
+        if (publicKeyHashes != null) {
+            for (PublicKeyHash hash : publicKeyHashes) {
+                String hashString = hash.getHashString();
+                configBuilder.add(hashString);
+            }
         }
 
         MASSecurityConfiguration config = configBuilder.build();
         securityConfigurations.put(config.getHost(), config);
-    }
-
-    private MASSecurityConfiguration.Builder extractCertificates(MASSecurityConfiguration.Builder configBuilder, JSONObject jsonConfig) throws JSONException {
-        JSONObject server = jsonConfig.getJSONObject("server");
-        JSONArray serverCerts = server.getJSONArray("server_certs");
-        int certsLength = serverCerts.length();
-        MASSecurityConfiguration.Builder result = configBuilder;
-        for (int i = 0; i < certsLength; i++) {
-            JSONArray certStrings = serverCerts.getJSONArray(i);
-            String certString = convertCertArrayToString(certStrings);
-            result = addDecodedPemCertificate(configBuilder, certString);
-        }
-
-        return result;
-    }
-
-    private String convertCertArrayToString(JSONArray certStrings) throws JSONException {
-        StringBuilder cert = new StringBuilder();
-        int certLength = certStrings.length();
-        for (int j = 0; j < certLength; j++) {
-            cert.append(certStrings.get(j));
-            if (j != certLength - 1) {
-                cert.append('\n');
-            }
-        }
-        return cert.toString();
-    }
-
-    private MASSecurityConfiguration.Builder addDecodedPemCertificate(MASSecurityConfiguration.Builder configBuilder, String certString) {
-        try {
-            X509Certificate cert = CertUtils.decodeCertFromPem(certString);
-            configBuilder.add(cert);
-        } catch (IOException e) {
-            if (DEBUG) Log.e(TAG, "Failed to decode the PEM certificate.");
-        }
-
-        return configBuilder;
-    }
-
-    private MASSecurityConfiguration.Builder extractPublicKeyHashes(MASSecurityConfiguration.Builder configBuilder, JSONObject jsonConfig) throws JSONException {
-        JSONObject oauth = jsonConfig.getJSONObject("mag");
-        JSONObject mobileSdk = oauth.getJSONObject("mobile_sdk");
-        JSONArray publicKeyHashes = mobileSdk.getJSONArray("trusted_cert_pinned_public_key_hashes");
-        int hashLength = publicKeyHashes.length();
-        for (int j = 0; j < hashLength; j++) {
-            String hash = publicKeyHashes.getString(j);
-            configBuilder.add(hash);
-        }
-
-        return configBuilder;
     }
 
     /**
@@ -285,21 +238,28 @@ public class MASConfiguration {
 
     /**
      * Adds the security configuration to the list of configurations.
-     * @param securityConfiguration
+     *
+     * @param securityConfiguration the configuration to be added
      */
     public void add(MASSecurityConfiguration securityConfiguration) {
-        securityConfigurations.put(securityConfiguration.getHost(), securityConfiguration);
-        SECURITY_CONFIGURATION_CHANGED.notifyObservers(securityConfiguration.getHost());
+        if (securityConfiguration != null) {
+            URL key = sanitizeURL(securityConfiguration.getHost());
+            securityConfigurations.put(key, securityConfiguration);
+            SECURITY_CONFIGURATION_CHANGED.notifyObservers(securityConfiguration.getHost());
+        }
     }
 
     /**
-     * Attempts to remove the security configuration from the list of configurations.
-     * @param host
+     * Attempts to remove the security configuration from the list of configurations
+     * with the host and port information.
+     *
+     * @param url the full URL
      */
-    public void remove(String host) {
+    public void remove(URL url) {
         if (securityConfigurations != null) {
-            MASSecurityConfiguration config = securityConfigurations.get(host);
-            if (config != null) {
+            URL key = sanitizeURL(url);
+            MASSecurityConfiguration config = securityConfigurations.get(key);
+            if (config != null && securityConfigurations.containsValue(config)) {
                 securityConfigurations.remove(config);
                 SECURITY_CONFIGURATION_CHANGED.notifyObservers(config.getHost());
             }
@@ -308,13 +268,32 @@ public class MASConfiguration {
 
     /**
      * Finds a configuration in the list by the host name.
-     * @param host
-     * @return
+     *
+     * @param url the full URL
+     * @return the host and port URL
      */
-    public MASSecurityConfiguration findByHost(String host) {
+    public MASSecurityConfiguration findByHost(URL url) {
+        URL key = sanitizeURL(url);
         if (securityConfigurations != null) {
-            return securityConfigurations.get(host);
+            return securityConfigurations.get(key);
         }
         return null;
+    }
+
+    /**
+     * Strips the URL of everything but host and port information.
+     *
+     * @param url the full URL
+     * @return the host and port URL
+     */
+    public URL sanitizeURL(URL url) {
+        String host = url.getHost();
+        int port = url.getPort();
+
+        try {
+            return new URL(null, host, port, null);
+        } catch (MalformedURLException e) {
+            return null;
+        }
     }
 }

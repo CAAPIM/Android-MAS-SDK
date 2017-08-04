@@ -8,16 +8,17 @@
 
 package com.ca.mas.foundation;
 
+import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO MultiServer
 public interface MASSecurityConfiguration {
 
-    String getHost();
+    URL getHost();
     boolean isPublic();
     boolean isPrimary();
+    PINNING_TYPE getPinningType();
     List<Certificate> getCertificates();
     List<String> getPublicKeyHashes();
 
@@ -36,8 +37,8 @@ public interface MASSecurityConfiguration {
         private List<Certificate> certificates;
         private List<String> publicKeyHashes;
 
-        //The host should contain host and port
-        private String host;
+        //The URL will be sanitized and only contain host and port information
+        private URL host;
 
         //Only one MASSecurityConfiguration should ever represent the primary gateway
         Builder isPrimary(boolean p) {
@@ -55,7 +56,7 @@ public interface MASSecurityConfiguration {
             return this;
         }
 
-        public Builder host(String host) {
+        public Builder host(URL host) {
             this.host = host;
             return this;
         }
@@ -93,7 +94,7 @@ public interface MASSecurityConfiguration {
 
             return new MASSecurityConfiguration() {
                 @Override
-                public String getHost() {
+                public URL getHost() {
                     return host;
                 }
 
@@ -115,6 +116,11 @@ public interface MASSecurityConfiguration {
                 @Override
                 public List<String> getPublicKeyHashes() {
                     return publicKeyHashes;
+                }
+
+                @Override
+                public PINNING_TYPE getPinningType() {
+                    return pinningType;
                 }
             };
         }

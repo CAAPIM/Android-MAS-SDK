@@ -40,7 +40,7 @@ public interface MASSecurityConfiguration {
         private String host;
 
         //Only one MASSecurityConfiguration should ever represent the primary gateway
-        public Builder isPrimary(boolean p) {
+        Builder isPrimary(boolean p) {
             this.isPrimary = p;
             return this;
         }
@@ -104,7 +104,7 @@ public interface MASSecurityConfiguration {
 
                 @Override
                 public boolean isPrimary() {
-                    return false;
+                    return isPrimary;
                 }
 
                 @Override

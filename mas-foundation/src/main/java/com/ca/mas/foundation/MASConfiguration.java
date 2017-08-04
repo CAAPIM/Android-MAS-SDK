@@ -283,27 +283,34 @@ public class MASConfiguration {
         return ConfigurationManager.getInstance().getCertificateAdvancedRenewTimeframe();
     }
 
-    //TODO MultiServer
+    /**
+     * Adds the security configuration to the list of configurations.
+     * @param securityConfiguration
+     */
     public void add(MASSecurityConfiguration securityConfiguration) {
-        if (securityConfigurations == null) {
-            securityConfigurations = new HashMap<>();
-        }
         securityConfigurations.put(securityConfiguration.getHost(), securityConfiguration);
         SECURITY_CONFIGURATION_CHANGED.notifyObservers(securityConfiguration.getHost());
     }
 
-    //TODO MultiServer
-    public void removeSecurityConfiguration(String host) {
+    /**
+     * Attempts to remove the security configuration from the list of configurations.
+     * @param host
+     */
+    public void remove(String host) {
         if (securityConfigurations != null) {
             MASSecurityConfiguration config = securityConfigurations.get(host);
             if (config != null) {
                 securityConfigurations.remove(config);
+                SECURITY_CONFIGURATION_CHANGED.notifyObservers(config.getHost());
             }
         }
-        SECURITY_CONFIGURATION_CHANGED.notifyObservers(host);
     }
 
-    //TODO MultiServer
+    /**
+     * Finds a configuration in the list by the host name.
+     * @param host
+     * @return
+     */
     public MASSecurityConfiguration findByHost(String host) {
         if (securityConfigurations != null) {
             return securityConfigurations.get(host);

@@ -87,7 +87,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .add(PublicKeyHash.fromCertificate(certificate).getHashString())
                 .build();
 
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
         MASRequest request = new MASRequest.MASRequestBuilder(new URL("https://localhost:41980/test"))
                 .build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();

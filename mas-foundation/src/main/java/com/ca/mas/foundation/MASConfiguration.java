@@ -286,7 +286,7 @@ public class MASConfiguration {
      * @param url the full URL
      * @return the host and port URL
      */
-    public URL sanitizeURL(URL url) {
+    public static URL sanitizeURL(URL url) {
         String host = url.getHost();
         int port = url.getPort();
 

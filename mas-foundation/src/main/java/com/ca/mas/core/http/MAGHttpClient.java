@@ -48,7 +48,7 @@ public class MAGHttpClient {
     }
 
     public <T> MAGResponse<T> execute(MAGRequest request) throws IOException {
-        return execute(request, SSLSocketFactoryProvider.getInstance().get(request.getURL().getHost()));
+        return execute(request, SSLSocketFactoryProvider.getInstance().get(request.getURL()));
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.ca.mas.core.http;
 
+import android.net.Uri;
+
 import com.ca.mas.core.io.ssl.MAGSocketFactory;
 import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASSecurityConfiguration;
@@ -17,19 +19,14 @@ import javax.net.ssl.SSLSocketFactory;
 class SSLSocketFactoryProvider {
 
     private static SSLSocketFactoryProvider instance = new SSLSocketFactoryProvider();
-    private Map<URL, SSLSocketFactory> factories = new HashMap<>();
+    private Map<Uri, SSLSocketFactory> factories = new HashMap<>();
 
     private SSLSocketFactoryProvider() {
         MASConfiguration.SECURITY_CONFIGURATION_CHANGED.addObserver(
                 new Observer() {
                     @Override
                     public void update(Observable o, Object arg) {
-                        URL host = (URL) arg;
-                        if (factories.containsKey(host)) {
-                            factories.remove(host);
-                            SSLSocketFactory newHostFactory = createSSLSocketFactory(host);
-                            factories.put(host, newHostFactory);
-                        }
+                        factories.remove((Uri)arg);
                     }
                 }
         );
@@ -54,7 +51,7 @@ class SSLSocketFactoryProvider {
      * @return
      */
     public SSLSocketFactory get(URL url) {
-        URL sanitized = MASConfiguration.sanitizeURL(url);
+        Uri sanitized = new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build();
         SSLSocketFactory factory = factories.get(sanitized);
 
         //If not found in the cache, we create one and add it
@@ -90,7 +87,7 @@ class SSLSocketFactoryProvider {
         return null;
     }
 
-    public SSLSocketFactory createSSLSocketFactory(URL hostname) {
+    public SSLSocketFactory createSSLSocketFactory(Uri hostname) {
         MASConfiguration config = MASConfiguration.getCurrentConfiguration();
         if (config != null) {
             MASSecurityConfiguration securityConfig = config.findByHost(hostname);

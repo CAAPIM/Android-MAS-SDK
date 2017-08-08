@@ -8,8 +8,11 @@
 
 package com.ca.mas.foundation;
 
+import android.net.Uri;
+
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
+import com.ca.mas.TestUtils;
 import com.ca.mas.core.cert.PublicKeyHash;
 import com.ca.mas.core.http.ContentType;
 import com.squareup.okhttp.mockwebserver.Dispatcher;
@@ -31,6 +34,7 @@ import org.junit.Test;
 
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.URI;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -87,14 +91,13 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .add(PublicKeyHash.fromCertificate(certificate).getHashString())
                 .build();
 
-        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
+        MASConfiguration.getCurrentConfiguration().add(configuration);
         MASRequest request = new MASRequest.MASRequestBuilder(new URL("https://localhost:41980/test"))
                 .build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
 
         Assert.assertEquals(expectResponse.toString(), callback.get().getBody().getContent().toString());
-
     }
 
     @Test
@@ -134,7 +137,14 @@ public class MASMultiServerTest extends MASLoginTestBase {
 
     @Test
     public void testMultiServerDynamicSDK() throws Exception {
-        //Update the msso-config using MAS.start
+        Uri orig = new Uri.Builder().encodedAuthority(getHost() + ":" + getPort()).build();
+        Assert.assertNotNull(MASConfiguration.getCurrentConfiguration().findByHost(orig));
+
+        MAS.start(getContext(), TestUtils.getJSONObject("/msso_config_multi_server.json"));
+        Assert.assertNull(MASConfiguration.getCurrentConfiguration().findByHost(orig));
+
+        Uri newUri = new Uri.Builder().encodedAuthority("dummy:12345").build();
+        Assert.assertNotNull(MASConfiguration.getCurrentConfiguration().findByHost(newUri));
     }
 
     @Test

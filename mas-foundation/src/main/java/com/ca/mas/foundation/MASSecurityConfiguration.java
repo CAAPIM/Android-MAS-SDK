@@ -8,6 +8,8 @@
 
 package com.ca.mas.foundation;
 
+import android.net.Uri;
+
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
@@ -15,9 +17,8 @@ import java.util.List;
 
 public interface MASSecurityConfiguration {
 
-    URL getHost();
+    Uri getHost();
     boolean isPublic();
-    boolean isPrimary();
     PINNING_TYPE getPinningType();
     List<Certificate> getCertificates();
     List<String> getPublicKeyHashes();
@@ -30,21 +31,13 @@ public interface MASSecurityConfiguration {
     class Builder {
 
         private boolean isPublic;
-        private boolean isPrimary;
         private boolean trustPublicPKI;
 
         private PINNING_TYPE pinningType;
         private List<Certificate> certificates;
         private List<String> publicKeyHashes;
 
-        //The URL will be sanitized and only contain host and port information
-        private URL host;
-
-        //Only one MASSecurityConfiguration should ever represent the primary gateway
-        Builder isPrimary(boolean p) {
-            this.isPrimary = p;
-            return this;
-        }
+        private Uri host;
 
         public Builder isPublic(boolean p) {
             this.isPublic = p;
@@ -56,7 +49,7 @@ public interface MASSecurityConfiguration {
             return this;
         }
 
-        public Builder host(URL host) {
+        public Builder host(Uri host) {
             this.host = host;
             return this;
         }
@@ -94,18 +87,13 @@ public interface MASSecurityConfiguration {
 
             return new MASSecurityConfiguration() {
                 @Override
-                public URL getHost() {
+                public Uri getHost() {
                     return host;
                 }
 
                 @Override
                 public boolean isPublic() {
                     return isPublic;
-                }
-
-                @Override
-                public boolean isPrimary() {
-                    return isPrimary;
                 }
 
                 @Override

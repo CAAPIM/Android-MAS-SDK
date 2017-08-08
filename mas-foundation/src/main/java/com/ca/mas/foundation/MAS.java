@@ -67,7 +67,7 @@ import java.util.Map;
 public class MAS {
 
     public static String TAG = "MAS";
-    public static boolean DEBUG = Log.isLoggable(TAG,  Log.VERBOSE);
+    public static boolean DEBUG = Log.isLoggable(TAG, Log.VERBOSE);
 
     private static Context appContext;
     private static Activity currentActivity;
@@ -228,6 +228,7 @@ public class MAS {
         init(context);
         MobileSsoFactory.getInstance(context);
         state = MASConstants.MAS_STATE_STARTED;
+        EventDispatcher.STARTED.notifyObservers();
     }
 
     /**
@@ -243,6 +244,7 @@ public class MAS {
         init(context);
         MobileSsoFactory.getInstance(context, shouldUseDefault);
         state = MASConstants.MAS_STATE_STARTED;
+        EventDispatcher.STARTED.notifyObservers();
     }
 
     /**
@@ -255,6 +257,7 @@ public class MAS {
         init(context);
         MobileSsoFactory.getInstance(context, jsonConfiguration);
         state = MASConstants.MAS_STATE_STARTED;
+        EventDispatcher.STARTED.notifyObservers();
     }
 
     /**
@@ -267,6 +270,7 @@ public class MAS {
         init(context);
         MobileSsoFactory.getInstance(context, url);
         state = MASConstants.MAS_STATE_STARTED;
+        EventDispatcher.STARTED.notifyObservers();
     }
 
     /**

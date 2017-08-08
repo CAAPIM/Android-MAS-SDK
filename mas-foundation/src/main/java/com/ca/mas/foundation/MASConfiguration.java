@@ -8,6 +8,7 @@
 package com.ca.mas.foundation;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MobileSsoConfig;
@@ -23,6 +24,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.concurrent.ExecutionException;
 
 public class MASConfiguration {
 
@@ -36,62 +40,86 @@ public class MASConfiguration {
     private static Config APP_TYPE = new Config(false, FoundationConsts.KEY_CONFIG_APP_TYPE, "oauth.client.client_type", String.class);
     public static final EventDispatcher SECURITY_CONFIGURATION_CHANGED = new EventDispatcher();
     public static final EventDispatcher SECURITY_CONFIGURATION_RESET = new EventDispatcher();
-    private static MASConfiguration primary;
-    private static Map<URL, MASSecurityConfiguration> securityConfigurations = new HashMap<>();
+    private static MASConfiguration currentConfiguration;
+    private static Map<Uri, MASSecurityConfiguration> securityConfigurations = new HashMap<>();
+
+    static {
+        EventDispatcher.STARTED.addObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                    //Construct the MSSO config security configuration and put it back into the map
+
+                    Uri uri = new Uri.Builder().encodedAuthority(ConfigurationManager.getInstance()
+                            .getConnectedGateway().getHost()
+                            + ":"
+                            + ConfigurationManager.getInstance().getConnectedGateway().getPort())
+                            .build();
+                    MASSecurityConfiguration.Builder configBuilder = new MASSecurityConfiguration.Builder()
+                            .host(uri);
+
+                    //Add certificates, if any exist
+                    Collection<X509Certificate> certificates = ConfigurationManager.getInstance()
+                            .getConnectedGatewayConfigurationProvider().getTrustedCertificateAnchors();
+                    if (certificates != null) {
+                        for (X509Certificate cert : certificates) {
+                            configBuilder.add(cert);
+                        }
+                    }
+
+                    //Add public key hashes, if any exist
+                    Collection<PublicKeyHash> publicKeyHashes = ConfigurationManager.getInstance()
+                            .getConnectedGatewayConfigurationProvider()
+                            .getTrustedCertificatePinnedPublicKeyHashes();
+                    if (publicKeyHashes != null) {
+                        for (PublicKeyHash hash : publicKeyHashes) {
+                            String hashString = hash.getHashString();
+                            configBuilder.add(hashString);
+                        }
+                    }
+                    securityConfigurations.put(uri, configBuilder.build());
+                }
+        });
+
+        EventDispatcher.STOP.addObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                //Remove the previous MASSecurityConfiguration for the MSSO config gateway
+                if (currentConfiguration != null) {
+                    try {
+                        Uri uri = new Uri.Builder().encodedAuthority(currentConfiguration.getGatewayHostName()
+                                + ":"
+                                + currentConfiguration.getGatewayPort())
+                                .build();
+                        securityConfigurations.remove(uri);
+                    } catch (Exception ignore) {
+                        //ignore
+                    }
+                }
+            }
+        });
+    }
 
     public static MASConfiguration getCurrentConfiguration() {
-        if (primary == null) {
+        if (currentConfiguration == null) {
             throw new IllegalStateException("MAS.start() has not been invoked.");
         }
-        return primary;
+        return currentConfiguration;
     }
 
     protected MASConfiguration(Context context) {
+
         Context appContext = context.getApplicationContext();
         ConfigurationManager manager = ConfigurationManager.getInstance();
-        ConfigurationProvider provider = manager.getConnectedGatewayConfigurationProvider();
         manager.init(appContext);
         manager.setAppConfigs(Arrays.asList(USERINFO, MAS_SCIM, MAS_STORAGE, APP_NAME,
                 APP_ORGANIZATION, APP_REGISTERED_BY, APP_DESCRIPTION, APP_TYPE));
-        primary = this;
+
+        currentConfiguration = this;
 
         SECURITY_CONFIGURATION_RESET.notifyObservers();
-        //Remove the previous MASSecurityConfiguration for the MSSO config gateway
-        for (MASSecurityConfiguration config : securityConfigurations.values()) {
-            if (config.isPrimary()) {
-                securityConfigurations.remove(config.getHost());
-            }
-        }
 
-        //Construct the MSSO config security configuration and put it back into the map
-        URL host = sanitizeURL(getGatewayUrl());
-        MASSecurityConfiguration.Builder configBuilder = new MASSecurityConfiguration.Builder()
-                .isPrimary(true)
-                //By default the gateway is not public
-                .isPublic(false)
-                .host(host)
-                .trustPublicPKI(isEnabledTrustedPublicPKI());
-
-        //Add certificates, if any exist
-        Collection<X509Certificate> certificates = provider.getTrustedCertificateAnchors();
-        if (certificates != null) {
-            for (X509Certificate cert : certificates) {
-                configBuilder.add(cert);
-            }
-        }
-
-        //Add public key hashes, if any exist
-        Collection<PublicKeyHash> publicKeyHashes = provider.getTrustedCertificatePinnedPublicKeyHashes();
-        if (publicKeyHashes != null) {
-            for (PublicKeyHash hash : publicKeyHashes) {
-                String hashString = hash.getHashString();
-                configBuilder.add(hashString);
-            }
-        }
-
-        MASSecurityConfiguration config = configBuilder.build();
-        securityConfigurations.put(config.getHost(), config);
     }
+
 
     /**
      * This indicates the status of the configuration loading. YES if it has successfully loaded and is ready for use.
@@ -242,58 +270,29 @@ public class MASConfiguration {
      * @param securityConfiguration the configuration to be added
      */
     public void add(MASSecurityConfiguration securityConfiguration) {
-        if (securityConfiguration != null) {
-            URL key = sanitizeURL(securityConfiguration.getHost());
-            securityConfigurations.put(key, securityConfiguration);
-            SECURITY_CONFIGURATION_CHANGED.notifyObservers(securityConfiguration.getHost());
-        }
+        securityConfigurations.put(securityConfiguration.getHost(), securityConfiguration);
+        SECURITY_CONFIGURATION_CHANGED.notifyObservers(securityConfiguration.getHost());
     }
 
     /**
      * Attempts to remove the security configuration from the list of configurations
      * with the host and port information.
      *
-     * @param url the full URL
+     * @param uri the full uri
      */
-    public void remove(URL url) {
-        if (securityConfigurations != null) {
-            URL key = sanitizeURL(url);
-            MASSecurityConfiguration config = securityConfigurations.get(key);
-            if (config != null && securityConfigurations.containsValue(config)) {
-                securityConfigurations.remove(config);
-                SECURITY_CONFIGURATION_CHANGED.notifyObservers(config.getHost());
-            }
+    public void remove(Uri uri) {
+        if (securityConfigurations.remove(uri) != null) {
+            SECURITY_CONFIGURATION_CHANGED.notifyObservers(uri);
         }
     }
 
     /**
      * Finds a configuration in the list by the host name.
      *
-     * @param url the full URL
-     * @return the host and port URL
+     * @param uri the full uri
+     * @return the host and port uri
      */
-    public MASSecurityConfiguration findByHost(URL url) {
-        URL key = sanitizeURL(url);
-        if (securityConfigurations != null) {
-            return securityConfigurations.get(key);
-        }
-        return null;
-    }
-
-    /**
-     * Strips the URL of everything but host and port information.
-     *
-     * @param url the full URL
-     * @return the host and port URL
-     */
-    public static URL sanitizeURL(URL url) {
-        String host = url.getHost();
-        int port = url.getPort();
-
-        try {
-            return new URL(null, host, port, null);
-        } catch (MalformedURLException e) {
-            return null;
-        }
+    public MASSecurityConfiguration findByHost(Uri uri) {
+        return securityConfigurations.get(uri);
     }
 }

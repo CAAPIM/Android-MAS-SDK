@@ -12,6 +12,8 @@ import android.net.Uri;
 
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.oauth.GrantProvider;
+import com.ca.mas.foundation.MASConfiguration;
+import com.ca.mas.foundation.MASSecurityConfiguration;
 
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -113,7 +115,7 @@ public interface MAGRequest {
         private GrantProvider grantProvider = ConfigurationManager.getInstance().getDefaultGrantProvider();
         private String scope;
         private MAGConnectionListener listener;
-        private boolean isPublic = false;
+        private boolean isPublic;
         private boolean sign;
         private long timeout;
         private TimeUnit timeUnit;
@@ -377,6 +379,14 @@ public interface MAGRequest {
 
                 @Override
                 public boolean isPublic() {
+                    Uri uri = Uri.parse(getURL().toString());
+                    MASSecurityConfiguration config = MASConfiguration.getCurrentConfiguration().findByHost(uri);
+                    if (config != null) {
+                        boolean isConfigPublic = config.isPublic();
+                        if (!isConfigPublic) {
+                            return false;
+                        }
+                    }
                     return isPublic;
                 }
 

@@ -28,11 +28,13 @@ import android.webkit.WebViewDatabase;
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
-import com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode;
 import com.ca.mas.core.io.http.TrustedCertificateConfigurationTrustManager;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.MssoService;
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode;
+import com.ca.mas.foundation.MASConfiguration;
+import com.ca.mas.foundation.MASSecurityConfiguration;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.Certificate;
@@ -40,6 +42,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * The SDK uses {@link WebView} to display social login web interface.
@@ -89,22 +92,26 @@ public abstract class MASSocialLogin {
 
                 if (x509Certificates != null && !x509Certificates.isEmpty()) {
                     ConfigurationProvider configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
-                    TrustedCertificateConfigurationTrustManager tm = new TrustedCertificateConfigurationTrustManager(configurationProvider);
-                    try {
-                        X509Certificate[] chain = new X509Certificate[x509Certificates.size()];
-                        x509Certificates.toArray(chain);
+                    MASConfiguration config = MASConfiguration.getCurrentConfiguration();
+                    Map<Uri, MASSecurityConfiguration> securityConfigs = config.getSecurityConfigurations();
+                    for (MASSecurityConfiguration securityConfig : securityConfigs.values()) {
+                        TrustedCertificateConfigurationTrustManager tm = new TrustedCertificateConfigurationTrustManager(securityConfig);
+                        try {
+                            X509Certificate[] chain = new X509Certificate[x509Certificates.size()];
+                            x509Certificates.toArray(chain);
 
-                        String authType = chain[0].getSigAlgName();
-                        tm.checkServerTrusted(chain, authType);
+                            String authType = chain[0].getSigAlgName();
+                            tm.checkServerTrusted(chain, authType);
                         /*
                         for (Certificate c : x509Certificates) {
                             HOSTNAME_VERIFIER.verify(configurationProvider.getTokenHost(), (X509Certificate) c);
                         }
                         */
-                        handler.proceed();
-                    } catch (Exception e) {
-                        onError(e.getMessage(), e);
-                        handler.cancel();
+                            handler.proceed();
+                        } catch (Exception e) {
+                            onError(e.getMessage(), e);
+                            handler.cancel();
+                        }
                     }
                 } else {
                     onError("Certificate is not provided.", null);

@@ -10,7 +10,6 @@ package com.ca.mas.foundation;
 
 import android.net.Uri;
 
-import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +18,7 @@ public interface MASSecurityConfiguration {
 
     Uri getHost();
     boolean isPublic();
+    boolean trustPublicPki();
     PINNING_TYPE getPinningType();
     List<Certificate> getCertificates();
     List<String> getPublicKeyHashes();
@@ -109,6 +109,11 @@ public interface MASSecurityConfiguration {
                 @Override
                 public PINNING_TYPE getPinningType() {
                     return pinningType;
+                }
+
+                @Override
+                public boolean trustPublicPki() {
+                    return trustPublicPKI;
                 }
             };
         }

@@ -5,22 +5,22 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.io.http;
 
 import com.ca.mas.core.cert.PublicKeyHash;
 import com.ca.mas.core.cert.TrustedCertificateConfiguration;
+import com.ca.mas.foundation.MASSecurityConfiguration;
 
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -30,23 +30,24 @@ import javax.net.ssl.X509TrustManager;
  * Trust manager that works with a {@link TrustedCertificateConfiguration}.
  */
 public class TrustedCertificateConfigurationTrustManager implements X509TrustManager {
+
     private final Collection<X509TrustManager> publicPkiDelegates;
     private final Collection<X509TrustManager> privateTrustStoreDelegates;
-    private final Set<PublicKeyHash> pinnedPublicKeys;
+    private final MASSecurityConfiguration config;
 
     /**
      * Create a trust manager that uses the specified trust configuration.
      *
-     * @param trustConf trusted cert configuration to use for setting up the trust manager.  Required.
+     * @param config trusted cert configuration to use for setting up the trust manager.  Required.
      */
-    public TrustedCertificateConfigurationTrustManager(TrustedCertificateConfiguration trustConf) {
-        this.publicPkiDelegates = trustConf.isAlsoTrustPublicPki() ? getPlatformX509TrustManagers() : null;
-        this.privateTrustStoreDelegates = getPrivateX509TrustManagers(trustConf.getTrustedCertificateAnchors());
-        Collection<PublicKeyHash> pins = trustConf.getTrustedCertificatePinnedPublicKeyHashes();
-        this.pinnedPublicKeys = pins == null ? null : new HashSet<PublicKeyHash>(pins);
+    public TrustedCertificateConfigurationTrustManager(MASSecurityConfiguration config) {
+        this.publicPkiDelegates = config.trustPublicPki() ? getPlatformX509TrustManagers() : null;
+        List<Certificate> certs = config.getCertificates();
+        this.privateTrustStoreDelegates = getPrivateX509TrustManagers(certs);
+        this.config = config;
     }
 
-    private static Collection<X509TrustManager> getPrivateX509TrustManagers(Collection<X509Certificate> certs) {
+    private static Collection<X509TrustManager> getPrivateX509TrustManagers(Collection<Certificate> certs) {
         return getX509TrustManagers(createTrustStoreWithCerts(certs));
     }
 
@@ -57,14 +58,16 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
         return xtms;
     }
 
-    private static KeyStore createTrustStoreWithCerts(Collection<X509Certificate> certs) {
+    private static KeyStore createTrustStoreWithCerts(Collection<Certificate> certs) {
         try {
             int a = 1;
             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
             ks.load(null, null);
-            for (X509Certificate cert : certs) {
-                String alias = "cert" + a++;
-                ks.setCertificateEntry(alias, cert);
+            for (Certificate cert : certs) {
+                if (cert instanceof X509Certificate) {
+                    String alias = "cert" + a++;
+                    ks.setCertificateEntry(alias, cert);
+                }
             }
             return ks;
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
@@ -113,33 +116,52 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
 
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String s) throws CertificateException {
-        // Check pins first, if certificate public key pinning is in use
-        if (pinnedPublicKeys != null && !pinnedPublicKeys.isEmpty()) {
-            boolean sawPin = false;
-            for (X509Certificate cert : chain) {
-                if (pinnedPublicKeys.contains(PublicKeyHash.fromPublicKey(cert.getPublicKey()))) {
-                    sawPin = true;
-                    break;
+        MASSecurityConfiguration.PINNING_TYPE pinningType = config.getPinningType();
+        List<Certificate> certs = config.getCertificates();
+        List<String> hashes = config.getPublicKeyHashes();
+
+        boolean valid = false;
+        if (pinningType != null) {
+            //Check the certs
+            if (certs != null && !certs.isEmpty()) {
+                for (X509Certificate xcert : chain) {
+                    if (certs.contains(PublicKeyHash.fromPublicKey(xcert.getPublicKey()))) {
+                        valid = true;
+                        break;
+                    }
                 }
             }
-            if (!sawPin)
-                throw new CertificateException("Server certificate chain did not contain any of the pinned public keys");
-        }
 
-        // Check private trust store first
-        CertificateException e = checkPrivateTrustStoreDelegates(chain, s);
-        if (e == null) {
-            // We are done (succeeded)
-            return;
-        }
+            //Check the public key hashes
+            if (hashes != null && !hashes.isEmpty()) {
+                for (X509Certificate xcert : chain) {
+                    if (hashes.contains(PublicKeyHash.fromPublicKey(xcert.getPublicKey()))) {
+                        valid = true;
+                        break;
+                    }
+                }
+            }
 
-        // If we aren't trusting public PKI, we are done (failed)
-        if (publicPkiDelegates == null || publicPkiDelegates.isEmpty())
-            throw e;
+            if (!valid) {
+                throw new CertificateException("Server certificate chain did not contain any of the pinned public keys.");
+            }
 
-        // All public PKI delegates must succeed
-        for (X509TrustManager delegate : publicPkiDelegates) {
-            delegate.checkServerTrusted(chain, s);
+            //Check the private trust store for any thrown exceptions
+            CertificateException e = checkPrivateTrustStoreDelegates(chain, s);
+            if (e == null) {
+                //No error encountered, we have validated
+                return;
+            }
+
+            //If we aren't trusting public PKI, we fail the validation
+            if (!config.trustPublicPki()) {
+                throw e;
+            }
+
+            //All public PKI delegates must succeed
+            for (X509TrustManager delegate : publicPkiDelegates) {
+                delegate.checkServerTrusted(chain, s);
+            }
         }
     }
 

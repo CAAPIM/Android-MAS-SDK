@@ -15,7 +15,6 @@ import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.cert.PublicKeyHash;
 import com.ca.mas.core.conf.Config;
 import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.conf.ConfigurationProvider;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -26,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.ExecutionException;
 
 public class MASConfiguration {
 
@@ -107,7 +105,6 @@ public class MASConfiguration {
     }
 
     protected MASConfiguration(Context context) {
-
         Context appContext = context.getApplicationContext();
         ConfigurationManager manager = ConfigurationManager.getInstance();
         manager.init(appContext);
@@ -117,7 +114,6 @@ public class MASConfiguration {
         currentConfiguration = this;
 
         SECURITY_CONFIGURATION_RESET.notifyObservers();
-
     }
 
 
@@ -294,5 +290,9 @@ public class MASConfiguration {
      */
     public MASSecurityConfiguration findByHost(Uri uri) {
         return securityConfigurations.get(uri);
+    }
+
+    public Map<Uri, MASSecurityConfiguration> getSecurityConfigurations() {
+        return securityConfigurations;
     }
 }

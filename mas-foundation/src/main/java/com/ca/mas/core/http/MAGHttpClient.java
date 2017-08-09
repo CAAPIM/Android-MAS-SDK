@@ -32,17 +32,6 @@ import static com.ca.mas.foundation.MAS.TAG;
 
 public class MAGHttpClient {
 
-    //TODO MultiServer new interface for MAGHttpClient
-
-    /*
-    public MAGHttpClient() {
-    }
-
-    public MAGHttpClient(String publicHashkey) {
-        sslSocketFactory = new MAGPinningSocketFactory(publicKeyHash).createTLSSocketFactory();
-    }
-    */
-
     public <T> MAGResponse<T> execute(MAGRequest request, MASSecurityConfiguration securityConfiguration) throws IOException {
         return execute(request, SSLSocketFactoryProvider.getInstance().createSSLSocketFactory(securityConfiguration));
     }

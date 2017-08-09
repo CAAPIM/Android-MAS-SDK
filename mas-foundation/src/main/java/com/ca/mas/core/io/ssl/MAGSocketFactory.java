@@ -8,15 +8,20 @@
 
 package com.ca.mas.core.io.ssl;
 
-import com.ca.mas.core.cert.TrustedCertificateConfiguration;
-import com.ca.mas.core.conf.ConfigurationManager;
+import android.net.Uri;
+
 import com.ca.mas.core.io.http.SingleKeyX509KeyManager;
 import com.ca.mas.core.io.http.TrustedCertificateConfigurationTrustManager;
 import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.foundation.MASConfiguration;
+import com.ca.mas.foundation.MASSecurityConfiguration;
 
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
@@ -28,7 +33,7 @@ public class MAGSocketFactory {
     private static final String SSL_TLS_PROTOCOL = "TLS";
 
     private static final SecureRandom secureRandom = new SecureRandom();
-    private TrustedCertificateConfiguration trustConfig;
+    private Map<Uri, MASSecurityConfiguration> configs;
     private PrivateKey clientCertPrivateKey = null;
     private X509Certificate[] clientCertChain = null;
 
@@ -41,7 +46,7 @@ public class MAGSocketFactory {
      */
 
     public MAGSocketFactory() {
-        this.trustConfig = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
+        configs = MASConfiguration.getCurrentConfiguration().getSecurityConfigurations();
         clientCertPrivateKey = StorageProvider.getInstance().getTokenManager().getClientPrivateKey();
         clientCertChain = StorageProvider.getInstance().getTokenManager().getClientCertificateChain();
     }
@@ -53,8 +58,12 @@ public class MAGSocketFactory {
     private SSLContext createSslContext() {
         try {
             SSLContext sslContext = SSLContext.getInstance(SSL_TLS_PROTOCOL);
-            TrustManager[] trustManagers = {new TrustedCertificateConfigurationTrustManager(
-                    trustConfig)};
+            List<TrustManager> trustManagerList = new ArrayList<>();
+            for (MASSecurityConfiguration config : configs.values()) {
+                trustManagerList.add(new TrustedCertificateConfigurationTrustManager(config));
+            }
+
+            TrustManager[] trustManagers = trustManagerList.toArray(new TrustManager[0]);
             KeyManager[] keyManagers = clientCertPrivateKey == null || clientCertChain == null
                     ? new KeyManager[0]
                     : new KeyManager[]{new SingleKeyX509KeyManager(clientCertPrivateKey, clientCertChain)};

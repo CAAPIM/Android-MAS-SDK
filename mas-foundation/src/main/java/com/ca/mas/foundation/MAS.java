@@ -53,6 +53,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.URL;
 import java.security.PrivateKey;
 import java.util.List;
@@ -310,13 +311,16 @@ public class MAS {
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-                    //TODO MultiServer use new MAGHttpClient interface
-                    MASSecurityConfiguration.Builder builder = new MASSecurityConfiguration.Builder();
+                    MASConfiguration config = MASConfiguration.getCurrentConfiguration();
+                    Uri hostUri = Uri.parse(url.toString());
+                    MASSecurityConfiguration securityConfig = config.findByHost(hostUri);
+                    if (securityConfig == null) {
+                        securityConfig = new MASSecurityConfiguration.Builder().build();
+                    }
                     MAGHttpClient client = new MAGHttpClient();
-                    //MAGHttpClient client = new MAGHttpClient(publicKeyHash);
                     MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
                             responseBody(MAGResponseBody.jsonBody()).build();
-                    MAGResponse<JSONObject> response = client.execute(request, builder.build());
+                    MAGResponse<JSONObject> response = client.execute(request, securityConfig);
                     if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
                         throw ServerClient.createServerException(response, MASServerException.class);
                     }

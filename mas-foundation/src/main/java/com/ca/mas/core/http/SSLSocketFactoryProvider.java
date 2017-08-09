@@ -7,16 +7,14 @@ import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASSecurityConfiguration;
 
 import java.net.URL;
-import java.security.cert.Certificate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.net.ssl.SSLSocketFactory;
 
-class SSLSocketFactoryProvider {
+public class SSLSocketFactoryProvider {
 
     private static SSLSocketFactoryProvider instance = new SSLSocketFactoryProvider();
     private Map<Uri, SSLSocketFactory> factories = new HashMap<>();
@@ -48,7 +46,7 @@ class SSLSocketFactoryProvider {
     /**
      * Gets the SSLSocketFactory associated with the specified URL host and port.
      * @param url url
-     * @return
+     * @return the SSLSocketFactory
      */
     public SSLSocketFactory get(URL url) {
         Uri sanitized = new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build();
@@ -56,46 +54,51 @@ class SSLSocketFactoryProvider {
 
         //If not found in the cache, we create one and add it
         if (factory == null) {
-            factory = createSSLSocketFactory(sanitized);
+            factory = getSSLSocketFactory(sanitized);
             factories.put(sanitized, factory);
         }
         return factory;
     }
 
-    //TODO
-    //SSLSocketFactoryProvider -> make SSLSocketFactory via TrustManager objects which have pinning logic inside TrustedCertificateConfigurationTrustManager
-    //MAGSocketFactory won't be needed anymore
-    public SSLSocketFactory createSSLSocketFactory(MASSecurityConfiguration configuration) {
-        MASSecurityConfiguration.PINNING_TYPE pinType = configuration.getPinningType();
-        SSLSocketFactory sslSocketFactory = new MAGSocketFactory().createTLSSocketFactory();
-
-        if (pinType != null) {
-            List<Certificate> certs = configuration.getCertificates();
-            if (!certs.isEmpty()) {
-                for (Certificate cert : certs) {
-
-                }
-            }
-            if (pinType == MASSecurityConfiguration.PINNING_TYPE.publicKeyHash) {
-                List<String> hashes = configuration.getPublicKeyHashes();
-                boolean valid;
-                for (String hash : hashes) {
-
-                }
-            }
-        }
-        return null;
+    /**
+     * Returns the SSLSocketFactory associated with the primary gateway configuration.
+     * @return the SSLSocketFactory
+     */
+    public SSLSocketFactory getPrimaryGatewaySocketFactory() {
+        MASConfiguration currentConfiguration = MASConfiguration.getCurrentConfiguration();
+        Uri uri = new Uri.Builder().encodedAuthority(currentConfiguration.getGatewayHostName()
+                + ":"
+                + currentConfiguration.getGatewayPort())
+                .build();
+        return getSSLSocketFactory(uri);
     }
 
-    public SSLSocketFactory createSSLSocketFactory(Uri hostname) {
+    /**
+     * Attempts to return the SSLSocketFactory associated with the host configuration.
+     * If the SSLSocketFactory is not found, it will create a configuration and map it to the host.
+     * Otherwise, we return null.
+     * @param hostname
+     * @return the SSLSocketFactory or null
+     */
+    public SSLSocketFactory getSSLSocketFactory(Uri hostname) {
         MASConfiguration config = MASConfiguration.getCurrentConfiguration();
         if (config != null) {
             MASSecurityConfiguration securityConfig = config.findByHost(hostname);
             if (securityConfig != null) {
-                createSSLSocketFactory(securityConfig);
+                return createSSLSocketFactory(securityConfig);
             }
         }
         return null;
     }
+
+    /**
+     * Creates a SSLSocketFactory for this configuration.
+     * @param configuration
+     * @return the primary SSLSocketFactory
+     */
+    public SSLSocketFactory createSSLSocketFactory(MASSecurityConfiguration configuration) {
+        return new MAGSocketFactory(configuration).createTLSSocketFactory();
+    }
+
 }
 

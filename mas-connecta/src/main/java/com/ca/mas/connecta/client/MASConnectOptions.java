@@ -14,7 +14,7 @@ import com.ca.mas.connecta.util.ConnectaUtil;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.io.ssl.MAGSocketFactory;
+import com.ca.mas.core.http.SSLSocketFactoryProvider;
 import com.ca.mas.core.request.internal.StateRequest;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASResultReceiver;
@@ -54,8 +54,7 @@ public class MASConnectOptions extends MqttConnectOptions {
                 JSONObject jobj = response.getBody().getContent();
                 String oauthToken = jobj.optString(StateRequest.ACCESS_TOKEN);
                 final MqttConnectOptions connectOptions = ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(), timeOutInMillis);
-                //TODO MultiServer changes is required
-                SSLSocketFactory sslSocketFactory = new MAGSocketFactory().createTLSSocketFactory();
+                SSLSocketFactory sslSocketFactory = SSLSocketFactoryProvider.getInstance().getPrimaryGatewaySocketFactory();
                 connectOptions.setSocketFactory(sslSocketFactory);
                 String uname = MASUser.getCurrentUser().getUserName();
                 connectOptions.setUserName(uname);

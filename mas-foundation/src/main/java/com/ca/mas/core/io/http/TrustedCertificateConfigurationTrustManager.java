@@ -125,7 +125,7 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
             //Check the certs
             if (certs != null && !certs.isEmpty()) {
                 for (X509Certificate xcert : chain) {
-                    if (certs.contains(PublicKeyHash.fromPublicKey(xcert.getPublicKey()))) {
+                    if (certs.contains(xcert)) {
                         valid = true;
                         break;
                     }

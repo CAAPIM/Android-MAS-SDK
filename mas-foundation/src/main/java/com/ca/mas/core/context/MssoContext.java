@@ -286,7 +286,6 @@ public class MssoContext {
      * Use this if the trusted certificate or client cert configuration changes.
      */
     public void resetHttpClient() {
-        //TODO MultiServer reset
         MASConfiguration.SECURITY_CONFIGURATION_RESET.notifyObservers();
     }
 

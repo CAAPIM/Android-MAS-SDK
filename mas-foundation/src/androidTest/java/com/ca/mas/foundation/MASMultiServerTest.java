@@ -45,6 +45,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
@@ -174,18 +175,35 @@ public class MASMultiServerTest extends MASLoginTestBase {
         //https://api.ipify.org?format=json
 
         //May be with public key pinning only
+        URL url = new URL("https://swapi.co:443");
+
+        MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
+                .host(new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build())
+                .trustPublicPKI(true)
+                .isPublic(true)
+                .add(PublicKeyHash.fromCertificate(getCert(url)).getHashString())
+                .build();
+
+        MASConfiguration.getCurrentConfiguration().add(configuration);
+        Uri uri = new Uri.Builder().encodedAuthority(url.getAuthority())
+                .scheme(url.getProtocol())
+                .appendPath("api")
+                .appendPath("people")
+                .appendPath("1")
+                .build();
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        JSONObject result = callback.get().getBody().getContent();
 
     }
 
-    @Test
-    public void testGetCert() throws Exception {
-        Assert.assertNotNull(getCert());
-    }
-
-    private Certificate getCert() throws Exception {
+    private Certificate getCert(URL url) throws Exception {
 
         //URL url = new URL("https://mobile-staging-androidautomation.l7tech.com:8443");
-        URL url = new URL("https://swapi.co");
+        //URL url = new URL("https://swapi.co");
 
         SSLContext sslCtx = SSLContext.getInstance("TLS");
         sslCtx.init(null, new TrustManager[]{new X509TrustManager() {
@@ -222,6 +240,8 @@ public class MASMultiServerTest extends MASLoginTestBase {
         if (mockServer != null) {
             mockServer.shutdown();
         }
+        Map securityConfigurations = getValue(MASConfiguration.getCurrentConfiguration(), "securityConfigurations", Map.class);
+        securityConfigurations.clear();
     }
 
     private SSLSocketFactory getSSLSocketFactory() throws Exception {

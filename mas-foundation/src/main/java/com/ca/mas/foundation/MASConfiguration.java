@@ -45,37 +45,15 @@ public class MASConfiguration {
         EventDispatcher.STARTED.addObserver(new Observer() {
             @Override
             public void update(Observable o, Object arg) {
-                    //Construct the MSSO config security configuration and put it back into the map
-
-                    Uri uri = new Uri.Builder().encodedAuthority(ConfigurationManager.getInstance()
-                            .getConnectedGateway().getHost()
-                            + ":"
-                            + ConfigurationManager.getInstance().getConnectedGateway().getPort())
-                            .build();
-                    MASSecurityConfiguration.Builder configBuilder = new MASSecurityConfiguration.Builder()
-                            .host(uri);
-
-                    //Add certificates, if any exist
-                    Collection<X509Certificate> certificates = ConfigurationManager.getInstance()
-                            .getConnectedGatewayConfigurationProvider().getTrustedCertificateAnchors();
-                    if (certificates != null) {
-                        for (X509Certificate cert : certificates) {
-                            configBuilder.add(cert);
-                        }
-                    }
-
-                    //Add public key hashes, if any exist
-                    Collection<PublicKeyHash> publicKeyHashes = ConfigurationManager.getInstance()
-                            .getConnectedGatewayConfigurationProvider()
-                            .getTrustedCertificatePinnedPublicKeyHashes();
-                    if (publicKeyHashes != null) {
-                        for (PublicKeyHash hash : publicKeyHashes) {
-                            String hashString = hash.getHashString();
-                            configBuilder.add(hashString);
-                        }
-                    }
-                    securityConfigurations.put(uri, configBuilder.build());
-                }
+                //Construct the MSSO config security configuration and put it back into the map
+                Uri uri = new Uri.Builder().encodedAuthority(ConfigurationManager.getInstance()
+                        .getConnectedGateway().getHost()
+                        + ":"
+                        + ConfigurationManager.getInstance().getConnectedGateway().getPort())
+                        .build();
+                MASSecurityConfiguration primaryConfig = createPrimaryConfiguration(uri);
+                securityConfigurations.put(uri, primaryConfig);
+            }
         });
 
         EventDispatcher.STOP.addObserver(new Observer() {
@@ -97,6 +75,38 @@ public class MASConfiguration {
         });
     }
 
+    /**
+     * Creates the MASSecurityConfiguration for the primary gateway.
+     * @param uri
+     * @return the primary MASSecurityConfiguration
+     */
+    static MASSecurityConfiguration createPrimaryConfiguration(Uri uri) {
+        MASSecurityConfiguration.Builder configBuilder = new MASSecurityConfiguration.Builder()
+                .host(uri);
+
+        //Add certificates, if any exist
+        Collection<X509Certificate> certificates = ConfigurationManager.getInstance()
+                .getConnectedGatewayConfigurationProvider().getTrustedCertificateAnchors();
+        if (certificates != null) {
+            for (X509Certificate cert : certificates) {
+                configBuilder.add(cert);
+            }
+        }
+
+        //Add public key hashes, if any exist
+        Collection<PublicKeyHash> publicKeyHashes = ConfigurationManager.getInstance()
+                .getConnectedGatewayConfigurationProvider()
+                .getTrustedCertificatePinnedPublicKeyHashes();
+        if (publicKeyHashes != null) {
+            for (PublicKeyHash hash : publicKeyHashes) {
+                String hashString = hash.getHashString();
+                configBuilder.add(hashString);
+            }
+        }
+
+        return configBuilder.build();
+    }
+
     public static MASConfiguration getCurrentConfiguration() {
         if (currentConfiguration == null) {
             throw new IllegalStateException("MAS.start() has not been invoked.");
@@ -115,7 +125,6 @@ public class MASConfiguration {
 
         SECURITY_CONFIGURATION_RESET.notifyObservers();
     }
-
 
     /**
      * This indicates the status of the configuration loading. YES if it has successfully loaded and is ready for use.

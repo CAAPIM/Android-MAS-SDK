@@ -53,7 +53,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
-import java.net.URI;
 import java.net.URL;
 import java.security.PrivateKey;
 import java.util.List;
@@ -301,7 +300,7 @@ public class MAS {
             return;
         }
 
-        Uri uri = Uri.parse(url.toString());
+        final Uri uri = Uri.parse(url.toString());
         final String publicKeyHash = uri.getQueryParameter("subjectKeyHash");
         if (publicKeyHash == null || publicKeyHash.trim().isEmpty()) {
             Callback.onError(callback, new IllegalArgumentException("subjectKeyHash is not provided."));
@@ -311,16 +310,14 @@ public class MAS {
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-                    MASConfiguration config = MASConfiguration.getCurrentConfiguration();
-                    Uri hostUri = Uri.parse(url.toString());
-                    MASSecurityConfiguration securityConfig = config.findByHost(hostUri);
-                    if (securityConfig == null) {
-                        securityConfig = new MASSecurityConfiguration.Builder().build();
-                    }
+                    //Create a new configuration
+                    MASConfiguration config = new MASConfiguration(context);
+                    config.remove(uri);
+                    MASSecurityConfiguration primaryConfig = MASConfiguration.createPrimaryConfiguration(uri);
                     MAGHttpClient client = new MAGHttpClient();
                     MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
                             responseBody(MAGResponseBody.jsonBody()).build();
-                    MAGResponse<JSONObject> response = client.execute(request, securityConfig);
+                    MAGResponse<JSONObject> response = client.execute(request, primaryConfig);
                     if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
                         throw ServerClient.createServerException(response, MASServerException.class);
                     }

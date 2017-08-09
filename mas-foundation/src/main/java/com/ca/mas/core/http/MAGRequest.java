@@ -5,7 +5,6 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.http;
 
 import android.net.Uri;
@@ -379,17 +378,18 @@ public interface MAGRequest {
 
                 @Override
                 public boolean isPublic() {
-                    Uri uri = Uri.parse(getURL().toString());
-                    MASSecurityConfiguration config = MASConfiguration.getCurrentConfiguration().findByHost(uri);
-                    if (config != null) {
-                        boolean isConfigPublic = config.isPublic();
-                        if (!isConfigPublic) {
-                            return false;
+                    if (url != null) {
+                        Uri uri = Uri.parse(url.toString());
+                        MASSecurityConfiguration config = MASConfiguration.getCurrentConfiguration().findByHost(uri);
+                        if (config != null) {
+                            boolean isConfigPublic = config.isPublic();
+                            if (!isConfigPublic) {
+                                return false;
+                            }
                         }
                     }
                     return isPublic;
                 }
-
             };
         }
     }

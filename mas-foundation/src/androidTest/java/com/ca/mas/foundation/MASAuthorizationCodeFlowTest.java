@@ -93,10 +93,14 @@ public class MASAuthorizationCodeFlowTest extends MASStartTestBase {
         MASUser.getCurrentUser().logout(logoutCallback);
         logoutCallback.get();
 
+        loginCallback.reset();
+
         MASRequest request2 = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
         MASCallbackFuture<MASResponse<JSONObject>> callback2 = new MASCallbackFuture<>();
         MAS.invoke(request2, callback2);
+        loginCallback.get();
         callback2.get();
+
 
         accessTokenRequest = getRecordRequest(GatewayDefaultDispatcher.AUTH_OAUTH_V2_TOKEN);
         String body = new String(accessTokenRequest.getBody().readByteArray(), "US-ASCII");
@@ -160,13 +164,17 @@ public class MASAuthorizationCodeFlowTest extends MASStartTestBase {
         assertTrue(s.contains("grant_type=" + GatewayDefaultDispatcher.ID_TOKEN_TYPE));
 
         loginCallback.get();
+
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
         MASUser.getCurrentUser().logout(logoutCallback);
         logoutCallback.get();
 
+
+        loginCallback.reset();
         MASRequest request2 = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
         MASCallbackFuture<MASResponse<JSONObject>> callback2 = new MASCallbackFuture<>();
         MAS.invoke(request2, callback2);
+        loginCallback.get();
         callback2.get();
 
         accessTokenRequest = getRecordRequest(GatewayDefaultDispatcher.AUTH_OAUTH_V2_TOKEN);

@@ -37,17 +37,24 @@ public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
         this.handler = handler;
     }
 
+    public void reset() {
+        this.result = null;
+        this.throwableResult = null;
+        this.done = false;
+        this.countDownLatch = new CountDownLatch(1);
+    }
+
     @Override
     public void onSuccess(T result) {
-        this.done = true;
         this.result = result;
+        this.done = true;
         countDownLatch.countDown();
     }
 
     @Override
     public void onError(Throwable e) {
-        this.done = true;
         this.throwableResult = e;
+        this.done = true;
         countDownLatch.countDown();
     }
 

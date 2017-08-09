@@ -61,6 +61,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
     private static int PORT = 41980;
     private X509Certificate certificate;
     private JSONObject expectResponse;
+    private String HOST = "localhost:41980";
 
     @Before
     public void setUp() throws Exception {
@@ -87,12 +88,17 @@ public class MASMultiServerTest extends MASLoginTestBase {
         Assert.assertNotNull(PublicKeyHash.fromPublicKey(certificate.getPublicKey()));
 
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
+                .host(new Uri.Builder().encodedAuthority(HOST).build())
                 .add(certificate)
                 .add(PublicKeyHash.fromCertificate(certificate).getHashString())
                 .build();
 
         MASConfiguration.getCurrentConfiguration().add(configuration);
-        MASRequest request = new MASRequest.MASRequestBuilder(new URL("https://localhost:41980/test"))
+        MASRequest request = new MASRequest.MASRequestBuilder(
+                new Uri.Builder().encodedAuthority(HOST)
+                        .scheme("https")
+                        .path("test")
+                        .build())
                 .build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);

@@ -292,7 +292,4 @@ public class MASConfiguration {
         return securityConfigurations.get(uri);
     }
 
-    public Map<Uri, MASSecurityConfiguration> getSecurityConfigurations() {
-        return securityConfigurations;
-    }
 }

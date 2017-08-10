@@ -112,11 +112,42 @@ public class MASMultiServerTest extends MASLoginTestBase {
     }
 
     @Test
+    public void testMultiServerCertificatePinningWithCertChain() throws Exception {
+        URL url = new URL("https://swapi.co");
+
+        MASSecurityConfiguration.Builder configuration = new MASSecurityConfiguration.Builder()
+                .host(new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build());
+
+        Certificate[] certificates = getCert(url);
+        for (Certificate certificate: certificates) {
+            configuration.add(certificate);
+        }
+
+        MASConfiguration.getCurrentConfiguration().add(configuration.build());
+
+        Uri uri = new Uri.Builder().encodedAuthority(url.getAuthority())
+                .scheme(url.getProtocol())
+                .appendPath("api")
+                .appendPath("people")
+                .appendPath("1")
+                .build();
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        JSONObject result = callback.get().getBody().getContent();
+        //assert the json result
+
+    }
+
+
+    @Test
     public void testMultiServerCertificatePinningFailed() throws Exception {
         URL url = new URL("https://swapi.co");
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(HOST).build())
-                .add(getCert(url)) //Dummy
+                .add(getCert(url)[0])
                 .build();
         MASConfiguration.getCurrentConfiguration().add(configuration);
 
@@ -191,7 +222,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(HOST).build())
                 .add(PublicKeyHash.fromCertificate(certificate).getHashString())
-                .add(PublicKeyHash.fromCertificate(getCert(url)).getHashString())
+                .add(PublicKeyHash.fromCertificate(getCert(url)[0]).getHashString())
                 .build();
 
         MASConfiguration.getCurrentConfiguration().add(configuration);
@@ -460,7 +491,13 @@ public class MASMultiServerTest extends MASLoginTestBase {
 
     }
 
-    private Certificate getCert(URL url) throws Exception {
+    @Test
+    public void testNoPinningAndNonTrustPublicPKI() throws Exception {
+    }
+
+
+
+    private Certificate[] getCert(URL url) throws Exception {
 
         //URL url = new URL("https://mobile-staging-androidautomation.l7tech.com:8443");
         //URL url = new URL("https://swapi.co");
@@ -492,7 +529,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
         connection.getResponseCode();
         Certificate[] certificates = connection.getServerCertificates();
         connection.disconnect();
-        return certificates[0];
+        return certificates;
     }
 
     @After

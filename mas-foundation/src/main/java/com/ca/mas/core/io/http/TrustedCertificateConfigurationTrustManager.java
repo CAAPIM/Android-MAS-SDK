@@ -121,45 +121,45 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
         List<Certificate> certs = config.getCertificates();
         List<String> hashes = config.getPublicKeyHashes();
 
-        //If we aren't trusting public PKI, we fail the validation
-        if (!config.trustPublicPki()) {
-            //Check the private trust store for any thrown exceptions
+        //If we aren't trusting the public PKI, we fail the validation
+        if (config.trustPublicPki()) {
+            //All public PKI delegates must succeed
+            for (X509TrustManager delegate : publicPkiDelegates) {
+                delegate.checkServerTrusted(chain, s);
+            }
+        }
+
+        //Check the private trust store for any thrown exceptions
+        if (certs != null) {
             CertificateException e = checkPrivateTrustStoreDelegates(chain, s);
-            if (e == null) {
-                //No error encountered, we have validated
-                return;
-            }
-            throw e;
-        }
-
-        boolean valid = false;
-        //Check the certs
-        if (certs != null && !certs.isEmpty()) {
-            for (X509Certificate xcert : chain) {
-                if (certs.contains(xcert)) {
-                    valid = true;
-                    break;
-                }
+            if (e != null) {
+                throw e;
             }
         }
+//
+//        //Check the certs
+//        if (certs != null && !certs.isEmpty()) {
+//            for (X509Certificate xcert : chain) {
+//                if (certs.contains(xcert)) {
+//                    valid = true;
+//                    break;
+//                }
+//            }
+//        }
 
+        boolean hashesValid = false;
         //Check the public key hashes
         if (hashes != null && !hashes.isEmpty()) {
             for (X509Certificate xcert : chain) {
                 if (hashes.contains(PublicKeyHash.fromPublicKey(xcert.getPublicKey()))) {
-                    valid = true;
+                    hashesValid = true;
                     break;
                 }
             }
         }
 
-        if (!valid) {
+        if (hashes != null && !hashesValid) {
             throw new CertificateException("Server certificate chain did not contain any of the pinned public keys.");
-        }
-
-        //All public PKI delegates must succeed
-        for (X509TrustManager delegate : publicPkiDelegates) {
-            delegate.checkServerTrusted(chain, s);
         }
     }
 

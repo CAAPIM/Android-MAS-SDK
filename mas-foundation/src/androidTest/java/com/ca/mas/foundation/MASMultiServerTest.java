@@ -16,8 +16,6 @@ import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.TestUtils;
 import com.ca.mas.core.cert.PublicKeyHash;
 import com.ca.mas.core.http.ContentType;
-import com.ca.mas.core.oauth.OAuthServerException;
-import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.squareup.okhttp.mockwebserver.Dispatcher;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
@@ -444,7 +442,6 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .host(new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build())
                 .trustPublicPKI(true)
                 .isPublic(true)
-                .add(PublicKeyHash.fromCertificate(getCert(url)).getHashString())
                 .build();
 
         MASConfiguration.getCurrentConfiguration().add(configuration);

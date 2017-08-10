@@ -369,6 +369,39 @@ public class MASMultiServerTest extends MASLoginTestBase {
     }
 
     @Test
+    public void testMultiServerWithUnknownHost() throws Exception {
+
+    }
+
+    @Test
+    public void testMultiServerValidCertInvalidPin() throws Exception {
+
+        MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
+                .host(new Uri.Builder().encodedAuthority(HOST).build())
+                .add(certificate)
+                .add("ZHVtbXk=") //Dummy
+                .build();
+
+        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASRequest request = new MASRequest.MASRequestBuilder(
+                new Uri.Builder().encodedAuthority(HOST)
+                        .scheme("https")
+                        .path("test")
+                        .build())
+                .build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        try {
+            callback.get();
+            Assert.fail();
+        } catch (ExecutionException e) {
+            //Should throw InvalidServerException or IOException or SSL....Exception
+            assertTrue(e.getCause().getCause() instanceof InvalidObjectException);
+        }
+    }
+
+    @Test
     public void testMultiServerIsNotPublic() throws Exception {
         //Contain access token header
         //ContainHas mag-identifier header

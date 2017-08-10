@@ -66,6 +66,7 @@ import javax.net.ssl.X509TrustManager;
 import javax.security.auth.x500.X500Principal;
 
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 public class MASMultiServerTest extends MASLoginTestBase {
 
@@ -76,7 +77,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
     private String HOST = "localhost:41980";
 
     @Before
-    public void setUp() throws Exception {
+    public void multiServerSetup() throws Exception {
         expectResponse = new JSONObject();
         expectResponse.put("test", "value");
         mockServer = new MockWebServer();
@@ -536,7 +537,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
     }
 
     @After
-    public void shutDownServer() throws Exception {
+    public void multiServerShutdown() throws Exception {
         if (mockServer != null) {
             mockServer.shutdown();
         }

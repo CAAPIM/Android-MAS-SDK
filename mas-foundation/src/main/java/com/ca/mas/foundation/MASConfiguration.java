@@ -270,31 +270,31 @@ public class MASConfiguration {
     }
 
     /**
-     * Adds the security configuration to the list of configurations.
+     * Adds the security configuration to the list of configurations and notifies observers.
      * @param securityConfiguration the configuration to be added
      */
-    public void add(MASSecurityConfiguration securityConfiguration) {
+    public void addSecurityConfiguration(MASSecurityConfiguration securityConfiguration) {
         securityConfigurations.put(securityConfiguration.getHost(), securityConfiguration);
         SECURITY_CONFIGURATION_CHANGED.notifyObservers(securityConfiguration.getHost());
     }
 
     /**
      * Attempts to remove the security configuration from the list of configurations
-     * with the host and port information.
-     * @param uri the full URI
+     * with the host and port information and notifies observers.
+     * @param uri the URI of the configuration to remove
      */
-    public void remove(Uri uri) {
+    public void removeSecurityConfiguration(Uri uri) {
         if (securityConfigurations.remove(uri) != null) {
             SECURITY_CONFIGURATION_CHANGED.notifyObservers(uri);
         }
     }
 
     /**
-     * Finds a configuration in the list by the host name.
+     * Returns a MASSecurityConfiguration object for the specified domain.
      * @param uri the full URI
      * @return the host and port URI
      */
-    public MASSecurityConfiguration findByHost(Uri uri) {
+    public MASSecurityConfiguration getSecurityConfiguration(Uri uri) {
         return securityConfigurations.get(uri);
     }
 

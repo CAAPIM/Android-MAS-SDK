@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
  * An Http Api Request. Instances of this class are immutable.
  */
 public interface MAGRequest {
+
     enum Method {GET, PUT, POST, DELETE}
 
     /**
@@ -84,6 +85,7 @@ public interface MAGRequest {
     boolean isPublic();
 
     interface MAGConnectionListener {
+
         /**
          * Invoke immediately after the call {@link URL#openConnection()}.
          * Note that the connection is not connected and not ready to retrieve any response from
@@ -106,6 +108,7 @@ public interface MAGRequest {
      * Builder class to build {@link MAGRequest} object
      */
     class MAGRequestBuilder {
+
         private URL url;
         private String method = Method.GET.name();
         private Map<String, List<String>> headers = new HashMap<>();
@@ -151,6 +154,7 @@ public interface MAGRequest {
 
         /**
          * Convenience method for reconstructing a request as a builder
+         *
          * @param request
          */
         public MAGRequestBuilder(MAGRequest request) {
@@ -323,6 +327,7 @@ public interface MAGRequest {
          * @return An immutable {@link MAGRequest} object.
          */
         public MAGRequest build() {
+            //Add the headers
             Map<String, List<String>> newHeaders = new HashMap<>();
             for (String key : headers.keySet()) {
                 List<String> headerValues = new ArrayList<>();
@@ -333,7 +338,17 @@ public interface MAGRequest {
                 }
                 newHeaders.put(key, Collections.unmodifiableList(headerValues));
             }
+
             final Map<String, List<String>> unmodifiableHeaders = Collections.unmodifiableMap(newHeaders);
+
+            //If isPublic() is false, we check the security configuration and match its isPublic() setting
+            if (!isPublic && url != null) {
+                Uri uri = Uri.parse(url.toString());
+                MASSecurityConfiguration config = MASConfiguration.getCurrentConfiguration().getSecurityConfiguration(uri);
+                if (config != null && config.isPublic()) {
+                    setPublic();
+                }
+            }
 
             return new MAGRequest() {
                 @Override
@@ -378,16 +393,6 @@ public interface MAGRequest {
 
                 @Override
                 public boolean isPublic() {
-                    if (url != null) {
-                        Uri uri = Uri.parse(url.toString());
-                        MASSecurityConfiguration config = MASConfiguration.getCurrentConfiguration().findByHost(uri);
-                        if (config != null) {
-                            boolean isConfigPublic = config.isPublic();
-                            if (!isConfigPublic) {
-                                return false;
-                            }
-                        }
-                    }
                     return isPublic;
                 }
             };

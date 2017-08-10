@@ -130,36 +130,28 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
         }
 
         //Check the private trust store for any thrown exceptions
-        if (certs != null) {
+        if (certs != null && !certs.isEmpty()) {
             CertificateException e = checkPrivateTrustStoreDelegates(chain, s);
             if (e != null) {
                 throw e;
             }
         }
-//
-//        //Check the certs
-//        if (certs != null && !certs.isEmpty()) {
-//            for (X509Certificate xcert : chain) {
-//                if (certs.contains(xcert)) {
-//                    valid = true;
-//                    break;
-//                }
-//            }
-//        }
 
-        boolean hashesValid = false;
         //Check the public key hashes
-        if (hashes != null && !hashes.isEmpty()) {
-            for (X509Certificate xcert : chain) {
-                if (hashes.contains(PublicKeyHash.fromPublicKey(xcert.getPublicKey()))) {
-                    hashesValid = true;
-                    break;
+        boolean hashesValid = false;
+        if (hashes != null) {
+            if (!hashes.isEmpty()) {
+                for (X509Certificate xcert : chain) {
+                    if (hashes.contains(PublicKeyHash.fromPublicKey(xcert.getPublicKey()))) {
+                        hashesValid = true;
+                        break;
+                    }
                 }
             }
-        }
 
-        if (hashes != null && !hashesValid) {
-            throw new CertificateException("Server certificate chain did not contain any of the pinned public keys.");
+            if (!hashesValid) {
+                throw new CertificateException("Server certificate chain did not contain any of the pinned public keys.");
+            }
         }
     }
 

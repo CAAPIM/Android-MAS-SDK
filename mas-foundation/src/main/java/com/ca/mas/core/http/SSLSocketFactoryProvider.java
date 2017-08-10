@@ -90,7 +90,7 @@ public class SSLSocketFactoryProvider {
     public SSLSocketFactory getSSLSocketFactory(Uri hostname) {
         MASConfiguration config = MASConfiguration.getCurrentConfiguration();
         if (config != null) {
-            MASSecurityConfiguration securityConfig = config.findByHost(hostname);
+            MASSecurityConfiguration securityConfig = config.getSecurityConfiguration(hostname);
             if (securityConfig != null) {
                 return createSSLSocketFactory(securityConfig);
             }

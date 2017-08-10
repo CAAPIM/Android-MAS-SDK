@@ -98,7 +98,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .add(certificate)
                 .build();
 
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
         MASRequest request = new MASRequest.MASRequestBuilder(
                 new Uri.Builder().encodedAuthority(HOST)
                         .scheme("https")
@@ -123,7 +123,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
             configuration.add(certificate);
         }
 
-        MASConfiguration.getCurrentConfiguration().add(configuration.build());
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration.build());
 
         Uri uri = new Uri.Builder().encodedAuthority(url.getAuthority())
                 .scheme(url.getProtocol())
@@ -149,7 +149,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .host(new Uri.Builder().encodedAuthority(HOST).build())
                 .add(getCert(url)[0])
                 .build();
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
 
         MASRequest request = new MASRequest.MASRequestBuilder(
                 new Uri.Builder().encodedAuthority(HOST)
@@ -175,7 +175,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .host(new Uri.Builder().encodedAuthority(HOST).build())
                 .add("ZHVtbXk=") //Dummy
                 .build();
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
 
         MASRequest request = new MASRequest.MASRequestBuilder(
                 new Uri.Builder().encodedAuthority(HOST)
@@ -202,7 +202,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .add(PublicKeyHash.fromCertificate(certificate).getHashString())
                 .build();
 
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
         MASRequest request = new MASRequest.MASRequestBuilder(
                 new Uri.Builder().encodedAuthority(HOST)
                         .scheme("https")
@@ -225,7 +225,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .add(PublicKeyHash.fromCertificate(getCert(url)[0]).getHashString())
                 .build();
 
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
 
         MASRequest request = new MASRequest.MASRequestBuilder(
                 new Uri.Builder().encodedAuthority(HOST)
@@ -249,7 +249,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .trustPublicPKI(true)
                 .build();
 
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
         Uri uri = new Uri.Builder().encodedAuthority(url.getAuthority())
                 .scheme(url.getProtocol())
                 .appendPath("api")
@@ -274,7 +274,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .isPublic(false)
                 .build();
 
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
         MASRequest request = new MASRequest.MASRequestBuilder(
                 new Uri.Builder().encodedAuthority(HOST)
                         .scheme("https")
@@ -301,7 +301,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .host(new Uri.Builder().encodedAuthority(getHost() + ":" + getPort()).build())
                 .add("ZHVtbXk=") //Dummy
                 .build();
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
 
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
                 .build();
@@ -325,7 +325,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .add(certificate)
                 .add(PublicKeyHash.fromCertificate(certificate).getHashString())
                 .build();
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
 
         MASRequest request = new MASRequest.MASRequestBuilder(
                 new Uri.Builder().encodedAuthority(HOST)
@@ -343,7 +343,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .add(certificate)
                 .add("ZHVtbXk=") //Dummy
                 .build();
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
 
         MASCallbackFuture<MASResponse<JSONObject>> callback2 = new MASCallbackFuture<>();
         MAS.invoke(request, callback2);
@@ -359,13 +359,13 @@ public class MASMultiServerTest extends MASLoginTestBase {
     @Test
     public void testMultiServerDynamicSDK() throws Exception {
         Uri orig = new Uri.Builder().encodedAuthority(getHost() + ":" + getPort()).build();
-        Assert.assertNotNull(MASConfiguration.getCurrentConfiguration().findByHost(orig));
+        Assert.assertNotNull(MASConfiguration.getCurrentConfiguration().getSecurityConfiguration(orig));
 
         MAS.start(getContext(), TestUtils.getJSONObject("/msso_config_multi_server.json"));
-        Assert.assertNull(MASConfiguration.getCurrentConfiguration().findByHost(orig));
+        Assert.assertNull(MASConfiguration.getCurrentConfiguration().getSecurityConfiguration(orig));
 
         Uri newUri = new Uri.Builder().encodedAuthority("dummy:12345").build();
-        Assert.assertNotNull(MASConfiguration.getCurrentConfiguration().findByHost(newUri));
+        Assert.assertNotNull(MASConfiguration.getCurrentConfiguration().getSecurityConfiguration(newUri));
     }
 
     @Test
@@ -380,7 +380,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .isPublic(true)
                 .build();
 
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
         MASRequest request = new MASRequest.MASRequestBuilder(
                 new Uri.Builder().encodedAuthority(HOST)
                         .scheme("https")
@@ -411,7 +411,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .add("ZHVtbXk=") //Dummy
                 .build();
 
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
         MASRequest request = new MASRequest.MASRequestBuilder(
                 new Uri.Builder().encodedAuthority(HOST)
                         .scheme("https")
@@ -442,7 +442,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .isPublic(false)
                 .build();
 
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
         MASRequest request = new MASRequest.MASRequestBuilder(
                 new Uri.Builder().encodedAuthority(HOST)
                         .scheme("https")
@@ -475,7 +475,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .isPublic(true)
                 .build();
 
-        MASConfiguration.getCurrentConfiguration().add(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
         Uri uri = new Uri.Builder().encodedAuthority(url.getAuthority())
                 .scheme(url.getProtocol())
                 .appendPath("api")
@@ -488,14 +488,11 @@ public class MASMultiServerTest extends MASLoginTestBase {
         MAS.invoke(request, callback);
 
         JSONObject result = callback.get().getBody().getContent();
-
     }
 
     @Test
     public void testNoPinningAndNonTrustPublicPKI() throws Exception {
     }
-
-
 
     private Certificate[] getCert(URL url) throws Exception {
 

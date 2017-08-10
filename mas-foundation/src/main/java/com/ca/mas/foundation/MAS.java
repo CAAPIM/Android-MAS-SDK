@@ -310,14 +310,13 @@ public class MAS {
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-                    //Create a new configuration
-                    MASConfiguration config = new MASConfiguration(context);
-                    config.remove(uri);
-                    MASSecurityConfiguration primaryConfig = MASConfiguration.createPrimaryConfiguration(uri);
+                    MASSecurityConfiguration enrollmentConfig = new MASSecurityConfiguration.Builder()
+                            .add(publicKeyHash)
+                            .build();
                     MAGHttpClient client = new MAGHttpClient();
                     MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
                             responseBody(MAGResponseBody.jsonBody()).build();
-                    MAGResponse<JSONObject> response = client.execute(request, primaryConfig);
+                    MAGResponse<JSONObject> response = client.execute(request, enrollmentConfig);
                     if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
                         throw ServerClient.createServerException(response, MASServerException.class);
                     }

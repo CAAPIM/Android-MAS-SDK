@@ -42,8 +42,7 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
      */
     public TrustedCertificateConfigurationTrustManager(MASSecurityConfiguration config) {
         this.publicPkiDelegates = config.trustPublicPki() ? getPlatformX509TrustManagers() : null;
-        List<Certificate> certs = config.getCertificates();
-        this.privateTrustStoreDelegates = getPrivateX509TrustManagers(certs);
+        this.privateTrustStoreDelegates = getPrivateX509TrustManagers(config.getCertificates());
         this.config = config;
     }
 
@@ -101,11 +100,10 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
         return xtms;
     }
 
-    private CertificateException checkPrivateTrustStoreDelegates(X509Certificate[] chain, String s) throws CertificateException {
+    private void checkPrivateTrustStoreDelegates(X509Certificate[] chain, String s) throws CertificateException {
         for (X509TrustManager delegate : privateTrustStoreDelegates) {
             delegate.checkServerTrusted(chain, s);
         }
-        return null;
     }
 
     @Override

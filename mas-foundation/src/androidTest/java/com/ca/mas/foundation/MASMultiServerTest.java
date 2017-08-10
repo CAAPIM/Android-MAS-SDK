@@ -14,6 +14,7 @@ import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.TestUtils;
+import com.ca.mas.core.cert.CertUtils;
 import com.ca.mas.core.cert.PublicKeyHash;
 import com.ca.mas.core.http.ContentType;
 import com.squareup.okhttp.mockwebserver.Dispatcher;
@@ -28,11 +29,14 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InvalidObjectException;
 import java.math.BigInteger;
@@ -45,8 +49,10 @@ import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -119,7 +125,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .host(new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build());
 
         Certificate[] certificates = getCert(url);
-        for (Certificate certificate: certificates) {
+        for (Certificate certificate : certificates) {
             configuration.add(certificate);
         }
 
@@ -581,5 +587,49 @@ public class MASMultiServerTest extends MASLoginTestBase {
         sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(),
                 new SecureRandom());
         return sslContext.getSocketFactory();
+    }
+
+    private List<MASSecurityConfiguration> getSecurityConfiguration(String filename) throws IOException, JSONException {
+
+        List<MASSecurityConfiguration> securityConfigurations = new ArrayList<>();
+
+
+        JSONObject sc = TestUtils.getJSONObject("/" + filename);
+
+        for (int i = 0; i < sc.names().length(); i++) {
+            MASSecurityConfiguration.Builder builder = new MASSecurityConfiguration.Builder();
+            URL url = new URL(sc.names().getString(i));
+            Uri uri = new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build();
+            builder.host(uri);
+
+            JSONObject config = sc.getJSONObject(sc.names().getString(i));
+
+            //Certificate
+            JSONArray certificates = config.optJSONArray("certificates");
+            if (certificates != null) {
+                for (int j = 0; j < certificates.length(); j++) {
+                    JSONArray certificate = certificates.getJSONArray(j);
+                    String c = certificate.join("\n").replace("\"", "");
+                    ;
+                    Certificate cert = CertUtils.decodeCertFromPem(c);
+                    builder.add(cert);
+                }
+            }
+
+            //PublicKeyHash
+            JSONArray hashes = config.optJSONArray("publicKeyHashes");
+            if (hashes != null) {
+                for (int j = 0; j < hashes.length(); j++) {
+                    builder.add(hashes.getString(j));
+                }
+            }
+
+            builder.isPublic(config.optBoolean("isPublic", false));
+            builder.trustPublicPKI(config.optBoolean("trustPublicPKI", false));
+            securityConfigurations.add(builder.build());
+
+        }
+        return securityConfigurations;
+
     }
 }

@@ -19,21 +19,14 @@ public interface MASSecurityConfiguration {
     Uri getHost();
     boolean isPublic();
     boolean trustPublicPki();
-    PINNING_TYPE getPinningType();
     List<Certificate> getCertificates();
     List<String> getPublicKeyHashes();
-
-    enum PINNING_TYPE {
-        certificate,
-        publicKeyHash
-    }
 
     class Builder {
 
         private boolean isPublic;
         private boolean trustPublicPKI;
 
-        private PINNING_TYPE pinningType;
         private List<Certificate> certificates;
         private List<String> publicKeyHashes;
 
@@ -75,13 +68,7 @@ public interface MASSecurityConfiguration {
                 throw new IllegalArgumentException("Missing host.");
             }
 
-            if (certificates != null && !certificates.isEmpty()) {
-                pinningType = PINNING_TYPE.certificate;
-            } else if (publicKeyHashes != null && !publicKeyHashes.isEmpty()) {
-                pinningType = PINNING_TYPE.publicKeyHash;
-            }
-
-            if (!trustPublicPKI && pinningType == null) {
+            if (!trustPublicPKI && publicKeyHashes == null && certificates == null) {
                 throw new IllegalArgumentException("Missing pinning type, cannot establish SSL.");
             }
 
@@ -104,11 +91,6 @@ public interface MASSecurityConfiguration {
                 @Override
                 public List<String> getPublicKeyHashes() {
                     return publicKeyHashes;
-                }
-
-                @Override
-                public PINNING_TYPE getPinningType() {
-                    return pinningType;
                 }
 
                 @Override

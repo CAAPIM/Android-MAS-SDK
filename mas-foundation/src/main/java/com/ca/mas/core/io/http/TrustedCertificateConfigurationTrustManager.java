@@ -118,7 +118,6 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
 
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String s) throws CertificateException {
-        MASSecurityConfiguration.PINNING_TYPE pinningType = config.getPinningType();
         List<Certificate> certs = config.getCertificates();
         List<String> hashes = config.getPublicKeyHashes();
 
@@ -134,35 +133,33 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
         }
 
         boolean valid = false;
-        if (pinningType != null) {
-            //Check the certs
-            if (certs != null && !certs.isEmpty()) {
-                for (X509Certificate xcert : chain) {
-                    if (certs.contains(xcert)) {
-                        valid = true;
-                        break;
-                    }
+        //Check the certs
+        if (certs != null && !certs.isEmpty()) {
+            for (X509Certificate xcert : chain) {
+                if (certs.contains(xcert)) {
+                    valid = true;
+                    break;
                 }
             }
+        }
 
-            //Check the public key hashes
-            if (hashes != null && !hashes.isEmpty()) {
-                for (X509Certificate xcert : chain) {
-                    if (hashes.contains(PublicKeyHash.fromPublicKey(xcert.getPublicKey()))) {
-                        valid = true;
-                        break;
-                    }
+        //Check the public key hashes
+        if (hashes != null && !hashes.isEmpty()) {
+            for (X509Certificate xcert : chain) {
+                if (hashes.contains(PublicKeyHash.fromPublicKey(xcert.getPublicKey()))) {
+                    valid = true;
+                    break;
                 }
             }
+        }
 
-            if (!valid) {
-                throw new CertificateException("Server certificate chain did not contain any of the pinned public keys.");
-            }
+        if (!valid) {
+            throw new CertificateException("Server certificate chain did not contain any of the pinned public keys.");
+        }
 
-            //All public PKI delegates must succeed
-            for (X509TrustManager delegate : publicPkiDelegates) {
-                delegate.checkServerTrusted(chain, s);
-            }
+        //All public PKI delegates must succeed
+        for (X509TrustManager delegate : publicPkiDelegates) {
+            delegate.checkServerTrusted(chain, s);
         }
     }
 

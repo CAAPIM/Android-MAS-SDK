@@ -63,10 +63,12 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
             int a = 1;
             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
             ks.load(null, null);
-            for (Certificate cert : certs) {
-                if (cert instanceof X509Certificate) {
-                    String alias = "cert" + a++;
-                    ks.setCertificateEntry(alias, cert);
+            if (certs != null) {
+                for (Certificate cert : certs) {
+                    if (cert instanceof X509Certificate) {
+                        String alias = "cert" + a++;
+                        ks.setCertificateEntry(alias, cert);
+                    }
                 }
             }
             return ks;
@@ -120,6 +122,17 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
         List<Certificate> certs = config.getCertificates();
         List<String> hashes = config.getPublicKeyHashes();
 
+        //If we aren't trusting public PKI, we fail the validation
+        if (!config.trustPublicPki()) {
+            //Check the private trust store for any thrown exceptions
+            CertificateException e = checkPrivateTrustStoreDelegates(chain, s);
+            if (e == null) {
+                //No error encountered, we have validated
+                return;
+            }
+            throw e;
+        }
+
         boolean valid = false;
         if (pinningType != null) {
             //Check the certs
@@ -144,18 +157,6 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
 
             if (!valid) {
                 throw new CertificateException("Server certificate chain did not contain any of the pinned public keys.");
-            }
-
-            //Check the private trust store for any thrown exceptions
-            CertificateException e = checkPrivateTrustStoreDelegates(chain, s);
-            if (e == null) {
-                //No error encountered, we have validated
-                return;
-            }
-
-            //If we aren't trusting public PKI, we fail the validation
-            if (!config.trustPublicPki()) {
-                throw e;
             }
 
             //All public PKI delegates must succeed

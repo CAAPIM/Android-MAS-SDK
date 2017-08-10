@@ -60,18 +60,19 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
 
     private static KeyStore createTrustStoreWithCerts(Collection<Certificate> certs) {
         try {
-            int a = 1;
-            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-            ks.load(null, null);
             if (certs != null) {
+                int a = 1;
+                KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+                ks.load(null, null);
                 for (Certificate cert : certs) {
                     if (cert instanceof X509Certificate) {
                         String alias = "cert" + a++;
                         ks.setCertificateEntry(alias, cert);
                     }
                 }
+                return ks;
             }
-            return ks;
+            return null;
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
             throw new RuntimeException("Unable to create trust store of default KeyStore type: " + e.getMessage(), e);
         }
@@ -100,13 +101,9 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
         return xtms;
     }
 
-    private CertificateException checkPrivateTrustStoreDelegates(X509Certificate[] chain, String s) {
+    private CertificateException checkPrivateTrustStoreDelegates(X509Certificate[] chain, String s) throws CertificateException {
         for (X509TrustManager delegate : privateTrustStoreDelegates) {
-            try {
-                delegate.checkServerTrusted(chain, s);
-            } catch (CertificateException e) {
-                return e;
-            }
+            delegate.checkServerTrusted(chain, s);
         }
         return null;
     }
@@ -131,10 +128,7 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
 
         //Check the private trust store for any thrown exceptions
         if (certs != null && !certs.isEmpty()) {
-            CertificateException e = checkPrivateTrustStoreDelegates(chain, s);
-            if (e != null) {
-                throw e;
-            }
+            checkPrivateTrustStoreDelegates(chain, s);
         }
 
         //Check the public key hashes

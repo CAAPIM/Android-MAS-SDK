@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -134,9 +135,13 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
         if (hashes != null) {
             if (!hashes.isEmpty()) {
                 for (X509Certificate xcert : chain) {
-                    if (hashes.contains(PublicKeyHash.fromPublicKey(xcert.getPublicKey()))) {
-                        hashesValid = true;
-                        break;
+                    PublicKey key = xcert.getPublicKey();
+                    if (key != null) {
+                        String hashString = PublicKeyHash.fromPublicKey(key).getHashString();
+                        if (hashes.contains(hashString)) {
+                            hashesValid = true;
+                            break;
+                        }
                     }
                 }
             }

@@ -8,9 +8,11 @@
 package com.ca.mas.core.http;
 
 import android.net.Uri;
+import android.util.Log;
 
 import com.ca.mas.core.io.ssl.MAGSocketFactory;
 import com.ca.mas.foundation.MASConfiguration;
+import com.ca.mas.foundation.MASInvalidHostException;
 import com.ca.mas.foundation.MASSecurityConfiguration;
 
 import java.net.URL;
@@ -20,6 +22,9 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.net.ssl.SSLSocketFactory;
+
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 public class SSLSocketFactoryProvider {
 
@@ -31,7 +36,7 @@ public class SSLSocketFactoryProvider {
                 new Observer() {
                     @Override
                     public void update(Observable o, Object arg) {
-                        factories.remove((Uri)arg);
+                        factories.remove((Uri) arg);
                     }
                 }
         );
@@ -56,22 +61,29 @@ public class SSLSocketFactoryProvider {
      * @return the SSLSocketFactory
      */
     public SSLSocketFactory get(URL url) {
-        Uri sanitized = new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build();
+        Uri sanitized = new Uri.Builder()
+                .encodedAuthority(url.getHost() + ":" + url.getPort())
+                .build();
         SSLSocketFactory factory = factories.get(sanitized);
 
         //If not found in the cache, we create one and add it
-        if (factory == null) {
-            factory = getSSLSocketFactory(sanitized);
-            factories.put(sanitized, factory);
+        try {
+            if (factory == null) {
+                factory = getSSLSocketFactory(sanitized);
+                factories.put(sanitized, factory);
+            }
+            return factory;
+        } catch (MASInvalidHostException e) {
+            if (DEBUG) Log.e(TAG, "Could not find hostname configuration.");
+            return null;
         }
-        return factory;
     }
 
     /**
      * Returns the SSLSocketFactory associated with the primary gateway configuration.
      * @return the SSLSocketFactory
      */
-    public SSLSocketFactory getPrimaryGatewaySocketFactory() {
+    public SSLSocketFactory getPrimaryGatewaySocketFactory() throws MASInvalidHostException {
         MASConfiguration currentConfiguration = MASConfiguration.getCurrentConfiguration();
         Uri uri = new Uri.Builder().encodedAuthority(currentConfiguration.getGatewayHostName()
                 + ":"
@@ -83,11 +95,11 @@ public class SSLSocketFactoryProvider {
     /**
      * Attempts to return the SSLSocketFactory associated with the host configuration.
      * If the SSLSocketFactory is not found, it will create a configuration and map it to the host.
-     * Otherwise, we return null.
-     * @param hostname
+     * If the host configuration is not found, we will throw an exception.
+     * @param hostname the host URI
      * @return the SSLSocketFactory or null
      */
-    public SSLSocketFactory getSSLSocketFactory(Uri hostname) {
+    public SSLSocketFactory getSSLSocketFactory(Uri hostname) throws MASInvalidHostException {
         MASConfiguration config = MASConfiguration.getCurrentConfiguration();
         if (config != null) {
             MASSecurityConfiguration securityConfig = config.getSecurityConfiguration(hostname);
@@ -95,16 +107,15 @@ public class SSLSocketFactoryProvider {
                 return createSSLSocketFactory(securityConfig);
             }
         }
-        return null;
+        throw new MASInvalidHostException("Could not find hostname configuration.", null);
     }
 
     /**
      * Creates a SSLSocketFactory for this configuration.
-     * @param configuration
+     * @param configuration the specified security configuration
      * @return the primary SSLSocketFactory
      */
     public SSLSocketFactory createSSLSocketFactory(MASSecurityConfiguration configuration) {
         return new MAGSocketFactory(configuration).createTLSSocketFactory();
     }
-
 }

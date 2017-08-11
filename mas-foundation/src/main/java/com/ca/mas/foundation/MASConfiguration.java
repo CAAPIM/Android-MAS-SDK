@@ -295,7 +295,10 @@ public class MASConfiguration {
      * @return the host and port URI
      */
     public MASSecurityConfiguration getSecurityConfiguration(Uri uri) {
-        return securityConfigurations.get(uri);
+        Uri sanitizedHost = new Uri.Builder()
+            .encodedAuthority(uri.getHost() + ":" + uri.getPort())
+            .build();
+        return securityConfigurations.get(sanitizedHost);
     }
 
 }

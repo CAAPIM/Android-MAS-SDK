@@ -62,7 +62,9 @@ public interface MASSecurityConfiguration {
          * @return the builder object
          */
         public Builder host(Uri host) {
-            this.host = host;
+            this.host = new Uri.Builder()
+                    .encodedAuthority(host.getHost() + ":" + host.getPort())
+                    .build();
             return this;
         }
 

@@ -5,10 +5,10 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.connecta.client;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.ca.mas.connecta.util.ConnectaUtil;
 import com.ca.mas.core.MobileSsoFactory;
@@ -17,6 +17,7 @@ import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.http.SSLSocketFactoryProvider;
 import com.ca.mas.core.request.internal.StateRequest;
 import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASInvalidHostException;
 import com.ca.mas.foundation.MASResultReceiver;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.notify.Callback;
@@ -30,6 +31,8 @@ import java.util.Properties;
 
 import javax.net.ssl.SSLSocketFactory;
 
+import static android.content.ContentValues.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
 /**
  * <i>MASConnectOptions</i> is the interface to the  <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html">MqttConnectOptions</a>
  * class. This class uses the MAG SSLSocketFactory to create a mutually authenticated connection with the Mqtt broker.
@@ -54,8 +57,12 @@ public class MASConnectOptions extends MqttConnectOptions {
                 JSONObject jobj = response.getBody().getContent();
                 String oauthToken = jobj.optString(StateRequest.ACCESS_TOKEN);
                 final MqttConnectOptions connectOptions = ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(), timeOutInMillis);
-                SSLSocketFactory sslSocketFactory = SSLSocketFactoryProvider.getInstance().getPrimaryGatewaySocketFactory();
-                connectOptions.setSocketFactory(sslSocketFactory);
+                try {
+                    SSLSocketFactory sslSocketFactory = SSLSocketFactoryProvider.getInstance().getPrimaryGatewaySocketFactory();
+                    connectOptions.setSocketFactory(sslSocketFactory);
+                } catch (MASInvalidHostException e) {
+                    if (DEBUG) Log.e(TAG, "Failed to retrieve the primary gateway SSLSocketFactory.");
+                }
                 String uname = MASUser.getCurrentUser().getUserName();
                 connectOptions.setUserName(uname);
                 connectOptions.setPassword(oauthToken.toCharArray());
@@ -98,7 +105,7 @@ public class MASConnectOptions extends MqttConnectOptions {
     public Properties getDebug() {
         Properties p = super.getDebug();
         String s = "";
-        if( getServerURIs() != null && getServerURIs().length > 0 ){
+        if (getServerURIs() != null && getServerURIs().length > 0) {
             s = getServerURIs()[0];
         }
         p.put("ServerURI", s);

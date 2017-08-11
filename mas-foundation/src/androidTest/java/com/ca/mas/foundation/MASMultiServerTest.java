@@ -38,7 +38,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InvalidObjectException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
@@ -59,6 +58,7 @@ import java.util.concurrent.ExecutionException;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -66,7 +66,6 @@ import javax.net.ssl.X509TrustManager;
 import javax.security.auth.x500.X500Principal;
 
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 
 public class MASMultiServerTest extends MASLoginTestBase {
 
@@ -172,7 +171,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
             Assert.fail();
         } catch (ExecutionException e) {
             //Should throw InvalidServerException or IOException or SSL....Exception
-            assertTrue(e.getCause().getCause() instanceof InvalidObjectException);
+            assertTrue(e.getCause().getCause() instanceof SSLHandshakeException);
         }
     }
 
@@ -198,7 +197,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
             Assert.fail();
         } catch (ExecutionException e) {
             //Should throw InvalidServerException or IOException or SSL....Exception
-            assertTrue(e.getCause().getCause() instanceof InvalidObjectException);
+            assertTrue(e.getCause().getCause() instanceof SSLHandshakeException);
         }
     }
 
@@ -269,6 +268,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
         MAS.invoke(request, callback);
 
         JSONObject result = callback.get().getBody().getContent();
+        Assert.assertNotNull(result);
     }
 
     @Test
@@ -320,7 +320,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
             Assert.fail();
         } catch (ExecutionException e) {
             //Should throw InvalidServerException or IOException or SSL....Exception
-            assertTrue(e.getCause().getCause() instanceof InvalidObjectException);
+            assertTrue(e.getCause().getCause() instanceof SSLHandshakeException);
         }
 
     }
@@ -350,7 +350,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 .add(certificate)
                 .add("ZHVtbXk=") //Dummy
                 .build();
-        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration2);
 
         MASCallbackFuture<MASResponse<JSONObject>> callback2 = new MASCallbackFuture<>();
         MAS.invoke(request, callback2);
@@ -359,7 +359,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
             Assert.fail();
         } catch (ExecutionException e) {
             //Should throw InvalidServerException or IOException or SSL....Exception
-            assertTrue(e.getCause().getCause() instanceof InvalidObjectException);
+            assertTrue(e.getCause().getCause() instanceof SSLHandshakeException);
         }
     }
 
@@ -433,7 +433,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
             Assert.fail();
         } catch (ExecutionException e) {
             //Should throw InvalidServerException or IOException or SSL....Exception
-            assertTrue(e.getCause().getCause() instanceof InvalidObjectException);
+            assertTrue(e.getCause().getCause() instanceof SSLHandshakeException);
         }
     }
 

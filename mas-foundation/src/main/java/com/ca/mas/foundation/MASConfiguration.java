@@ -274,7 +274,8 @@ public class MASConfiguration {
      * @param securityConfiguration the configuration to be added
      */
     public void addSecurityConfiguration(MASSecurityConfiguration securityConfiguration) {
-        securityConfigurations.put(securityConfiguration.getHost(), securityConfiguration);
+        Uri sanitizedHost = getSanitizedHost(securityConfiguration.getHost());
+        securityConfigurations.put(sanitizedHost, securityConfiguration);
         SECURITY_CONFIGURATION_CHANGED.notifyObservers(securityConfiguration.getHost());
     }
 
@@ -284,7 +285,8 @@ public class MASConfiguration {
      * @param uri the URI of the configuration to remove
      */
     public void removeSecurityConfiguration(Uri uri) {
-        if (securityConfigurations.remove(uri) != null) {
+        Uri sanitizedHost = getSanitizedHost(uri);
+        if (securityConfigurations.remove(sanitizedHost) != null) {
             SECURITY_CONFIGURATION_CHANGED.notifyObservers(uri);
         }
     }
@@ -295,10 +297,12 @@ public class MASConfiguration {
      * @return the host and port URI
      */
     public MASSecurityConfiguration getSecurityConfiguration(Uri uri) {
-        Uri sanitizedHost = new Uri.Builder()
-            .encodedAuthority(uri.getHost() + ":" + uri.getPort())
-            .build();
+        Uri sanitizedHost = getSanitizedHost(uri);
         return securityConfigurations.get(sanitizedHost);
+    }
+
+    private Uri getSanitizedHost(Uri uri) {
+        return new Uri.Builder().encodedAuthority(uri.getHost() + ":" + uri.getPort()).build();
     }
 
 }

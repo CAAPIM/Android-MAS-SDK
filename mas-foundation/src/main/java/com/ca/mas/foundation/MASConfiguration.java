@@ -15,6 +15,7 @@ import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.cert.PublicKeyHash;
 import com.ca.mas.core.conf.Config;
 import com.ca.mas.core.conf.ConfigurationManager;
+import com.ca.mas.core.conf.ConfigurationProvider;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -81,12 +82,13 @@ public class MASConfiguration {
      * @return the primary MASSecurityConfiguration
      */
     static MASSecurityConfiguration createPrimaryConfiguration(Uri uri) {
+        ConfigurationProvider configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
         MASSecurityConfiguration.Builder configBuilder = new MASSecurityConfiguration.Builder()
-                .host(uri);
+                .host(uri)
+                .trustPublicPKI(configurationProvider.isAlsoTrustPublicPki());
 
         //Add certificates, if any exist
-        Collection<X509Certificate> certificates = ConfigurationManager.getInstance()
-                .getConnectedGatewayConfigurationProvider().getTrustedCertificateAnchors();
+        Collection<X509Certificate> certificates = configurationProvider.getTrustedCertificateAnchors();
         if (certificates != null) {
             for (X509Certificate cert : certificates) {
                 configBuilder.add(cert);
@@ -94,9 +96,7 @@ public class MASConfiguration {
         }
 
         //Add public key hashes, if any exist
-        Collection<PublicKeyHash> publicKeyHashes = ConfigurationManager.getInstance()
-                .getConnectedGatewayConfigurationProvider()
-                .getTrustedCertificatePinnedPublicKeyHashes();
+        Collection<PublicKeyHash> publicKeyHashes = configurationProvider.getTrustedCertificatePinnedPublicKeyHashes();
         if (publicKeyHashes != null) {
             for (PublicKeyHash hash : publicKeyHashes) {
                 String hashString = hash.getHashString();

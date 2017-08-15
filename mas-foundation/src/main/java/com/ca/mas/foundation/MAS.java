@@ -312,15 +312,17 @@ public class MAS {
                 try {
                     MASSecurityConfiguration enrollmentConfig = new MASSecurityConfiguration.Builder()
                             .add(publicKeyHash)
+                            .host(uri)
                             .build();
                     MAGHttpClient client = new MAGHttpClient();
                     MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
-                            responseBody(MAGResponseBody.jsonBody()).build();
+                            responseBody(MAGResponseBody.jsonBody()).setPublic().build();
                     MAGResponse<JSONObject> response = client.execute(request, enrollmentConfig);
                     if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
                         throw ServerClient.createServerException(response, MASServerException.class);
                     }
                     MAS.start(context, response.getBody().getContent());
+                    MASConfiguration.getCurrentConfiguration().removeSecurityConfiguration(uri);
                     Callback.onSuccess(callback, null);
                 } catch (Exception e) {
                     Callback.onError(callback, e);

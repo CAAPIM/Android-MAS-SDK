@@ -588,7 +588,6 @@ public class MASTest extends MASLoginTestBase {
 
     @Test
     public void testHttpPut() throws Exception {
-
         String requestData = "Expected Request Data";
 
         setDispatcher(new GatewayDefaultDispatcher() {
@@ -626,8 +625,7 @@ public class MASTest extends MASLoginTestBase {
     }
 
     @Test
-    public void testAccessUnProtectedEndpoint() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
-
+    public void testAccessUnprotectedEndpoint() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
         MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/products?operation=listProducts"))
                 .setPublic()
                 .build();
@@ -640,24 +638,26 @@ public class MASTest extends MASLoginTestBase {
         assertNull(rr.getHeader("Authorization"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testAccessUnProtectedEndpointInOtherServer() throws Throwable {
-
-        MASRequest request = new MASRequest.MASRequestBuilder(new URI("https://somewhere/protected/resource/products?operation=listProducts"))
+    @Test
+    public void testAccessUnprotectedEndpointInOtherServer() throws Throwable {
+        URL url = new URL("https://swapi.co");
+        Uri uri = new Uri.Builder().encodedAuthority(url.getAuthority())
+                .scheme(url.getProtocol())
+                .appendPath("api").appendPath("people").appendPath("1")
+                .build();
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
                 .setPublic()
                 .build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
-        try {
-            callback.get();
-        } catch (ExecutionException e) {
-            throw e.getCause().getCause();
-        }
+
+        JSONObject result = callback.get().getBody().getContent();
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Luke Skywalker", result.getString("name"));
     }
 
     @Test
     public void testMagIdentifier() throws Exception {
-
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);

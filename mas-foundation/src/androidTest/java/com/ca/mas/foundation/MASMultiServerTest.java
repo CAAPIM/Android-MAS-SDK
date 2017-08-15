@@ -10,10 +10,8 @@ package com.ca.mas.foundation;
 
 import android.net.Uri;
 
-import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
-import com.ca.mas.TestUtils;
 import com.ca.mas.core.cert.CertUtils;
 import com.ca.mas.core.cert.PublicKeyHash;
 import com.ca.mas.core.http.ContentType;
@@ -39,7 +37,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.URI;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -65,6 +62,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import javax.security.auth.x500.X500Principal;
 
+import static com.ca.mas.TestUtils.getJSONObject;
 import static junit.framework.Assert.assertTrue;
 
 public class MASMultiServerTest extends MASLoginTestBase {
@@ -143,8 +141,8 @@ public class MASMultiServerTest extends MASLoginTestBase {
         MAS.invoke(request, callback);
 
         JSONObject result = callback.get().getBody().getContent();
-        //assert the json result
-
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Luke Skywalker", result.getString("name"));
     }
 
 
@@ -223,7 +221,6 @@ public class MASMultiServerTest extends MASLoginTestBase {
 
     @Test
     public void testMultiServerMultiplePublicKeyPinning() throws Exception {
-
         URL url = new URL("https://swapi.co");
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(HOST).build())
@@ -243,7 +240,6 @@ public class MASMultiServerTest extends MASLoginTestBase {
         MAS.invoke(request, callback);
 
         Assert.assertEquals(expectResponse.toString(), callback.get().getBody().getContent().toString());
-
     }
 
     @Test
@@ -274,7 +270,6 @@ public class MASMultiServerTest extends MASLoginTestBase {
     @Test
     public void testMultiServerIsPublicFlagOverride() throws Exception {
         //Set isPublic on MASRequest
-
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(HOST).build())
                 .add(certificate)
@@ -305,24 +300,28 @@ public class MASMultiServerTest extends MASLoginTestBase {
         //Update msso-config setting
         //using a wrong hash for the msso-config
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
-                .host(new Uri.Builder().encodedAuthority(getHost() + ":" + getPort()).build())
+                .host(new Uri.Builder().encodedAuthority(HOST).build())
                 .add("ZHVtbXk=") //Dummy
                 .build();
         MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
 
-        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+        MASRequest request = new MASRequest.MASRequestBuilder(
+//        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+                new Uri.Builder().encodedAuthority(HOST)
+                        .scheme("https")
+                        .path("test")
+                        .build())
                 .build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
 
         MAS.invoke(request, callback);
         try {
-            callback.get();
+            callback.get().getBody();
             Assert.fail();
         } catch (ExecutionException e) {
             //Should throw InvalidServerException or IOException or SSL....Exception
             assertTrue(e.getCause().getCause() instanceof SSLHandshakeException);
         }
-
     }
 
     @Test
@@ -368,7 +367,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
         Uri orig = new Uri.Builder().encodedAuthority(getHost() + ":" + getPort()).build();
         Assert.assertNotNull(MASConfiguration.getCurrentConfiguration().getSecurityConfiguration(orig));
 
-        MAS.start(getContext(), TestUtils.getJSONObject("/msso_config_multi_server.json"));
+        MAS.start(getContext(), getJSONObject("/msso_config_multi_server.json"));
         Assert.assertNull(MASConfiguration.getCurrentConfiguration().getSecurityConfiguration(orig));
 
         Uri newUri = new Uri.Builder().encodedAuthority("dummy:12345").build();
@@ -411,7 +410,6 @@ public class MASMultiServerTest extends MASLoginTestBase {
 
     @Test
     public void testMultiServerValidCertInvalidPin() throws Exception {
-
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(HOST).build())
                 .add(certificate)
@@ -467,42 +465,73 @@ public class MASMultiServerTest extends MASLoginTestBase {
 
     @Test
     public void testPublicCA() throws Exception {
-        //https://swapi.co/api/people/4/
+        //https://swapi.co/api/people/1/
         //https://en.wikipedia.org/w/api.php?action=query&titles=CA_Technologies&prop=revisions&rvprop=content&format=json
         //https://itunes.apple.com/search?term=red+hot+chili+peppers&entity=musicVideo
         //https://www.googleapis.com/books/v1/volumes?q=patrick+rothfuss
         //https://api.ipify.org?format=json
 
-        //May be with public key pinning only
+        //Star Wars API
         URL url = new URL("https://swapi.co");
-
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build())
                 .trustPublicPKI(true)
                 .isPublic(true)
                 .build();
-
         MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
+
         Uri uri = new Uri.Builder().encodedAuthority(url.getAuthority())
                 .scheme(url.getProtocol())
-                .appendPath("api")
-                .appendPath("people")
-                .appendPath("1")
+                .appendPath("api").appendPath("people").appendPath("1")
                 .build();
-        MASRequest request = new MASRequest.MASRequestBuilder(uri)
-                .build();
+        MASRequest request = new MASRequest.MASRequestBuilder(uri).build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
 
         JSONObject result = callback.get().getBody().getContent();
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Luke Skywalker", result.getString("name"));
+
+        //Google API
+        URL url2 = new URL("https://www.googleapis.com");
+        MASSecurityConfiguration configuration2 = new MASSecurityConfiguration.Builder()
+                .host(new Uri.Builder().encodedAuthority(url2.getHost() + ":" + url2.getPort()).build())
+                .trustPublicPKI(true)
+                .isPublic(true)
+                .build();
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration2);
+
+        Uri uri2 = new Uri.Builder().encodedAuthority(url2.getAuthority())
+                .scheme(url2.getProtocol())
+                .appendPath("books").appendPath("v1")
+                .appendPath("volumes")
+                .appendQueryParameter("q", "patrick+rothfuss")
+                .build();
+        MASRequest request2 = new MASRequest.MASRequestBuilder(uri2).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback2 = new MASCallbackFuture<>();
+        MAS.invoke(request2, callback2);
+
+        JSONObject result2 = callback2.get().getBody().getContent();
+        Assert.assertNotNull(result2);
+        String expectedAuthor = result2.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").getJSONArray("authors").getString(0);
+        Assert.assertEquals(expectedAuthor, "Patrick Rothfuss");
     }
 
     @Test
     public void testNoPinningAndNonTrustPublicPKI() throws Exception {
+        URL url = new URL("https://swapi.co");
+        try {
+            MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
+                .host(new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build())
+                .trustPublicPKI(false)
+                .build();
+        } catch (Exception e) {
+            //Should throw InvalidServerException or IOException or SSL....Exception
+            assertTrue(e instanceof IllegalArgumentException);
+        }
     }
 
     private Certificate[] getCert(URL url) throws Exception {
-
         //URL url = new URL("https://mobile-staging-androidautomation.l7tech.com:8443");
         //URL url = new URL("https://swapi.co");
 
@@ -591,11 +620,8 @@ public class MASMultiServerTest extends MASLoginTestBase {
     }
 
     private List<MASSecurityConfiguration> getSecurityConfiguration(String filename) throws IOException, JSONException {
-
         List<MASSecurityConfiguration> securityConfigurations = new ArrayList<>();
-
-
-        JSONObject sc = TestUtils.getJSONObject("/" + filename);
+        JSONObject sc = getJSONObject("/" + filename);
 
         for (int i = 0; i < sc.names().length(); i++) {
             MASSecurityConfiguration.Builder builder = new MASSecurityConfiguration.Builder();
@@ -630,7 +656,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
             securityConfigurations.add(builder.build());
 
         }
-        return securityConfigurations;
 
+        return securityConfigurations;
     }
 }

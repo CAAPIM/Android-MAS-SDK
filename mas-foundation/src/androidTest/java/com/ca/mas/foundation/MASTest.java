@@ -639,24 +639,6 @@ public class MASTest extends MASLoginTestBase {
     }
 
     @Test
-    public void testAccessUnprotectedEndpointInOtherServer() throws Throwable {
-        URL url = new URL("https://swapi.co");
-        Uri uri = new Uri.Builder().encodedAuthority(url.getAuthority())
-                .scheme(url.getProtocol())
-                .appendPath("api").appendPath("people").appendPath("1")
-                .build();
-        MASRequest request = new MASRequest.MASRequestBuilder(uri)
-                .setPublic()
-                .build();
-        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
-        MAS.invoke(request, callback);
-
-        JSONObject result = callback.get().getBody().getContent();
-        Assert.assertNotNull(result);
-        Assert.assertEquals("Luke Skywalker", result.getString("name"));
-    }
-
-    @Test
     public void testMagIdentifier() throws Exception {
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();

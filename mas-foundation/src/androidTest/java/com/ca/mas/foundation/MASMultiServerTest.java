@@ -145,7 +145,6 @@ public class MASMultiServerTest extends MASLoginTestBase {
         Assert.assertEquals("Luke Skywalker", result.getString("name"));
     }
 
-
     @Test
     public void testMultiServerCertificatePinningFailed() throws Exception {
         URL url = new URL("https://swapi.co");
@@ -378,7 +377,6 @@ public class MASMultiServerTest extends MASLoginTestBase {
     public void testMultiServerIsPublic() throws Exception {
         //No access token header
         //No mag-identifier header
-
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(HOST).build())
                 .add(certificate)
@@ -400,7 +398,6 @@ public class MASMultiServerTest extends MASLoginTestBase {
         RecordedRequest recordedRequest = mockServer.takeRequest();
         Assert.assertNull(recordedRequest.getHeader("mag-identifier"));
         Assert.assertNull(recordedRequest.getHeader("Authorization"));
-
     }
 
     @Test
@@ -438,8 +435,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
     @Test
     public void testMultiServerIsNotPublic() throws Exception {
         //Contain access token header
-        //ContainHas mag-identifier header
-
+        //Contains mag-identifier header
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(HOST).build())
                 .add(certificate)
@@ -534,7 +530,6 @@ public class MASMultiServerTest extends MASLoginTestBase {
     private Certificate[] getCert(URL url) throws Exception {
         //URL url = new URL("https://mobile-staging-androidautomation.l7tech.com:8443");
         //URL url = new URL("https://swapi.co");
-
         SSLContext sslCtx = SSLContext.getInstance("TLS");
         sslCtx.init(null, new TrustManager[]{new X509TrustManager() {
 

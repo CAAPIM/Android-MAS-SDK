@@ -73,6 +73,8 @@ public class MAGHttpClient {
 
             if (urlConnection instanceof HttpsURLConnection && sslSocketFactory != null) {
                 ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sslSocketFactory);
+            } else if (sslSocketFactory == null) {
+                ((HttpsURLConnection) urlConnection).setSSLSocketFactory(null);
             }
 
             if (ConfigurationManager.getInstance().getConnectionListener() != null) {

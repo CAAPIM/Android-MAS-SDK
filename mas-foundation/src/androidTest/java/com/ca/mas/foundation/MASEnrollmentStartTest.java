@@ -47,7 +47,6 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
         Certificate cert = certs[0];
         PublicKey key = cert.getPublicKey();
 
-
         MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
 
         Uri uri = new Uri.Builder()
@@ -63,7 +62,6 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
 
         MAS.start(InstrumentationRegistry.getTargetContext(), new URL(uri.toString()), callback);
         Assert.assertNull(callback.get());
-
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -99,7 +97,6 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
 
     @Test
     public void testEnrollmentWithInvalidHashKey() throws Exception {
-
         MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
 
         Uri uri = new Uri.Builder()
@@ -150,7 +147,6 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
             Assert.assertTrue(e.getCause().getCause() instanceof MASServerException);
             Assert.assertTrue(((MASException) e.getCause()).getRootCause() instanceof MASServerException);
         }
-
     }
 
     private static String toHash(PublicKey publicKey) throws NoSuchAlgorithmException {
@@ -158,7 +154,7 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(encoded);
         byte[] digest = md.digest();
-        return Base64.encodeToString(digest, Base64.URL_SAFE);
+        return Base64.encodeToString(digest, Base64.NO_WRAP).trim();
     }
 
     private SSLSocketFactory createSSLSocketFactory() throws NoSuchAlgorithmException, KeyManagementException {

@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import com.ca.mas.core.io.http.SingleKeyX509KeyManager;
 import com.ca.mas.core.io.http.TrustedCertificateConfigurationTrustManager;
 import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASSecurityConfiguration;
 
 import java.security.PrivateKey;
@@ -42,8 +43,14 @@ public class MAGSocketFactory {
      */
     public MAGSocketFactory(@NonNull MASSecurityConfiguration config) {
         securityConfiguration = config;
-        clientCertPrivateKey = StorageProvider.getInstance().getTokenManager().getClientPrivateKey();
-        clientCertChain = StorageProvider.getInstance().getTokenManager().getClientCertificateChain();
+        try {
+            if (MASConfiguration.getCurrentConfiguration() != null) {
+                clientCertPrivateKey = StorageProvider.getInstance().getTokenManager().getClientPrivateKey();
+                clientCertChain = StorageProvider.getInstance().getTokenManager().getClientCertificateChain();
+            }
+        } catch (IllegalStateException e) {
+            //The SDK has not been started yet and is in the enrollment URL flow
+        }
     }
 
     public SSLSocketFactory createTLSSocketFactory() {

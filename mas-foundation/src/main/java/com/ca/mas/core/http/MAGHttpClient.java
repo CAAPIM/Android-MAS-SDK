@@ -71,10 +71,9 @@ public class MAGHttpClient {
                 request.getConnectionListener().onObtained(urlConnection);
             }
 
-            if (urlConnection instanceof HttpsURLConnection && sslSocketFactory != null) {
+            //If not found in the MASSecurityConfiguration, the socket factory will be null
+            if (urlConnection instanceof HttpsURLConnection) {
                 ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sslSocketFactory);
-            } else if (sslSocketFactory == null) {
-                ((HttpsURLConnection) urlConnection).setSSLSocketFactory(null);
             }
 
             if (ConfigurationManager.getInstance().getConnectionListener() != null) {

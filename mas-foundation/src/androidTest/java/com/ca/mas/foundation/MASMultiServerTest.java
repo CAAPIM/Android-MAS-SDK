@@ -560,10 +560,16 @@ public class MASMultiServerTest extends MASLoginTestBase {
         return certificates;
     }
 
+    @Override
     @After
-    public void multiServerShutdown() throws Exception {
-        if (mockServer != null) {
-            mockServer.shutdown();
+    public void deregister() throws InterruptedException, ExecutionException {
+        super.deregister();
+        try {
+            if (mockServer != null) {
+                mockServer.shutdown();
+            }
+        } catch (IOException e) {
+            //Couldn't shut down the mock server
         }
         Map securityConfigurations = getValue(MASConfiguration.getCurrentConfiguration(), "securityConfigurations", Map.class);
         securityConfigurations.clear();

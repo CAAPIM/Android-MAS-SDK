@@ -117,7 +117,7 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
         List<Certificate> certs = config.getCertificates();
         List<String> hashes = config.getPublicKeyHashes();
 
-        //If we aren't trusting the public PKI, we fail the validation
+        //If we don't trust the public PKI, we fail the validation
         if (config.trustPublicPki()) {
             //All public PKI delegates must succeed
             for (X509TrustManager delegate : publicPkiDelegates) {

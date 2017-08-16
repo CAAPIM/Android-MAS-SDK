@@ -8,7 +8,6 @@
 package com.ca.mas.core.http;
 
 import android.net.Uri;
-import android.util.Log;
 
 import com.ca.mas.core.io.ssl.MAGSocketFactory;
 import com.ca.mas.foundation.MASConfiguration;
@@ -22,9 +21,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.net.ssl.SSLSocketFactory;
-
-import static com.ca.mas.foundation.MAS.DEBUG;
-import static com.ca.mas.foundation.MAS.TAG;
 
 public class SSLSocketFactoryProvider {
 
@@ -67,16 +63,11 @@ public class SSLSocketFactoryProvider {
         SSLSocketFactory factory = factories.get(sanitized);
 
         //If not found in the cache, we create one and add it
-        try {
-            if (factory == null) {
-                factory = getSSLSocketFactory(sanitized);
-                factories.put(sanitized, factory);
-            }
-            return factory;
-        } catch (MASInvalidHostException e) {
-            if (DEBUG) Log.e(TAG, "Could not find hostname configuration.");
-            return null;
+        if (factory == null) {
+            factory = getSSLSocketFactory(sanitized);
+            factories.put(sanitized, factory);
         }
+        return factory;
     }
 
     /**
@@ -107,7 +98,7 @@ public class SSLSocketFactoryProvider {
                 return createSSLSocketFactory(securityConfig);
             }
         }
-        throw new MASInvalidHostException("Could not find hostname configuration.", null);
+        throw new MASInvalidHostException("Could not find hostname configuration.");
     }
 
     /**

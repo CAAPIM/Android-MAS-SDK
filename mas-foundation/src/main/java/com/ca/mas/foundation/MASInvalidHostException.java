@@ -11,17 +11,14 @@ package com.ca.mas.foundation;
 /**
  * Thrown when an invalid host is identified.
  */
-public class MASInvalidHostException extends MASException {
+public class MASInvalidHostException extends RuntimeException {
 
-    public MASInvalidHostException(Throwable cause) {
-        super(cause);
+    public MASInvalidHostException(String message) {
+        super(message);
     }
 
     public MASInvalidHostException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public Throwable getRootCause() {
-        return super.getRootCause(getCause());
-    }
 }

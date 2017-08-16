@@ -527,6 +527,41 @@ public class MASMultiServerTest extends MASLoginTestBase {
         }
     }
 
+    @Test
+    public void testMultiServerGeneratedSecurityConfiguration() throws Exception {
+        List<MASSecurityConfiguration> securityConfigs = getSecurityConfiguration("multiservercerts.json");
+        MASConfiguration config = MASConfiguration.getCurrentConfiguration();
+        for (MASSecurityConfiguration securityConfig : securityConfigs) {
+            config.addSecurityConfiguration(securityConfig);
+        }
+
+        URL url = new URL("https://en.wikipedia.org");
+        MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
+                .host(new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build())
+                .trustPublicPKI(true)
+                .isPublic(true)
+                .build();
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
+
+        Uri uri = new Uri.Builder().encodedAuthority(url.getAuthority())
+                .scheme(url.getProtocol())
+                .appendPath("w").appendPath("api.php")
+                .appendQueryParameter("action", "query")
+                .appendQueryParameter("titles", "CA_Technologies")
+                .appendQueryParameter("prop", "revisions")
+                .appendQueryParameter("rvprop", "content")
+                .appendQueryParameter("format", "json")
+                .build();
+        MASRequest request = new MASRequest.MASRequestBuilder(uri).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        JSONObject result = callback.get().getBody().getContent();
+        Assert.assertNotNull(result);
+        String expectedResult = result.getJSONObject("query").getJSONArray("normalized").getJSONObject(0).getString("to");
+        Assert.assertEquals(expectedResult, "CA Technologies");
+    }
+
     private Certificate[] getCert(URL url) throws Exception {
         //URL url = new URL("https://mobile-staging-androidautomation.l7tech.com:8443");
         //URL url = new URL("https://swapi.co");
@@ -638,7 +673,6 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 for (int j = 0; j < certificates.length(); j++) {
                     JSONArray certificate = certificates.getJSONArray(j);
                     String c = certificate.join("\n").replace("\"", "");
-                    ;
                     Certificate cert = CertUtils.decodeCertFromPem(c);
                     builder.add(cert);
                 }
@@ -655,7 +689,6 @@ public class MASMultiServerTest extends MASLoginTestBase {
             builder.isPublic(config.optBoolean("isPublic", false));
             builder.trustPublicPKI(config.optBoolean("trustPublicPKI", false));
             securityConfigurations.add(builder.build());
-
         }
 
         return securityConfigurations;

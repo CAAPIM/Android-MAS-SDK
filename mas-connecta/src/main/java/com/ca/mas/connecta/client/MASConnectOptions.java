@@ -62,6 +62,7 @@ public class MASConnectOptions extends MqttConnectOptions {
                     connectOptions.setSocketFactory(sslSocketFactory);
                 } catch (MASInvalidHostException e) {
                     if (DEBUG) Log.e(TAG, "Failed to retrieve the primary gateway SSLSocketFactory.");
+                    Callback.onError(callback, e);
                 }
                 String uname = MASUser.getCurrentUser().getUserName();
                 connectOptions.setUserName(uname);

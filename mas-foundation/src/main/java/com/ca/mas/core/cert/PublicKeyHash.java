@@ -8,27 +8,33 @@
 
 package com.ca.mas.core.cert;
 
+import android.util.Base64;
+
+
 import com.ca.mas.core.io.IoUtils;
 
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 /**
  * Represents an SHA-256 fingerprint of a public key from a trusted CA cert.  This is used to prevent man-in-the-middle
  * attacks by a compromised/hostile/government-compelled CA by way of checking whether the trust anchor's public key
  * is from a recognized list.
- * <P/>
- * To create an instance of this class use the {@link #fromPublicKey} or {@link #fromHashString} method.
+ * <p/>
+ * To create an instance of this class use the {@link #fromPublicKey} or {@link #fromHashString(String, int)} method.
  */
 public class PublicKeyHash implements Serializable {
     private static final Pattern SHA256_HEX_PATTERN = Pattern.compile("[a-f0-9]{64}");
-    private final String hash;
 
-    private PublicKeyHash(String hash) {
+    private final byte[] hash;
+
+    private PublicKeyHash(byte[] hash) {
         this.hash = hash;
     }
 
@@ -44,18 +50,35 @@ public class PublicKeyHash implements Serializable {
     }
 
     /**
+     * Create a new key hash from the specified public key.
+     *
+     * @param certificate the certificate whose key hash to compute.  Required.
+     * @return a new key hash.  Never null.
+     * @throws IllegalArgumentException if the public key's encoding format is not "X.509".
+     */
+    public static PublicKeyHash fromCertificate(Certificate certificate) {
+        return fromPublicKey(certificate.getPublicKey());
+    }
+
+
+    /**
      * Create a new key hash from the specified hash string.
      *
-     * @param hashString the hash string, eg "8b7df143d91c716ecfa5fc1730022f6b421b05cedee8fd52b1fc65a96030ad52"
+     * @param hashString the base64 hash string.
+     * @param flags      controls certain features of the decoded output.
+     *                   Pass {@link Base64#DEFAULT} to decode standard Base64.
      * @return a new key hash.  Never null.
      * @throws IllegalArgumentException if the hash string is not in the expected format.
      */
-    public static PublicKeyHash fromHashString(String hashString) {
-        final String hash = hashString.trim().toLowerCase();
-        if (!SHA256_HEX_PATTERN.matcher(hash).matches())
-            throw new IllegalArgumentException("invalid key hash string");
-        return new PublicKeyHash(hash);
+    public static PublicKeyHash fromHashString(String hashString, int flags) {
+        //For backward compatibility
+        if (SHA256_HEX_PATTERN.matcher(hashString).matches()) {
+            return new PublicKeyHash(IoUtils.hexToByteArray(hashString));
+        } else {
+            return new PublicKeyHash(Base64.decode(hashString, flags));
+        }
     }
+
 
     /**
      * Check if this key hash matches the specified key hash.
@@ -63,8 +86,8 @@ public class PublicKeyHash implements Serializable {
      * @param otherHash the other key hash, as a lowercase hex dump of an SHA-256 hash of the SubjectPublicKeyInfo structure.
      * @return true if this hash matches the other hash.
      */
-    public boolean matches(String otherHash) {
-        return hash != null && hash.equals(otherHash);
+    public boolean matches(byte[] otherHash) {
+        return hash != null && Arrays.equals(hash, otherHash);
     }
 
     /**
@@ -88,31 +111,20 @@ public class PublicKeyHash implements Serializable {
     }
 
     /**
-     * Get the key hash for the specified trust anchor certificate.
-     *
-     * @param certificate the certificate whose key hash to compute.  Required.
-     * @return the key hash.
-     * @throws IllegalArgumentException if the public key's encoding format is not "X.509".
+     * @return the key hash as an SHA-256 Base64 string.
      */
-    public static String toHash(X509Certificate certificate) {
-        return toHash(certificate.getPublicKey());
-    }
-
-    /**
-     * @return the key hash as an SHA-256 hex string, eg "8b7df143d91c716ecfa5fc1730022f6b421b05cedee8fd52b1fc65a96030ad52".
-     */
-    public String getHash() {
-        return hash;
+    public String getHashString() {
+        return Base64.encodeToString(hash, Base64.NO_WRAP);
     }
 
     /**
      * Get the key hash for the specified public key.
      *
-     * @param publicKey  a public key.  Required.
-     * @return a key hash, eg "8b7df143d91c716ecfa5fc1730022f6b421b05cedee8fd52b1fc65a96030ad52".
+     * @param publicKey a public key.  Required.
+     * @return a key hash
      * @throws IllegalArgumentException if the public key's encoding format is not "X.509".
      */
-    public static String toHash(PublicKey publicKey) {
+    private static byte[] toHash(PublicKey publicKey) {
         byte[] encoded = publicKey.getEncoded();
         if (encoded == null || encoded.length < 1)
             throw new IllegalArgumentException("public key cannot be encoded");
@@ -124,35 +136,25 @@ public class PublicKeyHash implements Serializable {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(encoded);
-            byte[] digest = md.digest();
-            return IoUtils.hexDump(digest);
+            return md.digest();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 
-    @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || (this).getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         PublicKeyHash that = (PublicKeyHash) o;
 
-        if (hash != null ? !hash.equals(that.hash) : that.hash != null) return false;
+        return Arrays.equals(hash, that.hash);
 
-        return true;
     }
 
     @Override
     public int hashCode() {
-        return hash != null ? hash.hashCode() : 0;
-    }
-
-    @Override
-    public String toString() {
-        return "PublicKeyHash{" +
-            "hash='" + hash + '\'' +
-            '}';
+        return Arrays.hashCode(hash);
     }
 }

@@ -8,11 +8,13 @@
 
 package com.ca.mas.core.io.ssl;
 
-import com.ca.mas.core.cert.TrustedCertificateConfiguration;
-import com.ca.mas.core.conf.ConfigurationManager;
+import android.support.annotation.NonNull;
+
 import com.ca.mas.core.io.http.SingleKeyX509KeyManager;
 import com.ca.mas.core.io.http.TrustedCertificateConfigurationTrustManager;
 import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.foundation.MASConfiguration;
+import com.ca.mas.foundation.MASSecurityConfiguration;
 
 import java.security.PrivateKey;
 import java.security.SecureRandom;
@@ -28,22 +30,27 @@ public class MAGSocketFactory {
     private static final String SSL_TLS_PROTOCOL = "TLS";
 
     private static final SecureRandom secureRandom = new SecureRandom();
-    private TrustedCertificateConfiguration trustConfig;
+    private MASSecurityConfiguration securityConfiguration;
     private PrivateKey clientCertPrivateKey = null;
     private X509Certificate[] clientCertChain = null;
 
     /**
-     * Create an SocketFactory factory that will create clients that trust the specified server certs and that use the specified client cert
-     * for client cert authentication.
-     * <p>
-     * it retrieves the trustConfig, clientCertPrivateKey
-     * and clientCertChain from the {@link com.ca.mas.core.store.TokenManager}
+     * Create an SocketFactory factory that will create clients which trust the specified server certs
+     * and use the specified client cert for client cert authentication.
+     * <br>
+     * It retrieves the trustConfig, clientCertPrivateKey and clientCertChain
+     * from the {@link com.ca.mas.core.store.TokenManager}.
      */
-
-    public MAGSocketFactory() {
-        this.trustConfig = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
-        clientCertPrivateKey = StorageProvider.getInstance().getTokenManager().getClientPrivateKey();
-        clientCertChain = StorageProvider.getInstance().getTokenManager().getClientCertificateChain();
+    public MAGSocketFactory(@NonNull MASSecurityConfiguration config) {
+        securityConfiguration = config;
+        try {
+            if (MASConfiguration.getCurrentConfiguration() != null) {
+                clientCertPrivateKey = StorageProvider.getInstance().getTokenManager().getClientPrivateKey();
+                clientCertChain = StorageProvider.getInstance().getTokenManager().getClientCertificateChain();
+            }
+        } catch (IllegalStateException e) {
+            //The SDK has not been started yet and is in the enrollment URL flow
+        }
     }
 
     public SSLSocketFactory createTLSSocketFactory() {
@@ -53,8 +60,8 @@ public class MAGSocketFactory {
     private SSLContext createSslContext() {
         try {
             SSLContext sslContext = SSLContext.getInstance(SSL_TLS_PROTOCOL);
-            TrustManager[] trustManagers = {new TrustedCertificateConfigurationTrustManager(
-                    trustConfig)};
+            TrustManager manager = new TrustedCertificateConfigurationTrustManager(securityConfiguration);
+            TrustManager[] trustManagers = {manager};
             KeyManager[] keyManagers = clientCertPrivateKey == null || clientCertChain == null
                     ? new KeyManager[0]
                     : new KeyManager[]{new SingleKeyX509KeyManager(clientCertPrivateKey, clientCertChain)};

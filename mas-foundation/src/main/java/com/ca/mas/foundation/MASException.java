@@ -26,7 +26,7 @@ public class MASException extends Throwable {
         return getRootCause(getCause());
     }
 
-    private Throwable getRootCause(Throwable t) {
+    protected Throwable getRootCause(Throwable t) {
         if (t.getCause() == null) {
             return t;
         } else {

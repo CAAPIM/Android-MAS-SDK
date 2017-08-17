@@ -1,0 +1,12 @@
+{
+  "https://en.wikipedia.org" :
+  {
+    "isPublic" : false,
+    "validateDomainName" : false,
+    "trustPublicPKI" : false,
+    "publicKeyHashes" :
+    [
+      "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+    ]
+  }
+}

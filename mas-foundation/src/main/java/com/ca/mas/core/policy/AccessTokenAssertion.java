@@ -61,13 +61,9 @@ class AccessTokenAssertion implements MssoAssertion {
             if (request.getRequest().getURL().getHost() == null) {
                 throw new IllegalArgumentException("Host is not provided");
             }
-            if (!request.getRequest().getURL().getHost().equals(mssoContext.getConfigurationProvider().getTokenHost())) {
-                throw new IllegalArgumentException(
-                        "This method is valid only for the host that has issued the access_token");
-            }
         }
 
-        MAGInternalRequest magInternalRequest = (MAGInternalRequest) request.getRequest();
+        MAGInternalRequest magInternalRequest = request.getRequest();
         String accessToken = findAccessToken(mssoContext, magInternalRequest);
         if (accessToken != null) {
             //Clear any Authorization from the header before adding new one.

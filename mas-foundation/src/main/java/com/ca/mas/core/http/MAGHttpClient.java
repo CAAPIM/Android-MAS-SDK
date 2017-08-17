@@ -11,9 +11,11 @@ package com.ca.mas.core.http;
 import android.os.Build;
 import android.util.Log;
 
+import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.io.ssl.MAGPinningSocketFactory;
-import com.ca.mas.core.io.ssl.MAGSocketFactory;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
+import com.ca.mas.foundation.MASSecurityConfiguration;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -30,14 +32,12 @@ import static com.ca.mas.foundation.MAS.TAG;
 
 public class MAGHttpClient {
 
-    private SSLSocketFactory sslSocketFactory;
-
-    public MAGHttpClient() {
-        sslSocketFactory = new MAGSocketFactory().createTLSSocketFactory();
+    public <T> MAGResponse<T> execute(MAGRequest request, MASSecurityConfiguration securityConfiguration) throws IOException {
+        return execute(request, SSLSocketFactoryProvider.getInstance().createSSLSocketFactory(securityConfiguration));
     }
 
-    public MAGHttpClient(String publicKeyHash) {
-        sslSocketFactory = new MAGPinningSocketFactory(publicKeyHash).createTLSSocketFactory();
+    public <T> MAGResponse<T> execute(MAGRequest request) throws IOException {
+        return execute(request, SSLSocketFactoryProvider.getInstance().get(request.getURL()));
     }
 
     /**
@@ -48,7 +48,7 @@ public class MAGHttpClient {
      * @return The response to the request.
      * @throws IOException if any error occur or the connection was aborted.
      */
-    public <T> MAGResponse<T> execute(MAGRequest request) throws IOException {
+    public <T> MAGResponse<T> execute(MAGRequest request, SSLSocketFactory sslSocketFactory) throws IOException {
         final HttpURLConnection urlConnection = (HttpURLConnection) request.getURL().openConnection();
 
         if (DEBUG) {
@@ -57,12 +57,22 @@ public class MAGHttpClient {
         }
 
         try {
+            if (!request.isPublic()) {
+                StorageProvider sp = StorageProvider.getInstance();
+                TokenManager tm = sp.getTokenManager();
+                String magIdentifier = tm.getMagIdentifier();
+                if (magIdentifier != null) {
+                    urlConnection.setRequestProperty(ServerClient.MAG_IDENTIFIER, magIdentifier);
+                }
+            }
+
             onConnectionObtained(urlConnection);
             if (request.getConnectionListener() != null) {
                 request.getConnectionListener().onObtained(urlConnection);
             }
 
-            if (urlConnection instanceof HttpsURLConnection && sslSocketFactory != null) {
+            //If not found in the MASSecurityConfiguration, the socket factory will be null
+            if (urlConnection instanceof HttpsURLConnection) {
                 ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sslSocketFactory);
             }
 

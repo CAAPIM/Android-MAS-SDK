@@ -44,7 +44,7 @@ public abstract class MASMockGatewayTestBase extends MASTestBase {
         setupDispatcher(gatewayDefaultDispatcher);
         ssg.setDispatcher(gatewayDefaultDispatcher);
         ssg.useHttps(SslContextBuilder.localhost().getSocketFactory(), false);
-        ssg.start(41979);
+        ssg.start(getPort());
 
         //Turn on debug by default
         MAS.debug();
@@ -53,7 +53,7 @@ public abstract class MASMockGatewayTestBase extends MASTestBase {
             @Override
             public void onObtained(HttpURLConnection connection) {
                 //If connect to localhost
-                if (connection.getURL().getHost().equals("localhost")) {
+                if (connection.getURL().getHost().equals(getHost()) && connection.getURL().getPort() == getPort()) {
                     ((HttpsURLConnection) connection).setSSLSocketFactory(SslContextBuilder.localhost().getSocketFactory());
                 }
             }

@@ -67,7 +67,7 @@ import java.util.Map;
 public class MAS {
 
     public static String TAG = "MAS";
-    public static boolean DEBUG = Log.isLoggable(TAG,  Log.VERBOSE);
+    public static boolean DEBUG = Log.isLoggable(TAG, Log.VERBOSE);
 
     private static Context appContext;
     private static Activity currentActivity;
@@ -228,6 +228,7 @@ public class MAS {
         init(context);
         MobileSsoFactory.getInstance(context);
         state = MASConstants.MAS_STATE_STARTED;
+        EventDispatcher.STARTED.notifyObservers();
     }
 
     /**
@@ -243,6 +244,7 @@ public class MAS {
         init(context);
         MobileSsoFactory.getInstance(context, shouldUseDefault);
         state = MASConstants.MAS_STATE_STARTED;
+        EventDispatcher.STARTED.notifyObservers();
     }
 
     /**
@@ -255,6 +257,7 @@ public class MAS {
         init(context);
         MobileSsoFactory.getInstance(context, jsonConfiguration);
         state = MASConstants.MAS_STATE_STARTED;
+        EventDispatcher.STARTED.notifyObservers();
     }
 
     /**
@@ -267,6 +270,7 @@ public class MAS {
         init(context);
         MobileSsoFactory.getInstance(context, url);
         state = MASConstants.MAS_STATE_STARTED;
+        EventDispatcher.STARTED.notifyObservers();
     }
 
     /**
@@ -296,7 +300,7 @@ public class MAS {
             return;
         }
 
-        Uri uri = Uri.parse(url.toString());
+        final Uri uri = Uri.parse(url.toString());
         final String publicKeyHash = uri.getQueryParameter("subjectKeyHash");
         if (publicKeyHash == null || publicKeyHash.trim().isEmpty()) {
             Callback.onError(callback, new IllegalArgumentException("subjectKeyHash is not provided."));
@@ -306,14 +310,19 @@ public class MAS {
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-                    MAGHttpClient client = new MAGHttpClient(publicKeyHash);
+                    MASSecurityConfiguration enrollmentConfig = new MASSecurityConfiguration.Builder()
+                            .add(publicKeyHash)
+                            .host(uri)
+                            .build();
+                    MAGHttpClient client = new MAGHttpClient();
                     MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
-                            responseBody(MAGResponseBody.jsonBody()).build();
-                    MAGResponse<JSONObject> response = client.execute(request);
+                            responseBody(MAGResponseBody.jsonBody()).setPublic().build();
+                    MAGResponse<JSONObject> response = client.execute(request, enrollmentConfig);
                     if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
                         throw ServerClient.createServerException(response, MASServerException.class);
                     }
                     MAS.start(context, response.getBody().getContent());
+                    MASConfiguration.getCurrentConfiguration().removeSecurityConfiguration(uri);
                     Callback.onSuccess(callback, null);
                 } catch (Exception e) {
                     Callback.onError(callback, e);

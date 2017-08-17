@@ -39,7 +39,12 @@ public class MASStartTest extends MASMockGatewayTestBase {
             "        }\n" +
             "      ]\n" +
             "    }\n" +
-            "  }\n" +
+            "  },\n" +
+            "  \"mag\": {\n" +
+            "    \"mobile_sdk\": {\n" +
+            "      \"trusted_public_pki\": true\n" +
+            "    }\n" +
+            "  }" +
             "}";
 
     @Test
@@ -51,12 +56,10 @@ public class MASStartTest extends MASMockGatewayTestBase {
             outputStreamWriter.close();
 
             MAS.start(getContext(), file.toURI().toURL());
-
         } catch (Exception e) {
             fail();
         } finally {
             file.delete();
-
         }
 
         Assert.assertEquals("test.ca.com", MASConfiguration.getCurrentConfiguration().getGatewayHostName());

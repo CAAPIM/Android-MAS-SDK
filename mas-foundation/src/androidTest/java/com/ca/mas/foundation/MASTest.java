@@ -717,8 +717,9 @@ public class MASTest extends MASLoginTestBase {
                 .build();
 
         long start = System.currentTimeMillis();
-        final CountDownLatch countDownLatch = new CountDownLatch(10);
-        for (int i = 0; i < 10; i++) {
+        int noOfRequest = Runtime.getRuntime().availableProcessors() * 2 + 1;
+        final CountDownLatch countDownLatch = new CountDownLatch(noOfRequest);
+        for (int i = 0; i < noOfRequest; i++) {
             MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
 
                 @Override
@@ -741,7 +742,7 @@ public class MASTest extends MASLoginTestBase {
         //assertTrue(duration.compareTo(new BigDecimal(10)) == 1);
 
         //With Multi-thread, all requests should completed within 1-3 seconds.
-        assertTrue((duration.compareTo(new BigDecimal(1)) == 1) && (duration.compareTo(new BigDecimal(3)) == -1));
+        assertTrue((duration.compareTo(new BigDecimal(3)) == -1));
 
     }
 

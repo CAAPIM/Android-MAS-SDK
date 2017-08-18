@@ -331,7 +331,7 @@ public class MssoContext {
      * Notify that device registration has just completed.  May be called from any thread.
      */
     public void onDeviceRegistrationCompleted() {
-        magHttpClient = null;
+        resetHttpClient();
     }
 
     /**

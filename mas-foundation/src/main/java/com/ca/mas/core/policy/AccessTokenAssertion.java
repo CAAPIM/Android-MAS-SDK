@@ -145,17 +145,19 @@ class AccessTokenAssertion implements MssoAssertion {
         if (oAuthTokenClient == null)
             throw new IllegalStateException("policy not initialized");
 
-        IdToken idToken = mssoContext.getIdToken();
-        if (idToken != null) {
-            if (DEBUG) Log.d(TAG, "Try to use id token to get new Access Token");
-            return obtainAccessTokenUsingIdToken(mssoContext, idToken, request);
+        boolean ssoEnabled = mssoContext.getConfigurationProvider().getProperty(ConfigurationProvider.PROP_SSO_ENABLED);
+
+        if (ssoEnabled) {
+            IdToken idToken = mssoContext.getIdToken();
+            if (idToken != null) {
+                if (DEBUG) Log.d(TAG, "Try to use id token to get new Access Token");
+                return obtainAccessTokenUsingIdToken(mssoContext, idToken, request);
+            }
         }
 
         // We will have to use a username and password.  Ensure they are available.
-        Boolean ssoEnabled = mssoContext.getConfigurationProvider().getProperty(ConfigurationProvider.PROP_SSO_ENABLED);
-        boolean wantIdToken = ssoEnabled != null && ssoEnabled && mssoContext.getIdToken() == null;
         if (DEBUG) Log.d(TAG, "Obtain access token using Credential");
-        return obtainAccessTokenUsingCredential(mssoContext, request, wantIdToken);
+        return obtainAccessTokenUsingCredential(mssoContext, request, ssoEnabled);
     }
 
     private boolean isAccessTokenStillValid(MssoContext mssoContext) {

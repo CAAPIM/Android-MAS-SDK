@@ -35,7 +35,7 @@ import static com.ca.mas.foundation.MAS.TAG;
 class LocationAssertion implements MssoAssertion {
 
     static final String DEFAULT_PROVIDER = LocationManager.NETWORK_PROVIDER;
-    static final long DEFAULT_MIN_TIME = 120000L;
+    static final long DEFAULT_MIN_TIME = 300000L;
     static final float DEFAULT_MIN_DISTANCE = 100.0f;
     private volatile Location lastLocation;
     private LocationManager locationManager;

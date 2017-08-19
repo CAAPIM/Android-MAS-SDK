@@ -12,12 +12,14 @@ println '---------> executing SecureMessaging build.gradle'
 buildscript {
     repositories {
         jcenter()
+        maven {
+            url 'https://maven.google.com'
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.android.tools.build:gradle:3.0.0-alpha9'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
-
         classpath 'com.google.gms:google-services:3.1.0'
     }
 }
@@ -25,24 +27,27 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        maven {
+            url 'https://maven.google.com'
+        }
     }
 }
 
 ext {
-    appCompatVersion = '25.3.1'
-    appAuthVersion = '0.6.0'
-    buildToolsVersion = '25.0.2'
-    compileSdkVersion = 25
-    designVersion = '25.3.1'
+    appCompatVersion = '26.0.0'
+    appAuthVersion = '0.6.1'
+    buildToolsVersion = '26.0.1'
+    compileSdkVersion = 26
+    designVersion = '26.0.0'
     gcm = '10.2.4'
-    gridLayoutVersion = '25.3.1'
+    gridLayoutVersion = '26.0.0'
     minSdkVersion = 19
     nimbusJoseVersion = '4.37.1'
-    recyclerViewVersion = '25.3.1'
-    supportAnnotationsVersion = '25.3.1'
-    targetSdkVersion = 25
+    recyclerViewVersion = '26.0.0'
+    supportAnnotationsVersion = '26.0.0'
+    targetSdkVersion = 26
     versionCode = 15
     versionName = '1.5.00'
     zxingVersion = '3.2.0'
+    customTabVersion = '26.0.0'
 }
-

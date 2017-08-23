@@ -44,5 +44,3 @@ include ':samsungsds-sm-1.5.2',':uaf-authenticator-1.5.2',':uaf-nexsign-client-1
 project(':samsungsds-sm-1.5.2').projectDir = new File('fido/providers/sds/libs/samsungsds-sm-1.5.2')
 project(':uaf-authenticator-1.5.2').projectDir = new File('fido/providers/sds/libs/uaf-authenticator-1.5.2')
 project(':uaf-nexsign-client-1.5.2').projectDir = new File('fido/providers/sds/libs/uaf-nexsign-client-1.5.2')*/
-
-

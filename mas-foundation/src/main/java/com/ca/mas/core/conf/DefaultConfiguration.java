@@ -9,6 +9,7 @@
 package com.ca.mas.core.conf;
 
 import android.net.Uri;
+import android.util.Base64;
 
 import com.ca.mas.core.cert.CertUtils;
 import com.ca.mas.core.cert.PublicKeyHash;
@@ -135,7 +136,7 @@ public class DefaultConfiguration implements ConfigurationProvider {
      */
     public void addTrustedCertificatePinnedPublicKeyHashes(String... hashes) {
         for (String hash : hashes) {
-            trustedCertificatePinnedPublicKeyHashes.add(PublicKeyHash.fromHashString(hash));
+            trustedCertificatePinnedPublicKeyHashes.add(PublicKeyHash.fromHashString(hash, Base64.DEFAULT));
         }
     }
 

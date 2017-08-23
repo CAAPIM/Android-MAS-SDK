@@ -36,7 +36,6 @@ public interface ConfigurationProvider extends TrustedCertificateConfiguration, 
      */
     int getTokenPort();
 
-
     /**
      * @return the client ID, eg "846955e8-a8fb-4bea-bdd7-a16b39770c3d".  Never null.
      */
@@ -76,7 +75,6 @@ public interface ConfigurationProvider extends TrustedCertificateConfiguration, 
      */
     Uri getUserInfoUri();
 
-
     /**
      * Get the absolute URI for the given path.
      *
@@ -85,15 +83,12 @@ public interface ConfigurationProvider extends TrustedCertificateConfiguration, 
      */
     URI getUri(String relativePath);
 
-
     /**
      * Based on the provided configuration the the SDK, retrieve the prefix attribute.
      *
      * @returnA the prefix configured for SDK
      */
     String getPrefix();
-
-
 
     // Configuration properties that are not currently documented as part of the public API.
 
@@ -106,6 +101,5 @@ public interface ConfigurationProvider extends TrustedCertificateConfiguration, 
      * Float, meters.  Minimum distance between location updates, if location enabled.  Default is 100 meters.
      */
     String PROP_LOCATION_MIN_DISTANCE = "msso.location.min.distance";
-
 
 }

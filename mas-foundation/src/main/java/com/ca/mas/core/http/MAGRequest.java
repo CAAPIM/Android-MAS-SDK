@@ -5,13 +5,14 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.http;
 
 import android.net.Uri;
 
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.oauth.GrantProvider;
+import com.ca.mas.foundation.MASConfiguration;
+import com.ca.mas.foundation.MASSecurityConfiguration;
 
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -28,6 +29,7 @@ import java.util.concurrent.TimeUnit;
  * An Http Api Request. Instances of this class are immutable.
  */
 public interface MAGRequest {
+
     enum Method {GET, PUT, POST, DELETE}
 
     /**
@@ -83,6 +85,7 @@ public interface MAGRequest {
     boolean isPublic();
 
     interface MAGConnectionListener {
+
         /**
          * Invoke immediately after the call {@link URL#openConnection()}.
          * Note that the connection is not connected and not ready to retrieve any response from
@@ -105,6 +108,7 @@ public interface MAGRequest {
      * Builder class to build {@link MAGRequest} object
      */
     class MAGRequestBuilder {
+
         private URL url;
         private String method = Method.GET.name();
         private Map<String, List<String>> headers = new HashMap<>();
@@ -113,7 +117,7 @@ public interface MAGRequest {
         private GrantProvider grantProvider = ConfigurationManager.getInstance().getDefaultGrantProvider();
         private String scope;
         private MAGConnectionListener listener;
-        private boolean isPublic = false;
+        private boolean isPublic;
         private boolean sign;
         private long timeout;
         private TimeUnit timeUnit;
@@ -146,6 +150,22 @@ public interface MAGRequest {
             } catch (MalformedURLException e) {
                 throw new IllegalArgumentException(e);
             }
+        }
+
+        /**
+         * Convenience method for reconstructing a request as a builder
+         *
+         * @param request
+         */
+        public MAGRequestBuilder(MAGRequest request) {
+            this.method = request.getMethod();
+            this.body = request.getBody();
+            this.grantProvider = request.getGrantProvider();
+            this.scope = request.getScope();
+            this.responseBody = request.getResponseBody();
+            this.isPublic = request.isPublic();
+            this.headers = request.getHeaders();
+            this.listener = request.getConnectionListener();
         }
 
         /**
@@ -307,6 +327,7 @@ public interface MAGRequest {
          * @return An immutable {@link MAGRequest} object.
          */
         public MAGRequest build() {
+            //Add the headers
             Map<String, List<String>> newHeaders = new HashMap<>();
             for (String key : headers.keySet()) {
                 List<String> headerValues = new ArrayList<>();
@@ -317,7 +338,17 @@ public interface MAGRequest {
                 }
                 newHeaders.put(key, Collections.unmodifiableList(headerValues));
             }
+
             final Map<String, List<String>> unmodifiableHeaders = Collections.unmodifiableMap(newHeaders);
+
+            //If isPublic() is false, we check the security configuration and match its isPublic() setting
+            if (!isPublic && url != null) {
+                Uri uri = Uri.parse(url.toString());
+                MASSecurityConfiguration config = MASConfiguration.getCurrentConfiguration().getSecurityConfiguration(uri);
+                if (config != null && config.isPublic()) {
+                    setPublic();
+                }
+            }
 
             return new MAGRequest() {
                 @Override
@@ -364,7 +395,6 @@ public interface MAGRequest {
                 public boolean isPublic() {
                     return isPublic;
                 }
-
             };
         }
     }

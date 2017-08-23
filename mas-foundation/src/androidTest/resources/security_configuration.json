@@ -1,0 +1,39 @@
+{
+  "https://mobile-staging-iosautomation.l7tech.com:8443" :
+  {
+    "isPublic" : false,
+    "validateDomainName" : false,
+    "trustPublicPKI" : false,
+    "certificates" :
+    [
+      [
+        "-----BEGIN CERTIFICATE-----",
+        "MIIDKTCCAhGgAwIBAgIJAKuJE2978n6jMA0GCSqGSIb3DQEBDAUAMDIxMDAuBgNV","BAMTJ21vYmlsZS1zdGFnaW5nLWlvc2F1dG9tYXRpb24ubDd0ZWNoLmNvbTAeFw0x",
+        "NzAxMDQxODE2NTFaFw0yNzAxMDIxODE2NTFaMDIxMDAuBgNVBAMTJ21vYmlsZS1z","dGFnaW5nLWlvc2F1dG9tYXRpb24ubDd0ZWNoLmNvbTCCASIwDQYJKoZIhvcNAQEB",
+        "BQADggEPADCCAQoCggEBAMrhGxrT+PHxb/6YZVnVm8vFmIzguEIAGemG0zvUumJy","DauCUz3WScPgu+hG9e6AD6r8vljrxFHYnIDmbyRRFfW/zanVnKdiscJ7bHkgJMk5",
+        "fH0anCguwtwTVutb/E8yBVccBDqnWHCH4g6HCrWSh4eEd34G6Fi3gMT7nrMxm5IA","faZsYkyzETU8C6fAf0r4WKp9P90ePAIU6O1OY/m0Mj7nI5zi5EN6CeE8xxUUvTO5",
+        "3aDHjwIMBMqoHofUWZ7z61uc4pgQrosTcW4Wgt96qV5llfCDiahNmcjcxBiQlwvt","QwHr2SzbDSt2ZVk8UDcG88xXQalrAQcmRM5RaCD/Qa8CAwEAAaNCMEAwHQYDVR0O",
+        "BBYEFHSkGvq09c70doBE1aq6FlJG3pSGMB8GA1UdIwQYMBaAFHSkGvq09c70doBE","1aq6FlJG3pSGMA0GCSqGSIb3DQEBDAUAA4IBAQBcEMWrfMXZbUDFLY0Drrckkioz",
+        "msna/e5BCHY6FhqOU8mPmn88h9HwKiswKx3iLIN2np/MiD54QYPY6slMUcPKbHcX","mkLw4VEk1t89TPfs8tGfCg0LEDrN1+Zj78NjfTivh83+6U1XhISuimB4JqR4oqmC",
+        "O13OO9ijDlfHRRNW13UvmrQTvg5V8uxowapehlGe2oDfHFfKC2zTYQUDnOCpZ8y6","wifblL8iZiUiYmgUXd0i5qOLIz2ZsGHPvp+epMhVgOndmfvppYAzb2yL7ERHFRJ2",
+        "/S4RO1JoR1NNsvz0gp1r+sHCQvkaZB66kty5wfizIc1PBPCusDpE+5M3c+j0",
+        "-----END CERTIFICATE-----"
+      ]
+    ],
+    "publicKeys" :
+    [
+      [
+        "-----BEGIN PUBLIC KEY-----",
+        "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyuEbGtP48fFv/phlWdWb","y8WYjOC4QgAZ6YbTO9S6YnINq4JTPdZJw+C76Eb17oAPqvy+WOvEUdicgOZvJFEV",
+        "9b/NqdWcp2KxwntseSAkyTl8fRqcKC7C3BNW61v8TzIFVxwEOqdYcIfiDocKtZKH","h4R3fgboWLeAxPueszGbkgB9pmxiTLMRNTwLp8B/SvhYqn0/3R48AhTo7U5j+bQy",
+        "PucjnOLkQ3oJ4TzHFRS9M7ndoMePAgwEyqgeh9RZnvPrW5zimBCuixNxbhaC33qp","XmWV8IOJqE2ZyNzEGJCXC+1DAevZLNsNK3ZlWTxQNwbzzFdBqWsBByZEzlFoIP9B",
+        "rwIDAQAB",
+        "-----END PUBLIC KEY-----"
+      ]
+    ],
+    "publicKeyHashes" :
+    [
+      "j7yon1PBgi7cBprrDlKPdWiKcGLPWDUvCqTqwdmJozE="
+    ]
+  }
+}

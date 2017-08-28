@@ -154,8 +154,6 @@
                     android:layout_width="0dp"
                     android:layout_height="@dimen/social_button_image_height"
                     android:background="@drawable/social_login_bg"
-                    android:drawablePadding="6dp"
-                    android:drawableStart="@drawable/salesforce"
                     android:elevation="4dp"
                     android:text="@string/social_login_salesforce"
                     android:textAllCaps="false"

@@ -5,7 +5,6 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-
 package com.ca.mas.core.conf;
 
 import android.content.Context;
@@ -128,29 +127,17 @@ public class ConfigurationManager {
 
     private void load() {
         if (connectedGatewayConfigurationProvider != null) return;
-        InputStream is = null;
         StringBuilder jsonConfig = new StringBuilder();
-        try {
-            Context appContext = this.appContext;
-            is = appContext.openFileInput(CONNECTED_GATEWAY_CONFIG);
-            BufferedReader in =
-                    new BufferedReader(new InputStreamReader(is, "UTF-8"));
+        try (InputStream is = appContext.openFileInput(CONNECTED_GATEWAY_CONFIG);
+             BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"))) {
             String str;
-            while ((str = in.readLine()) != null) {
+            while ((str = br.readLine()) != null) {
                 jsonConfig.append(str);
             }
             connectedGatewayConfigurationProvider = create(new JSONObject(jsonConfig.toString()));
         } catch (IOException | JSONException e) {
             //Unable to load the cached one.
             activateDefault();
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    //Ignore
-                }
-            }
         }
     }
 
@@ -214,7 +201,6 @@ public class ConfigurationManager {
                 } catch (IOException ignored) {
                 }
             }
-
         }
     }
 
@@ -422,6 +408,7 @@ public class ConfigurationManager {
      * Listener to listen for configuration update
      */
     private interface ConfigurationListener {
+
         void onUpdated(Context context, ConfigurationProvider provider);
     }
 

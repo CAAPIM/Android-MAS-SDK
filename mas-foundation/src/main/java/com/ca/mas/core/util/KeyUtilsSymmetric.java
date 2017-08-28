@@ -213,7 +213,7 @@ public class KeyUtilsSymmetric {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(
                     algorithm, ANDROID_KEY_STORE);
             KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(alias, PURPOSE_ENCRYPT | PURPOSE_DECRYPT)
-                    .setKeySize(keyLength)
+                    .setKeySize(keyLength < DEFAULT_KEY_LENGTH? DEFAULT_KEY_LENGTH: keyLength)
                     .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_GCM)
                     .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
                     .setRandomizedEncryptionRequired(true)
@@ -261,7 +261,7 @@ public class KeyUtilsSymmetric {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(
                     algorithm, ANDROID_KEY_STORE);
             KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(alias, PURPOSE_ENCRYPT | PURPOSE_DECRYPT)
-                    .setKeySize(keyLength)
+                    .setKeySize(keyLength < DEFAULT_KEY_LENGTH? DEFAULT_KEY_LENGTH: keyLength)
                     .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_GCM)
                     .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
                     .setRandomizedEncryptionRequired(true)

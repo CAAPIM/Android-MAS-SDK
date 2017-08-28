@@ -17,20 +17,19 @@ import javax.crypto.spec.SecretKeySpec;
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
 
-public class JWTHmac {
+class JWTHmac {
 
     private JWTHmac() {
         throw new IllegalAccessError("Utility class");
     }
 
-    public static  boolean validateHMacSignature(byte[] header, byte[] payload, byte[] clientSecret, byte[] signature) throws JWTValidationException {
+    static  boolean validateHMacSignature(byte[] header, byte[] payload, byte[] clientSecret, byte[] signature) throws JWTValidationException {
 
         byte[] signToCompare = JWTHmac.signData(header, payload, clientSecret);
         byte[] decodedSignature = Base64.decode(signature, Base64.URL_SAFE);
 
         if (!new String(signToCompare).equals(new String(decodedSignature))) {
-            String error = logComparisonFailureError("Token Validation Failed: The signatures do not match", header, payload, signature, signToCompare);
-            throw new JWTInvalidSignatureException(error);
+            throw new JWTInvalidSignatureException("Token Validation Failed: The signatures do not match");
         }
 
         return true;
@@ -68,20 +67,6 @@ public class JWTHmac {
         System.arraycopy(payload, 0, jwsSecuredInput, header.length + separator.length, payload.length);
 
         return jwsSecuredInput;
-    }
-
-    private static String logComparisonFailureError(String error, byte[] header, byte[] payload, byte[] signature, byte[] comparedSignature) {
-        StringBuilder errorResponse = new StringBuilder();
-        errorResponse.append(error).append("\n  Received Token Header: [").
-                append(header == null ? " (No header)" : new String(header)).
-                append("]").append("\n    Payload: [").
-                append(payload == null ? "(No payload)" : new String(payload)).append("]").append("\n    Signature: [").
-                append(signature == null ? "(No signature)" : new String(signature)).append("]").
-                append("\n    Generated Signature: [").
-                append(comparedSignature == null ? "(No comparison signature)" : new String(Base64.encodeToString(comparedSignature, Base64.URL_SAFE))).
-                append("]");
-        if (DEBUG) Log.w(TAG, error + errorResponse);
-        return errorResponse.toString();
     }
 
 }

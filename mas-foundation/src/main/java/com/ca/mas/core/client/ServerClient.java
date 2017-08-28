@@ -118,7 +118,6 @@ public abstract class ServerClient {
                 if (errorCodes == null || errorCodes.size() == 0) {
                     return -1;
                 }
-                if (DEBUG) Log.d(TAG, "Server response with x-ca-err: " + errorCodes.get(0));
                 return Integer.parseInt(errorCodes.get(0));
             }
         }

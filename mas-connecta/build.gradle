@@ -97,6 +97,7 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':mas-foundation')
+    compile "com.android.support:appcompat-v7:$rootProject.ext.appCompatVersion"
 
     androidTestCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
     androidTestCompile 'com.android.support.test:runner:0.5'

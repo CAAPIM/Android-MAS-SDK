@@ -218,7 +218,7 @@ public class MASConfiguration {
     }
 
     /**
-     * Determines SDK is enabled for public key pinning for authentication challenge. This read only value is within the JSON configuration file.
+     * Determines if the SDK is enabled for public key pinning for an authentication challenge. This read only value is within the JSON configuration file.
      */
     public boolean isEnabledPublicKeyPinning() {
         return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getTrustedCertificatePinnedPublicKeyHashes() != null &&
@@ -226,7 +226,7 @@ public class MASConfiguration {
     }
 
     /**
-     * Determines SDK is enabled for trusted public PKI for authentication challenge. This read only value is within the JSON configuration file.
+     * Determines if the SDK will trust the public PKI for an authentication challenge. This read only value is within the JSON configuration file.
      */
     public boolean isEnabledTrustedPublicPKI() {
         return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().isAlsoTrustPublicPki();

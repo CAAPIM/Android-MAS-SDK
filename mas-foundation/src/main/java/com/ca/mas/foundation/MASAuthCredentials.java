@@ -16,6 +16,9 @@ import com.ca.mas.core.context.MssoContext;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * An interface for including the headers and parameters for a set of authorization credentials.
+ */
 public interface MASAuthCredentials extends Parcelable {
 
     String REGISTRATION_TYPE = "registration_type";

@@ -1,3 +1,29 @@
+# Version 1.5.00
+
+### Bug fixes
+
+- If SSO is disabled, non-shared token managers will be created. [DE284048]
+- MASMessage now has correct receiver information and now implements the Parcelable interface. [DE299224]
+- Key aliases now associate with the connected gateway. [DE290139]
+- Re-registration can now successfully happen after offline de-registration. [DE290540]
+- The authentication listener no longer incorrectly triggers upon successful registration when SSO is disabled. [DE300140]
+- The user profile is no longer shared when SSO is disabled. [DE310770]
+
+### New features
+
+- The MAG module has been removed and in its place, the MAG/MAS packages have now been split into packages for MAS core, connecta, foundation, identity, and storage. These modules are now available as JCenter dependencies. [US339662]
+- The ability to configure security configurations for external APIs, so that the SDK can securely connect to external APIs not on the primary gateway. [US344781]
+- The SDK now supports multiple concurrent API requests. [US367676]
+- More flexible and extensible authentication via the `MASAuthCredentials` class to assist with supporting future authentication types. [US349545]
+- The ability to digitally sign the request as a JWT via the `MASClaimsBuilder` class. [US313138, US339651]
+- Enhancing asymmetric/symmetric key handling for the local storage features. [US319275]
+- Group messaging capabilities have been added. [US350277]
+- The access token can now be retrieved from the MASUser object. [US357874]
+
+### Deprecated Classes
+
+- The 'Credentials' class is now refactored into the `MASCredentials` class. [US349545]
+
 # Version 1.4.00
 
 ### Bug fixes
@@ -23,7 +49,6 @@
 - `MASLoginFragment` login template has been removed. Please use `MASLoginActivity` to display the Login Dialog.  [US279228]
 - `MASFilteredRequestBuilder.setTotalResults` has been removed.  Please use `setPagination` to handle result pagination. [DE275216]
 - Resource files `xml/prefs.xml` and `xml/authenticator_ca_mas.xml` are removed from the Mobile SDK. [DE265344]
-
 
 # Version 1.3.00-CR1
 

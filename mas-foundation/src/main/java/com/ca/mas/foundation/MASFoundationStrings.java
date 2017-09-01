@@ -8,7 +8,13 @@
 
 package com.ca.mas.foundation;
 
+/**
+ * A class that contains user feedback messages.
+ */
 public class MASFoundationStrings {
+
+    private MASFoundationStrings() {
+    }
 
     // Android strings
     public static final String API_TARGET_EXCEPTION = "Device API level does not meet the target API requirements.";

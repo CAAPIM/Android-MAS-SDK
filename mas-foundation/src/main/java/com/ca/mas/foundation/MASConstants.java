@@ -8,7 +8,13 @@
 
 package com.ca.mas.foundation;
 
+/**
+ * Contains enums for describing the grant flow and the SDK state.
+ */
 public class MASConstants {
+
+    private MASConstants() {
+    }
 
     /**
      * The user credentials grant flow.

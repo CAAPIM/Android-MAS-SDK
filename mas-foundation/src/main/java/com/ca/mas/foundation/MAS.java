@@ -321,7 +321,6 @@ public class MAS {
                     if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
                         throw ServerClient.createServerException(response, MASServerException.class);
                     }
-                    MASConfiguration.getCurrentConfiguration().removeSecurityConfiguration(uri);
                     MAS.start(context, response.getBody().getContent());
                     Callback.onSuccess(callback, null);
                 } catch (Exception e) {

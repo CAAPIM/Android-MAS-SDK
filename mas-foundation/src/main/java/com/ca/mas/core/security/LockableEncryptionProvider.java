@@ -12,14 +12,17 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.core.util.KeyUtilsAsymmetric;
+import com.ca.mas.core.util.KeyUtilsSymmetric;
 
+import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+
+import javax.crypto.SecretKey;
 
 import static com.ca.mas.core.util.KeyUtilsAsymmetric.generateRsaPrivateKey;
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
-
 
 public class LockableEncryptionProvider implements EncryptionProvider {
 
@@ -68,16 +71,21 @@ public class LockableEncryptionProvider implements EncryptionProvider {
      */
     public byte[] decrypt(byte[] encryptedData) {
         try {
-            // retrieve the key if it exists
-            PrivateKey privkey = KeyUtilsAsymmetric.getRsaPrivateKey(keyAlias);
-            return KeyUtilsAsymmetric.decrypt(privkey, KEY_SIZE, encryptedData);
-
+            //Attempt to decrypt with asymmetric keys first
+            Key keyStoreKey = KeyUtilsAsymmetric.getKeystoreKey(keyAlias);
+            if (keyStoreKey instanceof PrivateKey) {
+                PrivateKey privkey = KeyUtilsAsymmetric.getRsaPrivateKey(keyAlias);
+                return KeyUtilsAsymmetric.decrypt(privkey, KEY_SIZE, encryptedData);
+            //Was encrypted with a symmetric key, decrypt accordingly
+            } else {
+                SecretKey secretKey = (SecretKey) keyStoreKey;
+                return KeyUtilsSymmetric.decrypt(encryptedData, secretKey, keyAlias);
+            }
         } catch (Exception x) {
             if (DEBUG) Log.e(TAG, "Unable to decrypt given data.");
             throw new RuntimeException(x);
         }
     }
-
 
     /**
      * This does not clear the key, since it is protected
@@ -89,8 +97,5 @@ public class LockableEncryptionProvider implements EncryptionProvider {
         KeyUtilsAsymmetric.deletePrivateKey(keyAlias);
         return true;
     }
-
-
-
 
 }

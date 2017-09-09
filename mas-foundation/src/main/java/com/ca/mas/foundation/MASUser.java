@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Parcel;
+import android.security.keystore.UserNotAuthenticatedException;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -566,7 +567,9 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                                 Callback.onError(callback, new SecureLockException(MASFoundationStrings.TOKEN_ID_EXPIRED));
                             }
                         } catch (Exception e) {
-                            if (e.getCause() != null && e.getCause() instanceof android.security.keystore.UserNotAuthenticatedException) {
+                            Throwable t = e.getCause();
+                            if (t != null && (t instanceof android.security.keystore.UserNotAuthenticatedException
+                                    || (t.getCause() != null && t.getCause() instanceof UserNotAuthenticatedException))) {
                                 // Listener activity to trigger fingerprint
                                 if (callback != null) {
                                     callback.onUserAuthenticationRequired();

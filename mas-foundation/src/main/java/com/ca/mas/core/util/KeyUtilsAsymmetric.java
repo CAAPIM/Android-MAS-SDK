@@ -18,6 +18,7 @@ import android.util.Log;
 
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
+import java.security.Key;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -117,7 +118,7 @@ public class KeyUtilsAsymmetric {
      * @param alias the keystore alias to use
      * @param dn the dn for the initial self-signed certificate
      * @param lollipopEncryptionRequired true/false for pre-Android-M:
-     *                      requires that the user sets a screen lock and 
+     *                      requires that the user sets a screen lock and
      *                      that the keys will be encrypted at rest
      * @param marshmallowUserAuthenticationRequired true/false for Android-M+:
      *                      requires a lock screen in order to use the key.  If the validity duration
@@ -338,22 +339,33 @@ public class KeyUtilsAsymmetric {
         return keyPairGenerator.generateKeyPair().getPrivate();
     }
 
-
     /**
-     * Get the existing private key.
+     * Gets the existing Android keystore key.
      *
      * @param alias the alias of the existing private key
-     * @return the Private Key 
+     * @return the keystore Key
      */
-    public static PrivateKey getRsaPrivateKey(String alias)
+    public static Key getKeystoreKey(String alias)
             throws java.io.IOException, java.security.KeyStoreException,
             java.security.NoSuchAlgorithmException, java.security.cert.CertificateException,
             java.security.UnrecoverableKeyException {
         KeyStore keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
         keyStore.load(null);
-        return (PrivateKey) keyStore.getKey(alias, null);
+        return keyStore.getKey(alias, null);
     }
 
+    /**
+     * Get the existing private key.
+     *
+     * @param alias the alias of the existing private key
+     * @return the Private Key
+     */
+    public static PrivateKey getRsaPrivateKey(String alias)
+            throws java.io.IOException, java.security.KeyStoreException,
+            java.security.NoSuchAlgorithmException, java.security.cert.CertificateException,
+            java.security.UnrecoverableKeyException {
+        return (PrivateKey) getKeystoreKey(alias);
+    }
 
     /**
      * Get the existing self-signed public key.
@@ -431,7 +443,7 @@ public class KeyUtilsAsymmetric {
 
     /**
      * This will return the CA-signed certificate chain stored in the
-     *   AndroidKeyStore.  Note this is stored separately from the 
+     *   AndroidKeyStore.  Note this is stored separately from the
      *   self-signed public certificate from any RSA keypair.
      *
      * @param aliasPrefix

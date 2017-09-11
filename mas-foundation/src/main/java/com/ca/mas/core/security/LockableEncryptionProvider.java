@@ -12,14 +12,17 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.core.util.KeyUtilsAsymmetric;
+import com.ca.mas.core.util.KeyUtilsSymmetric;
 
+import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+
+import javax.crypto.SecretKey;
 
 import static com.ca.mas.core.util.KeyUtilsAsymmetric.generateRsaPrivateKey;
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
-
 
 public class LockableEncryptionProvider implements EncryptionProvider {
 
@@ -68,16 +71,24 @@ public class LockableEncryptionProvider implements EncryptionProvider {
      */
     public byte[] decrypt(byte[] encryptedData) {
         try {
-            // retrieve the key if it exists
-            PrivateKey privkey = KeyUtilsAsymmetric.getRsaPrivateKey(keyAlias);
-            return KeyUtilsAsymmetric.decrypt(privkey, KEY_SIZE, encryptedData);
-
+            //If we find the keystore key is a PrivateKey, we decrypt with the asymmetric key logic.
+            //Asymmetric keys are preferred as they're more secure.
+            Key keyStoreKey = KeyUtilsAsymmetric.getKeystoreKey(keyAlias);
+            if (keyStoreKey instanceof PrivateKey) {
+                PrivateKey privkey = KeyUtilsAsymmetric.getRsaPrivateKey(keyAlias);
+                return KeyUtilsAsymmetric.decrypt(privkey, KEY_SIZE, encryptedData);
+            //However, if we find that the keystore key is a SecretKey and not a PrivateKey,
+            //it means it was encrypted in an older SDK version with a symmetric key.
+            //We decrypt this with the symmetric key logic.
+            } else {
+                SecretKey secretKey = (SecretKey) keyStoreKey;
+                return KeyUtilsSymmetric.decrypt(encryptedData, secretKey, keyAlias);
+            }
         } catch (Exception x) {
             if (DEBUG) Log.e(TAG, "Unable to decrypt given data.");
             throw new RuntimeException(x);
         }
     }
-
 
     /**
      * This does not clear the key, since it is protected
@@ -89,8 +100,5 @@ public class LockableEncryptionProvider implements EncryptionProvider {
         KeyUtilsAsymmetric.deletePrivateKey(keyAlias);
         return true;
     }
-
-
-
 
 }

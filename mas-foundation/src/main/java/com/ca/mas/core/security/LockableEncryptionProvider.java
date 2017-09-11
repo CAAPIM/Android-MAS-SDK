@@ -71,12 +71,15 @@ public class LockableEncryptionProvider implements EncryptionProvider {
      */
     public byte[] decrypt(byte[] encryptedData) {
         try {
-            //Attempt to decrypt with asymmetric keys first
+            //If we find the keystore key is a PrivateKey, we decrypt with the asymmetric key logic.
+            //Asymmetric keys are preferred as they're more secure.
             Key keyStoreKey = KeyUtilsAsymmetric.getKeystoreKey(keyAlias);
             if (keyStoreKey instanceof PrivateKey) {
                 PrivateKey privkey = KeyUtilsAsymmetric.getRsaPrivateKey(keyAlias);
                 return KeyUtilsAsymmetric.decrypt(privkey, KEY_SIZE, encryptedData);
-            //Was encrypted with a symmetric key, decrypt accordingly
+            //However, if we find that the keystore key is a SecretKey and not a PrivateKey,
+            //it means it was encrypted in an older SDK version with a symmetric key.
+            //We decrypt this with the symmetric key logic.
             } else {
                 SecretKey secretKey = (SecretKey) keyStoreKey;
                 return KeyUtilsSymmetric.decrypt(encryptedData, secretKey, keyAlias);

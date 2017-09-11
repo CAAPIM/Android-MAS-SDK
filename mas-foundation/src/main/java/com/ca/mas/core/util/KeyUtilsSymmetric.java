@@ -667,10 +667,8 @@ public class KeyUtilsSymmetric {
      * @param e the exception
      */
     @TargetApi(Build.VERSION_CODES.M)
-    protected static void checkDeleteKeys(String alias, Exception e)
-    {
-        if ((e instanceof android.security.keystore.UserNotAuthenticatedException)
-             || (e instanceof android.security.keystore.KeyPermanentlyInvalidatedException)) {
+    protected static void checkDeleteKeys(String alias, Exception e) {
+        if (!(e instanceof android.security.keystore.UserNotAuthenticatedException)) {
             deleteKey(alias);
             if (DEBUG) Log.e(TAG, "deleted key " + alias + " since User not authenticated");
         }

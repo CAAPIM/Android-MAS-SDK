@@ -6,9 +6,7 @@
  *
  */
 
-include ':mag', ':magtest', ':mastest'
-
-include ':mas', ':masui'
+include ':mas', ':masui', ':mas-connecta', ':mas-storage', ':mas-identity-management', ':mas-foundation'
 
 //Example App
 include ':SingleSignOnSample'
@@ -17,24 +15,32 @@ include ':MASAccessAPISample'
 include ':MASUserManagementSample'
 include ':MASMessagingSample'
 include ':MASSessionUnlockSample'
+include ':MASSecureAPISample'
 include ':MASPubSubSample'
 
-project(':magtest').projectDir = new File('mag/magtest')
-project(':mastest').projectDir = new File('mas/mastest')
 project(':SingleSignOnSample').projectDir = new File('samples/SingleSignOnSample')
 project(':MASStorageSample').projectDir = new File('samples/MASStorageSample')
 project(':MASAccessAPISample').projectDir = new File('samples/MASAccessAPISample')
 project(':MASUserManagementSample').projectDir = new File('samples/MASUserManagementSample')
 project(':MASMessagingSample').projectDir = new File('samples/MASMessagingSample')
 project(':MASSessionUnlockSample').projectDir = new File('samples/MASSessionUnlockSample')
+project(':MASSecureAPISample').projectDir = new File('samples/MASSecureAPISample')
 project(':MASPubSubSample').projectDir = new File('samples/MASPubSubSample')
 
 //MASUnit
-//include ':MASUnit'
+include ':MASUnit'
 
 //Knox
 //include ':Knox', ':SmcControllerSample', ':SamsungLicenseActivationSample'
 //project(':SmcControllerSample').projectDir = new File('Knox/samples/SmcControllerSample')
 //project(':SamsungLicenseActivationSample').projectDir = new File('Knox/samples/SamsungLicenseActivationSample')
 
+// FIDO specific modules
+/*include ':fido',':sds', ':MASFIDOSample'
+project(':sds').projectDir = new File('fido/providers/sds')
+project(':MASFIDOSample').projectDir = new File('fido/samples/MASFIDOSample')
 
+include ':samsungsds-sm-1.5.2',':uaf-authenticator-1.5.2',':uaf-nexsign-client-1.5.2'
+project(':samsungsds-sm-1.5.2').projectDir = new File('fido/providers/sds/libs/samsungsds-sm-1.5.2')
+project(':uaf-authenticator-1.5.2').projectDir = new File('fido/providers/sds/libs/uaf-authenticator-1.5.2')
+project(':uaf-nexsign-client-1.5.2').projectDir = new File('fido/providers/sds/libs/uaf-nexsign-client-1.5.2')*/

@@ -51,8 +51,8 @@ import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 
 import java.util.List;
 
-import static com.ca.mas.core.MAG.DEBUG;
-import static com.ca.mas.core.MAG.TAG;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * A sample activity that allows you to log in with username/password credentials,
@@ -345,7 +345,9 @@ public class MASLoginActivity extends AppCompatActivity {
             public void onError(int errorCode, final String m, Exception e) {
                 // Hide QR Code option
                 View qrButton = findViewById(R.id.activity_mas_login_qr_code);
-                mGridLayout.removeView(qrButton);
+                if (mGridLayout != null) {
+                    mGridLayout.removeView(qrButton);
+                }
             }
 
             @Override

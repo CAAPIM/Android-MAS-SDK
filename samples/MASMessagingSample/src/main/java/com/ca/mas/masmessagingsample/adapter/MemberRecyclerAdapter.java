@@ -28,7 +28,7 @@ import com.ca.mas.identity.group.MASMember;
 import com.ca.mas.identity.group.MASOwner;
 import com.ca.mas.masmessagingsample.R;
 import com.ca.mas.messaging.MASMessage;
-import com.ca.mas.messaging.util.MessagingConsts;
+import com.ca.mas.messaging.MessagingConsts;
 
 import java.util.List;
 
@@ -153,7 +153,7 @@ public class MemberRecyclerAdapter extends RecyclerView.Adapter<MemberRecyclerAd
             @Override
             public void onSuccess(MASUser result) {
                 MASMessage message = MASMessage.newInstance();
-                message.setContentType(MessagingConsts.MT_TEXT_PLAIN);
+                message.setContentType(MessagingConsts.DEFAULT_TEXT_PLAIN_CONTENT_TYPE);
                 message.setPayload(text.getBytes());
 
                 MASUser.getCurrentUser().sendMessage(message, result, getSendMessageCallback());

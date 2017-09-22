@@ -38,26 +38,20 @@ import android.widget.Toast;
 
 import com.ca.mas.core.auth.otp.OtpConstants;
 import com.ca.mas.core.error.TargetApiException;
-import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.foundation.MAS;
-import com.ca.mas.foundation.MASAuthenticationListener;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASConnectionListener;
 import com.ca.mas.foundation.MASDevice;
-import com.ca.mas.foundation.MASOtpAuthenticationHandler;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASUser;
-import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.foundation.auth.MASProximityLoginBLE;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEPeripheralListener;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEUserConsentHandler;
 import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 import com.ca.mas.ui.MASEnterpriseBrowserFragment;
-import com.ca.mas.ui.MASLoginActivity;
-import com.ca.mas.ui.otp.MASOtpActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 

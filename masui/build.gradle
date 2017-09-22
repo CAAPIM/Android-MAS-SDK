@@ -34,11 +34,11 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':mas')
-    compile project(':mag')
+    compile project(':mas-foundation')
     compile "com.android.support:design:$rootProject.ext.designVersion"
     compile "com.android.support:gridlayout-v7:$rootProject.ext.gridLayoutVersion"
     compile "net.openid:appauth:$rootProject.ext.appAuthVersion"
+    compile "com.android.support:customtabs:$rootProject.ext.customTabVersion"
     testCompile 'junit:junit:4.12'
 }
 

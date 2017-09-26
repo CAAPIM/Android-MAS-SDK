@@ -33,12 +33,6 @@ android {
         }
     }
 
-    sourceSets {
-        androidTest {
-            java.srcDirs += "../mas-foundation/src/androidTest/java"
-            resources.srcDirs += "../mas-foundation/src/androidTest/resources"
-        }
-    }
 }
 
 
@@ -99,12 +93,9 @@ dependencies {
     compile project(':mas-foundation')
     compile "com.android.support:appcompat-v7:$rootProject.ext.appCompatVersion"
 
-    androidTestCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support.test:rules:0.5'
-    androidTestCompile 'org.skyscreamer:jsonassert:1.5.0'
-
-    testCompile 'junit:junit:4.12'
+    androidTestCompile "com.android.support.test:runner:$rootProject.ext.testRunner"
+    androidTestCompile "com.android.support.test:rules:$rootProject.ext.testRules"
+    androidTestCompile project(':mas-test')
 }
 
 task javadoc(type: Javadoc) {

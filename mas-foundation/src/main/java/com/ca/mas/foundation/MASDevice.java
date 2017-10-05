@@ -13,6 +13,8 @@ import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEPeripheralListener;
 import com.ca.mas.foundation.notify.Callback;
 
+import java.security.InvalidAlgorithmParameterException;
+
 /**
  * <p>The <b>MASDevice</b> class is a local representation of device data.</p>
  */
@@ -57,7 +59,14 @@ public abstract class MASDevice implements Device {
 
                 @Override
                 public String getIdentifier() {
-                    return (new DeviceIdentifier(MAS.getContext())).toString();
+                    try {
+                        return (new DeviceIdentifier(MAS.getContext())).toString();
+                    } catch (InvalidAlgorithmParameterException | java.io.IOException |
+                            java.security.KeyStoreException | java.security.NoSuchAlgorithmException |
+                            java.security.NoSuchProviderException | java.security.cert.CertificateException |
+                            java.security.UnrecoverableKeyException e) {
+                        return null;
+                    }
                 }
 
                 @Override

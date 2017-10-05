@@ -109,7 +109,7 @@ public class EncryptionProviderTests extends MASTestBase {
     }
 
     @Test
-    public void testDeviceIdentifierGenerationWithoutLogin() {
+    public void testDeviceIdentifierGenerationWithoutLogin() throws Exception {
         DeviceIdentifier id = new DeviceIdentifier(getContext());
         assertNotNull(id);
     }

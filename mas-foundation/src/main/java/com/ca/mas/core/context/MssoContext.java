@@ -709,9 +709,8 @@ public class MssoContext {
     }
 
     /**
-     * Generate device-id using ANDROID_ID, sharedUserId,container description if present and app signature.
-     *
-     * @return device-id
+     * Generates a unique device identifier.
+     * @return device ID
      */
     private String generateDeviceId() {
         return (new DeviceIdentifier(appContext)).toString();

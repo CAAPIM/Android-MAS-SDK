@@ -41,13 +41,13 @@ class DefaultTokenManager implements TokenManager {
 
     private static final String MSSO_USER_PROFILE = "msso.userProfile";
     private static final String MSSO_MAG_IDENTIFIER = "msso.magIdentifier";
-    private static final String MSSO_DEVICE_IDENTIFIER = "msso.deviceIdentifier";
     private static final String MSSO_CLIENT_PRIVATE_KEY = "msso.clientCertPrivateKey";
     private static final String MSSO_CLIENT_CERT_CHAIN_PREFIX = "msso.clientCertChain_";
     private static final String MSSO_DN = "cn=msso";
     private static final String MSSO_ID_TOKEN = "msso.idToken";
     private static final String MSSO_ID_TOKEN_TYPE = "msso.idTokenType";
     private static final String MSSO_SECURE_ID_TOKEN = "msso.secureIdToken";
+    private static final String MSSO_DEVICE_IDENTIFIER = "com.ca.mas.foundation.msso.DEVICE_IDENTIFIER";
     protected DataSource<String, byte[]> storage;
 
     DefaultTokenManager(@NonNull DataSource storage) {

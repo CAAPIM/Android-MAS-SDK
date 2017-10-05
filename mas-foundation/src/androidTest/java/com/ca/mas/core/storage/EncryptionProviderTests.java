@@ -13,9 +13,7 @@ import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyProperties;
 import android.support.test.runner.AndroidJUnit4;
 
-
 import com.ca.mas.MASTestBase;
-import com.ca.mas.core.context.DeviceIdentifier;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +41,6 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.x500.X500Principal;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 
 @RunWith(AndroidJUnit4.class)
 public class EncryptionProviderTests extends MASTestBase {
@@ -106,12 +103,6 @@ public class EncryptionProviderTests extends MASTestBase {
 
         ks.deleteEntry(SECRET_KEY_ALIAS);
         //}
-    }
-
-    @Test
-    public void testDeviceIdentifierGenerationWithoutLogin() throws Exception {
-        DeviceIdentifier id = new DeviceIdentifier(getContext());
-        assertNotNull(id);
     }
 
     private byte[] encryptSecretKey(SecretKey secretKey) throws Exception {

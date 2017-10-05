@@ -55,7 +55,7 @@ public class MASDeviceTest extends MASLoginTestBase {
     }
 
     @Test
-    public void testNewIdentifierAfterReset() throws InterruptedException, ExecutionException {
+    public void testDeviceIdentifierAfterReset() throws InterruptedException, ExecutionException {
         MASDevice deviceInstance = MASDevice.getCurrentDevice();
         String identifier1 = deviceInstance.getIdentifier();
         deviceInstance.resetLocally();
@@ -69,7 +69,7 @@ public class MASDeviceTest extends MASLoginTestBase {
     }
 
     @Test
-    public void testNewIdentifierAfterDeregister() throws InterruptedException, ExecutionException {
+    public void testDeviceIdentifierAfterDeregister() throws InterruptedException, ExecutionException {
         MASDevice deviceInstance = MASDevice.getCurrentDevice();
         String identifier1 = deviceInstance.getIdentifier();
         deviceInstance.deregister(null);

@@ -15,6 +15,8 @@ import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
+import junit.framework.Assert;
+
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -26,14 +28,12 @@ import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 public class MASDeviceTest extends MASLoginTestBase {
 
     @Test
     public void testDeviceIdChange() throws URISyntaxException, ExecutionException, InterruptedException, UnsupportedEncodingException {
-
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
@@ -54,5 +54,32 @@ public class MASDeviceTest extends MASLoginTestBase {
         assertTrue(masDevice.isRegistered());
     }
 
+    @Test
+    public void testNewIdentifierAfterReset() throws InterruptedException, ExecutionException {
+        MASDevice deviceInstance = MASDevice.getCurrentDevice();
+        String identifier1 = deviceInstance.getIdentifier();
+        deviceInstance.resetLocally();
+
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASUser.login("admin", "7layer".toCharArray(), callback);
+        Assert.assertNotNull(callback.get());
+
+        String identifier2 = deviceInstance.getIdentifier();
+        Assert.assertFalse(identifier1.equals(identifier2));
+    }
+
+    @Test
+    public void testNewIdentifierAfterDeregister() throws InterruptedException, ExecutionException {
+        MASDevice deviceInstance = MASDevice.getCurrentDevice();
+        String identifier1 = deviceInstance.getIdentifier();
+        deviceInstance.deregister(null);
+
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASUser.login("admin", "7layer".toCharArray(), callback);
+        Assert.assertNotNull(callback.get());
+
+        String identifier2 = deviceInstance.getIdentifier();
+        Assert.assertFalse(identifier1.equals(identifier2));
+    }
 
 }

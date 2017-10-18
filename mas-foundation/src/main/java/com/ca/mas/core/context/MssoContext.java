@@ -46,7 +46,6 @@ import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASConfiguration;
 
 import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
 import java.util.Date;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
@@ -157,7 +156,7 @@ public class MssoContext {
 
         try {
             if (deviceId == null) {
-                deviceId = generateDeviceId();
+                deviceId = getDeviceId();
             }
         } catch (Exception e) {
             throw new MssoException(e);
@@ -205,9 +204,11 @@ public class MssoContext {
     }
 
     /**
+     * Generates a unique device identifier or retrieves the existing one.
      * @return the device ID, or null if {@link #init} has not yet been called.
      */
-    public String getDeviceId() {
+    public String getDeviceId() throws Exception {
+        deviceId = (new DeviceIdentifier(appContext)).toString();
         return deviceId;
     }
 
@@ -709,19 +710,6 @@ public class MssoContext {
 
     public boolean isClientCredentialExpired(Long clientExpiration) {
         return clientExpiration != 0 && clientExpiration < new Date().getTime() / 1000;
-    }
-
-    /**
-     * Generates a unique device identifier.
-     * @return device ID
-     */
-    private String generateDeviceId() throws
-            InvalidAlgorithmParameterException, java.io.IOException,
-            java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
-            java.security.NoSuchProviderException, java.security.cert.CertificateException,
-            java.security.UnrecoverableKeyException {
-        deviceId = (new DeviceIdentifier(appContext)).toString();
-        return deviceId;
     }
 
 }

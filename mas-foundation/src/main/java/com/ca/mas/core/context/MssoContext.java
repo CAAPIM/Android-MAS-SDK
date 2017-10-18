@@ -720,7 +720,8 @@ public class MssoContext {
             java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
             java.security.NoSuchProviderException, java.security.cert.CertificateException,
             java.security.UnrecoverableKeyException {
-        return (new DeviceIdentifier(appContext)).toString();
+        deviceId = (new DeviceIdentifier(appContext)).toString();
+        return deviceId;
     }
 
 }

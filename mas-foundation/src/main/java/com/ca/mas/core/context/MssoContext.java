@@ -79,7 +79,6 @@ public class MssoContext {
     private OAuthTokenContainer privateTokens;
     private ClientCredentialContainer clientCredentialTokens;
 
-    private String deviceId;
     private String deviceName;
 
     private volatile MAGHttpClient magHttpClient;
@@ -154,14 +153,6 @@ public class MssoContext {
             clientCredentialTokens = StorageProvider.getInstance().getClientCredentialContainer();
         }
 
-        try {
-            if (deviceId == null) {
-                deviceId = getDeviceId();
-            }
-        } catch (Exception e) {
-            throw new MssoException(e);
-        }
-
         if (deviceName == null) {
             deviceName = android.os.Build.MODEL;
         }
@@ -208,8 +199,7 @@ public class MssoContext {
      * @return the device ID, or null if {@link #init} has not yet been called.
      */
     public String getDeviceId() throws Exception {
-        deviceId = (new DeviceIdentifier(appContext)).toString();
-        return deviceId;
+        return(new DeviceIdentifier(appContext)).toString();
     }
 
     /**

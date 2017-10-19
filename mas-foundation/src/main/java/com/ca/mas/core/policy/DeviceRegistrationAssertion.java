@@ -138,14 +138,17 @@ class DeviceRegistrationAssertion implements MssoAssertion {
         }
         PublicKey publicKey = tokenManager.getClientPublicKey();
 
-        final String deviceId = mssoContext.getDeviceId();
+        String deviceId;
         final String deviceName = mssoContext.getDeviceName();
         byte[] csrBytes;
         try {
+            deviceId = mssoContext.getDeviceId();
             String organization = mssoContext.getConfigurationProvider().getProperty(ConfigurationProvider.PROP_ORGANIZATION);
             csrBytes = CertUtils.generateCertificateSigningRequest(creds.getUsername(), deviceId, deviceName, organization, publicKey, privateKey);
         } catch (CertificateException e) {
             throw new RegistrationException(MAGErrorCode.DEVICE_NOT_REGISTERED, e);
+        } catch (Exception e) {
+            throw new MssoException(e);
         }
 
         // Ensure fresh HTTP client is used for registration

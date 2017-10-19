@@ -14,6 +14,7 @@ import android.util.Log;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.clientcredentials.ClientCredentialsClient;
 import com.ca.mas.core.context.MssoContext;
+import com.ca.mas.core.context.MssoException;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
@@ -50,7 +51,7 @@ class ClientCredentialAssertion implements MssoAssertion {
             }
         }
 
-        //OR the client ID does not exist. Due to unset the the device pin, the key to decrypt the clientID may be empty.
+        //OR the client ID does not exist. Due to resetting the device PIN, the key for decrypting the client ID may be empty.
         //May not necessary to check the client id, the client expiration check may be good enough
         if (mssoContext.isClientCredentialExpired(mssoContext.getClientExpiration()) ||
                 mssoContext.getStoredClientId() == null) {
@@ -64,6 +65,8 @@ class ClientCredentialAssertion implements MssoAssertion {
                 return;
             } catch (NullPointerException e) {
                 throw new IllegalArgumentException("Please check your configurations. One or more configuration is wrong or incomplete");
+            } catch (Exception e) {
+                throw new MssoException(e);
             }
         }
 

@@ -1,4 +1,6 @@
 # Android Mobile SDK
+## for CA Mobile API Gateway
+
 CA Mobile API Gateway (MAG) provides enterprises with a secure mobile backend that integrates systems and allows control over which users, devices, and applications can access your APIs. The MAG enables developers to leverage standards for API security such as (OAuth2, OpenID Connect, PKI) through client SDKs for Android.
 
 The CA Mobile API Gateway also provides powerful mobile backend services through SDKs and APIs for developers to help accelerate the app development process.

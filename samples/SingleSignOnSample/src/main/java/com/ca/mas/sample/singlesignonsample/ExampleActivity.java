@@ -90,9 +90,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import com.arcot.aid.lib.AIDException;
-import com.arcot.aid.lib.Account;
-import com.arcot.aid.lib.store.DeviceLock;
+
 
 import static android.media.CamcorderProfile.get;
 
@@ -117,7 +115,7 @@ public class ExampleActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = this;
-        AIDException exp = new AIDException(1, "", new Exception());
+
         MAS.setConnectionListener(new MASConnectionListener() {
             @Override
             public void onObtained(HttpURLConnection connection) {

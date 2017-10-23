@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2016 CA. All rights reserved.
  *
- * This software may be modified and distributed under the terms
- * of the MIT license.  See the LICENSE file for details.
+ *  * Copyright (c) 2016 CA. All rights reserved.
+ *  *
+ *  * This software may be modified and distributed under the terms
+ *  * of the MIT license.  See the LICENSE file for details.
+ *  *
  *
  */
 package com.ca.mas.ui;
@@ -31,8 +33,8 @@ public class MASOAuthRedirectActivity extends AppCompatActivity {
         //This is expected because the gateway will consume the initial state information.
         //The redirect URL will then be returned by gateway without the initial state information
         //which is why a mismatch is expected.
-        AuthorizationException ex = AuthorizationException.fromIntent(getIntent());
-        if (ex != null && ex.equals(AuthorizationException.AuthorizationRequestErrors.STATE_MISMATCH)) {
+       /* AuthorizationException ex = AuthorizationException.fromIntent(getIntent());
+        if (ex != null && !ex.equals(AuthorizationException.AuthorizationRequestErrors.STATE_MISMATCH)) {*/
             Uri redirectUri = getIntent().getData();
             if (redirectUri != null) {
                 MASAuthorizationResponse response = MASAuthorizationResponse.fromUri(redirectUri);
@@ -41,10 +43,11 @@ public class MASOAuthRedirectActivity extends AppCompatActivity {
                 Toast.makeText(this, "No redirect URI detected.", Toast.LENGTH_LONG).show();
                 finish();
             }
-        } else {
-            Toast.makeText(this, ex.errorDescription, Toast.LENGTH_LONG).show();
+        /*} else {
+            if (ex!=null)
+                Toast.makeText(this, ex.errorDescription, Toast.LENGTH_LONG).show();
             finish();
-        }
+        }*/
     }
 
     private MASCallback<MASUser> getLoginCallback() {

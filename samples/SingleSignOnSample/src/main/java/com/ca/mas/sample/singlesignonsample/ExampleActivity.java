@@ -9,11 +9,13 @@
 package com.ca.mas.sample.singlesignonsample;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.os.Build;
@@ -37,13 +39,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ca.mas.core.auth.otp.OtpConstants;
+import com.ca.mas.core.conf.Config;
+import com.ca.mas.core.conf.ConfigurationManager;
+import com.ca.mas.core.conf.DefaultConfiguration;
+import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.TargetApiException;
+import com.ca.mas.core.http.ContentType;
+import com.ca.mas.core.http.MAGRequest;
+import com.ca.mas.core.http.MAGRequestBody;
+import com.ca.mas.core.http.MAGResponseBody;
+import com.ca.mas.core.oauth.GrantProvider;
+import com.ca.mas.core.policy.MssoAssertion;
+import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASAppAuthAuthorizationRequestHandler;
+import com.ca.mas.foundation.MASAuthorizationRequest;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASConnectionListener;
 import com.ca.mas.foundation.MASDevice;
 import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASRequestBody;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.auth.MASProximityLoginBLE;
@@ -52,6 +68,9 @@ import com.ca.mas.foundation.auth.MASProximityLoginBLEUserConsentHandler;
 import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 import com.ca.mas.ui.MASEnterpriseBrowserFragment;
+import com.ca.mas.ui.MASFinishActivity;
+import com.ca.mas.ui.MASLifecycleObserver;
+import com.ca.mas.ui.MASOAuthRedirectActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -63,12 +82,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import com.arcot.aid.lib.AIDException;
+import com.arcot.aid.lib.Account;
+import com.arcot.aid.lib.store.DeviceLock;
+
+import static android.media.CamcorderProfile.get;
 
 public class ExampleActivity extends AppCompatActivity {
     private static final String TAG = "ExampleA";
@@ -82,6 +108,7 @@ public class ExampleActivity extends AppCompatActivity {
     ListView itemList;
     ProgressBar progressBar;
     TextView tvOtpProtectedData;
+    Activity context;
 
     /**
      * Called when the activity is first created.
@@ -89,6 +116,8 @@ public class ExampleActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = this;
+        AIDException exp = new AIDException(1, "", new Exception());
         MAS.setConnectionListener(new MASConnectionListener() {
             @Override
             public void onObtained(HttpURLConnection connection) {
@@ -110,9 +139,70 @@ public class ExampleActivity extends AppCompatActivity {
             }
         });
 
+        MAS.enableWebLogin();
         MAS.start(this, true);
 
         setContentView(R.layout.main);
+
+
+
+        Button registerClientButton = (Button) findViewById(R.id.registerClientButton);
+        registerClientButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //MAS .re
+            }
+        });
+
+        Button bbaButton = (Button) findViewById(R.id.bbaButton);
+        bbaButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String clientid = null;
+                try {
+                    JSONObject oauthJson = (JSONObject) ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getRaw().get("oauth");
+                    JSONObject clientJson = (JSONObject) oauthJson.get("client");
+                    JSONArray clientIds = (JSONArray) clientJson.get("client_ids");
+                    JSONObject client =
+                            (JSONObject) clientIds.get(0);
+                    clientid = (String) client.get("client_id");
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                final MASRequest request =
+                        new MASRequest.MASRequestBuilder(getInitUri())
+                                .post( com.ca.mas.foundation.MASRequestBody.stringBody("client_id : " + clientid
+
+                                )).build();
+
+
+
+
+
+
+
+                MASAuthorizationRequest.MASAuthorizationRequestBuilder builder = new MASAuthorizationRequest.MASAuthorizationRequestBuilder();
+                builder.setClientId(StorageProvider.getInstance().getClientCredentialContainer().getClientId());
+                builder.setDisplay("template");
+
+                builder.setRedirectUri(Uri.parse(
+                        "camssoras://com.ca.ras"));
+                builder.setScope("scope_test openid msso phone profile address email msso_client_register msso_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups");
+                builder.setState("state_test");
+                builder.setResponseType("code");
+
+                MASAuthorizationRequest authRequest =  builder.build();
+
+                Intent postAuthIntent = new Intent(context, MASOAuthRedirectActivity.class);
+                Intent authCanceledIntent = new Intent(context, MASFinishActivity.class);
+                MASAppAuthAuthorizationRequestHandler handler = new MASAppAuthAuthorizationRequestHandler(context, postAuthIntent, authCanceledIntent);
+                MASUser.login(authRequest, handler);
+            }
+        });
+
+
         tvOtpProtectedData = (TextView) findViewById(R.id.tvOtpProtectedData);
         itemList = (ListView) findViewById(R.id.itemList);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -444,6 +534,16 @@ public class ExampleActivity extends AppCompatActivity {
     private URI getProductListDownloadUri() {
         try {
             return new URI("/protected/resource/products?operation=listProducts");
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private URI getInitUri() {
+        try {
+
+            //TODO get this from msso config
+            //return new URI(Config.CLIENT_CREDENTIAL_INIT_PATH.path);
+            return new URI("/connect/client/initialize");
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

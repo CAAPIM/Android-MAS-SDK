@@ -1,15 +1,19 @@
 /*
- * Copyright (c) 2016 CA. All rights reserved.
  *
- * This software may be modified and distributed under the terms
- * of the MIT license.  See the LICENSE file for details.
+ *  * Copyright (c) 2016 CA. All rights reserved.
+ *  *
+ *  * This software may be modified and distributed under the terms
+ *  * of the MIT license.  See the LICENSE file for details.
+ *  *
  *
  */
 package com.ca.mas.foundation;
 
 import android.annotation.TargetApi;
+import android.app.PendingIntent;
 import android.content.AsyncTaskLoader;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Parcel;
@@ -81,6 +85,16 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 current = null;
             }
         });
+    }
+
+    /**
+     * Browser based login. Displays a login UI fetched from the server
+     *
+     */
+    public static void login(MASAuthorizationRequest request, MASAppAuthAuthorizationRequestHandler handler) {
+
+        handler.authorize(request);
+
     }
 
     /**

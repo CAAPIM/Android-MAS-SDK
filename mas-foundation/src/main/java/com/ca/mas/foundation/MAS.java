@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2016 CA. All rights reserved.
  *
- * This software may be modified and distributed under the terms
- * of the MIT license.  See the LICENSE file for details.
+ *  * Copyright (c) 2016 CA. All rights reserved.
+ *  *
+ *  * This software may be modified and distributed under the terms
+ *  * of the MIT license.  See the LICENSE file for details.
+ *  *
  *
  */
 package com.ca.mas.foundation;
@@ -75,6 +77,8 @@ public class MAS {
     private static MASAuthenticationListener masAuthenticationListener;
     private static int state;
 
+    private static boolean webLoginEnabled = false;
+
     private static synchronized void init(@NonNull final Context context) {
         stop();
         // Initialize the MASConfiguration
@@ -99,7 +103,14 @@ public class MAS {
 
         @Override
         public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
-            if (masAuthenticationListener == null) {
+
+            if (webLoginEnabled) {
+                Intent postAuthIntent = new Intent(mAppContext, getWebLoginCompleteIntent());
+                Intent authCanceledIntent = new Intent(mAppContext, getWebLoginCancelIntent());
+                MASAppAuthAuthorizationRequestHandler handler = new MASAppAuthAuthorizationRequestHandler(mAppContext, postAuthIntent, authCanceledIntent);
+                MASAuthorizationRequest authReq = new MASAuthorizationRequest.MASAuthorizationRequestBuilder().buildDefault();
+                MASUser.login(authReq, handler);
+            } else if (masAuthenticationListener == null) {
                 Class<Activity> loginActivity = getLoginActivity();
                 if (loginActivity != null) {
                     if (mAppContext != null) {
@@ -194,6 +205,34 @@ public class MAS {
 
         try {
             return (Class<Activity>) Class.forName("com.ca.mas.ui.MASLoginActivity");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Return the MASOAuthRedirectActivity from MASUI components if MASUI library is included in the classpath.
+     *
+     * @return A MASOAuthRedirectActivity
+     */
+    private static Class<Activity> getWebLoginCompleteIntent() {
+
+        try {
+            return (Class<Activity>) Class.forName("com.ca.mas.ui.MASOAuthRedirectActivity");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Return the MASFinishActivity from MASUI components if MASUI library is included in the classpath.
+     *
+     * @return A MASFinishActivity
+     */
+    private static Class<Activity> getWebLoginCancelIntent() {
+
+        try {
+            return (Class<Activity>) Class.forName("com.ca.mas.ui.MASFinishActivity");
         } catch (Exception e) {
             return null;
         }
@@ -670,5 +709,23 @@ public class MAS {
         } catch (JOSEException e) {
             throw new MASException(e);
         }
+    }
+
+    /**
+     * Signs the provided JWT {@link MASClaims} object with the provided RSA private key using SHA-256 hash algorithm
+     * and injects JWT claims based on the user information.
+     * This method will use a default value of 5 minutes for the JWS 'exp' claim if not provided.
+
+     * @return void
+     * @throws MASException Failed to sign
+     */
+    public static void enableWebLogin() {
+        //TODO disable proximity login feature
+
+        webLoginEnabled = true;
+
+    }
+    public static boolean isWebLoginEnabled() {
+        return webLoginEnabled;
     }
 }

@@ -14,13 +14,17 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.ArrayMap;
 import android.util.Base64;
 import android.util.Log;
 
 import com.ca.mas.core.conf.ConfigurationManager;
+import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.core.oauth.CodeVerifierCache;
 import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.oauth.PKCE;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.foundation.notify.Callback;
 
 import net.openid.appauth.AppAuthConfiguration;
@@ -96,8 +100,21 @@ public class MASAppAuthAuthorizationRequestHandler {
                     } else {
                         builder.setCodeVerifier(null);
                     }
+                    DeviceIdentifier deviceIdentifier = new DeviceIdentifier(MAS.getCurrentActivity());
+                    ArrayMap<String, String> arrayMap = new ArrayMap<String, String>();
+
+
+
+                    TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
+                    String magIdentifier = tokenManager.getMagIdentifier();
+
+                    if (magIdentifier != null && !"".equals(magIdentifier)) {
+                        arrayMap.put("mag-identifier", magIdentifier);
+                        builder.setAdditionalParameters(arrayMap);
+                    }
 
                     AuthorizationRequest req = builder.build();
+
 
                     Intent postAuthIntent = completeIntent;
                     Intent authCanceledIntent = cancelIntent;

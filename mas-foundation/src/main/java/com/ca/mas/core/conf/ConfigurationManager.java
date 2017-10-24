@@ -211,8 +211,13 @@ public class ConfigurationManager {
         String clientId = getValue(Config.CLIENT_KEY, jsonObject);
         String clientSecret = getValue(Config.CLIENT_SECRET, jsonObject);
         String organization = getValue(Config.ORGANIZATION, jsonObject);
+        String scope = getValue(Config.SCOPE, jsonObject);
+        String redirectUri = getValue(Config.REDIRECT_URI, jsonObject);
 
-        DefaultConfiguration conf = new DefaultConfiguration(jsonObject, tokenHost, port, tokenUriPrefix, clientId, clientSecret, organization);
+
+
+
+        DefaultConfiguration conf = new DefaultConfiguration(jsonObject, tokenHost, port, tokenUriPrefix, clientId, clientSecret, organization, scope, redirectUri);
 
         Config[] attrs = Config.values;
         for (Config attr : attrs) {

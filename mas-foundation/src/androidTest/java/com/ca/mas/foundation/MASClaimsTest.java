@@ -6,8 +6,9 @@
  *
  */
 
-package com.ca.mas;
+package com.ca.mas.foundation;
 
+import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.foundation.MASClaims;
 import com.ca.mas.foundation.MASClaimsBuilder;
 

@@ -46,7 +46,7 @@ android {
         }
 
         debug {
-            testCoverageEnabled true
+            testCoverageEnabled false
         }
     }
 
@@ -65,12 +65,10 @@ dependencies {
     compile "com.nimbusds:nimbus-jose-jwt:$rootProject.ext.nimbusJoseVersion"
 
     //Test
-    androidTestCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support.test:rules:0.5'
-    androidTestCompile 'org.skyscreamer:jsonassert:1.5.0'
 
-    testCompile 'junit:junit:4.12'
+    androidTestCompile "com.android.support.test:runner:$rootProject.ext.testRunner"
+    androidTestCompile "com.android.support.test:rules:$rootProject.ext.testRules"
+    androidTestCompile project(':mas-test')
 }
 
 //Coverage
@@ -105,6 +103,7 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
     sourceDirectories = files([mainSrc])
     classDirectories = files([debugTree])
 
+
     executionData = fileTree(dir: project.projectDir, includes:
             ['**/*.exec', '**/*.ec'])
 
@@ -112,11 +111,9 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
         project.tasks.findAll { it.name =~ /connected.+AndroidTest/ }.each {
             it.ignoreFailures = true
         }
-        /*
         connectedDebugAndroidTest {
             ignoreFailures = true
         }
-        */
     }
     reports {
         xml.enabled = true

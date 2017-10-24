@@ -25,13 +25,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-    sourceSets {
-        androidTest {
-            java.srcDirs += "../mas-foundation/src/androidTest/java"
-            resources.srcDirs += "../mas-foundation/src/androidTest/resources"
-        }
-    }
 }
 
 jacoco {
@@ -86,12 +79,10 @@ dependencies {
 
     compile project(':mas-foundation')
 
-    androidTestCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support.test:rules:0.5'
-    androidTestCompile 'org.skyscreamer:jsonassert:1.5.0'
+    androidTestCompile "com.android.support.test:runner:$rootProject.ext.testRunner"
+    androidTestCompile "com.android.support.test:rules:$rootProject.ext.testRules"
+    androidTestCompile project(':mas-test')
 
-    testCompile 'junit:junit:4.12'
 }
 
 task javadoc(type: Javadoc) {

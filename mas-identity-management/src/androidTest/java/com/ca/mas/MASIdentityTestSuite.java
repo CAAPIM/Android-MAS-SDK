@@ -6,7 +6,11 @@
  *
  */
 
-package com.ca.mas.identity;
+package com.ca.mas;
+
+import com.ca.mas.identity.MASGroupIdentityTest;
+import com.ca.mas.identity.MASUserIdentityTest;
+import com.ca.mas.identity.MASUserTest;
 
 import org.junit.experimental.categories.Categories;
 import org.junit.runner.RunWith;

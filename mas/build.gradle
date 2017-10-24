@@ -24,25 +24,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-    sourceSets {
-        androidTest {
-            java.srcDirs += "../mas-foundation/src/androidTest/java"
-            resources.srcDirs += "../mas-foundation/src/androidTest/resources"
-        }
-    }
 }
-
-task initBaseTest(type: Copy) {
-    from('../mas-foundation/src/main/res/xml') {
-        include '**/mastest.xml'
-        include '**/prefs.xml'
-    }
-    into 'src/main/res/xml'
-    includeEmptyDirs = false
-}
-
-preBuild {}.dependsOn initBaseTest
 
 dependencies {
 
@@ -51,13 +33,6 @@ dependencies {
     compile project(':mas-storage')
     compile project(':mas-identity-management')
 
-    //Test
-    androidTestCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support.test:rules:0.5'
-    androidTestCompile 'org.skyscreamer:jsonassert:1.5.0'
-
-    testCompile 'junit:junit:4.12'
 }
 
 task javadoc(type: Javadoc) {

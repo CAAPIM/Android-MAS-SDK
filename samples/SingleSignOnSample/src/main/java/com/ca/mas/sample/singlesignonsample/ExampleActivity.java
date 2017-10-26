@@ -142,6 +142,7 @@ public class ExampleActivity extends AppCompatActivity {
 
         setContentView(R.layout.main);
 
+/*
 
 
         Button registerClientButton = (Button) findViewById(R.id.registerClientButton);
@@ -199,6 +200,7 @@ public class ExampleActivity extends AppCompatActivity {
                 MASUser.login(authRequest, handler);
             }
         });
+*/
 
 
         tvOtpProtectedData = (TextView) findViewById(R.id.tvOtpProtectedData);

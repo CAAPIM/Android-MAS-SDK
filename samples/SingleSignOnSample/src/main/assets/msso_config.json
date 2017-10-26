@@ -1,11 +1,26 @@
 {
   "server": {
-    "hostname": "yat-gateway3.ca.com",
+    "hostname": "yat-papimgateway-teamcity.ca.com",
     "port": 8443,
     "prefix": "",
     "server_certs": [
       [
-        "-----BEGIN CERTIFICATE-----", "MIIDATCCAemgAwIBAgIJANBB4RxK2F7gMA0GCSqGSIb3DQEBDAUAMB4xHDAaBgNVBAMTE3lhdC1n", "YXRld2F5My5jYS5jb20wHhcNMTcwNzI2MDYwOTM3WhcNMjcwNzI0MDYwOTM3WjAeMRwwGgYDVQQD", "ExN5YXQtZ2F0ZXdheTMuY2EuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiRmv", "lIaRgmeD6llIrNSM6lf/50n95ngXTvbUv8tH7yPVe4CismMaOg1jLSll1iIsw7ns8jxzigESpyQ3", "dGDUkwj8YFOZ1hN2So3JpJuXyvsb/9i8cTKFPs1CnmP0lAQjL5/xftATr+QiwL9ZN1T/2ujkn6ar", "TNM3ZgGgBJ88itezQ3SKYLkg/U+bdjHmDCjrjEgJTLLsIdYK3HGyOTfzcHofGvSAIou3f9tNRBaC", "+D/WcV3njteKqBgB6TtfthhcgcS0MQrG7dXBjFmTeq1zKXMNq5k7gErh5j0M0L8jEojRlusYnT6g", "Q9cB3RxnP7aF3M5Cc6XGgB3nFR30+hT/awIDAQABo0IwQDAdBgNVHQ4EFgQUsD8RgafU+R3+FSMl", "bO4PnddMxwUwHwYDVR0jBBgwFoAUsD8RgafU+R3+FSMlbO4PnddMxwUwDQYJKoZIhvcNAQEMBQAD", "ggEBABrCElVg6FInJqg+XVRk1Z40bFQx9OSPdg7yIokXF/t2W7WaU4NNeOwmjODwXXH3TElhQ4Vn", "828yYt6sQfe/lqIeCyIHE3OKSwNt/QcjqIq0P+dk6MiqqI4GzoamZnzxdXBo7y0TfsHYlovGOc8P", "m8GZuL3kVyZkIZ4i9I7awdFMDLGTXlqKa3cxi0DBBpZAwqKvuQAcqjlGFwC7N7SXqfCIXOcr+XED", "4JxAPVFo27HKzhN2tiA8Xn41gNFlB9omJmLzKiW/Y2PNdEdA3clvUx17nGA4zUUU0k5XmuWPJGD8", "yApzEX41yGzpNuOL1s9DHj8KK/gGPdolU20aRAo2koI=", "-----END CERTIFICATE-----"
+        "-----BEGIN CERTIFICATE-----",
+        "MIIDGjCCAgKgAwIBAgIIKppeJuIm+T4wDQYJKoZIhvcNAQEMBQAwKzEpMCcGA1UEAxMgeWF0LXBh",
+        "cGltZ2F0ZXdheS10ZWFtY2l0eS5jYS5jb20wHhcNMTcwODE0MDUwMzM2WhcNMjcwODEyMDUwMzM2",
+        "WjArMSkwJwYDVQQDEyB5YXQtcGFwaW1nYXRld2F5LXRlYW1jaXR5LmNhLmNvbTCCASIwDQYJKoZI",
+        "hvcNAQEBBQADggEPADCCAQoCggEBANm4y2w4vOT9QTmYDxTlO/pRSIHgLnCcKM8D+E28WTx8GCVJ",
+        "ljV/RjtLEDOg/rkAllj//Ys4XPirH/81d4cQtDQNc1OhCzIInlPnnl0ZXwi69xlqlp7h2F7tS4jd",
+        "h4+EOKh5iyBquy/Z3mgMr9YALkThtcZ2Ep5tiXsMg1+SmweaoYUWpWrNvTdSw3U9vwMZOSkPVtT5",
+        "MhGtWawOSL4w85lIR680l/f6d/bHb1/P3QP0jxnX5xjaW2dh72yAZQp5u1uvuZMLwYw/eaeIzkMr",
+        "COyqWlEOrQerA+G2ddCY5hgyGMkd7j4SpWydz9sC6jbvhxEucq78ooDw7E4DBDgSrIkCAwEAAaNC",
+        "MEAwHQYDVR0OBBYEFNDN3LnxLZO4n74rMLGQPZXpw5GEMB8GA1UdIwQYMBaAFNDN3LnxLZO4n74r",
+        "MLGQPZXpw5GEMA0GCSqGSIb3DQEBDAUAA4IBAQCcwCWKhV0I26IOIAgiPGbLEbqEYSTvZIh5xlRM",
+        "Ipg6eqaGt2h5a4A+Ei0NvNurn5cyzKun0+8Z41PBbbG2u9BC5EHpL0EROvGhcYJolzDE4ICZdtnJ",
+        "mJ5oS1TlwecZxys1xwBCSpimB94itR1Xye5dhKs2GQHtG3csxqq37A45/VWzjavQNNOX+x9rv124",
+        "gZLj8N0guO7t6BdUmyLaBqsHXag0TN2dEBM8ZL/+q+kYTJpJ3zKprD3QnjsbZVt92bnyc7zXejpk",
+        "l+tzG6xe+KCX+VE/K70GgUDuXBdr+sa6JslbWbMahdS8m4F2Qdg6q48UslTehA+clVi5j1R21nsf",
+        "-----END CERTIFICATE-----"
       ]
     ]
   },
@@ -13,23 +28,22 @@
     "client": {
       "organization": "CA",
       "description": "What is the app used for?",
-      "client_name": "Mobile Client",
+      "client_name": "ds14",
       "client_type": "confidential",
       "registered_by": "admin",
       "client_custom": {},
       "client_ids": [
-
         {
-          "client_id": "e4a98be3-ec52-4a7f-ae7f-abe5e27b1df3",
-          "client_secret": "",
-          "scope": "scope_test openid msso phone profile address email msso_client_register msso_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups",
-          "redirect_uri": "camssoras://com.ca.ras",
-          "environment": "ALL",
-          "status": "ENABLED",
-          "registered_by": "admin",
-          "service_ids": "",
           "account_plan_mapping_ids": "",
-          "client_key_custom": {}
+          "client_secret": "",
+          "client_key_custom": {},
+          "redirect_uri": "camssoras://com.ca.ras",
+          "service_ids": "",
+          "client_id": "56072acf-9d50-42a2-a988-569ad660e207",
+          "status": "ENABLED",
+          "environment": "Android",
+          "scope": "openid msso phone profile address email user_role no-id-token msso_client_register msso_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups",
+          "registered_by": "admin"
         }
       ]
     },

@@ -36,20 +36,7 @@
             android:layout_weight="1"
             />
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="2">
 
-        <Button
-            android:id="@+id/registerClientButton"
-            android:layout_width="0dp"
-            android:layout_weight="2"
-            android:layout_height="fill_parent"
-            android:text="Register Client"
-            />
-    </LinearLayout>
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
@@ -58,17 +45,11 @@
         <Button
             android:id="@+id/listItemsButton"
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:layout_height="fill_parent"
             android:text="List Items"
             />
-        <Button
-            android:id="@+id/bbaButton"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="fill_parent"
-            android:text="Web Login"
-            />
+
     </LinearLayout>
     <LinearLayout
             android:orientation="horizontal"

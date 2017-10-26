@@ -18,6 +18,7 @@ import android.util.ArrayMap;
 import android.util.Base64;
 import android.util.Log;
 
+import com.ca.mas.core.conf.Config;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.core.oauth.CodeVerifierCache;
@@ -73,7 +74,10 @@ public class MASAppAuthAuthorizationRequestHandler {
                 String state = request.getState();
                 String responseType = request.getResponseType();
 
-                String configuration = "https://yat-gateway3.ca.com:8443/auth/oauth/v2/authorize";
+                String authorizePath = Config.AUTHORIZE_PATH.path;
+                //TODO remove hard coding
+
+                String configuration = "https://yat-papimgateway-teamcity.ca.com:8443/auth/oauth/v2/authorize";
                 Uri authEndpoint = Uri.parse(configuration);
                 Uri tokenEndpoint = Uri.parse("");
 

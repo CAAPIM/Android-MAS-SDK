@@ -712,12 +712,10 @@ public class MAS {
     }
 
     /**
-     * Signs the provided JWT {@link MASClaims} object with the provided RSA private key using SHA-256 hash algorithm
-     * and injects JWT claims based on the user information.
-     * This method will use a default value of 5 minutes for the JWS 'exp' claim if not provided.
-
+     * Enable Web Login. Login page will be fetched from gateway and displayed to the user whenever
+     * login is required
+     * The native login page will be disabled
      * @return void
-     * @throws MASException Failed to sign
      */
     public static void enableWebLogin() {
         //TODO disable proximity login feature

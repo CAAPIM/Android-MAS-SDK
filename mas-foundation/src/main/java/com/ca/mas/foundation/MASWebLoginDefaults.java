@@ -79,6 +79,9 @@ public class MASWebLoginDefaults {
     }
 
     public String getScope() {
+        if (MASDevice.getCurrentDevice().isRegistered()) {
+            return scope.replace("msso_client_register ", "").replace("msso_register ", "");
+        }
         return scope;
     }
 

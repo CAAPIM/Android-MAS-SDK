@@ -53,6 +53,7 @@ import net.minidev.json.reader.JsonWriterI;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
@@ -104,13 +105,16 @@ public class MAS {
         @Override
         public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
 
-            if (webLoginEnabled) {
-                Intent postAuthIntent = new Intent(mAppContext, getWebLoginCompleteIntent());
-                Intent authCanceledIntent = new Intent(mAppContext, getWebLoginCancelIntent());
-                MASAppAuthAuthorizationRequestHandler handler = new MASAppAuthAuthorizationRequestHandler(mAppContext, postAuthIntent, authCanceledIntent);
-                MASAuthorizationRequest authReq = new MASAuthorizationRequest.MASAuthorizationRequestBuilder().buildDefault();
-                MASUser.login(authReq, handler);
-            } else if (masAuthenticationListener == null) {
+            if (masAuthenticationListener == null) {
+               if (webLoginEnabled) {
+                   MASAuthorizationRequest authReq = new MASAuthorizationRequest.MASAuthorizationRequestBuilder().buildDefault();
+                   MASAuthorizationRequestHandler handler = getAuthorizationRequestHandler();
+                   if (handler != null) {
+                       MASUser.login(authReq, handler);
+                       return;
+                   }
+               }
+
                 Class<Activity> loginActivity = getLoginActivity();
                 if (loginActivity != null) {
                     if (mAppContext != null) {
@@ -209,6 +213,20 @@ public class MAS {
             return null;
         }
     }
+
+    private static MASAuthorizationRequestHandler getAuthorizationRequestHandler() {
+
+        try {
+            Class<MASAuthorizationRequestHandler>  c = (Class<MASAuthorizationRequestHandler>) Class.forName("com.ca.mas.ui.MASAppAuthAuthorizationRequestHandler");
+            Constructor constructor = c.getConstructor(Context.class, Intent.class, Intent.class);
+            return (MASAuthorizationRequestHandler) constructor.newInstance(getContext()
+                    , new Intent(getContext(), getWebLoginCompleteIntent())
+                    , new Intent(getContext(), getWebLoginCancelIntent()));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
     /**
      * Return the MASOAuthRedirectActivity from MASUI components if MASUI library is included in the classpath.
@@ -723,6 +741,7 @@ public class MAS {
         webLoginEnabled = true;
 
     }
+
     public static boolean isWebLoginEnabled() {
         return webLoginEnabled;
     }

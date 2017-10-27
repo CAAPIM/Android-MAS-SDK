@@ -8,50 +8,47 @@
  *
  */
 
-package com.ca.mas.foundation;
+package com.ca.mas.ui;
 
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.ArrayMap;
-import android.util.Base64;
 import android.util.Log;
 
-import com.ca.mas.core.conf.Config;
+import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.core.oauth.CodeVerifierCache;
-import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.oauth.PKCE;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
-import com.ca.mas.foundation.notify.Callback;
+
+import com.ca.mas.foundation.MASAuthorizationRequest;
+import com.ca.mas.foundation.MASAuthorizationRequestHandler;
+import com.ca.mas.foundation.MASConfiguration;
 
 import net.openid.appauth.AppAuthConfiguration;
 import net.openid.appauth.AuthorizationRequest;
 import net.openid.appauth.AuthorizationService;
 import net.openid.appauth.AuthorizationServiceConfiguration;
-import net.openid.appauth.CodeVerifierUtil;
 import net.openid.appauth.browser.BrowserBlacklist;
 import net.openid.appauth.browser.Browsers;
 import net.openid.appauth.browser.VersionRange;
 import net.openid.appauth.browser.VersionedBrowserMatcher;
 
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.net.URI;
 
 import static com.ca.mas.core.oauth.OAuthClientUtil.generateCodeChallenge;
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
 
 
-public class MASAppAuthAuthorizationRequestHandler {
+public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRequestHandler {
 
     Context context;
     Intent completeIntent, cancelIntent;
+
     public MASAppAuthAuthorizationRequestHandler(Context context, Intent completeIntent, Intent cancelIntent) {
 
         this.context = context;
@@ -60,7 +57,7 @@ public class MASAppAuthAuthorizationRequestHandler {
 
     }
 
-
+    @Override
     public void authorize(MASAuthorizationRequest request) {
 
         {
@@ -74,20 +71,22 @@ public class MASAppAuthAuthorizationRequestHandler {
                 String state = request.getState();
                 String responseType = request.getResponseType();
 
-                String authorizePath = Config.AUTHORIZE_PATH.path;
-                //TODO remove hard coding
+                URI authEndpoint =
+                ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider()
+                        .getUri(MASConfiguration.getCurrentConfiguration()
+                                .getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_AUTHORIZE));
 
-                String configuration = "https://yat-papimgateway-teamcity.ca.com:8443/auth/oauth/v2/authorize";
-                Uri authEndpoint = Uri.parse(configuration);
                 Uri tokenEndpoint = Uri.parse("");
 
                 AuthorizationServiceConfiguration config = new AuthorizationServiceConfiguration(
-                        authEndpoint, tokenEndpoint, null);
+                        Uri.parse(authEndpoint.toString()), tokenEndpoint, null);
                 if (redirectUri != null) {
                     AuthorizationRequest.Builder builder = new AuthorizationRequest
                             .Builder(config, clientId, responseType, redirectUri)
                             .setState(state)
+                            .setDisplay("page")
                             .setScopes(scope);
+
                     PKCE codeChallenge = generateCodeChallenge();
                     //ConfigurationManager.getInstance().enablePKCE(false);
                     //PKCE social login support for MAG
@@ -104,10 +103,7 @@ public class MASAppAuthAuthorizationRequestHandler {
                     } else {
                         builder.setCodeVerifier(null);
                     }
-                    DeviceIdentifier deviceIdentifier = new DeviceIdentifier(MAS.getCurrentActivity());
                     ArrayMap<String, String> arrayMap = new ArrayMap<String, String>();
-
-
 
                     TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
                     String magIdentifier = tokenManager.getMagIdentifier();
@@ -140,14 +136,11 @@ public class MASAppAuthAuthorizationRequestHandler {
                     service.performAuthorizationRequest(req,
                             PendingIntent.getActivity(context, req.hashCode(), postAuthIntent, 0),
                             PendingIntent.getActivity(context, req.hashCode(), authCanceledIntent, 0));
-                    //Callback.onSuccess(callback, null);
                 } else {
                     if (DEBUG) Log.d(TAG, "No redirect URL detected.");
-                    //Callback.onError(callback, new IllegalArgumentException("No redirect URL detected."));
                 }
             } catch (Exception e) {
                 if (DEBUG) Log.e(TAG, "Launching Social Login with AppAuth failed.", e);
-                //Callback.onError(callback, e);
             }
         }
     }

@@ -16,7 +16,6 @@ import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.foundation.MAS;
-import com.ca.mas.foundation.MASAppAuthAuthorizationRequestHandler;
 import com.ca.mas.foundation.MASAuthenticationListener;
 import com.ca.mas.foundation.MASAuthorizationRequest;
 import com.ca.mas.foundation.MASOtpAuthenticationHandler;

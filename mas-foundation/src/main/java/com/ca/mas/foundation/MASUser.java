@@ -10,10 +10,8 @@
 package com.ca.mas.foundation;
 
 import android.annotation.TargetApi;
-import android.app.PendingIntent;
 import android.content.AsyncTaskLoader;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Parcel;
@@ -91,10 +89,8 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * Browser based login. Displays a login UI fetched from the server
      *
      */
-    public static void login(MASAuthorizationRequest request, MASAppAuthAuthorizationRequestHandler handler) {
-
+    public static void login(MASAuthorizationRequest request, MASAuthorizationRequestHandler handler) {
         handler.authorize(request);
-
     }
 
     /**

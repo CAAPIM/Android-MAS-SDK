@@ -42,10 +42,13 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.google.firebase:firebase-messaging:11.4.2'
+    implementation "com.google.firebase:firebase-messaging:$rootProject.ext.firebaseMessaging"
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    androidTestCompile project(':mas-test')
+
     api project(path: ':mas-foundation')
 }
 

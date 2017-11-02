@@ -48,4 +48,5 @@ ext {
     customTabVersion = '26.0.0'
     testRunner = '1.0.1'
     testRules = '1.0.1'
+    firebaseMessaging = '11.4.2'
 }

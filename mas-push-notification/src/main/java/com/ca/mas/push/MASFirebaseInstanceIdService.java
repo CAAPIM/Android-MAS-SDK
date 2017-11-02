@@ -24,7 +24,7 @@ public class MASFirebaseInstanceIdService extends FirebaseInstanceIdService {
     public void onTokenRefresh() {
         //Token is refreshing
         final PushConfig config = new PushConfig(getApplicationContext());
-        if (config.isRegisterOnStartUp()) {
+        if (config.isRegisterOnStart()) {
             MASPush.getInstance().setTokenRefresh();
 
             if (MAS.getState(getApplicationContext()) == MASConstants.MAS_STATE_STARTED) {

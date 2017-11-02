@@ -16,25 +16,25 @@ import com.ca.mas.foundation.MASConstants;
 
 class PushConfig {
 
-    boolean registerOnStartUp = true;
-    int grantType = MASConstants.MAS_GRANT_FLOW_CLIENT_CREDENTIALS;
+    private boolean registerOnStart = true;
+    private int grantType = MASConstants.MAS_GRANT_FLOW_CLIENT_CREDENTIALS;
 
-    public PushConfig(Context context) {
+    PushConfig(Context context) {
         try {
             ComponentName componentName = new ComponentName(context, MASPushContentProvider.class);
             ProviderInfo providerInfo = context.getPackageManager().getProviderInfo(componentName, PackageManager.GET_META_DATA);
-            registerOnStartUp = providerInfo.metaData.getBoolean("register-on-start", true);
+            registerOnStart = providerInfo.metaData.getBoolean("register-on-start", true);
             grantType = providerInfo.metaData.getInt("grant-type", MASConstants.MAS_GRANT_FLOW_CLIENT_CREDENTIALS);
         } catch (PackageManager.NameNotFoundException e) {
             //ignore
         }
     }
 
-    public boolean isRegisterOnStartUp() {
-        return registerOnStartUp;
+    boolean isRegisterOnStart() {
+        return registerOnStart;
     }
 
-    public int getGrantType() {
+    int getGrantType() {
         return grantType;
     }
 }

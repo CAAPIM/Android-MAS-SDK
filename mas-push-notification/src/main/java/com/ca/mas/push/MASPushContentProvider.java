@@ -7,17 +7,12 @@
 
 package com.ca.mas.push;
 
-import android.content.ComponentName;
 import android.content.ContentProvider;
 import android.content.ContentValues;
-import android.content.pm.PackageManager;
-import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.net.Uri;
 
 import com.ca.mas.core.EventDispatcher;
-import com.ca.mas.core.service.Provider;
-import com.ca.mas.foundation.MASConstants;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -47,7 +42,7 @@ public class MASPushContentProvider extends ContentProvider {
     public boolean onCreate() {
         PushConfig config = new PushConfig(getContext());
 
-        if (config.isRegisterOnStartUp()) {
+        if (config.isRegisterOnStart()) {
             final int finalGrantType = config.getGrantType();
             Observer observer = new Observer() {
                 @Override

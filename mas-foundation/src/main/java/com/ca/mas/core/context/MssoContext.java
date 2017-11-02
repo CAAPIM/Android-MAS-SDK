@@ -585,6 +585,7 @@ public class MssoContext {
      * @throws MssoException if there is an error while attempting to tell the token server to unregister this device.
      */
     public void removeDeviceRegistration() throws MssoException {
+        EventDispatcher.BEFORE_DEREGISTER.notifyObservers();
         if (tokenManager == null) {
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
         }
@@ -593,7 +594,7 @@ public class MssoContext {
                 //Server call to remove the registration record, will throw an exception if failed
                 new RegistrationClient(this).removeDeviceRegistration();
             }
-            EventDispatcher.DE_REGISTER.notifyObservers();
+            EventDispatcher.AFTER_DEREGISTER.notifyObservers();
             resetHttpClient();
         } catch (Exception e) {
             if (DEBUG) Log.w(TAG, "Error in removing device registration details from the server " + e);

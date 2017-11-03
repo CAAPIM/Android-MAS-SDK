@@ -10,6 +10,10 @@ import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
 import com.ca.mas.core.registration.RegistrationServerException;
+import com.ca.mas.core.store.ClientCredentialContainer;
+import com.ca.mas.core.store.OAuthTokenContainer;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
@@ -23,6 +27,8 @@ import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
@@ -73,6 +79,63 @@ public class MASRegistrationTest extends MASStartTestBase {
     }
 
     @Test
+    public void testDeregisterDeviceSuccess() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse deRegister() {
+                return new MockResponse().setResponseCode(200);
+            }
+        });
+
+        MASCallbackFuture<Void> callback2 = new MASCallbackFuture<>();
+        MASDevice.getCurrentDevice().deregister(callback2);
+        try {
+            callback2.get();
+        } catch (Exception e) {
+            assertNotNull(e);
+            Throwable cause = e.getCause().getCause().getCause();
+            if (cause instanceof RegistrationServerException) {
+                RegistrationServerException re = (RegistrationServerException) cause;
+                assertEquals(re.getStatus(), 404);
+
+                // Can't test the IOException portion, but we can verify the other failure case
+                assertTrue(cause instanceof RegistrationServerException);
+            }
+        }
+
+        // Verify the local credentials are cleared after a successful deregistration.
+        StorageProvider sp = StorageProvider.getInstance();
+        ClientCredentialContainer ccc = sp.getClientCredentialContainer();
+        assertNotNull(ccc);
+        assertNull(ccc.getMasterClientId());
+        assertNull(ccc.getClientId());
+        assertNull(ccc.getClientSecret());
+        assertTrue(ccc.getClientExpiration() == -1);
+
+        OAuthTokenContainer otc = sp.getOAuthTokenContainer();
+        assertNotNull(otc);
+        assertNull(otc.getAccessToken());
+        assertNull(otc.getRefreshToken());
+        assertTrue(otc.getExpiry() == 0);
+        assertNull(otc.getGrantedScope());
+
+        TokenManager tm = sp.getTokenManager();
+        assertNotNull(tm);
+        assertTrue(tm.getIdToken() == null && tm.getSecureIdToken() == null);
+        assertNull(tm.getUserProfile());
+        assertNull(tm.getClientPublicKey());
+        assertNull(tm.getClientPrivateKey());
+        assertNull(tm.getClientCertificateChain());
+        assertNull(tm.getMagIdentifier());
+    }
+
+    @Test
     public void testDeregisterDeviceWithExceptionResponse() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
@@ -103,5 +166,31 @@ public class MASRegistrationTest extends MASStartTestBase {
                 assertTrue(cause instanceof RegistrationServerException);
             }
         }
+
+        // Verify the local credentials are still retained after a failed deregistration.
+        StorageProvider sp = StorageProvider.getInstance();
+        ClientCredentialContainer ccc = sp.getClientCredentialContainer();
+        assertNotNull(ccc);
+        assertFalse(ccc.getMasterClientId().isEmpty());
+        assertFalse(ccc.getClientId().isEmpty());
+        assertFalse(ccc.getClientSecret().isEmpty());
+        assertFalse(ccc.getClientExpiration() == -1);
+
+        OAuthTokenContainer otc = sp.getOAuthTokenContainer();
+        assertNotNull(otc);
+        assertFalse(otc.getAccessToken().isEmpty());
+        assertFalse(otc.getRefreshToken().isEmpty());
+        assertFalse(otc.getExpiry() == 0);
+        assertFalse(otc.getGrantedScope().isEmpty());
+
+        TokenManager tm = sp.getTokenManager();
+        assertNotNull(tm);
+        assertTrue(tm.getIdToken() != null || tm.getSecureIdToken() != null);
+        assertNotNull(tm.getUserProfile());
+        assertNotNull(tm.getClientPublicKey());
+        assertNotNull(tm.getClientPrivateKey());
+        assertNotNull(tm.getClientCertificateChain());
+        assertNotNull(tm.getMagIdentifier());
     }
+
 }

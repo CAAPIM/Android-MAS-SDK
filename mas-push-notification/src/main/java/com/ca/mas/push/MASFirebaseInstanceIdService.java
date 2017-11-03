@@ -7,14 +7,9 @@
 
 package com.ca.mas.push;
 
-import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASConstants;
-import com.ca.mas.foundation.MASDevice;
 import com.google.firebase.iid.FirebaseInstanceIdService;
-
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * Handle Firebase Instance ID token refresh events,
@@ -24,7 +19,7 @@ public class MASFirebaseInstanceIdService extends FirebaseInstanceIdService {
     @Override
     public void onTokenRefresh() {
 
-        //For Dynamic SDK, all server needs to rebind. So reset all all the bind status.
+        //For Dynamic SDK, all server needs to rebind. So reset all the bind status.
         MASPush.getInstance().clear(getApplicationContext());
 
         //If the MAS is started and device already been registered, perform the binding.

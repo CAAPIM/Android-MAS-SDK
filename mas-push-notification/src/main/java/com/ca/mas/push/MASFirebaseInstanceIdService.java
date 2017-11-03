@@ -10,6 +10,7 @@ package com.ca.mas.push;
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASConstants;
+import com.ca.mas.foundation.MASDevice;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
 import java.util.Observable;
@@ -22,26 +23,14 @@ public class MASFirebaseInstanceIdService extends FirebaseInstanceIdService {
 
     @Override
     public void onTokenRefresh() {
-        //Token is refreshing
-        final PushConfig config = new PushConfig(getApplicationContext());
-        if (config.isRegisterOnStart()) {
-            MASPush.getInstance().setTokenRefresh();
 
-            if (MAS.getState(getApplicationContext()) == MASConstants.MAS_STATE_STARTED) {
-                MASPush.getInstance().register(config.getGrantType(), null);
-            } else {
-                //MAS has not been started, push registration will happened after MAS.start is invoked.
-                final Observer observer = new Observer() {
-                    @Override
-                    public void update(Observable observable, Object o) {
-                        MASPush.getInstance().register(config.getGrantType(),null);
-                        //Detach from the start process after register
-                        EventDispatcher.STARTED.deleteObserver(this);
+        //For Dynamic SDK, all server needs to rebind. So reset all all the bind status.
+        MASPush.getInstance().clear(getApplicationContext());
 
-                    }
-                };
-                EventDispatcher.STARTED.addObserver(observer);
-            }
+        //If the MAS is started and device already been registered, perform the binding.
+        if (MAS.getState(getApplicationContext()) == MASConstants.MAS_STATE_STARTED) {
+            MASPush.STARTED_OBSERVER.update(null, null);
         }
+
     }
 }

@@ -19,12 +19,10 @@
 
         <provider
             android:name=".MASPushContentProvider"
-            android:authorities="com.ca.mas.push"
+            android:authorities="${applicationId}.maspushprovider"
             android:enabled="true"
             android:exported="false"
             android:initOrder="50" >
-            <meta-data android:name="grant-type" android:value="@integer/client_credential_grant_flow"/>
-            <meta-data android:name="register-on-start" android:value="@bool/register_on_start"/>
         </provider>
 
 

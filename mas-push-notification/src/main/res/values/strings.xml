@@ -7,9 +7,6 @@
 
 <resources>
     <string name="app_name">mas-push-notification</string>
-    <string name="push_registration_status">push_registration_status</string>
-    <integer name="client_credential_grant_flow">1</integer>
-    <integer name="password_grant_flow">2</integer>
-    <bool name="register_on_start">true</bool>
+    <string name="push_binding_status">push_binding_status</string>
 
 </resources>

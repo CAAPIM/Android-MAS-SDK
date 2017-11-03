@@ -326,6 +326,7 @@ public class MssoContext {
      */
     public void onDeviceRegistrationCompleted() {
         resetHttpClient();
+        EventDispatcher.REGISTERED.notifyObservers();
     }
 
     /**

@@ -18,6 +18,7 @@ import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASConstants;
+import com.ca.mas.foundation.MASDevice;
 import com.ca.mas.foundation.MASGrantFlow;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASRequestBody;
@@ -28,18 +29,37 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
 
 public class MASPush {
 
-    private static final int NON_REGISTERED = 0;
-    private static final int REGISTERED = 1;
-    public static final String PUSH_REGISTRATION = "com.ca.mas.push.REGISTRATION";
-    public static final String STATUS = "status";
+    private static final int NON_BOUND = 0;
+    private static final int BOUND = 1;
+    public static final String PUSH_BINDING = "com.ca.mas.push.BINDING";
+    public static final String ERROR = "error";
 
     private static MASPush masPush = new MASPush();
-    private boolean isTokenRefresh = false;
+
+    static final Observer PUSH_BINDING_OBSERVER = new Observer() {
+        @Override
+        public void update(Observable observable, Object o) {
+            MASPush.getInstance().bind(null);
+            //Detach from the start process after register
+        }
+    };
+
+    static final Observer STARTED_OBSERVER = new Observer() {
+        @Override
+        public void update(Observable observable, Object o) {
+            if (MASDevice.getCurrentDevice().isRegistered() && !MASPush.getInstance().isBound()) {
+                MASPush.getInstance().bind(MASConstants.MAS_GRANT_FLOW_CLIENT_CREDENTIALS, null);
+            }
+        }
+    };
 
     private MASPush() {
     }
@@ -49,41 +69,26 @@ public class MASPush {
     }
 
     /**
-     * Token is refreshing
-     */
-    void setTokenRefresh() {
-        isTokenRefresh = true;
-
-    }
-
-    /**
-     * @return true when {@link MASFirebaseInstanceIdService} getting a token refresh event and process
-     * the token even update
-     */
-    boolean isTokenRefresh() {
-        return isTokenRefresh;
-    }
-
-    public void register(final MASCallback<Void> callback) {
-        this.register(MASConstants.MAS_GRANT_FLOW_CLIENT_CREDENTIALS, callback);
-    }
-
-    /**
-     * Register the Instance ID to MAG
+     * Bind the user or device to the Push registration token
      *
      * @param callback Callback to receive the registration result. For implicit push registration (triggered by {@link MASFirebaseInstanceIdService},
-     *                 or {@link MASPushContentProvider}, and local broadcast with action ${@link MASPush#PUSH_REGISTRATION} and bundle extra {@link MASPush#STATUS}
-     *                 will be sent. The {@link MASPush#STATUS} will contains either {@link MASPush#REGISTERED} or {@link MASPush#NON_REGISTERED}
+     *                 or {@link MASPushContentProvider}, an local broadcast with action ${@link MASPush#PUSH_BINDING} and if there is any error
+     *                 bundle extra {@link MASPush#ERROR with the exception will be sent.
      */
-    public void register(@MASGrantFlow int grantFlow, final MASCallback<Void> callback) {
+    public void bind(final MASCallback<Void> callback) {
+        bind(null, callback);
+    }
+
+    void bind(@MASGrantFlow Integer grantFlow, final MASCallback<Void> callback) {
 
         try {
             if (FirebaseInstanceId.getInstance().getToken() == null) {
-                Callback.onError(callback, new IllegalStateException("Firebase Registration Token not ready."));
+                notifyResult(callback, new IllegalStateException("Firebase Registration Token not ready."));
                 return;
             }
         } catch (Exception e) {
-            Callback.onError(callback, e);
+            //May flow IllegalStateException went Firebase is not initialized
+            notifyResult(callback, e);
             return;
         }
 
@@ -100,10 +105,12 @@ public class MASPush {
         }
         MASRequest.MASRequestBuilder requestBuilder = new MASRequest.MASRequestBuilder(builder.build())
                 .post(MASRequestBody.jsonBody(body));
-        if (grantFlow == MASConstants.MAS_GRANT_FLOW_CLIENT_CREDENTIALS) {
-            requestBuilder.clientCredential();
-        } else {
-            requestBuilder.password();
+        if (grantFlow != null) {
+            if (grantFlow == MASConstants.MAS_GRANT_FLOW_CLIENT_CREDENTIALS) {
+                requestBuilder.clientCredential();
+            } else if (grantFlow == MASConstants.MAS_GRANT_FLOW_PASSWORD) {
+                requestBuilder.password();
+            }
         }
 
         MAS.invoke(requestBuilder.build(), new MASCallback<MASResponse<JSONObject>>() {
@@ -111,31 +118,40 @@ public class MASPush {
             @Override
             public void onSuccess(MASResponse<JSONObject> result) {
                 if (DEBUG) Log.d(TAG, "Push Notification Successful Registered");
-                isTokenRefresh = false;
-                updateStatus(REGISTERED);
-                if (callback == null) { //Only send broadcast for implicit push registration
-                    Intent intent = new Intent(PUSH_REGISTRATION);
-                    intent.putExtra(STATUS, REGISTERED);
-                    LocalBroadcastManager.getInstance(MAS.getContext()).sendBroadcast(intent);
-                } else {
-                    Callback.onSuccess(callback, null);
-                }
+                updateStatus(BOUND);
+                notifyResult(callback, null);
             }
 
             @Override
             public void onError(Throwable e) {
                 if (DEBUG) Log.e(TAG, "Push Notification registration failed.", e);
-                isTokenRefresh = false;
-                updateStatus(NON_REGISTERED);
-                if (callback == null) { //Only send broadcast for implicit push registration
-                    Intent intent = new Intent(PUSH_REGISTRATION);
-                    intent.putExtra(STATUS, NON_REGISTERED);
-                    LocalBroadcastManager.getInstance(MAS.getContext()).sendBroadcast(intent);
-                } else {
-                    Callback.onError(callback, e);
-                }
+                updateStatus(NON_BOUND);
+                notifyResult(callback, e);
             }
         });
+    }
+
+    private void notifyResult(MASCallback<Void> callback, Throwable e) {
+        if (callback == null) { //Only send broadcast for implicit push binding
+            Intent intent = new Intent(PUSH_BINDING);
+            if (e != null) {
+                intent.putExtra(ERROR, e);
+            }
+            LocalBroadcastManager.getInstance(MAS.getContext()).sendBroadcast(intent);
+        } else {
+            if (e != null) {
+                Callback.onError(callback, e);
+            } else {
+                Callback.onSuccess(callback, null);
+            }
+        }
+    }
+
+    void clear(Context context) {
+        SharedPreferences sp = context.getSharedPreferences(context
+                        .getString(R.string.push_binding_status)
+                , Context.MODE_PRIVATE);
+        sp.edit().clear().commit();
     }
 
     /**
@@ -143,16 +159,16 @@ public class MASPush {
      *
      * @return true if success, false for now success
      */
-    public boolean isRegistered() {
+    public boolean isBound() {
         SharedPreferences sp = MAS.getContext().getSharedPreferences(MAS.getContext()
-                        .getString(R.string.push_registration_status)
+                        .getString(R.string.push_binding_status)
                 , Context.MODE_PRIVATE);
-        return REGISTERED == sp.getInt(MASConfiguration.getCurrentConfiguration().getGatewayHostName(), NON_REGISTERED);
+        return BOUND == sp.getInt(MASConfiguration.getCurrentConfiguration().getGatewayHostName(), NON_BOUND);
     }
 
     private void updateStatus(int status) {
         SharedPreferences sp = MAS.getContext().getSharedPreferences(MAS.getContext()
-                        .getString(R.string.push_registration_status)
+                        .getString(R.string.push_binding_status)
                 , Context.MODE_PRIVATE);
         sp.edit().putInt(MASConfiguration.getCurrentConfiguration().getGatewayHostName(), status)
                 .apply();

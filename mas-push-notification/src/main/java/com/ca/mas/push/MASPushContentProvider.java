@@ -14,10 +14,8 @@ import android.net.Uri;
 
 import com.ca.mas.core.EventDispatcher;
 
-import java.util.Observable;
-import java.util.Observer;
-
 public class MASPushContentProvider extends ContentProvider {
+
     public MASPushContentProvider() {
     }
 
@@ -40,21 +38,15 @@ public class MASPushContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        PushConfig config = new PushConfig(getContext());
+        //Bind the device to the registration token
+        EventDispatcher.REGISTERED.addObserver(MASPush.PUSH_BINDING_OBSERVER);
+        //Bind the user to the registration token
+        EventDispatcher.AFTER_LOGIN.addObserver(MASPush.PUSH_BINDING_OBSERVER);
 
-        if (config.isRegisterOnStart()) {
-            final int finalGrantType = config.getGrantType();
-            Observer observer = new Observer() {
-                @Override
-                public void update(Observable observable, Object o) {
-                    //Do not register push if token is refreshing and already been registered
-                    if (!MASPush.getInstance().isTokenRefresh() && !MASPush.getInstance().isRegistered()) {
-                        MASPush.getInstance().register(finalGrantType, null);
-                    }
-                }
-            };
-            EventDispatcher.STARTED.addObserver(observer);
-        }
+        //For SSO Scenario, the device has been registered and user already been login.
+        //Trigger push registration after it started
+        EventDispatcher.STARTED.addObserver(MASPush.STARTED_OBSERVER);
+
         return true;
     }
 

@@ -48,7 +48,6 @@ public class MASPush {
         @Override
         public void update(Observable observable, Object o) {
             MASPush.getInstance().bind(null);
-            //Detach from the start process after register
         }
     };
 
@@ -94,7 +93,7 @@ public class MASPush {
 
         //TODO Endpoint needs to be updated
         Uri.Builder builder = new Uri.Builder();
-        builder.appendPath("notification").appendPath("register");
+        builder.appendPath("notification").appendPath("bind");
 
         JSONObject body = new JSONObject();
         try {

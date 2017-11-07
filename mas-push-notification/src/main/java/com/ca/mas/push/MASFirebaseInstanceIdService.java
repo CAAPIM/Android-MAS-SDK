@@ -23,6 +23,7 @@ public class MASFirebaseInstanceIdService extends FirebaseInstanceIdService {
         MASPush.getInstance().clear(getApplicationContext());
 
         //If the MAS is started and device already been registered, perform the binding.
+        //Else the binding will happened during start, registration or login
         if (MAS.getState(getApplicationContext()) == MASConstants.MAS_STATE_STARTED) {
             MASPush.STARTED_OBSERVER.update(null, null);
         }

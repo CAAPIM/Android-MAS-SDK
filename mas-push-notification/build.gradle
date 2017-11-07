@@ -18,6 +18,8 @@ android {
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        // Enabling multidex support.
+        //multiDexEnabled true
     }
 
     lintOptions {
@@ -48,8 +50,10 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     androidTestCompile project(':mas-test')
+    //androidTestImplementation 'com.android.support:multidex:1.0.2'
 
     api project(path: ':mas-foundation')
+
 }
 
 

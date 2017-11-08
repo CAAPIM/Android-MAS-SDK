@@ -345,6 +345,12 @@ public class MssoContext {
         privateTokens.saveAccessToken(accessToken, refreshToken, expiresInSec, grantedScope);
    }
 
+    public void onAccessTokenObtainedUsingCredentials(String accessToken, String refreshToken, long expiresInSec, String grantedScope) {
+        onAccessTokenAvailable(accessToken,refreshToken,expiresInSec,grantedScope);
+        EventDispatcher.ACCESS_TOKEN_OBTAINED_USING_CREDENTIAL.notifyObservers();
+    }
+
+
     /**
      * Clear the access token, forcing the next request to obtain a new one.
      */

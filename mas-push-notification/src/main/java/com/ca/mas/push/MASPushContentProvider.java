@@ -41,7 +41,7 @@ public class MASPushContentProvider extends ContentProvider {
         //Bind the device to the registration token
         EventDispatcher.REGISTERED.addObserver(MASPush.PUSH_BINDING_OBSERVER);
         //Bind the user to the registration token
-        EventDispatcher.AFTER_LOGIN.addObserver(MASPush.PUSH_BINDING_OBSERVER);
+        EventDispatcher.ACCESS_TOKEN_OBTAINED_USING_CREDENTIAL.addObserver(MASPush.PUSH_BINDING_OBSERVER);
 
         //For SSO Scenario, the device has been registered and user already been login.
         //Trigger push registration after it started

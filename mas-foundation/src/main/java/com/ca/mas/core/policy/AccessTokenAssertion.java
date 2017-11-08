@@ -240,7 +240,7 @@ class AccessTokenAssertion implements MssoAssertion {
                 mssoContext.onIdTokenAvailable(idToken);
             }
             String accessToken = response.getAccessToken();
-            mssoContext.onAccessTokenAvailable(accessToken, response.getRefreshToken(), response.getExpiresIn(), response.getGrantedScope());
+            mssoContext.onAccessTokenObtainedUsingCredentials(accessToken, response.getRefreshToken(), response.getExpiresIn(), response.getGrantedScope());
             gotToken = accessToken != null;
             return accessToken;
         } finally {

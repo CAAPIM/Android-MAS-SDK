@@ -161,7 +161,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             public void onSuccess(Void result) {
                 current = user;
                 Callback.onSuccess(callback, current);
-                EventDispatcher.AFTER_LOGIN.notifyObservers();
             }
 
             @Override

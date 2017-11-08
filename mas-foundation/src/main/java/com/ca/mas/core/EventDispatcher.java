@@ -17,13 +17,14 @@ public class EventDispatcher extends Observable {
 
     public static final EventDispatcher STARTED = new EventDispatcher();
     public static final EventDispatcher STOP = new EventDispatcher();
-    public static final EventDispatcher AFTER_LOGIN = new EventDispatcher();
     public static final EventDispatcher LOGOUT = new EventDispatcher();
     public static final EventDispatcher REGISTERED = new EventDispatcher();
     public static final EventDispatcher DE_REGISTER = new EventDispatcher();
     public static final EventDispatcher RESET_LOCALLY = new EventDispatcher();
     public static final EventDispatcher BEFORE_GATEWAY_SWITCH = new EventDispatcher();
     public static final EventDispatcher AFTER_GATEWAY_SWITCH = new EventDispatcher();
+
+    public static final EventDispatcher ACCESS_TOKEN_OBTAINED_USING_CREDENTIAL = new EventDispatcher();
 
     @Override
     public synchronized boolean hasChanged() {

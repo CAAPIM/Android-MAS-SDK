@@ -114,7 +114,7 @@ bintray {
         name = 'mas-identity-management'
         userOrg = 'caapim'
 
-        desc = 'MAS IdentityManagement is the user and group management framework of the Android Mobile SDK, ' +
+        desc = 'MASIdentityManagement is the user and group management framework of the Android Mobile SDK, ' +
                 'which is part of CA Mobile API Gateway. It enables developers to securely access users and groups ' +
                 'from enterprise identity providers like LDAP, MSAD, and others. ' +
                 'Supports creating groups on the fly (called ad hoc groups) for collaborative apps. The underlying protocol is SCIM.'

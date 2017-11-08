@@ -123,7 +123,7 @@ bintray {
         name = 'mas-connecta'
         userOrg = 'caapim'
 
-        desc = 'MAS Connecta is the core messaging framework of the Android Mobile SDK,' +
+        desc = 'MASConnecta is the core messaging framework of the Android Mobile SDK,' +
                 ' which is part of CA Mobile API Gateway. It gives developers the ability ' +
                 'to create social collaborative apps where users can message and send data to each other.'
         websiteUrl = siteUrl

@@ -98,7 +98,6 @@ public class MASPush {
         JSONObject body = new JSONObject();
         try {
             body.put("registration_token", FirebaseInstanceId.getInstance().getToken());
-            body.put("environment", "android");
         } catch (JSONException e) {
             //ignore
         }

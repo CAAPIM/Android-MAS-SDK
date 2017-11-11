@@ -118,6 +118,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
                 public void onSuccess(Map<String, Object> result) {
                     try {
                         if (DEBUG) Log.d(TAG, "CONNECTA: onSuccess()");
+                        mConnectOptions = (MASConnectOptions) result.get(MASConnectOptions.class.getName());
                         initMqttClient((String) result.get(StateRequest.MAG_IDENTIFIER));
                         MqttConnectOptions mqttConnectOptions = (MqttConnectOptions) result.get(MASConnectOptions.class.getName());
                         mMqttClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
@@ -133,7 +134,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
 
                             @Override
                             public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-                                Callback.onError(callback, new ConnectaException("Not connected to message broker!"));
+                                Callback.onError(callback, new ConnectaException(throwable.getMessage()));
                             }
                         });
                     } catch (Exception e) {
@@ -204,7 +205,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
         }
 
         if (DEBUG)
-            Log.d(TAG, "CONNECTA: clientId: " + clientId + ", CONNECTA: brokerClientId: " + brokerClientId);
+            Log.d(TAG, "CONNECTA: clientId: " + brokerClientId + ", CONNECTA: brokerClientId: " + brokerClientId);
 
         final MemoryPersistence memoryPersistence = new MemoryPersistence();
 
@@ -267,7 +268,6 @@ public class ConnectaService extends Service implements MASConnectaClient {
     public void disconnect(final MASCallback<Void> callback) {
         subscribedTopic.clear();
         mConnectOptions = null;
-        mMqttClient = null;
 
         if (isConnected()) {
             if (DEBUG) Log.d(TAG, "MQTT Client Disconnected.");
@@ -276,6 +276,7 @@ public class ConnectaService extends Service implements MASConnectaClient {
                     @Override
                     public void onSuccess(IMqttToken iMqttToken) {
                         Callback.onSuccess(callback, null);
+                        mMqttClient = null;
                     }
 
                     @Override

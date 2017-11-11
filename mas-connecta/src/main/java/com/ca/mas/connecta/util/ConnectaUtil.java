@@ -101,7 +101,7 @@ public class ConnectaUtil {
      * @return {@link <a href="http://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html">MqttConnectOptions</a>}
      */
     public static MqttConnectOptions createConnectionOptions(String brokerUrl, long timeOutInMillis) {
-        MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+        MASConnectOptions mqttConnectOptions = new MASConnectOptions();
 
         // unless the timeout has been set to be at least the default, we will let MQTT decide how long the timeout is to be.
         if (timeOutInMillis >= ConnectaConsts.TIMEOUT_VAL) {

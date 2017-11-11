@@ -48,6 +48,10 @@ public class MASConnectOptions extends MqttConnectOptions {
         return isGateway;
     }
 
+    public void setGateway(boolean isGateway) {
+        this.isGateway = isGateway;
+    }
+
     public void initConnectOptions(final Context context, final long timeOutInMillis, final MASCallback<Map<String, Object>> callback) {
         isGateway = true;
 
@@ -56,7 +60,7 @@ public class MASConnectOptions extends MqttConnectOptions {
             public void onSuccess(final MAGResponse<JSONObject> response) {
                 JSONObject jobj = response.getBody().getContent();
                 String oauthToken = jobj.optString(StateRequest.ACCESS_TOKEN);
-                final MqttConnectOptions connectOptions = ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(), timeOutInMillis);
+                final MASConnectOptions connectOptions = (MASConnectOptions) ConnectaUtil.createConnectionOptions(ConnectaUtil.getBrokerUrl(), timeOutInMillis);
                 try {
                     SSLSocketFactory sslSocketFactory = SSLSocketFactoryProvider.getInstance().getPrimaryGatewaySocketFactory();
                     connectOptions.setSocketFactory(sslSocketFactory);
@@ -67,6 +71,7 @@ public class MASConnectOptions extends MqttConnectOptions {
                 String uname = MASUser.getCurrentUser().getUserName();
                 connectOptions.setUserName(uname);
                 connectOptions.setPassword(oauthToken.toCharArray());
+                connectOptions.setGateway(isGateway);
 
                 Map<String, Object> info = new HashMap<>();
                 info.put(StateRequest.MAG_IDENTIFIER, jobj.optString(StateRequest.MAG_IDENTIFIER));

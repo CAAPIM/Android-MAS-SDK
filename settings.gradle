@@ -18,14 +18,14 @@ include ':MASSessionUnlockSample'
 include ':MASSecureAPISample'
 include ':MASPubSubSample'
 
-project(':SingleSignOnSample').projectDir = new File('samples/SingleSignOnSample')
-project(':MASStorageSample').projectDir = new File('samples/MASStorageSample')
-project(':MASAccessAPISample').projectDir = new File('samples/MASAccessAPISample')
-project(':MASUserManagementSample').projectDir = new File('samples/MASUserManagementSample')
-project(':MASMessagingSample').projectDir = new File('samples/MASMessagingSample')
-project(':MASSessionUnlockSample').projectDir = new File('samples/MASSessionUnlockSample')
-project(':MASSecureAPISample').projectDir = new File('samples/MASSecureAPISample')
-project(':MASPubSubSample').projectDir = new File('samples/MASPubSubSample')
+//project(':SingleSignOnSample').projectDir = new File('samples/SingleSignOnSample')
+//project(':MASStorageSample').projectDir = new File('samples/MASStorageSample')
+//project(':MASAccessAPISample').projectDir = new File('samples/MASAccessAPISample')
+//project(':MASUserManagementSample').projectDir = new File('samples/MASUserManagementSample')
+//project(':MASMessagingSample').projectDir = new File('samples/MASMessagingSample')
+//project(':MASSessionUnlockSample').projectDir = new File('samples/MASSessionUnlockSample')
+//project(':MASSecureAPISample').projectDir = new File('samples/MASSecureAPISample')
+//project(':MASPubSubSample').projectDir = new File('samples/MASPubSubSample')
 
 //MASUnit
 include ':MASUnit'

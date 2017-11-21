@@ -31,7 +31,6 @@ android {
             resources.srcDirs += "../mas-foundation/src/androidTest/resources"
         }
     }
-    buildToolsVersion '26.0.2'
 }
 
 task initBaseTest(type: Copy) {

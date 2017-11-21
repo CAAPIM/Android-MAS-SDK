@@ -1,12 +1,11 @@
 /*
+ * Copyright (c) 2016 CA. All rights reserved.
  *
- *  * Copyright (c) 2016 CA. All rights reserved.
- *  *
- *  * This software may be modified and distributed under the terms
- *  * of the MIT license.  See the LICENSE file for details.
- *  *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
  *
  */
+
 
 package com.ca.mas.ui;
 
@@ -118,7 +117,7 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
 
                     Intent postAuthIntent = completeIntent;
                     Intent authCanceledIntent = cancelIntent;
-                    
+
 
                     // Workaround for Samsung's SBrowser
                     // As described in https://github.com/openid/AppAuth-Android/issues/157

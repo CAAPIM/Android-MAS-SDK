@@ -15,7 +15,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.os.Build;
@@ -38,35 +37,28 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.auth.otp.OtpConstants;
-import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.TargetApiException;
 import com.ca.mas.core.service.MssoIntents;
-import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthenticationListener;
-import com.ca.mas.foundation.MASException;
-import com.ca.mas.foundation.MASOtpAuthenticationHandler;
-import com.ca.mas.foundation.auth.MASAuthenticationProviders;
-import com.ca.mas.ui.MASAppAuthAuthorizationRequestHandler;
-import com.ca.mas.foundation.MASAuthorizationRequest;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASConnectionListener;
 import com.ca.mas.foundation.MASDevice;
+import com.ca.mas.foundation.MASException;
+import com.ca.mas.foundation.MASOtpAuthenticationHandler;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASUser;
+import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.foundation.auth.MASProximityLoginBLE;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEPeripheralListener;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEUserConsentHandler;
 import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 import com.ca.mas.ui.MASEnterpriseBrowserFragment;
-import com.ca.mas.ui.MASFinishActivity;
 import com.ca.mas.ui.MASLoginActivity;
-import com.ca.mas.ui.MASOAuthRedirectActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -86,7 +78,6 @@ import java.util.List;
 import java.util.Map;
 
 
-import static android.media.CamcorderProfile.get;
 
 public class ExampleActivity extends AppCompatActivity {
     private static final String TAG = "ExampleA";
@@ -132,10 +123,10 @@ public class ExampleActivity extends AppCompatActivity {
         });
 
         try {
-            MAS.enableWebLogin();
+            //MAS.enableWebLogin();
             MAS.start(this, true);
             setContentView(R.layout.main);
-            /*MAS.setAuthenticationListener(new MASAuthenticationListener() {
+            MAS.setAuthenticationListener(new MASAuthenticationListener() {
                 @Override
                 public void onAuthenticateRequest(Context mAppContext, long requestId, final MASAuthenticationProviders providers) {
                     Class<MASLoginActivity> loginActivity = MASLoginActivity.class;
@@ -156,7 +147,7 @@ public class ExampleActivity extends AppCompatActivity {
                 public void onStepUpAuthenticateRequest(Context context) {
 
                 }
-            });*/
+            });
         } catch (MASException e) {
             e.printStackTrace();
             showMessage(e.getMessage(),Toast.LENGTH_LONG);

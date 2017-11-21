@@ -118,6 +118,7 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
 
                     Intent postAuthIntent = completeIntent;
                     Intent authCanceledIntent = cancelIntent;
+                    
 
                     // Workaround for Samsung's SBrowser
                     // As described in https://github.com/openid/AppAuth-Android/issues/157

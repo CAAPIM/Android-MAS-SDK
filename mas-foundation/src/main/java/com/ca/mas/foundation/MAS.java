@@ -152,6 +152,11 @@ public class MAS {
                 masAuthenticationListener.onOtpAuthenticateRequest(currentActivity, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
             }
         }
+
+        @Override
+        public void onStepUpAuthenticationRequest() {
+
+        }
     }
 
     private static void registerActivityLifecycleCallbacks(Application application) {
@@ -219,6 +224,7 @@ public class MAS {
         try {
             Class<MASAuthorizationRequestHandler>  c = (Class<MASAuthorizationRequestHandler>) Class.forName("com.ca.mas.ui.MASAppAuthAuthorizationRequestHandler");
             Constructor constructor = c.getConstructor(Context.class, Intent.class, Intent.class);
+
             return (MASAuthorizationRequestHandler) constructor.newInstance(getContext()
                     , new Intent(getContext(), getWebLoginCompleteIntent())
                     , new Intent(getContext(), getWebLoginCancelIntent()));
@@ -236,7 +242,7 @@ public class MAS {
     private static Class<Activity> getWebLoginCompleteIntent() {
 
         try {
-            return (Class<Activity>) Class.forName("com.ca.mas.ui.MASOAuthRedirectActivity");
+            return (Class<Activity>) Class.forName("com.ca.mas.ui.MASAppAuthRedirectHandlerActivity");
         } catch (Exception e) {
             return null;
         }
@@ -511,7 +517,10 @@ public class MAS {
      *
      * @param listener The user login listener to handle user authentication.
      */
-    public static void setAuthenticationListener(MASAuthenticationListener listener) {
+    public static void setAuthenticationListener(MASAuthenticationListener listener) throws MASException{
+        if (isWebLoginEnabled()) {
+            throw new MASException(new Throwable("WebLogin is enabled. Please ensure you have not invoked the MAS.enableWebLogin() API before MAS.setAuthenticationListener(...)"));
+        }
         masAuthenticationListener = listener;
     }
 
@@ -735,11 +744,11 @@ public class MAS {
      * The native login page will be disabled
      * @return void
      */
-    public static void enableWebLogin() {
-        //TODO disable proximity login feature
-
+    public static void enableWebLogin() throws MASException{
+        if (masAuthenticationListener != null) {
+            throw new MASException(new Throwable("Authentication Listener already set. This API should be called before MAS.start() and MAS.setAuthenticationListener()"));
+        }
         webLoginEnabled = true;
-
     }
 
     public static boolean isWebLoginEnabled() {

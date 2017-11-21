@@ -31,4 +31,10 @@ public interface MASAuthenticationListener {
      */
     void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler);
 
+    /**
+     * Notify the host application that a request for step up authentication is triggered by the authentication process.
+     */
+    void onStepUpAuthenticateRequest(Context context);
+
+
 }

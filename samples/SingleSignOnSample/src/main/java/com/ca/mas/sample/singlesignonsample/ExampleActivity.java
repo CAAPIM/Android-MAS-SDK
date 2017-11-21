@@ -38,11 +38,17 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.auth.otp.OtpConstants;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.TargetApiException;
+import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASAuthenticationListener;
+import com.ca.mas.foundation.MASException;
+import com.ca.mas.foundation.MASOtpAuthenticationHandler;
+import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.ui.MASAppAuthAuthorizationRequestHandler;
 import com.ca.mas.foundation.MASAuthorizationRequest;
 import com.ca.mas.foundation.MASCallback;
@@ -59,6 +65,7 @@ import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 import com.ca.mas.ui.MASEnterpriseBrowserFragment;
 import com.ca.mas.ui.MASFinishActivity;
+import com.ca.mas.ui.MASLoginActivity;
 import com.ca.mas.ui.MASOAuthRedirectActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -124,70 +131,37 @@ public class ExampleActivity extends AppCompatActivity {
             }
         });
 
-        MAS.enableWebLogin();
-        MAS.start(this, true);
-
-        setContentView(R.layout.main);
-
-/*
-
-
-        Button registerClientButton = (Button) findViewById(R.id.registerClientButton);
-        registerClientButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //MAS .re
-            }
-        });
-
-        Button bbaButton = (Button) findViewById(R.id.bbaButton);
-        bbaButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String clientid = null;
-                try {
-                    JSONObject oauthJson = (JSONObject) ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getRaw().get("oauth");
-                    JSONObject clientJson = (JSONObject) oauthJson.get("client");
-                    JSONArray clientIds = (JSONArray) clientJson.get("client_ids");
-                    JSONObject client =
-                            (JSONObject) clientIds.get(0);
-                    clientid = (String) client.get("client_id");
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
+        try {
+            MAS.enableWebLogin();
+            MAS.start(this, true);
+            setContentView(R.layout.main);
+            /*MAS.setAuthenticationListener(new MASAuthenticationListener() {
+                @Override
+                public void onAuthenticateRequest(Context mAppContext, long requestId, final MASAuthenticationProviders providers) {
+                    Class<MASLoginActivity> loginActivity = MASLoginActivity.class;
+                    if (mAppContext != null) {
+                        Intent intent = new Intent(mAppContext, loginActivity);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
+                        //intent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, new MASAuthenticationProviders(providers));
+                        mAppContext.startActivity(intent);
+                    }
                 }
-                final MASRequest request =
-                        new MASRequest.MASRequestBuilder(getInitUri())
-                                .post( com.ca.mas.foundation.MASRequestBody.stringBody("client_id : " + clientid
 
-                                )).build();
+                @Override
+                public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {
+                }
 
+                @Override
+                public void onStepUpAuthenticateRequest(Context context) {
 
-
-
-
-
-
-                MASAuthorizationRequest.MASAuthorizationRequestBuilder builder = new MASAuthorizationRequest.MASAuthorizationRequestBuilder();
-                builder.setClientId(StorageProvider.getInstance().getClientCredentialContainer().getClientId());
-                builder.setDisplay("template");
-
-                builder.setRedirectUri(Uri.parse(
-                        "camssoras://com.ca.ras"));
-                builder.setScope("scope_test openid msso phone profile address email msso_client_register msso_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups");
-                builder.setState("state_test");
-                builder.setResponseType("code");
-
-                MASAuthorizationRequest authRequest =  builder.build();
-
-                Intent postAuthIntent = new Intent(context, MASOAuthRedirectActivity.class);
-                Intent authCanceledIntent = new Intent(context, MASFinishActivity.class);
-                MASAppAuthAuthorizationRequestHandler handler = new MASAppAuthAuthorizationRequestHandler(context, postAuthIntent, authCanceledIntent);
-                MASUser.login(authRequest, handler);
-            }
-        });
-*/
+                }
+            });*/
+        } catch (MASException e) {
+            e.printStackTrace();
+            showMessage(e.getMessage(),Toast.LENGTH_LONG);
+            return;
+        }
 
 
         tvOtpProtectedData = (TextView) findViewById(R.id.tvOtpProtectedData);
@@ -521,16 +495,6 @@ public class ExampleActivity extends AppCompatActivity {
     private URI getProductListDownloadUri() {
         try {
             return new URI("/protected/resource/products?operation=listProducts");
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    private URI getInitUri() {
-        try {
-
-            //TODO get this from msso config
-            //return new URI(Config.CLIENT_CREDENTIAL_INIT_PATH.path);
-            return new URI("/connect/client/initialize");
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

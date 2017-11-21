@@ -1,17 +1,17 @@
-# CA Technologies Mobile App Services Java Style Guide
+# CA Technologies Java Style Guide for Android
 
-This document describes the Java coding style of the Android team for CA Technologies Mobile App Services.  This guideline is recommended for compliance with all Java implementations of our products.
+This document describes the Java coding style of the Android team for the CA Technologies Java Style Guide. This guideline is recommended for compliance with all Java implementations of our products.
 
-## Review Android Official Coding Guidelines
+## Review Android Coding Guidelines
 
-Beyond the guidelines defined in this document, we also recommend reviewing Android's official coding guidelines.
+Beyond the guidelines defined in this document, we also recommend reviewing the Android official coding guidelines.
 
 * [Code Style Rules](https://source.android.com/source/code-style.html)
 * [Performance Tips](https://developer.android.com/training/articles/perf-tips.html)
 
-### MAS Products
+### Mobile SDK for CA Mobile API Gateway
 
-For more information about MAS, refer to the [Mobile App Services developer documentation](http://mas.ca.com).
+For more information about our Mobile SDKs, see the [developer documentation](http://mas.ca.com).
 
 ## Table of Contents
 

@@ -1,9 +1,11 @@
 # Android Mobile SDK
-CA Mobile API Gateway provides enterprises with a secure mobile backend that integrates systems and allows control over which users, devices and applications can access your APIs. The gateway enables developers to leverage standards for API security such as (OAuth2, OpenID Connect, PKI) through client SDKs for Android.
+## for CA Mobile API Gateway
 
-CA Mobile App Services is an extension of the CA Mobile API Gateway which provides powerful features through SDKs and APIs for developers to help accelerate the app development process.
+CA Mobile API Gateway (MAG) provides enterprises with a secure mobile backend that integrates systems and allows control over which users, devices, and applications can access your APIs. The MAG enables developers to leverage standards for API security such as (OAuth2, OpenID Connect, PKI) through client SDKs for Android.
 
-The SDK consists of these frameworks:
+The CA Mobile API Gateway also provides powerful mobile backend services through SDKs and APIs for developers to help accelerate the app development process.
+
+The Android Mobile SDK consists of these frameworks:
 * **mag** - Handles user authentication, device and app registration, requests and local storage of certificates, keys, and token credentials for accessing the protected APIs.
 * **mas** - Messaging and Pub/Sub, Identity Management, and Storage services.
 * **masui** - Resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).

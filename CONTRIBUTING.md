@@ -1,4 +1,4 @@
-# Contribute to CA Mobile App Services SDK
+# Contribute to the Android Mobile SDK
 Contributions are welcome and much appreciated. Just follow these easy steps to contribute.
 
 ## Code Standard and Guideline
@@ -44,7 +44,7 @@ Before filing a new issue, check Known Issues to see if your problem already exi
 * Anything else that seems relevant.
 
 ## License
-By contributing to CA Mobile App Services SDK, you agree that your contributions will be licensed under its [license][license-link].
+By contributing to Android Mobile SDK, you agree that your contributions will be licensed under its [license][license-link].
 
 
  [guidelines]: /GUIDELINES.md

@@ -8,15 +8,11 @@
 
 package com.ca.mas.connecta.client;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Handler;
-import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
-import com.ca.mas.connecta.serviceprovider.ConnectaService;
+import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.foundation.MAS;
@@ -25,8 +21,20 @@ import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.topic.MASTopic;
 
+import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+
 import java.util.Observable;
 import java.util.Observer;
+
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * <p>The <b>MASConnectaManager</b> is the implementation of the {@link com.ca.mas.connecta.client.MASConnectaClient}.
@@ -35,61 +43,11 @@ import java.util.Observer;
 public class MASConnectaManager implements MASConnectaClient, Observer {
 
     private static MASConnectaManager instance = new MASConnectaManager();
-    private ConnectaService mMASTransportService;
-    private long mTimeOutInMillis;
-    private MASConnectOptions mConnectOptions;
+    private long timeOutInMillis = -1;
+    private MASConnectOptions connectOptions;
     private MASConnectaListener connectaListener;
-    private MASCallback<Void> connectCallback;
     private String clientId;
-
-    /*
-    This service connection uses IPC Binder to load the MQTT library specific service to perform Mqtt operations.
-     */
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            ConnectaService.ServiceBinder masBinder = (ConnectaService.ServiceBinder) iBinder;
-            mMASTransportService = masBinder.getService();
-
-            if (mMASTransportService != null) {
-                mMASTransportService.setClientId(clientId);
-                mMASTransportService.setConnectaListener(connectaListener);
-                mMASTransportService.setTimeOutInMillis(getTimeOutInMillis());
-                mMASTransportService.setConnectOptions(mConnectOptions);
-                mMASTransportService.connect(new MASCallback<Void>() {
-
-                    @Override
-                    public Handler getHandler() {
-                        return Callback.getHandler(connectCallback);
-                    }
-
-                    @Override
-                    public void onSuccess(Void object) {
-                        if (connectaListener != null) {
-                            mMASTransportService.setConnectaListener(connectaListener);
-                        }
-                        Callback.onSuccess(connectCallback, null);
-                        connectCallback = null;
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Callback.onError(connectCallback, e);
-                        connectCallback = null;
-                    }
-                });
-            } else {
-                Callback.onError(connectCallback, new ConnectaException("Failed to bind Transport Service"));
-                connectCallback = null;
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            mMASTransportService = null;
-        }
-    };
+    private MqttAndroidClient mqttAndroidClient;
 
     private MASConnectaManager() {
         EventDispatcher.STOP.addObserver(this);
@@ -107,32 +65,88 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
         connectaListener = listener;
     }
 
+    /**
+     * @deprecated Use {@link MASConnectaManager#disconnect(MASCallback)}
+     */
+    @Deprecated
     public void stop() {
         disconnect(null);
     }
 
-    @Override
-    public synchronized void connect(MASCallback<Void> callback) {
-        if (isConnected()) {
-            Callback.onSuccess(callback, null);
-            return;
-        }
-        if (mMASTransportService == null) {
-            connectCallback = callback;
-            Intent intent = new Intent(MAS.getContext(), ConnectaService.class);
-            MAS.getContext().bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+    private MqttConnecta getMqttConnecta() {
+        //If no connect Options is provided, default to the gateway
+        if ((connectOptions == null) || (connectOptions.getServerURIs() == null)) {
+            return new GatewayMqttConnecta();
         } else {
-            mMASTransportService.connect(callback);
+            return new PublicMqttConnecta((clientId));
         }
     }
 
     @Override
-    public void disconnect(MASCallback<Void> callback) {
-        mConnectOptions = null;
-        if (mMASTransportService != null) {
-            mMASTransportService.disconnect(callback);
-            MAS.getContext().unbindService(mServiceConnection);
-            mMASTransportService = null;
+    public synchronized void connect(final MASCallback<Void> callback) {
+
+        if (isConnected()) {
+            Callback.onSuccess(callback, null);
+            return;
+        }
+        final MqttConnecta mqttConnecta = getMqttConnecta();
+
+        if (connectOptions == null) {
+            connectOptions = new MASConnectOptions();
+        }
+        if (timeOutInMillis > 0) {
+            if (timeOutInMillis >= ConnectaConsts.TIMEOUT_VAL) {
+                // timeout converted to seconds. The default for MQTT is 30 seconds. 0 means no timeout
+                int toSeconds = (int) (timeOutInMillis / ConnectaConsts.SEC_MILLIS);
+                connectOptions.setConnectionTimeout(toSeconds);
+            }
+        }
+
+        //Initialize the credentials and connection Factory for the connect option.
+        mqttConnecta.init(connectOptions, new MASCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                mqttAndroidClient = new MqttAndroidClient(MAS.getContext(), mqttConnecta.getServerUri(), mqttConnecta.getClientId(), new MemoryPersistence());
+                registerCallback();
+
+                try {
+                    mqttAndroidClient.connect(connectOptions, null, new IMqttActionListener() {
+                        @Override
+                        public void onSuccess(IMqttToken asyncActionToken) {
+                            if (DEBUG) Log.d(TAG, "Success connect to mqtt broker");
+                            Callback.onSuccess(callback, null);
+                        }
+
+                        @Override
+                        public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                            if (DEBUG) Log.e(TAG, "Failed to connect to mqtt broker", exception);
+                            Callback.onError(callback, exception);
+                        }
+                    });
+                } catch (MqttException e) {
+                    Callback.onError(callback, e);
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Callback.onError(callback, e);
+            }
+        });
+    }
+
+    @Override
+    public synchronized void disconnect(MASCallback<Void> callback) {
+        if (DEBUG) Log.d(TAG, "Disconnecting mqtt broker...");
+        try {
+            if (mqttAndroidClient != null) {
+                mqttAndroidClient.disconnect();
+            }
+            Callback.onSuccess(callback, null);
+        } catch (MqttException e) {
+            Callback.onError(callback, e);
+        } finally {
+            mqttAndroidClient = null;
         }
     }
 
@@ -148,13 +162,21 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
     }
 
     private void subscribeTopic(@NonNull final MASTopic topic, final MASCallback<Void> callback) {
-        Handler h = new Handler(MAS.getContext().getMainLooper());
-        h.post(new Runnable() {
-            @Override
-            public void run() {
-                mMASTransportService.subscribe(topic, callback);
-            }
-        });
+        try {
+            mqttAndroidClient.subscribe(topic.toString(), topic.getQos(), null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken iMqttToken) {
+                    Callback.onSuccess(callback, null);
+                }
+
+                @Override
+                public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                    Callback.onError(callback, throwable);
+                }
+            });
+        } catch (Exception e) {
+            Callback.onError(callback, e);
+        }
     }
 
     private void connectAndExecute(@NonNull final Functions.NullaryVoid function, final MASCallback<Void> callback) {
@@ -192,7 +214,21 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
     }
 
     private void unsubscribeTopic(@NonNull final MASTopic topic, final MASCallback<Void> callback) {
-        mMASTransportService.unsubscribe(topic, callback);
+        try {
+            mqttAndroidClient.unsubscribe(topic.toString(), null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken iMqttToken) {
+                    Callback.onSuccess(callback, null);
+                }
+
+                @Override
+                public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                    Callback.onError(callback, throwable);
+                }
+            });
+        } catch (Exception e) {
+            Callback.onError(callback, e);
+        }
     }
 
     public void publish(@NonNull final MASTopic masTopic, @NonNull final String message, final MASCallback<Void> callback) {
@@ -200,60 +236,121 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
     }
 
     @Override
-    public void publish(@NonNull final MASTopic masTopic, @NonNull final byte[] message, final MASCallback<Void> callback) {
+    public void publish(@NonNull final MASTopic topic, @NonNull final byte[] message, final MASCallback<Void> callback) {
 
         connectAndExecute(new Functions.NullaryVoid() {
             @Override
             public void call() {
-                publishTopic(masTopic, message, callback);
+                MqttMessage mqttMessage = new MqttMessage();
+                mqttMessage.setPayload(message);
+                mqttMessage.setQos(topic.getQos());
+                publish(topic, mqttMessage, callback);
+
             }
         }, callback);
     }
 
     @Override
-    public void publish(@NonNull final MASTopic masTopic, @NonNull final MASMessage masMessage, final MASCallback<Void> callback) {
+    public void publish(@NonNull final MASTopic masTopic, @NonNull final MASMessage message, final MASCallback<Void> callback) {
 
         connectAndExecute(new Functions.NullaryVoid() {
             @Override
             public void call() {
-                mMASTransportService.publish(masTopic, masMessage, callback);
+                MqttMessage mqttMessage = new MqttMessage();
+                byte[] bytes = message.createJSONStringFromMASMessage(null).getBytes();
+                mqttMessage.setPayload(bytes);
+                mqttMessage.setQos(message.getQos());
+                mqttMessage.setRetained(message.isRetained());
+                publish(masTopic, mqttMessage, callback);
             }
         }, callback);
 
     }
 
-    private void publishTopic(@NonNull final MASTopic masTopic, @NonNull final byte[] message, final MASCallback<Void> callback) {
+    private void publish(@NonNull MASTopic topic, @NonNull MqttMessage mqttMessage, final MASCallback<Void> callback) {
+        try {
+            mqttAndroidClient.publish(topic.toString(), mqttMessage, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken iMqttToken) {
+                    Callback.onSuccess(callback, null);
+                }
 
-        Handler h = new Handler(MAS.getContext().getMainLooper());
-        h.post(new Runnable() {
+                @Override
+                public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                    Callback.onError(callback, throwable);
+                }
+            });
+        } catch (Exception e) {
+            Callback.onError(callback, e);
+        }
+    }
+
+    private void registerCallback() {
+
+        final MessageBroadcaster broadcaster = new MessageBroadcaster(MAS.getContext());
+        mqttAndroidClient.setCallback(new MqttCallback() {
             @Override
-            public void run() {
-                mMASTransportService.publish(masTopic, message, callback);
+            public void connectionLost(Throwable throwable) {
+                if (DEBUG)
+                    Log.d(TAG, "Connection lost", throwable);
+                if (connectaListener != null) {
+                    connectaListener.onConnectionLost();
+                }
+            }
+
+            @Override
+            public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
+                if (DEBUG)
+                    Log.d(TAG, "Message Arrived: QOS: " + mqttMessage.getQos() + ", duplicate?" + mqttMessage.isDuplicate() + ", retained? " + mqttMessage.isRetained());
+                try {
+                    MASMessage masMessage = ConnectaUtil.createMASMessageFromMqtt(mqttMessage);
+                    masMessage.setTopic(topic);
+                    broadcaster.broadcastMessage(masMessage);
+                } catch (Exception je) {
+                    if (connectaListener != null) {
+                        connectaListener.onInvalidMessageFormat();
+                    }
+                }
+            }
+
+            @Override
+            public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
+                try {
+                    if (DEBUG)
+                        Log.d(TAG, "Delivery Complete: token message: " + iMqttDeliveryToken.getMessage());
+                    if (connectaListener != null) {
+                        connectaListener.onDeliveryCompletedSuccess();
+                    }
+                } catch (MqttException me) {
+                    if (connectaListener != null) {
+                        connectaListener.onDeliveryCompletedFailed(me);
+                    }
+                }
             }
         });
     }
 
+
     @Override
     public boolean isConnected() {
-        return mMASTransportService != null && mMASTransportService.isConnected();
+        return mqttAndroidClient != null && mqttAndroidClient.isConnected();
     }
 
     @Override
     public void setConnectOptions(MASConnectOptions connectOptions) {
-        mConnectOptions = connectOptions;
-        if (mMASTransportService != null) {
-            mMASTransportService.setConnectOptions(connectOptions);
-        }
+        this.connectOptions = connectOptions;
     }
+
 
     @Override
     public void setTimeOutInMillis(long timeOutInMillis) {
-        mTimeOutInMillis = timeOutInMillis;
+        this.timeOutInMillis = timeOutInMillis;
     }
+
 
     @Override
     public long getTimeOutInMillis() {
-        return mTimeOutInMillis;
+        return timeOutInMillis;
     }
 
     @Override
@@ -265,7 +362,7 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
     public void update(Observable o, Object arg) {
         try {
             disconnect(null);
-        } catch (Exception ignore)  {
+        } catch (Exception ignore) {
             //Ignore
         }
     }

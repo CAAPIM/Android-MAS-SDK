@@ -36,6 +36,7 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
     private boolean publicBroker;
     View mainView;
     ProgressBar progressBar;
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +54,7 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
         messagesFragment = (MessagesFragment) getSupportFragmentManager().findFragmentById(R.id.activity_pub_sub_fragment_messages);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectaConsts.MAS_CONNECTA_BROADCAST_MESSAGE_ARRIVED);
-        LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
+        broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (!intent.getAction().equals(ConnectaConsts.MAS_CONNECTA_BROADCAST_MESSAGE_ARRIVED)) {
@@ -67,7 +68,8 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
                     Log.d(TAG, e.getMessage());
                 }
             }
-        }, intentFilter);
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
 
         findViewById(R.id.activity_pub_sub_fab).setOnClickListener(this);
     }
@@ -140,5 +142,14 @@ public class PubSubActivity extends AppCompatActivity implements View.OnClickLis
                 publishDialogFragment.show(getSupportFragmentManager(), null);
                 break;
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (broadcastReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+        }
+
     }
 }

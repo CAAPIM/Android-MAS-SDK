@@ -35,13 +35,9 @@ public class MASWebLoginDefaults {
     private String state = "state_test";
 
     //private MssoContext mssoContext;
-    public MASWebLoginDefaults (/*MssoContext mssoContext*/){
+    public MASWebLoginDefaults (){
        super();
-        /*try {
-            redirectUri = Uri.parse(ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getRaw().get(MobileSsoConfig.PROP_AUTHORIZE_REDIRECT_URI).toString());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }*/
+
     }
 
 

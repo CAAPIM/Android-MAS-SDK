@@ -178,6 +178,7 @@ public final class MobileSsoFactory {
             }
 
             return mobileSso.get();
+
         }
     }
 

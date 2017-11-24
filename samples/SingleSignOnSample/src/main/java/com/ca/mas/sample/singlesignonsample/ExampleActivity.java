@@ -123,31 +123,11 @@ public class ExampleActivity extends AppCompatActivity {
         });
 
         try {
-            //MAS.enableWebLogin();
+            MAS.debug();
+            MAS.enableBrowserBasedAuthentication();
             MAS.start(this, true);
             setContentView(R.layout.main);
-            MAS.setAuthenticationListener(new MASAuthenticationListener() {
-                @Override
-                public void onAuthenticateRequest(Context mAppContext, long requestId, final MASAuthenticationProviders providers) {
-                    Class<MASLoginActivity> loginActivity = MASLoginActivity.class;
-                    if (mAppContext != null) {
-                        Intent intent = new Intent(mAppContext, loginActivity);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-                        //intent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, new MASAuthenticationProviders(providers));
-                        mAppContext.startActivity(intent);
-                    }
-                }
 
-                @Override
-                public void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler) {
-                }
-
-                @Override
-                public void onStepUpAuthenticateRequest(Context context) {
-
-                }
-            });
         } catch (MASException e) {
             e.printStackTrace();
             showMessage(e.getMessage(),Toast.LENGTH_LONG);

@@ -180,7 +180,7 @@ public class MssoService extends IntentService {
             MobileSsoListener mobileSsoListener = ConfigurationManager.getInstance().getMobileSsoListener();
             try {
                 AuthenticationProvider authProvider = null;
-                if (!MAS.isWebLoginEnabled()) {
+                if (!MAS.isBrowserBasedAuthenticationEnabled()) {
                     authProvider = new OAuthClient(request.getMssoContext()).getSocialPlatformProvider(getApplicationContext());
                 }
                 if (mobileSsoListener != null) {

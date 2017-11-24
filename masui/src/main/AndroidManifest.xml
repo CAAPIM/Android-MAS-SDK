@@ -49,6 +49,9 @@
         <activity
             android:name=".MASOAuthRedirectActivity"
             android:theme="@style/Theme.AppCompat.Light" />
+        <activity
+            android:name=".MASAppAuthRedirectHandlerActivity"
+            android:theme="@style/Theme.AppCompat.Light" />
         <activity android:name=".MASFinishActivity" />
         <activity
             android:name=".MASLoginActivity"

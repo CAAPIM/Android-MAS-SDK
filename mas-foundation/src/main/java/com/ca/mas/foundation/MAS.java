@@ -77,7 +77,7 @@ public class MAS {
     private static MASAuthenticationListener masAuthenticationListener;
     private static int state;
 
-    private static boolean webLoginEnabled = false;
+    private static boolean browserBasedAuthenticationEnabled = false;
 
     private static synchronized void init(@NonNull final Context context) {
         stop();
@@ -105,7 +105,7 @@ public class MAS {
         public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
 
             if (masAuthenticationListener == null) {
-               if (webLoginEnabled) {
+               if (browserBasedAuthenticationEnabled) {
                    MASAuthorizationRequest authReq = new MASAuthorizationRequest.MASAuthorizationRequestBuilder().buildDefault();
                    MASAuthorizationRequestHandler handler = getAuthorizationRequestHandler();
                    if (handler != null) {
@@ -222,22 +222,24 @@ public class MAS {
 
         try {
             Class<MASAuthorizationRequestHandler>  c = (Class<MASAuthorizationRequestHandler>) Class.forName("com.ca.mas.ui.MASAppAuthAuthorizationRequestHandler");
-            Constructor constructor = c.getConstructor(Context.class, Intent.class, Intent.class);
+            Constructor constructor = c.getConstructor(Context.class/*, Intent.class, Intent.class*/);
 
             return (MASAuthorizationRequestHandler) constructor.newInstance(getContext()
-                    , new Intent(getContext(), getWebLoginCompleteIntent())
-                    , new Intent(getContext(), getWebLoginCancelIntent()));
+                    );
         } catch (Exception e) {
             return null;
         }
     }
 
+/*
 
-    /**
+    */
+/**
      * Return the MASOAuthRedirectActivity from MASUI components if MASUI library is included in the classpath.
      *
      * @return A MASOAuthRedirectActivity
-     */
+     *//*
+
     private static Class<Activity> getWebLoginCompleteIntent() {
 
         try {
@@ -247,11 +249,13 @@ public class MAS {
         }
     }
 
-    /**
+    */
+/**
      * Return the MASFinishActivity from MASUI components if MASUI library is included in the classpath.
      *
      * @return A MASFinishActivity
-     */
+     *//*
+
     private static Class<Activity> getWebLoginCancelIntent() {
 
         try {
@@ -260,6 +264,7 @@ public class MAS {
             return null;
         }
     }
+*/
 
     /**
      * Return the MASOtpActivity from MASUI components if MASUI library is included in the classpath.
@@ -517,7 +522,7 @@ public class MAS {
      * @param listener The user login listener to handle user authentication.
      */
     public static void setAuthenticationListener(MASAuthenticationListener listener) throws MASException{
-        if (isWebLoginEnabled()) {
+        if (isBrowserBasedAuthenticationEnabled()) {
             throw new MASException(new Throwable("WebLogin is enabled. Please ensure you have not invoked the MAS.enableWebLogin() API before MAS.setAuthenticationListener(...)"));
         }
         masAuthenticationListener = listener;
@@ -743,14 +748,19 @@ public class MAS {
      * The native login page will be disabled
      * @return void
      */
-    public static void enableWebLogin() throws MASException{
+    public static void enableBrowserBasedAuthentication() throws MASException{
         if (masAuthenticationListener != null) {
             throw new MASException(new Throwable("Authentication Listener already set. This API should be called before MAS.start() and MAS.setAuthenticationListener()"));
         }
-        webLoginEnabled = true;
+
+        if (getLoginActivity() == null) {
+            throw new MASException(new Throwable("Default AuthorizationRequestHandler not found. Please check if MASUI dependency has been added to the project"));
+        }
+
+        browserBasedAuthenticationEnabled = true;
     }
 
-    public static boolean isWebLoginEnabled() {
-        return webLoginEnabled;
+    public static boolean isBrowserBasedAuthenticationEnabled() {
+        return browserBasedAuthenticationEnabled;
     }
 }

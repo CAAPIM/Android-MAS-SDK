@@ -9,6 +9,7 @@
 
 package com.ca.mas.foundation;
 
+import android.content.Context;
 import android.net.Uri;
 
 import com.ca.mas.core.store.StorageProvider;
@@ -81,7 +82,7 @@ public class MASAuthorizationRequest {
 
         public  MASAuthorizationRequest buildDefault() {
            // MASAuthorizationRequest request = new MASAuthorizationRequest();
-            MASWebLoginDefaults defaults = new MASWebLoginDefaults();
+            MASWebLoginDefaults defaults = new MASWebLoginDefaults( );
 
             this.display = defaults.getDisplay();
             this.clientId = defaults.getClientId();

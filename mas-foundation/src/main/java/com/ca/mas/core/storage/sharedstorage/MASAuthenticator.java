@@ -19,12 +19,8 @@ import static android.accounts.AccountManager.KEY_BOOLEAN_RESULT;
 
 public class MASAuthenticator extends AbstractAccountAuthenticator {
 
-    private String TAG = "MASAuthenticator";
-    private final Context mContext;
-
-    public MASAuthenticator(Context context) {
+    MASAuthenticator(Context context) {
         super(context);
-        this.mContext = context;
     }
 
     @Override
@@ -64,4 +60,10 @@ public class MASAuthenticator extends AbstractAccountAuthenticator {
         return null;
     }
 
+    @Override
+    public Bundle getAccountRemovalAllowed(AccountAuthenticatorResponse response, Account account) throws NetworkErrorException {
+        Bundle result = new Bundle();
+        result.putBoolean(KEY_BOOLEAN_RESULT, true);
+        return result;
+    }
 }

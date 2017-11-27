@@ -151,11 +151,6 @@ public class MAS {
                 masAuthenticationListener.onOtpAuthenticateRequest(currentActivity, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
             }
         }
-
-        @Override
-        public void onStepUpAuthenticationRequest() {
-
-        }
     }
 
     private static void registerActivityLifecycleCallbacks(Application application) {
@@ -230,41 +225,6 @@ public class MAS {
             return null;
         }
     }
-
-/*
-
-    */
-/**
-     * Return the MASOAuthRedirectActivity from MASUI components if MASUI library is included in the classpath.
-     *
-     * @return A MASOAuthRedirectActivity
-     *//*
-
-    private static Class<Activity> getWebLoginCompleteIntent() {
-
-        try {
-            return (Class<Activity>) Class.forName("com.ca.mas.ui.MASAppAuthRedirectHandlerActivity");
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    */
-/**
-     * Return the MASFinishActivity from MASUI components if MASUI library is included in the classpath.
-     *
-     * @return A MASFinishActivity
-     *//*
-
-    private static Class<Activity> getWebLoginCancelIntent() {
-
-        try {
-            return (Class<Activity>) Class.forName("com.ca.mas.ui.MASFinishActivity");
-        } catch (Exception e) {
-            return null;
-        }
-    }
-*/
 
     /**
      * Return the MASOtpActivity from MASUI components if MASUI library is included in the classpath.

@@ -25,5 +25,4 @@ public interface MobileSsoListener {
 
     void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler);
 
-    void onStepUpAuthenticationRequest();
 }

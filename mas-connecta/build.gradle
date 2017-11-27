@@ -93,6 +93,9 @@ dependencies {
     compile project(':mas-foundation')
     compile "com.android.support:appcompat-v7:$rootProject.ext.appCompatVersion"
 
+    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
+    compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+
     androidTestCompile "com.android.support.test:runner:$rootProject.ext.testRunner"
     androidTestCompile "com.android.support.test:rules:$rootProject.ext.testRules"
     androidTestCompile project(':mas-test')

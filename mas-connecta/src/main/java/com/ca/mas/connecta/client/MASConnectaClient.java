@@ -105,8 +105,10 @@ public interface MASConnectaClient {
      * nullified based on that timeout. A value of 0 means <i>inifinite</i> and the timeout is determined by
      * a lower layer in the stack.
      *
-     * @param timeOutInMillis
+     * @param timeOutInMillis Timeout in milliseconds
+     * @deprecated Use {@link MASConnectOptions#setConnectionTimeout(int)}
      */
+    @Deprecated
     void setTimeOutInMillis(long timeOutInMillis);
 
     /**
@@ -114,7 +116,9 @@ public interface MASConnectaClient {
      * <b>Description:</b> This will be the value currently set on the connection and it can be 0.
      *
      * @return long - the timeout in milliseconds
+     * @deprecated Use {@link MASConnectOptions#getConnectionTimeout()})}
      */
+    @Deprecated
     long getTimeOutInMillis();
 
     /**
@@ -131,6 +135,7 @@ public interface MASConnectaClient {
     /**
      * <b>Pre-Condition:</b> None.<br>
      * <b>Description:</b> Set the client ID for this connection.
+     *
      * @param clientId
      */
     void setClientId(String clientId);

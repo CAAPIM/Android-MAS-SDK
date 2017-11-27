@@ -14,8 +14,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.content.res.XmlResourceParser;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
@@ -54,7 +52,6 @@ public class MASSharedStorage {
     private static final String KEYINDEX_COLUMN_NAME = "mas_shared_storage_lookup_index";
     private AccountManager mAccountManager;
     private Account mAccount;
-    private AccountIndexFormatter mAccountIndexFormatter;
 
     /**
      * Creates or retrieves a MASSharedStorage with the specified name and account type.
@@ -135,7 +132,8 @@ public class MASSharedStorage {
             int eventType = xrp.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG || eventType == XmlPullParser.END_TAG) {
-                    // Looks through the authenticator XML file and returns the android:accountType value
+                    // Looks through the authenticator XML file attributes and returns
+                    // the value for android:accountType
                     for (int i = 0; i < xrp.getAttributeCount(); i++) {
                         String name = xrp.getAttributeName(i);
                         if ("accountType".equals(name)) {
@@ -190,7 +188,7 @@ public class MASSharedStorage {
     // Updates the key index in the AccountManager by adding or removing the key
     private void updateIndex(@NonNull String key, boolean add) {
         synchronized (mutex) {
-            Set<String> keys = keySet();
+            Set<String> keys = getKeySet();
             if (add) {
                 keys.add(key);
             } else {
@@ -256,40 +254,9 @@ public class MASSharedStorage {
         return null;
     }
 
-    private Set<String> keySet() {
+    private Set<String> getKeySet() {
         String keyString = mAccountManager.getUserData(mAccount, KEYINDEX_COLUMN_NAME);
         return unmarshal(keyString);
     }
 
-    // In charge of key index marshalling and unmarshalling.
-    private class AccountIndexFormatter implements Parcelable {
-
-        private byte[] keyBytes;
-
-        AccountIndexFormatter(Parcel in) {
-            if (in != null) {
-                this.keyBytes = in.createByteArray();
-            }
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeByteArray(keyBytes);
-        }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        public final Parcelable.Creator CREATOR = new Parcelable.Creator<AccountIndexFormatter>() {
-            public AccountIndexFormatter createFromParcel(Parcel in) {
-                return new AccountIndexFormatter(in);
-            }
-
-            public AccountIndexFormatter[] newArray(int size) {
-                return new AccountIndexFormatter[size];
-            }
-        };
-    }
 }

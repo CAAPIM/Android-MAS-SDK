@@ -63,7 +63,7 @@ public class MASAuthenticator extends AbstractAccountAuthenticator {
     @Override
     public Bundle getAccountRemovalAllowed(AccountAuthenticatorResponse response, Account account) throws NetworkErrorException {
         Bundle result = new Bundle();
-        result.putBoolean(KEY_BOOLEAN_RESULT, true);
+        result.putBoolean(KEY_BOOLEAN_RESULT, false);
         return result;
     }
 }

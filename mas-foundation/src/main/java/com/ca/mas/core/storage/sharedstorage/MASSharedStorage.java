@@ -14,21 +14,20 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.content.res.XmlResourceParser;
+import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASSharedStorageException;
 
 import org.xmlpull.v1.XmlPullParser;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.ca.mas.foundation.MAS.TAG;
@@ -94,7 +93,7 @@ public class MASSharedStorage {
                 mAccountManager.addAccountExplicitly(mAccount, identifier.toString(), null);
             }
         } catch (Exception e) {
-
+            throw new MASSharedStorageException(e.getMessage(), e);
         }
     }
 
@@ -169,7 +168,7 @@ public class MASSharedStorage {
      */
     public void save(@NonNull String key, byte[] value) {
         preconditionCheck(key);
-        mAccountManager.setUserData(mAccount, key, value == null ? "" : new String(value));
+        mAccountManager.setUserData(mAccount, key, value == null ? "" : Base64.encodeToString(value, Base64.DEFAULT));
         updateIndex(key, true);
     }
 
@@ -194,38 +193,37 @@ public class MASSharedStorage {
             } else {
                 keys.remove(key);
             }
-            byte[] bytes = marshal(keys);
+            byte[] bytes = marshall(keys);
             String encoded = Base64.encodeToString(bytes, Base64.DEFAULT);
             mAccountManager.setUserData(mAccount, KEYINDEX_COLUMN_NAME, encoded);
         }
     }
 
     // Converts a Set<String> into a byte[] configuration
-    private byte[] marshal(Set<String> keys) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(keys);
-            return bos.toByteArray();
-        } catch (IOException e) {
-            return new byte[0];
-        }
+    private byte[] marshall(Set<String> keys) {
+        Parcel p = Parcel.obtain();
+        List<String> strings = new ArrayList<>(keys);
+        p.writeStringList(strings);
+        byte[] bytes = p.marshall();
+        p.recycle();
+        return bytes;
     }
 
     // Converts a String representation from the AccountManager into a Set<String>
-    private Set<String> unmarshal(String encodedKeyString) {
+    private List<String> unmarshall(String encodedKeyString) {
+        List<String> result = new ArrayList<>();
         if (encodedKeyString == null) {
-            return new HashSet<>();
+            return result;
         }
 
         byte[] bytes = Base64.decode(encodedKeyString, Base64.DEFAULT);
-        try {
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            ObjectInputStream ois = new ObjectInputStream(bis);
-            return (HashSet<String>) ois.readObject();
-        } catch (ClassNotFoundException | IOException e) {
-            return new HashSet<>();
-        }
+
+        Parcel p = Parcel.obtain();
+        p.unmarshall(bytes, 0, bytes.length);
+        p.setDataPosition(0);
+        result = p.createStringArrayList();
+        p.recycle();
+        return result;
     }
 
     /**
@@ -249,14 +247,13 @@ public class MASSharedStorage {
         preconditionCheck(key);
         String byteString = mAccountManager.getUserData(mAccount, key);
         if (byteString != null) {
-            return byteString.getBytes();
+            return Base64.decode(byteString, Base64.DEFAULT);
         }
         return null;
     }
 
-    private Set<String> getKeySet() {
+    public Set<String> getKeySet() {
         String keyString = mAccountManager.getUserData(mAccount, KEYINDEX_COLUMN_NAME);
-        return unmarshal(keyString);
+        return new HashSet<>(unmarshall(keyString));
     }
-
 }

@@ -94,12 +94,10 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
         if (connectOptions == null) {
             connectOptions = new MASConnectOptions();
         }
-        if (timeOutInMillis > 0) {
-            if (timeOutInMillis >= ConnectaConsts.TIMEOUT_VAL) {
-                // timeout converted to seconds. The default for MQTT is 30 seconds. 0 means no timeout
-                int toSeconds = (int) (timeOutInMillis / ConnectaConsts.SEC_MILLIS);
-                connectOptions.setConnectionTimeout(toSeconds);
-            }
+        if (timeOutInMillis > 0 && timeOutInMillis >= ConnectaConsts.TIMEOUT_VAL) {
+            // timeout converted to seconds. The default for MQTT is 30 seconds. 0 means no timeout
+            int toSeconds = (int) (timeOutInMillis / ConnectaConsts.SEC_MILLIS);
+            connectOptions.setConnectionTimeout(toSeconds);
         }
 
         //Initialize the credentials and connection Factory for the connect option.

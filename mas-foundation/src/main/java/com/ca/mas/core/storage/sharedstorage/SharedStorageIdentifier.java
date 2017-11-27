@@ -13,14 +13,14 @@ import com.ca.mas.core.context.UniqueIdentifier;
 
 import java.security.InvalidAlgorithmParameterException;
 
-public class MASSharedStorageIdentifier extends UniqueIdentifier {
+class SharedStorageIdentifier extends UniqueIdentifier {
 
     /**
      * Generates a set of asymmetric keys in the Android keystore for use with the AccountManager.
      * Apps built with the same sharedUserId value in AndroidManifest.xml will reuse the same identifier.
      * @param context
      */
-    public MASSharedStorageIdentifier(Context context) throws
+    SharedStorageIdentifier(Context context) throws
             InvalidAlgorithmParameterException, java.io.IOException, java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
             java.security.NoSuchProviderException, java.security.cert.CertificateException, java.security.UnrecoverableKeyException {
         super(context);

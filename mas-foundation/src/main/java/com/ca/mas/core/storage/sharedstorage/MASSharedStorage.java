@@ -71,7 +71,7 @@ public class MASSharedStorage {
         }
 
         try {
-            MASSharedStorageIdentifier identifier = new MASSharedStorageIdentifier(getContext());
+            SharedStorageIdentifier identifier = new SharedStorageIdentifier(getContext());
 
             mAccountManager = AccountManager.get(MAS.getContext());
             //Attempt to retrieve the account

@@ -33,6 +33,7 @@ import net.openid.appauth.AppAuthConfiguration;
 import net.openid.appauth.AuthorizationRequest;
 import net.openid.appauth.AuthorizationService;
 import net.openid.appauth.AuthorizationServiceConfiguration;
+import net.openid.appauth.CodeVerifierUtil;
 import net.openid.appauth.browser.BrowserBlacklist;
 import net.openid.appauth.browser.Browsers;
 import net.openid.appauth.browser.VersionRange;
@@ -93,14 +94,14 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
                 //ConfigurationManager.getInstance().enablePKCE(false);
                 //PKCE social login support for MAG
                 if (codeChallenge != null) {
-                        //String codeVerifier = CodeVerifierUtil.generateRandomCodeVerifier();
-                    /*AuthorizationRequest.Builder codeverifierBuilder = builder.setCodeVerifier(
+                        String codeVerifier = CodeVerifierUtil.generateRandomCodeVerifier();
+                    AuthorizationRequest.Builder codeverifierBuilder = builder.setCodeVerifier(
                             //The code verifier is stored on the MAG Server;
                             //this is only for passing the code verifier check for AppAuth.
                             //The code verifier will not be used for retrieving the Access Token.
                             codeChallenge.codeVerifier,
                             codeChallenge.codeChallenge,
-                                codeChallenge.codeChallengeMethod);*/
+                                codeChallenge.codeChallengeMethod);
                     CodeVerifierCache.getInstance().store(state, codeChallenge.codeVerifier);
 
                 } else {

@@ -481,10 +481,10 @@ public class MAS {
      *
      * @param listener The user login listener to handle user authentication.
      */
-    public static void setAuthenticationListener(MASAuthenticationListener listener) throws MASException{
-        if (isBrowserBasedAuthenticationEnabled()) {
-            throw new MASException(new Throwable("WebLogin is enabled. Please ensure you have not invoked the MAS.enableWebLogin() API before MAS.setAuthenticationListener(...)"));
-        }
+    public static void setAuthenticationListener(MASAuthenticationListener listener) {
+        /*if (isBrowserBasedAuthenticationEnabled()) {
+            throw new RuntimeException(new MASException(new Throwable("WebLogin is enabled. Please ensure you have not invoked the MAS.enableWebLogin() API before MAS.setAuthenticationListener(...)")));
+        }*/
         masAuthenticationListener = listener;
     }
 
@@ -708,14 +708,16 @@ public class MAS {
      * The native login page will be disabled
      * @return void
      */
-    public static void enableBrowserBasedAuthentication() throws MASException{
-        if (masAuthenticationListener != null) {
-            throw new MASException(new Throwable("Authentication Listener already set. This API should be called before MAS.start() and MAS.setAuthenticationListener()"));
+    public static void enableBrowserBasedAuthentication() {
+/*        if (masAuthenticationListener != null) {
+            throw new RuntimeException(new MASException(new Throwable("Authentication Listener already set. This API should be called before MAS.start() and MAS.setAuthenticationListener()")));
         }
 
         if (getLoginActivity() == null) {
-            throw new MASException(new Throwable("Default AuthorizationRequestHandler not found. Please check if MASUI dependency has been added to the project"));
-        }
+
+            throw new RuntimeException(new MASException
+                    (new Throwable("Default AuthorizationRequestHandler not found. Please check if MASUI dependency has been added to the project")));
+                     }*/
 
         browserBasedAuthenticationEnabled = true;
     }

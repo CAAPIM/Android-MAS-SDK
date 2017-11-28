@@ -122,17 +122,13 @@ public class ExampleActivity extends AppCompatActivity {
             }
         });
 
-        try {
+
             MAS.debug();
             MAS.enableBrowserBasedAuthentication();
             MAS.start(this, true);
             setContentView(R.layout.main);
 
-        } catch (MASException e) {
-            e.printStackTrace();
-            showMessage(e.getMessage(),Toast.LENGTH_LONG);
-            return;
-        }
+
 
 
         tvOtpProtectedData = (TextView) findViewById(R.id.tvOtpProtectedData);

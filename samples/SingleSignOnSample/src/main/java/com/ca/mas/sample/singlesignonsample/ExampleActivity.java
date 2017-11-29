@@ -124,7 +124,7 @@ public class ExampleActivity extends AppCompatActivity {
 
 
             MAS.debug();
-            MAS.enableBrowserBasedAuthentication();
+            //MAS.enableBrowserBasedAuthentication();
             MAS.start(this, true);
             setContentView(R.layout.main);
 

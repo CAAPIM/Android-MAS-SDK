@@ -9,6 +9,7 @@
 package com.ca.mas.sample.singlesignonsample;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -38,20 +39,26 @@ import android.widget.Toast;
 
 import com.ca.mas.core.auth.otp.OtpConstants;
 import com.ca.mas.core.error.TargetApiException;
+import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASAuthenticationListener;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASConnectionListener;
 import com.ca.mas.foundation.MASDevice;
+import com.ca.mas.foundation.MASException;
+import com.ca.mas.foundation.MASOtpAuthenticationHandler;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASUser;
+import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.foundation.auth.MASProximityLoginBLE;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEPeripheralListener;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEUserConsentHandler;
 import com.ca.mas.foundation.auth.MASProximityLoginNFC;
 import com.ca.mas.foundation.auth.MASProximityLoginQRCode;
 import com.ca.mas.ui.MASEnterpriseBrowserFragment;
+import com.ca.mas.ui.MASLoginActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -70,6 +77,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+
+
 public class ExampleActivity extends AppCompatActivity {
     private static final String TAG = "ExampleA";
 
@@ -82,6 +91,7 @@ public class ExampleActivity extends AppCompatActivity {
     ListView itemList;
     ProgressBar progressBar;
     TextView tvOtpProtectedData;
+    Activity context;
 
     /**
      * Called when the activity is first created.
@@ -89,6 +99,8 @@ public class ExampleActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = this;
+
         MAS.setConnectionListener(new MASConnectionListener() {
             @Override
             public void onObtained(HttpURLConnection connection) {
@@ -110,9 +122,15 @@ public class ExampleActivity extends AppCompatActivity {
             }
         });
 
-        MAS.start(this, true);
 
-        setContentView(R.layout.main);
+            MAS.debug();
+            //MAS.enableBrowserBasedAuthentication();
+            MAS.start(this, true);
+            setContentView(R.layout.main);
+
+
+
+
         tvOtpProtectedData = (TextView) findViewById(R.id.tvOtpProtectedData);
         itemList = (ListView) findViewById(R.id.itemList);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);

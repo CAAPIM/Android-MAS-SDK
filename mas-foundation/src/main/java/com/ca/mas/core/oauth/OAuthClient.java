@@ -128,7 +128,7 @@ public class OAuthClient extends ServerClient {
             b.appendQueryParameter(REDIRECT_URI, redirectUri);
 
             if (ConfigurationManager.getInstance().isPKCEEnabled()) {
-                PKCE pkce = generateCodeChallenge();
+                PKCE pkce = OAuthClientUtil.generateCodeChallenge();
                 if (pkce != null) {
                     b.appendQueryParameter(CODE_CHALLENGE, pkce.codeChallenge);
                     b.appendQueryParameter(CODE_CHALLENGE_METHOD, pkce.codeChallengeMethod);
@@ -225,34 +225,5 @@ public class OAuthClient extends ServerClient {
         }
     }
 
-    private PKCE generateCodeChallenge() {
-        int encodeFlags = Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE;
-        byte[] randomBytes = new byte[64];
-        new SecureRandom().nextBytes(randomBytes);
-        String codeVerifier = Base64.encodeToString(randomBytes, encodeFlags);
-        try {
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-            messageDigest.update(codeVerifier.getBytes("ISO_8859_1"));
-            byte[] digestBytes = messageDigest.digest();
-            return new PKCE("S256", Base64.encodeToString(digestBytes, encodeFlags), codeVerifier);
-        } catch (NoSuchAlgorithmException e) {
-            if (DEBUG) Log.w("SHA-256 not supported", e);
-            return new PKCE("plain", codeVerifier, codeVerifier);
-        } catch (UnsupportedEncodingException e) {
-            if (DEBUG) Log.e("PKCE not supported", e.getMessage(), e);
-            return null;
-        }
-    }
 
-    private static class PKCE {
-        String codeChallenge;
-        String codeChallengeMethod;
-        String codeVerifier;
-
-        public PKCE(String codeChallengeMethod, String codeChallenge, String codeVerifier) {
-            this.codeChallenge = codeChallenge;
-            this.codeChallengeMethod = codeChallengeMethod;
-            this.codeVerifier = codeVerifier;
-        }
-    }
 }

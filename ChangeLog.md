@@ -1,9 +1,21 @@
+# Version 1.6.00
+
+### Bug fixes
+
+- Local device deregistration will only be performed if the server deregistration was successful. [DE324143]
+- MASUI's `Activity` classes now have their `android:exported` value set to `false` in its `AndroidManifest.xml`.  [DE319217]
+
+### New features
+- MASFoundation's `MASSharedStorage` class introduces a secure way of storing and sharing data across multiple applications by leveraging the Android Account Manager. [US416559]
+- MASConnecta's MQTT integration has been refactored. [US423907]
+- The `DeviceIdentifier` is now generated from a unique asymmetric key pair. [US390046]
+
 # Version 1.5.00
 
 ### Bug fixes
 
 - If SSO is disabled, non-shared token managers will be created. [DE284048]
-- MASMessage now has correct receiver information and now implements the Parcelable interface. [DE299224]
+- `MASMessage` now has correct receiver information and now implements the `Parcelable` interface. [DE299224]
 - Key aliases now associate with the connected gateway. [DE290139]
 - Re-registration can now successfully happen after offline de-registration. [DE290540]
 - The authentication listener no longer incorrectly triggers upon successful registration when SSO is disabled. [DE300140]

@@ -10,25 +10,32 @@
 package com.ca.mas.foundation;
 
 import android.net.Uri;
+import android.util.Base64;
 
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.store.StorageProvider;
 
+import java.security.SecureRandom;
 
-class MASWebLoginDefaults {
+
+class AuthClientDefaults {
 
     private String clientId = StorageProvider.getInstance().getClientCredentialContainer().getClientId();
     private String display = "template";
     private Uri redirectUri;
     private String responseType = "code";
     private String scope;
-    private String state = "state_test";
+    private String state;
 
-    MASWebLoginDefaults() {
+    AuthClientDefaults() {
         scope = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.PROP_OAUTH_SCOPE);
         String redirectUrl = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.PROP_AUTHORIZE_REDIRECT_URI);
         redirectUri = Uri.parse(redirectUrl);
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] random = new byte[16];
+        secureRandom.nextBytes(random);
+        state = Base64.encodeToString(random, Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE);
     }
 
     public String getClientId() {

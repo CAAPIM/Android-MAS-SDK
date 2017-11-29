@@ -19,11 +19,10 @@ import java.security.SecureRandom;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 
-/**
- * Created by mujmo02 on 22/10/17.
- */
-
 public class OAuthClientUtil {
+
+    private OAuthClientUtil() {
+    }
 
     public static PKCE generateCodeChallenge() {
         int encodeFlags = Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE;

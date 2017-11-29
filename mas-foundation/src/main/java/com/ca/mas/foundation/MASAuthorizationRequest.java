@@ -9,15 +9,11 @@
 
 package com.ca.mas.foundation;
 
-import android.content.Context;
 import android.net.Uri;
 
-import com.ca.mas.core.store.StorageProvider;
-
 /**
- * Created by mujmo02 on 13/10/17.
+ * OAuth2 Authorization Request
  */
-
 public class MASAuthorizationRequest {
 
     private String clientId;
@@ -27,8 +23,6 @@ public class MASAuthorizationRequest {
     private String scope;
     private String state;
 
-
-
     private MASAuthorizationRequest (MASAuthorizationRequestBuilder builder) {
         this.clientId = builder.clientId;
         this.display = builder.display;
@@ -36,12 +30,8 @@ public class MASAuthorizationRequest {
         this.responseType = builder.responseType;
         this.scope = builder.scope;
         this.state = builder.state;
+    }
 
-    }
-   /* private MASAuthorizationRequest () {
-        super();
-    }
-*/
     public String getClientId() {
         return clientId;
     }
@@ -58,11 +48,9 @@ public class MASAuthorizationRequest {
         return responseType;
     }
 
-
     public String getScope() {
         return scope;
     }
-
 
     public String getState() {
         return state;
@@ -76,13 +64,9 @@ public class MASAuthorizationRequest {
         private String scope;
         private String state;
 
-        public MASAuthorizationRequestBuilder() {
-
-        }
-
         public  MASAuthorizationRequest buildDefault() {
-           // MASAuthorizationRequest request = new MASAuthorizationRequest();
-            MASWebLoginDefaults defaults = new MASWebLoginDefaults( );
+
+            AuthClientDefaults defaults = new AuthClientDefaults( );
 
             this.display = defaults.getDisplay();
             this.clientId = defaults.getClientId();

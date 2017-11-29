@@ -6,7 +6,6 @@
  *
  */
 
-
 package com.ca.mas.ui;
 
 import android.app.PendingIntent;
@@ -22,7 +21,6 @@ import android.util.Log;
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.oauth.CodeVerifierCache;
-import com.ca.mas.core.oauth.PKCE;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.foundation.MASAuthorizationRequest;
@@ -41,29 +39,24 @@ import net.openid.appauth.browser.VersionedBrowserMatcher;
 
 import java.net.URI;
 
-import static com.ca.mas.core.oauth.OAuthClientUtil.generateCodeChallenge;
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
 
-
+/**
+ * Using <a href="https://github.com/openid/AppAuth-Android">https://github.com/openid/AppAuth-Android</a> to perform user authorization.
+ */
 public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRequestHandler {
 
-    Context context;
-    Intent completeIntent, cancelIntent;
+    private Context context;
 
     public MASAppAuthAuthorizationRequestHandler(Context context) {
-
         this.context = context;
-
-
     }
 
     @Override
     public void authorize(MASAuthorizationRequest request) {
 
 
-        completeIntent = getWebLoginCompleteIntent();
-        cancelIntent = getWebLoginCancelIntent();
         try {
             String clientId = request.getClientId();
             Uri redirectUri = request.getRedirectUri();
@@ -74,7 +67,8 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
             String state = request.getState();
             String responseType = request.getResponseType();
 
-            URI authEndpoint = //authorizeUri;
+            //authorizeUri
+            URI authEndpoint =
                     ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider()
                             .getUri(MASConfiguration.getCurrentConfiguration()
                                     .getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_AUTHORIZE));
@@ -90,37 +84,27 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
                         .setDisplay("page")
                         .setScopes(scope);
 
-                PKCE codeChallenge = generateCodeChallenge();
-                //ConfigurationManager.getInstance().enablePKCE(false);
                 //PKCE social login support for MAG
-                if (codeChallenge != null) {
-                        String codeVerifier = CodeVerifierUtil.generateRandomCodeVerifier();
-                    AuthorizationRequest.Builder codeverifierBuilder = builder.setCodeVerifier(
-                            //The code verifier is stored on the MAG Server;
-                            //this is only for passing the code verifier check for AppAuth.
-                            //The code verifier will not be used for retrieving the Access Token.
-                            codeChallenge.codeVerifier,
-                            codeChallenge.codeChallenge,
-                                codeChallenge.codeChallengeMethod);
-                    CodeVerifierCache.getInstance().store(state, codeChallenge.codeVerifier);
+                String codeVerifier = CodeVerifierUtil.generateRandomCodeVerifier();
+                builder.setCodeVerifier(
+                        //The code verifier is stored on the MAG Server;
+                        //this is only for passing the code verifier check for AppAuth.
+                        //The code verifier will not be used for retrieving the Access Token.
+                        codeVerifier,
+                        CodeVerifierUtil.deriveCodeVerifierChallenge(codeVerifier),
+                        CodeVerifierUtil.getCodeVerifierChallengeMethod());
 
-                } else {
-                    builder.setCodeVerifier(null);
-                }
+                CodeVerifierCache.getInstance().store(state, codeVerifier);
+
                 ArrayMap<String, String> arrayMap = new ArrayMap<String, String>();
 
                 TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
                 String magIdentifier = tokenManager.getMagIdentifier();
 
-
-
-
                 AuthorizationRequest req = builder.build();
 
-
-                Intent postAuthIntent = completeIntent;
-                Intent authCanceledIntent = cancelIntent;
-
+                Intent postAuthIntent = getWebLoginCompleteIntent();
+                Intent authCanceledIntent = getWebLoginCancelIntent();
 
                 // Workaround for Samsung's SBrowser
                 // As described in https://github.com/openid/AppAuth-Android/issues/157
@@ -135,8 +119,6 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
                         new AppAuthConfiguration.Builder()
                                 .setBrowserMatcher(blacklist)
                                 .build());
-
-
 
                 if (magIdentifier != null && !"".equals(magIdentifier)) {
                     arrayMap.put("mag-identifier", magIdentifier);
@@ -171,12 +153,8 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
      *
      * @return A MASOAuthRedirectActivity
      */
-    private  Intent getWebLoginCompleteIntent() {
-
-        Intent intent = new Intent(context, MASAppAuthRedirectHandlerActivity.class);
-
-        return intent;
-
+    private Intent getWebLoginCompleteIntent() {
+        return new Intent(context, MASAppAuthRedirectHandlerActivity.class);
     }
 
     /**
@@ -184,12 +162,8 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
      *
      * @return A MASFinishActivity
      */
-    private  Intent getWebLoginCancelIntent() {
-
-        Intent intent = new Intent(context, MASFinishActivity.class);
-
-        return intent;
-
+    private Intent getWebLoginCancelIntent() {
+        return new Intent(context, MASFinishActivity.class);
     }
 
 

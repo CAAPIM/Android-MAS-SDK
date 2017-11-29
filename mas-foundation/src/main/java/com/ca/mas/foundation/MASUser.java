@@ -85,8 +85,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
     }
 
     /**
-     * Browser based login. Displays a login UI fetched from the server
-     *
+     * Login with OAuth2 Authorization request
      */
     public static void login(MASAuthorizationRequest request, MASAuthorizationRequestHandler handler) {
         handler.authorize(request);

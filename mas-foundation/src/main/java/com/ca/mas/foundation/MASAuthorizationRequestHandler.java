@@ -7,7 +7,14 @@
  */
 package com.ca.mas.foundation;
 
+/**
+ * Handle OAuth Authorization Code flow.
+ */
 public interface MASAuthorizationRequestHandler {
 
+     /**
+      * Authorize the OAuth authorization code flow request.
+      * @param request The request contains OAuth Client information.
+      */
      void authorize(MASAuthorizationRequest request);
 }

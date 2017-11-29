@@ -101,18 +101,59 @@ public class MAS {
             mAppContext = context;
         }
 
+        /**
+         * Return the MASLoginActivity from MASUI components if MASUI library is included in the classpath.
+         *
+         * @return A LoginActivity to capture the user credentials or null if error.
+         */
+        private static Class<Activity> getLoginActivity() {
+
+            try {
+                return (Class<Activity>) Class.forName("com.ca.mas.ui.MASLoginActivity");
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        private static MASAuthorizationRequestHandler getAuthorizationRequestHandler() {
+
+            try {
+                Class<MASAuthorizationRequestHandler> c = (Class<MASAuthorizationRequestHandler>) Class.forName("com.ca.mas.ui.MASAppAuthAuthorizationRequestHandler");
+                Constructor constructor = c.getConstructor(Context.class/*, Intent.class, Intent.class*/);
+
+                return (MASAuthorizationRequestHandler) constructor.newInstance(getContext()
+                );
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        /**
+         * Return the MASOtpActivity from MASUI components if MASUI library is included in the classpath.
+         *
+         * @return A OtpActivity to capture the otp or null if error.
+         */
+        private static Class<Activity> getOtpActivity() {
+            try {
+                return (Class<Activity>) Class.forName("com.ca.mas.ui.otp.MASOtpActivity");
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
         @Override
         public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
 
             if (masAuthenticationListener == null) {
-               if (browserBasedAuthenticationEnabled) {
-                   MASAuthorizationRequest authReq = new MASAuthorizationRequest.MASAuthorizationRequestBuilder().buildDefault();
-                   MASAuthorizationRequestHandler handler = getAuthorizationRequestHandler();
-                   if (handler != null) {
-                       MASUser.login(authReq, handler);
-                       return;
-                   }
-               }
+                //Use MASUI component
+                if (browserBasedAuthenticationEnabled) {
+                    MASAuthorizationRequest authReq = new MASAuthorizationRequest.MASAuthorizationRequestBuilder().buildDefault();
+                    MASAuthorizationRequestHandler handler = getAuthorizationRequestHandler();
+                    if (handler != null) {
+                        MASUser.login(authReq, handler);
+                        return;
+                    }
+                }
 
                 Class<Activity> loginActivity = getLoginActivity();
                 if (loginActivity != null) {
@@ -199,45 +240,7 @@ public class MAS {
         });
     }
 
-    /**
-     * Return the MASLoginActivity from MASUI components if MASUI library is included in the classpath.
-     *
-     * @return A LoginActivity to capture the user credentials or null if error.
-     */
-    private static Class<Activity> getLoginActivity() {
 
-        try {
-            return (Class<Activity>) Class.forName("com.ca.mas.ui.MASLoginActivity");
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private static MASAuthorizationRequestHandler getAuthorizationRequestHandler() {
-
-        try {
-            Class<MASAuthorizationRequestHandler>  c = (Class<MASAuthorizationRequestHandler>) Class.forName("com.ca.mas.ui.MASAppAuthAuthorizationRequestHandler");
-            Constructor constructor = c.getConstructor(Context.class/*, Intent.class, Intent.class*/);
-
-            return (MASAuthorizationRequestHandler) constructor.newInstance(getContext()
-                    );
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
-     * Return the MASOtpActivity from MASUI components if MASUI library is included in the classpath.
-     *
-     * @return A OtpActivity to capture the otp or null if error.
-     */
-    private static Class<Activity> getOtpActivity() {
-        try {
-            return (Class<Activity>) Class.forName("com.ca.mas.ui.otp.MASOtpActivity");
-        } catch (Exception e) {
-            return null;
-        }
-    }
 
     /**
      * Turn on debug mode
@@ -482,9 +485,6 @@ public class MAS {
      * @param listener The user login listener to handle user authentication.
      */
     public static void setAuthenticationListener(MASAuthenticationListener listener) {
-        /*if (isBrowserBasedAuthenticationEnabled()) {
-            throw new RuntimeException(new MASException(new Throwable("WebLogin is enabled. Please ensure you have not invoked the MAS.enableWebLogin() API before MAS.setAuthenticationListener(...)")));
-        }*/
         masAuthenticationListener = listener;
     }
 
@@ -703,22 +703,10 @@ public class MAS {
     }
 
     /**
-     * Enable Web Login. Login page will be fetched from gateway and displayed to the user whenever
-     * login is required
-     * The native login page will be disabled
-     * @return void
+     * Enable Browser Based Authentication (templatized login) enabled or not for authorization process.
+     * By default, it is disabled.
      */
     public static void enableBrowserBasedAuthentication() {
-/*        if (masAuthenticationListener != null) {
-            throw new RuntimeException(new MASException(new Throwable("Authentication Listener already set. This API should be called before MAS.start() and MAS.setAuthenticationListener()")));
-        }
-
-        if (getLoginActivity() == null) {
-
-            throw new RuntimeException(new MASException
-                    (new Throwable("Default AuthorizationRequestHandler not found. Please check if MASUI dependency has been added to the project")));
-                     }*/
-
         browserBasedAuthenticationEnabled = true;
     }
 

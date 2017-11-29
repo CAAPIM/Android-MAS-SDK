@@ -8,7 +8,7 @@
 ### New features
 - MASFoundation's `MASSharedStorage` class introduces a secure way of storing and sharing data across multiple applications by leveraging the Android Account Manager. [US416559]
 - MASConnecta's MQTT integration has been refactored. [US423907]
-- The `DeviceIdentifier` is now generated from a unique asymmetric key pair. [US390046]
+- The `DeviceIdentifier` is now generated from a unique asymmetric key pair. This enhance the existing Device Registration workflow on Android SDK by generating a unique device identifier that will be sent to the server (instead of a static one). This way, after a device was registered with an app, if user uninstalls and re-installs the app, user should not get a "device registered" device [US390046]
 
 # Version 1.5.00
 

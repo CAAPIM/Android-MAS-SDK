@@ -252,7 +252,7 @@ public class MASSharedStorage {
         return null;
     }
 
-    public Set<String> getKeySet() {
+    private Set<String> getKeySet() {
         String keyString = mAccountManager.getUserData(mAccount, KEYINDEX_COLUMN_NAME);
         return new HashSet<>(unmarshall(keyString));
     }

@@ -80,7 +80,7 @@ public class MAGHttpClient {
                 ConfigurationManager.getInstance().getConnectionListener().onObtained(urlConnection);
             }
 
-           urlConnection.setRequestMethod(request.getMethod());
+            urlConnection.setRequestMethod(request.getMethod());
             urlConnection.setDoInput(true);
             for (String key : request.getHeaders().keySet()) {
                 if (request.getHeaders().get(key) != null) {

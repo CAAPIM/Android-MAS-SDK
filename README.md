@@ -10,7 +10,7 @@ The Android Mobile SDK consists of these frameworks:
 * **mas** - Messaging and Pub/Sub, Identity Management, and Storage services.
 * **masui** - Resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).
 
-For more information about our mobile products see [the website][mas.ca.com].
+For more information about our mobile products see the [developer website][mas.ca.com].
 
 ## Features
 
@@ -31,7 +31,7 @@ For more information about our mobile products see [the website][mas.ca.com].
 
 
 ## Get Started
-* Check out our [documentation][documentation] for more details and sample code, or watch some [video tutorials][video].
+* Check out our [documentation][documentation] for sample code, video tutorials, and more.  
 
 
 ## Communication
@@ -42,8 +42,8 @@ For more information about our mobile products see [the website][mas.ca.com].
 Edit your build.gradle file and add below dependency:
 ```gradle
     dependencies {
-        compile 'com.ca:mas:1.4.00'
-        compile 'com.ca:masui:1.4.00' //Only requires when using MASUI Template
+        compile 'com.ca:mas:1.5.00'
+        compile 'com.ca:masui:1.5.00' //Only requires when using MASUI Template
     }
 ```
 
@@ -59,15 +59,15 @@ Copyright (c) 2016 CA. All rights reserved.
 This software may be modified and distributed under the terms
 of the MIT license. See the [LICENSE][license-link] file for details.
 
- [mag]: https://docops.ca.com/mag
- [mas.ca.com]: http://mas.ca.com/
- [docs]: http://mas.ca.com/docs/
- [blog]: http://mas.ca.com/blog/
- [get-started]: http://mas.ca.com/get-started
+[mag]: https://docops.ca.com/mag
+[mas.ca.com]: http://mas.ca.com/
+[docs]: http://mas.ca.com/docs/
+[blog]: http://mas.ca.com/blog/
+[get-started]: http://mas.ca.com/get-started
 
- [issues]: https://github.com/CAAPIM/Android-MAS-SDK/issues
- [releases]: ../../releases
- [contributing]: /CONTRIBUTING.md
- [license-link]: /LICENSE
- [video]: https://www.ca.com/us/developers/mas/videos.html
- [documentation]: https://www.ca.com/us/developers/mas/docs.html
+[issues]: https://github.com/CAAPIM/Android-MAS-SDK/issues
+[releases]: ../../releases
+[contributing]: /CONTRIBUTING.md
+[license-link]: /LICENSE
+[video]: https://www.ca.com/us/developers/mas/videos.html
+[documentation]: https://www.ca.com/us/developers/mas/docs.html

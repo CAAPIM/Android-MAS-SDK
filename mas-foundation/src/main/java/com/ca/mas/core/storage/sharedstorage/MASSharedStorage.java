@@ -34,13 +34,16 @@ import static com.ca.mas.foundation.MAS.TAG;
 import static com.ca.mas.foundation.MAS.getContext;
 
 /**
- * MASSharedStorage provides the ability to share data between apps signed with the same key.
+ * MASSharedStorage is designed for developers to write, read, and delete String or byte[] data into
+ * the AccountManager so that multiple applications signed with the same key and using the same
+ * account name can share data.
+ *
+ * Note: the framework should be initialized prior to using any of MASSharedStorage's CRUD operations.
  * <p>
  * Requires the android.permission.AUTHENTICATE_ACCOUNTS and
  * android:name="android.permission.MANAGE_ACCOUNTS" permissions
  * in your application's AndroidManifest.xml.
  * <p>
- * The underlying implementation of this class uses the AccountManager APIs.
  * By default, the massharedauthenticator.xml file will be used to create the accounts,
  * but can be overridden in AndroidManifest.xml with your own xml file for another account type.
  */
@@ -56,7 +59,7 @@ public class MASSharedStorage {
      * Creates or retrieves a MASSharedStorage with the specified name and account type.
      * Ensure that this does not conflict with any existing accountType on the device.
      *
-     * @param accountName
+     * @param accountName the name of the account to be created in the AccountManager
      */
     public MASSharedStorage(@NonNull String accountName) {
         if (accountName == null || accountName.isEmpty()) {
@@ -149,10 +152,10 @@ public class MASSharedStorage {
     }
 
     /**
-     * Saves a string value to the shared storage with the given key.
+     * Saves a string value with the given key into the shared storage.
      *
-     * @param key
-     * @param value
+     * @param key string of the key to store the string value
+     * @param value the string value to be stored
      */
     public void save(@NonNull String key, String value) {
         preconditionCheck(key);
@@ -161,10 +164,10 @@ public class MASSharedStorage {
     }
 
     /**
-     * Saves a byte array to the shared storage with the given key.
+     * Saves a byte array with the given key into the shared storage.
      *
-     * @param key
-     * @param value
+     * @param key string of the key to store the byte[] value
+     * @param value the byte[] value to be stored
      */
     public void save(@NonNull String key, byte[] value) {
         preconditionCheck(key);
@@ -173,10 +176,10 @@ public class MASSharedStorage {
     }
 
     /**
-     * Deletes a value in the shared storage assigned to the given key.
+     * Deletes any data with the given key in the shared storage.
      * Functionally the same as calling save(key, null).
      *
-     * @param key
+     * @param key string of the key to be deleted
      */
     public void delete(@NonNull String key) {
         preconditionCheck(key);
@@ -229,7 +232,7 @@ public class MASSharedStorage {
     /**
      * Retrieves a string value in the shared storage given by the key.
      *
-     * @param key
+     * @param key string of the key to retrieve the string value
      * @return value associated with the key
      */
     public String getString(String key) {
@@ -240,7 +243,7 @@ public class MASSharedStorage {
     /**
      * Retrieves a byte array in the shared storage given by the key.
      *
-     * @param key
+     * @param key string of the key to retrieve the string value
      * @return value associated with the key
      */
     public byte[] getBytes(String key) {

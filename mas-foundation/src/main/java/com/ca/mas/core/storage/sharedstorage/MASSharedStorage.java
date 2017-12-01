@@ -243,7 +243,7 @@ public class MASSharedStorage {
     /**
      * Retrieves a byte array in the shared storage given by the key.
      *
-     * @param key string of the key to retrieve the string value
+     * @param key string of the key to retrieve the byte[] value
      * @return value associated with the key
      */
     public byte[] getBytes(String key) {

@@ -705,6 +705,8 @@ public class MAS {
     /**
      * Enable Browser Based Authentication (templatized login) enabled or not for authorization process.
      * By default, it is disabled.
+     * Browser Based Authentication (templatized login) allows admin to configure the login screen
+     * which will be rendered on the app to allow user to login
      */
     public static void enableBrowserBasedAuthentication() {
         browserBasedAuthenticationEnabled = true;

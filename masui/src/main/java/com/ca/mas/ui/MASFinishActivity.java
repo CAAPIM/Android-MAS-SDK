@@ -13,6 +13,9 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.ca.mas.foundation.MAS;
 
+/**
+ * Default Handler activity class for OAuth cancel scenario
+ */
 public class MASFinishActivity extends AppCompatActivity {
 
     @Override

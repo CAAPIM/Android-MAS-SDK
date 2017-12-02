@@ -43,6 +43,7 @@ import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
 
 /**
+ * Handler class for browser based user authorization
  * Using <a href="https://github.com/openid/AppAuth-Android">https://github.com/openid/AppAuth-Android</a> to perform user authorization.
  */
 public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRequestHandler {
@@ -53,6 +54,11 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
         this.context = context;
     }
 
+
+    /**
+     * Perform user authorization by redirecting to authorization redirect URL in ChromeTabs using AppAuth.
+     * This show up the templatised login page
+     */
     @Override
     public void authorize(MASAuthorizationRequest request) {
 
@@ -61,13 +67,13 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
             String clientId = request.getClientId();
             Uri redirectUri = request.getRedirectUri();
             String scope = request.getScope();
-
+            String display = request.getDisplay();
             //This is the gateway state that will be provided to AppAuth
 
             String state = request.getState();
             String responseType = request.getResponseType();
 
-            //authorizeUri
+
             URI authEndpoint =
                     ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider()
                             .getUri(MASConfiguration.getCurrentConfiguration()
@@ -81,7 +87,7 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
                 AuthorizationRequest.Builder builder = new AuthorizationRequest
                         .Builder(config, clientId, responseType, redirectUri)
                         .setState(state)
-                        .setDisplay("page")
+                        .setDisplay(display)
                         .setScopes(scope);
 
                 //PKCE social login support for MAG

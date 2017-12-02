@@ -19,6 +19,11 @@ import com.ca.mas.foundation.MASAuthorizationResponse;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
 
+/**
+ * Default Handler activity class for OAuth redirects during Browser Based Login
+ * After user has entered his credentials the OAuth redirect will invoke this class.
+ * The MASAuthorizationResponse object is extracted from the intent data and used to login the user
+ */
 public class MASAppAuthRedirectHandlerActivity extends AppCompatActivity {
     private Context mContext;
 

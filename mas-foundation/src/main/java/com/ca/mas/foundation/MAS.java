@@ -710,6 +710,11 @@ public class MAS {
         browserBasedAuthenticationEnabled = true;
     }
 
+    /**
+     * Check if Browser Based Authentication (templatized login) is enabled or not for authorization process.
+     * By default, it is disabled.
+     * @return true if Browser Based Authentication (templatized login) is enabled and false otherwise
+     */
     public static boolean isBrowserBasedAuthenticationEnabled() {
         return browserBasedAuthenticationEnabled;
     }

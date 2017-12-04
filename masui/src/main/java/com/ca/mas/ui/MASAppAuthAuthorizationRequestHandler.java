@@ -54,15 +54,12 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
         this.context = context;
     }
 
-
     /**
-     * Perform user authorization by redirecting to authorization redirect URL in ChromeTabs using AppAuth.
-     * This show up the templatised login page
+     * Performs user authorization by redirecting to the authorization redirect URL in ChromeTabs using AppAuth.
+     * This will launch the browser login page.
      */
     @Override
     public void authorize(MASAuthorizationRequest request) {
-
-
         try {
             String clientId = request.getClientId();
             Uri redirectUri = request.getRedirectUri();
@@ -72,7 +69,6 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
 
             String state = request.getState();
             String responseType = request.getResponseType();
-
 
             URI authEndpoint =
                     ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider()
@@ -150,12 +146,10 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Launching Social Login with AppAuth failed.", e);
         }
-
     }
 
-
     /**
-     * Return the MASAppAuthRedirectHandlerActivity from MASUI components if MASUI library is included in the classpath.
+     * Returns the MASAppAuthRedirectHandlerActivity if the MASUI library is included in the classpath.
      *
      * @return A MASOAuthRedirectActivity
      */
@@ -164,13 +158,12 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
     }
 
     /**
-     * Return the MASFinishActivity from MASUI components if MASUI library is included in the classpath.
+     * Returns the MASFinishActivity if the MASUI library is included in the classpath.
      *
      * @return A MASFinishActivity
      */
     private Intent getWebLoginCancelIntent() {
         return new Intent(context, MASFinishActivity.class);
     }
-
 
 }

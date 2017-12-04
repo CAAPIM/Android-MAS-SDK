@@ -14,7 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.ca.mas.foundation.MAS;
 
 /**
- * Default Handler activity class for OAuth cancel scenario
+ * The default activity which will be launched when a request is cancelled.
  */
 public class MASFinishActivity extends AppCompatActivity {
 

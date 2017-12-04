@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
 
 import com.ca.mas.foundation.MASAuthorizationResponse;
@@ -21,12 +22,18 @@ import com.ca.mas.foundation.MASUser;
 import net.openid.appauth.AuthorizationException;
 
 public class MASOAuthRedirectActivity extends AppCompatActivity {
+
     private Context mContext;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_empty);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        setTitle(R.string.title_success);
         mContext = this;
+
         //If it was successful, AppAuth will return a state mismatch error at this point.
         //This is expected because the gateway will consume the initial state information.
         //The redirect URL will then be returned by gateway without the initial state information
@@ -39,11 +46,13 @@ public class MASOAuthRedirectActivity extends AppCompatActivity {
                 MASUser.login(response, getLoginCallback());
             } else {
                 Toast.makeText(this, "No redirect URI detected.", Toast.LENGTH_LONG).show();
-                finish();
+                delayedFinish();
             }
         } else {
-            Toast.makeText(this, ex.errorDescription, Toast.LENGTH_LONG).show();
-            finish();
+            if (ex != null) {
+                Toast.makeText(this, ex.errorDescription, Toast.LENGTH_LONG).show();
+                delayedFinish();
+            }
         }
     }
 
@@ -51,15 +60,23 @@ public class MASOAuthRedirectActivity extends AppCompatActivity {
         return new MASCallback<MASUser>() {
             @Override
             public void onSuccess(MASUser result) {
-                finish();
+                delayedFinish();
             }
 
             @Override
             public void onError(Throwable e) {
                 Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_LONG).show();
-                finish();
+                delayedFinish();
             }
         };
     }
 
+    private void delayedFinish() {
+//        Handler handler = new Handler();
+//        handler.postDelayed(new Runnable() {
+//            public void run() {
+                finish();
+//            }
+//        }, 2000);
+    }
 }

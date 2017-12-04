@@ -703,13 +703,18 @@ public class MAS {
     }
 
     /**
-     * Enable Browser Based Authentication (templatized login) enabled or not for authorization process.
-     * By default, it is disabled.
+     * Enables Browser Based Authentication for authorization (set to false by default).
+     * Browser Based Authentication allows administrators to configure the login screen
+     * which will be rendered in the browser allowing users to log in.
      */
     public static void enableBrowserBasedAuthentication() {
         browserBasedAuthenticationEnabled = true;
     }
 
+    /**
+     * Checks if is enabled or not for authorization (returns false by default).
+     * @return true if Browser Based Login is enabled and false otherwise
+     */
     public static boolean isBrowserBasedAuthenticationEnabled() {
         return browserBasedAuthenticationEnabled;
     }

@@ -19,6 +19,11 @@ import com.ca.mas.foundation.MASAuthorizationResponse;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
 
+/**
+ * The default activity class for OAuth redirects during Browser Based Authentication.
+ * After the user has entered credentials, the OAuth redirect will invoke this class.
+ * The MASAuthorizationResponse object is extracted from the intent data and used for user login.
+ */
 public class MASAppAuthRedirectHandlerActivity extends AppCompatActivity {
     private Context mContext;
 
@@ -35,7 +40,6 @@ public class MASAppAuthRedirectHandlerActivity extends AppCompatActivity {
             Toast.makeText(this, "No redirect URI detected.", Toast.LENGTH_LONG).show();
             finish();
         }
-
     }
 
     private MASCallback<MASUser> getLoginCallback() {

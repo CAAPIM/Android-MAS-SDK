@@ -43,6 +43,7 @@ import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
 
 /**
+ * Handler class for browser based user authorization
  * Using <a href="https://github.com/openid/AppAuth-Android">https://github.com/openid/AppAuth-Android</a> to perform user authorization.
  */
 public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRequestHandler {
@@ -53,21 +54,22 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
         this.context = context;
     }
 
+    /**
+     * Performs user authorization by redirecting to the authorization redirect URL in ChromeTabs using AppAuth.
+     * This will launch the browser login page.
+     */
     @Override
     public void authorize(MASAuthorizationRequest request) {
-
-
         try {
             String clientId = request.getClientId();
             Uri redirectUri = request.getRedirectUri();
             String scope = request.getScope();
-
+            String display = request.getDisplay();
             //This is the gateway state that will be provided to AppAuth
 
             String state = request.getState();
             String responseType = request.getResponseType();
 
-            //authorizeUri
             URI authEndpoint =
                     ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider()
                             .getUri(MASConfiguration.getCurrentConfiguration()
@@ -81,7 +83,7 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
                 AuthorizationRequest.Builder builder = new AuthorizationRequest
                         .Builder(config, clientId, responseType, redirectUri)
                         .setState(state)
-                        .setDisplay("page")
+                        .setDisplay(display)
                         .setScopes(scope);
 
                 //PKCE social login support for MAG
@@ -144,12 +146,10 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Launching Social Login with AppAuth failed.", e);
         }
-
     }
 
-
     /**
-     * Return the MASAppAuthRedirectHandlerActivity from MASUI components if MASUI library is included in the classpath.
+     * Returns the MASAppAuthRedirectHandlerActivity if the MASUI library is included in the classpath.
      *
      * @return A MASOAuthRedirectActivity
      */
@@ -158,13 +158,12 @@ public class MASAppAuthAuthorizationRequestHandler implements MASAuthorizationRe
     }
 
     /**
-     * Return the MASFinishActivity from MASUI components if MASUI library is included in the classpath.
+     * Returns the MASFinishActivity if the MASUI library is included in the classpath.
      *
      * @return A MASFinishActivity
      */
     private Intent getWebLoginCancelIntent() {
         return new Intent(context, MASFinishActivity.class);
     }
-
 
 }

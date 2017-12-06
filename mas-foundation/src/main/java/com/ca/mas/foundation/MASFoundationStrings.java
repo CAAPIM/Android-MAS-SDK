@@ -16,6 +16,9 @@ public class MASFoundationStrings {
     private MASFoundationStrings() {
     }
 
+    // SDK strings
+    public static final String SDK_UNINITIALIZED = "MAS SDK has not been initialized.";
+
     // Android strings
     public static final String API_TARGET_EXCEPTION = "Device API level does not meet the target API requirements.";
 
@@ -32,5 +35,9 @@ public class MASFoundationStrings {
     public static final String SECURE_LOCK_FAILED_TO_SAVE_SECURE_ID_TOKEN = "Failed to save encrypted ID token.";
     public static final String SECURE_LOCK_FAILED_TO_DELETE_ID_TOKEN = "Failed to delete encrypted ID token.";
     public static final String SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN = "Failed to delete encrypted ID token.";
+
+    // Shared storage strings
+    public static final String SHARED_STORAGE_NULL_ACCOUNT_NAME = "Account name cannot be null.";
+    public static final String SHARED_STORAGE_NULL_ACCOUNT_TYPE = "Account type cannot be null.";
 
 }

@@ -21,6 +21,7 @@ import android.util.Log;
 
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASFoundationStrings;
 import com.ca.mas.foundation.MASSharedStorageException;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -63,13 +64,19 @@ public class MASSharedStorage {
      */
     public MASSharedStorage(@NonNull String accountName) {
         if (accountName == null || accountName.isEmpty()) {
-            throw new IllegalArgumentException("Account name cannot be null.");
+            throw new IllegalArgumentException(MASFoundationStrings.SHARED_STORAGE_NULL_ACCOUNT_NAME);
+        }
+
+        // The SDK must be initialized before creating the storage
+        Context context = MAS.getContext();
+        if (context == null) {
+            throw new IllegalStateException(MASFoundationStrings.SDK_UNINITIALIZED);
         }
 
         // Gets the account type from the manifest
-        String accountType = getAccountType(MAS.getContext());
+        String accountType = getAccountType(context);
         if (accountType == null || accountType.isEmpty()) {
-            throw new IllegalArgumentException("Account type cannot be null.");
+            throw new IllegalArgumentException(MASFoundationStrings.SHARED_STORAGE_NULL_ACCOUNT_TYPE);
         }
 
         try {

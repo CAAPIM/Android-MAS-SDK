@@ -15,14 +15,17 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthorizationResponse;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
 
+import java.net.URI;
+
 /**
- * The default activity class for OAuth redirects during Browser Based Authentication.
- * After the user has entered credentials, the OAuth redirect will invoke this class.
- * The MASAuthorizationResponse object is extracted from the intent data and used for user login.
+ * Default Handler activity class for OAuth redirects during Browser Based Login
+ * After user has entered his credentials the OAuth redirect will invoke this class.
+ * The MASAuthorizationResponse object is extracted from the intent data and used to login the user
  */
 public class MASAppAuthRedirectHandlerActivity extends AppCompatActivity {
     private Context mContext;
@@ -33,6 +36,14 @@ public class MASAppAuthRedirectHandlerActivity extends AppCompatActivity {
         mContext = this;
 
         Uri redirectUri = getIntent().getData();
+
+        Error error = getErrorFromUri(redirectUri);
+        if (error != null ) {
+            Toast.makeText(this, error.getError_description(), Toast.LENGTH_LONG).show();
+            MAS.cancelAllRequests();
+            finish();
+            return;
+        }
         if (redirectUri != null) {
             MASAuthorizationResponse response = MASAuthorizationResponse.fromUri(redirectUri);
             MASUser.login(response, getLoginCallback());
@@ -40,6 +51,7 @@ public class MASAppAuthRedirectHandlerActivity extends AppCompatActivity {
             Toast.makeText(this, "No redirect URI detected.", Toast.LENGTH_LONG).show();
             finish();
         }
+
     }
 
     private MASCallback<MASUser> getLoginCallback() {
@@ -57,4 +69,64 @@ public class MASAppAuthRedirectHandlerActivity extends AppCompatActivity {
         };
     }
 
+
+    private  static Error getErrorFromUri (Uri redirectUri) {
+
+        String error = redirectUri.getQueryParameter("error");
+        if (null == error || "".equals(error)) {
+            return null;
+        }
+        Error response = new Error();
+        response.setError(error);
+        response.setError_description(redirectUri.getQueryParameter("error_description"));
+        response.setState(redirectUri.getQueryParameter("state"));
+        response.setxCAError(redirectUri.getQueryParameter("x-ca-err"));
+        return response ;
+    }
+
+
+
+    static class Error {
+        private String error;
+        private String error_description;
+        private String xCAError;
+        private String state;
+
+        public Error ()
+        {
+            super();
+        }
+        public String getError() {
+            return error;
+        }
+
+        public void setError(String error) {
+            this.error = error;
+        }
+
+        public String getError_description() {
+            return error_description;
+        }
+
+        public void setError_description(String error_description) {
+            this.error_description = error_description;
+        }
+
+        public String getxCAError() {
+            return xCAError;
+        }
+
+        public void setxCAError(String xCAError) {
+            this.xCAError = xCAError;
+        }
+
+        public String getState() {
+            return state;
+        }
+
+        public void setState(String state) {
+            this.state = state;
+        }
+    }
 }
+

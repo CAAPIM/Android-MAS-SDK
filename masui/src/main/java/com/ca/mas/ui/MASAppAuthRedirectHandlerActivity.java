@@ -20,7 +20,7 @@ import com.ca.mas.foundation.MASAuthorizationResponse;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
 
-import java.net.URI;
+
 
 /**
  * Default Handler activity class for OAuth redirects during Browser Based Login
@@ -37,7 +37,7 @@ public class MASAppAuthRedirectHandlerActivity extends AppCompatActivity {
 
         Uri redirectUri = getIntent().getData();
 
-        Error error = getErrorFromUri(redirectUri);
+        OAuthError error = getErrorFromUri(redirectUri);
         if (error != null ) {
             Toast.makeText(this, error.getError_description(), Toast.LENGTH_LONG).show();
             MAS.cancelAllRequests();
@@ -69,14 +69,16 @@ public class MASAppAuthRedirectHandlerActivity extends AppCompatActivity {
         };
     }
 
-
-    private  static Error getErrorFromUri (Uri redirectUri) {
+    /**
+     * Method to parse OAuth redirectUri for error details
+     */
+    private  static OAuthError getErrorFromUri (Uri redirectUri) {
 
         String error = redirectUri.getQueryParameter("error");
         if (null == error || "".equals(error)) {
             return null;
         }
-        Error response = new Error();
+        OAuthError response = new OAuthError();
         response.setError(error);
         response.setError_description(redirectUri.getQueryParameter("error_description"));
         response.setState(redirectUri.getQueryParameter("state"));
@@ -85,14 +87,16 @@ public class MASAppAuthRedirectHandlerActivity extends AppCompatActivity {
     }
 
 
-
-    static class Error {
+    /**
+     * Model class to hold OAuth error details
+     */
+    static class OAuthError {
         private String error;
         private String error_description;
         private String xCAError;
         private String state;
 
-        public Error ()
+        public OAuthError()
         {
             super();
         }

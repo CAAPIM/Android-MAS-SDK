@@ -10,9 +10,15 @@ package com.ca.mas.ui;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ca.mas.foundation.MASAuthorizationResponse;
@@ -28,11 +34,18 @@ public class MASOAuthRedirectActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_empty);
+        setContentView(R.layout.activity_appauth_success);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle(R.string.title_success);
         mContext = this;
+
+        ImageView imageView = findViewById(R.id.checkmark);
+        Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        imageView.startAnimation(fadeIn);
+
+        TextView tv = findViewById(R.id.successText);
+        tv.startAnimation(fadeIn);
 
         //If it was successful, AppAuth will return a state mismatch error at this point.
         //This is expected because the gateway will consume the initial state information.
@@ -59,6 +72,11 @@ public class MASOAuthRedirectActivity extends AppCompatActivity {
     private MASCallback<MASUser> getLoginCallback() {
         return new MASCallback<MASUser>() {
             @Override
+            public Handler getHandler() {
+                return new Handler(Looper.getMainLooper());
+            }
+
+            @Override
             public void onSuccess(MASUser result) {
                 delayedFinish();
             }
@@ -72,11 +90,11 @@ public class MASOAuthRedirectActivity extends AppCompatActivity {
     }
 
     private void delayedFinish() {
-//        Handler handler = new Handler();
-//        handler.postDelayed(new Runnable() {
-//            public void run() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
                 finish();
-//            }
-//        }, 2000);
+            }
+        }, 1500);
     }
 }

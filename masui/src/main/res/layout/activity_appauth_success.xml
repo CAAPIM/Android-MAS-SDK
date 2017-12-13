@@ -30,6 +30,13 @@
             app:titleTextColor="@android:color/white" />
     </android.support.design.widget.AppBarLayout>
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/toolbarLayout"
+        android:layout_height="8dp"
+        style="?android:attr/progressBarStyleHorizontal"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

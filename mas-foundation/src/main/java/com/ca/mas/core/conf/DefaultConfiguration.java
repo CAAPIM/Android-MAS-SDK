@@ -143,7 +143,7 @@ public class DefaultConfiguration implements ConfigurationProvider {
      */
     public void addTrustedCertificatePinnedPublicKeyHashes(String... hashes) {
         for (String hash : hashes) {
-            trustedCertificatePinnedPublicKeyHashes.add(PublicKeyHash.fromHashString(hash, Base64.DEFAULT));
+            trustedCertificatePinnedPublicKeyHashes.add(PublicKeyHash.fromHashString(hash, Base64.NO_WRAP | Base64.URL_SAFE));
         }
     }
 

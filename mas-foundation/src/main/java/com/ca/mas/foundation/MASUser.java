@@ -5,6 +5,7 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
+
 package com.ca.mas.foundation;
 
 import android.annotation.TargetApi;
@@ -81,6 +82,13 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 current = null;
             }
         });
+    }
+
+    /**
+     * Login with OAuth2 Authorization request
+     */
+    public static void login(MASAuthorizationRequest request, MASAuthorizationRequestHandler handler) {
+        handler.authorize(request);
     }
 
     /**

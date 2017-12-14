@@ -33,12 +33,6 @@ android {
         }
     }
 
-    sourceSets {
-        androidTest {
-            java.srcDirs += "../mas-foundation/src/androidTest/java"
-            resources.srcDirs += "../mas-foundation/src/androidTest/resources"
-        }
-    }
 }
 
 
@@ -99,12 +93,12 @@ dependencies {
     compile project(':mas-foundation')
     compile "com.android.support:appcompat-v7:$rootProject.ext.appCompatVersion"
 
-    androidTestCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support.test:rules:0.5'
-    androidTestCompile 'org.skyscreamer:jsonassert:1.5.0'
+    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
+    compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 
-    testCompile 'junit:junit:4.12'
+    androidTestCompile "com.android.support.test:runner:$rootProject.ext.testRunner"
+    androidTestCompile "com.android.support.test:rules:$rootProject.ext.testRules"
+    androidTestCompile project(':mas-test')
 }
 
 task javadoc(type: Javadoc) {
@@ -132,8 +126,9 @@ bintray {
         name = 'mas-connecta'
         userOrg = 'caapim'
 
-        desc = 'MAS Connecta is the core messaging framework of the Mobile SDK, which is part of CA Mobile App Services. ' +
-                'It gives developers the ability to create social collaborative apps where users can message and send data to each other.'
+        desc = 'MASConnecta is the core messaging framework of the Android Mobile SDK,' +
+                ' which is part of CA Mobile API Gateway. It gives developers the ability ' +
+                'to create social collaborative apps where users can message and send data to each other.'
         websiteUrl = siteUrl
         issueTrackerUrl = issueUrl
         vcsUrl = gitUrl

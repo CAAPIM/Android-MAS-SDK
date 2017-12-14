@@ -43,6 +43,7 @@ import com.ca.mas.core.token.JWTInvalidAUDException;
 import com.ca.mas.core.token.JWTInvalidAZPException;
 import com.ca.mas.core.token.JWTInvalidSignatureException;
 import com.ca.mas.core.token.JWTValidationException;
+import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthCredentials;
 
 import java.io.IOException;
@@ -178,7 +179,10 @@ public class MssoService extends IntentService {
             //Notify listener
             MobileSsoListener mobileSsoListener = ConfigurationManager.getInstance().getMobileSsoListener();
             try {
-                AuthenticationProvider authProvider = new OAuthClient(request.getMssoContext()).getSocialPlatformProvider(getApplicationContext());
+                AuthenticationProvider authProvider = null;
+                if (!MAS.isBrowserBasedAuthenticationEnabled()) {
+                    authProvider = new OAuthClient(request.getMssoContext()).getSocialPlatformProvider(getApplicationContext());
+                }
                 if (mobileSsoListener != null) {
                     mobileSsoListener.onAuthenticateRequest(request.getId(), authProvider);
                 } else {

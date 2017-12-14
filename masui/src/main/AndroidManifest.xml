@@ -15,9 +15,11 @@
         android:supportsRtl="true">
         <activity
             android:name=".MASEnterpriseWebApplicationActivity"
+            android:exported="false"
             android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".MASSessionUnlockActivity"
+            android:exported="false"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="MASUI.intent.action.SessionUnlock" />
@@ -36,18 +38,33 @@
 
                 <data android:scheme="camsso" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="camssoras" />
+
+            </intent-filter>
         </activity>
         <activity
             android:name=".MASOAuthRedirectActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light" />
+        <activity
+            android:name=".MASAppAuthRedirectHandlerActivity"
             android:theme="@style/Theme.AppCompat.Light" />
         <activity android:name=".MASFinishActivity" />
         <activity
             android:name=".MASLoginActivity"
+            android:exported="false"
             android:launchMode="singleTop"
             android:theme="@style/Theme.AppCompat.Light" />
 
         <activity
             android:name=".otp.MASOtpActivity"
+            android:exported="false"
             android:launchMode="singleTop"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
 

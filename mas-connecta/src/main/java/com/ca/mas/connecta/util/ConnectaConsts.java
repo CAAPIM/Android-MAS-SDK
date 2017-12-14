@@ -3,7 +3,6 @@
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
- *
  */
 
 package com.ca.mas.connecta.util;
@@ -18,16 +17,7 @@ public class ConnectaConsts extends FoundationConsts {
     public static int SSL_MESSAGING_PORT = 8883;
     public static String SSL_MESSAGING_SCHEME = "ssl";
 
-    public static int TCP_MESSAGING_PORT = 1888;
-    public static String TCP_MESSAGING_SCHEME = "tcp";
-
-    /**
-     *
-     */
     public static final String MAS_CONNECTA_BROADCAST_MESSAGE_ARRIVED = "com.ca.mas.connecta.MESSAGE_ARRIVED";
-
-    /**
-
 
     /**
      * Topic Structure

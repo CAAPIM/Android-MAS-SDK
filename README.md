@@ -1,14 +1,19 @@
 # Android Mobile SDK
-CA Mobile API Gateway provides enterprises with a secure mobile backend that integrates systems and allows control over which users, devices and applications can access your APIs. The gateway enables developers to leverage standards for API security such as (OAuth2, OpenID Connect, PKI) through client SDKs for Android.
+## for CA Mobile API Gateway
 
-CA Mobile App Services is an extension of the CA Mobile API Gateway which provides powerful features through SDKs and APIs for developers to help accelerate the app development process.
+CA Mobile API Gateway (MAG) provides enterprises with a secure mobile backend that integrates systems and allows control over which users, devices, and applications can access your APIs. The MAG enables developers to leverage standards for API security such as (OAuth2, OpenID Connect, PKI) through client SDKs for Android.
 
-The SDK consists of these frameworks:
-* **mag** - Handles user authentication, device and app registration, requests and local storage of certificates, keys, and token credentials for accessing the protected APIs.
-* **mas** - Messaging and Pub/Sub, Identity Management, and Storage services.
-* **masui** - Resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).
+The CA Mobile API Gateway also provides powerful mobile backend services through SDKs and APIs for developers to help accelerate the app development process.
 
-For more information about our mobile products see [the website][mas.ca.com].
+The Android Mobile SDK consists of these frameworks:
+* **MAS** - Includes the following four frameworks:
+    * **MASConnecta** - Messaging and pub/sub services allowing users to message and send data to each other.
+    * **MASFoundation** - Core services to handle user authentication, device and app registration, requests and local storage of certificates, keys, and token credentials for accessing protected APIs.
+    * **MASIdentityManagement** - Identity management services to securely access users and groups from enterprise identity providers.
+    * **MASStorage** - Storage services for private local and cloud storage.
+* **MASUI** - Resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).
+
+For more information about our mobile products see the [developer website][mas.ca.com].
 
 ## Features
 
@@ -29,7 +34,7 @@ For more information about our mobile products see [the website][mas.ca.com].
 
 
 ## Get Started
-* Check out our [documentation][documentation] for more details and sample code, or watch some [video tutorials][video].
+* Check out our [documentation][documentation] for sample code, video tutorials, and more.  
 
 
 ## Communication
@@ -40,8 +45,8 @@ For more information about our mobile products see [the website][mas.ca.com].
 Edit your build.gradle file and add below dependency:
 ```gradle
     dependencies {
-        compile 'com.ca:mas:1.4.00'
-        compile 'com.ca:masui:1.4.00' //Only requires when using MASUI Template
+        compile 'com.ca:mas:1.6.00'
+        compile 'com.ca:masui:1.6.00' //Only required when using the MASUI templates
     }
 ```
 
@@ -52,20 +57,20 @@ Contributions are welcome and much appreciated. To learn more, see the [Contribu
 For more documentation and API references, go to our [main website][documentation].
 
 ## License
-Copyright (c) 2016 CA. All rights reserved.
+Copyright (c) 2017 CA. All rights reserved.
 
 This software may be modified and distributed under the terms
 of the MIT license. See the [LICENSE][license-link] file for details.
 
- [mag]: https://docops.ca.com/mag
- [mas.ca.com]: http://mas.ca.com/
- [docs]: http://mas.ca.com/docs/
- [blog]: http://mas.ca.com/blog/
- [get-started]: http://mas.ca.com/get-started
+[mag]: https://docops.ca.com/mag
+[mas.ca.com]: http://mas.ca.com/
+[docs]: http://mas.ca.com/docs/
+[blog]: http://mas.ca.com/blog/
+[get-started]: http://mas.ca.com/get-started
 
- [issues]: https://github.com/CAAPIM/Android-MAS-SDK/issues
- [releases]: ../../releases
- [contributing]: /CONTRIBUTING.md
- [license-link]: /LICENSE
- [video]: https://www.ca.com/us/developers/mas/videos.html
- [documentation]: https://www.ca.com/us/developers/mas/docs.html
+[issues]: https://github.com/CAAPIM/Android-MAS-SDK/issues
+[releases]: ../../releases
+[contributing]: /CONTRIBUTING.md
+[license-link]: /LICENSE
+[video]: https://www.ca.com/us/developers/mas/videos.html
+[documentation]: https://www.ca.com/us/developers/mas/docs.html

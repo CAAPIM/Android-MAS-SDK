@@ -13,7 +13,6 @@ import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyProperties;
 import android.support.test.runner.AndroidJUnit4;
 
-
 import com.ca.mas.MASTestBase;
 
 import org.junit.Test;
@@ -104,9 +103,7 @@ public class EncryptionProviderTests extends MASTestBase {
 
         ks.deleteEntry(SECRET_KEY_ALIAS);
         //}
-
     }
-
 
     private byte[] encryptSecretKey(SecretKey secretKey) throws Exception {
         KeyStore ks = KeyStore.getInstance(ANDROID_KEY_STORE);

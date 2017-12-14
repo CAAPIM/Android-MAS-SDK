@@ -79,7 +79,6 @@ public class MssoContext {
     private OAuthTokenContainer privateTokens;
     private ClientCredentialContainer clientCredentialTokens;
 
-    private String deviceId;
     private String deviceName;
 
     private volatile MAGHttpClient magHttpClient;
@@ -154,15 +153,9 @@ public class MssoContext {
             clientCredentialTokens = StorageProvider.getInstance().getClientCredentialContainer();
         }
 
-        if (deviceId == null) {
-            deviceId = generateDeviceId();
-        }
-
         if (deviceName == null) {
             deviceName = android.os.Build.MODEL;
         }
-
-
     }
 
     public void initPolicyManager() {
@@ -202,10 +195,11 @@ public class MssoContext {
     }
 
     /**
+     * Generates a unique device identifier or retrieves the existing one.
      * @return the device ID, or null if {@link #init} has not yet been called.
      */
-    public String getDeviceId() {
-        return deviceId;
+    public String getDeviceId() throws Exception {
+        return(new DeviceIdentifier(appContext)).toString();
     }
 
     /**
@@ -591,18 +585,20 @@ public class MssoContext {
      * @throws MssoException if there is an error while attempting to tell the token server to unregister this device.
      */
     public void removeDeviceRegistration() throws MssoException {
-        EventDispatcher.DE_REGISTER.notifyObservers();
-        if (tokenManager == null)
+        EventDispatcher.BEFORE_DEREGISTER.notifyObservers();
+        if (tokenManager == null) {
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
+        }
         try {
             if (isDeviceRegistered()) {
+                //Server call to remove the registration record, will throw an exception if failed
                 new RegistrationClient(this).removeDeviceRegistration();
             }
+            EventDispatcher.AFTER_DEREGISTER.notifyObservers();
+            resetHttpClient();
         } catch (Exception e) {
             if (DEBUG) Log.w(TAG, "Error in removing device registration details from the server " + e);
             throw new MssoException(e);
-        } finally {
-            resetHttpClient();
         }
     }
 
@@ -706,15 +702,6 @@ public class MssoContext {
 
     public boolean isClientCredentialExpired(Long clientExpiration) {
         return clientExpiration != 0 && clientExpiration < new Date().getTime() / 1000;
-    }
-
-    /**
-     * Generate device-id using ANDROID_ID, sharedUserId,container description if present and app signature.
-     *
-     * @return device-id
-     */
-    private String generateDeviceId() {
-        return (new DeviceIdentifier(appContext)).toString();
     }
 
 }

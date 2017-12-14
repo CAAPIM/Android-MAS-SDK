@@ -47,6 +47,7 @@ class DefaultTokenManager implements TokenManager {
     private static final String MSSO_ID_TOKEN = "msso.idToken";
     private static final String MSSO_ID_TOKEN_TYPE = "msso.idTokenType";
     private static final String MSSO_SECURE_ID_TOKEN = "msso.secureIdToken";
+    private static final String MSSO_DEVICE_IDENTIFIER = "com.ca.mas.foundation.msso.DEVICE_IDENTIFIER";
     protected DataSource<String, byte[]> storage;
 
     DefaultTokenManager(@NonNull DataSource storage) {
@@ -113,6 +114,7 @@ class DefaultTokenManager implements TokenManager {
         KeyUtilsAsymmetric.deletePrivateKey(getKey(MSSO_CLIENT_PRIVATE_KEY));
         KeyUtilsAsymmetric.clearCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX));
         deleteSecureItem(MSSO_MAG_IDENTIFIER);
+        KeyUtilsAsymmetric.deletePrivateKey(MSSO_DEVICE_IDENTIFIER);
     }
 
     @Override
@@ -120,6 +122,7 @@ class DefaultTokenManager implements TokenManager {
         storage.removeAll(null);
         KeyUtilsAsymmetric.deletePrivateKey(getKey(MSSO_CLIENT_PRIVATE_KEY));
         KeyUtilsAsymmetric.clearCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX));
+        KeyUtilsAsymmetric.deletePrivateKey(MSSO_DEVICE_IDENTIFIER);
     }
 
     @Override

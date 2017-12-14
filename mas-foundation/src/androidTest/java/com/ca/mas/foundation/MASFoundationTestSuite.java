@@ -8,24 +8,6 @@
 
 package com.ca.mas.foundation;
 
-import com.ca.mas.foundation.MASAuthorizationCodeFlowTest;
-import com.ca.mas.foundation.MASClientCredentialTest;
-import com.ca.mas.foundation.MASConfigurationTest;
-import com.ca.mas.foundation.MASDeviceTest;
-import com.ca.mas.foundation.MASDynamicSDKTest;
-import com.ca.mas.foundation.MASEnrollmentStartTest;
-import com.ca.mas.foundation.MASGeoFencingTest;
-import com.ca.mas.foundation.MASJwtSigningTest;
-import com.ca.mas.foundation.MASLoginTest;
-import com.ca.mas.foundation.MASOAuthLoginTest;
-import com.ca.mas.foundation.MASOAuthTest;
-import com.ca.mas.foundation.MASOneTimePasswordTest;
-import com.ca.mas.foundation.MASPhoneNumberTest;
-import com.ca.mas.foundation.MASRegistrationTest;
-import com.ca.mas.foundation.MASStartTest;
-import com.ca.mas.foundation.MASTest;
-import com.ca.mas.foundation.MASUserTest;
-
 import org.junit.experimental.categories.Categories;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -51,6 +33,8 @@ import org.junit.runners.Suite;
         MASDeviceTest.class,
         MASConfigurationTest.class,
         MASAuthorizationProviderTest.class,
+        MASSharedStorageTest.class,
+        MASSharedStorageSDKStopTest.class,
         MASSessionLockTest.class
 })
 

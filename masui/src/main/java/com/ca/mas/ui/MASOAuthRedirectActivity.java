@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +47,9 @@ public class MASOAuthRedirectActivity extends AppCompatActivity {
 
         TextView tv = findViewById(R.id.successText);
         tv.startAnimation(fadeIn);
+
+        ProgressBar pb = findViewById(R.id.progressBar);
+        pb.animate();
 
         //If it was successful, AppAuth will return a state mismatch error at this point.
         //This is expected because the gateway will consume the initial state information.
@@ -95,6 +99,6 @@ public class MASOAuthRedirectActivity extends AppCompatActivity {
             public void run() {
                 finish();
             }
-        }, 1500);
+        }, 1250);
     }
 }

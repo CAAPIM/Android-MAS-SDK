@@ -51,10 +51,6 @@ repositories {
     maven { url 'https://maven.fabric.io/public' }
 
     maven {
-        credentials {
-            username 'kluhini96'
-            password '5a2804cfff0f331991bc05af77a9b57ad651ab47'
-        }
         url 'https://dl.bintray.com/caapim/maven'
     }
 }

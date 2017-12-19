@@ -41,7 +41,6 @@ android {
         targetSdkVersion targetSdkVersion
         versionCode 1
         versionName "1.0"
-        multiDexEnabled true
     }
     buildTypes {
         release {

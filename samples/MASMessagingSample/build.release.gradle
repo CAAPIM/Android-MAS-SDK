@@ -25,21 +25,20 @@ allprojects {
     }
 }
 
-
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion project.compileSdkVersion.toInteger()
+    buildToolsVersion buildToolsVersion
 
     lintOptions {
         abortOnError false
     }
 
     defaultConfig {
-        applicationId "com.ca.masaccessapisample"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        applicationId "com.ca.mas.masmessagingsample"
+        minSdkVersion project.minSdkVersion
+        targetSdkVersion targetSdkVersion
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -55,7 +54,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile "com.android.support:appcompat-v7:$rootProject.ext.appCompatVersion"
+    compile "com.android.support:appcompat-v7:$project.appCompatVersion"
 
 //    compile project(':mas-foundation')
 //    compile project(':masui')

@@ -358,6 +358,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
     protected MockResponse otpMissingHeader() {
         return new MockResponse().setResponseCode(401)
+                .setHeader("WWW-Authenticate", "Basic realm=\"fake\"")
                 .setHeader("X-OTP", "required")
                 .setHeader("X-OTP-CHANNEL", "EMAIL,SMS,QRCODE")
                 .setHeader("x-ca-err", "8000140")

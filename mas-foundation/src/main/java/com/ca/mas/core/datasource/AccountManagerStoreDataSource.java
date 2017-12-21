@@ -10,6 +10,7 @@ package com.ca.mas.core.datasource;
 
 import android.content.Context;
 
+import com.ca.mas.core.security.KeyStoreRepository;
 import com.ca.mas.core.storage.StorageException;
 import com.ca.mas.core.storage.StorageResult;
 import com.ca.mas.core.storage.StorageResultReceiver;
@@ -34,6 +35,12 @@ public class AccountManagerStoreDataSource<K, V> implements DataSource<K, V> {
 
 
     public AccountManagerStoreDataSource(Context context, JSONObject param, DataConverter converter) {
+
+        if (KeyStoreRepository.isPinRequired()) {
+            throw new IllegalArgumentException("AccountManager Storage is not supported");
+        }
+
+
         this.converter = converter;
         this.context = context;
 

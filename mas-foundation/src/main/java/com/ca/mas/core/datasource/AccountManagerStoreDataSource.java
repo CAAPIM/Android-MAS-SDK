@@ -37,9 +37,9 @@ public class AccountManagerStoreDataSource<K, V> implements DataSource<K, V> {
     public AccountManagerStoreDataSource(Context context, JSONObject param, DataConverter converter) {
 
         if (KeyStoreRepository.isPinRequired()) {
-            throw new IllegalArgumentException("AccountManager Storage is not supported");
+            throw new IllegalArgumentException("AccountManager Storage is not supported by the defined Minimal SDK version. " +
+                    "Consider increase minimal level to use this feature.");
         }
-
 
         this.converter = converter;
         this.context = context;

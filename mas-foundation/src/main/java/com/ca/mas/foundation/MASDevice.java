@@ -62,7 +62,7 @@ public abstract class MASDevice implements Device {
                     try {
                         return (new DeviceIdentifier(MAS.getContext())).toString();
                     } catch (Exception e) {
-                        return null;
+                        throw new IllegalArgumentException("Keystore is not available", e);
                     }
                 }
 

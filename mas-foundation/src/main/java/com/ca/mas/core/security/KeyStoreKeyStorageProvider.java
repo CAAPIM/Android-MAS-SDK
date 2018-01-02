@@ -16,22 +16,10 @@ import android.util.Log;
 import com.ca.mas.core.util.KeyUtilsAsymmetric;
 import com.ca.mas.core.util.KeyUtilsSymmetric;
 
-import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.InvalidParameterException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -179,11 +167,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             return cipher.doFinal(secretKey.getEncoded());
 
-        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException
-                | NoSuchPaddingException | NoSuchAlgorithmException | NoSuchProviderException
-                | IOException | InvalidParameterException | KeyStoreException
-                | InvalidAlgorithmParameterException | CertificateException
-                | UnrecoverableKeyException e) {
+        } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Error while encrypting SecretKey", e);
             throw new RuntimeException("Error while encrypting SecretKey", e);
         }
@@ -205,10 +189,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
             byte[] decryptedSecretkey = cipher.doFinal(encryptedSecretKey);
             return new SecretKeySpec(decryptedSecretkey, "AES");
 
-        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException
-                | BadPaddingException | IllegalBlockSizeException
-                | IOException | KeyStoreException | CertificateException
-                | UnrecoverableKeyException e) {
+        } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Error while decrypting SecretKey", e);
             throw new RuntimeException("Error while decrypting SecretKey", e);
         }

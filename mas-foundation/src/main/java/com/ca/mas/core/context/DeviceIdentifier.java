@@ -9,7 +9,9 @@ package com.ca.mas.core.context;
 
 import android.content.Context;
 
-import java.security.InvalidAlgorithmParameterException;
+import com.ca.mas.core.security.KeyStoreException;
+
+import java.security.NoSuchAlgorithmException;
 
 public class DeviceIdentifier extends UniqueIdentifier {
 
@@ -18,9 +20,7 @@ public class DeviceIdentifier extends UniqueIdentifier {
      * Apps built with the same sharedUserId value in AndroidManifest.xml will reuse the same identifier.
      * @param context
      */
-    public DeviceIdentifier(Context context) throws
-            InvalidAlgorithmParameterException, java.io.IOException, java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
-            java.security.NoSuchProviderException, java.security.cert.CertificateException, java.security.UnrecoverableKeyException {
+    public DeviceIdentifier(Context context) throws KeyStoreException, NoSuchAlgorithmException {
         super(context);
     }
 

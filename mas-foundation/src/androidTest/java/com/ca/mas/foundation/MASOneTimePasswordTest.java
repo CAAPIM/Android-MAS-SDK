@@ -437,6 +437,7 @@ public class MASOneTimePasswordTest extends MASLoginTestBase {
             @Override
             protected MockResponse otpProtectedResponse() {
                 return new MockResponse().setResponseCode(401)
+                        .setHeader("WWW-Authenticate", "Basic realm=\"fake\"")
                         .setHeader("X-OTP", "invalid")
                         .setHeader("X-OTP-RETRY", "3")
                         .setHeader("x-ca-err", errorCode)

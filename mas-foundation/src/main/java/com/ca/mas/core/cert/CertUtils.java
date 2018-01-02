@@ -12,6 +12,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -129,6 +130,28 @@ public class CertUtils {
             return toX509CertArray(CertificateFactory.getInstance("X.509").generateCertificates(new ByteArrayInputStream(chainBytes)));
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to decode certificate chain: " + e, e);
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    /**
+     * Encode a certificate chain to a byte array.
+     * <p/>
+     * The returned byte array is simply the encoded form of each certificate appended to the array
+     * one by one without any surrounding structure or other delimiters, with the subject cert coming first.
+     *
+     * @param chain the chain to encode.  Required.
+     * @return the encoded bytes of the chain.
+     * @throws IllegalArgumentException if the chain cannot be encoded.
+     */
+    public static byte[] encodeCertificateChain(X509Certificate[] chain) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            for (X509Certificate cert : chain) {
+                baos.write(cert.getEncoded());
+            }
+            return baos.toByteArray();
+        } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }

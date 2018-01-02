@@ -7,23 +7,26 @@
  */
 package com.ca.mas.foundation;
 
-import android.annotation.TargetApi;
 import android.os.Build;
 
+import com.ca.mas.AndroidVersionAwareTestRunner;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
+import com.ca.mas.TargetApi;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 
+@RunWith(AndroidVersionAwareTestRunner.class)
 public class MASSessionLockTest extends MASLoginTestBase {
 
     @Test

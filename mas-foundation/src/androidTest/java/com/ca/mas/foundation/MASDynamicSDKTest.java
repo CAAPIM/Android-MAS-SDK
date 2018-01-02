@@ -8,6 +8,7 @@
 package com.ca.mas.foundation;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.GatewayDefaultDispatcher;
@@ -19,6 +20,7 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.Server;
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.datasource.KeystoreDataSource;
+import com.ca.mas.core.security.KeyStoreAdapter;
 import com.ca.mas.core.store.ClientCredentialContainer;
 import com.ca.mas.core.store.OAuthTokenContainer;
 import com.ca.mas.core.store.StorageProvider;
@@ -119,7 +121,7 @@ public class MASDynamicSDKTest extends MASStartTestBase {
 
 
         //Validate the result
-        DataSource clientCredentialStorage = getValue(StorageProvider.getInstance().getClientCredentialContainer(), "storage", DataSource.class );
+        DataSource clientCredentialStorage = getValue(StorageProvider.getInstance().getClientCredentialContainer(), "storage", DataSource.class);
 
         //It should only return the client credentials, however it returns everything in the key chain.
         List<String> keys = clientCredentialStorage.getKeys(null);
@@ -132,7 +134,7 @@ public class MASDynamicSDKTest extends MASStartTestBase {
         }
 
         countDownLatch.await();
-        DataSource shareStorage = getValue(StorageProvider.getInstance().getTokenManager(), "storage", DataSource.class );
+        DataSource shareStorage = getValue(StorageProvider.getInstance().getTokenManager(), "storage", DataSource.class);
         keys = shareStorage.getKeys(null);
         assertEquals(8, keys.size());
 
@@ -142,15 +144,22 @@ public class MASDynamicSDKTest extends MASStartTestBase {
             }
         }
 
-        KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
-        keyStore.load(null);
-        Enumeration<String> enumeration = keyStore.aliases();
-
-        List<String> storedKeys = Collections.list(enumeration);
-        storedKeys.contains(server1.toString()+"msso.clientCertPrivateKey");
-        storedKeys.contains(server2.toString()+"msso.clientCertPrivateKey");
-        storedKeys.contains(server1.toString()+"msso.clientCertChain_1");
-        storedKeys.contains(server2.toString()+"msso.clientCertChain_1");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
+            Enumeration<String> enumeration = keyStore.aliases();
+            List<String> storedKeys = Collections.list(enumeration);
+            storedKeys.contains(server1.toString() + "msso.clientCertPrivateKey");
+            storedKeys.contains(server2.toString() + "msso.clientCertPrivateKey");
+            storedKeys.contains(server1.toString() + "msso.clientCertChain_1");
+            storedKeys.contains(server2.toString() + "msso.clientCertChain_1");
+        } else {
+            com.ca.mas.core.security.KeyStore keyStore = KeyStoreAdapter.getKeyStore();
+            keyStore.contains(server1.toString() + "msso.clientCertPrivateKey");
+            keyStore.contains(server2.toString() + "msso.clientCertPrivateKey");
+            keyStore.contains(server1.toString() + "msso.clientCertChain_1");
+            keyStore.contains(server2.toString() + "msso.clientCertChain_1");
+        }
 
     }
 

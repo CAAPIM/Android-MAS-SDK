@@ -187,29 +187,25 @@ public class MASGroupRepositoryImpl implements MASGroupRepository {
 
     @Override
     public void delete(MASGroup group, final MASCallback<Void> callback) {
-        try {
-            String url = IdentityUtil.getGroupPath() + IdentityConsts.FSLASH + group.getId();
-            MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(url))
-                    .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
-                    .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
-                    .responseBody(MAGResponseBody.jsonBody())
-                    .delete(MASRequestBody.jsonBody(group.getAsJSONObject()))
-                    .build();
+        String url = IdentityUtil.getGroupPath() + IdentityConsts.FSLASH + group.getId();
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(url))
+                .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
+                .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
+                .responseBody(MAGResponseBody.jsonBody())
+                .delete(null)
+                .build();
 
-            MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
-                @Override
-                public void onSuccess(MASResponse<JSONObject> result) {
-                    Callback.onSuccess(callback, null);
-                }
+        MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
+            @Override
+            public void onSuccess(MASResponse<JSONObject> result) {
+                Callback.onSuccess(callback, null);
+            }
 
-                @Override
-                public void onError(Throwable e) {
-                    Callback.onError(callback, e);
-                }
-            });
-        } catch (JSONException e) {
-            Callback.onError(callback, e);
-        }
+            @Override
+            public void onError(Throwable e) {
+                Callback.onError(callback, e);
+            }
+        });
     }
 
     @Override

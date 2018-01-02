@@ -32,7 +32,7 @@ allprojects {
 ext {
     appCompatVersion = '26.0.2'
     appAuthVersion = '0.7.0'
-    buildToolsVersion = '26.0.2'
+    buildToolsVersion = '27.0.1'
     compileSdkVersion = 26
     designVersion = '26.0.2'
     gcm = '11.8.0'

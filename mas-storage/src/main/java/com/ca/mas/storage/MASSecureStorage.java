@@ -9,7 +9,6 @@
 package com.ca.mas.storage;
 
 import android.net.Uri;
-import android.os.Build;
 import android.support.annotation.NonNull;
 
 import com.ca.mas.core.conf.ConfigurationManager;
@@ -189,13 +188,7 @@ public class MASSecureStorage extends AbstractMASStorage {
     @Override
     public void delete(@NonNull final String key, @MASStorageSegment final int segment, final MASCallback callback) {
         checkNull(key);
-        MASRequest.MASRequestBuilder builder = getRequestBuilder(key, segment).delete(null);
-        //Workaround for http delete for SDK < KitKat
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            builder.header("Accept-Encoding", "");
-        }
-        MASRequest request = getRequestBuilder(key, segment).delete(null)
-                .build();
+        MASRequest request = getRequestBuilder(key, segment).delete(null).build();
         MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
 
             @Override

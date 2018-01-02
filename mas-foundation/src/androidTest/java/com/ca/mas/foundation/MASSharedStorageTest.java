@@ -237,11 +237,7 @@ public class MASSharedStorageTest extends MASLoginTestBase {
         AccountManager am = AccountManager.get(getContext());
         Account[] accounts = am.getAccountsByType(accountType);
         for (Account account : accounts) {
-            try {
-                am.removeAccountExplicitly(account);
-            } catch (NoSuchMethodError e) {
-                //ignore
-            }
+            am.removeAccountExplicitly(account);
         }
     }
 

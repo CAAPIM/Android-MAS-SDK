@@ -15,7 +15,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.0-alpha06'
+        classpath 'com.android.tools.build:gradle:3.0.0-beta7'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
         classpath 'com.google.gms:google-services:3.1.1'
@@ -35,9 +35,9 @@ ext {
     buildToolsVersion = '26.0.2'
     compileSdkVersion = 26
     designVersion = '26.0.2'
-    gcm = '11.8.0'
+    gcm = '10.2.4'
     gridLayoutVersion = '26.0.2'
-    minSdkVersion = 16
+    minSdkVersion = 19
     nimbusJoseVersion = '4.37.1'
     recyclerViewVersion = '26.0.2'
     supportAnnotationsVersion = '26.0.2'
@@ -48,5 +48,4 @@ ext {
     customTabVersion = '26.0.2'
     testRunner = '1.0.1'
     testRules = '1.0.1'
-    bcpVersion = '1.55'
 }

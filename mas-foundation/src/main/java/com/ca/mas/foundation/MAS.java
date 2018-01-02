@@ -643,7 +643,12 @@ public class MAS {
 
 
     static {
-   }
+        JSONValue.defaultWriter.registerWriter(new JsonWriterI<JSONObject>() {
+            public void writeJSONString(JSONObject value, Appendable out, JSONStyle compression) throws IOException {
+                out.append(value.toString());
+            }
+        }, JSONObject.class);
+    }
 
     /**
      * Signs the provided JWT {@link MASClaims} object with the device registered private key using SHA-256 hash algorithm
@@ -672,16 +677,6 @@ public class MAS {
         if (!MASDevice.getCurrentDevice().isRegistered()) {
             throw new IllegalStateException("Device not registered.");
         }
-
-        JsonWriterI i = JSONValue.defaultWriter.getWriterByInterface(JSONObject.class);
-        if (i == null) {
-            JSONValue.defaultWriter.registerWriter(new JsonWriterI<JSONObject>() {
-                public void writeJSONString(JSONObject value, Appendable out, JSONStyle compression) throws IOException {
-                    out.append(value.toString());
-                }
-            }, JSONObject.class);
-        }
-
         JWSSigner signer = new RSASSASigner(privateKey);
         JWTClaimsSet.Builder claimBuilder = new JWTClaimsSet.Builder();
 

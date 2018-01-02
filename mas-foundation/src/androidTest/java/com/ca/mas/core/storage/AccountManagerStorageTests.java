@@ -8,10 +8,8 @@
 
 package com.ca.mas.core.storage;
 
-import android.os.Build;
+import android.support.test.runner.AndroidJUnit4;
 
-import com.ca.mas.AndroidVersionAwareTestRunner;
-import com.ca.mas.TargetApi;
 import com.ca.mas.TestUtils;
 import com.ca.mas.core.storage.implementation.MASStorageManager;
 
@@ -28,7 +26,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
 
-@RunWith(AndroidVersionAwareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class AccountManagerStorageTests extends BaseStorageTests {
 
     private static String reallyLongData;
@@ -58,7 +56,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
 
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testInitStorageWithNullInput() {
         Storage testStorage = null;
         try {
@@ -71,7 +68,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testInitStorageWithInValidInputAndNoOptionalParameter() {
         Storage testStorage = null;
         try {
@@ -84,7 +80,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testInitStorageWithValidClassNameAndOneParameter() {
         Storage testStorage = null;
         try {
@@ -96,7 +91,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testInitStorageWithValidClassNameAndInvalidSecondParameter() {
         Storage testStorage = null;
         try {
@@ -108,7 +102,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testInitStorageWithValidClassName() {
         Storage testStorage = null;
         try {
@@ -120,7 +113,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testGetStorageType() {
         try {
             assertEquals(currentStorage.getType(), MASStorageManager.MASStorageType.TYPE_AMS);
@@ -130,7 +122,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testWriteData() {
         StorageResult result;
         try {
@@ -151,7 +142,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
 
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testWriteLongKeyWithCallback() {
         assertEquals("precondition DELETEALL failed", currentStorage.deleteAll().getStatus(), StorageResult.StorageOperationStatus.SUCCESS);
         String str = "TestString";
@@ -174,7 +164,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
 
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testWriteLongData() {
         StorageResult result;
         assertEquals("precondition DELETEALL failed", currentStorage.deleteAll().getStatus(), StorageResult.StorageOperationStatus.SUCCESS);
@@ -191,7 +180,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testWriteLongDataWithCallback() {
         StorageResult result;
         assertEquals("precondition DELETEALL failed", currentStorage.deleteAll().getStatus(), StorageResult.StorageOperationStatus.SUCCESS);
@@ -213,7 +201,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
 
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testWriteLongKeyAndData() {
 
         StorageResult result;
@@ -238,7 +225,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testReadData() {
         StorageResult result;
         try {
@@ -256,7 +242,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testReadString() {
         StorageResult result;
         try {
@@ -277,7 +262,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testUpdateData() {
         StorageResult result;
         try {
@@ -303,7 +287,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testUpdateString() {
         StorageResult result;
         try {
@@ -329,7 +312,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testWriteOrUpdateData() {
         StorageResult result;
         try {
@@ -355,7 +337,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testWriteOrUpdateString() {
         StorageResult result;
         try {
@@ -381,7 +362,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testGetAllKeys() {
         StorageResult result;
         try {
@@ -431,7 +411,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
 
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testDeleteData() {
         StorageResult result;
         try {
@@ -455,7 +434,6 @@ public class AccountManagerStorageTests extends BaseStorageTests {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testDeleteAll() {
         StorageResult result;
         try {

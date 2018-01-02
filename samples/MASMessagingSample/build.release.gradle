@@ -56,18 +56,12 @@ dependencies {
     compile "com.android.support:appcompat-v7:$project.appCompatVersion"
     compile 'com.android.support:multidex:1.0.2'
 
-//    compile project(':mas-foundation')
-//    compile project(':masui')
-    //Using JCenter
     compile 'com.ca:mas:+'
     compile 'com.ca:masui:+'
 }
 
 repositories {
     jcenter()
-//    flatDir{
-//        dirs 'libs'
-//    }
     maven { url 'https://maven.fabric.io/public' }
 
     maven {

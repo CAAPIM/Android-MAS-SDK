@@ -11,10 +11,9 @@ package com.ca.mas.core.storage;
 import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyProperties;
+import android.support.test.runner.AndroidJUnit4;
 
-import com.ca.mas.AndroidVersionAwareTestRunner;
 import com.ca.mas.MASTestBase;
-import com.ca.mas.TargetApi;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +42,7 @@ import javax.security.auth.x500.X500Principal;
 
 import static junit.framework.Assert.assertEquals;
 
-@RunWith(AndroidVersionAwareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class EncryptionProviderTests extends MASTestBase {
 
     public static final String TESTDATA = "testdata";
@@ -55,7 +54,6 @@ public class EncryptionProviderTests extends MASTestBase {
     private static final int KEY_LENGTH = 256;
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testEncryption() throws Exception {
         KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
         ks.load(null);

@@ -8,11 +8,9 @@
 
 package com.ca.mas.core.storage;
 
-import android.os.Build;
+import android.support.test.runner.AndroidJUnit4;
 
-import com.ca.mas.AndroidVersionAwareTestRunner;
 import com.ca.mas.MASTestBase;
-import com.ca.mas.TargetApi;
 import com.ca.mas.TestUtils;
 import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.store.StorageProvider;
@@ -29,7 +27,7 @@ import static junit.framework.Assert.fail;
  * Tests to verify that the SDK reads the storage configuration(specified in the test_msso_config.json
  * file) properly.
  */
-@RunWith(AndroidVersionAwareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class StorageProviderTests extends MASTestBase {
 
     private static final int TYPE_KEYSTORE = 0;
@@ -60,7 +58,6 @@ public class StorageProviderTests extends MASTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testAMSDataSource() {
         try {
             JSONObject configO = createMockConfig(TYPE_AMS);

@@ -31,7 +31,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -457,7 +456,7 @@ public class MASTest extends MASLoginTestBase {
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
 
-        JSONAssert.assertEquals(requestData, callback.get().getBody().getContent(), false);
+        assertEquals(requestData.toString(), callback.get().getBody().getContent().toString());
         assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
         assertNotNull(callback.get().getHeaders().get(RESPONSE_HEADER_NAME));
 
@@ -495,7 +494,7 @@ public class MASTest extends MASLoginTestBase {
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
 
-        JSONAssert.assertEquals(responseData, callback.get().getBody().getContent(), false);
+        assertEquals(responseData.toString(), callback.get().getBody().getContent().toString());
     }
 
     @Test

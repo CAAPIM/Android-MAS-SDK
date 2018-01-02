@@ -8,11 +8,11 @@
 
 package com.ca.mas.core.datasource;
 
-import com.ca.mas.AndroidVersionAwareTestRunner;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.runner.RunWith;
 
-@RunWith(AndroidVersionAwareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class SecureAccountManagerStoreDataSourceTest extends AccountManagerStoreDataSourceTest{
 
     @Override

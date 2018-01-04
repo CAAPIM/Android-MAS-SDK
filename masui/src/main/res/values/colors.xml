@@ -19,5 +19,6 @@
     <color name="successDark">#1B5E20</color>
     <color name="error">#F44336</color>
     <color name="errorDark">#B71C1C</color>
+    <color name="textColor">@android:color/white</color>
 
 </resources>

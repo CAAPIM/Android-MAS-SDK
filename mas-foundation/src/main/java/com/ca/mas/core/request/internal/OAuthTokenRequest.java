@@ -11,8 +11,8 @@ package com.ca.mas.core.request.internal;
 import android.util.Log;
 
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
+import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASResponseBody;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,13 +36,13 @@ public class OAuthTokenRequest extends MAGRequestProxy implements LocalRequest {
     public static final String EXPIRY = "expiry";
 
     public OAuthTokenRequest() {
-        request = new MAGRequestBuilder((URL)null).password().build();
+        request = new MASRequestBuilder((URL)null).password().build();
     }
 
     @Override
-    public MAGResponse send(final MssoContext context) throws IOException {
+    public MASResponse send(final MssoContext context) throws IOException {
 
-        return new MAGResponse<JSONObject>() {
+        return new MASResponse<JSONObject>() {
 
             String accessToken = context.getAccessToken();
             String refreshToken = context.getRefreshToken();
@@ -69,9 +69,9 @@ public class OAuthTokenRequest extends MAGRequestProxy implements LocalRequest {
             }
 
             @Override
-            public MAGResponseBody<JSONObject> getBody() {
+            public MASResponseBody<JSONObject> getBody() {
                 if (getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    return new MAGResponseBody<JSONObject>() {
+                    return new MASResponseBody<JSONObject>() {
                         @Override
                         public JSONObject getContent() {
                             JSONObject entity = new JSONObject();
@@ -87,7 +87,7 @@ public class OAuthTokenRequest extends MAGRequestProxy implements LocalRequest {
                         }
                     };
                 }
-                return new MAGResponseBody<JSONObject>() {
+                return new MASResponseBody<JSONObject>() {
                     @Override
                     public JSONObject getContent() {
                         return new JSONObject();

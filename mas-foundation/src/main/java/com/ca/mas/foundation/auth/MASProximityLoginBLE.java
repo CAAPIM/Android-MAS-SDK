@@ -50,8 +50,4 @@ public class MASProximityLoginBLE extends BluetoothLeCentralRenderer implements 
         super.close();
     }
 
-    @Override
-    public void onError(int errorCode, String m, Exception e) {
-    }
-
 }

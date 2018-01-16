@@ -20,8 +20,8 @@ import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.OtpException;
+import com.ca.mas.foundation.MASResponse;
 
 /**
  * A policy that checks for OTP flow related error codes and status in the response.
@@ -31,6 +31,7 @@ class OtpAssertion implements MssoAssertion {
 
     @Override
     public void init(@NonNull MssoContext mssoContext, @NonNull Context sysContext) {
+        //do Nothing
     }
 
     @Override
@@ -52,7 +53,7 @@ class OtpAssertion implements MssoAssertion {
     }
 
     @Override
-    public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGServerException {
+    public void processResponse(MssoContext mssoContext, RequestInfo request, MASResponse response) throws MAGServerException {
 
         //Check if status code is 400, 401 or 403
         int statusCode = response.getResponseCode();
@@ -74,6 +75,7 @@ class OtpAssertion implements MssoAssertion {
 
     @Override
     public void close() {
+        //do Nothing
     }
 
 }

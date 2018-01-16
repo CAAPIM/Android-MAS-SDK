@@ -8,6 +8,7 @@
 
 package com.ca.mas.core.policy;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
@@ -16,9 +17,9 @@ import android.util.Log;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGException;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.MobileNumberInvalidException;
 import com.ca.mas.core.policy.exceptions.MobileNumberRequiredException;
+import com.ca.mas.foundation.MASResponse;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
@@ -53,7 +54,7 @@ class TelephoneAssertion implements MssoAssertion {
     }
 
     @Override
-    public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGException {
+    public void processResponse(MssoContext mssoContext, RequestInfo request, MASResponse response) throws MAGException {
         int statusCode = response.getResponseCode();
         if (statusCode >= 400 && statusCode < 500) {
             String responseContent = new String(response.getBody().getRawContent());
@@ -67,6 +68,7 @@ class TelephoneAssertion implements MssoAssertion {
         }
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void processRequest(MssoContext mssoContext, RequestInfo request) {
         if (telephonyManager != null) {

@@ -11,8 +11,6 @@ package com.ca.mas.foundation;
 import android.os.Parcelable;
 import android.util.Pair;
 
-import com.ca.mas.core.context.MssoContext;
-
 import java.util.List;
 import java.util.Map;
 
@@ -36,18 +34,16 @@ public interface MASAuthCredentials extends Parcelable {
     /**
      * Return the authorization headers that are sent to the gateway.
      *
-     * @param context The Msso Context
      * @return the authorization headers
      */
     @Internal
-    Map<String, List<String>> getHeaders(MssoContext context);
+    Map<String, List<String>> getHeaders();
 
     /**
-     * @param context The Msso Context
      * @return the list of parameters sent to the gateway to retrieve tokens
      */
     @Internal
-    List<Pair<String,String>> getParams(MssoContext context);
+    List<Pair<String,String>> getParams();
 
     /**
      * @return the credentials type,

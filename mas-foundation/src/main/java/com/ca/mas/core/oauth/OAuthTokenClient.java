@@ -19,13 +19,13 @@ import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGRequestBody;
-import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.request.MAGInternalRequest;
 import com.ca.mas.core.token.IdToken;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASRequestBody;
+import com.ca.mas.foundation.MASResponseBody;
 
 import org.json.JSONException;
 
@@ -75,7 +75,7 @@ public class OAuthTokenClient extends ServerClient {
 
         List<Pair<String, String>> form = new ArrayList<>();
 
-        List<Pair<String, String>> params = credentials.getParams(mssoContext);
+        List<Pair<String, String>> params = credentials.getParams();
         if (params != null) {
             for (Pair<String, String> param : params) {
                 form.add(new Pair<>(param.first, param.second));
@@ -87,9 +87,9 @@ public class OAuthTokenClient extends ServerClient {
         form.add(new Pair<>(GRANT_TYPE, credentials.getGrantType()));
 
         URI uri = conf.getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_REQUEST_TOKEN);
-        MAGRequest tokenRequest = new MAGRequest.MAGRequestBuilder(uri)
-                .post(MAGRequestBody.urlEncodedFormBody(form))
-                .responseBody(MAGResponseBody.stringBody())
+        MASRequest tokenRequest = new MASRequest.MASRequestBuilder(uri)
+                .post(MASRequestBody.urlEncodedFormBody(form))
+                .responseBody(MASResponseBody.stringBody())
                 .build();
 
 
@@ -133,9 +133,9 @@ public class OAuthTokenClient extends ServerClient {
         form.add(new Pair<String, String>(GRANT_TYPE, idToken.getType()));
 
         URI uri = conf.getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_REQUEST_TOKEN_SSO);
-        MAGRequest tokenRequest = new MAGRequest.MAGRequestBuilder(uri)
-                .post(MAGRequestBody.urlEncodedFormBody(form))
-                .responseBody(MAGResponseBody.stringBody())
+        MASRequest tokenRequest = new MASRequest.MASRequestBuilder(uri)
+                .post(MASRequestBody.urlEncodedFormBody(form))
+                .responseBody(MASResponseBody.stringBody())
                 .build();
 
 
@@ -157,7 +157,7 @@ public class OAuthTokenClient extends ServerClient {
         return tokenResponse;
     }
 
-    private void validate(OAuthTokenResponse tokenResponse) throws AuthenticationException, OAuthServerException, OAuthException {
+    private void validate(OAuthTokenResponse tokenResponse) throws OAuthException {
         if (!tokenResponse.isBearer())
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, "request_token response was token_type other than bearer");
         final String accessToken = tokenResponse.getAccessToken();
@@ -187,9 +187,9 @@ public class OAuthTokenClient extends ServerClient {
         form.add(new Pair<String, String>(GRANT_TYPE, REFRESH_TOKEN));
 
         URI uri = conf.getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_REQUEST_TOKEN);
-        MAGRequest tokenRequest = new MAGRequest.MAGRequestBuilder(uri)
-                .post(MAGRequestBody.urlEncodedFormBody(form))
-                .responseBody(MAGResponseBody.stringBody())
+        MASRequest tokenRequest = new MASRequest.MASRequestBuilder(uri)
+                .post(MASRequestBody.urlEncodedFormBody(form))
+                .responseBody(MASResponseBody.stringBody())
                 .build();
 
         OAuthTokenResponse tokenResponse;

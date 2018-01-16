@@ -9,9 +9,9 @@
 package com.ca.mas.core.request;
 
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.request.internal.LocalRequest;
 import com.ca.mas.core.request.internal.MAGRequestProxy;
+import com.ca.mas.foundation.MASRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +26,7 @@ public class MAGInternalRequest extends MAGRequestProxy {
     private Map<String, List<String>> magHeaders = new HashMap<>();
     private MssoContext context;
 
-    public MAGInternalRequest(MssoContext context, MAGRequest request) {
+    public MAGInternalRequest(MssoContext context, MASRequest request) {
         this.context = context;
         this.request = request;
     }
@@ -64,7 +64,7 @@ public class MAGInternalRequest extends MAGRequestProxy {
         return request instanceof LocalRequest;
     }
 
-    public MAGRequest getRequest(){
+    public MASRequest getRequest(){
         return request;
     }
 }

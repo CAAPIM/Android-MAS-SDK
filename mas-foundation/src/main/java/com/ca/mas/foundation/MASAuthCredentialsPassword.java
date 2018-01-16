@@ -11,7 +11,6 @@ package com.ca.mas.foundation;
 import android.os.Parcel;
 import android.util.Pair;
 
-import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.io.IoUtils;
 
 import java.nio.charset.Charset;
@@ -66,7 +65,7 @@ public class MASAuthCredentialsPassword implements MASAuthCredentials {
     }
 
     @Override
-    public Map<String, List<String>> getHeaders(MssoContext context) {
+    public Map<String, List<String>> getHeaders() {
         Map<String, List<String>> headers = new HashMap<>();
         List<String> authorizationValue = new ArrayList<>();
         authorizationValue.add("Basic " + IoUtils.base64(username + ":" + new String(password), Charset.defaultCharset()));
@@ -75,7 +74,7 @@ public class MASAuthCredentialsPassword implements MASAuthCredentials {
     }
 
     @Override
-    public List<Pair<String, String>> getParams(MssoContext config) {
+    public List<Pair<String, String>> getParams() {
         ArrayList<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<>("username", username));
         params.add(new Pair<>("password", new String(password)));

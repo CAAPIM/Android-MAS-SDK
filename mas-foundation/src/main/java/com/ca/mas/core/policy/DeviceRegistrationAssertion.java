@@ -22,7 +22,6 @@ import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.CredentialRequiredException;
 import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
@@ -31,6 +30,7 @@ import com.ca.mas.core.registration.RegistrationClient;
 import com.ca.mas.core.registration.RegistrationException;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.token.IdToken;
+import com.ca.mas.foundation.MASResponse;
 
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -115,7 +115,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
     }
 
     @Override
-    public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGStateException {
+    public void processResponse(MssoContext mssoContext, RequestInfo request, MASResponse response) throws MAGStateException {
         // Nothing to do here
     }
 

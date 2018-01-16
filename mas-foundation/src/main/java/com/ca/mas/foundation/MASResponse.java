@@ -8,9 +8,36 @@
 
 package com.ca.mas.foundation;
 
-import com.ca.mas.core.http.MAGResponse;
+import java.net.HttpURLConnection;
+import java.util.List;
+import java.util.Map;
 
-public interface MASResponse<T> extends MAGResponse {
+public interface MASResponse<T> {
+
+    /**
+     * Returns an unmodifiable map of the response-header fields and values.
+     * Please refer to {@link HttpURLConnection#getHeaderFields()} for details.
+     *
+     * @return The response headers
+     */
+    Map<String, List<String>> getHeaders();
+
+    /**
+     * Returns the response code returned by the remote MAG server.
+     * Please refer to {@link HttpURLConnection#getResponseCode()} ()} for details.
+     *
+     * @return The response code
+     */
+
+    int getResponseCode();
+
+    /**
+     * Returns the response message returned by the remote MAG server.
+     * Please refer to {@link HttpURLConnection#getResponseMessage()} ()} for details.
+     *
+     * @return The response message
+     */
+    String getResponseMessage();
 
     /**
      * Returns the response body returned by the remote MAG Server

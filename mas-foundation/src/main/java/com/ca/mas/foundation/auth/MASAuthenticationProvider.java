@@ -17,11 +17,11 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.ca.mas.core.http.MAGHttpClient;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.service.Provider;
 import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASResponseBody;
 
 import java.net.HttpURLConnection;
 import java.util.List;
@@ -100,19 +100,19 @@ public class MASAuthenticationProvider implements Parcelable {
         }
     };
 
-    private static class MagTask extends AsyncTask<Void, Void, Pair<MAGResponse<Object>, Exception>> {
+    private static class MagTask extends AsyncTask<Void, Void, Pair<MASResponse<Object>, Exception>> {
         Context context;
-        MAGRequest request;
+        MASRequest request;
         MASCallback<Uri> callback;
 
-        MagTask(Context context, MAGRequest request, MASCallback<Uri> callback) {
+        MagTask(Context context, MASRequest request, MASCallback<Uri> callback) {
             this.context = context;
             this.request = request;
             this.callback = callback;
         }
 
         @Override
-        protected Pair<MAGResponse<Object>, Exception> doInBackground(Void... params) {
+        protected Pair<MASResponse<Object>, Exception> doInBackground(Void... params) {
             MAGHttpClient magHttpClient = new MAGHttpClient() {
                 @Override
                 protected void onConnectionObtained(HttpURLConnection connection) {
@@ -128,10 +128,10 @@ public class MASAuthenticationProvider implements Parcelable {
         }
 
         @Override
-        protected void onPostExecute(Pair<MAGResponse<Object>, Exception> magResponse) {
+        protected void onPostExecute(Pair<MASResponse<Object>, Exception> magResponse) {
             super.onPostExecute(magResponse);
             if (magResponse != null) {
-                MAGResponse response = magResponse.first;
+                MASResponse response = magResponse.first;
                 Exception ex = magResponse.second;
                 if (response != null) {
                     Map<String, List<String>> headers = response.getHeaders();
@@ -145,9 +145,9 @@ public class MASAuthenticationProvider implements Parcelable {
     }
 
     public void getAuthConfiguration(Context context, MASAuthenticationProvider provider, MASCallback<Uri> callback) {
-        MAGRequest request = new MAGRequest.MAGRequestBuilder(Uri.parse(provider.getAuthenticationUrl()))
+        MASRequest request = new MASRequest.MASRequestBuilder(Uri.parse(provider.getAuthenticationUrl()))
                 .get()
-                .responseBody(MAGResponseBody.jsonBody())
+                .responseBody(MASResponseBody.jsonBody())
                 .build();
 
         MagTask magTask = new MagTask(context, request, callback);

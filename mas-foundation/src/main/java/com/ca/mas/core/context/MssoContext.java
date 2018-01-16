@@ -21,8 +21,6 @@ import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.http.MAGHttpClient;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.policy.PolicyManager;
 import com.ca.mas.core.policy.RequestInfo;
@@ -44,6 +42,8 @@ import com.ca.mas.core.token.JWTValidation;
 import com.ca.mas.core.token.JWTValidationException;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASConfiguration;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
 
 import java.io.IOException;
 import java.util.Date;
@@ -409,7 +409,7 @@ public class MssoContext {
      *                           (for example, if a username and password must be provided, or if the token store needs to be unlocked).
      * @throws IOException       if there is an error communicating with the target server.
      */
-    public MAGResponse executeRequest(Bundle extra, MAGRequest request) throws Exception {
+    public MASResponse executeRequest(Bundle extra, MASRequest request) throws Exception {
         RequestInfo requestInfo = new RequestInfo(this, request, extra);
         MAGInternalRequest internalRequest = requestInfo.getRequest();
 
@@ -421,7 +421,7 @@ public class MssoContext {
                     return getMAGHttpClient().execute(internalRequest);
                 }
                 policyManager.processRequest(requestInfo);
-                MAGResponse response;
+                MASResponse response;
                 if (internalRequest.isLocalRequest()) {
                     response = ((LocalRequest) internalRequest.getRequest()).send(this);
                 } else {

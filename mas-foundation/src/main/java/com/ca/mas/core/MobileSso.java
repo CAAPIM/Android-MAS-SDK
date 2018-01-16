@@ -13,10 +13,10 @@ import android.os.ResultReceiver;
 
 import com.ca.mas.core.auth.ble.BluetoothLePeripheralCallback;
 import com.ca.mas.core.conf.ConfigurationProvider;
-import com.ca.mas.foundation.MASAuthCredentials;
-import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.token.IdToken;
+import com.ca.mas.foundation.MASAuthCredentials;
+import com.ca.mas.foundation.MASRequest;
 
 import org.json.JSONObject;
 
@@ -50,7 +50,7 @@ public interface MobileSso {
      * {@link #cancelRequest(long, Bundle)}}
      */
 
-    long processRequest(MAGRequest request, ResultReceiver resultReceiver);
+    long processRequest(MASRequest request, ResultReceiver resultReceiver);
 
     /**
      * <p>Authenticates a user with a username and password. The existing user session will be logged out and authenticated with the provided username

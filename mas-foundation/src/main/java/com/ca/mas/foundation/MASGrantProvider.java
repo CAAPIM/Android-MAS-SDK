@@ -3,15 +3,12 @@
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
- *
  */
 
-package com.ca.mas.core.oauth;
+package com.ca.mas.foundation;
 
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.foundation.MASAuthCredentialsClientCredentials;
-import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.util.Functions;
 
 import java.net.URI;
@@ -19,7 +16,7 @@ import java.net.URI;
 /**
  * Constant to define Grant Types
  */
-public enum GrantProvider {
+public enum MASGrantProvider {
 
     PASSWORD(
             new Functions.Unary<MASAuthCredentials, MssoContext>() {
@@ -73,7 +70,7 @@ public enum GrantProvider {
      * @param getRegistrationPath Return MAG registration endpoint to perform the registration process.
      * @param isSessionSupported  Whether the grant type support session or not.
      */
-    GrantProvider(
+    MASGrantProvider(
             Functions.Unary<MASAuthCredentials, MssoContext> getCredentials,
             Functions.Unary<URI, MssoContext> getRegistrationPath,
             Functions.Nullary<Boolean> isSessionSupported) {

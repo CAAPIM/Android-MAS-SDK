@@ -15,6 +15,10 @@ import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASRequestBody;
+import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASResponseBody;
 import com.ca.mas.foundation.MASSecurityConfiguration;
 
 import java.io.IOException;
@@ -32,11 +36,11 @@ import static com.ca.mas.foundation.MAS.TAG;
 
 public class MAGHttpClient {
 
-    public <T> MAGResponse<T> execute(MAGRequest request, MASSecurityConfiguration securityConfiguration) throws IOException {
+    public <T> MASResponse<T> execute(MASRequest request, MASSecurityConfiguration securityConfiguration) throws IOException {
         return execute(request, SSLSocketFactoryProvider.getInstance().createSSLSocketFactory(securityConfiguration));
     }
 
-    public <T> MAGResponse<T> execute(MAGRequest request) throws IOException {
+    public <T> MASResponse<T> execute(MASRequest request) throws IOException {
         return execute(request, SSLSocketFactoryProvider.getInstance().get(request.getURL()));
     }
 
@@ -48,7 +52,7 @@ public class MAGHttpClient {
      * @return The response to the request.
      * @throws IOException if any error occur or the connection was aborted.
      */
-    public <T> MAGResponse<T> execute(MAGRequest request, SSLSocketFactory sslSocketFactory) throws IOException {
+    public <T> MASResponse<T> execute(MASRequest request, SSLSocketFactory sslSocketFactory) throws IOException {
         final HttpURLConnection urlConnection = (HttpURLConnection) request.getURL().openConnection();
 
         if (DEBUG) {
@@ -90,7 +94,7 @@ public class MAGHttpClient {
                 }
             }
 
-            MAGRequestBody body = request.getBody();
+            MASRequestBody body = request.getBody();
             if (body != null) {
                 urlConnection.setDoOutput(true);
 
@@ -120,7 +124,7 @@ public class MAGHttpClient {
                 }
             }
 
-            final MAGResponseBody responseBody = request.getResponseBody();
+            final MASResponseBody responseBody = request.getResponseBody();
 
             int responseCode;
             String responseMessage;
@@ -153,7 +157,7 @@ public class MAGHttpClient {
 
             final int finalResponseCode = responseCode;
             final String finalResponseMessage = responseMessage;
-            return new MAGResponse<T>() {
+            return new MASResponse<T>() {
 
                 @Override
                 public Map<String, List<String>> getHeaders() {
@@ -172,7 +176,7 @@ public class MAGHttpClient {
 
 
                 @Override
-                public MAGResponseBody<T> getBody() {
+                public MASResponseBody<T> getBody() {
                     return responseBody;
                 }
 

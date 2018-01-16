@@ -19,9 +19,7 @@ import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.oauth.GrantProvider;
+import com.ca.mas.foundation.MASGrantProvider;
 import com.ca.mas.core.oauth.OAuthException;
 import com.ca.mas.core.oauth.OAuthServerException;
 import com.ca.mas.core.oauth.OAuthTokenClient;
@@ -31,6 +29,8 @@ import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.request.MAGInternalRequest;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.token.JWTValidationException;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,7 +72,7 @@ class AccessTokenAssertion implements MssoAssertion {
     }
 
     @Override
-    public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGException {
+    public void processResponse(MssoContext mssoContext, RequestInfo request, MASResponse response) throws MAGException {
         int errorCode = ServerClient.findErrorCode(response);
         if (errorCode == -1) {
             return;
@@ -100,7 +100,7 @@ class AccessTokenAssertion implements MssoAssertion {
                 if (DEBUG) Log.d(TAG, "Access Token is still valid.");
                 if (isSufficientScope(mssoContext, request)) {
                     //Handle grant flow switching from Client Credential to Password
-                    if (request.getGrantProvider() == GrantProvider.PASSWORD) {
+                    if (request.getGrantProvider() == MASGrantProvider.PASSWORD) {
                         //The access token is granted by Client Credential if refresh token is null
                         //Please refer to https://tools.ietf.org/html/rfc6749#section-4.4.3 for detail
                         if (mssoContext.getRefreshToken() == null) {
@@ -165,7 +165,7 @@ class AccessTokenAssertion implements MssoAssertion {
         return expiry <= 0 || System.currentTimeMillis() <= expiry;
     }
 
-    private boolean isSufficientScope(MssoContext mssoContext, MAGRequest request) {
+    private boolean isSufficientScope(MssoContext mssoContext, MASRequest request) {
         String rScope = request.getScope();
         String gScope = mssoContext.getGrantedScope();
         if (rScope == null || rScope.trim().length() == 0) {

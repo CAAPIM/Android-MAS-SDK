@@ -565,7 +565,7 @@ public class MssoContext {
             }
 
         } finally {
-            setCredentials(null);
+            clearCredentials();
             resetHttpClient();
         }
     }
@@ -617,7 +617,7 @@ public class MssoContext {
     public void destroyAllPersistentTokens() {
         if (tokenManager == null)
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
-        setCredentials(null);
+        clearCredentials();
         try {
             privateTokens.clearAll();
             clientCredentialTokens.clearAll();
@@ -643,7 +643,7 @@ public class MssoContext {
     public void destroyPersistentTokens() {
         if (tokenManager == null)
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
-        setCredentials(null);
+        clearCredentials();
         try {
             privateTokens.clear();
             clientCredentialTokens.clear();

@@ -57,7 +57,7 @@ import static com.ca.mas.foundation.MAS.TAG;
  * <p/>
  * The context must be configured and initialized before it can be used.
  * <p/>
- * The {@link #executeRequest(Bundle, MAGRequest)} method will process an outbound
+ * The {@link #executeRequest(Bundle, MASRequest)} method will process an outbound
  * web API request.  This may take a long time and involve multiple round trips to the token server, and should not
  * be executed on the UI thread.
  * To simplify running remote calls in the background from an Activity, the MssoClient and HttpResponseFragment
@@ -136,7 +136,7 @@ public class MssoContext {
      *                plan to close this MssoContext when the activity is destroyed.
      * @throws MssoException if the token store cannot be prepared
      */
-    public void init(Context context) throws MssoException {
+    public void init(Context context) {
         this.appContext = context.getApplicationContext();
 
         this.configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
@@ -258,6 +258,7 @@ public class MssoContext {
         MASAuthCredentials cred = getCredentials();
         if (cred != null)
             cred.clear();
+        this.credentials = null;
     }
 
     /**
@@ -458,7 +459,7 @@ public class MssoContext {
         int errorCode = e.getErrorCode();
         String s = Integer.toString(errorCode);
         if (s.endsWith("201")) { //Invalid client - The given client credentials were not valid
-            throw new InvalidClientCredentialException();
+            throw new InvalidClientCredentialException(e);
         }
         if (s.endsWith("202")) { //Invalid resource owner - The given resource owner credentials were not valid
             throw new AuthenticationException(e);
@@ -500,7 +501,7 @@ public class MssoContext {
      *                       and there is an error while attempting to notify the server to log out the ID token or
      *                       error access the data source.
      */
-    public void logout(boolean contactServer) throws MssoException {
+    public void logout(boolean contactServer) {
 
         EventDispatcher.LOGOUT.notifyObservers();
 
@@ -584,7 +585,7 @@ public class MssoContext {
      *
      * @throws MssoException if there is an error while attempting to tell the token server to unregister this device.
      */
-    public void removeDeviceRegistration() throws MssoException {
+    public void removeDeviceRegistration() {
         EventDispatcher.BEFORE_DEREGISTER.notifyObservers();
         if (tokenManager == null) {
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
@@ -613,7 +614,7 @@ public class MssoContext {
      *
      * @throws MssoException if there is an error while accessing the storage .
      */
-    public void destroyAllPersistentTokens() throws MssoException {
+    public void destroyAllPersistentTokens() {
         if (tokenManager == null)
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
         setCredentials(null);
@@ -639,7 +640,7 @@ public class MssoContext {
      *
      * @throws MssoException if there is an error while accessing the storage .
      */
-    public void destroyPersistentTokens() throws MssoException {
+    public void destroyPersistentTokens() {
         if (tokenManager == null)
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
         setCredentials(null);

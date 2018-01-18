@@ -75,6 +75,9 @@ public class MAS {
 
     private static boolean browserBasedAuthenticationEnabled = false;
 
+    private MAS() {
+    }
+
     private static synchronized void init(@NonNull final Context context) {
         stop();
         // Initialize the MASConfiguration

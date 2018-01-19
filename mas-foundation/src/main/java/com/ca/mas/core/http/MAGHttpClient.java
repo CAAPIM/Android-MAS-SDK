@@ -125,7 +125,17 @@ public class MAGHttpClient {
             int responseCode;
             String responseMessage;
             try {
-                responseCode = urlConnection.getResponseCode();
+                try {
+                    //For Android 4.1.x, if server returns status 401, but does not include
+                    //WWW-Authenticate with the a realm in the header, it throws
+                    //java.io.IOException : No authentication challenges found
+                    //A workaround here is to read it again if we got the IOException,
+                    //the second time successfully return the 401 status code.
+                    responseCode = urlConnection.getResponseCode();
+                } catch (IOException e) {
+                    responseCode = urlConnection.getResponseCode();
+                }
+
                 responseMessage = urlConnection.getResponseMessage();
                 if (DEBUG) {
                     Log.d(TAG, String.format("Response code: %d", responseCode));

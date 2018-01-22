@@ -20,6 +20,7 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.conf.Server;
 import com.ca.mas.core.context.MssoContext;
+import com.ca.mas.core.error.MAGError;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
@@ -268,17 +269,19 @@ public final class MobileSsoFactory {
                     }
                     try {
                         JSONObject jsonObject = new JSONObject(url);
-                        String provider_url = jsonObject.getString("provider_url");
+                        String providerUrl = jsonObject.getString("provider_url");
                         if (resultReceiver instanceof AuthResultReceiver) {
                             ((AuthResultReceiver) resultReceiver).setData(jsonObject);
                         }
-                        builder = new MASRequest.MASRequestBuilder(getURI(provider_url));
+                        builder = new MASRequest.MASRequestBuilder(getURI(providerUrl));
                     } catch (JSONException e) {
+                        //received url is not a json object.
                         builder = new MASRequest.MASRequestBuilder(getURI(url));
                     }
                 } catch (Exception e) {
                     if (resultReceiver != null) {
                         Bundle result = new Bundle();
+                        result.putSerializable(MssoIntents.RESULT_ERROR, new MAGError(e));
                         result.putString(MssoIntents.RESULT_ERROR_MESSAGE, e.getMessage());
                         resultReceiver.send(MssoIntents.RESULT_CODE_ERR_UNKNOWN, result);
                     }

@@ -18,9 +18,9 @@ import android.util.Log;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGException;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.LocationInvalidException;
 import com.ca.mas.core.policy.exceptions.LocationRequiredException;
+import com.ca.mas.foundation.MASResponse;
 
 import java.net.HttpURLConnection;
 import java.util.Timer;
@@ -80,7 +80,7 @@ class LocationAssertion implements MssoAssertion {
     }
 
     @SuppressWarnings("MissingPermission")
-    private void initLocation(String locationProvider, final long minTime, final float minDistance) throws SecurityException {
+    private void initLocation(String locationProvider, final long minTime, final float minDistance) {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         lastLocation = getLastKnownLocation(locationProvider);
         if (locationManager != null) {
@@ -141,7 +141,7 @@ class LocationAssertion implements MssoAssertion {
     }
 
     @Override
-    public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGException {
+    public void processResponse(MssoContext mssoContext, RequestInfo request, MASResponse response) throws MAGException {
         int statusCode = response.getResponseCode();
         if (statusCode >= HttpURLConnection.HTTP_BAD_REQUEST && statusCode < HttpURLConnection.HTTP_INTERNAL_ERROR) {
             String responseContent = new String(response.getBody().getRawContent());

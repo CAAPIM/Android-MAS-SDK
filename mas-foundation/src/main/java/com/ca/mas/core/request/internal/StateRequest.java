@@ -11,13 +11,12 @@ package com.ca.mas.core.request.internal;
 import android.util.Log;
 
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
+import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASResponseBody;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
@@ -36,13 +35,13 @@ public class StateRequest extends MAGRequestProxy implements LocalRequest {
     public static final String MAG_IDENTIFIER = "mag_identifier";
 
     public StateRequest() {
-        request = new MAGRequestBuilder((URL) null).password().build();
+        request = new MASRequestBuilder((URL) null).password().build();
     }
 
     @Override
-    public MAGResponse send(final MssoContext context) throws IOException {
+    public MASResponse send(final MssoContext context) {
 
-        return new MAGResponse<JSONObject>() {
+        return new MASResponse<JSONObject>() {
 
             @Override
             public Map<String, List<String>> getHeaders() {
@@ -60,8 +59,8 @@ public class StateRequest extends MAGRequestProxy implements LocalRequest {
             }
 
             @Override
-            public MAGResponseBody<JSONObject> getBody() {
-                return new MAGResponseBody<JSONObject>() {
+            public MASResponseBody<JSONObject> getBody() {
+                return new MASResponseBody<JSONObject>() {
                     @Override
                     public JSONObject getContent() {
                         JSONObject entity = new JSONObject();

@@ -51,9 +51,9 @@ public class NFCRenderer extends PollingRenderer {
     public static final String ADDRESS = "address";
 
     private ListenerThread listener = null;
-    private UUID uuid = null;
+    private UUID serverUuid = null;
     private NfcAdapter adapter = null;
-    private String address = null;
+    private String serverAddress = null;
 
     @Override
     public View render() {
@@ -72,7 +72,7 @@ public class NFCRenderer extends PollingRenderer {
             return;
         }
 
-        uuid = java.util.UUID.randomUUID();
+        serverUuid = java.util.UUID.randomUUID();
 
         try {
             listener = new ListenerThread();
@@ -92,9 +92,9 @@ public class NFCRenderer extends PollingRenderer {
 
         final JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put(UUID, uuid.toString());
+            jsonObject.put(UUID, serverUuid.toString());
             jsonObject.put(PROVIDER_URL, provider.getUrl().toString());
-            jsonObject.put(ADDRESS, address);
+            jsonObject.put(ADDRESS, serverAddress);
             // Register callback
             adapter.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
 
@@ -116,7 +116,8 @@ public class NFCRenderer extends PollingRenderer {
     }
 
     @Override
-    public void onError(int code, String message, Exception e) {
+    protected void onError(int code, String message, Exception e) {
+        //Ignore error by default
     }
 
     @SuppressWarnings("MissingPermission")
@@ -146,8 +147,8 @@ public class NFCRenderer extends PollingRenderer {
             BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
             if (adapter != null) {
                 adapter.cancelDiscovery();
-                serverSocket = adapter.listenUsingInsecureRfcommWithServiceRecord("BluetoothRenderer", uuid);
-                address = adapter.getAddress();
+                serverSocket = adapter.listenUsingInsecureRfcommWithServiceRecord("BluetoothRenderer", serverUuid);
+                serverAddress = adapter.getAddress();
             } else {
                 throw new IllegalStateException("Unable to acquire BluetoothAdapter");
             }

@@ -11,10 +11,6 @@ package com.ca.mas.foundation;
 import android.net.Uri;
 
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.http.MAGRequestBody;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
-import com.ca.mas.core.oauth.GrantProvider;
 import com.ca.mas.core.request.internal.LocalRequest;
 
 import org.json.JSONException;
@@ -44,8 +40,8 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
     }
 
     @Override
-    public MAGResponse send(final MssoContext context) throws IOException {
-        return new MAGResponse<JSONObject>() {
+    public MASResponse send(final MssoContext context) throws IOException {
+        return new MASResponse<JSONObject>() {
 
             @Override
             public Map<String, List<String>> getHeaders() {
@@ -63,8 +59,8 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
             }
 
             @Override
-            public MAGResponseBody<JSONObject> getBody() {
-                return new MAGResponseBody<JSONObject>() {
+            public MASResponseBody<JSONObject> getBody() {
+                return new MASResponseBody<JSONObject>() {
                     @Override
                     public JSONObject getContent() {
                         JSONObject entity = new JSONObject();
@@ -98,22 +94,22 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
     }
 
     @Override
-    public GrantProvider getGrantProvider() {
+    public MASGrantProvider getGrantProvider() {
         return request.getGrantProvider();
     }
 
     @Override
-    public MAGRequestBody getBody() {
+    public MASRequestBody getBody() {
         return request.getBody();
     }
 
     @Override
-    public MAGConnectionListener getConnectionListener() {
+    public MASConnectionListener getConnectionListener() {
         return request.getConnectionListener();
     }
 
     @Override
-    public MAGResponseBody<?> getResponseBody() {
+    public MASResponseBody<?> getResponseBody() {
         return request.getResponseBody();
     }
 

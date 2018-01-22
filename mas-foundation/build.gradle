@@ -44,11 +44,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-
         debug {
-            testCoverageEnabled false
+            testCoverageEnabled rootProject.ext.coverageEnabled
         }
     }
+
+
 
     productFlavors {
     }
@@ -61,7 +62,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
 
     compile "com.google.zxing:core:$rootProject.ext.zxingVersion"
-    compile "com.android.support:support-annotations:$rootProject.ext.appCompatVersion"
+    compile "com.android.support:support-annotations:$rootProject.ext.supportAnnotationsVersion"
     compile "com.nimbusds:nimbus-jose-jwt:$rootProject.ext.nimbusJoseVersion"
 
     //For Android API 16 and 17
@@ -159,8 +160,8 @@ bintray {
         userOrg = 'caapim'
 
         desc = 'MASFoundation is the core framework of the Android Mobile SDK, which is part of CA Mobile API Gateway. ' +
-               'MASFoundation handles the communication and authentication layer of the Android Mobile SDK, ' +
-               'making it easy for developers to establish a secure connection (TLS, Mutual SSL) to any CA Mobile API Gateway (MAG).'
+                'MASFoundation handles the communication and authentication layer of the Android Mobile SDK, ' +
+                'making it easy for developers to establish a secure connection (TLS, Mutual SSL) to any CA Mobile API Gateway (MAG).'
         websiteUrl = siteUrl
         issueTrackerUrl = issueUrl
         vcsUrl = gitUrl

@@ -11,8 +11,8 @@ package com.ca.mas.core.policy;
 import android.os.Bundle;
 
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.request.MAGInternalRequest;
+import com.ca.mas.foundation.MASRequest;
 
 /**
  * Holds a request being processed by policy along with other metadata.
@@ -22,7 +22,7 @@ public class RequestInfo {
     private int numAttempts = 0;
     private final Bundle extra;
 
-    public RequestInfo(MssoContext context, MAGRequest request, Bundle extra) {
+    public RequestInfo(MssoContext context, MASRequest request, Bundle extra) {
         if (request == null)
             throw new NullPointerException("request");
         this.request = new MAGInternalRequest(context, request);

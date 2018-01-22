@@ -11,13 +11,13 @@ package com.ca.mas.foundation.auth;
 
 import android.app.Activity;
 
+import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.auth.QRCodeRenderer;
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.service.Provider;
 import com.ca.mas.foundation.MASCallback;
-import com.ca.mas.foundation.MASResultReceiver;
+import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.notify.Callback;
 
 /**
@@ -26,9 +26,9 @@ import com.ca.mas.foundation.notify.Callback;
 public class MASProximityLoginQRCode extends QRCodeRenderer implements MASProximityLogin {
 
     public static void authorize(String authenticateUrl, final MASCallback<Void> callback) {
-        MobileSsoFactory.getInstance().authorize(authenticateUrl, new MASResultReceiver(null) {
+        MobileSsoFactory.getInstance().authorize(authenticateUrl, new MAGResultReceiver(null) {
             @Override
-            public void onSuccess(MAGResponse response) {
+            public void onSuccess(MASResponse response) {
                 Callback.onSuccess(callback, null);
             }
 
@@ -60,8 +60,4 @@ public class MASProximityLoginQRCode extends QRCodeRenderer implements MASProxim
         super.close();
     }
 
-
-    @Override
-    public void onError(int errorCode, String m, Exception e) {
-    }
 }

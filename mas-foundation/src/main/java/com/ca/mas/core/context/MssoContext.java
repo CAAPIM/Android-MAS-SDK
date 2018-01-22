@@ -21,8 +21,6 @@ import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.http.MAGHttpClient;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.policy.PolicyManager;
 import com.ca.mas.core.policy.RequestInfo;
@@ -44,6 +42,8 @@ import com.ca.mas.core.token.JWTValidation;
 import com.ca.mas.core.token.JWTValidationException;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASConfiguration;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
 
 import java.io.IOException;
 import java.util.Date;
@@ -57,7 +57,7 @@ import static com.ca.mas.foundation.MAS.TAG;
  * <p/>
  * The context must be configured and initialized before it can be used.
  * <p/>
- * The {@link #executeRequest(Bundle, MAGRequest)} method will process an outbound
+ * The {@link #executeRequest(Bundle, MASRequest)} method will process an outbound
  * web API request.  This may take a long time and involve multiple round trips to the token server, and should not
  * be executed on the UI thread.
  * To simplify running remote calls in the background from an Activity, the MssoClient and HttpResponseFragment
@@ -136,7 +136,7 @@ public class MssoContext {
      *                plan to close this MssoContext when the activity is destroyed.
      * @throws MssoException if the token store cannot be prepared
      */
-    public void init(Context context) throws MssoException {
+    public void init(Context context) {
         this.appContext = context.getApplicationContext();
 
         this.configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
@@ -258,6 +258,7 @@ public class MssoContext {
         MASAuthCredentials cred = getCredentials();
         if (cred != null)
             cred.clear();
+        this.credentials = null;
     }
 
     /**
@@ -409,7 +410,7 @@ public class MssoContext {
      *                           (for example, if a username and password must be provided, or if the token store needs to be unlocked).
      * @throws IOException       if there is an error communicating with the target server.
      */
-    public MAGResponse executeRequest(Bundle extra, MAGRequest request) throws Exception {
+    public MASResponse executeRequest(Bundle extra, MASRequest request) throws Exception {
         RequestInfo requestInfo = new RequestInfo(this, request, extra);
         MAGInternalRequest internalRequest = requestInfo.getRequest();
 
@@ -421,7 +422,7 @@ public class MssoContext {
                     return getMAGHttpClient().execute(internalRequest);
                 }
                 policyManager.processRequest(requestInfo);
-                MAGResponse response;
+                MASResponse response;
                 if (internalRequest.isLocalRequest()) {
                     response = ((LocalRequest) internalRequest.getRequest()).send(this);
                 } else {
@@ -458,7 +459,7 @@ public class MssoContext {
         int errorCode = e.getErrorCode();
         String s = Integer.toString(errorCode);
         if (s.endsWith("201")) { //Invalid client - The given client credentials were not valid
-            throw new InvalidClientCredentialException();
+            throw new InvalidClientCredentialException(e);
         }
         if (s.endsWith("202")) { //Invalid resource owner - The given resource owner credentials were not valid
             throw new AuthenticationException(e);
@@ -500,7 +501,7 @@ public class MssoContext {
      *                       and there is an error while attempting to notify the server to log out the ID token or
      *                       error access the data source.
      */
-    public void logout(boolean contactServer) throws MssoException {
+    public void logout(boolean contactServer) {
 
         EventDispatcher.LOGOUT.notifyObservers();
 
@@ -564,7 +565,7 @@ public class MssoContext {
             }
 
         } finally {
-            setCredentials(null);
+            clearCredentials();
             resetHttpClient();
         }
     }
@@ -584,7 +585,7 @@ public class MssoContext {
      *
      * @throws MssoException if there is an error while attempting to tell the token server to unregister this device.
      */
-    public void removeDeviceRegistration() throws MssoException {
+    public void removeDeviceRegistration() {
         EventDispatcher.BEFORE_DEREGISTER.notifyObservers();
         if (tokenManager == null) {
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
@@ -613,10 +614,10 @@ public class MssoContext {
      *
      * @throws MssoException if there is an error while accessing the storage .
      */
-    public void destroyAllPersistentTokens() throws MssoException {
+    public void destroyAllPersistentTokens() {
         if (tokenManager == null)
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
-        setCredentials(null);
+        clearCredentials();
         try {
             privateTokens.clearAll();
             clientCredentialTokens.clearAll();
@@ -639,10 +640,10 @@ public class MssoContext {
      *
      * @throws MssoException if there is an error while accessing the storage .
      */
-    public void destroyPersistentTokens() throws MssoException {
+    public void destroyPersistentTokens() {
         if (tokenManager == null)
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
-        setCredentials(null);
+        clearCredentials();
         try {
             privateTokens.clear();
             clientCredentialTokens.clear();

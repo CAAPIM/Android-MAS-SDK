@@ -12,8 +12,6 @@ import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.util.Pair;
 
-import com.ca.mas.core.context.MssoContext;
-
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +23,7 @@ public class MASAuthCredentialsClientCredentials implements MASAuthCredentials {
 
     @Override
     public void clear() {
-
+        //Nothing need to clear
     }
 
     @Override
@@ -34,12 +32,12 @@ public class MASAuthCredentialsClientCredentials implements MASAuthCredentials {
     }
 
     @Override
-    public Map<String, List<String>> getHeaders(MssoContext context) {
+    public Map<String, List<String>> getHeaders() {
         return null;
     }
 
     @Override
-    public List<Pair<String, String>> getParams(MssoContext context) {
+    public List<Pair<String, String>> getParams() {
         return null;
     }
 

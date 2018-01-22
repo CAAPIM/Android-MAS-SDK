@@ -8,6 +8,7 @@
 
 package com.ca.mas.core.auth.ble;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -34,7 +35,7 @@ import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGException;
-import com.ca.mas.core.http.MAGResponse;
+import com.ca.mas.foundation.MASResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -78,6 +79,7 @@ public class BluetoothLePeripheral {
         return isAuthenticating;
     }
 
+    @SuppressLint("MissingPermission")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public synchronized void start(final BluetoothLePeripheralCallback callback) {
         this.callback = getCallback(callback);
@@ -218,7 +220,7 @@ public class BluetoothLePeripheral {
                             MobileSsoFactory.getInstance(context).authorize(finalSession, new MAGResultReceiver() {
 
                                 @Override
-                                public void onSuccess(MAGResponse response) {
+                                public void onSuccess(MASResponse response) {
                                     isAuthenticating = false;
 
                                     if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {

@@ -23,13 +23,13 @@ import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
-import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.MssoClient;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.token.IdToken;
+import com.ca.mas.foundation.MASRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -221,7 +221,7 @@ public final class MobileSsoFactory {
         return new MobileSso() {
 
             @Override
-            public long processRequest(MAGRequest request, ResultReceiver resultReceiver) {
+            public long processRequest(MASRequest request, ResultReceiver resultReceiver) {
                 return mssoClient.processRequest(request, resultReceiver);
             }
 
@@ -261,7 +261,7 @@ public final class MobileSsoFactory {
             @Override
             public void authorize(String url, ResultReceiver resultReceiver) {
                 //TODO Handle for QRCode and NFC with the same url string
-                MAGRequest.MAGRequestBuilder builder;
+                MASRequest.MASRequestBuilder builder;
                 try {
                     if (url == null || url.trim().length() == 0) {
                         throw new IllegalArgumentException("Authorization request cannot be empty.");
@@ -272,9 +272,9 @@ public final class MobileSsoFactory {
                         if (resultReceiver instanceof AuthResultReceiver) {
                             ((AuthResultReceiver) resultReceiver).setData(jsonObject);
                         }
-                        builder = new MAGRequest.MAGRequestBuilder(getURI(provider_url));
+                        builder = new MASRequest.MASRequestBuilder(getURI(provider_url));
                     } catch (JSONException e) {
-                        builder = new MAGRequest.MAGRequestBuilder(getURI(url));
+                        builder = new MASRequest.MASRequestBuilder(getURI(url));
                     }
                 } catch (Exception e) {
                     if (resultReceiver != null) {

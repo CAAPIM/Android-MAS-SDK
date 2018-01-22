@@ -18,9 +18,9 @@ import com.ca.mas.core.context.MssoException;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.token.ClientCredentials;
+import com.ca.mas.foundation.MASResponse;
 
 import java.util.UUID;
 
@@ -79,7 +79,7 @@ class ClientCredentialAssertion implements MssoAssertion {
     }
 
     @Override
-    public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGStateException {
+    public void processResponse(MssoContext mssoContext, RequestInfo request, MASResponse response) throws MAGStateException {
         int errorCode = ServerClient.findErrorCode(response);
         if (errorCode == -1) {
             return;

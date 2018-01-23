@@ -11,12 +11,12 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.foundation.FoundationConsts;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASResponseBody;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.identity.common.MASFilteredRequest;
@@ -53,7 +53,7 @@ public class MASUserRepositoryImpl implements MASUserRepository {
         MASRequest masRequest = new MASRequest.MASRequestBuilder(uri)
                 .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
                 .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
-                .responseBody(MAGResponseBody.jsonBody())
+                .responseBody(MASResponseBody.jsonBody())
                 .get()
                 .build();
 
@@ -83,7 +83,7 @@ public class MASUserRepositoryImpl implements MASUserRepository {
         MASRequest masRequest = new MASRequest.MASRequestBuilder(builder.build())
                 .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
                 .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
-                .responseBody(MAGResponseBody.jsonBody())
+                .responseBody(MASResponseBody.jsonBody())
                 .get()
                 .build();
 
@@ -148,7 +148,7 @@ public class MASUserRepositoryImpl implements MASUserRepository {
     public void getUserMetaData(final MASCallback<UserAttributes> callback) {
         String schemaPath = IdentityUtil.getSchemasPath() + FoundationConsts.FSLASH;
         MASRequest masRequest = new MASRequest.MASRequestBuilder(Uri.parse(schemaPath + IdentityConsts.SCHEMA_USER))
-                .responseBody(MAGResponseBody.jsonBody())
+                .responseBody(MASResponseBody.jsonBody())
                 .get()
                 .build();
 

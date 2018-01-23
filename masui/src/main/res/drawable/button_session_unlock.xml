@@ -8,11 +8,11 @@
   -->
 
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/white"/>
+    <solid android:color="@android:color/white"/>
 
     <stroke
         android:width="2dp"
-        android:color="@color/lightBlue"/>
+        android:color="@android:color/holo_blue_bright"/>
 
     <corners
         android:bottomLeftRadius="4dp"

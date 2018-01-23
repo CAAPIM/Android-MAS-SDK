@@ -18,9 +18,9 @@ import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.MssoService;
+import com.ca.mas.foundation.MASRequest;
 
 import java.net.URI;
 import java.util.List;
@@ -71,7 +71,7 @@ public class OtpAuthenticationHandler implements Parcelable {
         //MAPI-1032 : Android SDK : Fix for prefixed server otp protected resource
         String otpAuthUrl = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.AUTHENTICATE_OTP_PATH);
         URI otpDeliveryUrl = mobileSso.getURI(otpAuthUrl);
-        MAGRequest request = new MAGRequest.MAGRequestBuilder(otpDeliveryUrl)
+        MASRequest request = new MASRequest.MASRequestBuilder(otpDeliveryUrl)
                 .header(OtpConstants.X_OTP_CHANNEL, channels)
                 .build();
         mobileSso.processRequest(request, callback);

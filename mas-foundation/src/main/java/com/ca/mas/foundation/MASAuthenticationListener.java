@@ -31,4 +31,6 @@ public interface MASAuthenticationListener {
      */
     void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler);
 
+
+
 }

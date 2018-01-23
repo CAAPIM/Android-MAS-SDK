@@ -23,7 +23,6 @@ import com.ca.mas.core.clientcredentials.ClientCredentialsServerException;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.oauth.OAuthException;
 import com.ca.mas.core.oauth.OAuthServerException;
@@ -43,7 +42,9 @@ import com.ca.mas.core.token.JWTInvalidAUDException;
 import com.ca.mas.core.token.JWTInvalidAZPException;
 import com.ca.mas.core.token.JWTInvalidSignatureException;
 import com.ca.mas.core.token.JWTValidationException;
+import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthCredentials;
+import com.ca.mas.foundation.MASResponse;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -162,7 +163,7 @@ public class MssoService extends IntentService {
 
         MssoContext mssoContext = request.getMssoContext();
         try {
-            MAGResponse magResponse = mssoContext.executeRequest(request.getExtra(), request.getRequest());
+            MASResponse magResponse = mssoContext.executeRequest(request.getExtra(), request.getRequest());
 
             //Success: move to response queue and send a success notification.
             if (requestFinished(request)) {
@@ -178,7 +179,10 @@ public class MssoService extends IntentService {
             //Notify listener
             MobileSsoListener mobileSsoListener = ConfigurationManager.getInstance().getMobileSsoListener();
             try {
-                AuthenticationProvider authProvider = new OAuthClient(request.getMssoContext()).getSocialPlatformProvider(getApplicationContext());
+                AuthenticationProvider authProvider = null;
+                if (!MAS.isBrowserBasedAuthenticationEnabled()) {
+                    authProvider = new OAuthClient(request.getMssoContext()).getSocialPlatformProvider(getApplicationContext());
+                }
                 if (mobileSsoListener != null) {
                     mobileSsoListener.onAuthenticateRequest(request.getId(), authProvider);
                 } else {
@@ -270,7 +274,7 @@ public class MssoService extends IntentService {
         }
     }
 
-    private MssoResponse createMssoResponse(MssoRequest request, MAGResponse response) {
+    private MssoResponse createMssoResponse(MssoRequest request, MASResponse response) {
         return new MssoResponse(request, response);
     }
 

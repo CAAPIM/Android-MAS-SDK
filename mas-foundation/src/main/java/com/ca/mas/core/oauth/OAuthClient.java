@@ -12,7 +12,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Base64;
-import android.util.Log;
 import android.util.Pair;
 
 import com.ca.mas.core.MobileSsoConfig;
@@ -23,32 +22,27 @@ import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.http.MAGHttpClient;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGRequestBody;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.io.IoUtils;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.Provider;
 import com.ca.mas.core.token.IdToken;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASRequestBody;
+import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASResponseBody;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.ca.mas.foundation.MAS.DEBUG;
 
 /**
  * Utility class that encapsulates talking to the token server into Java method calls.
@@ -128,7 +122,7 @@ public class OAuthClient extends ServerClient {
             b.appendQueryParameter(REDIRECT_URI, redirectUri);
 
             if (ConfigurationManager.getInstance().isPKCEEnabled()) {
-                PKCE pkce = generateCodeChallenge();
+                PKCE pkce = OAuthClientUtil.generateCodeChallenge();
                 if (pkce != null) {
                     b.appendQueryParameter(CODE_CHALLENGE, pkce.codeChallenge);
                     b.appendQueryParameter(CODE_CHALLENGE_METHOD, pkce.codeChallengeMethod);
@@ -144,11 +138,11 @@ public class OAuthClient extends ServerClient {
             MAGHttpClient httpClient = mssoContext.getMAGHttpClient();
 
             try {
-                MAGRequest.MAGRequestBuilder builder = new MAGRequest.MAGRequestBuilder(new URI(b.build().toString()))
-                        .responseBody(MAGResponseBody.jsonBody());
+                MASRequest.MASRequestBuilder builder = new MASRequest.MASRequestBuilder(new URI(b.build().toString()))
+                        .responseBody(MASResponseBody.jsonBody());
 
-                MAGRequest request = builder.build();
-                MAGResponse<JSONObject> response = httpClient.execute(request);
+                MASRequest request = builder.build();
+                MASResponse<JSONObject> response = httpClient.execute(request);
                 if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     JSONObject jsonResponse = response.getBody().getContent();
                     idp = jsonResponse.getString(IDP);
@@ -207,9 +201,9 @@ public class OAuthClient extends ServerClient {
 
 
         URI uri = conf.getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT);
-        MAGRequest request = new MAGRequest.MAGRequestBuilder(uri)
-                .post(MAGRequestBody.urlEncodedFormBody(form))
-                .responseBody(MAGResponseBody.stringBody())
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .post(MASRequestBody.urlEncodedFormBody(form))
+                .responseBody(MASResponseBody.stringBody())
                 .header(AUTHORIZATION, "Basic " + IoUtils.base64(clientId + ":" + clientSecret, Charsets.ASCII))
                 .build();
 
@@ -225,34 +219,5 @@ public class OAuthClient extends ServerClient {
         }
     }
 
-    private PKCE generateCodeChallenge() {
-        int encodeFlags = Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE;
-        byte[] randomBytes = new byte[64];
-        new SecureRandom().nextBytes(randomBytes);
-        String codeVerifier = Base64.encodeToString(randomBytes, encodeFlags);
-        try {
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-            messageDigest.update(codeVerifier.getBytes("ISO_8859_1"));
-            byte[] digestBytes = messageDigest.digest();
-            return new PKCE("S256", Base64.encodeToString(digestBytes, encodeFlags), codeVerifier);
-        } catch (NoSuchAlgorithmException e) {
-            if (DEBUG) Log.w("SHA-256 not supported", e);
-            return new PKCE("plain", codeVerifier, codeVerifier);
-        } catch (UnsupportedEncodingException e) {
-            if (DEBUG) Log.e("PKCE not supported", e.getMessage(), e);
-            return null;
-        }
-    }
 
-    private static class PKCE {
-        String codeChallenge;
-        String codeChallengeMethod;
-        String codeVerifier;
-
-        public PKCE(String codeChallengeMethod, String codeChallenge, String codeVerifier) {
-            this.codeChallenge = codeChallenge;
-            this.codeChallengeMethod = codeChallengeMethod;
-            this.codeVerifier = codeVerifier;
-        }
-    }
 }

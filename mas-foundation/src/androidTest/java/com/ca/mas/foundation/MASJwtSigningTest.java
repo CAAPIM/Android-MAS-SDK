@@ -16,6 +16,7 @@ import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.core.http.ContentType;
+import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.util.KeyUtilsAsymmetric;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
@@ -35,7 +36,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
@@ -223,7 +223,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
     }
 
     @Test
-    public void testSignWithInvalidPrivateKey() throws MASException, CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyStoreException, NoSuchProviderException, InvalidAlgorithmParameterException, JSONException, URISyntaxException, ExecutionException, InterruptedException, ParseException, JOSEException {
+    public void testSignWithInvalidPrivateKey() throws MASException, CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, java.security.KeyStoreException, NoSuchProviderException, InvalidAlgorithmParameterException, JSONException, URISyntaxException, ExecutionException, InterruptedException, ParseException, JOSEException, KeyStoreException {
         KeyUtilsAsymmetric.deletePrivateKey("TEST");
 
         PrivateKey privateKey = KeyUtilsAsymmetric.generateRsaPrivateKey(InstrumentationRegistry.getInstrumentation().getTargetContext(), 2048, "TEST", "dn=test", false, false, -1, false);

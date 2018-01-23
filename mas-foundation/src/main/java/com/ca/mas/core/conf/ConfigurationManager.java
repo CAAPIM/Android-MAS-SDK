@@ -13,9 +13,9 @@ import android.util.Log;
 import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.oauth.GrantProvider;
+import com.ca.mas.foundation.MASGrantProvider;
 import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.foundation.MASConnectionListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,10 +43,10 @@ public class ConfigurationManager {
     private String configurationFileName = null;
     private boolean enablePKCE = true;
 
-    private MAGRequest.MAGConnectionListener connectionListener;
+    private MASConnectionListener connectionListener;
     private MobileSsoListener mobileSsoListener;
 
-    private GrantProvider defaultGrantProvider = GrantProvider.PASSWORD;
+    private MASGrantProvider defaultGrantProvider = MASGrantProvider.PASSWORD;
 
     private static ConfigurationManager instance = new ConfigurationManager();
 
@@ -128,6 +128,7 @@ public class ConfigurationManager {
     private void load() {
         if (connectedGatewayConfigurationProvider != null) return;
         StringBuilder jsonConfig = new StringBuilder();
+
         try (InputStream is = appContext.openFileInput(CONNECTED_GATEWAY_CONFIG);
              BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"))) {
             String str;
@@ -211,8 +212,13 @@ public class ConfigurationManager {
         String clientId = getValue(Config.CLIENT_KEY, jsonObject);
         String clientSecret = getValue(Config.CLIENT_SECRET, jsonObject);
         String organization = getValue(Config.ORGANIZATION, jsonObject);
+        String scope = getValue(Config.SCOPE, jsonObject);
+        String redirectUri = getValue(Config.REDIRECT_URI, jsonObject);
 
-        DefaultConfiguration conf = new DefaultConfiguration(jsonObject, tokenHost, port, tokenUriPrefix, clientId, clientSecret, organization);
+
+
+
+        DefaultConfiguration conf = new DefaultConfiguration(jsonObject, tokenHost, port, tokenUriPrefix, clientId, clientSecret, organization, scope, redirectUri);
 
         Config[] attrs = Config.values;
         for (Config attr : attrs) {
@@ -310,7 +316,7 @@ public class ConfigurationManager {
      */
     private static Object getValue(String path, boolean mandatory, Object parent) throws JSONException {
         if (parent == null) return null;
-        int d = path.indexOf(".");
+        int d = path.indexOf('.');
         if (d > 0) {
             String prefix = path.substring(0, d);
             if (parent instanceof JSONArray) {
@@ -349,11 +355,11 @@ public class ConfigurationManager {
         this.configurationFileName = configurationFileName;
     }
 
-    public MAGRequest.MAGConnectionListener getConnectionListener() {
+    public MASConnectionListener getConnectionListener() {
         return connectionListener;
     }
 
-    public void setConnectionListener(MAGRequest.MAGConnectionListener connectionListener) {
+    public void setConnectionListener(MASConnectionListener connectionListener) {
         this.connectionListener = connectionListener;
     }
 
@@ -365,11 +371,11 @@ public class ConfigurationManager {
         this.mobileSsoListener = mobileSsoListener;
     }
 
-    public GrantProvider getDefaultGrantProvider() {
+    public MASGrantProvider getDefaultGrantProvider() {
         return defaultGrantProvider;
     }
 
-    public void setDefaultGrantProvider(GrantProvider defaultGrantProvider) {
+    public void setDefaultGrantProvider(MASGrantProvider defaultGrantProvider) {
         this.defaultGrantProvider = defaultGrantProvider;
     }
 

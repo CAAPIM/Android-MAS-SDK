@@ -40,6 +40,9 @@
     <!-- Session Unlock -->
     <string name="fingerprint_sign_in">User Fingerprint Sign-In</string>
     <string name="standard_sign_in">Go to Standard Sign-In</string>
+    <string name="request_cancel">Request cancelled.</string>
+    <string name="redirect_success">Logging in...</string>
+    <string name="title_success">Success</string>
 
     <!-- Login Screen Dialogs-->
     <string name="proximity_dialog_title">Proximity Login</string>

@@ -17,8 +17,6 @@ import android.util.Log;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.token.IdToken;
@@ -27,6 +25,8 @@ import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode;
 import com.ca.mas.foundation.MASAuthCredentialsJWT;
 import com.ca.mas.foundation.MASAuthCredentialsPassword;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
@@ -62,7 +62,7 @@ public class MssoClient {
      * @param resultReceiver the resultReceiver to notify when a response is available, or if there is an error.  Required.
      * @return the request ID, which can be used to pick up the response once it is available.
      */
-    public long processRequest(MAGRequest request, ResultReceiver resultReceiver) {
+    public long processRequest(MASRequest request, ResultReceiver resultReceiver) {
         MssoRequest mssoRequest = new MssoRequest(this, mssoContext, request, resultReceiver);
         MssoRequestQueue.getInstance().addRequest(mssoRequest);
 
@@ -231,7 +231,7 @@ public class MssoClient {
      * @param requestId the request ID whose response to pick up.
      * @return the response, or null if one is not available at this time.
      */
-    public static MAGResponse takeMAGResponse(long requestId) {
+    public static MASResponse takeMAGResponse(long requestId) {
         return MssoResponseQueue.getInstance().takeResponse(requestId).getHttpResponse();
     }
 

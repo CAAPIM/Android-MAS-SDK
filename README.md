@@ -6,9 +6,12 @@ CA Mobile API Gateway (MAG) provides enterprises with a secure mobile backend th
 The CA Mobile API Gateway also provides powerful mobile backend services through SDKs and APIs for developers to help accelerate the app development process.
 
 The Android Mobile SDK consists of these frameworks:
-* **mag** - Handles user authentication, device and app registration, requests and local storage of certificates, keys, and token credentials for accessing the protected APIs.
-* **mas** - Messaging and Pub/Sub, Identity Management, and Storage services.
-* **masui** - Resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).
+* **MAS** - Includes the following four frameworks:
+    * **MASConnecta** - Messaging and pub/sub services allowing users to message and send data to each other.
+    * **MASFoundation** - Core services to handle user authentication, device and app registration, requests and local storage of certificates, keys, and token credentials for accessing protected APIs.
+    * **MASIdentityManagement** - Identity management services to securely access users and groups from enterprise identity providers.
+    * **MASStorage** - Storage services for private local and cloud storage.
+* **MASUI** - Resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).
 
 For more information about our mobile products see the [developer website][mas.ca.com].
 
@@ -42,8 +45,8 @@ For more information about our mobile products see the [developer website][mas.c
 Edit your build.gradle file and add below dependency:
 ```gradle
     dependencies {
-        compile 'com.ca:mas:1.5.00'
-        compile 'com.ca:masui:1.5.00' //Only requires when using MASUI Template
+        compile 'com.ca:mas:1.6.00'
+        compile 'com.ca:masui:1.6.00' //Only required when using the MASUI templates
     }
 ```
 
@@ -54,7 +57,7 @@ Contributions are welcome and much appreciated. To learn more, see the [Contribu
 For more documentation and API references, go to our [main website][documentation].
 
 ## License
-Copyright (c) 2016 CA. All rights reserved.
+Copyright (c) 2017 CA. All rights reserved.
 
 This software may be modified and distributed under the terms
 of the MIT license. See the [LICENSE][license-link] file for details.

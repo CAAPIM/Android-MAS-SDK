@@ -21,6 +21,7 @@ import com.ca.mas.core.datasource.DataSourceFactory;
 import com.ca.mas.core.datasource.KeystoreDataSource;
 import com.ca.mas.core.error.TargetApiException;
 import com.ca.mas.core.http.ContentType;
+import com.ca.mas.core.oauth.OAuthServerException;
 import com.ca.mas.core.store.PrivateTokenStorage;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
@@ -31,6 +32,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -151,6 +153,46 @@ public class MASTest extends MASLoginTestBase {
         String s = new String(accessTokenRequest.getBody().readByteArray(), "US-ASCII");
         assertTrue(s.contains("scope=" + URLEncoder.encode(SCOPE, "utf-8")));
     }
+
+    @Test
+    public void testAccessProtectedEndpointWithInvalidScope() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
+        final int expectedErrorCode = 3003115;
+        final String expectedErrorMessage =  "{\n" +
+                "\"error\":\"invalid_scope\",\n" +
+                "\"error_description\":\"No registered scope value for this client has been requested\"\n" +
+                "}";
+        final String SCOPE = "invalid";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse retrieveTokenResponse() {
+                String resp = expectedErrorMessage;
+                return new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST)
+                        .setHeader("x-ca-err", expectedErrorCode).setBody(resp);
+            }
+        });
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/products?operation=listProducts"))
+                .scope(SCOPE)
+                .build();
+
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        try {
+            callback.get();
+            fail();
+        } catch (ExecutionException e) {
+            assertTrue(e.getCause().getCause() instanceof OAuthServerException);
+            assertTrue(((MASException) e.getCause()).getRootCause() instanceof OAuthServerException);
+            assertEquals(expectedErrorCode, ((OAuthServerException)((MASException) e.getCause()).getRootCause()).getErrorCode());
+            assertEquals(expectedErrorMessage, (((MASException) e.getCause()).getRootCause()).getMessage());
+        }
+
+        RecordedRequest accessTokenRequest = getRecordRequest(GatewayDefaultDispatcher.AUTH_OAUTH_V2_TOKEN);
+        String s = new String(accessTokenRequest.getBody().readByteArray(), "US-ASCII");
+        assertTrue(s.contains("scope=" + URLEncoder.encode(SCOPE, "utf-8")));
+    }
+
 
     @Test
     public void getAccessTokenUsingRefreshToken() throws InterruptedException, JSONException, URISyntaxException, ExecutionException {
@@ -456,7 +498,7 @@ public class MASTest extends MASLoginTestBase {
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
 
-        assertEquals(requestData.toString(), callback.get().getBody().getContent().toString());
+        JSONAssert.assertEquals(requestData, callback.get().getBody().getContent(), false);
         assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
         assertNotNull(callback.get().getHeaders().get(RESPONSE_HEADER_NAME));
 
@@ -494,7 +536,7 @@ public class MASTest extends MASLoginTestBase {
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
 
-        assertEquals(responseData.toString(), callback.get().getBody().getContent().toString());
+        JSONAssert.assertEquals(responseData, callback.get().getBody().getContent(), false);
     }
 
     @Test

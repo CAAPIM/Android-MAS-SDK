@@ -16,14 +16,14 @@ import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.http.MAGHttpClient;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.MssoService;
 import com.ca.mas.core.service.Provider;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASResponseBody;
 
 import org.json.JSONObject;
 
@@ -99,8 +99,8 @@ public abstract class AuthRenderer {
 
 
         try {
-            MAGRequest request = new MAGRequest.MAGRequestBuilder(new URL(provider.getPollUrl()))
-                    .responseBody(MAGResponseBody.jsonBody())
+            MASRequest request = new MASRequest.MASRequestBuilder(new URL(provider.getPollUrl()))
+                    .responseBody(MASResponseBody.jsonBody())
                     .build();
             MAGHttpClient httpClient = new MAGHttpClient() {
                 @Override
@@ -113,7 +113,7 @@ public abstract class AuthRenderer {
                     }
                 }
             };
-            MAGResponse<JSONObject> response = httpClient.execute(request);
+            MASResponse<JSONObject> response = httpClient.execute(request);
             if (HttpURLConnection.HTTP_OK == response.getResponseCode()) {
                 if (response.getBody() != null) {
                     JSONObject json = response.getBody().getContent();

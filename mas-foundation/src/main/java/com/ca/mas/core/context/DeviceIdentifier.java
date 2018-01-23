@@ -9,46 +9,24 @@ package com.ca.mas.core.context;
 
 import android.content.Context;
 
-import com.ca.mas.core.io.IoUtils;
-import com.ca.mas.core.util.KeyUtilsAsymmetric;
+import com.ca.mas.core.security.KeyStoreException;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.MessageDigest;
-import java.security.PublicKey;
+import java.security.NoSuchAlgorithmException;
 
-public class DeviceIdentifier {
-
-    private String deviceId = "";
-    private static final String DEVICE_IDENTIFIER = "com.ca.mas.foundation.msso.DEVICE_IDENTIFIER";
+public class DeviceIdentifier extends UniqueIdentifier {
 
     /**
      * Generates a set of asymmetric keys in the Android keystore and builds the device identifier off of the public key.
      * Apps built with the same sharedUserId value in AndroidManifest.xml will reuse the same identifier.
      * @param context
      */
-    public DeviceIdentifier(Context context) throws
-            InvalidAlgorithmParameterException, java.io.IOException, java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
-            java.security.NoSuchProviderException, java.security.cert.CertificateException, java.security.UnrecoverableKeyException {
-        PublicKey publicKey = KeyUtilsAsymmetric.getRsaPublicKey(DEVICE_IDENTIFIER);
-        if (publicKey == null) {
-            KeyUtilsAsymmetric.generateRsaPrivateKey(context, 2048, DEVICE_IDENTIFIER,
-                    String.format("CN=%s, OU=%s", DEVICE_IDENTIFIER, "com.ca"),
-                    false, false, Integer.MAX_VALUE, false);
-            publicKey = KeyUtilsAsymmetric.getRsaPublicKey(DEVICE_IDENTIFIER);
-        }
-
-        //Convert the public key to a hash string
-        byte[] encoded = publicKey.getEncoded();
-
-        //Encode to SHA-256 and then convert to a hex string
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(encoded);
-        byte[] mdBytes = md.digest();
-        deviceId = IoUtils.hexDump(mdBytes);
+    public DeviceIdentifier(Context context) throws KeyStoreException, NoSuchAlgorithmException {
+        super(context);
     }
 
     @Override
-    public String toString() {
-        return deviceId;
+    protected String getIdentifierKey() {
+        return "com.ca.mas.foundation.msso.DEVICE_IDENTIFIER";
     }
+
 }

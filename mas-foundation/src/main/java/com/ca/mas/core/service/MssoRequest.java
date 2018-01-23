@@ -12,7 +12,7 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.http.MAGRequest;
+import com.ca.mas.foundation.MASRequest;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -24,12 +24,12 @@ class MssoRequest {
     private final long id;
     private final Object creator;
     private final MssoContext mssoContext;
-    private MAGRequest request;
+    private MASRequest request;
     private final ResultReceiver resultReceiver;
     //Extra data for the request
     private Bundle extra;
 
-    public MssoRequest(Object creator, MssoContext mssoContext, MAGRequest request, ResultReceiver resultReceiver) {
+    MssoRequest(Object creator, MssoContext mssoContext, MASRequest request, ResultReceiver resultReceiver) {
         this.id = nextRequestId.incrementAndGet();
         this.creator = creator;
         this.mssoContext = mssoContext;
@@ -45,7 +45,7 @@ class MssoRequest {
         return mssoContext;
     }
 
-    public MAGRequest getRequest() {
+    public MASRequest getRequest() {
         return request;
     }
 

@@ -14,6 +14,7 @@ import android.net.Uri;
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
+import com.ca.mas.core.clientcredentials.ClientCredentialsServerException;
 import com.ca.mas.core.oauth.OAuthServerException;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.registration.RegistrationServerException;
@@ -61,7 +62,7 @@ public class MASClientCredentialTest extends MASStartTestBase {
             fail();
         } catch (ExecutionException e) {
             assertTrue(e.getCause().getCause() instanceof InvalidClientCredentialException);
-            assertTrue(((MASException) e.getCause()).getRootCause() instanceof InvalidClientCredentialException);
+            assertTrue(((MASException) e.getCause()).getRootCause() instanceof ClientCredentialsServerException);
         }
     }
 
@@ -85,6 +86,40 @@ public class MASClientCredentialTest extends MASStartTestBase {
         } catch (ExecutionException e) {
             assertTrue(e.getCause().getCause() instanceof InvalidClientCredentialException);
             assertTrue(((MASException) e.getCause()).getRootCause() instanceof RegistrationServerException);
+        }
+
+    }
+
+    @Test
+    public void loginWithInvalidClientCredentials() throws InterruptedException, ExecutionException {
+
+        MASCallbackFuture<MASUser> loginCallback = new MASCallbackFuture<>();
+        MASUser.login("test", "test".toCharArray(), loginCallback);
+        loginCallback.get();
+
+        //remove the id token
+        MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
+        MASUser.getCurrentUser().logout(logoutCallback);
+        logoutCallback.get();
+
+        final int expectedErrorCode = 3003201;
+        final String expectedErrorMessage = "{ \"error\":\"invalid_request\", \"error_description\":\"The client could not be authenticated due to missing or invalid credentials\" }";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse retrieveTokenResponse() {
+                return new MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED).setHeader("x-ca-err", expectedErrorCode).setBody(expectedErrorMessage);
+            }
+        });
+
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASUser.login("test", "test".toCharArray(), callback);
+        try {
+            Assert.assertNotNull(callback.get());
+            fail();
+        } catch (ExecutionException e) {
+            assertTrue(e.getCause().getCause() instanceof InvalidClientCredentialException);
+            assertTrue(((MASException) e.getCause()).getRootCause() instanceof OAuthServerException);
         }
 
     }

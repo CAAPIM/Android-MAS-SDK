@@ -5,6 +5,7 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
+
 package com.ca.mas.foundation;
 
 import android.app.Activity;
@@ -27,10 +28,6 @@ import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGHttpClient;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
-import com.ca.mas.core.oauth.GrantProvider;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.store.StorageProvider;
@@ -51,6 +48,7 @@ import net.minidev.json.reader.JsonWriterI;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
@@ -75,6 +73,11 @@ public class MAS {
     private static MASAuthenticationListener masAuthenticationListener;
     private static int state;
 
+    private static boolean browserBasedAuthenticationEnabled = false;
+
+    private MAS() {
+    }
+
     private static synchronized void init(@NonNull final Context context) {
         stop();
         // Initialize the MASConfiguration
@@ -97,9 +100,60 @@ public class MAS {
             mAppContext = context;
         }
 
+        /**
+         * Return the MASLoginActivity from MASUI components if MASUI library is included in the classpath.
+         *
+         * @return A LoginActivity to capture the user credentials or null if error.
+         */
+        private static Class<Activity> getLoginActivity() {
+
+            try {
+                return (Class<Activity>) Class.forName("com.ca.mas.ui.MASLoginActivity");
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        private static MASAuthorizationRequestHandler getAuthorizationRequestHandler() {
+
+            try {
+                Class<MASAuthorizationRequestHandler> c = (Class<MASAuthorizationRequestHandler>) Class.forName("com.ca.mas.ui.MASAppAuthAuthorizationRequestHandler");
+                Constructor constructor = c.getConstructor(Context.class/*, Intent.class, Intent.class*/);
+
+                return (MASAuthorizationRequestHandler) constructor.newInstance(getContext()
+                );
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        /**
+         * Return the MASOtpActivity from MASUI components if MASUI library is included in the classpath.
+         *
+         * @return A OtpActivity to capture the otp or null if error.
+         */
+        private static Class<Activity> getOtpActivity() {
+            try {
+                return (Class<Activity>) Class.forName("com.ca.mas.ui.otp.MASOtpActivity");
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
         @Override
         public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
+
             if (masAuthenticationListener == null) {
+                //Use MASUI component
+                if (browserBasedAuthenticationEnabled) {
+                    MASAuthorizationRequest authReq = new MASAuthorizationRequest.MASAuthorizationRequestBuilder().buildDefault();
+                    MASAuthorizationRequestHandler handler = getAuthorizationRequestHandler();
+                    if (handler != null) {
+                        MASUser.login(authReq, handler);
+                        return;
+                    }
+                }
+
                 Class<Activity> loginActivity = getLoginActivity();
                 if (loginActivity != null) {
                     if (mAppContext != null) {
@@ -185,32 +239,6 @@ public class MAS {
         });
     }
 
-    /**
-     * Return the MASLoginActivity from MASUI components if MASUI library is included in the classpath.
-     *
-     * @return A LoginActivity to capture the user credentials or null if error.
-     */
-    private static Class<Activity> getLoginActivity() {
-
-        try {
-            return (Class<Activity>) Class.forName("com.ca.mas.ui.MASLoginActivity");
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
-     * Return the MASOtpActivity from MASUI components if MASUI library is included in the classpath.
-     *
-     * @return A OtpActivity to capture the otp or null if error.
-     */
-    private static Class<Activity> getOtpActivity() {
-        try {
-            return (Class<Activity>) Class.forName("com.ca.mas.ui.otp.MASOtpActivity");
-        } catch (Exception e) {
-            return null;
-        }
-    }
 
     /**
      * Turn on debug mode
@@ -315,9 +343,9 @@ public class MAS {
                             .host(uri)
                             .build();
                     MAGHttpClient client = new MAGHttpClient();
-                    MAGRequest request = new MAGRequest.MAGRequestBuilder(url).
-                            responseBody(MAGResponseBody.jsonBody()).setPublic().build();
-                    MAGResponse<JSONObject> response = client.execute(request, enrollmentConfig);
+                    MASRequest request = new MASRequest.MASRequestBuilder(url).
+                            responseBody(MASResponseBody.jsonBody()).setPublic().build();
+                    MASResponse<JSONObject> response = client.execute(request, enrollmentConfig);
                     if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
                         throw ServerClient.createServerException(response, MASServerException.class);
                     }
@@ -343,42 +371,15 @@ public class MAS {
      *                 <li>  application/json: {@link JSONObject}</li>
      *                 <li>  text/plain: {@link String}</li>
      *                 </ul>
-     *                 Developers can define a response object type with {@link MASRequest.MASRequestBuilder#responseBody(MAGResponseBody)}.
+     *                 Developers can define a response object type with {@link MASRequest.MASRequestBuilder#responseBody(MASResponseBody)} )}.
      * @return The request ID.
      */
     public static <T> long invoke(final MASRequest request, final MASCallback<MASResponse<T>> callback) {
 
         return MobileSsoFactory.getInstance().processRequest(request, new MAGResultReceiver<T>(Callback.getHandler(callback)) {
             @Override
-            public void onSuccess(final MAGResponse<T> response) {
-                Callback.onSuccess(callback, new MASResponse<T>() {
-                    public MASResponseBody<T> getBody() {
-                        return new MASResponseBody<T>() {
-                            @Override
-                            public T getContent() {
-                                if (response.getBody() == null) {
-                                    return null;
-                                }
-                                return response.getBody().getContent();
-                            }
-                        };
-                    }
-
-                    @Override
-                    public Map<String, List<String>> getHeaders() {
-                        return response.getHeaders();
-                    }
-
-                    @Override
-                    public int getResponseCode() {
-                        return response.getResponseCode();
-                    }
-
-                    @Override
-                    public String getResponseMessage() {
-                        return response.getResponseMessage();
-                    }
-                });
+            public void onSuccess(final MASResponse<T> response) {
+                Callback.onSuccess(callback, new APIResponse<T>(response));
             }
 
             @Override
@@ -393,6 +394,42 @@ public class MAS {
                 }
             }
         });
+    }
+
+    public static class APIResponse<T> implements MASResponse<T> {
+
+        private MASResponse<T> response;
+
+        APIResponse(MASResponse<T> response) {
+            this.response = response;
+        }
+
+        public MASResponseBody<T> getBody() {
+            return new MASResponseBody<T>() {
+                @Override
+                public T getContent() {
+                    if (response.getBody() == null) {
+                        return null;
+                    }
+                    return response.getBody().getContent();
+                }
+            };
+        }
+
+        @Override
+        public Map<String, List<String>> getHeaders() {
+            return response.getHeaders();
+        }
+
+        @Override
+        public int getResponseCode() {
+            return response.getResponseCode();
+        }
+
+        @Override
+        public String getResponseMessage() {
+            return response.getResponseMessage();
+        }
     }
 
     public static class RequestCancelledException extends Exception {
@@ -477,10 +514,10 @@ public class MAS {
     public static void setGrantFlow(@MASGrantFlow int type) {
         switch (type) {
             case MASConstants.MAS_GRANT_FLOW_CLIENT_CREDENTIALS:
-                ConfigurationManager.getInstance().setDefaultGrantProvider(GrantProvider.CLIENT_CREDENTIALS);
+                ConfigurationManager.getInstance().setDefaultGrantProvider(MASGrantProvider.CLIENT_CREDENTIALS);
                 break;
             case MASConstants.MAS_GRANT_FLOW_PASSWORD:
-                ConfigurationManager.getInstance().setDefaultGrantProvider(GrantProvider.PASSWORD);
+                ConfigurationManager.getInstance().setDefaultGrantProvider(MASGrantProvider.PASSWORD);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid Flow Type");
@@ -613,11 +650,6 @@ public class MAS {
 
 
     static {
-        JSONValue.defaultWriter.registerWriter(new JsonWriterI<JSONObject>() {
-            public void writeJSONString(JSONObject value, Appendable out, JSONStyle compression) throws IOException {
-                out.append(value.toString());
-            }
-        }, JSONObject.class);
     }
 
     /**
@@ -647,6 +679,16 @@ public class MAS {
         if (!MASDevice.getCurrentDevice().isRegistered()) {
             throw new IllegalStateException("Device not registered.");
         }
+
+        JsonWriterI i = JSONValue.defaultWriter.getWriterByInterface(JSONObject.class);
+        if (i == null) {
+            JSONValue.defaultWriter.registerWriter(new JsonWriterI<JSONObject>() {
+                public void writeJSONString(JSONObject value, Appendable out, JSONStyle compression) throws IOException {
+                    out.append(value.toString());
+                }
+            }, JSONObject.class);
+        }
+
         JWSSigner signer = new RSASSASigner(privateKey);
         JWTClaimsSet.Builder claimBuilder = new JWTClaimsSet.Builder();
 
@@ -670,5 +712,23 @@ public class MAS {
         } catch (JOSEException e) {
             throw new MASException(e);
         }
+    }
+
+    /**
+     * Enables Browser Based Authentication for authorization (set to false by default).
+     * Browser Based Authentication allows administrators to configure the login screen
+     * which will be rendered in the browser allowing users to log in.
+     */
+    public static void enableBrowserBasedAuthentication() {
+        browserBasedAuthenticationEnabled = true;
+    }
+
+    /**
+     * Checks if is enabled or not for authorization (returns false by default).
+     *
+     * @return true if Browser Based Login is enabled and false otherwise
+     */
+    public static boolean isBrowserBasedAuthenticationEnabled() {
+        return browserBasedAuthenticationEnabled;
     }
 }

@@ -5,6 +5,7 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
+
 package com.ca.mas.foundation;
 
 import android.annotation.TargetApi;
@@ -18,10 +19,10 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
+import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.security.LockableEncryptionProvider;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.storage.Storage;
@@ -84,6 +85,13 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
     }
 
     /**
+     * Login with OAuth2 Authorization request
+     */
+    public static void login(MASAuthorizationRequest request, MASAuthorizationRequestHandler handler) {
+        handler.authorize(request);
+    }
+
+    /**
      * Authenticates a user with a username and password.
      *
      * @deprecated Please use {@link #login(String, char[], MASCallback)}
@@ -98,9 +106,9 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      */
     public static void login(@NonNull String userName, @NonNull char[] cPassword, final MASCallback<MASUser> callback) {
         MobileSso mobileSso = MobileSsoFactory.getInstance();
-        mobileSso.authenticate(userName, cPassword, new MASResultReceiver<JSONObject>() {
+        mobileSso.authenticate(userName, cPassword, new MAGResultReceiver<JSONObject>() {
             @Override
-            public void onSuccess(MAGResponse<JSONObject> response) {
+            public void onSuccess(MASResponse<JSONObject> response) {
                 login(callback);
             }
 
@@ -117,9 +125,9 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      */
     public static void login(MASIdToken idToken, final MASCallback<MASUser> callback) {
         MobileSso mobileSso = MobileSsoFactory.getInstance();
-        mobileSso.authenticate(idToken, new MASResultReceiver<JSONObject>() {
+        mobileSso.authenticate(idToken, new MAGResultReceiver<JSONObject>() {
             @Override
-            public void onSuccess(MAGResponse<JSONObject> response) {
+            public void onSuccess(MASResponse<JSONObject> response) {
                 login(callback);
             }
 
@@ -136,9 +144,9 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      */
     public static void login(MASAuthCredentials credentials, final MASCallback<MASUser> callback) {
         MobileSso mobileSso = MobileSsoFactory.getInstance();
-        mobileSso.authenticate(credentials, new MASResultReceiver<JSONObject>() {
+        mobileSso.authenticate(credentials, new MAGResultReceiver<JSONObject>() {
             @Override
-            public void onSuccess(MAGResponse<JSONObject> response) {
+            public void onSuccess(MASResponse<JSONObject> response) {
                 login(callback);
             }
 
@@ -178,9 +186,9 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
     public static void login(@NonNull MASAuthorizationResponse authorizationResponse, final MASCallback<MASUser> callback) {
         MobileSso mobileSso = MobileSsoFactory.getInstance();
         mobileSso.authenticate(authorizationResponse.getAuthorizationCode(),
-                authorizationResponse.getState(), new MASResultReceiver<JSONObject>() {
+                authorizationResponse.getState(), new MAGResultReceiver<JSONObject>() {
                     @Override
-                    public void onSuccess(MAGResponse<JSONObject> response) {
+                    public void onSuccess(MASResponse<JSONObject> response) {
                         login(callback);
                     }
 
@@ -330,8 +338,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
             /**
              * <b>Description:</b> Logout from the server.
-             *
-             * @param callback
              */
             @Override
             public void logout(final MASCallback<Void> callback) {
@@ -636,8 +642,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
     /**
      * Returns the last authenticated session's type of auth credentials used.
-     *
-     * @return
      */
     public static String getAuthCredentialsType() {
         try {
@@ -715,4 +719,19 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      */
     @TargetApi(23)
     public abstract void removeSessionLock(MASCallback<Void> callback);
+
+
+    //Xarmarin may have a defect binding on method with Generic, temporary add below methods for
+    //Xarmarin binding.
+    public abstract void getUserById(String id, MASCallback<MASUser> callback);
+    public abstract void getUsersByFilter(MASFilteredRequest filteredRequest, MASCallback<List<MASUser>> callback);
+    public abstract void getUserMetaData(MASCallback<UserAttributes> callback);
+    public abstract void sendMessage(MASTopic topic, MASMessage message, MASCallback<Void> callback);
+    public abstract void sendMessage(MASMessage message, MASUser user, MASCallback<Void> callback);
+    public abstract void sendMessage(MASMessage message, MASUser user, String topic, MASCallback<Void> callback);
+    public abstract void sendMessage(MASMessage message, MASGroup group, MASCallback<Void> callback);
+    public abstract void sendMessage(MASMessage message, MASGroup group,String topic, MASCallback<Void> callback);
+    public abstract void startListeningToMyMessages(MASCallback<Void> callback);
+    public abstract void stopListeningToMyMessages(MASCallback<Void> callback);
+
 }

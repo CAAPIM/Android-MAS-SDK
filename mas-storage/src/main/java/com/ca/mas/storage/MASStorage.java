@@ -25,7 +25,7 @@ public interface MASStorage {
      *                 {@link String}, byte[],
      * @param segment  The Storage segment {@link MASStorageSegment} to be used in the search
      * @param callback Notifies the caller with the result of the operation.
-     *                 {@link com.ca.mas.foundation.MASCallback#onError(Throwable)} will be called incase
+     *                 {@link MASCallback#onError(Throwable)} will be called incase
      */
     void save(String key,
               Object object,
@@ -37,9 +37,9 @@ public interface MASStorage {
      * @param key      The key used to get the object from storage
      * @param segment  The Storage segment {@link MASStorageSegment} to be used in the search
      * @param callback Notifies the caller with the result of the operation.
-     *                 {@link com.ca.mas.foundation.MASCallback#onSuccess(Object)} will be called in case
+     *                 {@link MASCallback#onSuccess(Object)} will be called in case
      *                 of success.
-     *                 {@link com.ca.mas.foundation.MASCallback#onError(Throwable)} will be called in case of failure.
+     *                 {@link MASCallback#onError(Throwable)} will be called in case of failure.
      */
     void findByKey(String key,
                    @MASStorageSegment int segment,
@@ -50,7 +50,7 @@ public interface MASStorage {
      * @param key      The key used to delete the object from storage.
      * @param segment  The Storage segment {@link MASStorageSegment} to be used in the search
      * @param callback Notifies the caller with the result of the operation.
-     *                 {@link com.ca.mas.foundation.MASCallback#onError(Throwable)} will be called in case of failure.
+     *                 {@link MASCallback#onError(Throwable)} will be called in case of failure.
      */
     void delete(String key,
                 @MASStorageSegment int segment,
@@ -61,7 +61,7 @@ public interface MASStorage {
      * Implementations should perform this operation asynchronously.
      * @param segment  The Storage segment {@link MASStorageSegment}
      * @param callback Notifies the caller with the result of the operation.
-     *                 {@link com.ca.mas.foundation.MASCallback#onError(Throwable)} will be called in case of failure.
+     *                 {@link MASCallback#onError(Throwable)} will be called in case of failure.
      */
     void keySet(int segment, MASCallback<Set<String>> callback);
 

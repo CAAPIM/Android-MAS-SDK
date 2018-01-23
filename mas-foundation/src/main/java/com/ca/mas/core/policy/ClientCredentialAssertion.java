@@ -18,9 +18,9 @@ import com.ca.mas.core.context.MssoException;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.token.ClientCredentials;
+import com.ca.mas.foundation.MASResponse;
 
 import java.util.UUID;
 
@@ -46,7 +46,7 @@ class ClientCredentialAssertion implements MssoAssertion {
             //Configured Client ID cannot be null, it is mandatory in the configuration.
             if (!configuredClientId.equals(configuredClientSecret)) {
                 //It is not a master key, do not hit the initialize endpoint
-                if (DEBUG) Log.d(TAG, "Using static client id and client secret");
+                if (DEBUG) Log.d(TAG, "Using static client ID and client secret");
                 return;
             }
         }
@@ -55,26 +55,31 @@ class ClientCredentialAssertion implements MssoAssertion {
         //May not necessary to check the client id, the client expiration check may be good enough
         if (mssoContext.isClientCredentialExpired(mssoContext.getClientExpiration()) ||
                 mssoContext.getStoredClientId() == null) {
+            String deviceId;
             try {
-                if (DEBUG) Log.d(TAG, "Retrieve dynamic Client Credentials");
-                String uuid = UUID.randomUUID().toString();
-                ClientCredentials result = new ClientCredentialsClient(mssoContext).
-                        getClientCredentials(configuredClientId, uuid, mssoContext.getDeviceId());
-                if (DEBUG) Log.d(TAG, String.format("Client id: %s", result.getClientId()));
-                mssoContext.setClientCredentials(result);
-                return;
-            } catch (NullPointerException e) {
-                throw new IllegalArgumentException("Please check your configurations. One or more configuration is wrong or incomplete");
+                deviceId = mssoContext.getDeviceId();
             } catch (Exception e) {
                 throw new MssoException(e);
             }
+
+            try {
+                if (DEBUG) Log.d(TAG, "Retrieving dynamic client credentials");
+                String uuid = UUID.randomUUID().toString();
+                ClientCredentials result = new ClientCredentialsClient(mssoContext).
+                        getClientCredentials(configuredClientId, uuid, deviceId);
+                if (DEBUG) Log.d(TAG, String.format("Client ID: %s", result.getClientId()));
+                mssoContext.setClientCredentials(result);
+                return;
+            } catch (NullPointerException e) {
+                throw new IllegalArgumentException("Please check your configurations: one or more configurations are wrong or incomplete");
+            }
         }
 
-        if (DEBUG) Log.d(TAG, String.format("Client id: %s", mssoContext.getStoredClientId()));
+        if (DEBUG) Log.d(TAG, String.format("Client ID: %s", mssoContext.getStoredClientId()));
     }
 
     @Override
-    public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGStateException {
+    public void processResponse(MssoContext mssoContext, RequestInfo request, MASResponse response) throws MAGStateException {
         int errorCode = ServerClient.findErrorCode(response);
         if (errorCode == -1) {
             return;

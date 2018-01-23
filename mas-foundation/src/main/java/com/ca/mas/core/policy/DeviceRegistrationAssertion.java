@@ -12,17 +12,16 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.ca.mas.core.cert.CertUtils;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.context.MssoException;
+import com.ca.mas.core.security.KeyStoreRepository;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.CredentialRequiredException;
 import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
@@ -30,9 +29,10 @@ import com.ca.mas.core.registration.DeviceRegistrationAwaitingActivationExceptio
 import com.ca.mas.core.registration.RegistrationClient;
 import com.ca.mas.core.registration.RegistrationException;
 import com.ca.mas.core.store.TokenManager;
-import com.ca.mas.core.store.TokenStoreException;
 import com.ca.mas.core.token.IdToken;
+import com.ca.mas.foundation.MASResponse;
 
+import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
@@ -60,7 +60,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
     private Context ctx = null;
 
     @Override
-    public void init(@NonNull MssoContext mssoContext, @NonNull Context sysContext) throws MssoException {
+    public void init(@NonNull MssoContext mssoContext, @NonNull Context sysContext) {
         this.tokenManager = mssoContext.getTokenManager();
         ctx = sysContext;
         if (tokenManager == null)
@@ -81,11 +81,11 @@ class DeviceRegistrationAssertion implements MssoAssertion {
                 cal.add(Calendar.DAY_OF_YEAR, ConfigurationManager.getInstance().getCertificateAdvancedRenewTimeframe());
                 Date date = cal.getTime();
                 certificate.checkValidity(date);
-            } catch (CertificateExpiredException | CertificateNotYetValidException e) {
-                if (e instanceof CertificateExpiredException) {
+            } catch (CertificateExpiredException e) {
                     // Client certificate expired, try to renew
                     throw new com.ca.mas.core.policy.exceptions.CertificateExpiredException(e);
-                }
+            } catch (CertificateNotYetValidException e) {
+                //ignore
             }
 
             // The MAG identifier may be removed after the key reset.
@@ -115,7 +115,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
     }
 
     @Override
-    public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGStateException {
+    public void processResponse(MssoContext mssoContext, RequestInfo request, MASResponse response) throws MAGStateException {
         // Nothing to do here
     }
 
@@ -124,6 +124,14 @@ class DeviceRegistrationAssertion implements MssoAssertion {
         MASAuthCredentials creds = request.getRequest().getGrantProvider().getCredentials(mssoContext);
         if (creds == null || !creds.isValid())
             throw new CredentialRequiredException();
+
+        KeyStore keyStore = null;
+        try {
+            keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
+        } catch (Exception e) {
+            if (DEBUG) Log.d(TAG, "Unable to load Android KeyStore", e);
+        }
 
         if (DEBUG) Log.d(TAG, "Device registration process start");
 
@@ -144,7 +152,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
         try {
             deviceId = mssoContext.getDeviceId();
             String organization = mssoContext.getConfigurationProvider().getProperty(ConfigurationProvider.PROP_ORGANIZATION);
-            csrBytes = CertUtils.generateCertificateSigningRequest(creds.getUsername(), deviceId, deviceName, organization, publicKey, privateKey);
+            csrBytes = KeyStoreRepository.getKeyStoreRepository().generateCertificateSigningRequest(creds.getUsername(), deviceId, deviceName, organization, privateKey, publicKey);
         } catch (CertificateException e) {
             throw new RegistrationException(MAGErrorCode.DEVICE_NOT_REGISTERED, e);
         } catch (Exception e) {
@@ -166,7 +174,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
             tokenManager.saveClientCertificateChain(result.getClientCertificateChain());
             tokenManager.saveMagIdentifier(result.getMagIdentifier());
             // MssoContext will take care of persisting the ID token if SSO is enabled
-        } catch (TokenStoreException e) {
+        } catch (Exception e) {
             throw new TokenStoreUnavailableException(e);
         }
 
@@ -181,5 +189,6 @@ class DeviceRegistrationAssertion implements MssoAssertion {
 
     @Override
     public void close() {
+        //No resource to close
     }
 }

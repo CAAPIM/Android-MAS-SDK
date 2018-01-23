@@ -41,6 +41,9 @@ public class DefaultConfiguration implements ConfigurationProvider {
     private final String clientId;
     private final String clientSecret;
     private final String tokenHost;
+    private final String scope;
+    private final String redirectUri;
+
     private final Map<String, Object> properties = new HashMap<>();
     private final JSONObject raw;
     private final Server server;
@@ -71,8 +74,10 @@ public class DefaultConfiguration implements ConfigurationProvider {
      * @param clientId       the application's client id for the initial OAuth token request, eg "846955e8-a8fb-4bea-bdd7-a16b39770c3d".  Required.
      * @param clientSecret   the application's client secret for the initial OAuth token request, eg "6ed4ffcb-4110-4c68-b280-cda17f127374".  Required.
      * @param organization   the organization name for the O component of the client certificate DN, eg "Exampletronics Ltd".  Optional.
+     * @param scope          the scope for the O component of the client certificate DN, eg "msso phone profile address email ".  Optional.
+     * @param redirectUri    the redirectUri name for the O component of the client certificate DN, eg "camsso://com.ca.mas".  Optional.
      */
-    public DefaultConfiguration(JSONObject raw, String tokenHost, Integer port, String tokenUriPrefix, String clientId, String clientSecret, String organization) {
+    public DefaultConfiguration(JSONObject raw, String tokenHost, Integer port, String tokenUriPrefix, String clientId, String clientSecret, String organization, String scope, String redirectUri) {
         if (tokenHost == null)
             throw new NullPointerException("tokenHost");
         if (clientId == null)
@@ -87,6 +92,8 @@ public class DefaultConfiguration implements ConfigurationProvider {
             this.clientSecret = null;
         }
         this.tokenHost = tokenHost;
+        this.scope = scope;
+        this.redirectUri = redirectUri;
         putProperty(PROP_TOKEN_URI_PREFIX, tokenUriPrefix);
         putProperty(PROP_ORGANIZATION, organization);
         putProperty(PROP_SSO_ENABLED, true);
@@ -136,7 +143,7 @@ public class DefaultConfiguration implements ConfigurationProvider {
      */
     public void addTrustedCertificatePinnedPublicKeyHashes(String... hashes) {
         for (String hash : hashes) {
-            trustedCertificatePinnedPublicKeyHashes.add(PublicKeyHash.fromHashString(hash, Base64.DEFAULT));
+            trustedCertificatePinnedPublicKeyHashes.add(PublicKeyHash.fromHashString(hash, Base64.NO_WRAP | Base64.URL_SAFE));
         }
     }
 
@@ -185,6 +192,14 @@ public class DefaultConfiguration implements ConfigurationProvider {
     @Override
     public String getTokenHost() {
         return tokenHost;
+    }
+
+    public String getScope() {
+        return scope;
+    }
+
+    public String getRedirectUri() {
+        return redirectUri;
     }
 
     @Override

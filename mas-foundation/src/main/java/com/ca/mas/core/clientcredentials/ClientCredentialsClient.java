@@ -16,13 +16,13 @@ import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.http.MAGHttpClient;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGRequestBody;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.io.IoUtils;
 import com.ca.mas.core.token.ClientCredentials;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASRequestBody;
+import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASResponseBody;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,16 +53,16 @@ public class ClientCredentialsClient extends ServerClient {
 
         final URI tokenUri = conf.getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_CLIENT_CREDENTIALS);
 
-        MAGRequest request = null;
+        MASRequest request = null;
         try {
             List<Pair<String, String>> form = new ArrayList<>();
             form.add(new Pair<String, String>(ServerClient.CLIENT_ID, masterClientId));
             form.add(new Pair<String, String>(NONCE, nonce));
 
-            request = new MAGRequest.MAGRequestBuilder(tokenUri.toURL())
+            request = new MASRequest.MASRequestBuilder(tokenUri.toURL())
                     .header(DEVICE_ID, IoUtils.base64(deviceId, Charsets.ASCII))
-                    .post(MAGRequestBody.urlEncodedFormBody(form))
-                    .responseBody(MAGResponseBody.jsonBody())
+                    .post(MASRequestBody.urlEncodedFormBody(form))
+                    .responseBody(MASResponseBody.jsonBody())
                     .build();
 
         } catch (MalformedURLException e) {
@@ -70,7 +70,7 @@ public class ClientCredentialsClient extends ServerClient {
         }
 
         MAGHttpClient httpClient = mssoContext.getMAGHttpClient();
-        final MAGResponse<JSONObject> response;
+        final MASResponse<JSONObject> response;
         try {
             response = httpClient.execute(request);
 

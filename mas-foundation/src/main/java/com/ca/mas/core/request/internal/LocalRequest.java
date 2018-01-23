@@ -9,16 +9,16 @@
 package com.ca.mas.core.request.internal;
 
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGResponse;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
 
 import java.io.IOException;
 
 /**
  * A Request that send to the SDK but not to the Gateway.
  */
-public interface LocalRequest extends MAGRequest {
+public interface LocalRequest extends MASRequest {
 
-    MAGResponse send(MssoContext context) throws IOException;
+    MASResponse send(MssoContext context) throws IOException;
 
 }

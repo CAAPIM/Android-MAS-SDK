@@ -12,13 +12,14 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.http.MAGRequestBody;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
-import com.ca.mas.core.oauth.GrantProvider;
+import com.ca.mas.foundation.MASConnectionListener;
+import com.ca.mas.foundation.MASGrantProvider;
 import com.ca.mas.core.request.internal.LocalRequest;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASRequestBody;
+import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASResponseBody;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,8 +54,8 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
     }
 
     @Override
-    public MAGResponse send(final MssoContext context) throws IOException {
-        return new MAGResponse<JSONObject>() {
+    public MASResponse send(final MssoContext context) throws IOException {
+        return new MASResponse<JSONObject>() {
 
             @Override
             public Map<String, List<String>> getHeaders() {
@@ -72,9 +73,9 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
             }
 
             @Override
-            public MAGResponseBody<JSONObject> getBody() {
+            public MASResponseBody<JSONObject> getBody() {
                 if (getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    return new MAGResponseBody<JSONObject>() {
+                    return new MASResponseBody<JSONObject>() {
                         @Override
                         public JSONObject getContent() {
                             JSONObject entity = new JSONObject();
@@ -99,7 +100,7 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
                         }
                     };
                 } else {
-                    return new MAGResponseBody<JSONObject>() {
+                    return new MASResponseBody<JSONObject>() {
                         @Override
                         public JSONObject getContent() {
                             return new JSONObject();
@@ -126,22 +127,22 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
     }
 
     @Override
-    public GrantProvider getGrantProvider() {
+    public MASGrantProvider getGrantProvider() {
         return request.getGrantProvider();
     }
 
     @Override
-    public MAGRequestBody getBody() {
+    public MASRequestBody getBody() {
         return request.getBody();
     }
 
     @Override
-    public MAGConnectionListener getConnectionListener() {
+    public MASConnectionListener getConnectionListener() {
         return request.getConnectionListener();
     }
 
     @Override
-    public MAGResponseBody<?> getResponseBody() {
+    public MASResponseBody<?> getResponseBody() {
         return request.getResponseBody();
     }
 

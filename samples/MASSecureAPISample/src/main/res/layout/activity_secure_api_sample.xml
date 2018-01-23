@@ -45,7 +45,7 @@
                 android:layout_marginBottom="70dp"
                 android:gravity="center_horizontal"
                 android:text="@string/protected_info"
-                android:textColor="@color/white"
+                android:textColor="@color/colorText"
                 android:textSize="18sp" />
 
             <android.support.design.widget.TextInputLayout
@@ -65,7 +65,7 @@
                     android:imeOptions="actionNext"
                     android:inputType="textNoSuggestions"
                     android:maxLines="1"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/colorText" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -76,7 +76,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 app:passwordToggleEnabled="true"
-                app:passwordToggleTint="@color/white">
+                app:passwordToggleTint="@color/colorText">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/edit_text_password"
@@ -89,7 +89,7 @@
                     android:imeOptions="actionDone"
                     android:inputType="textPassword"
                     android:maxLines="1"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/colorText" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.v7.widget.AppCompatButton
@@ -107,7 +107,7 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="16sp"
                 android:visibility="gone"
-                app:backgroundTint="@color/white" />
+                app:backgroundTint="@color/colorText" />
 
             <android.support.v7.widget.AppCompatButton
                 android:id="@+id/login_button"
@@ -121,7 +121,7 @@
                 android:text="@string/login"
                 android:textColor="@color/colorPrimary"
                 android:textSize="16sp"
-                app:backgroundTint="@color/white" />
+                app:backgroundTint="@color/colorText" />
 
         </LinearLayout>
 

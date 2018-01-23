@@ -15,8 +15,8 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:buttonStyle">@style/AppTheme.Button</item>
-        <item name="android:textColorPrimary">@color/white</item>
-        <item name="android:textColorHint">@color/white</item>
+        <item name="android:textColorPrimary">@color/colorText</item>
+        <item name="android:textColorHint">@color/colorText</item>
     </style>
 
     <style name="AppTheme.Button" parent="Widget.AppCompat.Button">

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MASAuthenticationSample</string>
+    <string name="log_in_msg">User Info: </string>
+    <string name="log_out_msg">Logged out!</string>
+</resources>

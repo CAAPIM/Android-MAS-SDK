@@ -2,6 +2,7 @@ package com.ca.mas.masauthenticationsample;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar2);
 
         resultsView.setText("");
+        resultsView.setMovementMethod(new ScrollingMovementMethod());
         progressBar.setVisibility(View.INVISIBLE);
 
         loginButton.setOnClickListener(new View.OnClickListener(
@@ -98,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(MASUser user) {
                 try {
                     resultsView.setText(R.string.log_in_msg);
-                    resultsView.append(MASUser.getCurrentUser().getAsJSONObject().toString());
+                    resultsView.append(MASUser.getCurrentUser().getAsJSONObject().toString(4));
                 } catch (JSONException e) {
                     Log.e(TAG, e.getMessage());
                 }

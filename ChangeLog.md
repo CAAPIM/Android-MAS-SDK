@@ -1,3 +1,15 @@
+
+# Version 1.7.00
+
+### Bug fixes
+
+### New features
+
+We now support Android 4.1.x with these limitations and changes:
+- Android Account Manager (AMS) is not supported.
+- If you are using the MASStorage framework, Admins must customize the status code responses in the MASStorage policy [Customize MASStorage Policy for Android 4.1.x](https://mas.ca.com/mag)
+- You must add the following dependency to your app module .gradle file: ```compile org.bouncycastle:bcpkix-jdk15on:1.55```. For help, see [Dependency Manager](https://mas.ca.com/docs/android/1.7.00/guides/#dependency-manager).
+
 # Version 1.6.00
 
 ### Bug fixes

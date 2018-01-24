@@ -53,7 +53,6 @@ import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 import java.security.PrivateKey;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,7 +63,7 @@ import java.util.Map;
  */
 public class MAS {
 
-    public static String TAG = "MAS";
+    public static final String TAG = "MAS";
     public static boolean DEBUG = Log.isLoggable(TAG, Log.VERBOSE);
 
     private static Context appContext;
@@ -379,7 +378,7 @@ public class MAS {
         return MobileSsoFactory.getInstance().processRequest(request, new MAGResultReceiver<T>(Callback.getHandler(callback)) {
             @Override
             public void onSuccess(final MASResponse<T> response) {
-                Callback.onSuccess(callback, new APIResponse<T>(response));
+                Callback.onSuccess(callback,response);
             }
 
             @Override
@@ -396,46 +395,10 @@ public class MAS {
         });
     }
 
-    public static class APIResponse<T> implements MASResponse<T> {
-
-        private MASResponse<T> response;
-
-        APIResponse(MASResponse<T> response) {
-            this.response = response;
-        }
-
-        public MASResponseBody<T> getBody() {
-            return new MASResponseBody<T>() {
-                @Override
-                public T getContent() {
-                    if (response.getBody() == null) {
-                        return null;
-                    }
-                    return response.getBody().getContent();
-                }
-            };
-        }
-
-        @Override
-        public Map<String, List<String>> getHeaders() {
-            return response.getHeaders();
-        }
-
-        @Override
-        public int getResponseCode() {
-            return response.getResponseCode();
-        }
-
-        @Override
-        public String getResponseMessage() {
-            return response.getResponseMessage();
-        }
-    }
-
     public static class RequestCancelledException extends Exception {
-        private Bundle data;
+        private final Bundle data;
 
-        public RequestCancelledException(Bundle data) {
+        RequestCancelledException(Bundle data) {
             this.data = data;
         }
 

@@ -69,7 +69,7 @@ public interface MASRequest {
      * {@link MASResponseBody#jsonBody()}, and {@link MASResponseBody#stringBody()} or you can
      * implement your own type of response body type.
      */
-    MASResponseBody<?> getResponseBody();
+    MASResponseBody getResponseBody();
 
     /**
      * @return The scope for this request. When return null, default scope set (defined in the

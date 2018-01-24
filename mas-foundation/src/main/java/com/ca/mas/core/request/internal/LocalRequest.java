@@ -17,8 +17,8 @@ import java.io.IOException;
 /**
  * A Request that send to the SDK but not to the Gateway.
  */
-public interface LocalRequest extends MASRequest {
+public interface LocalRequest<T> extends MASRequest {
 
-    MASResponse send(MssoContext context) throws IOException;
+    MASResponse<T> send(MssoContext context) throws IOException;
 
 }

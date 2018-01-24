@@ -12,6 +12,7 @@ import android.net.Uri;
 
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.request.internal.LocalRequest;
+import com.ca.mas.core.request.internal.MAGRequestProxy;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,13 +23,11 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-public class MASTokenRequest implements MASRequest, LocalRequest {
+public class MASTokenRequest extends MAGRequestProxy implements LocalRequest<JSONObject> {
 
     private static final String ACCESS_TOKEN = "access_token";
     private static final String REFRESH_TOKEN = "refresh_token";
     private static final String EXPIRES_IN = "expires_in";
-
-    private MASRequest request;
 
     public MASTokenRequest() {
         //The path is not required for LocalRequest
@@ -40,7 +39,7 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
     }
 
     @Override
-    public MASResponse send(final MssoContext context) throws IOException {
+    public MASResponse<JSONObject> send(final MssoContext context) throws IOException {
         return new MASResponse<JSONObject>() {
 
             @Override
@@ -76,55 +75,5 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
                 };
             }
         };
-    }
-
-    @Override
-    public URL getURL() {
-        return request.getURL();
-    }
-
-    @Override
-    public String getMethod() {
-        return request.getMethod();
-    }
-
-    @Override
-    public Map<String, List<String>> getHeaders() {
-        return request.getHeaders();
-    }
-
-    @Override
-    public MASGrantProvider getGrantProvider() {
-        return request.getGrantProvider();
-    }
-
-    @Override
-    public MASRequestBody getBody() {
-        return request.getBody();
-    }
-
-    @Override
-    public MASConnectionListener getConnectionListener() {
-        return request.getConnectionListener();
-    }
-
-    @Override
-    public MASResponseBody<?> getResponseBody() {
-        return request.getResponseBody();
-    }
-
-    @Override
-    public String getScope() {
-        return request.getScope();
-    }
-
-    @Override
-    public boolean isPublic() {
-        return false;
-    }
-
-    @Override
-    public boolean notifyOnCancel() {
-        return false;
     }
 }

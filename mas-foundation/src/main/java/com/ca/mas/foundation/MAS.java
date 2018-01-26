@@ -378,7 +378,7 @@ public class MAS {
         return MobileSsoFactory.getInstance().processRequest(request, new MAGResultReceiver<T>(Callback.getHandler(callback)) {
             @Override
             public void onSuccess(final MASResponse<T> response) {
-                Callback.onSuccess(callback,response);
+                Callback.onSuccess(callback, new MASResponseProxy<T>(response));
             }
 
             @Override

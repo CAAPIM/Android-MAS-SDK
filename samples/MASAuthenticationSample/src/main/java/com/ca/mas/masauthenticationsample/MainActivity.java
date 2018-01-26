@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     try {
                         resultsView.setText(R.string.log_in_msg);
-                        resultsView.append(MASUser.getCurrentUser().getAsJSONObject().toString());
+                        resultsView.append(MASUser.getCurrentUser().getAsJSONObject().toString(4));
                     } catch (JSONException e) {
                         Log.e(TAG, e.getMessage());
                     }

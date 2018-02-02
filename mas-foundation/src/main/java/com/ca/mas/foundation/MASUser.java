@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.Parcel;
 import android.security.keystore.UserNotAuthenticatedException;
 import android.support.annotation.NonNull;
+import android.telecom.Call;
 import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
@@ -164,11 +165,12 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      */
     public static void login(final MASCallback<MASUser> callback) {
         final MASUser user = createMASUser();
+        Callback.onSuccess(callback, user);
         user.requestUserInfo(new MASCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
                 current = user;
-                Callback.onSuccess(callback, current);
+                //Callback.onSuccess(callback, current);
             }
 
             @Override
@@ -721,8 +723,8 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
     public abstract void removeSessionLock(MASCallback<Void> callback);
 
 
-    //Xarmarin may have a defect binding on method with Generic, temporary add below methods for
-    //Xarmarin binding.
+    @Xamarin("Xarmarin may have a defect binding on method with Generic, " +
+            "temporary add below methods to resolve binding error")
     public abstract void getUserById(String id, MASCallback<MASUser> callback);
     public abstract void getUsersByFilter(MASFilteredRequest filteredRequest, MASCallback<List<MASUser>> callback);
     public abstract void getUserMetaData(MASCallback<UserAttributes> callback);

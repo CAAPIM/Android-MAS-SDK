@@ -16,7 +16,6 @@ import android.os.Handler;
 import android.os.Parcel;
 import android.security.keystore.UserNotAuthenticatedException;
 import android.support.annotation.NonNull;
-import android.telecom.Call;
 import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
@@ -165,12 +164,11 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      */
     public static void login(final MASCallback<MASUser> callback) {
         final MASUser user = createMASUser();
-        Callback.onSuccess(callback, user);
         user.requestUserInfo(new MASCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
                 current = user;
-                //Callback.onSuccess(callback, current);
+                Callback.onSuccess(callback, current);
             }
 
             @Override

@@ -236,8 +236,7 @@ class AccessTokenAssertion implements MssoAssertion {
         } catch (OAuthServerException e){
             //After we got the token
             MASAuthCredentials credentials = request.getGrantProvider().getCredentials(mssoContext);
-            if ( credentials!= null &&
-                    !request.getGrantProvider().getCredentials(mssoContext) .isReusable()) {
+            if ( credentials!= null && !credentials.isReusable()) {
                 // Clear cached credentials if we cannot reuse it for retry
                 mssoContext.clearCredentials();
             }

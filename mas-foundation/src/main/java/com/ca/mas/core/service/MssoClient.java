@@ -19,11 +19,8 @@ import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
 import com.ca.mas.core.security.SecureLockException;
-import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.MASAuthCredentials;
-import com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode;
-import com.ca.mas.foundation.MASAuthCredentialsJWT;
 import com.ca.mas.foundation.MASAuthCredentialsPassword;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
@@ -138,35 +135,6 @@ public class MssoClient {
     }
 
     /**
-     * Logs in a user with a username and password. The existing user session will be logged out,
-     * then logged in with the provided username and password.
-     * <p/>
-     * <p>The response to the request will eventually be delivered to the specified result receiver.</p>
-     * <p>This method returns immediately to the calling thread</p>
-     *
-     * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
-     */
-    public void authenticate(String authCode, String state, final MAGResultReceiver resultReceiver) {
-        MASAuthCredentials credentials = new MASAuthCredentialsAuthorizationCode(authCode, state);
-        Intent intent = createAuthenticationIntent(credentials, resultReceiver);
-        new MssoClientAuthenticateAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
-    }
-
-    /**
-     * <p>Logs in a user with an IdToken.<p/>
-     * <p>The response to the request will eventually be delivered to the specified result receiver.</p>
-     * <p>This method returns immediately to the calling thread</p>
-     *
-     * @param idToken       The idToken to log in with
-     * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
-     */
-    public void authenticate(final IdToken idToken, final MAGResultReceiver resultReceiver) {
-        MASAuthCredentials credentials = new MASAuthCredentialsJWT(idToken);
-        Intent intent = createAuthenticationIntent(credentials, resultReceiver);
-        new MssoClientAuthenticateAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
-    }
-
-    /**
      * <p>Logs in a user with MASAuthCredentials.
      * <p>The response to the request will eventually be delivered to the specified result receiver.</p>
      * <p>This method returns immediately to the calling thread</p>
@@ -214,11 +182,9 @@ public class MssoClient {
     public void processPendingRequests() {
         // Currently this should only be necessary when we have started the UNLOCK activity.
         // For the Log On activity, it should take care of signalling the MssoService when it should retry.
-        if (MssoState.isExpectedUnlock()) {
             Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, appContext, MssoService.class);
             intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, (long) -1);
             appContext.startService(intent);
-        }
     }
 
     /**

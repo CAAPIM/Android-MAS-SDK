@@ -127,27 +127,8 @@ public class MssoService extends IntentService {
         //Make credentials available to this request's MssoContext
         MASAuthCredentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
         request.getMssoContext().setCredentials(creds);
+        onProcessRequest(request);
 
-        boolean originalRequestProcessed = false;
-
-        //Give highest priority to any authenticate requests
-        if (request.getRequest() instanceof AuthenticateRequest) {
-            originalRequestProcessed = true;
-            onProcessRequest(request);
-        }
-
-        final ArrayList<MssoRequest> requests = new ArrayList<>(MssoActiveQueue.getInstance().getAllRequest());
-        for (final MssoRequest mssoRequest : requests) {
-            if (request == mssoRequest) {
-                originalRequestProcessed = true;
-            }
-            startThreadedRequest(mssoRequest);
-        }
-
-        //Ensure we make at least one request to process the original request
-        if (!originalRequestProcessed) {
-            startThreadedRequest(request);
-        }
     }
 
     private void onProcessAllPendingRequests() {
@@ -159,7 +140,6 @@ public class MssoService extends IntentService {
 
     private void onProcessRequest(final MssoRequest request) {
         ResultReceiver receiver = request.getResultReceiver();
-        boolean expectingUnlock = false;
 
         MssoContext mssoContext = request.getMssoContext();
         try {
@@ -173,7 +153,6 @@ public class MssoService extends IntentService {
             }
             //Otherwise, the request was cancelled, so don't bother enqueuing a response.
 
-            MssoState.setExpectingUnlock(false);
         } catch (CredentialRequiredException e) {
             if (DEBUG) Log.d(TAG, "Request for user credentials");
             //Notify listener
@@ -195,7 +174,6 @@ public class MssoService extends IntentService {
             }
         } catch (TokenStoreUnavailableException e) {
             try {
-                expectingUnlock = true;
                 mssoContext.getTokenManager().getTokenStore().unlock();
             } catch (Exception e1) {
                 requestFinished(request);
@@ -227,8 +205,6 @@ public class MssoService extends IntentService {
             if (DEBUG) Log.e(TAG, e2.getMessage(), e2);
             requestFinished(request);
             respondError(receiver, getErrorCode(e2), new MAGError(e2));
-        } finally {
-            MssoState.setExpectingUnlock(expectingUnlock);
         }
     }
 

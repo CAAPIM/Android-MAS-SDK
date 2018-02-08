@@ -9,21 +9,18 @@
 package com.ca.mas.core.auth;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.View;
 
 import com.ca.mas.core.client.ServerClient;
-import com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode;
-import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.http.MAGHttpClient;
-import com.ca.mas.core.service.MssoIntents;
-import com.ca.mas.core.service.MssoService;
 import com.ca.mas.core.service.Provider;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
+import com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASResponseBody;
+import com.ca.mas.foundation.MASUser;
 
 import org.json.JSONObject;
 
@@ -121,7 +118,7 @@ public abstract class AuthRenderer {
                         String code = json.getString("code");
                         String state = json.optString("state");
                         if (code != null && code.length() > 0) {
-                            sendCredentialsIntent(new MASAuthCredentialsAuthorizationCode(code, state));
+                            MASUser.login(new MASAuthCredentialsAuthorizationCode(code, state), null);
                             onAuthCodeReceived(code);
                         }
                     }
@@ -136,19 +133,6 @@ public abstract class AuthRenderer {
         } catch (Exception e) {
             onError(AUTH_CODE_ERR, e.getMessage(), e);
         }
-    }
-
-    /**
-     * Once the authorization code is obtained, use this method to send intent to the Mobile SSO Module to proceed
-     * the logon process.
-     *
-     * @param credentials The Credential retrieved by the social login platform.
-     */
-    public void sendCredentialsIntent(MASAuthCredentials credentials) {
-        Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, context, MssoService.class);
-        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-        intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
-        context.startService(intent);
     }
 
     /**

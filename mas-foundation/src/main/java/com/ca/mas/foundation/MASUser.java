@@ -105,38 +105,14 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * Authenticates a user with a username and password.
      */
     public static void login(@NonNull String userName, @NonNull char[] cPassword, final MASCallback<MASUser> callback) {
-        MobileSso mobileSso = MobileSsoFactory.getInstance();
-        mobileSso.authenticate(userName, cPassword, new MAGResultReceiver<JSONObject>() {
-            @Override
-            public void onSuccess(MASResponse<JSONObject> response) {
-                login(callback);
-            }
-
-            @Override
-            public void onError(MAGError error) {
-                current = null;
-                Callback.onError(callback, error);
-            }
-        });
+        login(new MASAuthCredentialsPassword(userName, cPassword), callback);
     }
 
     /**
      * Authenticates a user with an ID token.
      */
     public static void login(MASIdToken idToken, final MASCallback<MASUser> callback) {
-        MobileSso mobileSso = MobileSsoFactory.getInstance();
-        mobileSso.authenticate(idToken, new MAGResultReceiver<JSONObject>() {
-            @Override
-            public void onSuccess(MASResponse<JSONObject> response) {
-                login(callback);
-            }
-
-            @Override
-            public void onError(MAGError error) {
-                current = null;
-                Callback.onError(callback, error);
-            }
-        });
+        login(new MASAuthCredentialsJWT(idToken), callback);
     }
 
     /**
@@ -154,6 +130,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             public void onError(MAGError error) {
                 current = null;
                 Callback.onError(callback, error);
+                MAS.processPendingRequests();
             }
         });
     }
@@ -169,11 +146,13 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             public void onSuccess(Void result) {
                 current = user;
                 Callback.onSuccess(callback, current);
+                MAS.processPendingRequests();
             }
 
             @Override
             public void onError(Throwable e) {
                 Callback.onError(callback, e);
+                MAS.processPendingRequests();
             }
         });
     }
@@ -184,20 +163,8 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3.1">
      */
     public static void login(@NonNull MASAuthorizationResponse authorizationResponse, final MASCallback<MASUser> callback) {
-        MobileSso mobileSso = MobileSsoFactory.getInstance();
-        mobileSso.authenticate(authorizationResponse.getAuthorizationCode(),
-                authorizationResponse.getState(), new MAGResultReceiver<JSONObject>() {
-                    @Override
-                    public void onSuccess(MASResponse<JSONObject> response) {
-                        login(callback);
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                        current = null;
-                        Callback.onError(callback, error);
-                    }
-                });
+        login(new MASAuthCredentialsAuthorizationCode(authorizationResponse.getAuthorizationCode(),
+                authorizationResponse.getState()), callback);
     }
 
     /**
@@ -724,14 +691,23 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
     @Xamarin("Xarmarin may have a defect binding on method with Generic, " +
             "temporary add below methods to resolve binding error")
     public abstract void getUserById(String id, MASCallback<MASUser> callback);
+
     public abstract void getUsersByFilter(MASFilteredRequest filteredRequest, MASCallback<List<MASUser>> callback);
+
     public abstract void getUserMetaData(MASCallback<UserAttributes> callback);
+
     public abstract void sendMessage(MASTopic topic, MASMessage message, MASCallback<Void> callback);
+
     public abstract void sendMessage(MASMessage message, MASUser user, MASCallback<Void> callback);
+
     public abstract void sendMessage(MASMessage message, MASUser user, String topic, MASCallback<Void> callback);
+
     public abstract void sendMessage(MASMessage message, MASGroup group, MASCallback<Void> callback);
-    public abstract void sendMessage(MASMessage message, MASGroup group,String topic, MASCallback<Void> callback);
+
+    public abstract void sendMessage(MASMessage message, MASGroup group, String topic, MASCallback<Void> callback);
+
     public abstract void startListeningToMyMessages(MASCallback<Void> callback);
+
     public abstract void stopListeningToMyMessages(MASCallback<Void> callback);
 
 }

@@ -462,6 +462,7 @@ public class MssoContext {
             throw new InvalidClientCredentialException(e);
         }
         if (s.endsWith("202")) { //Invalid resource owner - The given resource owner credentials were not valid
+            clearCredentials();
             throw new AuthenticationException(e);
         }
         if (s.endsWith("206")) { //Invalid client Certificate - The given client certificate has expired

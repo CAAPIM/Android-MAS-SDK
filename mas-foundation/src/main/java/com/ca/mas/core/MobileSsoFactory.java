@@ -316,21 +316,6 @@ public final class MobileSsoFactory {
             }
 
             @Override
-            public void authenticate(String username, char[] password, MAGResultReceiver<JSONObject> resultReceiver) {
-                mssoClient.authenticate(username, password, resultReceiver);
-            }
-
-            @Override
-            public void authenticate(String authCode, String state, MAGResultReceiver<JSONObject> resultReceiver) {
-                mssoClient.authenticate(authCode, state, resultReceiver);
-            }
-
-            @Override
-            public void authenticate(IdToken idToken, MAGResultReceiver<JSONObject> resultReceiver) {
-                mssoClient.authenticate(idToken, resultReceiver);
-            }
-
-            @Override
             public void authenticate(MASAuthCredentials credentials, MAGResultReceiver<JSONObject> resultReceiver) {
                 mssoClient.authenticate(credentials, resultReceiver);
             }

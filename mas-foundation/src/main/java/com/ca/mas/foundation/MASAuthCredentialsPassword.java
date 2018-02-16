@@ -34,6 +34,14 @@ public class MASAuthCredentialsPassword implements MASAuthCredentials {
      * @param password the password.
      */
     public MASAuthCredentialsPassword(String username, char[] password) {
+        if (username == null || username.trim().length() == 0) {
+            throw new IllegalArgumentException("Empty Username.");
+        }
+
+        if (password == null || password.length == 0) {
+            throw new IllegalArgumentException("Empty Password.");
+        }
+
         this.username = username;
         this.password = password;
     }

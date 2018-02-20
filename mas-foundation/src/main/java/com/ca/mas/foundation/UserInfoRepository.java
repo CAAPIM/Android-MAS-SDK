@@ -22,7 +22,7 @@ import org.json.JSONObject;
 class UserInfoRepository implements UserRepository {
 
     @Override
-    public void getCurrentUser(final MASCallback<MASUser> result) {
+    public void getCurrentUser(final MASCallback<MASUser> result) throws Exception{
 
         final MASRequest request = new MASRequest.MASRequestBuilder(ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUserInfoUri())
                 .password()
@@ -48,7 +48,7 @@ class UserInfoRepository implements UserRepository {
         });
     }
 
-    private MASUser transform(JSONObject jsonObject) throws JSONException {
+    protected MASUser transform(JSONObject jsonObject) throws JSONException {
         User user =  new User();
         user.populate(jsonObject);
         return user;

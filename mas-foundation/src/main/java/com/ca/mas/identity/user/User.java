@@ -11,12 +11,15 @@ package com.ca.mas.identity.user;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 
+import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.foundation.FoundationConsts;
 import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASFoundationStrings;
 import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.foundation.MASSessionUnlockCallback;
 import com.ca.mas.foundation.MASTransformable;
 import com.ca.mas.foundation.MASUser;
+import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.ca.mas.identity.util.IdentityUtil;
@@ -393,6 +396,11 @@ public class User extends MASUser {
 
     @Override
     public String getAccessToken() {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    protected void onLogin(MASCallback<Void> callback) {
         throw new UserNotAuthenticatedException();
     }
 

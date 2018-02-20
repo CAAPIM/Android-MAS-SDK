@@ -141,7 +141,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      */
     public static void login(final MASCallback<MASUser> callback) {
         final MASUser user = createMASUser();
-        user.requestUserInfo(new MASCallback<Void>() {
+        user.onLogin(new MASCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
                 current = user;
@@ -194,6 +194,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * @return OAuth Access Token
      */
     public abstract String getAccessToken();
+    protected abstract void onLogin(MASCallback<Void> callback);
 
     private static MASUser createMASUser() {
 
@@ -365,21 +366,20 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
             @Override
             public void requestUserInfo(MASCallback<Void> callback) {
-                // For Social Login, the SCIM endpoint should failed and fallback to /userinfo.
+                // For Social Login or MASIdentity module is not used,
+                // the SCIM endpoint should failed and fallback to /userinfo.
                 // Try to get the SCIM profile first followed by the userinfo, this order is important.
                 LinkedList<UserRepository> repositories = new LinkedList<>();
-                if (userRepository != null) {
-                    repositories.add(new UserRepository() {
-                        @Override
-                        public void getCurrentUser(MASCallback<MASUser> result) {
-                            if (getUserName() == null) {
-                                userRepository.me(result);
-                            } else {
-                                userRepository.getUserById(getUserName(), result);
-                            }
-                        }
-                    });
-                }
+                repositories.add(userRepository);
+                repositories.add(new UserInfoRepository());
+                fetch(repositories, callback, null);
+            }
+
+            @Override
+            protected void onLogin(MASCallback<Void> callback) {
+                LinkedList<UserRepository> repositories = new LinkedList<>();
+                repositories.add(userRepository);
+                repositories.add(new JWTUserInfoRepository());
                 repositories.add(new UserInfoRepository());
                 fetch(repositories, callback, null);
             }
@@ -418,6 +418,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                         }
                     });
                 } catch (Exception e1) {
+                    //Try next user repository
                     fetch(repositories, callback, e1);
                 }
             }
@@ -426,10 +427,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             @TargetApi(23)
             public void lockSession(MASCallback<Void> callback) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    MASUser currentUser = MASUser.getCurrentUser();
-                    if (currentUser == null) {
-                        Callback.onError(callback, new SecureLockException(MASFoundationStrings.USER_NOT_CURRENTLY_AUTHENTICATED));
-                    } else if (isSessionLocked()) {
+                    if (isSessionLocked()) {
                         Callback.onSuccess(callback, null);
                     } else {
 

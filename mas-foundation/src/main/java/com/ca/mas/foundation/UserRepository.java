@@ -15,6 +15,6 @@ public interface UserRepository {
      * Retrieve the user profile.
      * @param result Scim user profile.
      */
-    void getCurrentUser(final MASCallback<MASUser> result);
+    void getCurrentUser(final MASCallback<MASUser> result) throws Exception;
 
 }

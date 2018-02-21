@@ -17,6 +17,7 @@ import com.ca.mas.core.service.Provider;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode;
+import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASResponseBody;
@@ -115,12 +116,21 @@ public abstract class AuthRenderer {
                 if (response.getBody() != null) {
                     JSONObject json = response.getBody().getContent();
                     if (json != null) {
-                        String code = json.getString("code");
+                        final String code = json.getString("code");
                         String state = json.optString("state");
                         if (code != null && code.length() > 0) {
-                            MASUser.login(new MASAuthCredentialsAuthorizationCode(code, state), null);
-                            onAuthCodeReceived(code);
-                        }
+                            MASUser.login(new MASAuthCredentialsAuthorizationCode(code, state), new MASCallback<MASUser>() {
+                                @Override
+                                public void onSuccess(MASUser result) {
+                                    onAuthCodeReceived(code, null);
+                                }
+
+                                @Override
+                                public void onError(Throwable e) {
+                                    onAuthCodeReceived(code, e);
+                                }
+                            });
+                         }
                     }
                 }
             } else {
@@ -139,7 +149,8 @@ public abstract class AuthRenderer {
      * Notify the Authenticate Renderer that Authorization code has been retrieved.
      *
      * @param code Authorization Code
+     * @param e
      */
-    protected abstract void onAuthCodeReceived(String code);
+    protected abstract void onAuthCodeReceived(String code, Throwable e);
 
 }

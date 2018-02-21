@@ -351,8 +351,8 @@ public class MASLoginActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onAuthCodeReceived(String code) {
-                super.onAuthCodeReceived(code);
+            protected void onAuthCodeReceived(String code, Throwable e) {
+                super.onAuthCodeReceived(code, e);
                 onProximityAuthenticated();
             }
         };
@@ -366,8 +366,8 @@ public class MASLoginActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onAuthCodeReceived(String code) {
-                super.onAuthCodeReceived(code);
+            protected void onAuthCodeReceived(String code, Throwable e) {
+                super.onAuthCodeReceived(code, e);
                 onProximityAuthenticated();
             }
         };
@@ -423,8 +423,8 @@ public class MASLoginActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onAuthCodeReceived(String code) {
-                super.onAuthCodeReceived(code);
+            protected void onAuthCodeReceived(String code, Throwable e) {
+                super.onAuthCodeReceived(code, e);
                 onProximityAuthenticated();
             }
         };

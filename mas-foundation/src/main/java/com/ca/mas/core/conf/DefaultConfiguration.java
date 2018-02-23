@@ -212,25 +212,12 @@ public class DefaultConfiguration implements ConfigurationProvider {
         }
     }
 
-    /**
-     * Get the URL suffix to use for the specified operation (eg {@link #PROP_TOKEN_URL_SUFFIX_REGISTER_DEVICE} on the token server.
-     * <p/>
-     * This method just looks up the URL suffix in a map, then prepends the URI prefix.
-     * Subclasses can override this method to look up the suffixes in some other way.
-     *
-     * @param operation the operation name, eg {@link #PROP_TOKEN_URL_SUFFIX_REQUEST_TOKEN}.
-     * @return the URL suffix for this token server operation, eg "/auth/oauth/v2/token", or null if there is no suffix known for the requested operation.
-     */
-    private String getTokenUrlSuffix(String operation) {
-        return operationUriSuffixes.get(operation);
-    }
-
     @Override
     public URI getTokenUri(String operation) {
         String suffix = getProperty(operation);
         if (suffix == null) {
             //Find the default path
-            suffix = getTokenUrlSuffix(operation);
+            suffix = operationUriSuffixes.get(operation);
         }
         return getUri(suffix);
     }

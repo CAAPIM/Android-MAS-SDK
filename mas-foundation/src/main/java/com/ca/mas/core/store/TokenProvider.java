@@ -10,6 +10,7 @@ package com.ca.mas.core.store;
 
 import android.content.Context;
 
+import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.token.IdToken;
 
 import java.security.PrivateKey;
@@ -67,7 +68,7 @@ public interface TokenProvider {
      * @param keyBits the size of the key, 2048 default
      * @return the client key pair, or null if a client key pair has not yet been saved.
      */
-    PrivateKey createPrivateKey(Context ctx, int keyBits);
+    PrivateKey createPrivateKey(Context ctx, int keyBits) throws KeyStoreException;
 
 
     /**

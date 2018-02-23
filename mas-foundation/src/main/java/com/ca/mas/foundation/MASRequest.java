@@ -121,7 +121,11 @@ public interface MASRequest {
         public MASRequestBuilder(URI uri) {
             if (uri != null) {
                 try {
-                    this.url = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(uri.toString()).toURL();
+                    if (uri.getScheme() == null) {
+                       this.url = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(uri.toString()).toURL();
+                    } else {
+                        this.url = uri.toURL();
+                    }
                 } catch (MalformedURLException e) {
                     throw new IllegalArgumentException(e);
                 }
@@ -137,7 +141,11 @@ public interface MASRequest {
 
             if (uri != null) {
                 try {
-                    this.url = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(uri.toString()).toURL();
+                    if (uri.getScheme() == null) {
+                        this.url = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(uri.toString()).toURL();
+                    } else {
+                        this.url = new URL(uri.toString());
+                    }
                 } catch (MalformedURLException e) {
                     throw new IllegalArgumentException(e);
                 }
@@ -151,13 +159,7 @@ public interface MASRequest {
          */
 
         public MASRequestBuilder(URL url) {
-            if (url != null) {
-                try {
-                    this.url = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(url.toString()).toURL();
-                } catch (MalformedURLException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            }
+            this.url = url;
         }
 
         /**

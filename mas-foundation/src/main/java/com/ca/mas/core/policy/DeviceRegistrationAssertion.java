@@ -16,8 +16,6 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.context.MssoException;
-import com.ca.mas.core.security.KeyStoreRepository;
-import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
@@ -28,11 +26,13 @@ import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
 import com.ca.mas.core.registration.DeviceRegistrationAwaitingActivationException;
 import com.ca.mas.core.registration.RegistrationClient;
 import com.ca.mas.core.registration.RegistrationException;
+import com.ca.mas.core.security.KeyStoreException;
+import com.ca.mas.core.security.KeyStoreRepository;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.token.IdToken;
+import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASResponse;
 
-import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
@@ -125,14 +125,6 @@ class DeviceRegistrationAssertion implements MssoAssertion {
         if (creds == null || !creds.isValid())
             throw new CredentialRequiredException();
 
-        KeyStore keyStore = null;
-        try {
-            keyStore = KeyStore.getInstance("AndroidKeyStore");
-            keyStore.load(null);
-        } catch (Exception e) {
-            if (DEBUG) Log.d(TAG, "Unable to load Android KeyStore", e);
-        }
-
         if (DEBUG) Log.d(TAG, "Device registration process start");
 
         // Perform device registration
@@ -142,7 +134,11 @@ class DeviceRegistrationAssertion implements MssoAssertion {
             Integer keyBits = mssoContext.getConfigurationProvider().getProperty(ConfigurationProvider.PROP_CLIENT_CERT_RSA_KEYBITS);           
             if (keyBits == null)
                 keyBits = 2048;
-            privateKey = tokenManager.createPrivateKey(ctx, keyBits);
+            try {
+                privateKey = tokenManager.createPrivateKey(ctx, keyBits);
+            } catch (KeyStoreException e) {
+                throw new RegistrationException(MAGErrorCode.DEVICE_NOT_REGISTERED, "Failed to generate private key.", e);
+            }
         }
         PublicKey publicKey = tokenManager.getClientPublicKey();
 

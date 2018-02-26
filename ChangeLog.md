@@ -7,7 +7,12 @@
 - Sample Apps are removed from the project, all samples are distributed to other github repository.
 - SDK Refactoring to simplify Xarmarin Binding. [US436089]
 - Failed to invoke callback.error when server provide invalid QRCode url. [DE340045]
-- Support Android API 16+ [US406900]
+- Support Android API 16+ [US406900]  
+Android 4.1.x is now supported with these limitations and changes:  
+  - Android Account Manager (AMS) is not supported.
+  - If you are using the MASStorage framework, Admins must change a context variable in the MASStorage policy to support Android 4.x.1.   See [Customize MASStorage Policy for Android 4.1.x](https://mas.ca.com/mag). If the policy is not updated, you will get an exception error when you try to delete data from cloud storage.
+  - You must add the following dependency to your app module build.gradle file: ```compile org.bouncycastle:bcpkix-jdk15on:1.55```
+
 
 # Version 1.6.00
 

@@ -1,3 +1,14 @@
+# Version 1.6.10
+
+### Bug fixes
+- Incorrect order of the callback between API request and Login. [DE341169]
+
+### New features
+- Sample Apps are removed from the project, all samples are distributed to other github repository.
+- SDK Refactoring to simplify Xarmarin Binding. [US436089]
+- Failed to invoke callback.error when server provide invalid QRCode url. [DE340045]
+- Support Android API 16+ [US406900]
+
 # Version 1.6.00
 
 ### Bug fixes

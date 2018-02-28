@@ -113,6 +113,14 @@ public interface MASRequest {
         private MASClaims claim;
         private PrivateKey privateKey;
 
+        private boolean isAbsolute(String scheme) {
+            if (scheme != null) {
+                String s = scheme.toLowerCase();
+                return s.startsWith("https") || s.startsWith("http");
+            }
+            return false;
+        }
+
         /**
          * Create a builder with the provided {@link URI}.
          *
@@ -121,7 +129,7 @@ public interface MASRequest {
         public MASRequestBuilder(URI uri) {
             if (uri != null) {
                 try {
-                    if (uri.getScheme() == null) {
+                    if (!isAbsolute(uri.getScheme())) {
                        this.url = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(uri.toString()).toURL();
                     } else {
                         this.url = uri.toURL();
@@ -141,7 +149,7 @@ public interface MASRequest {
 
             if (uri != null) {
                 try {
-                    if (uri.getScheme() == null) {
+                    if (!isAbsolute(uri.getScheme())) {
                         this.url = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(uri.toString()).toURL();
                     } else {
                         this.url = new URL(uri.toString());

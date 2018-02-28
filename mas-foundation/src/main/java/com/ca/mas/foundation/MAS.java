@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Base64;
 import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
@@ -337,8 +338,10 @@ public class MAS {
             @Override
             protected Void doInBackground(Void... params) {
                 try {
+                    //remove url safe
+                    String pkh = Base64.encodeToString(Base64.decode(publicKeyHash, Base64.NO_WRAP | Base64.URL_SAFE), Base64.NO_WRAP);
                     MASSecurityConfiguration enrollmentConfig = new MASSecurityConfiguration.Builder()
-                            .add(publicKeyHash)
+                            .add(pkh)
                             .host(uri)
                             .build();
                     MAGHttpClient client = new MAGHttpClient();

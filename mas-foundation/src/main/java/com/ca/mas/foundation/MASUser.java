@@ -443,43 +443,47 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                             return;
                         }
 
-                        // Remove access and refresh tokens
-                        StorageProvider.getInstance().getOAuthTokenContainer().clear();
-
-                        // Move the ID token from the Keychain to the fingerprint protected shared Keystore
-                        Parcel idTokenParcel = Parcel.obtain();
-                        idToken.writeToParcel(idTokenParcel, 0);
-                        byte[] idTokenBytes = idTokenParcel.marshall();
-
-                        // Save the encrypted token
-                        LockableEncryptionProvider lockableEncryptionProvider
-                                = new LockableEncryptionProvider(MAS.getContext(), SESSION_LOCK_ALIAS);
-                        // Delete any previously generated key due to improper closure
-                        lockableEncryptionProvider.clear();
-                        // now encrypt the data
-                        byte[] encryptedData = lockableEncryptionProvider.encrypt(idTokenBytes);
                         try {
-                            StorageProvider.getInstance()
-                                    .getTokenManager()
-                                    .saveSecureIdToken(encryptedData);
-                        } catch (TokenStoreException e) {
+                            // Remove access and refresh tokens
+                            StorageProvider.getInstance().getOAuthTokenContainer().clear();
+
+                            // Move the ID token from the Keychain to the fingerprint protected shared Keystore
+                            Parcel idTokenParcel = Parcel.obtain();
+                            idToken.writeToParcel(idTokenParcel, 0);
+                            byte[] idTokenBytes = idTokenParcel.marshall();
+
+                            // Save the encrypted token
+                            LockableEncryptionProvider lockableEncryptionProvider
+                                    = new LockableEncryptionProvider(MAS.getContext(), SESSION_LOCK_ALIAS);
+                            // Delete any previously generated key due to improper closure
+                            lockableEncryptionProvider.clear();
+                            // now encrypt the data
+                            byte[] encryptedData = lockableEncryptionProvider.encrypt(idTokenBytes);
+                            try {
+                                StorageProvider.getInstance()
+                                        .getTokenManager()
+                                        .saveSecureIdToken(encryptedData);
+                            } catch (TokenStoreException e) {
+                                Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_SECURE_ID_TOKEN, e));
+                                return;
+                            }
+
+                            // Remove the unencrypted token
+                            try {
+                                StorageProvider.getInstance()
+                                        .getTokenManager()
+                                        .deleteIdToken();
+                            } catch (TokenStoreException e) {
+                                Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_ID_TOKEN, e));
+                                return;
+                            }
+
+                            idTokenParcel.recycle();
+
+                            Callback.onSuccess(callback, null);
+                        } catch (Exception e) {
                             Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_SECURE_ID_TOKEN, e));
-                            return;
                         }
-
-                        // Remove the unencrypted token
-                        try {
-                            StorageProvider.getInstance()
-                                    .getTokenManager()
-                                    .deleteIdToken();
-                        } catch (TokenStoreException e) {
-                            Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_ID_TOKEN, e));
-                            return;
-                        }
-
-                        idTokenParcel.recycle();
-
-                        Callback.onSuccess(callback, null);
                     }
                 } else {
                     Callback.onError(callback, new IllegalAccessException(MASFoundationStrings.API_TARGET_EXCEPTION));

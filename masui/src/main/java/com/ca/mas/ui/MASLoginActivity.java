@@ -39,6 +39,7 @@ import android.widget.Toast;
 
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.auth.MASAuthenticationProvider;
@@ -69,6 +70,7 @@ public class MASLoginActivity extends AppCompatActivity {
     private MASProximityLogin qrCode;
     private MASProximityLogin nfc;
     private MASProximityLogin ble;
+    private AlertDialog qrCodeDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,7 +151,7 @@ public class MASLoginActivity extends AppCompatActivity {
                             ImageView imageView = (ImageView) qrCode.render();
                             imageView.setLayoutParams(layoutParams);
                             linearLayout.addView(imageView);
-                            new AlertDialog.Builder(MASLoginActivity.this)
+                            qrCodeDialog = new AlertDialog.Builder(MASLoginActivity.this)
                                     .setView(linearLayout)
                                     .setNegativeButton(getString(R.string.done), null)
                                     .show();
@@ -344,16 +346,25 @@ public class MASLoginActivity extends AppCompatActivity {
             @Override
             public void onError(int errorCode, final String m, Exception e) {
                 // Hide QR Code option
-                View qrButton = findViewById(R.id.activity_mas_login_qr_code);
-                if (mGridLayout != null) {
-                    mGridLayout.removeView(qrButton);
-                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        View qrButton = findViewById(R.id.activity_mas_login_qr_code);
+                        if (mGridLayout != null) {
+                            mGridLayout.removeView(qrButton);
+                        }
+                        if (qrCodeDialog != null && qrCodeDialog.isShowing()) {
+                            qrCodeDialog.cancel();
+                        }
+                        Toast.makeText(MASLoginActivity.this, m, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override
-            protected void onAuthCodeReceived(String code, Throwable e) {
-                super.onAuthCodeReceived(code, e);
-                onProximityAuthenticated();
+            protected void onAuthCodeReceived(String code, String state) {
+                super.onAuthCodeReceived(code, state);
+                onProximityAuthenticated(code, state);
             }
         };
     }
@@ -363,12 +374,18 @@ public class MASLoginActivity extends AppCompatActivity {
             @Override
             public void onError(int errorCode, final String m, Exception e) {
                 if (DEBUG) Log.i(TAG, m);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MASLoginActivity.this, m, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override
-            protected void onAuthCodeReceived(String code, Throwable e) {
-                super.onAuthCodeReceived(code, e);
-                onProximityAuthenticated();
+            protected void onAuthCodeReceived(String code, String state) {
+                super.onAuthCodeReceived(code, state);
+                onProximityAuthenticated(code, state);
             }
         };
     }
@@ -420,12 +437,19 @@ public class MASLoginActivity extends AppCompatActivity {
                     requestFineLocation();
                 }
                 if (DEBUG) Log.i(TAG, m);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MASLoginActivity.this, m, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override
-            protected void onAuthCodeReceived(String code, Throwable e) {
-                super.onAuthCodeReceived(code, e);
-                onProximityAuthenticated();
+            protected void onAuthCodeReceived(String code, String state) {
+                super.onAuthCodeReceived(code, state);
+                onProximityAuthenticated(code, state);
             }
         };
     }
@@ -449,10 +473,24 @@ public class MASLoginActivity extends AppCompatActivity {
         }
     }
 
-    private void onProximityAuthenticated() {
+    private void onProximityAuthenticated(String code, String state) {
         //Fetch the user profile
-        MASUser.login(null);
-        finish();
+        MASUser.login(new MASAuthCredentialsAuthorizationCode(code, state), new MASCallback<MASUser>() {
+            @Override
+            public void onSuccess(MASUser result) {
+                finish();
+            }
+
+            @Override
+            public void onError(final Throwable e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MASLoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
     }
 
     @Override

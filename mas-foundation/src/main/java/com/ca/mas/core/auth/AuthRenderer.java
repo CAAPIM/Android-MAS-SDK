@@ -119,18 +119,8 @@ public abstract class AuthRenderer {
                         final String code = json.getString("code");
                         String state = json.optString("state");
                         if (code != null && code.length() > 0) {
-                            MASUser.login(new MASAuthCredentialsAuthorizationCode(code, state), new MASCallback<MASUser>() {
-                                @Override
-                                public void onSuccess(MASUser result) {
-                                    onAuthCodeReceived(code, null);
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-                                    onAuthCodeReceived(code, e);
-                                }
-                            });
-                         }
+                            onAuthCodeReceived(code, state);
+                        }
                     }
                 }
             } else {
@@ -149,8 +139,8 @@ public abstract class AuthRenderer {
      * Notify the Authenticate Renderer that Authorization code has been retrieved.
      *
      * @param code Authorization Code
-     * @param e
+     * @param state State from the response
      */
-    protected abstract void onAuthCodeReceived(String code, Throwable e);
+    abstract void onAuthCodeReceived(String code, String state);
 
 }

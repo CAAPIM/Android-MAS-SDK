@@ -212,64 +212,27 @@ public class DefaultConfiguration implements ConfigurationProvider {
         }
     }
 
-    /**
-     * Get the URL suffix to use for the specified operation (eg {@link #PROP_TOKEN_URL_SUFFIX_REGISTER_DEVICE} on the token server.
-     * <p/>
-     * This method just looks up the URL suffix in a map, then prepends the URI prefix.
-     * Subclasses can override this method to look up the suffixes in some other way.
-     *
-     * @param operation the operation name, eg {@link #PROP_TOKEN_URL_SUFFIX_REQUEST_TOKEN}.
-     * @return the URL suffix for this token server operation, eg "/auth/oauth/v2/token", or null if there is no suffix known for the requested operation.
-     */
-    protected String getTokenUrlSuffix(String operation) {
-        String prefix = getProperty(PROP_TOKEN_URI_PREFIX);
-        if (prefix == null) {
-            prefix = "";
-        }
-        String suffix = operationUriSuffixes.get(operation);
-        return prefix + suffix;
-    }
-
     @Override
     public URI getTokenUri(String operation) {
-        if (!operation.startsWith("msso.url."))
-            return null;
-
-        Integer tokenPortHttps = getTokenPort();
-        try {
-            String suffix = getProperty(operation);
-            if (suffix != null) {
-                if (!isAbsolute(suffix)) {
-                    String prefix = getProperty(PROP_TOKEN_URI_PREFIX);
-                    suffix = prefix == null ? suffix : prefix + suffix;
-                }
-            } else {
-                suffix = getTokenUrlSuffix(operation);
-            }
-            if (suffix == null)
-                return null;
-            if (isAbsolute(suffix))
-                return new URL(suffix).toURI();
-            return new URL("https", getTokenHost(), tokenPortHttps, suffix).toURI();
-        } catch (MalformedURLException | URISyntaxException e) {
-            throw new MAGRuntimeException(MAGErrorCode.INVALID_ENDPOINT, "Unable to create URL for operation \"" + operation + "\": " + e.getMessage(), e);
+        String suffix = getProperty(operation);
+        if (suffix == null) {
+            //Find the default path
+            suffix = operationUriSuffixes.get(operation);
         }
+        return getUri(suffix);
     }
 
     @Override
-    public Uri getUserInfoUri() {
+    public URI getUserInfoUri() {
         String userInfo = getProperty(FoundationConsts.KEY_CONFIG_USER_INFO);
         if (userInfo == null) {
             userInfo = "/openid/connect/v1/userinfo";
         }
-        return new Uri.Builder().path(userInfo).build();
+        return getUri(userInfo);
     }
 
     @Override
     public URI getUri(String relativePath) {
-        Integer tokenPortHttps = getProperty(PROP_TOKEN_PORT_HTTPS);
-        if (tokenPortHttps == null)
-            tokenPortHttps = 8443;
         String suffix = relativePath;
         try {
             if (relativePath == null) {
@@ -278,7 +241,7 @@ public class DefaultConfiguration implements ConfigurationProvider {
             if (isAbsolute(suffix))
                 return new URL(suffix).toURI();
 
-            return new URL("https", getTokenHost(), tokenPortHttps, getPrefix() + suffix).toURI();
+            return new URL("https", getTokenHost(), getTokenPort(), getPrefix() + suffix).toURI();
         } catch (MalformedURLException | URISyntaxException e) {
             throw new MAGRuntimeException(MAGErrorCode.INVALID_ENDPOINT, "Unable to create URL for operation \"" + relativePath + "\": " + e.getMessage(), e);
         }

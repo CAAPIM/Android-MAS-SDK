@@ -114,8 +114,7 @@ public class PublicKeyHash implements Serializable {
      * @return the key hash as an SHA-256 Base64 string.
      */
     public String getHashString() {
-        //NO_WRAP to trim new line characters, URL_SAFE to prevent '-' from turning into '+'
-        return Base64.encodeToString(hash, Base64.NO_WRAP | Base64.URL_SAFE);
+        return Base64.encodeToString(hash, Base64.NO_WRAP);
     }
 
     /**

@@ -18,10 +18,6 @@ import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.http.MAGHttpClient;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGRequestBody;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.io.IoUtils;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
@@ -30,6 +26,10 @@ import com.ca.mas.core.storage.StorageException;
 import com.ca.mas.core.storage.implementation.MASStorageManager;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.foundation.MASAuthCredentials;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASRequestBody;
+import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASResponseBody;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -119,7 +119,7 @@ public class RegistrationClient extends ServerClient {
      * @throws RegistrationServerException if there is an error response from the token server
      */
     public DeviceRegistrationResult registerDevice(@NonNull byte[] certificateSigningRequest,
-                                                   @NonNull MAGRequest request,
+                                                   @NonNull MASRequest request,
                                                    @NonNull String clientId,
                                                    @NonNull String clientSecret,
                                                    @NonNull String deviceId,
@@ -131,10 +131,10 @@ public class RegistrationClient extends ServerClient {
         if (tokenUri == null)
             throw new RegistrationException(MAGErrorCode.DEVICE_NOT_REGISTERED, "No device registration URL is configured");
 
-        MAGRequest.MAGRequestBuilder builder = new MAGRequest.MAGRequestBuilder(tokenUri);
+        MASRequest.MASRequestBuilder builder = new MASRequest.MASRequestBuilder(tokenUri);
 
         MASAuthCredentials creds = request.getGrantProvider().getCredentials(mssoContext);
-        Map<String, List<String>> headers = creds.getHeaders(mssoContext);
+        Map<String, List<String>> headers = creds.getHeaders();
         if (headers != null) {
             for (String key : headers.keySet()) {
                 if (headers.get(key) != null) {
@@ -153,10 +153,10 @@ public class RegistrationClient extends ServerClient {
         }
         builder.header(CERT_FORMAT, PEM);
 
-        builder.post(MAGRequestBody.byteArrayBody(Base64.encode(certificateSigningRequest, Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE)));
+        builder.post(MASRequestBody.byteArrayBody(Base64.encode(certificateSigningRequest, Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE)));
 
         MAGHttpClient httpClient = mssoContext.getMAGHttpClient();
-        final MAGResponse response;
+        final MASResponse response;
         try {
             response = httpClient.execute(builder.build());
         } catch (IOException e) {
@@ -183,7 +183,7 @@ public class RegistrationClient extends ServerClient {
         final String magIdentifier = findMagIdentifier(response);
         final IdToken idToken = findIdToken(response, createSession && request.getGrantProvider().isSessionSupported());
 
-        MAGResponseBody<byte[]> responseEntity = response.getBody();
+        MASResponseBody<byte[]> responseEntity = response.getBody();
         if (responseEntity == null)
             throw new RegistrationException(MAGErrorCode.DEVICE_RECORD_IS_NOT_VALID, "register_device response did not contain an entity");
 
@@ -226,7 +226,7 @@ public class RegistrationClient extends ServerClient {
         };
     }
 
-    private static DeviceStatus findDeviceStatus(MAGResponse response) throws RegistrationException {
+    private static DeviceStatus findDeviceStatus(MASResponse response) throws RegistrationException {
         final DeviceStatus deviceStatus;
         List<String> headers = (List<String>) response.getHeaders().get(DEVICE_STATUS);
         if (headers != null && headers.size() == 1) {
@@ -243,7 +243,7 @@ public class RegistrationClient extends ServerClient {
         return deviceStatus;
     }
 
-    private String findMagIdentifier(MAGResponse response) throws RegistrationException {
+    private String findMagIdentifier(MASResponse response) throws RegistrationException {
         final String magIdentifier;
         List<String> headers = (List<String>) response.getHeaders().get(MAG_IDENTIFIER);
         if (headers != null && headers.size() == 1) {
@@ -261,7 +261,7 @@ public class RegistrationClient extends ServerClient {
         return magIdentifier;
     }
 
-    private IdToken findIdToken(MAGResponse response, boolean require) throws RegistrationException {
+    private IdToken findIdToken(MASResponse response, boolean require) throws RegistrationException {
         List<String> idTokens = (List<String>) response.getHeaders().get(ID_TOKEN);
         List<String> idTokenTypes = (List<String>) response.getHeaders().get(ID_TOKEN_TYPE);
         if (idTokens == null || idTokens.size() != 1 || idTokenTypes == null || idTokenTypes.size() != 1) {
@@ -290,13 +290,13 @@ public class RegistrationClient extends ServerClient {
      * @throws RegistrationException       if there is an error other than a valid error JSON response from the token server
      */
     public void removeDeviceRegistration() throws RegistrationException, RegistrationServerException {
-        MAGRequest.MAGRequestBuilder builder = new MAGRequest.MAGRequestBuilder(
+        MASRequest.MASRequestBuilder builder = new MASRequest.MASRequestBuilder(
                 conf.getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_REMOVE_DEVICE_X509))
                 .delete(null);
 
         MAGHttpClient httpClient = mssoContext.getMAGHttpClient();
 
-        final MAGResponse response;
+        final MASResponse response;
         try {
             response = httpClient.execute(builder.build());
         } catch (IOException e) {

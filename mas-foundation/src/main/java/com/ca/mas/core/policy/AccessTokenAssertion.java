@@ -19,9 +19,7 @@ import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.oauth.GrantProvider;
+import com.ca.mas.foundation.MASGrantProvider;
 import com.ca.mas.core.oauth.OAuthException;
 import com.ca.mas.core.oauth.OAuthServerException;
 import com.ca.mas.core.oauth.OAuthTokenClient;
@@ -31,6 +29,8 @@ import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.request.MAGInternalRequest;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.token.JWTValidationException;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +46,9 @@ import static com.ca.mas.foundation.MAS.TAG;
  */
 class AccessTokenAssertion implements MssoAssertion {
 
-    public static final String TOKEN_EXPIRED_ERROR_CODE_SUFFIX = "990";
+    private static final String TOKEN_EXPIRED_ERROR_CODE_SUFFIX = "990";
+    private static final int INVALID_CLIENT_CREDENTIALS = 3003201;
+    private static final int INVALID_SCOPE = 3003115;
 
     private OAuthTokenClient oAuthTokenClient;
 
@@ -57,10 +59,8 @@ class AccessTokenAssertion implements MssoAssertion {
 
     @Override
     public synchronized void processRequest(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
-        if (request.getRequest().getURL() != null) {
-            if (request.getRequest().getURL().getHost() == null) {
-                throw new IllegalArgumentException("Host is not provided");
-            }
+        if (request.getRequest().getURL() != null && request.getRequest().getURL().getHost() == null) {
+            throw new IllegalArgumentException("Host is not provided");
         }
 
         MAGInternalRequest magInternalRequest = request.getRequest();
@@ -72,7 +72,7 @@ class AccessTokenAssertion implements MssoAssertion {
     }
 
     @Override
-    public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGException {
+    public void processResponse(MssoContext mssoContext, RequestInfo request, MASResponse response) throws MAGException {
         int errorCode = ServerClient.findErrorCode(response);
         if (errorCode == -1) {
             return;
@@ -81,7 +81,7 @@ class AccessTokenAssertion implements MssoAssertion {
         if (s.endsWith(TOKEN_EXPIRED_ERROR_CODE_SUFFIX)) {
             throw new RetryRequestException("Access token rejected by server") {
                 @Override
-                public void recover(MssoContext context) throws Exception {
+                public void recover(MssoContext context) {
                     context.clearAccessToken();
                 }
             };
@@ -90,17 +90,17 @@ class AccessTokenAssertion implements MssoAssertion {
 
     @Override
     public void close() {
+        //No resources to close
     }
 
     private String findAccessToken(MssoContext mssoContext, MAGInternalRequest request) throws CredentialRequiredException, OAuthException, OAuthServerException, AuthenticationException, JWTValidationException, RetryRequestException {
         String accessToken = mssoContext.getAccessToken();
         if (accessToken != null) {
-            if (DEBUG) Log.d(TAG, "Validating access token");
             if (isAccessTokenStillValid(mssoContext)) {
                 if (DEBUG) Log.d(TAG, "Access Token is still valid.");
                 if (isSufficientScope(mssoContext, request)) {
                     //Handle grant flow switching from Client Credential to Password
-                    if (request.getGrantProvider() == GrantProvider.PASSWORD) {
+                    if (request.getGrantProvider() == MASGrantProvider.PASSWORD) {
                         //The access token is granted by Client Credential if refresh token is null
                         //Please refer to https://tools.ietf.org/html/rfc6749#section-4.4.3 for detail
                         if (mssoContext.getRefreshToken() == null) {
@@ -123,17 +123,7 @@ class AccessTokenAssertion implements MssoAssertion {
 
             String refreshToken = mssoContext.getRefreshToken();
             if (refreshToken != null) {
-                try {
-                    if (DEBUG) Log.d(TAG, "Obtain Access Token using Refresh Token");
-                    accessToken = obtainAccessTokenUsingRefreshToken(mssoContext, refreshToken);
-                } catch (OAuthServerException tse) {
-                    //The access token and refresh token are no longer valid.
-                    mssoContext.clearAccessToken();
-                    accessToken = null;
-                    if (DEBUG) Log.w(TAG,
-                            "Refresh token failed, will fall back to ID token or password: " + tse.getMessage(), tse);
-                    /* FALLTHROUGH and try again with ID token or password */
-                }
+                accessToken = obtainAccessTokenUsingRefreshToken(mssoContext, refreshToken);
             }
 
             if (accessToken != null)
@@ -142,30 +132,26 @@ class AccessTokenAssertion implements MssoAssertion {
 
         // Obtain an access token from the token server.
         // If we have an ID token available, try to use that.  Otherwise, we may need to prompt for username and password.
-        if (oAuthTokenClient == null)
-            throw new IllegalStateException("policy not initialized");
-
         boolean ssoEnabled = mssoContext.getConfigurationProvider().getProperty(ConfigurationProvider.PROP_SSO_ENABLED);
 
         if (ssoEnabled) {
             IdToken idToken = mssoContext.getIdToken();
             if (idToken != null) {
-                if (DEBUG) Log.d(TAG, "Try to use id token to get new Access Token");
                 return obtainAccessTokenUsingIdToken(mssoContext, idToken, request);
             }
         }
 
         // We will have to use a username and password.  Ensure they are available.
-        if (DEBUG) Log.d(TAG, "Obtain access token using Credential");
         return obtainAccessTokenUsingCredential(mssoContext, request, ssoEnabled);
     }
 
     private boolean isAccessTokenStillValid(MssoContext mssoContext) {
+        if (DEBUG) Log.d(TAG, "Validating access token expiration");
         long expiry = mssoContext.getAccessTokenExpiry();
         return expiry <= 0 || System.currentTimeMillis() <= expiry;
     }
 
-    private boolean isSufficientScope(MssoContext mssoContext, MAGRequest request) {
+    private boolean isSufficientScope(MssoContext mssoContext, MASRequest request) {
         String rScope = request.getScope();
         String gScope = mssoContext.getGrantedScope();
         if (rScope == null || rScope.trim().length() == 0) {
@@ -195,17 +181,16 @@ class AccessTokenAssertion implements MssoAssertion {
      *
      * @param mssoContext the MssoContext to examine.  Required.
      * @param request     the OAuthRequest to examine.  Required.
-     * @return a valid non-empty UsernamePassword.  Never null, and the contained username and password are always non-null (but may be empty).
      * @throws CredentialRequiredException if credentials are not available, or if either the username or password was null.
      */
-    private static MASAuthCredentials getCredsOrThrow(MssoContext mssoContext, MAGInternalRequest request) throws CredentialRequiredException {
+    private static void checkCredentials(MssoContext mssoContext, MAGInternalRequest request) throws CredentialRequiredException {
         MASAuthCredentials creds = request.getGrantProvider().getCredentials(mssoContext);
         if (creds == null || !creds.isValid())
             throw new CredentialRequiredException();
-        return creds;
     }
 
-    private String obtainAccessTokenUsingIdToken(MssoContext mssoContext, IdToken idToken, MAGInternalRequest request) throws CredentialRequiredException, OAuthException, AuthenticationException, JWTValidationException, OAuthServerException, RetryRequestException {
+    private String obtainAccessTokenUsingIdToken(MssoContext mssoContext, IdToken idToken, MAGInternalRequest request) throws CredentialRequiredException, OAuthException, JWTValidationException, OAuthServerException {
+        if (DEBUG) Log.d(TAG, "Try to use id token to get new Access Token");
         String clientId = mssoContext.getClientId();
         String clientSecret = mssoContext.getClientSecret();
         String scope = request.getScope();
@@ -216,22 +201,27 @@ class AccessTokenAssertion implements MssoAssertion {
             mssoContext.onAccessTokenAvailable(accessToken, response.getRefreshToken(), response.getExpiresIn(), response.getGrantedScope());
             return accessToken;
         } catch (OAuthServerException e) {
+
+            rethrowOrIgnore(e);
+
             //The user session is no longer valid.
             mssoContext.clearIdToken();
             mssoContext.clearUserProfile();
+
+
             // Obtain credentials and try again
             return obtainAccessTokenUsingCredential(mssoContext, request, true);
         }
     }
 
-    private String obtainAccessTokenUsingCredential(MssoContext mssoContext, MAGInternalRequest request, boolean wantIdToken) throws CredentialRequiredException, AuthenticationException, OAuthServerException, OAuthException, JWTValidationException {
+    private String obtainAccessTokenUsingCredential(MssoContext mssoContext, MAGInternalRequest request, boolean wantIdToken) throws CredentialRequiredException, OAuthServerException, OAuthException, JWTValidationException {
+        if (DEBUG) Log.d(TAG, "Obtain access token using Credential");
         //Clear user profile before getting AccessToken using different credential.
         mssoContext.clearUserProfile();
-        getCredsOrThrow(mssoContext, request);
+        checkCredentials(mssoContext, request);
         String clientId = mssoContext.getClientId();
         String clientSecret = mssoContext.getClientSecret();
 
-        boolean gotToken = false;
         try {
             OAuthTokenResponse response = oAuthTokenClient.obtainTokensUsingCredentials(
                     request, clientId, clientSecret, wantIdToken);
@@ -241,22 +231,56 @@ class AccessTokenAssertion implements MssoAssertion {
             }
             String accessToken = response.getAccessToken();
             mssoContext.onAccessTokenAvailable(accessToken, response.getRefreshToken(), response.getExpiresIn(), response.getGrantedScope());
-            gotToken = accessToken != null;
+
             return accessToken;
-        } finally {
-            if (!gotToken || !request.getGrantProvider().getCredentials(mssoContext).isReusable()) {
-                // Clear cached credentials
-                mssoContext.setCredentials(null);
+        } catch (OAuthServerException e){
+            //After we got the token
+            MASAuthCredentials credentials = request.getGrantProvider().getCredentials(mssoContext);
+            if ( credentials!= null && !credentials.isReusable()) {
+                // Clear cached credentials if we cannot reuse it for retry
+                mssoContext.clearCredentials();
             }
+            throw e;
         }
     }
 
-    private String obtainAccessTokenUsingRefreshToken(MssoContext mssoContext, String refreshToken) throws OAuthException, OAuthServerException, AuthenticationException, RetryRequestException {
+    private String obtainAccessTokenUsingRefreshToken(MssoContext mssoContext, String refreshToken) throws OAuthException, OAuthServerException {
+        if (DEBUG) Log.d(TAG, "Obtain Access Token using Refresh Token");
         String clientId = mssoContext.getClientId();
         String clientSecret = mssoContext.getClientSecret();
-        OAuthTokenResponse response = oAuthTokenClient.obtainTokenUsingRefreshToken(refreshToken, clientId, clientSecret);
-        String accessToken = response.getAccessToken();
-        mssoContext.onAccessTokenAvailable(accessToken, response.getRefreshToken(), response.getExpiresIn(), response.getGrantedScope());
+        String accessToken = null;
+
+        try {
+            OAuthTokenResponse response = oAuthTokenClient.obtainTokenUsingRefreshToken(refreshToken, clientId, clientSecret);
+            accessToken = response.getAccessToken();
+            mssoContext.onAccessTokenAvailable(accessToken, response.getRefreshToken(), response.getExpiresIn(), response.getGrantedScope());
+
+        } catch (OAuthServerException tse) {
+
+            rethrowOrIgnore(tse);
+
+            //The access token and refresh token are no longer valid.
+            mssoContext.clearAccessToken();
+            accessToken = null;
+            if (DEBUG) Log.w(TAG,
+                    "Refresh token failed, will fall back to ID token or password: " + tse.getMessage(), tse);
+            /* FALLTHROUGH and try again with ID token or password */
+        }
         return accessToken;
+    }
+
+
+    /**
+     * Check to see if we can continue the flow with the exception
+     * We cannot continue the flow if the client provide invalid client credentials or invalid scope
+     */
+    private void rethrowOrIgnore(OAuthServerException e) throws OAuthServerException {
+        switch (e.getErrorCode()) {
+            case INVALID_CLIENT_CREDENTIALS:
+            case INVALID_SCOPE:
+                throw e;
+            default:
+                //Ignore the Exception
+        }
     }
 }

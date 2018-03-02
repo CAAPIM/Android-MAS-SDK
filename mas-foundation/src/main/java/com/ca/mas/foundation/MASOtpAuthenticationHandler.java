@@ -17,7 +17,6 @@ import android.support.annotation.VisibleForTesting;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.foundation.notify.Callback;
 
 import java.util.List;
@@ -51,7 +50,7 @@ public class MASOtpAuthenticationHandler implements Parcelable{
     public void deliver(String channel, final MASCallback<Void> callback) {
         handler.deliver(channel, new MAGResultReceiver<Void>() {
             @Override
-            public void onSuccess(MAGResponse<Void> response) {
+            public void onSuccess(MASResponse<Void> response) {
                 Callback.onSuccess(callback, null);
             }
 

@@ -154,7 +154,7 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(encoded);
         byte[] digest = md.digest();
-        return Base64.encodeToString(digest, Base64.NO_WRAP).trim();
+        return Base64.encodeToString(digest, Base64.NO_WRAP | Base64.URL_SAFE).trim();
     }
 
     private SSLSocketFactory createSSLSocketFactory() throws NoSuchAlgorithmException, KeyManagementException {

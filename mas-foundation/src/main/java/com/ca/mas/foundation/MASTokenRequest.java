@@ -11,11 +11,8 @@ package com.ca.mas.foundation;
 import android.net.Uri;
 
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.http.MAGRequestBody;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
-import com.ca.mas.core.oauth.GrantProvider;
 import com.ca.mas.core.request.internal.LocalRequest;
+import com.ca.mas.core.request.internal.MAGRequestProxy;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,13 +23,11 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-public class MASTokenRequest implements MASRequest, LocalRequest {
+public class MASTokenRequest extends MAGRequestProxy implements LocalRequest<JSONObject> {
 
     private static final String ACCESS_TOKEN = "access_token";
     private static final String REFRESH_TOKEN = "refresh_token";
     private static final String EXPIRES_IN = "expires_in";
-
-    private MASRequest request;
 
     public MASTokenRequest() {
         //The path is not required for LocalRequest
@@ -44,8 +39,8 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
     }
 
     @Override
-    public MAGResponse send(final MssoContext context) throws IOException {
-        return new MAGResponse<JSONObject>() {
+    public MASResponse<JSONObject> send(final MssoContext context) throws IOException {
+        return new MASResponse<JSONObject>() {
 
             @Override
             public Map<String, List<String>> getHeaders() {
@@ -63,8 +58,8 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
             }
 
             @Override
-            public MAGResponseBody<JSONObject> getBody() {
-                return new MAGResponseBody<JSONObject>() {
+            public MASResponseBody<JSONObject> getBody() {
+                return new MASResponseBody<JSONObject>() {
                     @Override
                     public JSONObject getContent() {
                         JSONObject entity = new JSONObject();
@@ -80,55 +75,5 @@ public class MASTokenRequest implements MASRequest, LocalRequest {
                 };
             }
         };
-    }
-
-    @Override
-    public URL getURL() {
-        return request.getURL();
-    }
-
-    @Override
-    public String getMethod() {
-        return request.getMethod();
-    }
-
-    @Override
-    public Map<String, List<String>> getHeaders() {
-        return request.getHeaders();
-    }
-
-    @Override
-    public GrantProvider getGrantProvider() {
-        return request.getGrantProvider();
-    }
-
-    @Override
-    public MAGRequestBody getBody() {
-        return request.getBody();
-    }
-
-    @Override
-    public MAGConnectionListener getConnectionListener() {
-        return request.getConnectionListener();
-    }
-
-    @Override
-    public MAGResponseBody<?> getResponseBody() {
-        return request.getResponseBody();
-    }
-
-    @Override
-    public String getScope() {
-        return request.getScope();
-    }
-
-    @Override
-    public boolean isPublic() {
-        return false;
-    }
-
-    @Override
-    public boolean notifyOnCancel() {
-        return false;
     }
 }

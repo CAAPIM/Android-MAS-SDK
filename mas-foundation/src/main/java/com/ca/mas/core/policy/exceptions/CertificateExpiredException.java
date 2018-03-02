@@ -14,10 +14,10 @@ import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.http.MAGHttpClient;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.registration.RegistrationException;
 import com.ca.mas.core.store.TokenStoreException;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -39,16 +39,16 @@ public class CertificateExpiredException extends RetryRequestException {
         renewDevice(context);
     }
 
-    public void renewDevice(MssoContext mssoContext) throws RegistrationException, TokenStoreException {
+    private void renewDevice(MssoContext mssoContext) throws RegistrationException, TokenStoreException {
         final URI tokenUri = mssoContext.getConfigurationProvider().getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RENEW_DEVICE);
 
-        MAGRequest.MAGRequestBuilder builder = new MAGRequest.MAGRequestBuilder(tokenUri);
+        MASRequest.MASRequestBuilder builder = new MASRequest.MASRequestBuilder(tokenUri);
         builder.header(ServerClient.CERT_FORMAT, ServerClient.PEM);
         builder.put(null);
 
         MAGHttpClient httpClient = mssoContext.getMAGHttpClient();
 
-        final MAGResponse response;
+        final MASResponse response;
         String errorMessage = "Unable to renew device: ";
         try {
             response = httpClient.execute(builder.build());

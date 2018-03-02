@@ -15,10 +15,11 @@ import android.util.Log;
 
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.TargetApiException;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.service.MssoClient;
 import com.ca.mas.core.service.MssoIntents;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASResponseBody;
 
 import java.net.HttpURLConnection;
 
@@ -26,14 +27,14 @@ import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
 
 /**
- * Interface for receiving a callback result from {@link MobileSso#processRequest(com.ca.mas.core.http.MAGRequest, ResultReceiver)}.
- * Use this by creating a subclass and implement {@link #onSuccess(MAGResponse<T>)}, {@link #onError(MAGError)},
+ * Interface for receiving a callback result from {@link MobileSso#processRequest(MASRequest, ResultReceiver)}
+ * Use this by creating a subclass and implement {@link #onSuccess(MASResponse)} )}, {@link #onError(MAGError)},
  * {@link #onRequestCancelled(Bundle)} )}
  *
  * @param <T> To provide the data type of the expected response object. The SDK converts the
- *           response stream data to the provided data type. By define this generic type, it only provides
- *          tighter type checks at compile time, developer has to define the expected response body in
- *           {@link com.ca.mas.core.http.MAGRequest.MAGRequestBuilder#responseBody(MAGResponseBody)}
+ *            response stream data to the provided data type. By define this generic type, it only provides
+ *            tighter type checks at compile time, developer has to define the expected response body in
+ *            {@link com.ca.mas.foundation.MASRequest.MASRequestBuilder#responseBody(MASResponseBody)} )}
  */
 
 public abstract class MAGResultReceiver<T> extends ResultReceiver {
@@ -57,7 +58,7 @@ public abstract class MAGResultReceiver<T> extends ResultReceiver {
                     if (requestId == -1 || requestId == 0) {
                         onError(new MAGError(new IllegalStateException("Received result included an invalid request ID")));
                     } else {
-                        MAGResponse<T> response = MssoClient.takeMAGResponse(requestId);
+                        MASResponse<T> response = MssoClient.takeMAGResponse(requestId);
                         if (response != null) {
                             int responseCode = response.getResponseCode();
                             if (responseCode < HttpURLConnection.HTTP_OK || responseCode >= HttpURLConnection.HTTP_MULT_CHOICE) {
@@ -92,7 +93,7 @@ public abstract class MAGResultReceiver<T> extends ResultReceiver {
      *
      * @param response The HttpResponse of the endpoint.
      */
-    public abstract void onSuccess(MAGResponse<T> response);
+    public abstract void onSuccess(MASResponse<T> response);
 
     /**
      * Callback when failed to invoke the MAG API and Target API.
@@ -102,6 +103,8 @@ public abstract class MAGResultReceiver<T> extends ResultReceiver {
     /**
      * Callback when the request is cancelled.
      */
-    public abstract void onRequestCancelled(Bundle data);
+    public void onRequestCancelled(Bundle data) {
+        //By default, do nothing.
+    }
 
 }

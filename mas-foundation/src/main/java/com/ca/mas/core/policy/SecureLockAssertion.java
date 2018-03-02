@@ -11,9 +11,9 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.TokenManager;
+import com.ca.mas.foundation.MASResponse;
 
 class SecureLockAssertion implements MssoAssertion {
     private TokenManager tokenManager;
@@ -33,7 +33,7 @@ class SecureLockAssertion implements MssoAssertion {
      * @throws SecureLockException
      */
     @Override
-    public void processRequest(MssoContext mssoContext, RequestInfo request) throws SecureLockException {
+    public void processRequest(MssoContext mssoContext, RequestInfo request) {
         byte[] secureToken = tokenManager.getSecureIdToken();
         if (secureToken != null) {
             //Clear the access tokens, the session may be locked by other App.
@@ -43,10 +43,12 @@ class SecureLockAssertion implements MssoAssertion {
     }
 
     @Override
-    public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) {
+    public void processResponse(MssoContext mssoContext, RequestInfo request, MASResponse response) {
+        //do Nothing
     }
 
     @Override
     public void close() {
+        //do Nothing
     }
 }

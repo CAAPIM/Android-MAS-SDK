@@ -8,17 +8,17 @@
 
 package com.ca.mas.core.service;
 
-import com.ca.mas.core.http.MAGResponse;
+import com.ca.mas.foundation.MASResponse;
 
 /**
  * Holds information about a response to an MSSO request that is awaiting pickup.
  */
 class MssoResponse {
     private final MssoRequest request;
-    private final MAGResponse response;
+    private final MASResponse response;
     private final long creationTime = System.currentTimeMillis();
 
-    public MssoResponse(MssoRequest request, MAGResponse response) {
+    MssoResponse(MssoRequest request, MASResponse response) {
         this.request = request;
         this.response = response;
     }
@@ -31,7 +31,7 @@ class MssoResponse {
         return request;
     }
 
-    public MAGResponse getHttpResponse() {
+    public MASResponse getHttpResponse() {
         return response;
     }
 

@@ -120,7 +120,7 @@ public class MASLoginTest extends MASStartTestBase {
     }
 
     @Test
-    public void testCallbackWithAuthenticateFailed() throws JSONException, InterruptedException, URISyntaxException, ExecutionException {
+    public void testCallbackWithAuthenticateFailed() throws InterruptedException, URISyntaxException, ExecutionException {
 
         final boolean[] override = {true};
         final int expectedErrorCode = 1000202;
@@ -132,9 +132,10 @@ public class MASLoginTest extends MASStartTestBase {
             @Override
             protected MockResponse registerDeviceResponse(RecordedRequest request) {
                 if (override[0]) {
-                    return new MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED).
-                            setHeader("x-ca-err", expectedErrorCode).
-                            setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+                    return new MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED)
+                            .setHeader("WWW-Authenticate", "Basic realm=\"fake\"")
+                            .setHeader("x-ca-err", expectedErrorCode)
+                            .setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
                 } else {
                     return super.registerDeviceResponse(request);
                 }
@@ -433,9 +434,10 @@ public class MASLoginTest extends MASStartTestBase {
 
             @Override
             protected MockResponse registerDeviceResponse(RecordedRequest request) {
-                return new MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED).
-                        setHeader("x-ca-err", expectedErrorCode).
-                        setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+                return new MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED)
+                        .setHeader("WWW-Authenticate", "Basic realm=\"fake\"")
+                        .setHeader("x-ca-err", expectedErrorCode)
+                        .setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
 
             }
         });
@@ -454,12 +456,12 @@ public class MASLoginTest extends MASStartTestBase {
 
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void authenticateTestWithNullUsername() {
         MASUser.login(null, "7layer".toCharArray(), null);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void authenticateTestWithNullPassword() {
         MASUser.login("admin", (char[]) null, null);
     }

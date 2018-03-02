@@ -8,6 +8,7 @@
 
 package com.ca.mas.core.auth.ble;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -78,6 +79,7 @@ public class BluetoothLeCentralRenderer extends PollingRenderer {
         return null;
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onRenderCompleted() {
         super.onRenderCompleted();
@@ -151,7 +153,7 @@ public class BluetoothLeCentralRenderer extends PollingRenderer {
      * @param e       Exception The exception for the error.
      */
     @Override
-    public void onError(int code, String message, Exception e) {
+    protected void onError(int code, String message, Exception e) {
         close();
     }
 
@@ -165,6 +167,7 @@ public class BluetoothLeCentralRenderer extends PollingRenderer {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private void startScan() {
 
         if (DEBUG) Log.d(TAG, "Start BLE Scanning...");
@@ -200,6 +203,7 @@ public class BluetoothLeCentralRenderer extends PollingRenderer {
         scanner.startScan(filters, scanSettingBuilder.build(), scanCallback);
     }
 
+    @SuppressLint("MissingPermission")
     private void stopScan() {
         if (scanner != null) {
             scanner.stopScan(scanCallback);
@@ -296,7 +300,7 @@ public class BluetoothLeCentralRenderer extends PollingRenderer {
     }
 
     private List<byte[]> splitArray(byte[] items, int max) {
-        List<byte[]> result = new ArrayList<byte[]>();
+        List<byte[]> result = new ArrayList<>();
         if (items == null || items.length == 0) {
             return result;
         }

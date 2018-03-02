@@ -20,9 +20,9 @@ import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.auth.NFCRenderer;
 import com.ca.mas.core.auth.NfcResultReceiver;
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.service.Provider;
 import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.notify.Callback;
 
 import org.json.JSONException;
@@ -43,7 +43,7 @@ public class MASProximityLoginNFC extends NFCRenderer implements MASProximityLog
         MobileSsoFactory.getInstance().authorize(authenticateUrl, new NfcResultReceiver() {
 
             @Override
-            public void onSuccess(MAGResponse response) {
+            public void onSuccess(MASResponse response) {
                 String uuid;
                 String address;
                 try {
@@ -123,10 +123,5 @@ public class MASProximityLoginNFC extends NFCRenderer implements MASProximityLog
     public void stop() {
         super.close();
     }
-
-    @Override
-    public void onError(int errorCode, String m, Exception e) {
-    }
-
 
 }

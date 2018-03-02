@@ -8,18 +8,19 @@
 
 package com.ca.mas.core.request.internal;
 
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGRequestBody;
-import com.ca.mas.core.http.MAGResponseBody;
-import com.ca.mas.core.oauth.GrantProvider;
+import com.ca.mas.foundation.MASGrantProvider;
+import com.ca.mas.foundation.MASConnectionListener;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASRequestBody;
+import com.ca.mas.foundation.MASResponseBody;
 
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-public abstract class MAGRequestProxy implements MAGRequest {
+public abstract class MAGRequestProxy implements MASRequest {
 
-    protected MAGRequest request;
+    protected MASRequest request;
 
     @Override
     public URL getURL() {
@@ -37,22 +38,22 @@ public abstract class MAGRequestProxy implements MAGRequest {
     }
 
     @Override
-    public GrantProvider getGrantProvider() {
+    public MASGrantProvider getGrantProvider() {
         return request.getGrantProvider();
     }
 
     @Override
-    public MAGRequestBody getBody() {
+    public MASRequestBody getBody() {
         return request.getBody();
     }
 
     @Override
-    public MAGResponseBody getResponseBody() {
+    public MASResponseBody getResponseBody() {
         return request.getResponseBody();
     }
 
     @Override
-    public MAGConnectionListener getConnectionListener() {
+    public MASConnectionListener getConnectionListener() {
         return request.getConnectionListener();
     }
 
@@ -66,4 +67,8 @@ public abstract class MAGRequestProxy implements MAGRequest {
         return request.isPublic();
     }
 
+    @Override
+    public boolean notifyOnCancel() {
+        return false;
+    }
 }

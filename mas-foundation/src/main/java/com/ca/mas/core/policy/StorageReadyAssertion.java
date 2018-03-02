@@ -12,14 +12,14 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
+import com.ca.mas.foundation.MASResponse;
 
 class StorageReadyAssertion implements MssoAssertion {
 
     @Override
     public void init(@NonNull MssoContext mssoContext, @NonNull Context sysContext) {
-
+        //do nothing
     }
 
     @Override
@@ -32,12 +32,12 @@ class StorageReadyAssertion implements MssoAssertion {
     }
 
     @Override
-    public void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) {
-
+    public void processResponse(MssoContext mssoContext, RequestInfo request, MASResponse response) {
+        //do nothing
     }
 
     @Override
     public void close() {
-
+        //do nothing
     }
 }

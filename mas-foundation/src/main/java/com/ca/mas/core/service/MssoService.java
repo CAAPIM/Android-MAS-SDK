@@ -23,7 +23,6 @@ import com.ca.mas.core.clientcredentials.ClientCredentialsServerException;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.oauth.OAuthException;
 import com.ca.mas.core.oauth.OAuthServerException;
@@ -45,6 +44,7 @@ import com.ca.mas.core.token.JWTInvalidSignatureException;
 import com.ca.mas.core.token.JWTValidationException;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthCredentials;
+import com.ca.mas.foundation.MASResponse;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -127,27 +127,8 @@ public class MssoService extends IntentService {
         //Make credentials available to this request's MssoContext
         MASAuthCredentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
         request.getMssoContext().setCredentials(creds);
+        onProcessRequest(request);
 
-        boolean originalRequestProcessed = false;
-
-        //Give highest priority to any authenticate requests
-        if (request.getRequest() instanceof AuthenticateRequest) {
-            originalRequestProcessed = true;
-            onProcessRequest(request);
-        }
-
-        final ArrayList<MssoRequest> requests = new ArrayList<>(MssoActiveQueue.getInstance().getAllRequest());
-        for (final MssoRequest mssoRequest : requests) {
-            if (request == mssoRequest) {
-                originalRequestProcessed = true;
-            }
-            startThreadedRequest(mssoRequest);
-        }
-
-        //Ensure we make at least one request to process the original request
-        if (!originalRequestProcessed) {
-            startThreadedRequest(request);
-        }
     }
 
     private void onProcessAllPendingRequests() {
@@ -159,11 +140,10 @@ public class MssoService extends IntentService {
 
     private void onProcessRequest(final MssoRequest request) {
         ResultReceiver receiver = request.getResultReceiver();
-        boolean expectingUnlock = false;
 
         MssoContext mssoContext = request.getMssoContext();
         try {
-            MAGResponse magResponse = mssoContext.executeRequest(request.getExtra(), request.getRequest());
+            MASResponse magResponse = mssoContext.executeRequest(request.getExtra(), request.getRequest());
 
             //Success: move to response queue and send a success notification.
             if (requestFinished(request)) {
@@ -173,7 +153,6 @@ public class MssoService extends IntentService {
             }
             //Otherwise, the request was cancelled, so don't bother enqueuing a response.
 
-            MssoState.setExpectingUnlock(false);
         } catch (CredentialRequiredException e) {
             if (DEBUG) Log.d(TAG, "Request for user credentials");
             //Notify listener
@@ -195,7 +174,6 @@ public class MssoService extends IntentService {
             }
         } catch (TokenStoreUnavailableException e) {
             try {
-                expectingUnlock = true;
                 mssoContext.getTokenManager().getTokenStore().unlock();
             } catch (Exception e1) {
                 requestFinished(request);
@@ -227,8 +205,6 @@ public class MssoService extends IntentService {
             if (DEBUG) Log.e(TAG, e2.getMessage(), e2);
             requestFinished(request);
             respondError(receiver, getErrorCode(e2), new MAGError(e2));
-        } finally {
-            MssoState.setExpectingUnlock(expectingUnlock);
         }
     }
 
@@ -274,7 +250,7 @@ public class MssoService extends IntentService {
         }
     }
 
-    private MssoResponse createMssoResponse(MssoRequest request, MAGResponse response) {
+    private MssoResponse createMssoResponse(MssoRequest request, MASResponse response) {
         return new MssoResponse(request, response);
     }
 

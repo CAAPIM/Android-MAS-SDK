@@ -12,7 +12,6 @@ import android.os.Parcel;
 import android.util.Pair;
 
 import com.ca.mas.core.client.ServerClient;
-import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.token.IdToken;
 
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public class MASAuthCredentialsJWT implements MASAuthCredentials {
     }
 
     @Override
-    public Map<String, List<String>> getHeaders(MssoContext context) {
+    public Map<String, List<String>> getHeaders() {
         Map<String, List<String>> headers = new HashMap<>();
         headers.put("authorization", Collections.singletonList("Bearer " + idToken.getValue()));
         headers.put("x-authorization-type", Collections.singletonList(idToken.getType()));
@@ -51,7 +50,7 @@ public class MASAuthCredentialsJWT implements MASAuthCredentials {
     }
 
     @Override
-    public List<Pair<String, String>> getParams(MssoContext context) {
+    public List<Pair<String, String>> getParams() {
         ArrayList<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<>(ServerClient.ASSERTION, idToken.getValue()));
         return params;

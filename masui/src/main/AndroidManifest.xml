@@ -51,7 +51,7 @@
         <activity
             android:name=".MASOAuthRedirectActivity"
             android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".MASAppAuthRedirectHandlerActivity"
             android:theme="@style/Theme.AppCompat.Light" />

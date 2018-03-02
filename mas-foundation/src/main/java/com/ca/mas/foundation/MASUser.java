@@ -19,10 +19,10 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
+import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.http.MAGResponse;
 import com.ca.mas.core.security.LockableEncryptionProvider;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.storage.Storage;
@@ -105,38 +105,14 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * Authenticates a user with a username and password.
      */
     public static void login(@NonNull String userName, @NonNull char[] cPassword, final MASCallback<MASUser> callback) {
-        MobileSso mobileSso = MobileSsoFactory.getInstance();
-        mobileSso.authenticate(userName, cPassword, new MASResultReceiver<JSONObject>() {
-            @Override
-            public void onSuccess(MAGResponse<JSONObject> response) {
-                login(callback);
-            }
-
-            @Override
-            public void onError(MAGError error) {
-                current = null;
-                Callback.onError(callback, error);
-            }
-        });
+        login(new MASAuthCredentialsPassword(userName, cPassword), callback);
     }
 
     /**
      * Authenticates a user with an ID token.
      */
     public static void login(MASIdToken idToken, final MASCallback<MASUser> callback) {
-        MobileSso mobileSso = MobileSsoFactory.getInstance();
-        mobileSso.authenticate(idToken, new MASResultReceiver<JSONObject>() {
-            @Override
-            public void onSuccess(MAGResponse<JSONObject> response) {
-                login(callback);
-            }
-
-            @Override
-            public void onError(MAGError error) {
-                current = null;
-                Callback.onError(callback, error);
-            }
-        });
+        login(new MASAuthCredentialsJWT(idToken), callback);
     }
 
     /**
@@ -144,9 +120,9 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      */
     public static void login(MASAuthCredentials credentials, final MASCallback<MASUser> callback) {
         MobileSso mobileSso = MobileSsoFactory.getInstance();
-        mobileSso.authenticate(credentials, new MASResultReceiver<JSONObject>() {
+        mobileSso.authenticate(credentials, new MAGResultReceiver<JSONObject>() {
             @Override
-            public void onSuccess(MAGResponse<JSONObject> response) {
+            public void onSuccess(MASResponse<JSONObject> response) {
                 login(callback);
             }
 
@@ -154,6 +130,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             public void onError(MAGError error) {
                 current = null;
                 Callback.onError(callback, error);
+                MAS.processPendingRequests();
             }
         });
     }
@@ -169,11 +146,13 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             public void onSuccess(Void result) {
                 current = user;
                 Callback.onSuccess(callback, current);
+                MAS.processPendingRequests();
             }
 
             @Override
             public void onError(Throwable e) {
                 Callback.onError(callback, e);
+                MAS.processPendingRequests();
             }
         });
     }
@@ -184,20 +163,8 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3.1">
      */
     public static void login(@NonNull MASAuthorizationResponse authorizationResponse, final MASCallback<MASUser> callback) {
-        MobileSso mobileSso = MobileSsoFactory.getInstance();
-        mobileSso.authenticate(authorizationResponse.getAuthorizationCode(),
-                authorizationResponse.getState(), new MASResultReceiver<JSONObject>() {
-                    @Override
-                    public void onSuccess(MAGResponse<JSONObject> response) {
-                        login(callback);
-                    }
-
-                    @Override
-                    public void onError(MAGError error) {
-                        current = null;
-                        Callback.onError(callback, error);
-                    }
-                });
+        login(new MASAuthCredentialsAuthorizationCode(authorizationResponse.getAuthorizationCode(),
+                authorizationResponse.getState()), callback);
     }
 
     /**
@@ -338,8 +305,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
             /**
              * <b>Description:</b> Logout from the server.
-             *
-             * @param callback
              */
             @Override
             public void logout(final MASCallback<Void> callback) {
@@ -478,43 +443,47 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                             return;
                         }
 
-                        // Remove access and refresh tokens
-                        StorageProvider.getInstance().getOAuthTokenContainer().clear();
-
-                        // Move the ID token from the Keychain to the fingerprint protected shared Keystore
-                        Parcel idTokenParcel = Parcel.obtain();
-                        idToken.writeToParcel(idTokenParcel, 0);
-                        byte[] idTokenBytes = idTokenParcel.marshall();
-
-                        // Save the encrypted token
-                        LockableEncryptionProvider lockableEncryptionProvider
-                                = new LockableEncryptionProvider(MAS.getContext(), SESSION_LOCK_ALIAS);
-                        // Delete any previously generated key due to improper closure
-                        lockableEncryptionProvider.clear();
-                        // now encrypt the data
-                        byte[] encryptedData = lockableEncryptionProvider.encrypt(idTokenBytes);
                         try {
-                            StorageProvider.getInstance()
-                                    .getTokenManager()
-                                    .saveSecureIdToken(encryptedData);
-                        } catch (TokenStoreException e) {
+                            // Remove access and refresh tokens
+                            StorageProvider.getInstance().getOAuthTokenContainer().clear();
+
+                            // Move the ID token from the Keychain to the fingerprint protected shared Keystore
+                            Parcel idTokenParcel = Parcel.obtain();
+                            idToken.writeToParcel(idTokenParcel, 0);
+                            byte[] idTokenBytes = idTokenParcel.marshall();
+
+                            // Save the encrypted token
+                            LockableEncryptionProvider lockableEncryptionProvider
+                                    = new LockableEncryptionProvider(MAS.getContext(), SESSION_LOCK_ALIAS);
+                            // Delete any previously generated key due to improper closure
+                            lockableEncryptionProvider.clear();
+                            // now encrypt the data
+                            byte[] encryptedData = lockableEncryptionProvider.encrypt(idTokenBytes);
+                            try {
+                                StorageProvider.getInstance()
+                                        .getTokenManager()
+                                        .saveSecureIdToken(encryptedData);
+                            } catch (TokenStoreException e) {
+                                Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_SECURE_ID_TOKEN, e));
+                                return;
+                            }
+
+                            // Remove the unencrypted token
+                            try {
+                                StorageProvider.getInstance()
+                                        .getTokenManager()
+                                        .deleteIdToken();
+                            } catch (TokenStoreException e) {
+                                Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_ID_TOKEN, e));
+                                return;
+                            }
+
+                            idTokenParcel.recycle();
+
+                            Callback.onSuccess(callback, null);
+                        } catch (Exception e) {
                             Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_SECURE_ID_TOKEN, e));
-                            return;
                         }
-
-                        // Remove the unencrypted token
-                        try {
-                            StorageProvider.getInstance()
-                                    .getTokenManager()
-                                    .deleteIdToken();
-                        } catch (TokenStoreException e) {
-                            Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_ID_TOKEN, e));
-                            return;
-                        }
-
-                        idTokenParcel.recycle();
-
-                        Callback.onSuccess(callback, null);
                     }
                 } else {
                     Callback.onError(callback, new IllegalAccessException(MASFoundationStrings.API_TARGET_EXCEPTION));
@@ -644,8 +613,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
     /**
      * Returns the last authenticated session's type of auth credentials used.
-     *
-     * @return
      */
     public static String getAuthCredentialsType() {
         try {
@@ -723,4 +690,28 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      */
     @TargetApi(23)
     public abstract void removeSessionLock(MASCallback<Void> callback);
+
+
+    @Xamarin("Xarmarin may have a defect binding on method with Generic, " +
+            "temporary add below methods to resolve binding error")
+    public abstract void getUserById(String id, MASCallback<MASUser> callback);
+
+    public abstract void getUsersByFilter(MASFilteredRequest filteredRequest, MASCallback<List<MASUser>> callback);
+
+    public abstract void getUserMetaData(MASCallback<UserAttributes> callback);
+
+    public abstract void sendMessage(MASTopic topic, MASMessage message, MASCallback<Void> callback);
+
+    public abstract void sendMessage(MASMessage message, MASUser user, MASCallback<Void> callback);
+
+    public abstract void sendMessage(MASMessage message, MASUser user, String topic, MASCallback<Void> callback);
+
+    public abstract void sendMessage(MASMessage message, MASGroup group, MASCallback<Void> callback);
+
+    public abstract void sendMessage(MASMessage message, MASGroup group, String topic, MASCallback<Void> callback);
+
+    public abstract void startListeningToMyMessages(MASCallback<Void> callback);
+
+    public abstract void stopListeningToMyMessages(MASCallback<Void> callback);
+
 }

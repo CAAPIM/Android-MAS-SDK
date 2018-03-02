@@ -15,11 +15,11 @@ import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.http.MAGHttpClient;
-import com.ca.mas.core.http.MAGRequest;
-import com.ca.mas.core.http.MAGResponse;
-import com.ca.mas.core.http.MAGResponseBody;
 import com.ca.mas.core.oauth.OAuthException;
 import com.ca.mas.core.oauth.OAuthServerException;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASResponseBody;
 
 import org.json.JSONException;
 
@@ -84,11 +84,11 @@ public abstract class ServerClient {
 
     protected final ConfigurationProvider conf;
 
-    public static <T extends MAGServerException> T createServerException(MAGResponse response, Class<T> c) {
+    public static <T extends MAGServerException> T createServerException(MASResponse response, Class<T> c) {
 
         try {
             int errorCode = findErrorCode(response);
-            MAGResponseBody body = response.getBody();
+            MASResponseBody body = response.getBody();
             String contentType = DEFAULT_CONTENT_TYPE;
             String message = "";
             if (body != null) {
@@ -108,7 +108,7 @@ public abstract class ServerClient {
 
     }
 
-    public static int findErrorCode(MAGResponse response) {
+    public static int findErrorCode(MASResponse response) {
         if (response.getResponseCode() != HttpURLConnection.HTTP_BAD_METHOD) {
 
             Map<String, List<String>> headers = response.getHeaders();
@@ -124,15 +124,15 @@ public abstract class ServerClient {
         return -1;
     }
 
-    protected ServerResponse obtainServerResponseToPostedForm(MAGRequest request) throws OAuthException, OAuthServerException {
+    protected ServerResponse obtainServerResponseToPostedForm(MASRequest request) throws OAuthException, OAuthServerException {
 
         return obtainServerResponse(request);
     }
 
-    private ServerResponse obtainServerResponse(MAGRequest request) throws OAuthException, OAuthServerException {
+    private ServerResponse obtainServerResponse(MASRequest request) throws OAuthException, OAuthServerException {
         MAGHttpClient httpClient = mssoContext.getMAGHttpClient();
 
-        final MAGResponse<String> response;
+        final MASResponse<String> response;
         try {
             response = httpClient.execute(request);
         } catch (IOException e) {
@@ -150,7 +150,7 @@ public abstract class ServerClient {
                 throw ServerClient.createServerException(response, OAuthServerException.class);
             }
 
-            MAGResponseBody<String> responseEntity = response.getBody();
+            MASResponseBody<String> responseEntity = response.getBody();
             if (responseEntity == null)
                 throw new OAuthException(MAGErrorCode.UNKNOWN, "Response from " + request.getURL() + " did not contain an entity");
 

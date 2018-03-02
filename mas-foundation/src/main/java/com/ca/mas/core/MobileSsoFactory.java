@@ -20,16 +20,17 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.conf.Server;
 import com.ca.mas.core.context.MssoContext;
+import com.ca.mas.core.error.MAGError;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
-import com.ca.mas.core.http.MAGRequest;
 import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.MssoClient;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.token.IdToken;
+import com.ca.mas.foundation.MASRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -221,7 +222,7 @@ public final class MobileSsoFactory {
         return new MobileSso() {
 
             @Override
-            public long processRequest(MAGRequest request, ResultReceiver resultReceiver) {
+            public long processRequest(MASRequest request, ResultReceiver resultReceiver) {
                 return mssoClient.processRequest(request, resultReceiver);
             }
 
@@ -261,24 +262,26 @@ public final class MobileSsoFactory {
             @Override
             public void authorize(String url, ResultReceiver resultReceiver) {
                 //TODO Handle for QRCode and NFC with the same url string
-                MAGRequest.MAGRequestBuilder builder;
+                MASRequest.MASRequestBuilder builder;
                 try {
                     if (url == null || url.trim().length() == 0) {
                         throw new IllegalArgumentException("Authorization request cannot be empty.");
                     }
                     try {
                         JSONObject jsonObject = new JSONObject(url);
-                        String provider_url = jsonObject.getString("provider_url");
+                        String providerUrl = jsonObject.getString("provider_url");
                         if (resultReceiver instanceof AuthResultReceiver) {
                             ((AuthResultReceiver) resultReceiver).setData(jsonObject);
                         }
-                        builder = new MAGRequest.MAGRequestBuilder(getURI(provider_url));
+                        builder = new MASRequest.MASRequestBuilder(getURI(providerUrl));
                     } catch (JSONException e) {
-                        builder = new MAGRequest.MAGRequestBuilder(getURI(url));
+                        //received url is not a json object.
+                        builder = new MASRequest.MASRequestBuilder(getURI(url));
                     }
                 } catch (Exception e) {
                     if (resultReceiver != null) {
                         Bundle result = new Bundle();
+                        result.putSerializable(MssoIntents.RESULT_ERROR, new MAGError(e));
                         result.putString(MssoIntents.RESULT_ERROR_MESSAGE, e.getMessage());
                         resultReceiver.send(MssoIntents.RESULT_CODE_ERR_UNKNOWN, result);
                     }
@@ -310,21 +313,6 @@ public final class MobileSsoFactory {
             @Override
             public AuthenticationProvider getAuthenticationProvider() throws Exception {
                 return new OAuthClient(mssoContext).getSocialPlatformProvider(applicationContext);
-            }
-
-            @Override
-            public void authenticate(String username, char[] password, MAGResultReceiver<JSONObject> resultReceiver) {
-                mssoClient.authenticate(username, password, resultReceiver);
-            }
-
-            @Override
-            public void authenticate(String authCode, String state, MAGResultReceiver<JSONObject> resultReceiver) {
-                mssoClient.authenticate(authCode, state, resultReceiver);
-            }
-
-            @Override
-            public void authenticate(IdToken idToken, MAGResultReceiver<JSONObject> resultReceiver) {
-                mssoClient.authenticate(idToken, resultReceiver);
             }
 
             @Override

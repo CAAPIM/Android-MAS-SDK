@@ -8,8 +8,6 @@
 
 package com.ca.mas.core.conf;
 
-import android.net.Uri;
-
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.cert.TrustedCertificateConfiguration;
 
@@ -73,7 +71,7 @@ public interface ConfigurationProvider extends TrustedCertificateConfiguration, 
      *
      * @return the URI, or null if no URI is available for the userinfo.
      */
-    Uri getUserInfoUri();
+    URI getUserInfoUri();
 
     /**
      * Get the absolute URI for the given path.

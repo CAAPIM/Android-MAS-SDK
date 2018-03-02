@@ -15,7 +15,7 @@ import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
-import com.ca.mas.core.http.MAGResponse;
+import com.ca.mas.foundation.MASResponse;
 
 /**
  * Represents a policy that applies to outbound requests from the MSSO SDK.  Examples can include ensuring
@@ -60,7 +60,7 @@ public interface MssoAssertion {
      * @param request the original request.  Required.
      * @param response the HTTP response.  Required.
      */
-    void processResponse(MssoContext mssoContext, RequestInfo request, MAGResponse response) throws MAGStateException, MAGException, MAGServerException;
+    void processResponse(MssoContext mssoContext, RequestInfo request, MASResponse response) throws MAGStateException, MAGException, MAGServerException;
 
     /**
      * Shut down this policy, releasing any resources such as registered location callback etc.

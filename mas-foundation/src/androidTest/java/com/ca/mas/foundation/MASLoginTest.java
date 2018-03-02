@@ -120,7 +120,7 @@ public class MASLoginTest extends MASStartTestBase {
     }
 
     @Test
-    public void testCallbackWithAuthenticateFailed() throws JSONException, InterruptedException, URISyntaxException, ExecutionException {
+    public void testCallbackWithAuthenticateFailed() throws InterruptedException, URISyntaxException, ExecutionException {
 
         final boolean[] override = {true};
         final int expectedErrorCode = 1000202;
@@ -454,12 +454,12 @@ public class MASLoginTest extends MASStartTestBase {
 
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void authenticateTestWithNullUsername() {
         MASUser.login(null, "7layer".toCharArray(), null);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void authenticateTestWithNullPassword() {
         MASUser.login("admin", (char[]) null, null);
     }

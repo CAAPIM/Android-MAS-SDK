@@ -81,7 +81,8 @@ public class QRCodeRenderer extends PollingRenderer {
     }
 
     @Override
-    public void onError(int code, final String m, Exception e) {
+    protected void onError(int code, final String m, Exception e) {
+        //Ignore error by default
     }
 
     /**

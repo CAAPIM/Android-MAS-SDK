@@ -15,6 +15,7 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.datasource.AccountManagerStoreDataSource;
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.io.Charsets;
+import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.util.KeyUtilsAsymmetric;
 import com.ca.mas.foundation.MAS;
@@ -163,28 +164,23 @@ class DefaultTokenManager implements TokenManager {
 
 
     @Override
-    public PrivateKey createPrivateKey(Context ctx, int keyBits) {
-        try {
-            if (storage instanceof AccountManagerStoreDataSource) {
+    public PrivateKey createPrivateKey(Context ctx, int keyBits) throws KeyStoreException {
+        if (storage instanceof AccountManagerStoreDataSource) {
 
-                // don't require a pin/password/swipe
-                return KeyUtilsAsymmetric.generateRsaPrivateKey(ctx, keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
-                        MSSO_DN, false, false, -1, false);
+            // don't require a pin/password/swipe
+            return KeyUtilsAsymmetric.generateRsaPrivateKey(ctx, keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
+                    MSSO_DN, false, false, -1, false);
 
-            } else {
+        } else {
 
-                // for pre-marshmallow devices, require a pin/password/swipe
-                //    which will encrypt the keys at rest
-                // otherwise, the keys are already protected from extraction and use
-                //    except by apps with same signing key + shared user id
-                return KeyUtilsAsymmetric.generateRsaPrivateKey(ctx, keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
-                        MSSO_DN, true, false, -1, false);
-            }
-
-        } catch (Exception e) {
-            if (DEBUG) Log.e(TAG, "Unable to create client private key: " + e.getMessage(), e);
-            return null;
+            // for pre-marshmallow devices, require a pin/password/swipe
+            //    which will encrypt the keys at rest
+            // otherwise, the keys are already protected from extraction and use
+            //    except by apps with same signing key + shared user id
+            return KeyUtilsAsymmetric.generateRsaPrivateKey(ctx, keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
+                    MSSO_DN, true, false, -1, false);
         }
+
     }
 
     @Override

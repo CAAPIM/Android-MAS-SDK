@@ -2,6 +2,7 @@
 
 ### Bug fixes
 - Incorrect order of the callback between API request and Login. [DE341169]
+- Failed to invoke callback.error when server provide invalid QRCode url. [DE340045]
 
 ### New features
 - Support Android API 16+ [US406900]

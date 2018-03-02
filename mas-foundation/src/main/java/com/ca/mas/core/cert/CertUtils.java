@@ -86,8 +86,8 @@ public class CertUtils {
      * @throws CertificateException if a CSR cannot be created
      */
     public static byte[] generateCertificateSigningRequest(String commonName,
-                                                           String deviceId, String deviceName, String organization,
-                                                           PublicKey publicKey, PrivateKey privateKey) throws CertificateException {
+               String deviceId, String deviceName, String organization,
+               PublicKey publicKey, PrivateKey privateKey) throws CertificateException {
         try {
             PKCS10 pkcs10 = new PKCS10(publicKey);
             Signature signature = Signature.getInstance("SHA256withRSA");

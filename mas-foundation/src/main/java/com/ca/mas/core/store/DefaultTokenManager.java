@@ -168,7 +168,7 @@ class DefaultTokenManager implements TokenManager {
         if (storage instanceof AccountManagerStoreDataSource) {
 
             // don't require a pin/password/swipe
-            return KeyUtilsAsymmetric.generateRsaPrivateKey(ctx, keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
+            return KeyUtilsAsymmetric.generateRsaPrivateKey(keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
                     MSSO_DN, false, false, -1, false);
 
         } else {
@@ -177,7 +177,7 @@ class DefaultTokenManager implements TokenManager {
             //    which will encrypt the keys at rest
             // otherwise, the keys are already protected from extraction and use
             //    except by apps with same signing key + shared user id
-            return KeyUtilsAsymmetric.generateRsaPrivateKey(ctx, keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
+            return KeyUtilsAsymmetric.generateRsaPrivateKey(keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
                     MSSO_DN, true, false, -1, false);
         }
 

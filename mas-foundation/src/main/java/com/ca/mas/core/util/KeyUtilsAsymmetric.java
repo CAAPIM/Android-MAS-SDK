@@ -8,8 +8,8 @@
 
 package com.ca.mas.core.util;
 
-import android.content.Context;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 import com.ca.mas.core.security.GenerateKeyAttribute;
 import com.ca.mas.core.security.KeyStoreException;
@@ -37,7 +37,6 @@ public class KeyUtilsAsymmetric {
     private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
 
     // RSA Encryption Ciphers
-    private static final String CIPHER_ENCRYPTION_ANDROID_PRE_M = "RSA/ECB/PKCS1Padding";
     private static final String CIPHER_ENCRYPTION_ANDROID_M_PLUS = "RSA/ECB/OAEPWithSHA-256AndMGF1Padding";
 
     private static KeyStoreRepository keyRepository = KeyStoreRepository.getKeyStoreRepository();
@@ -86,7 +85,6 @@ public class KeyUtilsAsymmetric {
      * changes the behavior in #2 – either the key will or won’t be
      * invalided when the user adds an or another fingerprint.
      *
-     * @param context                                              needed for generating key pre-M
      * @param keysize                                              the key size in bits, eg 2048.
      * @param alias                                                the keystore alias to use
      * @param dn                                                   the dn for the initial self-signed certificate
@@ -108,19 +106,19 @@ public class KeyUtilsAsymmetric {
      * The matching self-signed public certificate cannot be deleted.
      * @throws RuntimeException if an RSA key pair of the requested size cannot be generated
      */
-    public static PrivateKey generateRsaPrivateKey(Context context, int keysize,
+    public static PrivateKey generateRsaPrivateKey(int keysize,
                                                    String alias, String dn, boolean lollipopEncryptionRequired,
                                                    boolean marshmallowUserAuthenticationRequired,
                                                    int marshmallowUserAuthenticationValidityDurationSeconds,
                                                    boolean nougatInvalidatedByBiometricEnrollment)
             throws KeyStoreException {
 
+        int suggestedKeySize = keysize;
         // use a minimum of 2048
-        if (keysize < 2048)
-            keysize = 2048;
+        if (keysize < 2048) suggestedKeySize = 2048;
 
         GenerateKeyAttribute attribute = new GenerateKeyAttribute();
-        attribute.setKeySize(keysize);
+        attribute.setKeySize(suggestedKeySize);
         attribute.setDn(dn);
         attribute.setEncryptionRequired(lollipopEncryptionRequired);
         attribute.setUserAuthenticationRequired(marshmallowUserAuthenticationRequired);
@@ -130,6 +128,17 @@ public class KeyUtilsAsymmetric {
         return keyRepository.createPrivateKey(alias, attribute).getPrivate();
 
     }
+
+    public static PrivateKey generateRsaPrivateKey(String alias, String dn, boolean lollipopEncryptionRequired,
+                                                   boolean marshmallowUserAuthenticationRequired,
+                                                   int marshmallowUserAuthenticationValidityDurationSeconds,
+                                                   boolean nougatInvalidatedByBiometricEnrollment) throws KeyStoreException {
+        return generateRsaPrivateKey(2048,
+                alias, dn, lollipopEncryptionRequired,
+                marshmallowUserAuthenticationRequired, marshmallowUserAuthenticationValidityDurationSeconds,
+                nougatInvalidatedByBiometricEnrollment);
+    }
+
 
     /**
      * Gets the existing Android keystore key.
@@ -176,7 +185,6 @@ public class KeyUtilsAsymmetric {
      *
      * @param alias the alias of the existing private key +
      *              self-signed public key
-     * @return the Private Key object
      */
     public static void deletePrivateKey(String alias) {
         keyRepository.deleteKey(alias);
@@ -198,7 +206,7 @@ public class KeyUtilsAsymmetric {
      * @param chain       array of certificates in chain.  Typically the public certificate
      *                    matching the private key will be in array position [0].
      */
-    public static void setCertificateChain(String aliasPrefix, X509Certificate chain[]) throws KeyStoreException {
+    public static void setCertificateChain(String aliasPrefix, X509Certificate[] chain) throws KeyStoreException {
         keyRepository.saveCertificateChain(aliasPrefix, chain);
     }
 
@@ -207,8 +215,8 @@ public class KeyUtilsAsymmetric {
      * AndroidKeyStore.  Note this is stored separately from the
      * self-signed public certificate from any RSA keypair.
      *
-     * @param aliasPrefix
-     * @return
+     * @param aliasPrefix Alias which which used to store the Certificate Chain
+     * @return The Certificate Chain
      */
     public static X509Certificate[] getCertificateChain(String aliasPrefix) throws KeyStoreException {
         return keyRepository.getCertificateChain(aliasPrefix);
@@ -241,33 +249,25 @@ public class KeyUtilsAsymmetric {
      * @param contentToEncrypt the bytes to encrypt - if the size
      *                         exceeds 256 bytes then the data cannot be encrypted using
      *                         this method
-     * @throws
-     * @returns encrypted bytes
+     * @return encrypted bytes
      */
-    public static byte[] encryptSection(PublicKey publicKey, byte[] contentToEncrypt)
+    @RequiresApi(Build.VERSION_CODES.M)
+    private static byte[] encryptSection(PublicKey publicKey, byte[] contentToEncrypt)
             throws javax.crypto.NoSuchPaddingException, java.security.InvalidKeyException,
-            java.security.InvalidParameterException,
             javax.crypto.BadPaddingException, java.security.NoSuchAlgorithmException,
             javax.crypto.IllegalBlockSizeException, InvalidAlgorithmParameterException {
-        Cipher cipher = null;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            cipher = Cipher.getInstance(CIPHER_ENCRYPTION_ANDROID_PRE_M);
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-        } else {
-            cipher = Cipher.getInstance(CIPHER_ENCRYPTION_ANDROID_M_PLUS);
-            // ensure OAEP padding works with AndroidKeyStore
-            cipher.init(
-                    Cipher.ENCRYPT_MODE,
-                    publicKey,
-                    new OAEPParameterSpec(
-                            "SHA-256",
-                            "MGF1",
-                            MGF1ParameterSpec.SHA1,
-                            PSource.PSpecified.DEFAULT));
-        }
+        Cipher cipher = Cipher.getInstance(CIPHER_ENCRYPTION_ANDROID_M_PLUS);
+        // ensure OAEP padding works with AndroidKeyStore
+        cipher.init(
+                Cipher.ENCRYPT_MODE,
+                publicKey,
+                new OAEPParameterSpec(
+                        "SHA-256",
+                        "MGF1",
+                        MGF1ParameterSpec.SHA1,
+                        PSource.PSpecified.DEFAULT));
 
-        byte[] encryptedBytes = cipher.doFinal(contentToEncrypt);
-        return encryptedBytes;
+        return cipher.doFinal(contentToEncrypt);
     }
 
 
@@ -279,32 +279,26 @@ public class KeyUtilsAsymmetric {
      *
      * @param privateKey       an RSA private key
      * @param contentToDecrypt the bytes to decrypt
-     * @throws
-     * @returns the decrypted bytes
+     * @return the decrypted bytes
      */
-    public static byte[] decryptSection(PrivateKey privateKey, byte[] contentToDecrypt)
+    @RequiresApi(Build.VERSION_CODES.M)
+    private static byte[] decryptSection(PrivateKey privateKey, byte[] contentToDecrypt)
             throws javax.crypto.NoSuchPaddingException, java.security.InvalidKeyException,
             javax.crypto.BadPaddingException, java.security.NoSuchAlgorithmException,
-            javax.crypto.IllegalBlockSizeException, IllegalArgumentException, InvalidAlgorithmParameterException {
+            javax.crypto.IllegalBlockSizeException, InvalidAlgorithmParameterException {
         Cipher cipher;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            cipher = Cipher.getInstance(CIPHER_ENCRYPTION_ANDROID_PRE_M);
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
-        } else {
-            cipher = Cipher.getInstance(CIPHER_ENCRYPTION_ANDROID_M_PLUS);
-            // ensure OAEP padding works with AndroidKeyStore
-            cipher.init(
-                    Cipher.DECRYPT_MODE,
-                    privateKey,
-                    new OAEPParameterSpec(
-                            "SHA-256",
-                            "MGF1",
-                            MGF1ParameterSpec.SHA1,
-                            PSource.PSpecified.DEFAULT));
-        }
+        cipher = Cipher.getInstance(CIPHER_ENCRYPTION_ANDROID_M_PLUS);
+        // ensure OAEP padding works with AndroidKeyStore
+        cipher.init(
+                Cipher.DECRYPT_MODE,
+                privateKey,
+                new OAEPParameterSpec(
+                        "SHA-256",
+                        "MGF1",
+                        MGF1ParameterSpec.SHA1,
+                        PSource.PSpecified.DEFAULT));
 
-        byte decryptedBytes[] = cipher.doFinal(contentToDecrypt);
-        return decryptedBytes;
+        return cipher.doFinal(contentToDecrypt);
     }
 
     /**
@@ -314,25 +308,24 @@ public class KeyUtilsAsymmetric {
      *
      * @param privateKey       an RSA private key
      * @param contentToDecrypt the bytes to decrypt
-     * @throws
-     * @returns the decrypted bytes
+     * @return the decrypted bytes
      */
-    public static byte[] decrypt(PrivateKey privateKey, int keysize, byte[] contentToDecrypt)
+    @RequiresApi(Build.VERSION_CODES.M)
+    public static byte[] decrypt(PrivateKey privateKey, byte[] contentToDecrypt)
             throws javax.crypto.NoSuchPaddingException, java.security.InvalidKeyException,
-            java.security.InvalidParameterException,
             javax.crypto.BadPaddingException, java.security.NoSuchAlgorithmException,
             javax.crypto.IllegalBlockSizeException, InvalidAlgorithmParameterException {
-        int encryptedSize = 256; //keysize / 8;
+        //keysize / 8
+        int encryptedSize = 256;
 
         ArrayList<byte[]> encryptedParts = arraySplit(contentToDecrypt, encryptedSize);
         // now decrypt the lists
-        ArrayList<byte[]> decrypted = new ArrayList<byte[]>();
-        for (byte bytesToDecrypt[] : encryptedParts) {
-            byte decryptedBytes[] = decryptSection(privateKey, bytesToDecrypt);
+        ArrayList<byte[]> decrypted = new ArrayList<>();
+        for (byte[] bytesToDecrypt : encryptedParts) {
+            byte[] decryptedBytes = decryptSection(privateKey, bytesToDecrypt);
             decrypted.add(decryptedBytes);
         }
-        byte bytesDecrypted[] = arrayConcat(decrypted);
-        return bytesDecrypted;
+        return arrayConcat(decrypted);
     }
 
     /**
@@ -347,24 +340,24 @@ public class KeyUtilsAsymmetric {
      * @param contentToEncrypt the bytes to encrypt - if the size
      *                         exceeds 256 bytes then the data cannot be encrypted using
      *                         this method
-     * @throws
-     * @returns encrypted bytes
+     * @return encrypted bytes
      */
-    public static byte[] encrypt(PublicKey publicKey, int keysize, byte[] contentToEncrypt)
+    @RequiresApi(Build.VERSION_CODES.M)
+    public static byte[] encrypt(PublicKey publicKey, byte[] contentToEncrypt)
             throws javax.crypto.NoSuchPaddingException, java.security.InvalidKeyException,
             javax.crypto.BadPaddingException, java.security.NoSuchAlgorithmException,
             javax.crypto.IllegalBlockSizeException, InvalidAlgorithmParameterException {
 
-        int originalChunk = 128; //(encryptedSize * 7) / 10;
+        // Use (encryptedSize * 7) / 10 as original chunk
+        int originalChunk = 128;
 
         ArrayList<byte[]> original = arraySplit(contentToEncrypt, originalChunk);
-        ArrayList<byte[]> encrypted = new ArrayList<byte[]>();
-        for (byte bytesToEncrypt[] : original) {
-            byte encryptedBytes[] = encryptSection(publicKey, bytesToEncrypt);
+        ArrayList<byte[]> encrypted = new ArrayList<>();
+        for (byte[] bytesToEncrypt : original) {
+            byte[] encryptedBytes = encryptSection(publicKey, bytesToEncrypt);
             encrypted.add(encryptedBytes);
         }
-        byte bytesEncryptedFull[] = arrayConcat(encrypted);
-        return bytesEncryptedFull;
+        return arrayConcat(encrypted);
     }
 
 
@@ -376,11 +369,11 @@ public class KeyUtilsAsymmetric {
      */
     private static byte[] arrayConcat(ArrayList<byte[]> byteArrayList) {
         int lengthTotal = 0;
-        for (byte byteArray[] : byteArrayList)
+        for (byte[] byteArray : byteArrayList)
             lengthTotal += byteArray.length;
         byte[] result = new byte[lengthTotal];
         int lengthCurrent = 0;
-        for (byte byteArray[] : byteArrayList) {
+        for (byte[] byteArray : byteArrayList) {
             System.arraycopy(byteArray, 0, result, lengthCurrent, byteArray.length);
             lengthCurrent += byteArray.length;
         }
@@ -394,14 +387,14 @@ public class KeyUtilsAsymmetric {
      * @param eachLength the value to split by
      * @return list of byte arrays
      */
-    private static ArrayList<byte[]> arraySplit(byte bytes[], int eachLength) {
-        ArrayList<byte[]> result = new ArrayList<byte[]>();
+    private static ArrayList<byte[]> arraySplit(byte[] bytes, int eachLength) {
+        ArrayList<byte[]> result = new ArrayList<>();
         int lengthTotal = 0;
         while (lengthTotal < bytes.length) {
             int lengthCurrent = bytes.length - lengthTotal;
             if (lengthCurrent > eachLength)
                 lengthCurrent = eachLength;
-            byte section[] = new byte[lengthCurrent];
+            byte[] section = new byte[lengthCurrent];
             System.arraycopy(bytes, lengthTotal, section, 0, lengthCurrent);
             result.add(section);
             lengthTotal += lengthCurrent;

@@ -10,8 +10,9 @@ package com.ca.mas.core.storage.sharedstorage;
 import android.content.Context;
 
 import com.ca.mas.core.context.UniqueIdentifier;
+import com.ca.mas.core.security.KeyStoreException;
 
-import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
 
 class SharedStorageIdentifier extends UniqueIdentifier {
 
@@ -20,9 +21,7 @@ class SharedStorageIdentifier extends UniqueIdentifier {
      * Apps built with the same sharedUserId value in AndroidManifest.xml will reuse the same identifier.
      * @param context
      */
-    SharedStorageIdentifier(Context context) throws
-            InvalidAlgorithmParameterException, java.io.IOException, java.security.KeyStoreException, java.security.NoSuchAlgorithmException,
-            java.security.NoSuchProviderException, java.security.cert.CertificateException, java.security.UnrecoverableKeyException {
+    SharedStorageIdentifier(Context context) throws KeyStoreException, NoSuchAlgorithmException {
         super(context);
     }
 

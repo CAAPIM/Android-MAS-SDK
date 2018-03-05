@@ -6,7 +6,7 @@
  *
  */
 
-include ':mas', ':masui', ':mas-connecta', ':mas-storage', ':mas-identity-management', ':mas-foundation', ':mas-test', ':MASVeraCode'
+include ':mas', ':masui', ':mas-connecta', ':mas-storage', ':mas-identity-management', ':mas-foundation', ':mas-test'
 
 //MASUnit
 include ':MASUnit'

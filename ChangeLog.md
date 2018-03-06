@@ -1,3 +1,9 @@
+# Version 1.6.20
+
+### Bug fixes
+- Provide Error callback when authentication failed during proximity login. Do not execute pending request when authentication failed. [DE345468]
+
+
 # Version 1.6.10
 
 ### Bug fixes

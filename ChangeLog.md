@@ -1,7 +1,11 @@
 # Version 1.6.20
 
 ### Bug fixes
-- Provide Error callback when authentication failed during proximity login. Do not execute pending request when authentication failed. [DE345468]
+- Error callback when authentication failed [DE345468]
+    - Developer may need to update the App if using Proximity Login.
+    - com.ca.mas.core.auth.PollingRenderer.onAuthCodeReceived interface has been changed, the authorization code and state is provided.
+    - onAuthCodeReceived, developer should call com.ca.mas.foundation.MASUser.login(com.ca.mas.foundation.MASAuthCredentials, com.ca.mas.foundation.MASCallback<com.ca.mas.foundation.MASUser>) with com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode
+    - Do not execute pending request when authentication failed. The pending queue will only be executed after authentication success.
 
 
 # Version 1.6.10

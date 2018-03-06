@@ -43,7 +43,7 @@ ext {
     supportAnnotationsVersion = '27.0.2'
     targetSdkVersion = 27
     versionCode = 17
-    versionName = '1.6.00'
+    versionName = '1.6.10'
     zxingVersion = '3.2.0'
     customTabVersion = '27.0.2'
     testRunner = '1.0.1'

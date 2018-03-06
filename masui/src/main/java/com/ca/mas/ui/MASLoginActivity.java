@@ -346,6 +346,18 @@ public class MASLoginActivity extends AppCompatActivity {
             @Override
             public void onError(int errorCode, final String m, Exception e) {
                 // Hide QR Code option
+                cancelQRCodeDialog(m);
+           }
+
+            @Override
+            protected void onAuthCodeReceived(String code, String state) {
+                super.onAuthCodeReceived(code, state);
+                cancelQRCodeDialog("Auth code received");
+                onProximityAuthenticated(code, state);
+
+            }
+
+            void cancelQRCodeDialog(final String message) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -356,16 +368,11 @@ public class MASLoginActivity extends AppCompatActivity {
                         if (qrCodeDialog != null && qrCodeDialog.isShowing()) {
                             qrCodeDialog.cancel();
                         }
-                        Toast.makeText(MASLoginActivity.this, m, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MASLoginActivity.this, message, Toast.LENGTH_SHORT).show();
                     }
                 });
             }
 
-            @Override
-            protected void onAuthCodeReceived(String code, String state) {
-                super.onAuthCodeReceived(code, state);
-                onProximityAuthenticated(code, state);
-            }
         };
     }
 

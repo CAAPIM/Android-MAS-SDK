@@ -37,8 +37,8 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
     //    encrypt a single block of plaintext (The secret key)
     //    This may be naming mistake.
 
-    protected static final String ASYM_KEY_ALIAS = "ASYM_KEY";
-    public static final String RSA_ECB_PKCS1_PADDING = "RSA/ECB/PKCS1PADDING";
+    private static final String ASYM_KEY_ALIAS = "ASYM_KEY";
+    private static final String RSA_ECB_PKCS1_PADDING = "RSA/ECB/PKCS1PADDING";
 
     private Context context;
 
@@ -139,7 +139,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
     /**
      * Delete the secret key locally.
      *
-     * @param alias
+     * @param alias Alias of the secret key
      * @return success / fail
      */
     abstract boolean deleteSecretKeyLocally(String alias);
@@ -152,12 +152,12 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
      *
      * @param secretKey SecretKey to encrypt
      */
-    protected byte[] encryptSecretKey(SecretKey secretKey) {
+    private byte[] encryptSecretKey(SecretKey secretKey) {
         try {
             PublicKey publicKey = KeyUtilsAsymmetric.getRsaPublicKey(ASYM_KEY_ALIAS);
             if (publicKey == null) {
 
-                KeyUtilsAsymmetric.generateRsaPrivateKey(context, 2048,
+                KeyUtilsAsymmetric.generateRsaPrivateKey(
                         ASYM_KEY_ALIAS, String.format("CN=%s, OU=%s", ASYM_KEY_ALIAS, "com.ca"),
                         false, false, -1, false);
                 publicKey = KeyUtilsAsymmetric.getRsaPublicKey(ASYM_KEY_ALIAS);
@@ -180,7 +180,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
      *
      * @param encryptedSecretKey the encrypted bytes of the secret key
      */
-    protected SecretKey decryptSecretKey(byte encryptedSecretKey[]) {
+    private SecretKey decryptSecretKey(byte encryptedSecretKey[]) {
         try {
             PrivateKey privateKey = KeyUtilsAsymmetric.getRsaPrivateKey(ASYM_KEY_ALIAS);
 

@@ -18,8 +18,6 @@ import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.util.KeyUtilsAsymmetric;
-import com.ca.mas.foundation.MAS;
-import com.ca.mas.foundation.MASConfiguration;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -57,13 +55,7 @@ class DefaultTokenManager implements TokenManager {
 
     @Override
     public void saveUserProfile(String userProfile) throws TokenStoreException {
-        storeSecureItem(getUserProfileKey(MSSO_USER_PROFILE), userProfile.getBytes(Charsets.UTF8));
-    }
-
-    private String getUserProfileKey(String alias) {
-        //We don't want to share the user profile if sso is disabled
-        String prefix = MASConfiguration.getCurrentConfiguration().isSsoEnabled() ? "" : MAS.getContext().getPackageName() + "_";
-        return prefix + alias;
+        storeSecureItem(MSSO_USER_PROFILE, userProfile.getBytes(Charsets.UTF8));
     }
 
     @Override
@@ -104,7 +96,7 @@ class DefaultTokenManager implements TokenManager {
 
     @Override
     public void deleteUserProfile() throws TokenStoreException {
-        deleteSecureItem(getUserProfileKey(MSSO_USER_PROFILE));
+        deleteSecureItem(MSSO_USER_PROFILE);
     }
 
     @Override
@@ -138,7 +130,7 @@ class DefaultTokenManager implements TokenManager {
     @Override
     public String getUserProfile() {
         try {
-            byte[] userProfileBytes = retrieveSecureItem(getUserProfileKey(MSSO_USER_PROFILE));
+            byte[] userProfileBytes = retrieveSecureItem(MSSO_USER_PROFILE);
             if (userProfileBytes == null)
                 return null;
             return new String(userProfileBytes, Charsets.UTF8);
@@ -168,7 +160,7 @@ class DefaultTokenManager implements TokenManager {
         if (storage instanceof AccountManagerStoreDataSource) {
 
             // don't require a pin/password/swipe
-            return KeyUtilsAsymmetric.generateRsaPrivateKey(ctx, keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
+            return KeyUtilsAsymmetric.generateRsaPrivateKey(keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
                     MSSO_DN, false, false, -1, false);
 
         } else {
@@ -177,7 +169,7 @@ class DefaultTokenManager implements TokenManager {
             //    which will encrypt the keys at rest
             // otherwise, the keys are already protected from extraction and use
             //    except by apps with same signing key + shared user id
-            return KeyUtilsAsymmetric.generateRsaPrivateKey(ctx, keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
+            return KeyUtilsAsymmetric.generateRsaPrivateKey(keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),
                     MSSO_DN, true, false, -1, false);
         }
 

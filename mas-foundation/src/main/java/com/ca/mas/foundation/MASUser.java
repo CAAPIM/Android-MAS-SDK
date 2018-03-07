@@ -8,7 +8,6 @@
 
 package com.ca.mas.foundation;
 
-import android.annotation.TargetApi;
 import android.content.AsyncTaskLoader;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -16,6 +15,7 @@ import android.os.Handler;
 import android.os.Parcel;
 import android.security.keystore.UserNotAuthenticatedException;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
@@ -422,7 +422,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             }
 
             @Override
-            @TargetApi(23)
             public void lockSession(MASCallback<Void> callback) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     MASUser currentUser = MASUser.getCurrentUser();
@@ -490,6 +489,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             }
 
             @Override
+            @RequiresApi(Build.VERSION_CODES.M)
             public void unlockSession(MASSessionUnlockCallback<Void> callback) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (isSessionLocked()) {
@@ -665,7 +665,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * This will remove the access and refresh tokens, as well as the user profile.
      * The ID token will then be moved to the fingerprint protected shared KeyStore.
      */
-    @TargetApi(23)
+    @RequiresApi(Build.VERSION_CODES.M)
     public abstract void lockSession(MASCallback<Void> callback);
 
     /**
@@ -673,7 +673,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * Unlocks the ID_TOKEN from the KeyStore and places it back into the keychain,
      * removes the locked ID_TOKEN, and then indicates if the device is unlocked.
      */
-    @TargetApi(23)
+    @RequiresApi(Build.VERSION_CODES.M)
     public abstract void unlockSession(MASSessionUnlockCallback<Void> callback);
 
     /**
@@ -681,13 +681,12 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      *
      * @return true if there's a secured ID token
      */
-    @TargetApi(23)
     public abstract boolean isSessionLocked();
 
     /**
      * Removes the secured ID token.
      */
-    @TargetApi(23)
+    @RequiresApi(Build.VERSION_CODES.M)
     public abstract void removeSessionLock(MASCallback<Void> callback);
 
 

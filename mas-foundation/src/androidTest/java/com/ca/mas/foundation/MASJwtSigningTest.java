@@ -202,7 +202,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
     public void testSignWithPrivateKey() throws Exception, MASException {
         KeyUtilsAsymmetric.deletePrivateKey("TEST");
 
-        PrivateKey privateKey = KeyUtilsAsymmetric.generateRsaPrivateKey(InstrumentationRegistry.getInstrumentation().getTargetContext(), 2048, "TEST", "dn=test", false, false, -1, false);
+        PrivateKey privateKey = KeyUtilsAsymmetric.generateRsaPrivateKey( 2048, "TEST", "dn=test", false, false, -1, false);
         PublicKey publicKey = KeyUtilsAsymmetric.getRsaPublicKey("TEST");
 
         JSONObject requestData = new JSONObject();
@@ -226,7 +226,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
     public void testSignWithInvalidPrivateKey() throws MASException, CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, java.security.KeyStoreException, NoSuchProviderException, InvalidAlgorithmParameterException, JSONException, URISyntaxException, ExecutionException, InterruptedException, ParseException, JOSEException, KeyStoreException {
         KeyUtilsAsymmetric.deletePrivateKey("TEST");
 
-        PrivateKey privateKey = KeyUtilsAsymmetric.generateRsaPrivateKey(InstrumentationRegistry.getInstrumentation().getTargetContext(), 2048, "TEST", "dn=test", false, false, -1, false);
+        PrivateKey privateKey = KeyUtilsAsymmetric.generateRsaPrivateKey( 2048, "TEST", "dn=test", false, false, -1, false);
         JSONObject requestData = new JSONObject();
         requestData.put("jsonName", "jsonValue");
         requestData.put("jsonName2", 1234);

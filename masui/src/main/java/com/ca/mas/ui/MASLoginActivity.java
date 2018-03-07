@@ -362,7 +362,7 @@ public class MASLoginActivity extends AppCompatActivity {
         return new MASProximityLoginNFC() {
             @Override
             public void onError(int errorCode, final String m, Exception e) {
-                if (DEBUG) Log.i(TAG, m);
+                if (DEBUG) Log.i(TAG, "NFC Proximity Login Failed", e);
             }
 
             @Override
@@ -419,7 +419,7 @@ public class MASLoginActivity extends AppCompatActivity {
                 if (m != null && m.contains("ACCESS_FINE_LOCATION")) {
                     requestFineLocation();
                 }
-                if (DEBUG) Log.i(TAG, m);
+                if (DEBUG) Log.i(TAG, "BLE Proximity Login Failed.", e);
             }
 
             @Override

@@ -18,8 +18,6 @@ import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.util.KeyUtilsAsymmetric;
-import com.ca.mas.foundation.MAS;
-import com.ca.mas.foundation.MASConfiguration;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -57,13 +55,7 @@ class DefaultTokenManager implements TokenManager {
 
     @Override
     public void saveUserProfile(String userProfile) throws TokenStoreException {
-        storeSecureItem(getUserProfileKey(MSSO_USER_PROFILE), userProfile.getBytes(Charsets.UTF8));
-    }
-
-    private String getUserProfileKey(String alias) {
-        //We don't want to share the user profile if sso is disabled
-        String prefix = MASConfiguration.getCurrentConfiguration().isSsoEnabled() ? "" : MAS.getContext().getPackageName() + "_";
-        return prefix + alias;
+        storeSecureItem(MSSO_USER_PROFILE, userProfile.getBytes(Charsets.UTF8));
     }
 
     @Override
@@ -104,7 +96,7 @@ class DefaultTokenManager implements TokenManager {
 
     @Override
     public void deleteUserProfile() throws TokenStoreException {
-        deleteSecureItem(getUserProfileKey(MSSO_USER_PROFILE));
+        deleteSecureItem(MSSO_USER_PROFILE);
     }
 
     @Override
@@ -138,7 +130,7 @@ class DefaultTokenManager implements TokenManager {
     @Override
     public String getUserProfile() {
         try {
-            byte[] userProfileBytes = retrieveSecureItem(getUserProfileKey(MSSO_USER_PROFILE));
+            byte[] userProfileBytes = retrieveSecureItem(MSSO_USER_PROFILE);
             if (userProfileBytes == null)
                 return null;
             return new String(userProfileBytes, Charsets.UTF8);

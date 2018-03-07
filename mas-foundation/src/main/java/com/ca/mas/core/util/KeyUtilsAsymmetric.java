@@ -14,6 +14,8 @@ import android.support.annotation.RequiresApi;
 import com.ca.mas.core.security.GenerateKeyAttribute;
 import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.security.KeyStoreRepository;
+import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASConfiguration;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.Key;
@@ -125,7 +127,7 @@ public class KeyUtilsAsymmetric {
         attribute.setInvalidatedByBiometricEnrollment(nougatInvalidatedByBiometricEnrollment);
         attribute.setUserAuthenticationValidityDurationSeconds(marshmallowUserAuthenticationValidityDurationSeconds);
 
-        return keyRepository.createPrivateKey(alias, attribute).getPrivate();
+        return keyRepository.createPrivateKey(sanitizeAlias(alias), attribute).getPrivate();
 
     }
 
@@ -155,6 +157,15 @@ public class KeyUtilsAsymmetric {
         return keyStore.getKey(alias, null);
     }
 
+    public static String sanitizeAlias(String alias) {
+        if (!MASConfiguration.getCurrentConfiguration().isSsoEnabled()) {
+            return MAS.getContext().getPackageName() + "_" + alias;
+        } else {
+            return alias;
+        }
+    }
+
+
     /**
      * Get the existing private key.
      *
@@ -162,7 +173,7 @@ public class KeyUtilsAsymmetric {
      * @return the Private Key
      */
     public static PrivateKey getRsaPrivateKey(String alias) throws KeyStoreException {
-        return (PrivateKey) keyRepository.getPrivateKey(alias);
+        return (PrivateKey) keyRepository.getPrivateKey(sanitizeAlias(alias));
     }
 
     /**
@@ -175,7 +186,7 @@ public class KeyUtilsAsymmetric {
      * @return the Private Key object
      */
     public static PublicKey getRsaPublicKey(String alias) throws KeyStoreException {
-        return (PublicKey) keyRepository.getPublicKey(alias);
+        return (PublicKey) keyRepository.getPublicKey(sanitizeAlias(alias));
     }
 
 
@@ -187,7 +198,7 @@ public class KeyUtilsAsymmetric {
      *              self-signed public key
      */
     public static void deletePrivateKey(String alias) {
-        keyRepository.deleteKey(alias);
+        keyRepository.deleteKey(sanitizeAlias(alias));
     }
 
 
@@ -207,7 +218,7 @@ public class KeyUtilsAsymmetric {
      *                    matching the private key will be in array position [0].
      */
     public static void setCertificateChain(String aliasPrefix, X509Certificate[] chain) throws KeyStoreException {
-        keyRepository.saveCertificateChain(aliasPrefix, chain);
+        keyRepository.saveCertificateChain(sanitizeAlias(aliasPrefix), chain);
     }
 
     /**
@@ -219,7 +230,7 @@ public class KeyUtilsAsymmetric {
      * @return The Certificate Chain
      */
     public static X509Certificate[] getCertificateChain(String aliasPrefix) throws KeyStoreException {
-        return keyRepository.getCertificateChain(aliasPrefix);
+        return keyRepository.getCertificateChain(sanitizeAlias(aliasPrefix));
     }
 
     /**
@@ -232,7 +243,7 @@ public class KeyUtilsAsymmetric {
      *                    where position 0 in the array will be 1.
      */
     public static void clearCertificateChain(String aliasPrefix) {
-        keyRepository.deleteCertificateChain(aliasPrefix);
+        keyRepository.deleteCertificateChain(sanitizeAlias(aliasPrefix));
     }
 
 

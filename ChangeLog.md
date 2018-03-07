@@ -5,12 +5,7 @@
 - Failed to invoke callback.error when server provides an invalid QRCode url. [DE340045]
 
 ### New features
-- Support Android API 16+ [US406900]
-Android 4.1.x is now supported with these limitations and changes:  
-  - Android Account Manager (AMS) is not supported.
-  - If you are using the MASStorage framework, Admins must change a context variable in the MASStorage policy to support Android 4.1.x   See [Customize MASStorage Policy for Android 4.1.x](https://docops.ca.com/ca-mobile-api-gateway/4-1/en/mobile-policies/configure-policies/storage-local-and-cloud-policies). If the policy is not updated, you will get an exception error when you try to delete data from cloud storage.
-  - You must add the following dependency to your app module build.gradle file: ```compile org.bouncycastle:bcpkix-jdk15on:1.55```
-
+- None
 
 # Version 1.6.00
 

@@ -515,4 +515,29 @@ public class MASLoginTest extends MASStartTestBase {
 
 
     }
+
+    @Test
+    public void testCustomAuthCredentials() throws Exception {
+        MASAuthCredentials authCredentials = new CustomMASAuthCredentials("admin", "7layer".toCharArray(), "custom_value");
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASUser.login(authCredentials, callback);
+        Assert.assertNotNull(callback.get());
+
+        RecordedRequest registerRequest = getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_REGISTER);
+        Assert.assertEquals(registerRequest.getHeader("panCard"), "custom_value");
+
+        //Logout
+        MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
+        MASUser.getCurrentUser().logout(logoutCallback);
+        logoutCallback.get();
+
+        //invoke token with id token
+        callback.reset();
+        MASUser.login(authCredentials, callback);
+        Assert.assertNotNull(callback.get());
+
+        RecordedRequest tokenRequest = getRecordRequest(GatewayDefaultDispatcher.AUTH_OAUTH_V2_TOKEN);
+        String body = URLDecoder.decode(tokenRequest.getBody().readUtf8(), "UTF-8");
+        assertTrue(body.contains("panCard=custom_value"));
+    }
 }

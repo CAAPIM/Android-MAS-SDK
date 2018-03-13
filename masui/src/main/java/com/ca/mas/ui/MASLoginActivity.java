@@ -39,6 +39,7 @@ import android.widget.Toast;
 
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.auth.MASAuthenticationProvider;
@@ -69,6 +70,7 @@ public class MASLoginActivity extends AppCompatActivity {
     private MASProximityLogin qrCode;
     private MASProximityLogin nfc;
     private MASProximityLogin ble;
+    private AlertDialog qrCodeDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,7 +151,7 @@ public class MASLoginActivity extends AppCompatActivity {
                             ImageView imageView = (ImageView) qrCode.render();
                             imageView.setLayoutParams(layoutParams);
                             linearLayout.addView(imageView);
-                            new AlertDialog.Builder(MASLoginActivity.this)
+                            qrCodeDialog = new AlertDialog.Builder(MASLoginActivity.this)
                                     .setView(linearLayout)
                                     .setNegativeButton(getString(R.string.done), null)
                                     .show();
@@ -344,17 +346,33 @@ public class MASLoginActivity extends AppCompatActivity {
             @Override
             public void onError(int errorCode, final String m, Exception e) {
                 // Hide QR Code option
-                View qrButton = findViewById(R.id.activity_mas_login_qr_code);
-                if (mGridLayout != null) {
-                    mGridLayout.removeView(qrButton);
-                }
-            }
+                cancelQRCodeDialog(m);
+           }
 
             @Override
-            protected void onAuthCodeReceived(String code) {
-                super.onAuthCodeReceived(code);
-                onProximityAuthenticated();
+            protected void onAuthCodeReceived(String code, String state) {
+                super.onAuthCodeReceived(code, state);
+                cancelQRCodeDialog("Auth code received");
+                onProximityAuthenticated(code, state);
+
             }
+
+            void cancelQRCodeDialog(final String message) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        View qrButton = findViewById(R.id.activity_mas_login_qr_code);
+                        if (mGridLayout != null) {
+                            mGridLayout.removeView(qrButton);
+                        }
+                        if (qrCodeDialog != null && qrCodeDialog.isShowing()) {
+                            qrCodeDialog.cancel();
+                        }
+                        Toast.makeText(MASLoginActivity.this, message, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
         };
     }
 
@@ -362,13 +380,19 @@ public class MASLoginActivity extends AppCompatActivity {
         return new MASProximityLoginNFC() {
             @Override
             public void onError(int errorCode, final String m, Exception e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MASLoginActivity.this, m, Toast.LENGTH_SHORT).show();
+                    }
+                });
                 if (DEBUG) Log.i(TAG, "NFC Proximity Login Failed", e);
             }
 
             @Override
-            protected void onAuthCodeReceived(String code) {
-                super.onAuthCodeReceived(code);
-                onProximityAuthenticated();
+            protected void onAuthCodeReceived(String code, String state) {
+                super.onAuthCodeReceived(code, state);
+                onProximityAuthenticated(code, state);
             }
         };
     }
@@ -419,13 +443,19 @@ public class MASLoginActivity extends AppCompatActivity {
                 if (m != null && m.contains("ACCESS_FINE_LOCATION")) {
                     requestFineLocation();
                 }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MASLoginActivity.this, m, Toast.LENGTH_SHORT).show();
+                    }
+                });
                 if (DEBUG) Log.i(TAG, "BLE Proximity Login Failed.", e);
             }
 
             @Override
-            protected void onAuthCodeReceived(String code) {
-                super.onAuthCodeReceived(code);
-                onProximityAuthenticated();
+            protected void onAuthCodeReceived(String code, String state) {
+                super.onAuthCodeReceived(code, state);
+                onProximityAuthenticated(code, state);
             }
         };
     }
@@ -449,10 +479,24 @@ public class MASLoginActivity extends AppCompatActivity {
         }
     }
 
-    private void onProximityAuthenticated() {
+    private void onProximityAuthenticated(String code, String state) {
         //Fetch the user profile
-        MASUser.login(null);
-        finish();
+        MASUser.login(new MASAuthCredentialsAuthorizationCode(code, state), new MASCallback<MASUser>() {
+            @Override
+            public void onSuccess(MASUser result) {
+                finish();
+            }
+
+            @Override
+            public void onError(final Throwable e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MASLoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
     }
 
     @Override

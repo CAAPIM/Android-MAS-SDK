@@ -10,6 +10,7 @@ package com.ca.mas.foundation;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Pair;
 
 import com.ca.mas.GatewayDefaultDispatcher;
@@ -65,6 +66,25 @@ public class MASTest extends MASLoginTestBase {
         RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS);
         assertNotNull(rr.getHeader("Authorization"));
     }
+
+    @Test
+    public void testAccessProtectedEndpointWithLambda() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        final JSONObject[] response = {null};
+        final boolean[] isMainThread = {false};
+        MAS.invoke(request, (MASApiCallback<JSONObject>) (result, e) -> {
+            countDownLatch.countDown();
+            response[0] = result;
+            if (Looper.getMainLooper().getThread().getId() == Thread.currentThread().getId()) {
+                isMainThread[0] = true;
+            }
+        });
+        countDownLatch.await();
+        assertNotNull(response[0].toString());
+        assertTrue(isMainThread[0]);
+    }
+
 
     @Test
     public void testAccessProtectedEndpointRunOnMainThread() throws Exception {

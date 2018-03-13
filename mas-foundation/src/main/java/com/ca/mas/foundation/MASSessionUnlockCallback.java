@@ -9,7 +9,7 @@ package com.ca.mas.foundation;
 
 import android.annotation.TargetApi;
 
-public abstract class MASSessionUnlockCallback<T> extends MASCallback<T> {
+public abstract class MASSessionUnlockCallback<T> implements MASCallback<T> {
 
     /**
      * Called when an asynchronous call encounters a UserNotAuthenticatedException and requires

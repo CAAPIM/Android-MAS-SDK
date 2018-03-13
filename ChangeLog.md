@@ -1,3 +1,10 @@
+# Version 1.7.00
+
+### New features
+- Simple API callback interface [US390051]
+    - e.g MAS.invoke(request, (MASApiCallback<JSONObject>) (result, e) -> {});
+    - The callback onResult(Object, Throwable) will be run on main thread.
+
 # Version 1.6.20
 
 ### Bug fixes

@@ -147,7 +147,7 @@ public abstract class PollingRenderer extends AuthRenderer {
 
 
     @Override
-    protected void onAuthCodeReceived(String code) {
+    protected void onAuthCodeReceived(String code, String state) {
         if (timer != null) {
             timer.shutdown();
         }

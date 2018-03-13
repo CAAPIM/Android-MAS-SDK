@@ -120,7 +120,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             public void onError(MAGError error) {
                 current = null;
                 Callback.onError(callback, error);
-                MAS.processPendingRequests();
             }
         });
     }

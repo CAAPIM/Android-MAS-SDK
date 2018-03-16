@@ -294,8 +294,8 @@ public class BluetoothLeCentralRenderer extends PollingRenderer {
     }
 
     @Override
-    protected void onAuthCodeReceived(String code) {
-        super.onAuthCodeReceived(code);
+    protected void onAuthCodeReceived(String code, String state) {
+        super.onAuthCodeReceived(code, state);
         callback.onStatusUpdate(BluetoothLeCentralCallback.BLE_STATE_AUTH_SUCCEEDED);
     }
 

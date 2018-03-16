@@ -25,7 +25,7 @@ public abstract class UniqueIdentifier {
         identifierKey = getIdentifierKey();
         PublicKey publicKey = KeyUtilsAsymmetric.getRsaPublicKey(identifierKey);
         if (publicKey == null) {
-            KeyUtilsAsymmetric.generateRsaPrivateKey(context, 2048, identifierKey,
+            KeyUtilsAsymmetric.generateRsaPrivateKey(  identifierKey,
                     String.format("CN=%s, OU=%s", identifierKey, "com.ca"),
                     false, false, Integer.MAX_VALUE, false);
             publicKey = KeyUtilsAsymmetric.getRsaPublicKey(identifierKey);

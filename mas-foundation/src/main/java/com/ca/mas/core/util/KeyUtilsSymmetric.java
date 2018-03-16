@@ -12,6 +12,7 @@ import android.annotation.TargetApi;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProtection;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import java.io.IOException;
@@ -48,26 +49,26 @@ import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * This interface is used to generate a SecretKey for encryption purposes.
- *     For Android.M+, the key will be created in the AndroidKeyStore
- *         and will remain there.
- *     For Pre-Android.M, the key will be created and returned, and
- *         a KeyStorageProvider must be used to protect the key.  If
- *         the user upgrades to Android.M+, the key will be moved
- *         to the AndroidKeyStore.
+ * For Android.M+, the key will be created in the AndroidKeyStore
+ * and will remain there.
+ * For Pre-Android.M, the key will be created and returned, and
+ * a KeyStorageProvider must be used to protect the key.  If
+ * the user upgrades to Android.M+, the key will be moved
+ * to the AndroidKeyStore.
  */
 public class KeyUtilsSymmetric {
 
     // the following parameters apply to all key generation operations
-    protected static final String DEFAULT_ALGORITHM = "AES";
-    protected static final int DEFAULT_KEY_LENGTH = 256;
+    private static final String DEFAULT_ALGORITHM = "AES";
+    private static final int DEFAULT_KEY_LENGTH = 256;
 
     // the following apply to keys created or stored in Android.M+
-    protected static final String ANDROID_KEY_STORE = "AndroidKeyStore";
+    private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
 
 
     /**
      * Generate a symmetric key, allows for full selection of key properties
-     *
+     * <p>
      * For M+:
      * “The Android Keystore system lets you store cryptographic keys in a
      * container to make it more difficult to extract from the device.
@@ -78,60 +79,61 @@ public class KeyUtilsSymmetric {
      * the same signing key and shared user id.
      * <p>
      * The key protection parameters for M+ AndroidKeyStore AES keys
-     *     userAuthenticationRequired,
-     *     userAuthenticationValidityDurationSeconds,
-     *     and nougatInvalidatedByBiometricEnrollment are linked,
-     *     below are the combinations:
+     * userAuthenticationRequired,
+     * userAuthenticationValidityDurationSeconds,
+     * and nougatInvalidatedByBiometricEnrollment are linked,
+     * below are the combinations:
      * <p>
      * 1) Android M+: userAuthenticationRequired(false) – the keys
-     *     are still protected from export but can be used whenever needed.
+     * are still protected from export but can be used whenever needed.
      * 2) Android M+: userAuthenticationRequired(true) and
-     *     userAuthenticationValidityDurationSeconds( > 0 ) –
-     *     the key can only be used if the pin has been entered within the given
-     *     number of seconds.  On some devices, when a fingerprint is added
-     *     the key is invalidated.  The # seconds can be set absurdly high,
-     *     for example 100,000 if it's ok for more than a day to pass without
-     *     an unlock.
+     * userAuthenticationValidityDurationSeconds( > 0 ) –
+     * the key can only be used if the pin has been entered within the given
+     * number of seconds.  On some devices, when a fingerprint is added
+     * the key is invalidated.  The # seconds can be set absurdly high,
+     * for example 100,000 if it's ok for more than a day to pass without
+     * an unlock.
      * 3) Android M+: userAuthenticationRequired(true) and
-     *     userAuthenticationValidityDurationSeconds(zero or neg) –
-     *     works only with fingerprint+pin/swipe/pattern, and requires that
-     *     the fingerprint is entered every time a key is used.  This requires
-     *     an added layer to prompt the user to swipe their fingerprint.
+     * userAuthenticationValidityDurationSeconds(zero or neg) –
+     * works only with fingerprint+pin/swipe/pattern, and requires that
+     * the fingerprint is entered every time a key is used.  This requires
+     * an added layer to prompt the user to swipe their fingerprint.
      * 4) Android N+: nougatInvalidatedByBiometricEnrollment(true/false)
-     *     changes the behavior in #2 – either the key will or won’t be
-     *     invalided when the user adds an or another fingerprint.
+     * changes the behavior in #2 – either the key will or won’t be
+     * invalided when the user adds an or another fingerprint.
      *
-     * @param alias the alias to use if generated in AndroidKeyStore
-     * @param algorithm AES or other Symmetric Key algorithm
-     * @param keyLength default is 256
-     * @param inMemory for Android.M+ the key will be created outside the AndroidKeyStore and then stored
-     *                    inside.  The in-memory copy can be used without user authentication until the
-     *                    app is closed, dereferenced, or variable is destroyed.  This is useful
-     *                    for MASSessionLock and Unlock, where screen unlock is only needed for unlock.
-     * @param userAuthenticationRequired for Android.M+ require screen lock.  Note, if inMemory is true,
-     *                    this applies only to versions extracted from the AndroidKeyStore.
+     * @param alias                             the alias to use if generated in AndroidKeyStore
+     * @param algorithm                         AES or other Symmetric Key algorithm
+     * @param keyLength                         default is 256
+     * @param inMemory                          for Android.M+ the key will be created outside the AndroidKeyStore and then stored
+     *                                          inside.  The in-memory copy can be used without user authentication until the
+     *                                          app is closed, dereferenced, or variable is destroyed.  This is useful
+     *                                          for MASSessionLock and Unlock, where screen unlock is only needed for unlock.
+     * @param userAuthenticationRequired        for Android.M+ require screen lock.  Note, if inMemory is true,
+     *                                          this applies only to versions extracted from the AndroidKeyStore.
      * @param userAuthenticationValiditySeconds sets the duration for which this key is authorized
-     *                    to be used after the user is successfully authenticated.
-     * @param invalidatedByBiometricEnrollment true/false for Android-N+:
-     *                    if setUserAuthenticationRequired true, some Android M devices may disable
-     *                    a key if a fingerprint is added.  Setting this value to true ensures
-     *                    the key is usable even if a fingerprint is added.
+     *                                          to be used after the user is successfully authenticated.
+     * @param invalidatedByBiometricEnrollment  true/false for Android-N+:
+     *                                          if setUserAuthenticationRequired true, some Android M devices may disable
+     *                                          a key if a fingerprint is added.  Setting this value to true ensures
+     *                                          the key is usable even if a fingerprint is added.
      * @return secret key
      */
     public static SecretKey generateKey(String alias, String algorithm, int keyLength,
-                                 boolean inMemory, boolean userAuthenticationRequired,
-                                 int userAuthenticationValiditySeconds,
-                                 boolean invalidatedByBiometricEnrollment)
-    {
+                                        boolean inMemory, boolean userAuthenticationRequired,
+                                        int userAuthenticationValiditySeconds,
+                                        boolean invalidatedByBiometricEnrollment) {
         SecretKey returnKey = null;
 
         if ((algorithm == null) || (algorithm.trim().length() == 0)) {
-            if (DEBUG) Log.d(TAG, "Algorithm (" + algorithm + ") is either null or zero length, assigning default: " + DEFAULT_ALGORITHM);
+            if (DEBUG)
+                Log.d(TAG, "Algorithm (" + algorithm + ") is either null or zero length, assigning default: " + DEFAULT_ALGORITHM);
             algorithm = DEFAULT_ALGORITHM;
         }
 
         if (keyLength < DEFAULT_KEY_LENGTH) {
-            if (DEBUG) Log.d(TAG, "key length (" + keyLength + ") is less than zero, assigning default: " + DEFAULT_KEY_LENGTH);
+            if (DEBUG)
+                Log.d(TAG, "key length (" + keyLength + ") is less than zero, assigning default: " + DEFAULT_KEY_LENGTH);
             keyLength = DEFAULT_KEY_LENGTH;
         }
 
@@ -141,21 +143,21 @@ public class KeyUtilsSymmetric {
                 returnKey = generateKeyInMemory(algorithm, keyLength);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     storeKeyAndroidN(alias, returnKey,
-                         userAuthenticationRequired, userAuthenticationValiditySeconds,
-                         invalidatedByBiometricEnrollment);
+                            userAuthenticationRequired, userAuthenticationValiditySeconds,
+                            invalidatedByBiometricEnrollment);
                 } else {
                     storeKeyAndroidM(alias, returnKey,
-                         userAuthenticationRequired, userAuthenticationValiditySeconds);
+                            userAuthenticationRequired, userAuthenticationValiditySeconds);
                 }
             } else {
                 // generate the key inside the keystore
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     returnKey = generateKeyInAndroidKeyStoreAndroidN(alias, algorithm, keyLength,
-                                      userAuthenticationRequired, userAuthenticationValiditySeconds,
-                                      invalidatedByBiometricEnrollment);
+                            userAuthenticationRequired, userAuthenticationValiditySeconds,
+                            invalidatedByBiometricEnrollment);
                 } else {
                     returnKey = generateKeyInAndroidKeyStoreAndroidM(alias, algorithm, keyLength,
-                                      userAuthenticationRequired, userAuthenticationValiditySeconds);
+                            userAuthenticationRequired, userAuthenticationValiditySeconds);
                 }
             }
         } else {
@@ -167,19 +169,19 @@ public class KeyUtilsSymmetric {
 
     /**
      * Return a secretKey to be used for encryption.
-     *   This key will be generated in memory and may
-     *   be vulnerable to discovery through memory scans.
-     *   This is useful for Pre-M devices, where AndroidKeyStore
-     *   is not supported and the key must be stored elsewhere.
-     *   This is also useful for session lock: the key can
-     *   be used right away without requiring authentication,
-     *   but stored protected in the AndroidKeyStore.
+     * This key will be generated in memory and may
+     * be vulnerable to discovery through memory scans.
+     * This is useful for Pre-M devices, where AndroidKeyStore
+     * is not supported and the key must be stored elsewhere.
+     * This is also useful for session lock: the key can
+     * be used right away without requiring authentication,
+     * but stored protected in the AndroidKeyStore.
      *
      * @param algorithm AES or other Symmetric Key algorithm
      * @param keyLength default is 256
      * @return secret key
      */
-    protected static SecretKey generateKeyInMemory(String algorithm, int keyLength) {
+    private static SecretKey generateKeyInMemory(String algorithm, int keyLength) {
         try {
             KeyGenerator kg = KeyGenerator.getInstance(algorithm);
             kg.init(keyLength);
@@ -194,26 +196,26 @@ public class KeyUtilsSymmetric {
     /**
      * For Android.M+ only, Return a secretKey to be used for encryption.
      *
-     * @param alias the alias to use if generated in AndroidKeyStore
-     * @param algorithm AES or other Symmetric Key algorithm
-     * @param keyLength default is 256
-     * @param userAuthenticationRequired for Android.M+ require screen lock.  Note, if inMemory is true,
-     *                    this applies only to versions extracted from the AndroidKeyStore.
+     * @param alias                             the alias to use if generated in AndroidKeyStore
+     * @param algorithm                         AES or other Symmetric Key algorithm
+     * @param keyLength                         default is 256
+     * @param userAuthenticationRequired        for Android.M+ require screen lock.  Note, if inMemory is true,
+     *                                          this applies only to versions extracted from the AndroidKeyStore.
      * @param userAuthenticationValiditySeconds sets the duration for which this key is authorized
-     *                    to be used after the user is successfully authenticated.
+     *                                          to be used after the user is successfully authenticated.
      * @return secret key
      */
     @TargetApi(Build.VERSION_CODES.M)
-    protected static SecretKey generateKeyInAndroidKeyStoreAndroidM(
-                           String alias, String algorithm, int keyLength,
-                           boolean userAuthenticationRequired,
-                           int userAuthenticationValiditySeconds) {
+    private static SecretKey generateKeyInAndroidKeyStoreAndroidM(
+            String alias, String algorithm, int keyLength,
+            boolean userAuthenticationRequired,
+            int userAuthenticationValiditySeconds) {
 
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(
                     algorithm, ANDROID_KEY_STORE);
             KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(alias, PURPOSE_ENCRYPT | PURPOSE_DECRYPT)
-                    .setKeySize(keyLength < DEFAULT_KEY_LENGTH? DEFAULT_KEY_LENGTH: keyLength)
+                    .setKeySize(keyLength < DEFAULT_KEY_LENGTH ? DEFAULT_KEY_LENGTH : keyLength)
                     .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_GCM)
                     .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
                     .setRandomizedEncryptionRequired(true)
@@ -225,8 +227,7 @@ public class KeyUtilsSymmetric {
             KeyGenParameterSpec keyGenSpec = builder.build();
             keyGenerator.init(keyGenSpec);
 
-            SecretKey key = keyGenerator.generateKey();
-            return key;
+            return keyGenerator.generateKey();
 
         } catch (Exception x) {
             if (DEBUG) Log.e(TAG, "Error generateKeyInAndroidKeyStore", x);
@@ -238,30 +239,30 @@ public class KeyUtilsSymmetric {
     /**
      * For Android.N+ only, Return a secretKey to be used for encryption.
      *
-     * @param alias the alias to use if generated in AndroidKeyStore
-     * @param algorithm AES or other Symmetric Key algorithm
-     * @param keyLength default is 256
-     * @param userAuthenticationRequired for Android.M+ require screen lock.  Note, if inMemory is true,
-     *                    this applies only to versions extracted from the AndroidKeyStore.
+     * @param alias                             the alias to use if generated in AndroidKeyStore
+     * @param algorithm                         AES or other Symmetric Key algorithm
+     * @param keyLength                         default is 256
+     * @param userAuthenticationRequired        for Android.M+ require screen lock.  Note, if inMemory is true,
+     *                                          this applies only to versions extracted from the AndroidKeyStore.
      * @param userAuthenticationValiditySeconds sets the duration for which this key is authorized
-     *                    to be used after the user is successfully authenticated.
-     * @param invalidatedByBiometricEnrollment true/false for Android-N+:
-     *                    if setUserAuthenticationRequired true, some Android M devices may disable
-     *                    a key if a fingerprint is added.  Setting this value to true ensures
-     *                    the key is usable even if a fingerprint is added.
+     *                                          to be used after the user is successfully authenticated.
+     * @param invalidatedByBiometricEnrollment  true/false for Android-N+:
+     *                                          if setUserAuthenticationRequired true, some Android M devices may disable
+     *                                          a key if a fingerprint is added.  Setting this value to true ensures
+     *                                          the key is usable even if a fingerprint is added.
      * @return secret key
      */
     @TargetApi(Build.VERSION_CODES.N)
-    protected static SecretKey generateKeyInAndroidKeyStoreAndroidN(String alias, String algorithm, int keyLength,
-                          boolean userAuthenticationRequired,
-                          int userAuthenticationValiditySeconds,
-                          boolean invalidatedByBiometricEnrollment) {
+    private static SecretKey generateKeyInAndroidKeyStoreAndroidN(String alias, String algorithm, int keyLength,
+                                                                  boolean userAuthenticationRequired,
+                                                                  int userAuthenticationValiditySeconds,
+                                                                  boolean invalidatedByBiometricEnrollment) {
 
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(
                     algorithm, ANDROID_KEY_STORE);
             KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(alias, PURPOSE_ENCRYPT | PURPOSE_DECRYPT)
-                    .setKeySize(keyLength < DEFAULT_KEY_LENGTH? DEFAULT_KEY_LENGTH: keyLength)
+                    .setKeySize(keyLength < DEFAULT_KEY_LENGTH ? DEFAULT_KEY_LENGTH : keyLength)
                     .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_GCM)
                     .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
                     .setRandomizedEncryptionRequired(true)
@@ -284,25 +285,22 @@ public class KeyUtilsSymmetric {
     }
 
 
-
     /**
      * Retrieve the key from the AndroidKeyStore
      *
      * @param alias the alias to store the key as
      * @return for Android Pre-M, this will return null
-     *    otherwise it will try to find the key in the AndroidKeyStore
+     * otherwise it will try to find the key in the AndroidKeyStore
      */
-    public static SecretKey retrieveKey(String alias)
-    {
+    public static SecretKey retrieveKey(String alias) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-           // get the key from the AndroidKeyStore
-           return retrieveKeyAndroidM(alias);
+            // get the key from the AndroidKeyStore
+            return retrieveKeyAndroidM(alias);
         }
 
         // if Android Pre-M, the key will not be in the AndroidKeyStore
         return null;
     }
-
 
 
     /**
@@ -312,8 +310,7 @@ public class KeyUtilsSymmetric {
      * @return the SecretKey, or null if not present
      */
     @TargetApi(Build.VERSION_CODES.M)
-    protected static SecretKey retrieveKeyAndroidM(String alias)
-    {
+    private static SecretKey retrieveKeyAndroidM(String alias) {
         KeyStore ks;
         try {
             ks = KeyStore.getInstance(ANDROID_KEY_STORE);
@@ -342,22 +339,21 @@ public class KeyUtilsSymmetric {
 
     /**
      * Stores a SecretKey in the AndroidKeyStore.
-     *   This is only useful when the phone is upgraded
-     *   to Android.M, where an existing key was stored
-     *   outside of the AndroidKeyStore.
+     * This is only useful when the phone is upgraded
+     * to Android.M, where an existing key was stored
+     * outside of the AndroidKeyStore.
      *
-     * @param alias the alias to use if generated in AndroidKeyStore
-     * @param secretKey the key to store
-     * @param userAuthenticationRequired for Android.M+ require screen lock.  Note, if inMemory is true,
-     *                    this applies only to versions extracted from the AndroidKeyStore.
+     * @param alias                             the alias to use if generated in AndroidKeyStore
+     * @param secretKey                         the key to store
+     * @param userAuthenticationRequired        for Android.M+ require screen lock.  Note, if inMemory is true,
+     *                                          this applies only to versions extracted from the AndroidKeyStore.
      * @param userAuthenticationValiditySeconds sets the duration for which this key is authorized
-     *                    to be used after the user is successfully authenticated.
+     *                                          to be used after the user is successfully authenticated.
      */
     @TargetApi(Build.VERSION_CODES.M)
     public static boolean storeKeyAndroidM(String alias, SecretKey secretKey,
-                         boolean userAuthenticationRequired,
-                         int userAuthenticationValiditySeconds)
-    {
+                                           boolean userAuthenticationRequired,
+                                           int userAuthenticationValiditySeconds) {
         KeyStore ks;
         try {
             ks = KeyStore.getInstance(ANDROID_KEY_STORE);
@@ -368,10 +364,10 @@ public class KeyUtilsSymmetric {
         }
 
         KeyProtection.Builder builder = new KeyProtection.Builder(PURPOSE_ENCRYPT | PURPOSE_DECRYPT)
-                        .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_GCM)
-                        .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
-                        .setRandomizedEncryptionRequired(true)
-                        .setUserAuthenticationRequired(userAuthenticationRequired);
+                .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_GCM)
+                .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
+                .setRandomizedEncryptionRequired(true)
+                .setUserAuthenticationRequired(userAuthenticationRequired);
 
         if (userAuthenticationRequired && userAuthenticationValiditySeconds > 0)
             builder.setUserAuthenticationValidityDurationSeconds(userAuthenticationValiditySeconds);
@@ -390,28 +386,27 @@ public class KeyUtilsSymmetric {
 
     /**
      * Stores a SecretKey in the AndroidKeyStore.
-     *   This is only useful when the phone is upgraded
-     *   to Android.M, where an existing key was stored
-     *   outside of the AndroidKeyStore.
+     * This is only useful when the phone is upgraded
+     * to Android.M, where an existing key was stored
+     * outside of the AndroidKeyStore.
      *
-     * @param alias the alias to use if generated in AndroidKeyStore
-     * @param secretKey the symmetric key to store
-     * @param userAuthenticationRequired for Android.M+ require screen lock.  Note, if inMemory is true,
-     *                    this applies only to versions extracted from the AndroidKeyStore.
+     * @param alias                             the alias to use if generated in AndroidKeyStore
+     * @param secretKey                         the symmetric key to store
+     * @param userAuthenticationRequired        for Android.M+ require screen lock.  Note, if inMemory is true,
+     *                                          this applies only to versions extracted from the AndroidKeyStore.
      * @param userAuthenticationValiditySeconds sets the duration for which this key is authorized
-     *                    to be used after the user is successfully authenticated.
-     * @param invalidatedByBiometricEnrollment true/false for Android-N+:
-     *                    if setUserAuthenticationRequired true, some Android M devices may disable
-     *                    a key if a fingerprint is added.  Setting this value to true ensures
-     *                    the key is usable even if a fingerprint is added.
+     *                                          to be used after the user is successfully authenticated.
+     * @param invalidatedByBiometricEnrollment  true/false for Android-N+:
+     *                                          if setUserAuthenticationRequired true, some Android M devices may disable
+     *                                          a key if a fingerprint is added.  Setting this value to true ensures
+     *                                          the key is usable even if a fingerprint is added.
      */
-    @TargetApi(Build.VERSION_CODES.N)
+    @RequiresApi(Build.VERSION_CODES.N)
     public static boolean storeKeyAndroidN(
-                                       String alias, SecretKey secretKey,
-                                       boolean userAuthenticationRequired,
-                                       int userAuthenticationValiditySeconds,
-                                       boolean invalidatedByBiometricEnrollment)
-    {
+            String alias, SecretKey secretKey,
+            boolean userAuthenticationRequired,
+            int userAuthenticationValiditySeconds,
+            boolean invalidatedByBiometricEnrollment) {
         KeyStore ks;
         try {
             ks = KeyStore.getInstance(ANDROID_KEY_STORE);
@@ -422,11 +417,11 @@ public class KeyUtilsSymmetric {
         }
 
         KeyProtection.Builder builder = new KeyProtection.Builder(PURPOSE_ENCRYPT | PURPOSE_DECRYPT)
-                        .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_GCM)
-                        .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
-                        .setRandomizedEncryptionRequired(true)
-                        .setUserAuthenticationRequired(userAuthenticationRequired)
-                        .setInvalidatedByBiometricEnrollment(invalidatedByBiometricEnrollment);
+                .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_GCM)
+                .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
+                .setRandomizedEncryptionRequired(true)
+                .setUserAuthenticationRequired(userAuthenticationRequired)
+                .setInvalidatedByBiometricEnrollment(invalidatedByBiometricEnrollment);
 
         if (userAuthenticationRequired && userAuthenticationValiditySeconds > 0)
             builder.setUserAuthenticationValidityDurationSeconds(userAuthenticationValiditySeconds);
@@ -461,8 +456,8 @@ public class KeyUtilsSymmetric {
      *
      * @param alias the alias of the key to delete
      */
-    @TargetApi(Build.VERSION_CODES.M)
-    protected static void deleteKeyAndroidM(String alias) {
+    @RequiresApi(Build.VERSION_CODES.M)
+    private static void deleteKeyAndroidM(String alias) {
         KeyStore ks;
         try {
             ks = KeyStore.getInstance(ANDROID_KEY_STORE);
@@ -492,9 +487,9 @@ public class KeyUtilsSymmetric {
     /**
      * Encrypts the given data.
      *
-     * @param data  the data to encrypt
+     * @param data      the data to encrypt
      * @param secretKey the symmetric key for encryption
-     * @param key Key to use to generate a secret key for MAC operation, can be key alias
+     * @param key       Key to use to generate a secret key for MAC operation, can be key alias
      * @return encrypted data as byte[]
      */
     public static byte[] encrypt(byte[] data, SecretKey secretKey, String key) {
@@ -518,7 +513,7 @@ public class KeyUtilsSymmetric {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     ivParams = new GCMParameterSpec(128, iv);
                 } else {
-                    /**
+                    /*
                      * GCMParameterSpec does not work in Android 19
                      */
                     ivParams = new IvParameterSpec(iv);
@@ -544,8 +539,8 @@ public class KeyUtilsSymmetric {
      * Decrypt the given data.
      *
      * @param encryptedData data to be decrypted
-     * @param secretKey the symmetric key for decryption
-     * @param key Key to use to generate a secret key for MAC operation, can be key alias 
+     * @param secretKey     the symmetric key for decryption
+     * @param key           Key to use to generate a secret key for MAC operation, can be key alias
      * @return byte[] of decrypted data
      */
     public static byte[] decrypt(byte[] encryptedData, SecretKey secretKey, String key) {
@@ -598,11 +593,11 @@ public class KeyUtilsSymmetric {
     /**
      * Computes the mac signature for the encrypted array
      *
-     * @param key Key to use to generate a secret key for MAC operation
+     * @param key        Key to use to generate a secret key for MAC operation
      * @param cipherText the data for which the signature has to be calculated
      * @return
      */
-    protected static byte[] computeMac(String key, byte[] cipherText) {
+    private static byte[] computeMac(String key, byte[] cipherText) {
         Mac hm;
         SecretKey secretKey = null;
         try {
@@ -626,7 +621,7 @@ public class KeyUtilsSymmetric {
      * @param cipherText
      * @return
      */
-    protected static byte[] concatArrays(byte[] mac, byte[] iv, byte[] cipherText) {
+    private static byte[] concatArrays(byte[] mac, byte[] iv, byte[] cipherText) {
         int macLength = mac.length;
         int ivLength = iv.length;
         int cipherTextLength = cipherText.length;
@@ -649,11 +644,10 @@ public class KeyUtilsSymmetric {
      *
      * @param key
      */
-    protected static void destroyKey(SecretKey key) {
+    private static void destroyKey(SecretKey key) {
         if (key instanceof Destroyable) {
-            Destroyable destroyable = (Destroyable) key;
             try {
-                destroyable.destroy();
+                ((Destroyable) key).destroy();
             } catch (DestroyFailedException e) {
                 if (DEBUG) Log.e(TAG, "Could not destroy key");
             }
@@ -664,10 +658,10 @@ public class KeyUtilsSymmetric {
      * If there is an exception with user not authenticated, delete the key
      *
      * @param alias the name of the key
-     * @param e the exception
+     * @param e     the exception
      */
-    @TargetApi(Build.VERSION_CODES.M)
-    protected static void checkDeleteKeys(String alias, Exception e) {
+    @RequiresApi(Build.VERSION_CODES.M)
+    private static void checkDeleteKeys(String alias, Exception e) {
         if (!(e instanceof android.security.keystore.UserNotAuthenticatedException)) {
             deleteKey(alias);
             if (DEBUG) Log.e(TAG, "deleted key " + alias + " since User not authenticated");

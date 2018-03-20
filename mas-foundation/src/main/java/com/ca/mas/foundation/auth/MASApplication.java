@@ -110,7 +110,7 @@ public abstract class MASApplication {
      */
     public abstract void renderEnterpriseIcon(ImageView imageView);
 
-    /**
+    /**q
      * The MAG administrator creates a JSON-formatted list of native or non-native applications.
      * Native applications are created with the SDK, registered with the MAS, and installed on the device.
      * Non-native applications are not installed on the device but accessed through webView.
@@ -122,7 +122,7 @@ public abstract class MASApplication {
         String path = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_ENTERPRISE_APPS);
 
         try {
-            MASRequest r = new MASRequest.MASRequestBuilder(new URI(path)).build();
+            MASRequest r = new MASRequest.MASRequestBuilder(new URI(path)).notifyOnCancel().build();
             MAS.invoke(r, new MASCallback<MASResponse<JSONObject>>() {
                 @Override
                 public void onSuccess(MASResponse<JSONObject> result) {

@@ -85,6 +85,24 @@ public class MASTest extends MASLoginTestBase {
         assertTrue(isMainThread[0]);
     }
 
+    @Test
+    public void testAccessProtectedEndpointWithLambda2() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        final MASResponse[] response  = {null};
+        final boolean[] isMainThread = {false};
+        MAS.invoke(request, (MASCallbackFunction<MASResponse<JSONObject>>) (result, e) -> {
+            countDownLatch.countDown();
+            response[0] = result;
+            if (Looper.getMainLooper().getThread().getId() == Thread.currentThread().getId()) {
+                isMainThread[0] = true;
+            }
+        });
+        countDownLatch.await();
+        assertNotNull(response[0].toString());
+        assertTrue(isMainThread[0]);
+    }
+
 
     @Test
     public void testAccessProtectedEndpointRunOnMainThread() throws Exception {

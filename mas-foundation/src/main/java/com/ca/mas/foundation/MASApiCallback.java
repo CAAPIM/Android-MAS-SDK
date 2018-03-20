@@ -7,12 +7,11 @@
 
 package com.ca.mas.foundation;
 
-import android.os.Handler;
-import android.os.Looper;
-
 /**
  * API Callback interface for {@link MAS#invoke(MASRequest, MASCallback)}, this simplify the {@link MASCallback} interface,
- * and the callback {@link #onResult(Object, Throwable)} will be run on main thread.
+ * and the callback {@link #onResponse(Object, Throwable)} will be run on main thread.
+ * To retrieve the response header, status, and other attribute, please refer to {@link MASCallbackFunction}
+ *
  * <p>
  * {@code
  * MAS.invoke(request, (MASApiCallback<JSONObject>) (result, e) -> {});
@@ -20,37 +19,16 @@ import android.os.Looper;
  *
  * @param <T> The object type that will be received when {@link #onSuccess(Object)} is invoked.
  */
-public interface MASApiCallback<T> extends MASCallback<MASResponse<T>> {
-
-    /**
-     * Run response on Main Thread
-     *
-     * @return Handler on Main Thread.
-     */
-    @Override
-    default Handler getHandler() {
-        return new Handler(Looper.getMainLooper());
-    }
+public interface MASApiCallback<T> extends MASCallbackFunction<MASResponse<T>> {
 
     @Override
-    default void onSuccess(MASResponse<T> result) {
+    default void onResult(MASResponse<T> result, Throwable e) {
         if (result.getBody() != null) {
-            onResult(result.getBody().getContent(), null);
+            onResponse(result.getBody().getContent(), null);
         } else {
-            onResult(null, null);
+            onResponse(null, null);
         }
     }
 
-    @Override
-    default void onError(Throwable e) {
-        onResult(null, e);
-    }
-
-    /**
-     * Called when an asynchronous call completes successfully or failed.
-     *
-     * @param result The result of the API call
-     * @param e      Exception if there is any error during the API call, or null if no error.
-     */
-    void onResult(T result, Throwable e);
+    void onResponse(T result, Throwable e);
 }

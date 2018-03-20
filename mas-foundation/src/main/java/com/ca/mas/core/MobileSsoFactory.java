@@ -283,7 +283,7 @@ public final class MobileSsoFactory {
                         Bundle result = new Bundle();
                         result.putSerializable(MssoIntents.RESULT_ERROR, new MAGError(e));
                         result.putString(MssoIntents.RESULT_ERROR_MESSAGE, e.getMessage());
-                        resultReceiver.send(MssoIntents.RESULT_CODE_ERR_UNKNOWN, result);
+                        resultReceiver.send(MssoIntents.RESULT_CODE_ERR, result);
                     }
                     return;
                 }

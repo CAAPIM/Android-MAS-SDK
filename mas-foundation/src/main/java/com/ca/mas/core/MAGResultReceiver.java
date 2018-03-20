@@ -77,7 +77,6 @@ public abstract class MAGResultReceiver<T> extends ResultReceiver {
                     if (error != null) {
                         if (DEBUG) Log.d(TAG,
                                 "Error response with: " + error.getMessage(), error);
-                        error.setResultCode(resultCode);
                         onError(error);
                     }
             }

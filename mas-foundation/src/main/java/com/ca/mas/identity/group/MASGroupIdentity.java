@@ -21,38 +21,6 @@ import java.util.List;
 public interface MASGroupIdentity {
 
     /**
-     * Retrieves all {@link MASGroup} objects that match the specified owner user ID.
-     * @deprecated Please use {@link #getGroupsByFilter(MASFilteredRequest, MASCallback)}
-     *
-     * @param owner    The owner user id to be used in the search.
-     * @param callback Callback  with either the list of {@link MASGroup} or an error.
-     *
-     */
-    @Deprecated
-    void getAllGroups(String owner, MASCallback<List<MASGroup>> callback);
-
-    /**
-     * <p>Retrieves all {@link MASGroup} objects that match the specified group name.</p>
-     * WARNING: this is not an 'equalTo' match on the groupName, rather it is a 'contains' match.
-     * @deprecated Please use {@link #getGroupsByFilter(MASFilteredRequest, MASCallback)}
-     *
-     * @param groupName The group name to be used in the search.
-     * @param callback  Callback  with either the list of {@link MASGroup} or an error.
-     */
-    @Deprecated
-    void getGroupByGroupName(String groupName, MASCallback<List<MASGroup>> callback);
-
-    /**
-     * Retrieves all {@link MASGroup} objects that have the specified MASUser as a member.
-     * @deprecated Please use {@link #getGroupsByFilter(MASFilteredRequest, MASCallback)}
-     *
-     * @param member   The group name to be used in the search.
-     * @param callback Callback with either the {@link MASGroup} or an error.
-     */
-    @Deprecated
-    void getGroupByMember(MASUser member, MASCallback<List<MASGroup>> callback);
-
-    /**
      * Retrieves a {@link MASGroup} object matching the objectId with specific attributes.
      *
      * @param id       The id used to locate the 'MASGroup'.

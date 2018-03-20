@@ -59,8 +59,6 @@ public interface MobileSsoConfig {
 
     /**
      * String.  The application's client secret for the initial OAuth token request, eg "6ed4ffcb-4110-4c68-b280-cda17f127374".
-     *
-     * @deprecated
      */
     String PROP_CLIENT_SECRET = "msso.oauth.client.secret";
 

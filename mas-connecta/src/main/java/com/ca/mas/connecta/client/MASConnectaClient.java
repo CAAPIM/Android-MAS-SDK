@@ -100,29 +100,6 @@ public interface MASConnectaClient {
 
     /**
      * <b>Pre-Condition:</b> None.<br>
-     * <b>Description:</b> The timeout set here may or may not define the length of time that a connection is
-     * attempted. If some other component has a shorter timeout period then the connection attempt will be
-     * nullified based on that timeout. A value of 0 means <i>inifinite</i> and the timeout is determined by
-     * a lower layer in the stack.
-     *
-     * @param timeOutInMillis Timeout in milliseconds
-     * @deprecated Use {@link MASConnectOptions#setConnectionTimeout(int)}
-     */
-    @Deprecated
-    void setTimeOutInMillis(long timeOutInMillis);
-
-    /**
-     * <b>Pre-Condition:</b> None.<br>
-     * <b>Description:</b> This will be the value currently set on the connection and it can be 0.
-     *
-     * @return long - the timeout in milliseconds
-     * @deprecated Use {@link MASConnectOptions#getConnectionTimeout()})}
-     */
-    @Deprecated
-    long getTimeOutInMillis();
-
-    /**
-     * <b>Pre-Condition:</b> None.<br>
      * <b>Description:</b> Set the connect options for this client connection. The <i>MASConnectOptions</i> class
      * is an extension of MqttConnectionOptions. The purpose of this is to retain the flexibility to change
      * Mqtt providers in the future. Any implementation of connect options from any provider should be

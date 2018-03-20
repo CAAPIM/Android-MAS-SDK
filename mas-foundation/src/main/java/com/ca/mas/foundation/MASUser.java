@@ -93,16 +93,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
     /**
      * Authenticates a user with a username and password.
-     *
-     * @deprecated Please use {@link #login(String, char[], MASCallback)}
-     */
-    @Deprecated
-    public static void login(@NonNull String userName, @NonNull String password, final MASCallback<MASUser> callback) {
-        login(userName, password.toCharArray(), callback);
-    }
-
-    /**
-     * Authenticates a user with a username and password.
      */
     public static void login(@NonNull String userName, @NonNull char[] cPassword, final MASCallback<MASUser> callback) {
         login(new MASAuthCredentialsPassword(userName, cPassword), callback);

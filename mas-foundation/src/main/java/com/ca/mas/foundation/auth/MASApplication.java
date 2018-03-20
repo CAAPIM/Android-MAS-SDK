@@ -110,7 +110,7 @@ public abstract class MASApplication {
      */
     public abstract void renderEnterpriseIcon(ImageView imageView);
 
-    /**q
+    /**
      * The MAG administrator creates a JSON-formatted list of native or non-native applications.
      * Native applications are created with the SDK, registered with the MAS, and installed on the device.
      * Non-native applications are not installed on the device but accessed through webView.

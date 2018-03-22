@@ -1,6 +1,7 @@
 # Version 1.6.20
 
 ### Bug fixes
+- Notify on Cancel for Enterprise Browser APIs [DE353958]
 - Error callback when authentication failed [DE345468]
     - Developer may need to update the App if using Proximity Login.
     - com.ca.mas.core.auth.PollingRenderer.onAuthCodeReceived interface has been changed, the authorization code and state is provided.

@@ -18,7 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * <p>The <b>MASAddress</b> interface contains the common attribute {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.2">address</a>}
+ * <p>The <b>MASAddress</b> interface contains the common attribute <a href="https://tools.ietf.org/html/rfc7643#section-4.1.2">address</a>
  * components of a single user's address. This interface will be populated as a result of a successful call to SCIM using the {@link com.ca.mas.foundation.MASUser#getUserById(String, MASCallback)} )} API method.
  * A physical mailing address for this user.  Canonical type values of "work", "home", and "other".</p>
  * <pre>

@@ -97,7 +97,7 @@ public class MASAuthCredentialsAuthorizationCode implements MASAuthCredentials {
 
     /**
      * The authorization code can only be use for one time only, it considers invalid after.
-     * @return
+     * @return //FIXME: for javadocs
      */
     @Override
     public boolean isReusable() {

@@ -17,7 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * <p>The <b>MASName</b> interface contains the common attribute {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">name</a>}
+ * <p>The <b>MASName</b> interface contains the common attribute <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">name</a>
  * components of the user's name. Service providers MAY return just the full name as a single string in the formatted
  * sub-attribute, or they MAY return just the individual component attributes using the other sub-attributes, or they MAY return
  * both.</p>
@@ -79,7 +79,7 @@ public class MASName implements MASTransformable {
     }
 
     /**
-     * <b>Description:</b> See the SCIM definition of {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">formatted</a>}
+     * <b>Description:</b> See the SCIM definition of <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">formatted</a>
      *
      * @return String the formatted name of the user. This attribute may contain white-space or be null.
      */
@@ -88,7 +88,7 @@ public class MASName implements MASTransformable {
     }
 
     /**
-     * <b>Description:</b> See the SCIM definition of {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">familyName</a>}
+     * <b>Description:</b> See the SCIM definition of <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">familyName</a>
      *
      * @return String the family name of the user. This attribute may contain white-space or be null.
      */
@@ -97,7 +97,7 @@ public class MASName implements MASTransformable {
     }
 
     /**
-     * <b>Description:</b> See the SCIM definition of {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">givenName</a>}
+     * <b>Description:</b> See the SCIM definition of <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">givenName</a>
      *
      * @return String the given name. This attribute may contain white-space or be null.
      */
@@ -106,7 +106,7 @@ public class MASName implements MASTransformable {
     }
 
     /**
-     * <b>Description:</b> See the SCIM definition of {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">middleName</a>}
+     * <b>Description:</b> See the SCIM definition of <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">middleName</a>
      *
      * @return String the middle name of the user. This attribute may contain white-space or be null.
      */
@@ -115,7 +115,7 @@ public class MASName implements MASTransformable {
     }
 
     /**
-     * <b>Description:</b> See the SCIM definition of {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">honorificPrefix</a>}
+     * <b>Description:</b> See the SCIM definition of <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">honorificPrefix</a>
      *
      * @return String the honorific prefix of the user's name. This attribute may contain white-space or be null.
      */
@@ -124,7 +124,7 @@ public class MASName implements MASTransformable {
     }
 
     /**
-     * <b>Description:</b> See the SCIM definition of {@link <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">honorificSuffix</a>}
+     * <b>Description:</b> See the SCIM definition of <a href="https://tools.ietf.org/html/rfc7643#section-4.1.1">honorificSuffix</a>
      *
      * @return String the honorificSuffix of the user's name. This attribute may contain white-space or be null.
      */

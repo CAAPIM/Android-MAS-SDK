@@ -94,7 +94,7 @@ public interface MASFilteredRequestBuilder {
     /**
      * <b>Description:</b> The Uri for the request is created based on the supplied filter(s).
      * @param context
-     * @return
+     * @return //FIXME: for javadocs
      */
     Uri createUri(@NonNull Context context);
 
@@ -186,7 +186,7 @@ public interface MASFilteredRequestBuilder {
     MASFilteredRequestBuilder createCompoundExpression(Logical logical, MASRequest lhs, MASRequest rhs);
 
     /**
-     * <b>Description:</b> This method applies the filter <i>sortBy = attribute&sortOrder=ascending</i> .
+     * <b>Description:</b> This method applies the filter {@literal sortBy = attribute&sortOrder=ascending}.
      *
      * @param sortOrder
      * @param attribute

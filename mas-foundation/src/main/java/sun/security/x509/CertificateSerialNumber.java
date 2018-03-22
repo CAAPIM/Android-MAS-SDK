@@ -59,7 +59,7 @@ public class CertificateSerialNumber implements CertAttrSet<String> {
     /**
      * Default constructor for the certificate attribute.
      *
-     * @param serial the serial number for the certificate.
+     * @param num the serial number for the certificate.
      */
     public CertificateSerialNumber(BigInteger num) {
       this.serial = new SerialNumber(num);
@@ -68,7 +68,7 @@ public class CertificateSerialNumber implements CertAttrSet<String> {
     /**
      * Default constructor for the certificate attribute.
      *
-     * @param serial the serial number for the certificate.
+     * @param num the serial number for the certificate.
      */
     public CertificateSerialNumber(int num) {
       this.serial = new SerialNumber(num);

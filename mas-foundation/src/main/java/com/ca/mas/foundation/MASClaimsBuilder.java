@@ -142,7 +142,7 @@ public class MASClaimsBuilder {
      * https://tools.ietf.org/html/rfc7519#section-4.3 for further information.
      * @param name the claim name
      * @param value the claim value
-     * @return //FIXME: for javadocs
+     * @return      the builder
      */
     public MASClaimsBuilder claim(String name, Object value) {
         claims.put(name, value);

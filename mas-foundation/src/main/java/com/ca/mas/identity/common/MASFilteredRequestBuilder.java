@@ -94,7 +94,7 @@ public interface MASFilteredRequestBuilder {
     /**
      * <b>Description:</b> The Uri for the request is created based on the supplied filter(s).
      * @param context
-     * @return //FIXME: for javadocs
+     * @return Created Uri object.
      */
     Uri createUri(@NonNull Context context);
 

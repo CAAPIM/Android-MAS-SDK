@@ -27,9 +27,8 @@ import static junit.framework.Assert.fail;
 
 /**
  * Storage implementations can leverage some basis tests, that are already written by extending
- * this class instead of the  ApplicationTestCase and by overriding the setup() to initialize the
- *
- * {@code currentStorage} with a valid storage instance. //FIXME: for javadocs :not sure what param to use here
+ * this class instead of the  ApplicationTestCase and by overriding the setup() to initialize
+ * {@code currentStorage} with a valid storage instance.
  * <p/>
  */
 @RunWith(AndroidJUnit4.class)

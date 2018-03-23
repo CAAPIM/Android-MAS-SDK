@@ -179,7 +179,7 @@ public class X500Name implements GeneralNameInterface, Principal {
      * without extensions.
      *
      * @param dname X.500 Distinguished Name
-     * @param format //FIXME: for javadocs
+     * @param format Format of the X.500 name
      */
     public X500Name(String dname, String format) throws IOException {
         if (dname == null) {

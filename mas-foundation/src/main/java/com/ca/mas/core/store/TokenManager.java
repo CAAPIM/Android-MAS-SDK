@@ -116,7 +116,7 @@ public interface TokenManager extends TokenProvider {
 
     /**
      * Gets the DataSource used to store the tokens.
-     * @return //FIXME: For javadocs
+     * @return Token Store as DataSource.
      */
     DataSource getTokenStore();
 }

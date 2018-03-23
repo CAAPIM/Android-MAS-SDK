@@ -126,7 +126,7 @@ public abstract class KeyStoreKeyStorageProvider implements KeyStorageProvider {
     /**
      * @param alias              The alias to store the key against.
      * @param encryptedSecretKey The encrypted secret key to store.
-     * @return //FIXME: for javadocs
+     * @return                   Success/Fail
      */
     abstract boolean storeSecretKeyLocally(String alias, byte[] encryptedSecretKey);
 

@@ -118,9 +118,9 @@ implements CertAttrSet<String> {
      * The default constructor for this extension.  Null parameters make
      * the element optional (not present).
      *
-     * @param id the KeyIdentifier associated with this extension.
-     * @param names the GeneralNames associated with this extension
-     * @param serialNum the CertificateSerialNumber associated with
+     * @param kid the KeyIdentifier associated with this extension.
+     * @param name the GeneralNames associated with this extension
+     * @param sn the CertificateSerialNumber associated with
      *         this extension.
      * @exception IOException on error.
      */

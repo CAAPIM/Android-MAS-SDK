@@ -176,7 +176,7 @@ public class RFC822Name implements GeneralNameInterface
      * RFC 822 addr-spec, no significance is attached to the case.
      * <p>
      * @param inputName to be checked for being constrained
-     * @returns constraint type above
+     * @return constraint type above
      * @throws UnsupportedOperationException if name is not exact match, but narrowing and widening are
      *          not supported for this name type.
      */
@@ -231,7 +231,7 @@ public class RFC822Name implements GeneralNameInterface
      * Return subtree depth of this name for purposes of determining
      * NameConstraints minimum and maximum bounds.
      *
-     * @returns distance of name from root
+     * @return distance of name from root
      * @throws UnsupportedOperationException if not supported for this name type
      */
     public int subtreeDepth() throws UnsupportedOperationException {

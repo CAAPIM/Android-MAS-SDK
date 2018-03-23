@@ -294,7 +294,7 @@ public abstract class BaseCalendar extends AbstractCalendar {
      * <code>CalendarDate</code> must be normalized to get a correct
      * value.
      *
-     * @param a <code>CalendarDate</code>
+     * @param date <code>CalendarDate</code>
      * @return a year length in days
      * @throws ClassCastException if the specified date is not a
      * {@link Date}
@@ -525,7 +525,7 @@ public abstract class BaseCalendar extends AbstractCalendar {
     /**
      * @return true if the specified year is a Gregorian leap year, or
      * false otherwise.
-     * @see BaseCalendar#isGregorianLeapYear
+     * @see CalendarUtils#isGregorianLeapYear
      */
     protected boolean isLeapYear(CalendarDate date) {
         return isLeapYear(((Date)date).getNormalizedYear());

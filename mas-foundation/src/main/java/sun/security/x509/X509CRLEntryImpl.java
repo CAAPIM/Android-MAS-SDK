@@ -130,7 +130,7 @@ public class X509CRLEntryImpl extends X509CRLEntry {
     /**
      * Unmarshals a revoked certificate from its encoded form.
      *
-     * @param derVal the DER value containing the revoked certificate.
+     * @param derValue the DER value containing the revoked certificate.
      * @exception CRLException on parsing errors.
      */
     public X509CRLEntryImpl(DerValue derValue) throws CRLException {
@@ -235,7 +235,7 @@ public class X509CRLEntryImpl extends X509CRLEntry {
     /**
      * get Reason Code from CRL entry.
      *
-     * @returns Integer or null, if no such extension
+     * @return Integer or null, if no such extension
      * @throws IOException on error
      */
     public Integer getReasonCode() throws IOException {
@@ -396,7 +396,7 @@ public class X509CRLEntryImpl extends X509CRLEntry {
      * get an extension
      *
      * @param oid ObjectIdentifier of extension desired
-     * @returns Extension of type <extension> or null, if not found
+     * @return Extension of type <extension> or null, if not found
      */
     public Extension getExtension(ObjectIdentifier oid) {
         if (extensions == null)

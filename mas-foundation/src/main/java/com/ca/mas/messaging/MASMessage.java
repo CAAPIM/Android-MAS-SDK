@@ -23,7 +23,7 @@ import org.json.JSONObject;
 /**
  * <p>The <b>MASMessage</b> data structure is used to send and receive messages from the MQTT message broker. This interface includes
  * MQTT connect option information regarding duplicate and retained messages used by the
- * {@link <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html">MqttConnectOptions</a>}
+ * <a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html">MqttConnectOptions</a>
  * class.</p>
  */
 public class MASMessage implements MASPayload, Parcelable {

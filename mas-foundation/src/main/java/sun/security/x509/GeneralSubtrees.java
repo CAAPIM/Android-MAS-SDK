@@ -136,7 +136,7 @@ public class GeneralSubtrees implements Cloneable {
     /**
      * Encode the GeneralSubtrees.
      *
-     * @params out the DerOutputStrean to encode this object to.
+     * @param out the DerOutputStrean to encode this object to.
      */
     public void encode(DerOutputStream out) throws IOException {
         DerOutputStream seq = new DerOutputStream();
@@ -151,8 +151,8 @@ public class GeneralSubtrees implements Cloneable {
      * Compare two general subtrees by comparing the subtrees
      * of each.
      *
-     * @param other GeneralSubtrees to compare to this
-     * @returns true if match
+     * @param obj GeneralSubtrees to compare to this
+     * @return true if match
      */
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -240,8 +240,8 @@ public class GeneralSubtrees implements Cloneable {
      * create a subtree containing an instance of the input
      * name type that widens all other names of that type.
      *
-     * @params name GeneralNameInterface name
-     * @returns GeneralSubtree containing widest name of that type
+     * @param name GeneralNameInterface name
+     * @return GeneralSubtree containing widest name of that type
      * @throws RuntimeException on error (should not occur)
      */
     private GeneralSubtree createWidestSubtree(GeneralNameInterface name) {
@@ -316,7 +316,7 @@ public class GeneralSubtrees implements Cloneable {
      * <ul>
      *
      * @param other GeneralSubtrees to be intersected with this
-     * @returns GeneralSubtrees to be merged with excluded; these are
+     * @return GeneralSubtrees to be merged with excluded; these are
      *          empty-valued name types corresponding to entries that were
      *          of the same type but did not share the same subtree between
      *          this and other. Returns null if no such.

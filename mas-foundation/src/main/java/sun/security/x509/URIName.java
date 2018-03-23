@@ -250,7 +250,7 @@ public class URIName implements GeneralNameInterface {
     /**
      * Return the scheme name portion of a URIName
      *
-     * @returns scheme portion of full name
+     * @return scheme portion of full name
      */
     public String getScheme() {
         return uri.getScheme();
@@ -259,7 +259,7 @@ public class URIName implements GeneralNameInterface {
     /**
      * Return the host name or IP address portion of the URIName
      *
-     * @returns host name or IP address portion of full name
+     * @return host name or IP address portion of full name
      */
     public String getHost() {
         return host;
@@ -270,7 +270,7 @@ public class URIName implements GeneralNameInterface {
      * DNSName, then this host object does not include any
      * initial "." on the name.
      *
-     * @returns host name as DNSName or IPAddressName
+     * @return host name as DNSName or IPAddressName
      */
     public Object getHostObject() {
         if (hostIP != null) {
@@ -314,7 +314,7 @@ public class URIName implements GeneralNameInterface {
      * specifies a host.
      * <p>
      * @param inputName to be checked for being constrained
-     * @returns constraint type above
+     * @return constraint type above
      * @throws UnsupportedOperationException if name is not exact match, but
      *  narrowing and widening are not supported for this name type.
      */
@@ -381,7 +381,7 @@ public class URIName implements GeneralNameInterface {
      * NameConstraints minimum and maximum bounds and for calculating
      * path lengths in name subtrees.
      *
-     * @returns distance of name from root
+     * @return distance of name from root
      * @throws UnsupportedOperationException if not supported for this name type
      */
     public int subtreeDepth() throws UnsupportedOperationException {

@@ -30,6 +30,7 @@ import java.io.ObjectInputStream;
 import java.lang.ref.SoftReference;
 import java.security.AccessController;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -375,7 +376,7 @@ public class ZoneInfo extends TimeZone {
      *                  0 for January.
      * @param day       The day-in-month of the given date.
      * @param dayOfWeek The day-of-week of the given date.
-     * @param millis    The milliseconds in day in <em>standard</em> local time.
+     * @param milliseconds    The milliseconds in day in <em>standard</em> local time.
      * @return The milliseconds to add to UTC to get local time.
      */
     public int getOffset(int era, int year, int month, int day,
@@ -417,7 +418,7 @@ public class ZoneInfo extends TimeZone {
      * historical ones, if applicable.
      *
      * @param offsetMillis the base time zone offset to GMT.
-     * @see getRawOffset
+     * @see #getRawOffset
      */
     public synchronized void setRawOffset(int offsetMillis) {
         if (offsetMillis == rawOffset + rawOffsetDiff) {

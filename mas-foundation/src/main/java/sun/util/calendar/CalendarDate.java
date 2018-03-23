@@ -151,7 +151,7 @@ public abstract class CalendarDate implements Cloneable {
      * @return <code>true</code> if this <code>CalendarDate</code> is
      * normalized and the year of this <code>CalendarDate</code> is a
      * leap year, or <code>false</code> otherwise.
-     * @see BaseCalendar#isGregorianLeapYear
+     * @see CalendarUtils#isGregorianLeapYear
      */
     public boolean isLeapYear() {
         return leapYear;

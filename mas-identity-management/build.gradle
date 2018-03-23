@@ -80,12 +80,10 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
 
 dependencies {
 
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':mas-foundation')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':mas-foundation')
 
-    androidTestCompile "com.android.support.test:runner:$rootProject.ext.testRunner"
-    androidTestCompile "com.android.support.test:rules:$rootProject.ext.testRules"
-    androidTestCompile project(':mas-test')
+    androidTestImplementation project(':mas-test')
 
 }
 

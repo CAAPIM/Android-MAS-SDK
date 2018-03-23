@@ -94,16 +94,14 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':mas-foundation')
-    compile "com.android.support:appcompat-v7:$rootProject.ext.appCompatVersion"
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':mas-foundation')
+    implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibsVersion"
 
-    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
-    compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+    api 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
+    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 
-    androidTestCompile "com.android.support.test:runner:$rootProject.ext.testRunner"
-    androidTestCompile "com.android.support.test:rules:$rootProject.ext.testRules"
-    androidTestCompile project(':mas-test')
+    androidTestImplementation project(':mas-test')
 }
 
 task javadoc(type: Javadoc) {

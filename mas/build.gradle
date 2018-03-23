@@ -28,10 +28,10 @@ android {
 
 dependencies {
 
-    compile project(':mas-foundation')
-    compile project(':mas-connecta')
-    compile project(':mas-storage')
-    compile project(':mas-identity-management')
+    implementation project(':mas-foundation')
+    implementation project(':mas-connecta')
+    implementation project(':mas-storage')
+    implementation project(':mas-identity-management')
 
 }
 

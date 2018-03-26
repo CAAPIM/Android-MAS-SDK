@@ -10,6 +10,6 @@
 	path = fido
 	url = https://github.com/CAAPIM/Android-MAS-FIDO
 [submodule "ras"]
-	path = ras
-	url = https://github.com/CAAPIM/Android-MAS-AdvancedAuth
+	path = Android-MAS-AdvancedAuth
+	url = https://github.com/CAAPIM/Android-MAS-AdvancedAuth.git
 	branch = develop

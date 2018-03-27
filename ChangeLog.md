@@ -2,6 +2,7 @@
 
 ### Bug fixes
 - Notify on Cancel for Enterprise Browser APIs [DE353958]
+- Notify on Cancel for authorize API during QRCode Scanning [DE353994]
 - Error callback when authentication failed [DE345468]
     - Developer may need to update the App if using Proximity Login.
     - com.ca.mas.core.auth.PollingRenderer.onAuthCodeReceived interface has been changed, the authorization code and state is provided.

@@ -152,7 +152,7 @@ public class X500Name implements GeneralNameInterface, Principal {
      * as "CN=Dave, OU=JavaSoft, O=Sun Microsystems, C=US".
      * (RFC 1779 or RFC 2253 style).
      *
-     * @param DN X.500 Distinguished Name
+     * @param dname X.500 Distinguished Name
      */
     public X500Name(String dname) throws IOException {
         this(dname, Collections.<String, String>emptyMap());
@@ -163,7 +163,7 @@ public class X500Name implements GeneralNameInterface, Principal {
      * as "CN=Dave, OU=JavaSoft, O=Sun Microsystems, C=US".
      * (RFC 1779 or RFC 2253 style).
      *
-     * @param DN X.500 Distinguished Name
+     * @param dname X.500 Distinguished Name
      * @param keywordMap an additional keyword/OID map
      */
     public X500Name(String dname, Map<String, String> keywordMap)
@@ -178,7 +178,8 @@ public class X500Name implements GeneralNameInterface, Principal {
      * constructor. RFC2253 is format strictly according to RFC2253
      * without extensions.
      *
-     * @param DN X.500 Distinguished Name
+     * @param dname X.500 Distinguished Name
+     * @param format Format of the X.500 name
      */
     public X500Name(String dname, String format) throws IOException {
         if (dname == null) {
@@ -1293,7 +1294,7 @@ public class X500Name implements GeneralNameInterface, Principal {
      * certification path verification.
      *
      * @param inputName to be checked for being constrained
-     * @returns constraint type above
+     * @return constraint type above
      * @throws UnsupportedOperationException if name is not exact match, but
      *         narrowing and widening are not supported for this name type.
      */
@@ -1359,7 +1360,7 @@ public class X500Name implements GeneralNameInterface, Principal {
      * NameConstraints minimum and maximum bounds and for calculating
      * path lengths in name subtrees.
      *
-     * @returns distance of name from root
+     * @return distance of name from root
      * @throws UnsupportedOperationException if not supported for this name type
      */
     public int subtreeDepth() throws UnsupportedOperationException {

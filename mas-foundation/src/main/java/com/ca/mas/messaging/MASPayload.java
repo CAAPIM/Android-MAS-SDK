@@ -28,7 +28,7 @@ import android.content.Context;
  * format or content. It is simply a byte stream.</p>
  * <br>
  * <p>From the design document the payload should be of the form:
- * <pre>
+ *  <pre>
  *      {
  *          "Version":"1.0",
  *          "SenderId":"user id",
@@ -41,8 +41,7 @@ import android.content.Context;
  *          "ContentEncoding":"base64",
  *          "Payload":"QWxsIHlvdXIgYXBpJ3MgYXJlIGJlbG9uZ3MgdG8gdXMh"
  *      }
- *  </pre>
- * </p>
+ *  </pre></p>
  */
 public interface MASPayload {
     /**

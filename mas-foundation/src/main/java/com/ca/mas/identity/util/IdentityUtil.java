@@ -98,8 +98,8 @@ public class IdentityUtil {
 
     /**
      * Returns the path component of the URL.
-     * @param entity
-     * @return
+     * @param entity Entity to get path of.
+     * @return       SCIM Path to entity as String.
      */
     private static String getPath(String entity) {
         StringBuilder sb = new StringBuilder();

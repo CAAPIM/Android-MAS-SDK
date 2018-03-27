@@ -84,7 +84,7 @@ public interface ConfigurationProvider extends TrustedCertificateConfiguration, 
     /**
      * Based on the provided configuration the the SDK, retrieve the prefix attribute.
      *
-     * @returnA the prefix configured for SDK
+     * @return the prefix configured for SDK
      */
     String getPrefix();
 

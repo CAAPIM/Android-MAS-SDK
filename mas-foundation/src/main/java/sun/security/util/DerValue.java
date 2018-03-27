@@ -303,7 +303,7 @@ public class DerValue {
      *
      * @param buf the buffer
      * @param offset start point of the single DER-encoded dataum
-     * @param length how many bytes are in the encoded datum
+     * @param len how many bytes are in the encoded datum
      */
     public DerValue(byte[] buf, int offset, int len) throws IOException {
         data = init(true, new ByteArrayInputStream(buf, offset, len));
@@ -597,7 +597,7 @@ public class DerValue {
      * Returns an ASN.1 BIT STRING value, with the tag assumed implicit
      * based on the parameter.  The bit string must be byte-aligned.
      *
-     * @params tagImplicit if true, the tag is assumed implicit.
+     * @param tagImplicit if true, the tag is assumed implicit.
      * @return the bit string held in this value
      */
     public byte[] getBitString(boolean tagImplicit) throws IOException {
@@ -613,7 +613,7 @@ public class DerValue {
      * Returns an ASN.1 BIT STRING value, with the tag assumed implicit
      * based on the parameter.  The bit string need not be byte-aligned.
      *
-     * @params tagImplicit if true, the tag is assumed implicit.
+     * @param tagImplicit if true, the tag is assumed implicit.
      * @return the bit string held in this value
      */
     public BitArray getUnalignedBitString(boolean tagImplicit)
@@ -902,11 +902,11 @@ public class DerValue {
     /**
      * Create the tag of the attribute.
      *
-     * @params class the tag class type, one of UNIVERSAL, CONTEXT,
+     * @param tagClass the tag class type, one of UNIVERSAL, CONTEXT,
      *               APPLICATION or PRIVATE
-     * @params form if true, the value is constructed, otherwise it
+     * @param form if true, the value is constructed, otherwise it
      * is primitive.
-     * @params val the tag value
+     * @param val the tag value
      */
     public static byte createTag(byte tagClass, boolean form, byte val) {
         byte tag = (byte)(tagClass | val);
@@ -920,7 +920,7 @@ public class DerValue {
      * Set the tag of the attribute. Commonly used to reset the
      * tag value used for IMPLICIT encodings.
      *
-     * @params tag the tag value
+     * @param tag the tag value
      */
     public void resetTag(byte tag) {
         this.tag = tag;

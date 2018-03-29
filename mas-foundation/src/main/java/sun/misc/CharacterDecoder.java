@@ -80,8 +80,6 @@ import java.nio.ByteBuffer;
  * @author      Chuck McManis
  * @see         CEFormatException
  * @see         CharacterEncoder
- * @see         UCDecoder
- * @see         UUDecoder
  * @see         BASE64Decoder
  */
 

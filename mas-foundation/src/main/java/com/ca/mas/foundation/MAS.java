@@ -401,7 +401,7 @@ public class MAS {
     public static class RequestCancelledException extends Exception {
         private final Bundle data;
 
-        RequestCancelledException(Bundle data) {
+        public RequestCancelledException(Bundle data) {
             this.data = data;
         }
 

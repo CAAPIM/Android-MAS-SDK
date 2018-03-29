@@ -14,7 +14,7 @@ import android.net.Uri;
  * Response to an authorization request
  * {@link com.ca.mas.foundation.auth.MASAuthenticationProviders#getAuthenticationProviders(MASCallback)}
  *
- * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2">
+ * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2">https://tools.ietf.org/html/rfc6749#section-4.1.2</a>
  */
 public class MASAuthorizationResponse {
 

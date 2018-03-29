@@ -73,57 +73,6 @@ public class MASGroupRepositoryImpl implements MASGroupRepository {
     }
 
     @Override
-    public void getGroupByMember(MASUser member, final MASCallback<List<MASGroup>> callback) {
-        final String userId = member.getId();
-
-        getGroupMetaData(new MASCallback<GroupAttributes>() {
-            @Override
-            public void onSuccess(GroupAttributes attributes) {
-                List<String> attrs = attributes.getAttributes();
-                MASFilteredRequest frb = new MASFilteredRequest(attrs, IdentityConsts.KEY_GROUP_ATTRIBUTES);
-                frb.isEqualTo("members.value", userId);
-                frb.setPagination(IdentityConsts.INDEX_START, IdentityConsts.PAGE_SIZE);
-                getGroupsByFilter(frb, callback);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Callback.onError(callback, e);
-            }
-        });
-    }
-
-    @Override
-    public void getAllGroups(String userId, MASCallback<List<MASGroup>> callback) {
-        getGroups(IdentityConsts.KEY_GROUPS_BY_OWNER, userId, callback);
-    }
-
-    @Override
-    public void getGroupByGroupName(String groupName, MASCallback<List<MASGroup>> callback) {
-        getGroups(IdentityConsts.KEY_GROUPS_BY_NAME, groupName, callback);
-    }
-
-    private void getGroups(final String key, final String value, final MASCallback<List<MASGroup>> callback) {
-
-        getGroupMetaData(new MASCallback<GroupAttributes>() {
-            @Override
-            public void onSuccess(GroupAttributes attributes) {
-                List<String> attrs = attributes.getAttributes();
-                MASFilteredRequest frb = new MASFilteredRequest(attrs, IdentityConsts.KEY_GROUP_ATTRIBUTES);
-                frb.isEqualTo(key, value);
-                frb.setPagination(IdentityConsts.INDEX_START, IdentityConsts.PAGE_SIZE);
-                frb.setSortOrder(MASFilteredRequestBuilder.SortOrder.descending, key);
-                getGroupsByFilter(frb, callback);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Callback.onError(callback, e);
-            }
-        });
-    }
-
-    @Override
     public void getGroupsByFilter(final MASFilteredRequest filteredRequest, final MASCallback<List<MASGroup>> callback) {
         Uri uri = filteredRequest.createUri(MAS.getContext());
         MASRequest masRequest = new MASRequest.MASRequestBuilder(uri)

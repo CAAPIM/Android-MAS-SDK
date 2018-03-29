@@ -222,7 +222,7 @@ import java.util.Map;
  * See {@link ZoneInfo#checksum ZoneInfo.checksum}.
  *
  * <p><strong>1.7 <code>gmtoffsetwillchange</code> structure</strong><p>
- * This record has a flag value for {@link ZoneInfo#rawOffsetWillChange}.
+ * This record has a flag value for {@link ZoneInfo#willGMTOffsetChange}.
  * If this record is not present in a zoneinfo file, 0 is assumed for
  * the value.
  * <blockquote>

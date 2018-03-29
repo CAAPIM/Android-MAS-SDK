@@ -65,7 +65,6 @@ import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_D
 /**
  * <p>The <b>MASUser</b> interface is a core interface used to represent a user in the system,
  * as well as an Identity Management definition used in the interaction with SCIM.</p>
- * <p/>
  * <p>The <b>MASUser</b> interface contains the common attribute <a href="https://tools.ietf.org/html/rfc7643#section-4.1">user</a>
  * which is the container for all of the other SCIM values, whether single or multi-valued.
  * SCIM provides a resource type for "User" resources.  The core schema for "User" is identified using the following schema URI:
@@ -89,16 +88,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      */
     public static void login(MASAuthorizationRequest request, MASAuthorizationRequestHandler handler) {
         handler.authorize(request);
-    }
-
-    /**
-     * Authenticates a user with a username and password.
-     *
-     * @deprecated Please use {@link #login(String, char[], MASCallback)}
-     */
-    @Deprecated
-    public static void login(@NonNull String userName, @NonNull String password, final MASCallback<MASUser> callback) {
-        login(userName, password.toCharArray(), callback);
     }
 
     /**
@@ -159,7 +148,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
     /**
      * Authenticates a user with an authorization code.
      *
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3.1">
+     * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3.1">https://tools.ietf.org/html/rfc6749#section-1.3.1</a>
      */
     public static void login(@NonNull MASAuthorizationResponse authorizationResponse, final MASCallback<MASUser> callback) {
         login(new MASAuthCredentialsAuthorizationCode(authorizationResponse.getAuthorizationCode(),
@@ -634,8 +623,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
     /**
      * <p>Logs off an already authenticated user via an asynchronous request.</p>
-     * <p/>
-     * This will invoke {@link Callback#onSuccess(MASCallback, Object)} upon a successful result.
+     * This will invoke {@link Callback#onSuccess} upon a successful result.
      *
      * @param callback The Callback that receives the results. On a successful completion, the user
      *                 will be logout from the Application.

@@ -13,8 +13,6 @@ package com.ca.mas.core.error;
  */
 public class MAGError extends Error {
 
-    private int resultCode;
-
     public MAGError(String detailMessage, Throwable throwable) {
         super(detailMessage, throwable);
     }
@@ -22,15 +20,5 @@ public class MAGError extends Error {
     public MAGError(Throwable throwable) {
         super(throwable.getMessage(), throwable);
 
-    }
-
-    @Deprecated
-    public int getResultCode() {
-        return resultCode;
-    }
-
-    @Deprecated
-    public void setResultCode(int resultCode) {
-        this.resultCode = resultCode;
     }
 }

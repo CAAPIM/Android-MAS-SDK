@@ -460,7 +460,7 @@ public class PKCS9Attribute implements DerEncoder {
      * Construct a PKCS9Attribute from its encoding on an input
      * stream.
      *
-     * @param val the DerValue representing the DER encoding of the attribute.
+     * @param derVal the DerValue representing the DER encoding of the attribute.
      * @exception IOException on parsing error.
      */
     public PKCS9Attribute(DerValue derVal) throws IOException {

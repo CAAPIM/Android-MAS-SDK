@@ -595,7 +595,6 @@ public class KeyUtilsSymmetric {
      *
      * @param key        Key to use to generate a secret key for MAC operation
      * @param cipherText the data for which the signature has to be calculated
-     * @return
      */
     private static byte[] computeMac(String key, byte[] cipherText) {
         Mac hm;
@@ -619,7 +618,7 @@ public class KeyUtilsSymmetric {
      * @param mac
      * @param iv
      * @param cipherText
-     * @return
+     * @return Combined mac, iv and encrypted data arrays.
      */
     private static byte[] concatArrays(byte[] mac, byte[] iv, byte[] cipherText) {
         int macLength = mac.length;

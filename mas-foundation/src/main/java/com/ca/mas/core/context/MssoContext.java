@@ -445,6 +445,7 @@ public class MssoContext {
                 if (DEBUG) Log.d(TAG, "Attempting to retry request. " + e.getClass());
             }
         }
+        clearCredentials();
         if (lastError != null ) {
             throw lastError;
         }
@@ -468,6 +469,8 @@ public class MssoContext {
         if (s.endsWith("206")) { //Invalid client Certificate - The given client certificate has expired
             throw new CertificateExpiredException(e);
         }
+        //Remove credentials for exception which cannot be handled on SDK
+        clearCredentials();
         throw e; //Cannot be handle on the client side, rethrow to caller
     }
 

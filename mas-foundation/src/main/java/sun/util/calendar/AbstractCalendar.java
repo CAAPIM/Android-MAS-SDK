@@ -331,7 +331,7 @@ public abstract class AbstractCalendar extends CalendarSystem {
      * @param date a <code>CalendarDate</code> with which the fixed
      * date is calculated
      * @return the calculated fixed date
-     * @see AbstractCalendar.html#fixed_date
+     * @see AbstractCalendar#getFixedDate
      */
     protected abstract long getFixedDate(CalendarDate date);
 
@@ -343,7 +343,7 @@ public abstract class AbstractCalendar extends CalendarSystem {
      * @param date a <code>CalendarDate</code> to stored the
      * calculated calendar fields.
      * @param fixedDate a fixed date to calculate calendar fields
-     * @see AbstractCalendar.html#fixed_date
+     * @see AbstractCalendar#getFixedDate
      */
     protected abstract void getCalendarDateFromFixedDate(CalendarDate date,
                                                          long fixedDate);

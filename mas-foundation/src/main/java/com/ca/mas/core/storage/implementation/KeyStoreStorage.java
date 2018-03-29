@@ -540,8 +540,8 @@ public final class KeyStoreStorage extends Storage {
     /**
      * Adds the prefix to the key. Beware that this method is dumb and
      * does not check if the key is already prefixed or not.
-     * @param key
-     * @return
+     * @param key Key to sanitize.
+     * @return    Prefix and key.
      */
     private String sanitizeKey(String key)  {
         return key == null ? key : prefix + key;

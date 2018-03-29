@@ -367,8 +367,8 @@ public class X509CertInfo implements CertAttrSet<String> {
     /**
      * Set the certificate attribute.
      *
-     * @params name the name of the Certificate attribute.
-     * @params val the value of the Certificate attribute.
+     * @param name the name of the Certificate attribute.
+     * @param val the value of the Certificate attribute.
      * @exception CertificateException on invalid attributes.
      * @exception IOException on other errors.
      */
@@ -473,7 +473,7 @@ public class X509CertInfo implements CertAttrSet<String> {
     /**
      * Delete the certificate attribute.
      *
-     * @params name the name of the Certificate attribute.
+     * @param name the name of the Certificate attribute.
      * @exception CertificateException on invalid attributes.
      * @exception IOException on other errors.
      */
@@ -568,7 +568,7 @@ public class X509CertInfo implements CertAttrSet<String> {
     /**
      * Get the certificate attribute.
      *
-     * @params name the name of the Certificate attribute.
+     * @param name the name of the Certificate attribute.
      *
      * @exception CertificateException on invalid attributes.
      * @exception IOException on other errors.
@@ -855,7 +855,7 @@ public class X509CertInfo implements CertAttrSet<String> {
     /**
      * Set the version number of the certificate.
      *
-     * @params val the Object class value for the Extensions
+     * @param val the Object class value for the Extensions
      * @exception CertificateException on invalid data.
      */
     private void setVersion(Object val) throws CertificateException {
@@ -868,7 +868,7 @@ public class X509CertInfo implements CertAttrSet<String> {
     /**
      * Set the serial number of the certificate.
      *
-     * @params val the Object class value for the CertificateSerialNumber
+     * @param val the Object class value for the CertificateSerialNumber
      * @exception CertificateException on invalid data.
      */
     private void setSerialNumber(Object val) throws CertificateException {
@@ -881,7 +881,7 @@ public class X509CertInfo implements CertAttrSet<String> {
     /**
      * Set the algorithm id of the certificate.
      *
-     * @params val the Object class value for the AlgorithmId
+     * @param val the Object class value for the AlgorithmId
      * @exception CertificateException on invalid data.
      */
     private void setAlgorithmId(Object val) throws CertificateException {
@@ -895,7 +895,7 @@ public class X509CertInfo implements CertAttrSet<String> {
     /**
      * Set the issuer name of the certificate.
      *
-     * @params val the Object class value for the issuer
+     * @param val the Object class value for the issuer
      * @exception CertificateException on invalid data.
      */
     private void setIssuer(Object val) throws CertificateException {
@@ -909,7 +909,7 @@ public class X509CertInfo implements CertAttrSet<String> {
     /**
      * Set the validity interval of the certificate.
      *
-     * @params val the Object class value for the CertificateValidity
+     * @param val the Object class value for the CertificateValidity
      * @exception CertificateException on invalid data.
      */
     private void setValidity(Object val) throws CertificateException {
@@ -923,7 +923,7 @@ public class X509CertInfo implements CertAttrSet<String> {
     /**
      * Set the subject name of the certificate.
      *
-     * @params val the Object class value for the Subject
+     * @param val the Object class value for the Subject
      * @exception CertificateException on invalid data.
      */
     private void setSubject(Object val) throws CertificateException {
@@ -937,7 +937,7 @@ public class X509CertInfo implements CertAttrSet<String> {
     /**
      * Set the public key in the certificate.
      *
-     * @params val the Object class value for the PublicKey
+     * @param val the Object class value for the PublicKey
      * @exception CertificateException on invalid data.
      */
     private void setKey(Object val) throws CertificateException {
@@ -951,7 +951,7 @@ public class X509CertInfo implements CertAttrSet<String> {
     /**
      * Set the Issuer Unique Identity in the certificate.
      *
-     * @params val the Object class value for the IssuerUniqueId
+     * @param val the Object class value for the IssuerUniqueId
      * @exception CertificateException
      */
     private void setIssuerUniqueId(Object val) throws CertificateException {
@@ -968,7 +968,7 @@ public class X509CertInfo implements CertAttrSet<String> {
     /**
      * Set the Subject Unique Identity in the certificate.
      *
-     * @params val the Object class value for the SubjectUniqueId
+     * @param val the Object class value for the SubjectUniqueId
      * @exception CertificateException
      */
     private void setSubjectUniqueId(Object val) throws CertificateException {
@@ -985,7 +985,7 @@ public class X509CertInfo implements CertAttrSet<String> {
     /**
      * Set the extensions in the certificate.
      *
-     * @params val the Object class value for the Extensions
+     * @param val the Object class value for the Extensions
      * @exception CertificateException
      */
     private void setExtensions(Object val) throws CertificateException {

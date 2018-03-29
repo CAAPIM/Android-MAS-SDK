@@ -10,12 +10,14 @@
 package com.ca.mas.foundation.auth;
 
 import android.app.Activity;
+import android.os.Bundle;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.auth.QRCodeRenderer;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.service.Provider;
+import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.notify.Callback;
@@ -35,6 +37,12 @@ public class MASProximityLoginQRCode extends QRCodeRenderer implements MASProxim
             @Override
             public void onError(MAGError error) {
                 Callback.onError(callback, error);
+            }
+
+            @Override
+            public void onRequestCancelled(Bundle data) {
+                super.onRequestCancelled(data);
+                Callback.onError(callback, new MAS.RequestCancelledException(data));
             }
         });
     }

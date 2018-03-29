@@ -1,12 +1,29 @@
 # Version 1.6.20
 
 ### Bug fixes
+- Notify on Cancel for Enterprise Browser APIs [DE353958]
+- Notify on Cancel for authorize API during QRCode Scanning [DE353994]
 - Error callback when authentication failed [DE345468]
     - Developer may need to update the App if using Proximity Login.
     - com.ca.mas.core.auth.PollingRenderer.onAuthCodeReceived interface has been changed, the authorization code and state is provided.
     - onAuthCodeReceived, developer should call com.ca.mas.foundation.MASUser.login(com.ca.mas.foundation.MASAuthCredentials, com.ca.mas.foundation.MASCallback<com.ca.mas.foundation.MASUser>) with com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode
     - Do not execute pending request when authentication failed. The pending queue will only be executed after authentication success.
 
+### Deprecated Classes
+- MASOtpAuthFragment.java is removed, please use MASOtpActivity/MASOtpDialogFragment.
+- MASOtpSelectDeliveryChannelFragment.java is removed, please use MASOtpActivity/MASOtpDialogFragment.
+- com.ca.mas.identity.group.MASGroupIdentity.getAllGroups is removed, please use getGroupsByFilter.
+- com.ca.mas.identity.group.MASGroupIdentity.getGroupByGroupName is removed, please use getGroupsByFilter.
+- com.ca.mas.identity.group.MASGroupIdentity.getGroupByMember is removed, please use getGroupsByFilter.
+- com.ca.mas.foundation.MASUser.login(java.lang.String, java.lang.String, com.ca.mas.foundation.MASCallback<com.ca.mas.foundation.MASUser>) is removed, please use com.ca.mas.foundation.MASUser.login(java.lang.String, char[], com.ca.mas.foundation.MASCallback<com.ca.mas.foundation.MASUser>).
+- com.ca.mas.foundation..MASGroup.getAllGroups is removed, please use getGroupsByFilter.
+- com.ca.mas.foundation..MASGroup.getGroupByGroupName is removed, please use getGroupsByFilter.
+- com.ca.mas.foundation..MASGroup.getGroupByMember is removed, please use getGroupsByFilter.
+- com.ca.mas.connecta.client.MASConnectaManager.stop is removed, please use disconnect.
+- com.ca.mas.connecta.client.MASConnectaClient.setTimeOutInMillis is removed, please use MASConnectOptions#setConnectionTimeout.
+- com.ca.mas.connecta.client.MASConnectaClient.getTimeOutInMillis is removed, please use MASConnectOptions#getConnectionTimeout.
+- com.ca.mas.core.error.MAGError.getResultCode is removed.
+- com.ca.mas.core.error.MAGError.setResultCode is removed.
 
 # Version 1.6.10
 

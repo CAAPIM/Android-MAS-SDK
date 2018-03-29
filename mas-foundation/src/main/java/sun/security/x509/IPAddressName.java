@@ -75,7 +75,7 @@ public class IPAddressName implements GeneralNameInterface {
     /**
      * Create the IPAddressName object from the passed encoded Der value.
      *
-     * @params derValue the encoded DER IPAddressName.
+     * @param derValue the encoded DER IPAddressName.
      * @exception IOException on error.
      */
     public IPAddressName(DerValue derValue) throws IOException {
@@ -85,7 +85,7 @@ public class IPAddressName implements GeneralNameInterface {
     /**
      * Create the IPAddressName object with the specified octets.
      *
-     * @params address the IP address
+     * @param address the IP address
      * @throws IOException if address is not a valid IPv4 or IPv6 address
      */
     public IPAddressName(byte[] address) throws IOException {
@@ -224,7 +224,7 @@ public class IPAddressName implements GeneralNameInterface {
     /**
      * Encode the IPAddress name into the DerOutputStream.
      *
-     * @params out the DER stream to encode the IPAddressName to.
+     * @param out the DER stream to encode the IPAddressName to.
      * @exception IOException on encoding errors.
      */
     public void encode(DerOutputStream out) throws IOException {
@@ -386,7 +386,7 @@ public class IPAddressName implements GeneralNameInterface {
      * 10.9.8.0/255.255.255.0.
      * <p>
      * @param inputName to be checked for being constrained
-     * @returns constraint type above
+     * @return constraint type above
      * @throws UnsupportedOperationException if name is not exact match, but
      * narrowing and widening are not supported for this name type.
      */
@@ -479,7 +479,7 @@ public class IPAddressName implements GeneralNameInterface {
      * NameConstraints minimum and maximum bounds and for calculating
      * path lengths in name subtrees.
      *
-     * @returns distance of name from root
+     * @return distance of name from root
      * @throws UnsupportedOperationException if not supported for this name type
      */
     public int subtreeDepth() throws UnsupportedOperationException {

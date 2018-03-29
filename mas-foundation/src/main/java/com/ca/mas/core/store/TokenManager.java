@@ -115,8 +115,8 @@ public interface TokenManager extends TokenProvider {
     boolean isTokenStoreReady();
 
     /**
-     * Gtes the DataSource used to store the tokens.
-     * @return
+     * Gets the DataSource used to store the tokens.
+     * @return Token Store as DataSource.
      */
     DataSource getTokenStore();
 }

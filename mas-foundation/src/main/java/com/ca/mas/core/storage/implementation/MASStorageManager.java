@@ -21,7 +21,7 @@ import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Factory that creates the the Storage instance.
- * <p/>
+ * <p>
  * Synchronous Usage:
  * <pre>
  * {@code
@@ -43,8 +43,8 @@ import static com.ca.mas.foundation.MAS.TAG;
  *
  * }
  * </pre>
- * <p/>
- * <p/>
+ * </p>
+ * <p>
  * Asynchronous Usage:
  * <pre>
  * {@code
@@ -57,7 +57,7 @@ import static com.ca.mas.foundation.MAS.TAG;
  * keyStoreStorage.writeData("key1", "value1".getBytes("UTF-8"));
  * //Creates a StorageResultReceiver for Async read
  * StorageResultReceiver receiver = new StorageResultReceiver(null) {
- *  @Override
+ *  &#064;Override
  *  public void onReceiveResult(StorageResult result) {
  *      if(result.getStatus()==StorageResult.StorageOperationStatus.SUCCESS){
  *        System.out.println("Value: "+new String((byte[])result.getData()));
@@ -72,6 +72,7 @@ import static com.ca.mas.foundation.MAS.TAG;
  *
  * }
  * </pre>
+ * </p>
  */
 public class MASStorageManager {
 

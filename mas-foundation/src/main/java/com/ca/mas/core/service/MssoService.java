@@ -170,14 +170,14 @@ public class MssoService extends IntentService {
             } catch (OAuthException | OAuthServerException e1) {
                 if (DEBUG) Log.e(TAG, e1.getMessage(), e1);
                 requestFinished(request);
-                respondError(request.getResultReceiver(), MssoIntents.RESULT_CODE_ERR_AUTHORIZE, new MAGError(e1));
+                respondError(request.getResultReceiver(), new MAGError(e1));
             }
         } catch (TokenStoreUnavailableException e) {
             try {
                 mssoContext.getTokenManager().getTokenStore().unlock();
             } catch (Exception e1) {
                 requestFinished(request);
-                respondError(receiver, MssoIntents.RESULT_CODE_ERR_UNKNOWN, new MAGError(e));
+                respondError(receiver, new MAGError(e));
             }
         } catch (OtpException e) {
             OtpResponseHeaders otpResponseHeaders = e.getOtpResponseHeaders();
@@ -200,53 +200,11 @@ public class MssoService extends IntentService {
             }
             if (DEBUG) Log.e(TAG, e.getMessage(), e);
             requestFinished(request);
-            respondError(receiver, getErrorCode(e), new MAGError(e));
+            respondError(receiver, new MAGError(e));
         } catch (Exception e2) {
             if (DEBUG) Log.e(TAG, e2.getMessage(), e2);
             requestFinished(request);
-            respondError(receiver, getErrorCode(e2), new MAGError(e2));
-        }
-    }
-
-    private int getErrorCode(Throwable exception) {
-        try {
-            throw exception;
-        } catch (DeviceRegistrationAwaitingActivationException e) {
-            return MssoIntents.RESULT_CODE_ERR_AWAITING_REGISTRATION;
-        } catch (ClientCredentialsException | ClientCredentialsServerException e) {
-            return MssoIntents.RESULT_CODE_ERR_CLIENT_CREDENTIALS;
-        } catch (RegistrationException | RegistrationServerException e) {
-            return MssoIntents.RESULT_CODE_ERR_REGISTRATION;
-        } catch (OAuthException | OAuthServerException e) {
-            return MssoIntents.RESULT_CODE_ERR_OAUTH;
-        } catch (LocationRequiredException e) {
-            return MssoIntents.RESULT_CODE_ERR_LOCATION_REQUIRED;
-        } catch (LocationInvalidException e) {
-            return MssoIntents.RESULT_CODE_ERR_LOCATION_UNAUTHORIZED;
-        } catch (MobileNumberRequiredException e) {
-            return MssoIntents.RESULT_CODE_ERR_MSISDN_REQUIRED;
-        } catch (MobileNumberInvalidException e) {
-            return MssoIntents.RESULT_CODE_ERR_MSISDN_UNAUTHORIZED;
-        } catch (JWTInvalidAUDException e) {
-            return MssoIntents.RESULT_CODE_ERR_JWT_AUD_INVALID;
-        } catch (JWTInvalidAZPException e) {
-            return MssoIntents.RESULT_CODE_ERR_JWT_AZP_INVALID;
-        } catch (JWTExpiredException e) {
-            return MssoIntents.RESULT_CODE_ERR_JWT_EXPIRED;
-        } catch (JWTInvalidSignatureException e) {
-            return MssoIntents.RESULT_CODE_ERR_JWT_SIGNATURE_INVALID;
-        } catch (JWTValidationException e) {
-            return MssoIntents.RESULT_CODE_ERR_JWT_INVALID;
-        } catch (AuthenticationException e) {
-            return HttpURLConnection.HTTP_UNAUTHORIZED;
-        } catch (IOException e) {
-            return MssoIntents.RESULT_CODE_ERR_IO;
-        } catch (Throwable e) {
-            if (e.getCause() == null) {
-                return MssoIntents.RESULT_CODE_ERR_UNKNOWN;
-            } else {
-                return getErrorCode(e.getCause());
-            }
+            respondError(receiver,  new MAGError(e2));
         }
     }
 
@@ -276,12 +234,12 @@ public class MssoService extends IntentService {
         return null != MssoActiveQueue.getInstance().takeRequest(request.getId());
     }
 
-    private void respondError(ResultReceiver receiver, int resultCode, MAGError error) {
+    private void respondError(ResultReceiver receiver, MAGError error) {
         if (receiver != null) {
             Bundle resultData = new Bundle();
             resultData.putSerializable(MssoIntents.RESULT_ERROR, error);
             resultData.putString(MssoIntents.RESULT_ERROR_MESSAGE, error.getMessage());
-            receiver.send(resultCode, resultData);
+            receiver.send(MssoIntents.RESULT_CODE_ERR, resultData);
         }
     }
 

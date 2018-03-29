@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * MASAuthCredentials for Username & Password Grant Type
+ * MASAuthCredentials for Username &amp; Password Grant Type
  */
 public class MASAuthCredentialsPassword implements MASAuthCredentials {
     private final String username;

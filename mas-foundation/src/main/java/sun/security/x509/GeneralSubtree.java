@@ -57,9 +57,9 @@ public class GeneralSubtree {
     /**
      * The default constructor for the class.
      *
-     * @params name the GeneralName
-     * @params min the minimum BaseDistance
-     * @params max the maximum BaseDistance
+     * @param name the GeneralName
+     * @param min the minimum BaseDistance
+     * @param max the maximum BaseDistance
      */
     public GeneralSubtree(GeneralName name, int min, int max) {
         this.name = name;
@@ -143,7 +143,7 @@ public class GeneralSubtree {
      * Compare this GeneralSubtree with another
      *
      * @param other GeneralSubtree to compare to this
-     * @returns true if match
+     * @return true if match
      */
     public boolean equals(Object other) {
         if (!(other instanceof GeneralSubtree))
@@ -188,7 +188,7 @@ public class GeneralSubtree {
     /**
      * Encode the GeneralSubtree.
      *
-     * @params out the DerOutputStream to encode this object to.
+     * @param out the DerOutputStream to encode this object to.
      */
     public void encode(DerOutputStream out) throws IOException {
         DerOutputStream seq = new DerOutputStream();

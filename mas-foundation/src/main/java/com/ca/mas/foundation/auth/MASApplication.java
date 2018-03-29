@@ -122,7 +122,7 @@ public abstract class MASApplication {
         String path = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_ENTERPRISE_APPS);
 
         try {
-            MASRequest r = new MASRequest.MASRequestBuilder(new URI(path)).build();
+            MASRequest r = new MASRequest.MASRequestBuilder(new URI(path)).notifyOnCancel().build();
             MAS.invoke(r, new MASCallback<MASResponse<JSONObject>>() {
                 @Override
                 public void onSuccess(MASResponse<JSONObject> result) {

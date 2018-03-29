@@ -196,21 +196,6 @@ public abstract class MASGroup implements MASTransformable, MASGroupIdentity {
             }
 
             @Override
-            public void getAllGroups(String owner, MASCallback<List<MASGroup>> callback) {
-                masGroupRepository.getAllGroups(owner, callback);
-            }
-
-            @Override
-            public void getGroupByGroupName(String groupName, MASCallback<List<MASGroup>> callback) {
-                masGroupRepository.getGroupByGroupName(groupName, callback);
-            }
-
-            @Override
-            public void getGroupByMember(MASUser member, MASCallback<List<MASGroup>> callback) {
-                masGroupRepository.getGroupByMember(member, callback);
-            }
-
-            @Override
             public void getGroupById(String id, MASCallback<MASGroup> callback) {
                 masGroupRepository.getGroupById(id, callback);
             }
@@ -329,11 +314,8 @@ public abstract class MASGroup implements MASTransformable, MASGroupIdentity {
 
     @Xamarin("Xarmarin may have a defect binding on method with Generic, " +
             "temporary add below methods to resolve binding error")
-    public abstract void getGroupByMember(MASUser member, MASCallback<List<MASGroup>> callback);
     public abstract void getGroupMetaData(MASCallback<GroupAttributes> callback);
     public abstract void getGroupsByFilter(MASFilteredRequest filteredRequest, MASCallback<List<MASGroup>> callback);
-    public abstract void getAllGroups(String owner, MASCallback<List<MASGroup>> callback);
-    public abstract void getGroupByGroupName(String groupName, MASCallback<List<MASGroup>> callback);
     public abstract void getGroupById(String id, MASCallback<MASGroup> callback);
 
 }

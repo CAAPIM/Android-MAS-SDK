@@ -27,6 +27,8 @@ import java.util.Map;
 
 class JWTSign {
 
+    private JWTSign() {}
+
     /**
      * Signs the provided JWT {@link MASClaims} object with the provided RSA private key using SHA-256 hash algorithm
      * and injects JWT claims based on the user information.
@@ -37,7 +39,7 @@ class JWTSign {
      * @return The JWT format consisting of Base64URL-encoded parts delimited by period ('.') characters.
      * @throws MASException Failed to sign
      */
-    public static String sign(MASClaims masClaims, PrivateKey privateKey) throws MASException {
+    static String sign(MASClaims masClaims, PrivateKey privateKey) throws MASException {
 
         JsonWriterI i = JSONValue.defaultWriter.getWriterByInterface(JSONObject.class);
         if (i == null) {

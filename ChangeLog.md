@@ -8,6 +8,7 @@
     - com.ca.mas.core.auth.PollingRenderer.onAuthCodeReceived interface has been changed, the authorization code and state is provided.
     - onAuthCodeReceived, developer should call com.ca.mas.foundation.MASUser.login(com.ca.mas.foundation.MASAuthCredentials, com.ca.mas.foundation.MASCallback<com.ca.mas.foundation.MASUser>) with com.ca.mas.foundation.MASAuthCredentialsAuthorizationCode
     - Do not execute pending request when authentication failed. The pending queue will only be executed after authentication success.
+- Refactor MAS interface to resolve Xamarin Binding [US477776]
 
 ### Deprecated Classes
 - MASOtpAuthFragment.java is removed, please use MASOtpActivity/MASOtpDialogFragment.

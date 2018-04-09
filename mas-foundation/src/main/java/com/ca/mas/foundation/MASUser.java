@@ -25,10 +25,6 @@ import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.security.LockableEncryptionProvider;
 import com.ca.mas.core.security.SecureLockException;
-import com.ca.mas.core.storage.Storage;
-import com.ca.mas.core.storage.StorageException;
-import com.ca.mas.core.storage.StorageResult;
-import com.ca.mas.core.storage.implementation.MASStorageManager;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
@@ -597,26 +593,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             user = new JSONObject(userProfile);
         }
         return user;
-    }
-
-    /**
-     * Returns the last authenticated session's type of auth credentials used.
-     */
-    public static String getAuthCredentialsType() {
-        try {
-            Storage accountManager = new MASStorageManager().getStorage(
-                    MASStorageManager.MASStorageType.TYPE_AMS,
-                    new Object[]{getContext(), false});
-            StorageResult result = accountManager.readData(MASAuthCredentials.REGISTRATION_TYPE);
-            if (result.getStatus().equals(StorageResult.StorageOperationStatus.SUCCESS)) {
-                return new String((byte[]) result.getData());
-            }
-        } catch (StorageException e) {
-            if (DEBUG)
-                Log.w(TAG, "Unable to retrieve last authenticated credentials type from local storage.", e);
-        }
-
-        return "";
     }
 
     public abstract Bitmap getThumbnailImage();

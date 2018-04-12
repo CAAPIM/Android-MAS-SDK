@@ -1,4 +1,4 @@
-# Version 1.6.20
+# Version 1.7.00
 
 ### Bug fixes
 - Notify on Cancel for Enterprise Browser APIs [DE353958]
@@ -26,6 +26,13 @@
 - com.ca.mas.connecta.client.MASConnectaClient.getTimeOutInMillis is removed, please use MASConnectOptions#getConnectionTimeout.
 - com.ca.mas.core.error.MAGError.getResultCode is removed.
 - com.ca.mas.core.error.MAGError.setResultCode is removed.
+
+### New features
+- Dependency libraries update [US469994]
+    - Support library update to 27.1.1
+    - com.nimbusds:nimbus-jose-jwt to 5.9
+    - com.google.zxing:core to 3.3.0
+    - Migrate from compile to implementation for build.gradle
 
 # Version 1.6.10
 

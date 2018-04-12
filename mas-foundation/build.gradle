@@ -70,6 +70,7 @@ dependencies {
 
     //Test
     androidTestImplementation project(':mas-test')
+    androidTestImplementation "org.bouncycastle:bcpkix-jdk15on:$rootProject.ext.bcpVersion"
 }
 
 //Coverage

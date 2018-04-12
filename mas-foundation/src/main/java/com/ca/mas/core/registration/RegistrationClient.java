@@ -21,9 +21,6 @@ import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.io.IoUtils;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
-import com.ca.mas.core.storage.Storage;
-import com.ca.mas.core.storage.StorageException;
-import com.ca.mas.core.storage.implementation.MASStorageManager;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASRequest;
@@ -40,8 +37,6 @@ import java.util.Map;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
-import static com.ca.mas.foundation.MAS.getContext;
-import static com.ca.mas.foundation.MASAuthCredentials.REGISTRATION_TYPE;
 
 /**
  * Utility class that encapsulates talking to the token server into Java method calls.
@@ -52,7 +47,6 @@ import static com.ca.mas.foundation.MASAuthCredentials.REGISTRATION_TYPE;
 public class RegistrationClient extends ServerClient {
     private static final int INVALID_CLIENT_CREDENTIALS = 1000201;
     private static final int INVALID_RESOURCE_OWNER_CREDENTIALS = 1000202;
-    private Storage mAccountManager;
 
     public RegistrationClient(MssoContext mssoContext) {
         super(mssoContext);
@@ -194,15 +188,6 @@ public class RegistrationClient extends ServerClient {
         if (chain.length < 1)
             throw new RegistrationException(MAGErrorCode.DEVICE_RECORD_IS_NOT_VALID, "register_device response did not include a certificate chain");
 
-        Storage accountManager = getAccountManager();
-        if (accountManager != null) {
-            try {
-                accountManager.writeData(REGISTRATION_TYPE, creds.getGrantType().getBytes());
-            } catch (StorageException e) {
-                if (DEBUG) Log.e(TAG, "Failed to save authentication type: ", e);
-            }
-        }
-
         return new DeviceRegistrationResult() {
             @Override
             public DeviceStatus getDeviceStatus() {
@@ -306,31 +291,5 @@ public class RegistrationClient extends ServerClient {
             throw ServerClient.createServerException(response, RegistrationServerException.class);
         }
 
-        removeAuthCredentialsType();
-    }
-
-    private Storage getAccountManager() {
-        if (mAccountManager == null) {
-            try {
-                mAccountManager = new MASStorageManager().getStorage(
-                        MASStorageManager.MASStorageType.TYPE_AMS,
-                        new Object[]{getContext(), false});
-            } catch (StorageException e) {
-                if (DEBUG) Log.e(TAG, "Failed to retrieve account manager: ", e);
-            }
-        }
-
-        return mAccountManager;
-    }
-
-    private void removeAuthCredentialsType() {
-        Storage accountManager = getAccountManager();
-        if (accountManager != null) {
-            try {
-                accountManager.deleteData(REGISTRATION_TYPE);
-            } catch (StorageException e) {
-                if (DEBUG) Log.e(TAG, "Failed to delete authentication type: ", e);
-            }
-        }
     }
 }

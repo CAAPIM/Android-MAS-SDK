@@ -12,7 +12,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,38 +22,20 @@ import android.util.Log;
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoFactory;
-import com.ca.mas.core.MobileSsoListener;
-import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGHttpClient;
-import com.ca.mas.core.service.AuthenticationProvider;
-import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.store.StorageProvider;
-import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.ca.mas.foundation.notify.Callback;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-
-import net.minidev.json.JSONStyle;
-import net.minidev.json.JSONValue;
-import net.minidev.json.reader.JsonWriterI;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 import java.security.PrivateKey;
-import java.util.Map;
 
 /**
  * The top level MAS object represents the Mobile App Services SDK in its entirety.
@@ -90,107 +71,7 @@ public class MAS {
 
         // This is important, don't remove this
         new MASConfiguration(appContext);
-        ConfigurationManager.getInstance().setMobileSsoListener(new MASMobileSsoListener(appContext));
-    }
-
-    private static class MASMobileSsoListener implements MobileSsoListener {
-        private Context mAppContext;
-
-        MASMobileSsoListener(Context context) {
-            mAppContext = context;
-        }
-
-        /**
-         * Return the MASLoginActivity from MASUI components if MASUI library is included in the classpath.
-         *
-         * @return A LoginActivity to capture the user credentials or null if error.
-         */
-        private static Class<Activity> getLoginActivity() {
-
-            try {
-                return (Class<Activity>) Class.forName("com.ca.mas.ui.MASLoginActivity");
-            } catch (Exception e) {
-                return null;
-            }
-        }
-
-        private static MASAuthorizationRequestHandler getAuthorizationRequestHandler() {
-
-            try {
-                Class<MASAuthorizationRequestHandler> c = (Class<MASAuthorizationRequestHandler>) Class.forName("com.ca.mas.ui.MASAppAuthAuthorizationRequestHandler");
-                Constructor constructor = c.getConstructor(Context.class/*, Intent.class, Intent.class*/);
-
-                return (MASAuthorizationRequestHandler) constructor.newInstance(getContext()
-                );
-            } catch (Exception e) {
-                return null;
-            }
-        }
-
-        /**
-         * Return the MASOtpActivity from MASUI components if MASUI library is included in the classpath.
-         *
-         * @return A OtpActivity to capture the otp or null if error.
-         */
-        private static Class<Activity> getOtpActivity() {
-            try {
-                return (Class<Activity>) Class.forName("com.ca.mas.ui.otp.MASOtpActivity");
-            } catch (Exception e) {
-                return null;
-            }
-        }
-
-        @Override
-        public void onAuthenticateRequest(long requestId, final AuthenticationProvider provider) {
-
-            if (masAuthenticationListener == null) {
-                //Use MASUI component
-                if (browserBasedAuthenticationEnabled) {
-                    MASAuthorizationRequest authReq = new MASAuthorizationRequest.MASAuthorizationRequestBuilder().buildDefault();
-                    MASAuthorizationRequestHandler handler = getAuthorizationRequestHandler();
-                    if (handler != null) {
-                        MASUser.login(authReq, handler);
-                        return;
-                    }
-                }
-
-                Class<Activity> loginActivity = getLoginActivity();
-                if (loginActivity != null) {
-                    if (mAppContext != null) {
-                        Intent intent = new Intent(mAppContext, loginActivity);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-                        intent.putExtra(MssoIntents.EXTRA_AUTH_PROVIDERS, new MASAuthenticationProviders(provider));
-                        mAppContext.startActivity(intent);
-                    }
-                } else {
-                    if (DEBUG)
-                        Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for user authentication.");
-                }
-            } else {
-                masAuthenticationListener.onAuthenticateRequest(currentActivity, requestId, new MASAuthenticationProviders(provider));
-            }
-        }
-
-        @Override
-        public void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler) {
-            if (masAuthenticationListener == null) {
-                Class<Activity> otpActivity = getOtpActivity();
-                if (otpActivity != null) {
-                    if (mAppContext != null) {
-                        Intent intent = new Intent(mAppContext, otpActivity);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra(MssoIntents.EXTRA_OTP_HANDLER, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
-                        mAppContext.startActivity(intent);
-                    }
-                } else {
-                    if (DEBUG)
-                        Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for otp authentication.");
-                }
-            } else {
-                masAuthenticationListener.onOtpAuthenticateRequest(currentActivity, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
-            }
-        }
+        ConfigurationManager.getInstance().setMobileSsoListener(new AuthenticationListener(appContext));
     }
 
     private static void registerActivityLifecycleCallbacks(Application application) {
@@ -401,7 +282,7 @@ public class MAS {
     public static class RequestCancelledException extends Exception {
         private final Bundle data;
 
-        RequestCancelledException(Bundle data) {
+        public RequestCancelledException(Bundle data) {
             this.data = data;
         }
 
@@ -460,6 +341,14 @@ public class MAS {
     public static void setAuthenticationListener(MASAuthenticationListener listener) {
         masAuthenticationListener = listener;
     }
+
+    /**
+     * Get a user login listener to handle user authentication.
+     */
+    static MASAuthenticationListener getAuthenticationListener() {
+        return masAuthenticationListener;
+    }
+
 
     /**
      * Checks whether the consumer of MAS has set any authentication listener or not.
@@ -615,9 +504,6 @@ public class MAS {
     }
 
 
-    static {
-    }
-
     /**
      * Signs the provided JWT {@link MASClaims} object with the device registered private key using SHA-256 hash algorithm
      * and injects JWT claims based on the user information.
@@ -645,39 +531,8 @@ public class MAS {
         if (!MASDevice.getCurrentDevice().isRegistered()) {
             throw new IllegalStateException("Device not registered.");
         }
+        return JWTSign.sign(masClaims, privateKey);
 
-        JsonWriterI i = JSONValue.defaultWriter.getWriterByInterface(JSONObject.class);
-        if (i == null) {
-            JSONValue.defaultWriter.registerWriter(new JsonWriterI<JSONObject>() {
-                public void writeJSONString(JSONObject value, Appendable out, JSONStyle compression) throws IOException {
-                    out.append(value.toString());
-                }
-            }, JSONObject.class);
-        }
-
-        JWSSigner signer = new RSASSASigner(privateKey);
-        JWTClaimsSet.Builder claimBuilder = new JWTClaimsSet.Builder();
-
-        claimBuilder.jwtID(masClaims.getJwtId())
-                .issuer(masClaims.getIssuer())
-                .notBeforeTime(masClaims.getNotBefore())
-                .expirationTime(masClaims.getExpirationTime())
-                .issueTime(masClaims.getIssuedAt())
-                .audience(masClaims.getAudience())
-                .subject(masClaims.getSubject());
-
-        for (Map.Entry<String, Object> entry : masClaims.getClaims().entrySet()) {
-            claimBuilder.claim(entry.getKey(), entry.getValue());
-        }
-
-        JWSHeader rs256Header = new JWSHeader(JWSAlgorithm.RS256);
-        SignedJWT claimsToken = new SignedJWT(rs256Header, claimBuilder.build());
-        try {
-            claimsToken.sign(signer);
-            return claimsToken.serialize();
-        } catch (JOSEException e) {
-            throw new MASException(e);
-        }
     }
 
     /**

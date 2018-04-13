@@ -59,20 +59,18 @@ android {
 
 dependencies {
 
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    compile "com.google.zxing:core:$rootProject.ext.zxingVersion"
-    compile "com.android.support:support-annotations:$rootProject.ext.supportAnnotationsVersion"
-    compile "com.nimbusds:nimbus-jose-jwt:$rootProject.ext.nimbusJoseVersion"
-  
+    implementation "com.google.zxing:core:$rootProject.ext.zxingVersion"
+    implementation "com.android.support:support-annotations:$rootProject.ext.supportLibsVersion"
+    implementation "com.nimbusds:nimbus-jose-jwt:$rootProject.ext.nimbusJoseVersion"
+
     //For Android API 16 and 17
     compileOnly "org.bouncycastle:bcpkix-jdk15on:$rootProject.ext.bcpVersion"
 
     //Test
-
-    androidTestCompile "com.android.support.test:runner:$rootProject.ext.testRunner"
-    androidTestCompile "com.android.support.test:rules:$rootProject.ext.testRules"
-    androidTestCompile project(':mas-test')
+    androidTestImplementation project(':mas-test')
+    androidTestImplementation "org.bouncycastle:bcpkix-jdk15on:$rootProject.ext.bcpVersion"
 }
 
 //Coverage

@@ -33,13 +33,13 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':mas-foundation')
-    compile "com.android.support:design:$rootProject.ext.designVersion"
-    compile "com.android.support:gridlayout-v7:$rootProject.ext.gridLayoutVersion"
-    compile "net.openid:appauth:$rootProject.ext.appAuthVersion"
-    compile "com.android.support:customtabs:$rootProject.ext.customTabVersion"
-    testCompile 'junit:junit:4.12'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':mas-foundation')
+    implementation "com.android.support:support-annotations:$rootProject.ext.supportLibsVersion"
+    implementation "com.android.support:design:$rootProject.ext.supportLibsVersion"
+    implementation "com.android.support:gridlayout-v7:$rootProject.ext.supportLibsVersion"
+    implementation "net.openid:appauth:$rootProject.ext.appAuthVersion"
+    implementation "com.android.support:customtabs:$rootProject.ext.supportLibsVersion"
 }
 
 //jcenter integration

@@ -73,11 +73,13 @@ public interface ConfigurationProvider extends TrustedCertificateConfiguration, 
      */
     URI getUserInfoUri();
 
+
     /**
-     * Get the absolute URI for the given path.
+     * Retrieves the absolute URI for the given relative path based on the provided SDK configuration.
+     * For path /my/endpoint, the result URI will be https://<host>:<port>/my/endpoint.
      *
-     * @param relativePath the path to the resource.
-     * @return the URI, or null if no suffix is provided.
+     * @param relativePath the relative path to the resource.
+     * @return the absolute URI.
      */
     URI getUri(String relativePath);
 

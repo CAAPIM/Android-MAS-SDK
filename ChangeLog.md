@@ -33,6 +33,8 @@
     - com.nimbusds:nimbus-jose-jwt to 5.9
     - com.google.zxing:core to 3.3.0
     - Migrate from compile to implementation for build.gradle
+- Recover from error 107 "The given mag-identifier is either invalid or it points to an unknown device",
+the SDK perform device recovery and re-register the device. [US486057]
 
 # Version 1.6.10
 

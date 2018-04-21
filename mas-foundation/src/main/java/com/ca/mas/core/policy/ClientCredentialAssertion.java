@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.clientcredentials.ClientCredentialsClient;
+import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.context.MssoException;
 import com.ca.mas.core.error.MAGException;
@@ -27,9 +28,7 @@ import java.util.UUID;
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
 
-class ClientCredentialAssertion implements MssoAssertion {
-
-    public static final String INVALID_CLIENT_CREDENTIALS_ERROR_CODE_SUFFIX = "201";
+public class ClientCredentialAssertion implements MssoAssertion {
 
     @Override
     public void init(@NonNull MssoContext mssoContext, @NonNull Context sysContext) {
@@ -57,7 +56,7 @@ class ClientCredentialAssertion implements MssoAssertion {
                 mssoContext.getStoredClientId() == null) {
             String deviceId;
             try {
-                deviceId = mssoContext.getDeviceId();
+                deviceId = (new DeviceIdentifier()).toString();
             } catch (Exception e) {
                 throw new MssoException(e);
             }
@@ -85,12 +84,13 @@ class ClientCredentialAssertion implements MssoAssertion {
             return;
         }
         String s = Integer.toString(errorCode);
-        if (s.endsWith(INVALID_CLIENT_CREDENTIALS_ERROR_CODE_SUFFIX)) {
+        if (s.endsWith(InvalidClientCredentialException.INVALID_CLIENT_CREDENTIAL_SUFFIX)) {
             throw new InvalidClientCredentialException("Client is rejected by server");
         }
     }
 
     @Override
     public void close() {
+        //do nothing
     }
 }

@@ -15,6 +15,8 @@ import com.ca.mas.core.error.MAGServerException;
  */
 public class AuthenticationException extends MAGServerException {
 
+    public static final String INVALID_RESOURCE_OWNER_SUFFIX = "202";
+
     public AuthenticationException(int errorCode, int status, String contentType, String detailMessage) {
         super(errorCode, status, contentType, detailMessage);
     }

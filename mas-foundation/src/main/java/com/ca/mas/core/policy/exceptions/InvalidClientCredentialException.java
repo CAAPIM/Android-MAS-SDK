@@ -12,6 +12,8 @@ import com.ca.mas.core.context.MssoContext;
 
 public class InvalidClientCredentialException extends RetryRequestException {
 
+    public static final String INVALID_CLIENT_CREDENTIAL_SUFFIX = "201";
+
     public InvalidClientCredentialException() {
     }
 
@@ -24,7 +26,7 @@ public class InvalidClientCredentialException extends RetryRequestException {
     }
 
     @Override
-    public void recover(MssoContext context) throws Exception {
+    public void recover(MssoContext context) {
         context.clearAccessToken();
         context.clearClientCredentials();
     }

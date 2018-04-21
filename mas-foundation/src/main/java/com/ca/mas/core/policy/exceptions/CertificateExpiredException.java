@@ -24,7 +24,16 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.security.cert.X509Certificate;
 
+/**
+ * Exception that indicate the certificate has expired.
+ */
 public class CertificateExpiredException extends RetryRequestException {
+
+    public static final String CERTIFICATE_EXPIRED_SUFFIX = "206";
+
+    public CertificateExpiredException() {
+        super();
+    }
 
     public CertificateExpiredException(String message) {
         super(message);

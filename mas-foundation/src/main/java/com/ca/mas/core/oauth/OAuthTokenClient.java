@@ -94,8 +94,6 @@ public class OAuthTokenClient extends ServerClient {
 
         } catch (JSONException | MAGException e) {
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, e);
-        } catch (MAGServerException e) {
-            throw new OAuthServerException(e);
         }
 
         return tokenResponse;
@@ -138,8 +136,6 @@ public class OAuthTokenClient extends ServerClient {
             validate(tokenResponse);
         } catch (JSONException | MAGException e) {
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, e);
-        } catch (MAGServerException e) {
-            throw new OAuthServerException(e);
         }
         return tokenResponse;
 

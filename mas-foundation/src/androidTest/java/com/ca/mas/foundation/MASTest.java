@@ -879,4 +879,94 @@ public class MASTest extends MASLoginTestBase {
         assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
 
     }
+
+    @Test
+    public void testInvalidMAGIdentifierDuringServiceRequest() throws InterruptedException, ExecutionException, URISyntaxException {
+
+        final boolean[] override = {true};
+        final int expectedErrorCode = 3003107;
+        final String expectedErrorMessage = "{ \"error\":\"invalid_request\", \"error_description\":\"The given mag-identifier is either invalid or it points to an unknown device\" }";
+        final String CONTENT_TYPE = "Content-Type";
+        final String CONTENT_TYPE_VALUE = "application/json";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse secureServiceResponse() {
+                if (override[0]) {
+                    override[0] = false; //for retry
+                    return new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST)
+                            .setHeader("x-ca-err", expectedErrorCode)
+                            .setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+                } else {
+                    return super.secureServiceResponse();
+                }
+            }
+        });
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+    }
+
+    @Test
+    public void testInvalidClientCredentialDuringServiceRequest() throws InterruptedException, ExecutionException, URISyntaxException {
+
+        final boolean[] override = {true};
+        final int expectedErrorCode = 3003201;
+        final String expectedErrorMessage = "{ \"error\":\"invalid_request\", \"error_description\":\"The given client credentials were not valid\" }";
+        final String CONTENT_TYPE = "Content-Type";
+        final String CONTENT_TYPE_VALUE = "application/json";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse secureServiceResponse() {
+                if (override[0]) {
+                    override[0] = false; //for retry
+                    return new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST)
+                            .setHeader("x-ca-err", expectedErrorCode)
+                            .setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+                } else {
+                    return super.secureServiceResponse();
+                }
+            }
+        });
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+    }
+
+    @Test
+    public void testInvalidClientCertificateDuringServiceRequest() throws InterruptedException, ExecutionException, URISyntaxException {
+
+        final boolean[] override = {true};
+        final int expectedErrorCode = 3003206;
+        final String expectedErrorMessage = "{ \"error\":\"invalid_request\", \"error_description\":\"The given client certificate has expired\" }";
+        final String CONTENT_TYPE = "Content-Type";
+        final String CONTENT_TYPE_VALUE = "application/json";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse secureServiceResponse() {
+                if (override[0]) {
+                    override[0] = false; //for retry
+                    return new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST)
+                            .setHeader("x-ca-err", expectedErrorCode)
+                            .setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+                } else {
+                    return super.secureServiceResponse();
+                }
+            }
+        });
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+        //Make sure it has invoke renew endpoint
+        assertNotNull(getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_RENEW));
+    }
+
 }

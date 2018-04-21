@@ -31,8 +31,8 @@ import android.util.Log;
 import android.view.View;
 
 import com.ca.mas.core.MobileSsoConfig;
-import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.auth.PollingRenderer;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
 
 import org.json.JSONException;
@@ -105,7 +105,7 @@ public class BluetoothLeCentralRenderer extends PollingRenderer {
             return;
         }
 
-        ConfigurationProvider configurationProvider = MobileSsoFactory.getInstance().getConfigurationProvider();
+        ConfigurationProvider configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
         String uuid = configurationProvider.getProperty(MobileSsoConfig.PROP_BLE_SERVICE_UUID);
 
         if (uuid == null || uuid.trim().length() == 0) {

@@ -28,12 +28,6 @@ public class InvalidIdentifierException extends RetryRequestException {
 
     @Override
     public void recover(MssoContext context) {
-        context.clearAccessToken();
-        context.clearClientCredentials();
-        try {
-            context.getTokenManager().clear();
-        } catch (TokenStoreException ignore) {
-            //ignore
-        }
+        context.destroyPersistentTokens();
     }
 }

@@ -143,12 +143,13 @@ class LocationAssertion implements MssoAssertion {
     @Override
     public void processResponse(MssoContext mssoContext, RequestInfo request, MASResponse response) throws MAGException {
         int statusCode = response.getResponseCode();
-        if (statusCode >= HttpURLConnection.HTTP_BAD_REQUEST && statusCode < HttpURLConnection.HTTP_INTERNAL_ERROR) {
+        if (statusCode == 449 || statusCode ==448) {
             String responseContent = new String(response.getBody().getRawContent());
             if (responseContent.toLowerCase().contains("location")) {
                 if (statusCode == 449) {
                     throw new LocationRequiredException("This application requires your location information. Please enable location services to continue.");
-                } else if (statusCode == 448) {
+                } else {
+                    //448
                     throw new LocationInvalidException("This location is unauthorized.");
                 }
             }

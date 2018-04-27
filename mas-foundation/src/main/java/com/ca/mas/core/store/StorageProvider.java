@@ -12,7 +12,6 @@ import android.util.Log;
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
-import com.ca.mas.core.context.MssoException;
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.datasource.DataSourceFactory;
@@ -75,23 +74,18 @@ public class StorageProvider {
      */
     private TokenManager createTokenManager() {
         ConfigurationProvider provider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
-        String tm = provider.getProperty(MobileSsoConfig.PROP_SHARE_TOKEN_MANAGER);
-        if (tm == null) {
-            JSONObject params = new JSONObject();
-            try {
-                params = new JSONObject(mStorageConfig.getStorageConfig().toString());
-                params.put(StorageConfig.PROP_SHARE_STATUS,
-                        provider.getProperty(ConfigurationProvider.PROP_SSO_ENABLED));
-            } catch (JSONException e) {
-                if (DEBUG) Log.w(TAG, "failed to set sharing property " + e);
-            }
-            DataSource storage = DataSourceFactory.getStorage(
-                    ConfigurationManager.getInstance().getContext(),
-                    mStorageConfig.getStorageClass(), params, null);
-            return new DefaultTokenManager(storage);
-        } else {
-            return (TokenManager) create(tm);
+        JSONObject params = new JSONObject();
+        try {
+            params = new JSONObject(mStorageConfig.getConfig().toString());
+            params.put(StorageConfig.PROP_SHARE_STATUS,
+                    provider.getProperty(ConfigurationProvider.PROP_SSO_ENABLED));
+        } catch (JSONException e) {
+            if (DEBUG) Log.w(TAG, "failed to set sharing property " + e);
         }
+        DataSource storage = DataSourceFactory.getStorage(
+                ConfigurationManager.getInstance().getContext(),
+                mStorageConfig.getStorageClass(), params, null);
+        return new DefaultTokenManager(storage);
     }
 
     /**
@@ -100,18 +94,11 @@ public class StorageProvider {
      * @return The {@link OAuthTokenContainer}
      */
     private OAuthTokenContainer createOAuthTokenContainer() {
-        String pt = ConfigurationManager.getInstance()
-                .getConnectedGatewayConfigurationProvider()
-                .getProperty(MobileSsoConfig.PROP_PRIVATE_TOKEN_MANAGER);
-        if (pt == null) {
-            DataSource storage = DataSourceFactory.getStorage(
-                    ConfigurationManager.getInstance().getContext(),
-                    mStorageConfig.getStorageClass(), mStorageConfig.getStorageConfig(),
-                    new StringDataConverter());
-            return new PrivateTokenStorage(storage);
-        } else {
-            return (OAuthTokenContainer) create(pt);
-        }
+        DataSource storage = DataSourceFactory.getStorage(
+                ConfigurationManager.getInstance().getContext(),
+                mStorageConfig.getStorageClass(), mStorageConfig.getConfig(),
+                new StringDataConverter());
+        return new PrivateTokenStorage(storage);
     }
 
     /**
@@ -120,27 +107,11 @@ public class StorageProvider {
      * @return The {@link ClientCredentialContainer}
      */
     private ClientCredentialContainer createClientCredentialContainer() {
-        String cc = ConfigurationManager.getInstance()
-                .getConnectedGatewayConfigurationProvider()
-                .getProperty(MobileSsoConfig.PROP_CLIENT_CREDENTIAL_MANAGER);
-        if (cc == null) {
-            DataSource storage = DataSourceFactory.getStorage(
-                    ConfigurationManager.getInstance().getContext()
-                    , mStorageConfig.getStorageClass(), mStorageConfig.getStorageConfig()
-                    , new StringDataConverter());
-            return new ClientCredentialStorage(storage);
-        } else {
-            return (ClientCredentialContainer) create(cc);
-        }
-    }
-
-    private Object create(String c) {
-        try {
-            Object o = Class.forName(c).newInstance();
-            return o;
-        } catch (Exception e) {
-            throw new MssoException(e);
-        }
+        DataSource storage = DataSourceFactory.getStorage(
+                ConfigurationManager.getInstance().getContext()
+                , mStorageConfig.getStorageClass(), mStorageConfig.getConfig()
+                , new StringDataConverter());
+        return new ClientCredentialStorage(storage);
     }
 
     /**
@@ -152,7 +123,7 @@ public class StorageProvider {
         DataSource temp = DataSourceFactory.getStorage(
                 ConfigurationManager.getInstance().getContext(),
                 mStorageConfig.getStorageClass(),
-                mStorageConfig.getStorageConfig(),
+                mStorageConfig.getConfig(),
                 new StringDataConverter());
         return temp != null && temp.isReady();
     }
@@ -174,12 +145,12 @@ public class StorageProvider {
      */
     private static class StorageConfig {
         Class storageClass;
-        JSONObject storageConfig = new JSONObject();
+        JSONObject config;
         /**
          * Common config properties expected for DataSource. Storage specif properties should be defined
          * in the individual DataSource files
          */
-        static String PROP_STORAGE_CLASS = "class";
+        static final String PROP_STORAGE_CLASS = "class";
         static final String PROP_SHARE_STATUS = "share";
 
         StorageConfig(ConfigurationProvider configurationProvider) {
@@ -189,11 +160,11 @@ public class StorageProvider {
                 if (DEBUG)
                     Log.d(TAG, "No storage configuration found in JSON config, falling back to DEFAULT ");
                 storageClass = KeystoreDataSource.class;
-                storageConfig = new JSONObject();
+                config = new JSONObject();
             } else {
                 try {
                     storageClass = Class.forName("" + storageJson.get(PROP_STORAGE_CLASS));
-                    storageConfig = storageJson;
+                    config = storageJson;
                 } catch (ClassNotFoundException e) {
                     throw new DataSourceException(String.format("Provided Storage configuration %s cannot be found ", storageJson.toString()), e);
                 } catch (JSONException e) {
@@ -206,8 +177,8 @@ public class StorageProvider {
             return storageClass;
         }
 
-        JSONObject getStorageConfig() {
-            return storageConfig;
+        JSONObject getConfig() {
+            return config;
         }
     }
 }

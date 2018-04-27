@@ -234,14 +234,6 @@ public interface MobileSsoConfig {
      */
     String PROP_TOKEN_URL_SUFFIX_ENTERPRISE_APPS = "msso.url.enterprise_apps";
 
-    /**
-     * ArrayList of String. Add a list of custom policies to intercept the Default Policy execution.
-     * <p/>
-     * If not specified, will default to no custom policies, the predefined policies will be executed.
-     *
-     */
-    String PROP_ADD_CUSTOM_POLICIES = "msso.add.custom.policies";
-
 
     /**
      * String. The redirect URI that provided to the third-party-login platform.
@@ -259,33 +251,6 @@ public interface MobileSsoConfig {
      * True if MSISDN information should be included.  False if MSISDN information should not be included.
      */
      String PROP_MSISDN_ENABLED = "msso.msisdn.enabled";
-
-    /**
-     * String. Internal use only. The class name that provide the implementation of share token storage.
-     * <p/>
-     * If not specified, default to the internal share token storage.
-     */
-    String PROP_SHARE_TOKEN_MANAGER = "msso.share.token.manager";
-
-    /**
-     * String. Internal use only. The class name that provide the implementation of private token storage.
-     * <p/>
-     * If not specified, default to the internal private token storage.
-     */
-    String PROP_PRIVATE_TOKEN_MANAGER = "msso.private.token.manager";
-
-    /**
-     * String. Internal use only. The class name that provide the implementation of client credential storage.
-     * <p/>
-     * If not specified, default to the internal private token storage.
-     */
-    String PROP_CLIENT_CREDENTIAL_MANAGER = "msso.client.credential.manager";
-
-
-    /**
-     * String. Internal use only. The package name of the application
-     */
-    String PROP_PACKAGE_NAME = "msso.package.name";
 
     /**
      * String.  URL suffix for client credentials endpoint.

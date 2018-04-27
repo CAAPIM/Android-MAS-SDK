@@ -26,6 +26,7 @@ import com.ca.mas.core.policy.PolicyManager;
 import com.ca.mas.core.policy.RequestInfo;
 import com.ca.mas.core.policy.exceptions.CertificateExpiredException;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
+import com.ca.mas.core.policy.exceptions.InvalidIdentifierException;
 import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.registration.RegistrationClient;
 import com.ca.mas.core.request.MAGInternalRequest;
@@ -86,13 +87,6 @@ public class MssoContext {
     private volatile MASAuthCredentials credentials;
 
     private static final String MSSO_CONTEXT_NOT_INITIALIZED = "MssoContext not initialized, no token manager.";
-
-    /**
-     * Retain the container description.  If this app is not running in a container,
-     * the value will be "".  If it is, then values include "-knox1", "-knox100", "-knox101"
-     */
-    protected String containerDescription = null;
-
 
     private MssoContext() {
     }
@@ -186,30 +180,13 @@ public class MssoContext {
     }
 
     /**
-     * Set the token manager that will be used to persist keys, cert chains, and OAuth tokens.
-     *
-     * @param tokenManager the token manager to use, or null.
-     */
-    void setTokenManager(TokenManager tokenManager) {
-        this.tokenManager = tokenManager;
-    }
-
-    /**
-     * Generates a unique device identifier or retrieves the existing one.
-     * @return the device ID, or null if {@link #init} has not yet been called.
-     */
-    public String getDeviceId() throws Exception {
-        return(new DeviceIdentifier(appContext)).toString();
-    }
-
-    /**
      * @return the device name, or null if {@link #init} has not yet been called.
      */
     public String getDeviceName() {
         return deviceName;
     }
 
-    public boolean isSsoEnabled() {
+    private boolean isSsoEnabled() {
         Boolean ssoEnabled = configurationProvider.getProperty(ConfigurationProvider.PROP_SSO_ENABLED);
         return ssoEnabled != null && ssoEnabled;
     }
@@ -343,7 +320,7 @@ public class MssoContext {
             clearCredentials();
         }
         privateTokens.saveAccessToken(accessToken, refreshToken, expiresInSec, grantedScope);
-   }
+    }
 
     /**
      * Clear the access token, forcing the next request to obtain a new one.
@@ -412,26 +389,30 @@ public class MssoContext {
      */
     public MASResponse executeRequest(Bundle extra, MASRequest request) throws Exception {
         RequestInfo requestInfo = new RequestInfo(this, request, extra);
-        MAGInternalRequest internalRequest = requestInfo.getRequest();
+        final MAGInternalRequest internalRequest = requestInfo.getRequest();
 
-        MAGStateException lastError = null;
+        Exception lastError = null;
         for (; requestInfo.getNumAttempts() < MAX_REQUEST_ATTEMPTS; requestInfo.incrementNumAttempts()) {
             try {
                 //Do not execute the policy if this request is targeting an unprotected endpoint.
                 if (request.isPublic()) {
                     return getMAGHttpClient().execute(internalRequest);
                 }
-                policyManager.processRequest(requestInfo);
-                MASResponse response;
-                if (internalRequest.isLocalRequest()) {
-                    response = ((LocalRequest) internalRequest.getRequest()).send(this);
-                } else {
-                    response = getMAGHttpClient().execute(internalRequest);
-                }
-                policyManager.processResponse(requestInfo, response);
-                return response;
+
+                return policyManager.execute(requestInfo, new PolicyManager.Route<MASResponse>() {
+                    @Override
+                    public MASResponse invoke() throws IOException {
+                        if (internalRequest.isLocalRequest()) {
+                            return ((LocalRequest) internalRequest.getRequest()).send(MssoContext.this);
+                        } else {
+                            return getMAGHttpClient().execute(internalRequest);
+                        }
+                    }
+                });
             } catch (MAGServerException e) {
-                if (DEBUG) Log.d(TAG, String.format("Server returned x-ca-err %d", e.getErrorCode()));
+                //This catch system endpoint error.
+                if (DEBUG)
+                    Log.d(TAG, String.format("Server returned x-ca-err %d", e.getErrorCode()));
                 try {
                     rethrow(e);
                 } catch (RetryRequestException rre) {
@@ -443,10 +424,14 @@ public class MssoContext {
                 lastError = e;
                 e.recover(this);
                 if (DEBUG) Log.d(TAG, "Attempting to retry request. " + e.getClass());
+            } catch (Exception e) {
+                clearCredentials();
+                throw e;
             }
         }
+        //All retries failed
         clearCredentials();
-        if (lastError != null ) {
+        if (lastError != null) {
             throw lastError;
         }
         throw new IOException("Too many attempts, giving up");
@@ -456,18 +441,25 @@ public class MssoContext {
      * Handle common server error defined under
      * Git: MAS/Gateway-SK-MAG/blob/develop/apidoc/errorcodes/error_codes_overview.xml
      */
-    private void rethrow(MAGServerException e) throws Exception {
+    private void rethrow(MAGServerException e) throws RetryRequestException, MAGServerException {
+        //We cannot reuse the credential for retry
+        if (getCredentials() != null && !getCredentials().isReusable()) {
+            clearCredentials();
+        }
         int errorCode = e.getErrorCode();
         String s = Integer.toString(errorCode);
-        if (s.endsWith("201")) { //Invalid client - The given client credentials were not valid
+        if (s.endsWith(InvalidClientCredentialException.INVALID_CLIENT_CREDENTIAL_SUFFIX)) { //Invalid client - The given client credentials were not valid
             throw new InvalidClientCredentialException(e);
         }
-        if (s.endsWith("202")) { //Invalid resource owner - The given resource owner credentials were not valid
+        if (s.endsWith(AuthenticationException.INVALID_RESOURCE_OWNER_SUFFIX)) { //Invalid resource owner - The given resource owner credentials were not valid
             clearCredentials();
             throw new AuthenticationException(e);
         }
-        if (s.endsWith("206")) { //Invalid client Certificate - The given client certificate has expired
+        if (s.endsWith(CertificateExpiredException.CERTIFICATE_EXPIRED_SUFFIX)) { //Invalid client Certificate - The given client certificate has expired
             throw new CertificateExpiredException(e);
+        }
+        if (s.endsWith(InvalidIdentifierException.INVALID_MAG_IDENTIFIER_SUFFIX)) {
+            throw new InvalidIdentifierException(e);
         }
         //Remove credentials for exception which cannot be handled on SDK
         clearCredentials();
@@ -515,8 +507,6 @@ public class MssoContext {
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
         final IdToken idToken = getIdToken();
 
-        Exception exception = null;
-
         //Not allow to logout if the session is locked.
         byte[] secureIdToken = tokenManager.getSecureIdToken();
         if (secureIdToken != null) {
@@ -525,20 +515,7 @@ public class MssoContext {
 
         try {
             if (isSsoEnabled()) {
-                try {
-                    tokenManager.deleteIdToken();
-                } catch (TokenStoreException e) {
-                    exception = e;
-                }
-
-                try {
-                    tokenManager.deleteSecureIdToken();
-                } catch (TokenStoreException e) {
-                    exception = e;
-                }
-
                 String clientId = getClientId();
-
                 if (contactServer && idToken != null && clientId != null) {
                     try {
                         new OAuthClient(this).logout(idToken, clientId, getClientSecret(), true);
@@ -547,28 +524,21 @@ public class MssoContext {
                     }
                 }
             }
+        } finally {
+            try {
+                tokenManager.deleteIdToken();
+                tokenManager.deleteSecureIdToken();
+                tokenManager.deleteUserProfile();
+            } catch (TokenStoreException e) {
+                //ignore
+            }
 
             try {
                 privateTokens.clear();
             } catch (DataSourceException e) {
-                if (exception != null) {
-                    exception = e;
-                }
+                //ignore
             }
 
-            try {
-                tokenManager.deleteUserProfile();
-            } catch (TokenStoreException e) {
-                if (exception != null) {
-                    exception = e;
-                }
-            }
-
-            if (exception != null) {
-                throw new MssoException(exception);
-            }
-
-        } finally {
             clearCredentials();
             resetHttpClient();
         }
@@ -602,7 +572,8 @@ public class MssoContext {
             EventDispatcher.AFTER_DEREGISTER.notifyObservers();
             resetHttpClient();
         } catch (Exception e) {
-            if (DEBUG) Log.w(TAG, "Error in removing device registration details from the server " + e);
+            if (DEBUG)
+                Log.w(TAG, "Error in removing device registration details from the server " + e);
             throw new MssoException(e);
         }
     }

@@ -14,14 +14,10 @@ import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 
 import com.ca.mas.core.auth.AuthResultReceiver;
-import com.ca.mas.core.auth.ble.BluetoothLePeripheral;
-import com.ca.mas.core.auth.ble.BluetoothLePeripheralCallback;
 import com.ca.mas.core.conf.ConfigurationManager;
-import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.conf.Server;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.core.oauth.OAuthClient;
@@ -29,7 +25,7 @@ import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.MssoClient;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.store.StorageProvider;
-import com.ca.mas.core.token.IdToken;
+import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASRequest;
 
 import org.json.JSONException;
@@ -37,7 +33,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -216,8 +211,7 @@ public final class MobileSsoFactory {
         mssoContext.initPolicyManager();
 
         final MssoClient mssoClient = new MssoClient(mssoContext, applicationContext);
-        final BluetoothLePeripheral bleServer = BluetoothLePeripheral.getInstance();
-        bleServer.init(mssoContext.getConfigurationProvider(), applicationContext);
+
 
         return new MobileSso() {
 
@@ -255,11 +249,6 @@ public final class MobileSsoFactory {
             }
 
             @Override
-            public ConfigurationProvider getConfigurationProvider() {
-                return mssoContext.getConfigurationProvider();
-            }
-
-            @Override
             public void authorize(String url, ResultReceiver resultReceiver) {
                 //TODO Handle for QRCode and NFC with the same url string
                 MASRequest.MASRequestBuilder builder;
@@ -273,10 +262,10 @@ public final class MobileSsoFactory {
                         if (resultReceiver instanceof AuthResultReceiver) {
                             ((AuthResultReceiver) resultReceiver).setData(jsonObject);
                         }
-                        builder = new MASRequest.MASRequestBuilder(getURI(providerUrl));
+                        builder = new MASRequest.MASRequestBuilder(mssoContext.getConfigurationProvider().getUri(providerUrl));
                     } catch (JSONException e) {
                         //received url is not a json object.
-                        builder = new MASRequest.MASRequestBuilder(getURI(url));
+                        builder = new MASRequest.MASRequestBuilder(mssoContext.getConfigurationProvider().getUri(url));
                     }
                 } catch (Exception e) {
                     if (resultReceiver != null) {
@@ -288,26 +277,6 @@ public final class MobileSsoFactory {
                     return;
                 }
                 processRequest(builder.build(), resultReceiver);
-            }
-
-            @Override
-            public void startBleSessionSharing(BluetoothLePeripheralCallback client) {
-                bleServer.start(client);
-            }
-
-            @Override
-            public void stopBleSessionSharing() {
-                bleServer.stop();
-            }
-
-            @Override
-            public URI getURI(String relativePath) {
-                return mssoContext.getConfigurationProvider().getUri(relativePath);
-            }
-
-            @Override
-            public String getPrefix() {
-                return mssoContext.getConfigurationProvider().getPrefix();
             }
 
             @Override

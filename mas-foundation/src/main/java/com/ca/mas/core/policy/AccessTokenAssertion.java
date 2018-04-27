@@ -49,6 +49,8 @@ class AccessTokenAssertion implements MssoAssertion {
     private static final String TOKEN_EXPIRED_ERROR_CODE_SUFFIX = "990";
     private static final int INVALID_CLIENT_CREDENTIALS = 3003201;
     private static final int INVALID_SCOPE = 3003115;
+    private static final int INVALID_MAG_IDENTIFIER = 3003107;
+    private static final int INVALID_CLIENT_CERTIFICATE = 3003206;
 
     private OAuthTokenClient oAuthTokenClient;
 
@@ -222,26 +224,16 @@ class AccessTokenAssertion implements MssoAssertion {
         String clientId = mssoContext.getClientId();
         String clientSecret = mssoContext.getClientSecret();
 
-        try {
-            OAuthTokenResponse response = oAuthTokenClient.obtainTokensUsingCredentials(
-                    request, clientId, clientSecret, wantIdToken);
-            IdToken idToken = response.getIdToken();
-            if (idToken != null) {
-                mssoContext.onIdTokenAvailable(idToken);
-            }
-            String accessToken = response.getAccessToken();
-            mssoContext.onAccessTokenAvailable(accessToken, response.getRefreshToken(), response.getExpiresIn(), response.getGrantedScope());
-
-            return accessToken;
-        } catch (OAuthServerException e){
-            //After we got the token
-            MASAuthCredentials credentials = request.getGrantProvider().getCredentials(mssoContext);
-            if ( credentials!= null && !credentials.isReusable()) {
-                // Clear cached credentials if we cannot reuse it for retry
-                mssoContext.clearCredentials();
-            }
-            throw e;
+        OAuthTokenResponse response = oAuthTokenClient.obtainTokensUsingCredentials(
+                request, clientId, clientSecret, wantIdToken);
+        IdToken idToken = response.getIdToken();
+        if (idToken != null) {
+            mssoContext.onIdTokenAvailable(idToken);
         }
+        String accessToken = response.getAccessToken();
+        mssoContext.onAccessTokenAvailable(accessToken, response.getRefreshToken(), response.getExpiresIn(), response.getGrantedScope());
+
+        return accessToken;
     }
 
     private String obtainAccessTokenUsingRefreshToken(MssoContext mssoContext, String refreshToken) throws OAuthException, OAuthServerException {
@@ -277,7 +269,9 @@ class AccessTokenAssertion implements MssoAssertion {
     private void rethrowOrIgnore(OAuthServerException e) throws OAuthServerException {
         switch (e.getErrorCode()) {
             case INVALID_CLIENT_CREDENTIALS:
+            case INVALID_MAG_IDENTIFIER:
             case INVALID_SCOPE:
+            case INVALID_CLIENT_CERTIFICATE:
                 throw e;
             default:
                 //Ignore the Exception

@@ -18,7 +18,7 @@ public class MASDeviceIdentifierTest extends MASTestBase {
 
     @Test
     public void testDeviceIdentifierGenerationWithoutLogin() throws Exception {
-        DeviceIdentifier id = new DeviceIdentifier(getContext());
+        DeviceIdentifier id = new DeviceIdentifier();
         assertNotNull(id);
     }
 

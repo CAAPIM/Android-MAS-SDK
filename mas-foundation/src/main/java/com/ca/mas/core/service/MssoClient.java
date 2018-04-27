@@ -21,7 +21,6 @@ import com.ca.mas.core.request.internal.AuthenticateRequest;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.MASAuthCredentials;
-import com.ca.mas.foundation.MASAuthCredentialsPassword;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 
@@ -83,63 +82,11 @@ public class MssoClient {
     }
 
     /**
-     * Logs in a user with a username and password. The existing user session will be logout and login with the provided username
-     * and password.
-     * <p/>
-     * <p>The response to the request will eventually be delivered to the specified result receiver.</p>
-     * <p>This method returns immediately to the calling thread</p>
-     *
-     * @param username       The username to log in with
-     * @param password       The password to log in with
-     * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
-     */
-    public void authenticate(final String username, final char[] password, final MAGResultReceiver resultReceiver) {
-        if (username == null || password == null) {
-            throw new NullPointerException("Username or password cannot be null");
-        }
-
-        MASAuthCredentials credentials = new MASAuthCredentialsPassword(username, password);
-        Intent intent = createAuthenticationIntent(credentials, resultReceiver);
-        new MssoClientLogoutAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
-    }
-
-    private static class MssoClientLogoutAsyncTask extends AsyncTask<Void, Void, Void> {
-        private Context appContext;
-        private MAGResultReceiver aResultReceiver;
-        private Intent aIntent;
-        private MssoContext aMssoContext;
-
-        MssoClientLogoutAsyncTask(Context context, MssoContext mssoContext, MAGResultReceiver resultReceiver, Intent intent) {
-            appContext = context;
-            aResultReceiver = resultReceiver;
-            aMssoContext = mssoContext;
-            aIntent = intent;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                aMssoContext.logout(true);
-            } catch (SecureLockException e) {
-                if (aResultReceiver != null) {
-                    aResultReceiver.onError(new MAGError(e));
-                }
-            } catch (Exception ignore) {
-                if (DEBUG) Log.w(TAG, ignore);
-            }
-
-            Context context = appContext;
-            context.startService(aIntent);
-            return null;
-        }
-    }
-
-    /**
      * <p>Logs in a user with MASAuthCredentials.
      * <p>The response to the request will eventually be delivered to the specified result receiver.</p>
      * <p>This method returns immediately to the calling thread</p>
      *
-     * @param credentials       The credentials to log in with
+     * @param credentials    The credentials to log in with
      * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
      */
     public void authenticate(final MASAuthCredentials credentials, final MAGResultReceiver resultReceiver) {
@@ -182,9 +129,9 @@ public class MssoClient {
     public void processPendingRequests() {
         // Currently this should only be necessary when we have started the UNLOCK activity.
         // For the Log On activity, it should take care of signalling the MssoService when it should retry.
-            Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, appContext, MssoService.class);
-            intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, (long) -1);
-            appContext.startService(intent);
+        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, appContext, MssoService.class);
+        intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, (long) -1);
+        appContext.startService(intent);
     }
 
     /**

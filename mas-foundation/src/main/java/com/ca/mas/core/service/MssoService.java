@@ -14,12 +14,9 @@ import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoListener;
-import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
 import com.ca.mas.core.auth.otp.OtpConstants;
 import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
-import com.ca.mas.core.clientcredentials.ClientCredentialsException;
-import com.ca.mas.core.clientcredentials.ClientCredentialsServerException;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGError;
@@ -27,27 +24,12 @@ import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.oauth.OAuthException;
 import com.ca.mas.core.oauth.OAuthServerException;
 import com.ca.mas.core.policy.exceptions.CredentialRequiredException;
-import com.ca.mas.core.policy.exceptions.LocationInvalidException;
-import com.ca.mas.core.policy.exceptions.LocationRequiredException;
-import com.ca.mas.core.policy.exceptions.MobileNumberInvalidException;
-import com.ca.mas.core.policy.exceptions.MobileNumberRequiredException;
 import com.ca.mas.core.policy.exceptions.OtpException;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
-import com.ca.mas.core.registration.DeviceRegistrationAwaitingActivationException;
-import com.ca.mas.core.registration.RegistrationException;
-import com.ca.mas.core.registration.RegistrationServerException;
-import com.ca.mas.core.request.internal.AuthenticateRequest;
-import com.ca.mas.core.token.JWTExpiredException;
-import com.ca.mas.core.token.JWTInvalidAUDException;
-import com.ca.mas.core.token.JWTInvalidAZPException;
-import com.ca.mas.core.token.JWTInvalidSignatureException;
-import com.ca.mas.core.token.JWTValidationException;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASResponse;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -86,7 +68,8 @@ public class MssoService extends IntentService {
 
         MssoRequest request = takeActiveRequest(requestId);
         if (request == null) {
-            if (DEBUG) Log.d(TAG, "Request ID not found, assuming request is canceled or already processed");
+            if (DEBUG)
+                Log.d(TAG, "Request ID not found, assuming request is canceled or already processed");
             return;
         }
 
@@ -94,6 +77,7 @@ public class MssoService extends IntentService {
             startThreadedRequest(request);
             return;
         } else if (MssoIntents.ACTION_CREDENTIALS_OBTAINED.equals(action)) {
+            //The request is AuthenticateRequest
             onCredentialsObtained(extras, request);
             return;
         } else if (MssoIntents.ACTION_VALIDATE_OTP.equals(action)) {
@@ -106,12 +90,20 @@ public class MssoService extends IntentService {
     }
 
     private void startThreadedRequest(final MssoRequest request) {
-        MssoExecutorService.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                onProcessRequest(request);
-            }
-        });
+        //Before assign the request to thread task,
+        request.setRunning(true);
+        try {
+            MssoExecutorService.getInstance().execute(new Runnable() {
+                @Override
+                public void run() {
+                    onProcessRequest(request);
+                }
+            });
+        } catch (Exception e) {
+            //In case we got rejected to assign a thread to serve the request
+            request.setRunning(false);
+            throw e;
+        }
     }
 
     private void onOtpObtained(Bundle extras, MssoRequest request) {
@@ -127,6 +119,7 @@ public class MssoService extends IntentService {
         //Make credentials available to this request's MssoContext
         MASAuthCredentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
         request.getMssoContext().setCredentials(creds);
+        //For AuthenticateRequest, we don't want to run it with new thread
         onProcessRequest(request);
 
     }
@@ -134,11 +127,15 @@ public class MssoService extends IntentService {
     private void onProcessAllPendingRequests() {
         final Collection<MssoRequest> requests = new ArrayList<>(MssoActiveQueue.getInstance().getAllRequest());
         for (MssoRequest mssoRequest : requests) {
-            startThreadedRequest(mssoRequest);
+            if (!mssoRequest.isRunning()) {
+                startThreadedRequest(mssoRequest);
+            }
         }
     }
 
     private void onProcessRequest(final MssoRequest request) {
+        //The request is in running state
+        request.setRunning(true);
         ResultReceiver receiver = request.getResultReceiver();
 
         MssoContext mssoContext = request.getMssoContext();
@@ -157,20 +154,19 @@ public class MssoService extends IntentService {
             if (DEBUG) Log.d(TAG, "Request for user credentials");
             //Notify listener
             MobileSsoListener mobileSsoListener = ConfigurationManager.getInstance().getMobileSsoListener();
-            try {
-                AuthenticationProvider authProvider = null;
-                if (!MAS.isBrowserBasedAuthenticationEnabled()) {
+            AuthenticationProvider authProvider = null;
+            if (!MAS.isBrowserBasedAuthenticationEnabled()) {
+                try {
                     authProvider = new OAuthClient(request.getMssoContext()).getSocialPlatformProvider(getApplicationContext());
+                } catch (OAuthException | OAuthServerException e1) {
+                    if (DEBUG) Log.e(TAG, e1.getMessage(), e1);
+                    authProvider = null;
                 }
-                if (mobileSsoListener != null) {
-                    mobileSsoListener.onAuthenticateRequest(request.getId(), authProvider);
-                } else {
-                    if (DEBUG) Log.w(TAG, "No Authentication listener is registered");
-                }
-            } catch (OAuthException | OAuthServerException e1) {
-                if (DEBUG) Log.e(TAG, e1.getMessage(), e1);
-                requestFinished(request);
-                respondError(request.getResultReceiver(), new MAGError(e1));
+            }
+            if (mobileSsoListener != null) {
+                mobileSsoListener.onAuthenticateRequest(request.getId(), authProvider);
+            } else {
+                if (DEBUG) Log.w(TAG, "No Authentication listener is registered");
             }
         } catch (TokenStoreUnavailableException e) {
             try {
@@ -204,7 +200,10 @@ public class MssoService extends IntentService {
         } catch (Exception e2) {
             if (DEBUG) Log.e(TAG, e2.getMessage(), e2);
             requestFinished(request);
-            respondError(receiver,  new MAGError(e2));
+            respondError(receiver, new MAGError(e2));
+        } finally {
+            //The request is not running, may or may not stay in the active queue
+            request.setRunning(false);
         }
     }
 

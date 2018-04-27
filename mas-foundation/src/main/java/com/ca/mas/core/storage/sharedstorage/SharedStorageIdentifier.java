@@ -7,8 +7,6 @@
  */
 package com.ca.mas.core.storage.sharedstorage;
 
-import android.content.Context;
-
 import com.ca.mas.core.context.UniqueIdentifier;
 import com.ca.mas.core.security.KeyStoreException;
 
@@ -19,10 +17,9 @@ class SharedStorageIdentifier extends UniqueIdentifier {
     /**
      * Generates a set of asymmetric keys in the Android keystore for use with the AccountManager.
      * Apps built with the same sharedUserId value in AndroidManifest.xml will reuse the same identifier.
-     * @param context
      */
-    SharedStorageIdentifier(Context context) throws KeyStoreException, NoSuchAlgorithmException {
-        super(context);
+    SharedStorageIdentifier() throws KeyStoreException, NoSuchAlgorithmException {
+        super();
     }
 
     @Override

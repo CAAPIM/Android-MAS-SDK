@@ -14,6 +14,7 @@ import android.util.Log;
 
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
+import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.context.MssoException;
 import com.ca.mas.core.error.MAGErrorCode;
@@ -21,7 +22,6 @@ import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.core.policy.exceptions.CredentialRequiredException;
-import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
 import com.ca.mas.core.registration.DeviceRegistrationAwaitingActivationException;
 import com.ca.mas.core.registration.RegistrationClient;
@@ -95,23 +95,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
                 return;
             }
         }
-
-        boolean clearCredentials = true;
-        try {
-            registerDevice(mssoContext, request);
-        } catch (RetryRequestException e) {
-            // Need the credentials to retry
-            clearCredentials = false;
-            throw e;
-        } finally {
-            Boolean ssoEnabledProp = mssoContext.getConfigurationProvider().getProperty(ConfigurationProvider.PROP_SSO_ENABLED);
-            boolean ssoEnabled = ssoEnabledProp != null && ssoEnabledProp;
-
-            // If registration fails and SSO is enabled, clear any cached credentials so the user will be prompted again.
-            if (ssoEnabled && (clearCredentials || (mssoContext.getCredentials() != null && !mssoContext.getCredentials().isReusable()))) {
-                mssoContext.clearCredentials();
-            }
-        }
+        registerDevice(mssoContext, request);
     }
 
     @Override
@@ -146,7 +130,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
         final String deviceName = mssoContext.getDeviceName();
         byte[] csrBytes;
         try {
-            deviceId = mssoContext.getDeviceId();
+            deviceId = (new DeviceIdentifier()).toString();
             String organization = mssoContext.getConfigurationProvider().getProperty(ConfigurationProvider.PROP_ORGANIZATION);
             csrBytes = KeyStoreRepository.getKeyStoreRepository().generateCertificateSigningRequest(creds.getUsername(), deviceId, deviceName, organization, privateKey, publicKey);
         } catch (CertificateException e) {

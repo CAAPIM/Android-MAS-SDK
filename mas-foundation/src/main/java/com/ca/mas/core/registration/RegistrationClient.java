@@ -12,7 +12,6 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoConfig;
-import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.cert.CertUtils;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.context.MssoContext;
@@ -20,7 +19,6 @@ import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.io.IoUtils;
-import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASRequest;
@@ -45,8 +43,6 @@ import static com.ca.mas.foundation.MAS.TAG;
  * higher-level issue.
  */
 public class RegistrationClient extends ServerClient {
-    private static final int INVALID_CLIENT_CREDENTIALS = 1000201;
-    private static final int INVALID_RESOURCE_OWNER_CREDENTIALS = 1000202;
 
     public RegistrationClient(MssoContext mssoContext) {
         super(mssoContext);
@@ -117,7 +113,7 @@ public class RegistrationClient extends ServerClient {
                                                    @NonNull String clientId,
                                                    @NonNull String clientSecret,
                                                    @NonNull String deviceId,
-                                                   @NonNull String deviceName, boolean createSession) throws RegistrationException, RegistrationServerException, AuthenticationException, InvalidClientCredentialException {
+                                                   @NonNull String deviceName, boolean createSession) throws RegistrationException, RegistrationServerException {
         if (request.getGrantProvider().getCredentials(mssoContext) == null)
             throw new NullPointerException("credentials");
 
@@ -163,14 +159,7 @@ public class RegistrationClient extends ServerClient {
                         response.getResponseCode()));
 
         if (response.getResponseCode() != HttpURLConnection.HTTP_OK) {
-            RegistrationServerException e = ServerClient.createServerException(response, RegistrationServerException.class);
-
-            if (e.getErrorCode() == INVALID_CLIENT_CREDENTIALS) {
-                throw new InvalidClientCredentialException(e);
-            } else if (e.getErrorCode() == INVALID_RESOURCE_OWNER_CREDENTIALS) {
-                throw new AuthenticationException(e);
-            }
-            throw e;
+            throw ServerClient.createServerException(response, RegistrationServerException.class);
         }
 
         final DeviceStatus deviceStatus = findDeviceStatus(response);

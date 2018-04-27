@@ -70,7 +70,7 @@ public class OtpAuthenticationHandler implements Parcelable {
 
         //MAPI-1032 : Android SDK : Fix for prefixed server otp protected resource
         String otpAuthUrl = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.AUTHENTICATE_OTP_PATH);
-        URI otpDeliveryUrl = mobileSso.getURI(otpAuthUrl);
+        URI otpDeliveryUrl = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(otpAuthUrl);
         MASRequest request = new MASRequest.MASRequestBuilder(otpDeliveryUrl)
                 .header(OtpConstants.X_OTP_CHANNEL, channels)
                 .build();

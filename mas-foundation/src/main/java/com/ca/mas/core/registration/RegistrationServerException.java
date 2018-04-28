@@ -9,18 +9,19 @@
 package com.ca.mas.core.registration;
 
 import com.ca.mas.core.error.MAGServerException;
+import com.ca.mas.foundation.MASResponse;
 
 /**
  * This exception is thrown when an error occurs while accessing register endpoint.
  */
 public class RegistrationServerException extends MAGServerException {
 
-    public RegistrationServerException(int errorCode, int status, String contentType, String detailMessage) {
-        super(errorCode, status, contentType, detailMessage);
+    public RegistrationServerException(MASResponse response, int errorCode, int status, String contentType, String detailMessage) {
+        super(response, errorCode, status, contentType, detailMessage);
     }
 
-    public RegistrationServerException(int errorCode, int status, String contentType, String detailMessage, Throwable throwable) {
-        super(errorCode, status, contentType, detailMessage, throwable);
+    public RegistrationServerException(MASResponse response, int errorCode, int status, String contentType, String detailMessage, Throwable throwable) {
+        super(response, errorCode, status, contentType, detailMessage, throwable);
     }
 
     public RegistrationServerException(MAGServerException e) {

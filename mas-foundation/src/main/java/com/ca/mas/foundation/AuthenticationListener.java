@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoListener;
-import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
@@ -63,23 +62,8 @@ class AuthenticationListener implements MobileSsoListener {
     }
 
     @Override
-    public void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler) {
-        if (MAS.getAuthenticationListener() == null) {
-            Class<Activity> otpActivity = getOtpActivity();
-            if (otpActivity != null) {
-                if (mAppContext != null) {
-                    Intent intent = new Intent(mAppContext, otpActivity);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra(MssoIntents.EXTRA_OTP_HANDLER, new MASOtpAuthenticationHandler(otpAuthenticationHandler));
-                    mAppContext.startActivity(intent);
-                }
-            } else {
-                if (DEBUG)
-                    Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for otp authentication.");
-            }
-        } else {
-            MAS.getAuthenticationListener().onOtpAuthenticateRequest(MAS.getCurrentActivity(), new MASOtpAuthenticationHandler(otpAuthenticationHandler));
-        }
+    public void onOtpAuthenticationRequest(MASOtpAuthenticationHandler otpAuthenticationHandler) {
+        // Deprecated
     }
 
     /**
@@ -109,16 +93,4 @@ class AuthenticationListener implements MobileSsoListener {
         }
     }
 
-    /**
-     * Return the MASOtpActivity from MASUI components if MASUI library is included in the classpath.
-     *
-     * @return A OtpActivity to capture the otp or null if error.
-     */
-    private Class<Activity> getOtpActivity() {
-        try {
-            return (Class<Activity>) Class.forName("com.ca.mas.ui.otp.MASOtpActivity");
-        } catch (Exception e) {
-            return null;
-        }
-    }
 }

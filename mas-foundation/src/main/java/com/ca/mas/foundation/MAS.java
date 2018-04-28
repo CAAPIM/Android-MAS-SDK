@@ -52,6 +52,7 @@ public class MAS {
     private static Activity currentActivity;
     private static boolean hasRegisteredActivityCallback;
     private static MASAuthenticationListener masAuthenticationListener;
+    private static MASOtpMultiFactorAuthenticator otpMultiFactorAuthenticator = new MASOtpMultiFactorAuthenticator();
     private static int state;
 
     private static boolean browserBasedAuthenticationEnabled = false;
@@ -72,6 +73,7 @@ public class MAS {
         // This is important, don't remove this
         new MASConfiguration(appContext);
         ConfigurationManager.getInstance().setMobileSsoListener(new AuthenticationListener(appContext));
+        registerMultiFactorAuthenticator(otpMultiFactorAuthenticator);
     }
 
     private static void registerActivityLifecycleCallbacks(Application application) {
@@ -349,7 +351,6 @@ public class MAS {
         return masAuthenticationListener;
     }
 
-
     /**
      * Checks whether the consumer of MAS has set any authentication listener or not.
      * This would help other frameworks to override the listener (and the login UI) as a fallback instead of default
@@ -551,5 +552,24 @@ public class MAS {
      */
     public static boolean isBrowserBasedAuthenticationEnabled() {
         return browserBasedAuthenticationEnabled;
+    }
+
+    /**
+     * Register a {@link MASOtpMultiFactorAuthenticator} for any API response.
+     * The registered {@link MASOtpMultiFactorAuthenticator} will be executed in registration order.
+     *
+     * @param authenticator The {@link MASOtpMultiFactorAuthenticator} that handle the Multi Factor Authenticator
+     */
+    public static void registerMultiFactorAuthenticator(MASMultiFactorAuthenticator authenticator) {
+        ConfigurationManager.getInstance().registerResponseInterceptor(authenticator);
+    }
+
+    /**
+     * Unregister a previously registered {@link MASOtpMultiFactorAuthenticator}.
+     *
+     * @param authenticator The {@link MASOtpMultiFactorAuthenticator} to unregister.
+     */
+    public static void unregisterMultiFactorAuthenticator(MASMultiFactorAuthenticator authenticator) {
+        ConfigurationManager.getInstance().unregisterResponseInterceptor(authenticator);
     }
 }

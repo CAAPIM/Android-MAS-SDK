@@ -8,8 +8,8 @@
 
 package com.ca.mas.core;
 
-import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
 import com.ca.mas.core.service.AuthenticationProvider;
+import com.ca.mas.foundation.MASOtpAuthenticationHandler;
 
 /**
  * Interface that will receive various notifications and requests for the MAG client.
@@ -23,6 +23,9 @@ public interface MobileSsoListener {
      */
     void onAuthenticateRequest(long requestId, AuthenticationProvider authenticationProvider);
 
-    void onOtpAuthenticationRequest(OtpAuthenticationHandler otpAuthenticationHandler);
+    /**
+     * @deprecated
+     */
+    void onOtpAuthenticationRequest(MASOtpAuthenticationHandler otpAuthenticationHandler);
 
 }

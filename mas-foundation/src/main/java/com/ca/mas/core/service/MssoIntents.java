@@ -24,9 +24,6 @@ public interface MssoIntents {
     /** An Intent with this action is used by a logon activity to send logon information back to the MssoService.  Fired by logon dialog activity.  Handled by MssoService. */
     String ACTION_CREDENTIALS_OBTAINED = "com.ca.mas.core.service.action.CREDENTIALS_OBTAINED";
 
-    /** An Intent with this action is used by a Display otp protected data activity to send otp information back to the MssoService.  Fired by Display otp protected data activity .  Handled by MssoService. */
-    String ACTION_VALIDATE_OTP = "com.ca.mas.core.service.action.VALIDATE_OTP";
-
     // Request info
 
     /** The ID of the request to (re)process, or -1 to process all pending queued requests that are not currently being processed. */
@@ -35,13 +32,7 @@ public interface MssoIntents {
     /** The user credentials being provided with CREDENTIALS_OBTAINED. */
     String EXTRA_CREDENTIALS = "com.ca.mas.core.service.req.extra.credentials";
 
-    // Attributes for otp authentication
-    /** The otp authentication otp value.*/
-    String EXTRA_OTP_VALUE = "com.ca.mas.core.service.req.extra.auth.otp.value";
-
-    // Attributes for otp authentication
-    /** The otp delivery selected channels.*/
-    String EXTRA_OTP_SELECTED_CHANNELS = "com.ca.mas.core.service.req.extra.auth.otp.channels";
+    String EXTRA_ADDITIONAL_HEADERS = "com.ca.mas.core.service.req.extra.additional.headers";
 
     /** The otp authentication otp handler.*/
     String EXTRA_OTP_HANDLER = "com.ca.mas.core.service.req.extra.auth.otp.handler";

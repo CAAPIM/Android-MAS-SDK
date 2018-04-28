@@ -10,6 +10,7 @@ package com.ca.mas.core.policy.exceptions;
 
 import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
 import com.ca.mas.core.error.MAGServerException;
+import com.ca.mas.foundation.MASResponse;
 
 /**
  * This exception is thrown when the target application API return x-ca-err code which belongs to otp flow
@@ -17,14 +18,14 @@ import com.ca.mas.core.error.MAGServerException;
 public class OtpException extends MAGServerException {
     private OtpResponseHeaders otpResponseHeaders;
 
-    public OtpException(int errorCode, int status, String contentType, String detailMessage, Throwable throwable,
-            OtpResponseHeaders otpResponseHeaders) {
-        super(errorCode, status, contentType, detailMessage, throwable);
+    public OtpException(MASResponse response, int errorCode, int status, String contentType, String detailMessage, Throwable throwable,
+                        OtpResponseHeaders otpResponseHeaders) {
+        super(response, errorCode, status, contentType, detailMessage, throwable);
         this.otpResponseHeaders = otpResponseHeaders;
     }
-    public OtpException(int errorCode, int status, String contentType, String detailMessage,
+    public OtpException(MASResponse response, int errorCode, int status, String contentType, String detailMessage,
                         OtpResponseHeaders otpResponseHeaders) {
-        super(errorCode, status, contentType, detailMessage);
+        super(response, errorCode, status, contentType, detailMessage);
         this.otpResponseHeaders = otpResponseHeaders;
     }
 

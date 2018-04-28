@@ -9,76 +9,76 @@
 package com.ca.mas.foundation;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.os.Parcel;
-import android.os.Parcelable;
-import android.support.annotation.VisibleForTesting;
 
-import com.ca.mas.core.MAGResultReceiver;
-import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
-import com.ca.mas.core.error.MAGError;
+import com.ca.mas.core.MobileSsoConfig;
+import com.ca.mas.core.auth.otp.OtpConstants;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.foundation.notify.Callback;
 
+import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
 
 /**
- * Handler class for the OTP flow.
- * Wrapper around the OtpAuthenticationHandler class
+ * A Handler object to handle One Time Password multi-factor authentication
  */
-public class MASOtpAuthenticationHandler implements Parcelable{
+public class MASOtpAuthenticationHandler extends MASMultiFactorHandler {
 
-    @VisibleForTesting
-    private OtpAuthenticationHandler handler;
+    private List<String> channels;
+    private boolean isInvalidOtp;
+    private String selectedChannels;
 
-    public MASOtpAuthenticationHandler(OtpAuthenticationHandler handler) {
-        this.handler = handler;
+    public MASOtpAuthenticationHandler(long requestId, List<String> channels, boolean isInvalidOtp, String selectedChannels) {
+        super(requestId);
+        this.channels = channels;
+        this.isInvalidOtp = isInvalidOtp;
+        this.selectedChannels = selectedChannels;
     }
 
-
-    /**
-     * Proceed to invoke server to validate the OTP.
-     * Wrapper for the OtpAuthenticationHandler.proceed method
-     */
     public void proceed(Context context, String otp) {
-        handler.proceed(context, otp);
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put(OtpConstants.X_OTP, otp);
+        headers.put(OtpConstants.X_OTP_CHANNEL, selectedChannels);
+        proceed(context, headers);
     }
 
     /**
      * Proceed to invoke server to deliver the OTP to the given delivery channel.
-     * Wrapper for the OtpAuthenticationHandler.deliver method
+     *
+     * @param channels the name of the delivery channel
+     * @param callback the callback for delivering a success or error
      */
-    public void deliver(String channel, final MASCallback<Void> callback) {
-        handler.deliver(channel, new MAGResultReceiver<Void>() {
+    public void deliver(String channels, final MASCallback<Void> callback) {
+        this.selectedChannels = channels;
+
+        //MAPI-1032 : Android SDK : Fix for prefixed server otp protected resource
+        String otpAuthUrl = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.AUTHENTICATE_OTP_PATH);
+        URI otpDeliveryUrl = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(otpAuthUrl);
+        MASRequest request = new MASRequest.MASRequestBuilder(otpDeliveryUrl)
+                .header(OtpConstants.X_OTP_CHANNEL, channels)
+                .build();
+        MAS.invoke(request, new MASCallback<MASResponse<Void>>() {
+
             @Override
-            public void onSuccess(MASResponse<Void> response) {
+            public void onSuccess(MASResponse<Void> result) {
                 Callback.onSuccess(callback, null);
             }
 
             @Override
-            public void onError(MAGError error) {
-                Callback.onError(callback, error);
-            }
-
-            @Override
-            public void onRequestCancelled(Bundle data) {
-
+            public void onError(Throwable e) {
+                Callback.onError(callback, e);
             }
         });
+
     }
 
     public List<String> getChannels() {
-        return handler.getChannels();
-    }
-    public boolean isInvalidOtp() {
-        return handler.isInvalidOtp();
+        return channels;
     }
 
-    /**
-     * Cancel the fetch otp protected data request.
-     * Wrapper for the OtpAuthenticationHandler.cancel method
-     */
-    public void cancel() {
-        handler.cancel();
+    public boolean isInvalidOtp() {
+        return isInvalidOtp;
     }
 
     @Override
@@ -88,11 +88,17 @@ public class MASOtpAuthenticationHandler implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(this.handler, flags);
+        super.writeToParcel(dest, flags);
+        dest.writeStringList(this.channels);
+        dest.writeByte(this.isInvalidOtp ? (byte) 1 : (byte) 0);
+        dest.writeString(this.selectedChannels);
     }
 
     protected MASOtpAuthenticationHandler(Parcel in) {
-        this.handler = in.readParcelable(OtpAuthenticationHandler.class.getClassLoader());
+        super(in);
+        this.channels = in.createStringArrayList();
+        this.isInvalidOtp = in.readByte() != 0;
+        this.selectedChannels = in.readString();
     }
 
     public static final Creator<MASOtpAuthenticationHandler> CREATOR = new Creator<MASOtpAuthenticationHandler>() {

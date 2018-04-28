@@ -27,6 +27,7 @@ public interface MASAuthenticationListener {
     void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers);
 
     /**
+     * @deprecated use {@link MASOtpMultiFactorAuthenticator#onMultiFactorAuthenticationRequest(Context, MASRequest, MASOtpAuthenticationHandler)}
      * Notify the host application that a request to authenticate Otp is triggered by the authentication process.
      */
     void onOtpAuthenticateRequest(Context context, MASOtpAuthenticationHandler handler);

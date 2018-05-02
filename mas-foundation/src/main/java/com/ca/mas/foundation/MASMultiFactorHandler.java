@@ -28,6 +28,7 @@ public class MASMultiFactorHandler implements Parcelable {
 
     /**
      * Create a MASMultiFactorHandler with the request ID.
+     *
      * @param requestId The request ID of the pending request
      */
     public MASMultiFactorHandler(long requestId) {
@@ -54,6 +55,17 @@ public class MASMultiFactorHandler implements Parcelable {
     public void cancel() {
         MAS.cancelRequest(requestId);
     }
+
+    /**
+     * Cancels the specified request ID with additional information.
+     * See {@link MAS#cancelRequest(long, Bundle)} for detail
+     *
+     * @param data the additional information to the request.
+     */
+    public void cancel(Bundle data) {
+        MAS.cancelRequest(requestId, data);
+    }
+
 
     @Override
     public int describeContents() {

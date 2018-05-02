@@ -18,6 +18,8 @@ import com.ca.mas.core.service.MssoIntents;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
+import junit.framework.Assert;
+
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -126,6 +128,32 @@ public class MASMultiFactorTest extends MASLoginTestBase {
         }
     }
 
+    @Test
+    public void testCancelWithData() throws URISyntaxException, InterruptedException {
+        MAS.unregisterMultiFactorAuthenticator(authenticator);
+        MAS.registerMultiFactorAuthenticator(new DummyMultiFactorAuthenticator() {
+
+            @Override
+            protected void onMultiFactorAuthenticationRequest(Context context, MASRequest originalRequest, MASMultiFactorHandler handler) {
+                Bundle data = new Bundle();
+                data.putString("TEST", "VALUE");
+                handler.cancel(data);
+            }
+        });
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.MULTIFACTOR_ENDPOINT))
+                .notifyOnCancel()
+                .build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>(new Handler(getContext().getMainLooper()));
+        MAS.invoke(request, callback);
+        try {
+            callback.get();
+        } catch (ExecutionException e) {
+            Assert.assertTrue(e.getCause().getCause() instanceof MAS.RequestCancelledException);
+            Assert.assertEquals("VALUE", ((MAS.RequestCancelledException) (e.getCause().getCause())).getData().get("TEST"));
+        }
+
+    }
 
     @After
     public void tearDownMultiFactorAuthenticator() {

@@ -569,7 +569,7 @@ public class MAS {
      *
      * @param authenticator The {@link MASOtpMultiFactorAuthenticator} to unregister.
      */
-    public static void unregisterMultiFactorAuthenticator(MASMultiFactorAuthenticator authenticator) {
+    private static void unregisterMultiFactorAuthenticator(MASMultiFactorAuthenticator authenticator) {
         ConfigurationManager.getInstance().unregisterResponseInterceptor(authenticator);
     }
 }

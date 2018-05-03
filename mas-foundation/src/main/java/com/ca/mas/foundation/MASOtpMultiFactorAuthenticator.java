@@ -32,7 +32,7 @@ import static com.ca.mas.foundation.MAS.TAG;
 public class MASOtpMultiFactorAuthenticator extends MASMultiFactorAuthenticator<MASOtpAuthenticationHandler> {
 
     @Override
-    public MASOtpAuthenticationHandler getMultiFactorHandler(long requestId, MASRequest request, Bundle requestExtra, MASResponse response) {
+    public MASOtpAuthenticationHandler getMultiFactorHandler(long requestId, MASRequest request, MASResponse response) {
         //Check if status code is 400, 401 or 403
         int statusCode = response.getResponseCode();
         if (statusCode == java.net.HttpURLConnection.HTTP_BAD_REQUEST
@@ -42,17 +42,11 @@ public class MASOtpMultiFactorAuthenticator extends MASMultiFactorAuthenticator<
             OtpResponseHeaders otpResponseHeaders = OtpUtil.getXotpValueFromHeaders(response.getHeaders());
 
             if (OtpResponseHeaders.X_OTP_VALUE.REQUIRED == otpResponseHeaders.getxOtpValue()) {
-                return new MASOtpAuthenticationHandler(requestId, otpResponseHeaders.getChannels(), false, null);
+                return new MASOtpAuthenticationHandler(requestId, otpResponseHeaders.getChannels(), false);
             }
 
             if (OtpResponseHeaders.X_CA_ERROR.OTP_INVALID == otpResponseHeaders.getErrorCode()) {
-                Map<String, String> additionalHeaders = (Map<String, String>) requestExtra.getSerializable(MssoIntents.EXTRA_ADDITIONAL_HEADERS);
-                String selectedChannels = null;
-                if (additionalHeaders != null) {
-                    additionalHeaders.remove(OtpConstants.X_OTP);
-                    selectedChannels = additionalHeaders.get(OtpConstants.X_OTP_CHANNEL);
-                }
-                return new MASOtpAuthenticationHandler(requestId, otpResponseHeaders.getChannels(), true, selectedChannels);
+                return new MASOtpAuthenticationHandler(requestId, otpResponseHeaders.getChannels(), true);
             }
         }
         return null;

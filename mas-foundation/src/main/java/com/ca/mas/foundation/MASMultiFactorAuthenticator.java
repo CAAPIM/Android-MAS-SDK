@@ -12,6 +12,8 @@ import android.os.Bundle;
 
 import com.ca.mas.core.ResponseInterceptor;
 
+import java.net.HttpURLConnection;
+
 /**
  * Represents a multi-factor authenticator
  *
@@ -25,14 +27,13 @@ public abstract class MASMultiFactorAuthenticator<T extends MASMultiFactorHandle
      *
      * @param requestId    The request ID which identify the request ID which is pending for Multi-factor authentication
      * @param request      The original request that may trigger the multi-factor authentication.
-     * @param requestExtra Previous state information for the request.
      * @param response     The API Response
      * @return A {@link MASMultiFactorHandler} If step up authentication is required, otherwise return null.
      */
-    public abstract T getMultiFactorHandler(long requestId, MASRequest request, Bundle requestExtra, MASResponse response);
+    public abstract T getMultiFactorHandler(long requestId, MASRequest request, MASResponse response);
 
     /**
-     * This method will be triggered after {@link #getMultiFactorHandler(long, MASRequest, Bundle, MASResponse)} return a
+     * This method will be triggered after {@link #getMultiFactorHandler(long, MASRequest, MASResponse)} return a
      * {@link MASMultiFactorHandler}, step up authentication is required for this API request.
      *
      * @param context         The current Activity Context
@@ -43,12 +44,18 @@ public abstract class MASMultiFactorAuthenticator<T extends MASMultiFactorHandle
 
     @Override
     public boolean intercept(long requestId, MASRequest originalRequest, Bundle requestExtra, MASResponse response) {
-        T handler = getMultiFactorHandler(requestId, originalRequest, requestExtra, response);
-        if (handler != null) {
-            onMultiFactorAuthenticationRequest(MAS.getCurrentActivity(), originalRequest, handler);
-            //return true to keep the request in the queue
-            return true;
+        //Multi factor authenticator only cares about failed response
+        if (response.getResponseCode() < HttpURLConnection.HTTP_OK || response.getResponseCode() >= HttpURLConnection.HTTP_MULT_CHOICE) {
+            T handler = getMultiFactorHandler(requestId, originalRequest, response);
+            if (handler != null) {
+                onMultiFactorAuthenticationRequest(MAS.getCurrentActivity(), originalRequest, handler);
+                //return true to keep the request in the queue
+                return true;
+            }
+            return false;
+        } else {
+            //remove the request from the queue
+            return false;
         }
-        return false;
     }
 }

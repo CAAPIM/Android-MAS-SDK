@@ -27,19 +27,16 @@ public class MASOtpAuthenticationHandler extends MASMultiFactorHandler {
 
     private List<String> channels;
     private boolean isInvalidOtp;
-    private String selectedChannels;
 
-    public MASOtpAuthenticationHandler(long requestId, List<String> channels, boolean isInvalidOtp, String selectedChannels) {
+    public MASOtpAuthenticationHandler(long requestId, List<String> channels, boolean isInvalidOtp) {
         super(requestId);
         this.channels = channels;
         this.isInvalidOtp = isInvalidOtp;
-        this.selectedChannels = selectedChannels;
     }
 
     public void proceed(Context context, String otp) {
         HashMap<String, String> headers = new HashMap<>();
         headers.put(OtpConstants.X_OTP, otp);
-        headers.put(OtpConstants.X_OTP_CHANNEL, selectedChannels);
         proceed(context, headers);
     }
 
@@ -50,7 +47,6 @@ public class MASOtpAuthenticationHandler extends MASMultiFactorHandler {
      * @param callback the callback for delivering a success or error
      */
     public void deliver(String channels, final MASCallback<Void> callback) {
-        this.selectedChannels = channels;
 
         //MAPI-1032 : Android SDK : Fix for prefixed server otp protected resource
         String otpAuthUrl = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.AUTHENTICATE_OTP_PATH);
@@ -91,14 +87,12 @@ public class MASOtpAuthenticationHandler extends MASMultiFactorHandler {
         super.writeToParcel(dest, flags);
         dest.writeStringList(this.channels);
         dest.writeByte(this.isInvalidOtp ? (byte) 1 : (byte) 0);
-        dest.writeString(this.selectedChannels);
     }
 
     protected MASOtpAuthenticationHandler(Parcel in) {
         super(in);
         this.channels = in.createStringArrayList();
         this.isInvalidOtp = in.readByte() != 0;
-        this.selectedChannels = in.readString();
     }
 
     public static final Creator<MASOtpAuthenticationHandler> CREATOR = new Creator<MASOtpAuthenticationHandler>() {

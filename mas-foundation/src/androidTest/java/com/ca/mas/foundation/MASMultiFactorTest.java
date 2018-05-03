@@ -14,7 +14,7 @@ import android.os.Handler;
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
-import com.ca.mas.core.service.MssoIntents;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
@@ -79,28 +79,28 @@ public class MASMultiFactorTest extends MASLoginTestBase {
         setDispatcher(new GatewayDefaultDispatcher() {
             @Override
             protected MockResponse multiFactor(RecordedRequest request) {
-                if (request.getHeader(FIRST_FACTOR_VALUE) != null && request.getHeader(SECOND_FACTOR_VALUE) != null) {
+
+                if (request.getHeader(SECOND_FACTOR_VALUE) != null) {
                     return new MockResponse().setResponseCode(200).setBody("{\"test\":\"test value\"}");
-                } else if (request.getHeader(FIRST_FACTOR_VALUE) != null) {
-                    //Second multifactor auth
-                    return new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST).addHeader(SECOND_FACTOR_ERROR, "3456");
-                } else {
-                    //First multifactor auth
+                }
+                if (request.getHeader(FIRST_FACTOR_VALUE) == null) {
                     return new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST).addHeader(FIRST_FACTOR_ERROR, "1234");
                 }
+                if (request.getHeader(SECOND_FACTOR_VALUE) == null) {
+                    return new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST).addHeader(SECOND_FACTOR_ERROR, "3456");
+                }
+
+                return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
 
             }
         });
 
         MASMultiFactorAuthenticator authenticator2 = new MASMultiFactorAuthenticator<DummyMultiFactorHandler>() {
             @Override
-            public DummyMultiFactorHandler getMultiFactorHandler(long requestId, MASRequest request, Bundle requestExtra, MASResponse response) {
+            public DummyMultiFactorHandler getMultiFactorHandler(long requestId, MASRequest request, MASResponse response) {
                 int statusCode = response.getResponseCode();
                 if (statusCode == java.net.HttpURLConnection.HTTP_BAD_REQUEST) {
-                    List<String> errors = (List<String>) response.getHeaders().get(SECOND_FACTOR_ERROR);
-                    if (errors != null) {
-                        return new DummyMultiFactorHandler(requestId, (Map<String, String>) requestExtra.getSerializable(MssoIntents.EXTRA_ADDITIONAL_HEADERS));
-                    }
+                    return new DummyMultiFactorHandler(requestId);
                 }
                 return null;
             }
@@ -121,16 +121,15 @@ public class MASMultiFactorTest extends MASLoginTestBase {
             assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
             assertNotNull(callback.get().getBody().getContent());
             RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.MULTIFACTOR_ENDPOINT);
-            assertEquals("1234", rr.getHeader(FIRST_FACTOR_VALUE));
             assertEquals("3456", rr.getHeader(SECOND_FACTOR_VALUE));
         } finally {
-            MAS.unregisterMultiFactorAuthenticator(authenticator2);
+            ConfigurationManager.getInstance().unregisterResponseInterceptor(authenticator2);
         }
     }
 
     @Test
     public void testCancelWithData() throws URISyntaxException, InterruptedException {
-        MAS.unregisterMultiFactorAuthenticator(authenticator);
+        ConfigurationManager.getInstance().unregisterResponseInterceptor(authenticator);
         MAS.registerMultiFactorAuthenticator(new DummyMultiFactorAuthenticator() {
 
             @Override
@@ -157,14 +156,14 @@ public class MASMultiFactorTest extends MASLoginTestBase {
 
     @After
     public void tearDownMultiFactorAuthenticator() {
-        MAS.unregisterMultiFactorAuthenticator(authenticator);
+        ConfigurationManager.getInstance().getResponseInterceptors().clear();
     }
 
 
     private abstract static class DummyMultiFactorAuthenticator extends MASMultiFactorAuthenticator<MASMultiFactorHandler> {
 
         @Override
-        public MASMultiFactorHandler getMultiFactorHandler(long requestId, MASRequest request, Bundle requestExtra, MASResponse response) {
+        public MASMultiFactorHandler getMultiFactorHandler(long requestId, MASRequest request, MASResponse response) {
             int statusCode = response.getResponseCode();
             if (statusCode == HttpURLConnection.HTTP_BAD_REQUEST) {
                 List<String> errors = (List<String>) response.getHeaders().get(FIRST_FACTOR_ERROR);
@@ -179,14 +178,13 @@ public class MASMultiFactorTest extends MASLoginTestBase {
 
     private static class DummyMultiFactorHandler extends MASMultiFactorHandler {
 
-        private Map<String, String> additionalHeaders = null;
-
-        public DummyMultiFactorHandler(long requestId, Map<String, String> additionalHeaders) {
+        public DummyMultiFactorHandler(long requestId) {
             super(requestId);
-            this.additionalHeaders = additionalHeaders;
         }
 
         public void proceed(Context context, String anotherMultiFactor) {
+            Map<String, String> additionalHeaders = new HashMap<>();
+            additionalHeaders.put(FIRST_FACTOR_VALUE, "1234");
             additionalHeaders.put(SECOND_FACTOR_VALUE, anotherMultiFactor);
             super.proceed(context, additionalHeaders);
         }

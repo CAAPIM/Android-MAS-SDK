@@ -87,10 +87,7 @@ public class MssoService extends IntentService {
     private void startThreadedRequest(final Bundle extras, final MssoRequest request) {
         //Before assign the request to thread task,
         request.setRunning(true);
-        //We don't want to override the extras if it is null.
-        if (extras != null) {
-            request.setExtra(extras);
-        }
+        request.setExtra(extras);
         try {
             MssoExecutorService.getInstance().execute(new Runnable() {
                 @Override

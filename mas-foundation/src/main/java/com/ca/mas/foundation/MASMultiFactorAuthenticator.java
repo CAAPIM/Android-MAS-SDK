@@ -30,7 +30,7 @@ public abstract class MASMultiFactorAuthenticator<T extends MASMultiFactorHandle
      * @param response     The API Response
      * @return A {@link MASMultiFactorHandler} If step up authentication is required, otherwise return null.
      */
-    public abstract T getMultiFactorHandler(long requestId, MASRequest request, MASResponse response);
+    public abstract T getMultiFactorHandler(long requestId, MASRequest request, MASResponse<?> response);
 
     /**
      * This method will be triggered after {@link #getMultiFactorHandler(long, MASRequest, MASResponse)} return a
@@ -43,7 +43,7 @@ public abstract class MASMultiFactorAuthenticator<T extends MASMultiFactorHandle
     protected abstract void onMultiFactorAuthenticationRequest(Context context, MASRequest originalRequest, T handler);
 
     @Override
-    public boolean intercept(long requestId, MASRequest originalRequest, Bundle requestExtra, MASResponse response) {
+    public boolean intercept(long requestId, MASRequest originalRequest, Bundle requestExtra, MASResponse<?> response) {
         //Multi factor authenticator only cares about failed response
         if (response.getResponseCode() < HttpURLConnection.HTTP_OK || response.getResponseCode() >= HttpURLConnection.HTTP_MULT_CHOICE) {
             T handler = getMultiFactorHandler(requestId, originalRequest, response);

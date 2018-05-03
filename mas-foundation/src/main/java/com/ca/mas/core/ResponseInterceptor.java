@@ -24,6 +24,6 @@ public interface ResponseInterceptor {
      * @param response        The response of the API request.
      * @return True to keep the request in the queue for later retry, False to remove the request from the queue
      */
-    boolean intercept(long requestId, MASRequest originalRequest, Bundle requestExtra, MASResponse response);
+    boolean intercept(long requestId, MASRequest originalRequest, Bundle requestExtra, MASResponse<?> response);
 
 }

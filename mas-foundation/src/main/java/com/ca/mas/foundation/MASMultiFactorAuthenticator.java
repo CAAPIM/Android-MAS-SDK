@@ -22,18 +22,20 @@ import java.net.HttpURLConnection;
 public abstract class MASMultiFactorAuthenticator<T extends MASMultiFactorHandler> implements ResponseInterceptor {
 
     /**
-     * Determine if the API Response required Multi-Factor Authentication, return a {@link MASMultiFactorHandler} if
-     * step up authentication is required, otherwise return null;
+     * Determines whether the custom MFA object can or will handle flow based on the response of the original request.
+     * + The method will only be triggered when the original request failed, and the original request is not one of MAG/OTK's system endpoints.
      *
-     * @param requestId    The request ID which identify the request ID which is pending for Multi-factor authentication
-     * @param request      The original request that may trigger the multi-factor authentication.
-     * @param response     The API Response
-     * @return A {@link MASMultiFactorHandler} If step up authentication is required, otherwise return null.
+     * @param requestId The request ID which identify the request ID which is pending for Multi-factor authentication
+     * @param request   The original request that may trigger the multi-factor authentication.
+     * @param response  The API Response
+     * @return If the custom MFA class can or will handle the MFA flow based on the error codes, or response of the request,
+     * the method should return {@link MASMultiFactorHandler} class.
+     * If null is returned from the method, the original request will deliver the result as it was..
      */
     public abstract T getMultiFactorHandler(long requestId, MASRequest request, MASResponse<?> response);
 
     /**
-     * This method will be triggered after {@link #getMultiFactorHandler(long, MASRequest, MASResponse)} return a
+     * The method will be triggered when MASFoundation detects that the custom MFA class is responsible to handle MFA flow.
      * {@link MASMultiFactorHandler}, step up authentication is required for this API request.
      *
      * @param context         The current Activity Context

@@ -36,8 +36,7 @@ public class MASMultiFactorHandler implements Parcelable {
     }
 
     /**
-     * Provide more information for multi-factor authentication, additional headers will be injected
-     * to the original pending request.
+     * Proceeds with additional headers that can be injected to the original request.
      *
      * @param context           The current Activity Context
      * @param additionalHeaders Additional headers that will inject to the original pending request.
@@ -51,13 +50,14 @@ public class MASMultiFactorHandler implements Parcelable {
 
     /**
      * Cancel the multi-factor authentication, the pending request from the queue will be removed.
+     * See {@link MAS#cancelRequest(long)} for detail
      */
     public void cancel() {
         MAS.cancelRequest(requestId);
     }
 
     /**
-     * Cancels the specified request ID with additional information.
+     * Cancels the original request with additional information defined in multi factor authentication process
      * See {@link MAS#cancelRequest(long, Bundle)} for detail
      *
      * @param data the additional information to the request.

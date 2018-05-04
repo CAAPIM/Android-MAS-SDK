@@ -555,7 +555,7 @@ public class MAS {
     }
 
     /**
-     * Register a {@link MASOtpMultiFactorAuthenticator} for any API response.
+     * Static method to register custom {@link MASMultiFactorAuthenticator} object to handle multi-factor authentication.
      * The registered {@link MASOtpMultiFactorAuthenticator} will be executed in registration order.
      *
      * @param authenticator The {@link MASOtpMultiFactorAuthenticator} that handle the Multi Factor Authenticator

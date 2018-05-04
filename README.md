@@ -5,8 +5,10 @@ CA Mobile API Gateway (MAG) provides enterprises with a secure mobile backend th
 
 The CA Mobile API Gateway also provides powerful mobile backend services through SDKs and APIs for developers to help accelerate the app development process.
 
-## Android Mobile SDK Frameworks
+## Get Started and Documentation
+* Check out our [documentation][documentation] for sample code, video tutorials, and more.  
 
+## Android Mobile SDK Frameworks
 The Android Mobile SDK consists of these frameworks:
 
 - **MASConnecta** - Messaging and pub/sub services allowing users to message and send data to each other.
@@ -34,13 +36,6 @@ For more information about our mobile products see the [developer website][mas.c
 * **Local Storage** - Store data on devices with enterprise-grade encryption.
 * **UI Template** - Provides resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE), to save time during UI creation and app prototyping.
 
-## Get Started
-* Check out our [documentation][documentation] for sample code, video tutorials, and more.  
-
-## Communication
-* Have general questions, need help, or have an idea and want to request a feature? Open an [issue][issues].
-* Find a bug? Open an [issue][issues] with the steps to reproduce it.
-
 ## Installation
 Edit your build.gradle file and add below dependency:
 ```gradle
@@ -55,12 +50,17 @@ Edit your build.gradle file and add below dependency:
         implementation 'org.bouncycastle:bcpkix-jdk15on:1.55' // (Optional) Only required when you want to support Android 4.1.x
     }
 ```
+## SDK Releases
+The compiled release binaries can be found here: [Releases][Releases]
+
+## Communication
+* Have general questions, need help, or have an idea and want to request a feature? Open an [issue][issues].
+* Find a bug? Open an [issue][issues] with the steps to reproduce it.
 
 ## How You Can Contribute
 Contributions are welcome and much appreciated. To learn more, see the [Contribution Guidelines][contributing].
 
 ## Documentation
-For more documentation and API references, go to our [main website][documentation].
 
 ## License
 Copyright (c) 2017 CA. All rights reserved.

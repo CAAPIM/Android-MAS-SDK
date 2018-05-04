@@ -5,7 +5,7 @@ CA Mobile API Gateway (MAG) provides enterprises with a secure mobile backend th
 
 The CA Mobile API Gateway also provides powerful mobile backend services through SDKs and APIs for developers to help accelerate the app development process.
 
-## Get Started and Documentation
+## Get Started
 * Check out our [documentation][documentation] for sample code, video tutorials, and more.  
 
 ## Android Mobile SDK Frameworks
@@ -61,6 +61,7 @@ The compiled release binaries can be found here: [Releases][Releases]
 Contributions are welcome and much appreciated. To learn more, see the [Contribution Guidelines][contributing].
 
 ## Documentation
+For more documentation including API references, go to our main website: [mas.ca.com]: [http://mas.ca.com/]
 
 ## License
 Copyright (c) 2017 CA. All rights reserved.

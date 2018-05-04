@@ -1,41 +1,41 @@
-# Android Mobile SDK
+# Android™ Mobile SDK
 ## for CA Mobile API Gateway
 
 CA Mobile API Gateway (MAG) provides enterprises with a secure mobile backend that integrates systems and allows control over which users, devices, and applications can access your APIs. The MAG enables developers to leverage standards for API security such as (OAuth2, OpenID Connect, PKI) through client SDKs for Android.
 
 The CA Mobile API Gateway also provides powerful mobile backend services through SDKs and APIs for developers to help accelerate the app development process.
 
+## Android Mobile SDK Frameworks
+
 The Android Mobile SDK consists of these frameworks:
-* **MAS** - Includes the following four frameworks:
-    * **MASConnecta** - Messaging and pub/sub services allowing users to message and send data to each other.
-    * **MASFoundation** - Core services to handle user authentication, device and app registration, requests and local storage of certificates, keys, and token credentials for accessing protected APIs.
-    * **MASIdentityManagement** - Identity management services to securely access users and groups from enterprise identity providers.
-    * **MASStorage** - Storage services for private local and cloud storage.
-* **MASUI** - Resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).
+
+- **MASConnecta** - Messaging and pub/sub services allowing users to message and send data to each other.
+- **MASFoundation** - Core services to handle user authentication, device and app registration, requests and local storage of certificates, keys, and token credentials for accessing protected APIs.
+- **MASIdentityManagement** - Identity management services to securely access users and groups from enterprise identity providers.
+- **MASStorage** - Storage services for private local and cloud storage.
+- **MASUI** - Resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).
 
 For more information about our mobile products see the [developer website][mas.ca.com].
 
 ## Features
 
-* **Secure API Calls** - *Protect APIs with Mutual TLS and control API access on application, user and device level.*
-* **Authentication** - *Implement authentication with username/password, Facebook, Google, Twitter sign-in.*
-* **Second Factor Auth** - *Secure critical APIs with One Time Password.*
-* **Single Sign-On** -*Share user credentials between your apps.*
-* **Enterprise Browser** - *Extend the single sign-on session to web applications.*
-* **Proximity Login** - *Transfer the user session between devices and platforms.*
-* **Fingerprint Sessions Lock** - *Support phone unlocking using fingerprint recognition.*
-* **Messaging** - *Create collaborative apps with secure, reliable messaging.*
-* **User Management** - *Seamlessly integrate your app with an existing enterprise user directory.*
-* **Private Cloud Storage** - *Store data in a private cloud and access it from all of your devices.*
-* **Pub/Sub** - *Create real-time, IoT-friendly apps using an MQTT-based Pub/Sub infrastructure.*
-* **Adhoc Groups** - *Create groups on-the-fly for collaborative apps.*
-* **Local Storage** - *Store data on devices with enterprise-grade encryption.*
-* **UI Template** - *Provides resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE), to save time during UI creation and app prototyping.*
-
+* **Secure API Calls** - Protect APIs with Mutual TLS and control API access on application, user and device level.
+* **Authentication** - Implement authentication with username/password, Facebook, Google, Twitter sign-in.
+* **Second Factor Auth** - Secure critical APIs with One Time Password.
+* **Single Sign-On** - Share user credentials between your apps.
+* **Enterprise Browser** - Extend the single sign-on session to web applications.
+* **Proximity Login** - Transfer the user session between devices and platforms.
+* **Fingerprint Sessions Lock** - Support phone unlocking using fingerprint recognition.
+* **Messaging** - Create collaborative apps with secure, reliable messaging.
+* **User Management** - Seamlessly integrate your app with an existing enterprise user directory.
+* **Private Cloud Storage** - Store data in a private cloud and access it from all of your devices.
+* **Pub/Sub** - Create real-time, IoT-friendly apps using an MQTT-based Pub/Sub infrastructure.
+* **Adhoc Groups** - Create groups on-the-fly for collaborative apps.
+* **Local Storage** - Store data on devices with enterprise-grade encryption.
+* **UI Template** - Provides resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE), to save time during UI creation and app prototyping.
 
 ## Get Started
 * Check out our [documentation][documentation] for sample code, video tutorials, and more.  
-
 
 ## Communication
 * Have general questions, need help, or have an idea and want to request a feature? Open an [issue][issues].

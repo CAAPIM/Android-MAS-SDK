@@ -6,7 +6,7 @@ CA Mobile API Gateway (MAG) provides enterprises with a secure mobile backend th
 The CA Mobile API Gateway also provides powerful mobile backend services through SDKs and APIs for developers to help accelerate the app development process.
 
 ## Get Started
-* Check out our [documentation][documentation] for sample code, video tutorials, and more.  
+Check out our [documentation][documentation] for sample code, video tutorials, and more.  
 
 ## Android Mobile SDK Frameworks
 The Android Mobile SDK consists of these frameworks:
@@ -54,8 +54,9 @@ Edit your build.gradle file and add below dependency:
 The compiled release binaries can be found here: [Releases][Releases]
 
 ## Communication
-* Have general questions, need help, or have an idea and want to request a feature? Open an [issue][issues].
-* Find a bug? Open an [issue][issues] with the steps to reproduce it.
+- *Have general questions or need help?*, use [Stack Overflow][StackOverflow]. (Tag 'massdk')
+- *Find a bug?*, open an issue with the steps to reproduce it.
+- *Request a feature or have an idea?*, open an issue.
 
 ## How You Can Contribute
 Contributions are welcome and much appreciated. To learn more, see the [Contribution Guidelines][contributing].

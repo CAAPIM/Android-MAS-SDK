@@ -10,18 +10,11 @@ package com.ca.mas.foundation;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 
-import com.ca.mas.core.MobileSsoListener;
-import com.ca.mas.core.auth.otp.OtpConstants;
 import com.ca.mas.core.auth.otp.OtpUtil;
 import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
-import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.service.MssoIntents;
-
-import java.io.Serializable;
-import java.util.Map;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
@@ -32,7 +25,7 @@ import static com.ca.mas.foundation.MAS.TAG;
 public class MASOtpMultiFactorAuthenticator extends MASMultiFactorAuthenticator<MASOtpAuthenticationHandler> {
 
     @Override
-    public MASOtpAuthenticationHandler getMultiFactorHandler(long requestId, MASRequest request, MASResponse response) {
+    public MASOtpAuthenticationHandler getMultiFactorHandler(long requestId, MASRequest request, MASResponse<?> response) {
         //Check if status code is 400, 401 or 403
         int statusCode = response.getResponseCode();
         if (statusCode == java.net.HttpURLConnection.HTTP_BAD_REQUEST
@@ -53,8 +46,7 @@ public class MASOtpMultiFactorAuthenticator extends MASMultiFactorAuthenticator<
     }
 
     @Override
-    public void onMultiFactorAuthenticationRequest(Context context, MASRequest originalRequest, MASOtpAuthenticationHandler handler) {
-
+    protected void onMultiFactorAuthenticationRequest(Context context, MASRequest originalRequest, MASResponse<?> response, MASOtpAuthenticationHandler handler) {
         if (MAS.getAuthenticationListener() == null) {
             Class<Activity> otpActivity = getOtpActivity();
             if (otpActivity != null) {
@@ -69,7 +61,6 @@ public class MASOtpMultiFactorAuthenticator extends MASMultiFactorAuthenticator<
                     Log.w(TAG, MASAuthenticationListener.class.getSimpleName() + " is required for otp authentication.");
             }
         } else {
-            //Backward compability
             MAS.getAuthenticationListener().onOtpAuthenticateRequest(MAS.getCurrentActivity(), handler);
         }
     }
@@ -81,6 +72,7 @@ public class MASOtpMultiFactorAuthenticator extends MASMultiFactorAuthenticator<
      */
     private Class<Activity> getOtpActivity() {
         try {
+            //TODO may be just use implicit Intent
             return (Class<Activity>) Class.forName("com.ca.mas.ui.otp.MASOtpActivity");
         } catch (Exception e) {
             return null;

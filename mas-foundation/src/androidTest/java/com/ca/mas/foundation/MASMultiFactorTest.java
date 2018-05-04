@@ -51,7 +51,7 @@ public class MASMultiFactorTest extends MASLoginTestBase {
 
         authenticator = new DummyMultiFactorAuthenticator() {
             @Override
-            protected void onMultiFactorAuthenticationRequest(Context context, MASRequest originalRequest, MASMultiFactorHandler handler) {
+            protected void onMultiFactorAuthenticationRequest(Context context, MASRequest originalRequest, MASResponse<?> response, MASMultiFactorHandler handler) {
                 HashMap<String, String> headers = new HashMap<>();
                 headers.put(FIRST_FACTOR_VALUE, "1234");
                 handler.proceed(getContext(), headers);
@@ -96,7 +96,7 @@ public class MASMultiFactorTest extends MASLoginTestBase {
         });
 
         MASMultiFactorAuthenticator authenticator2 = new MASMultiFactorAuthenticator<DummyMultiFactorHandler>() {
-            @Override
+           @Override
             public DummyMultiFactorHandler getMultiFactorHandler(long requestId, MASRequest request, MASResponse response) {
                 int statusCode = response.getResponseCode();
                 if (statusCode == java.net.HttpURLConnection.HTTP_BAD_REQUEST) {
@@ -106,7 +106,7 @@ public class MASMultiFactorTest extends MASLoginTestBase {
             }
 
             @Override
-            protected void onMultiFactorAuthenticationRequest(Context context, MASRequest originalRequest, DummyMultiFactorHandler handler) {
+            protected void onMultiFactorAuthenticationRequest(Context context, MASRequest originalRequest, MASResponse<?> response, DummyMultiFactorHandler handler) {
                 handler.proceed(getContext(), "3456");
             }
         };
@@ -133,7 +133,7 @@ public class MASMultiFactorTest extends MASLoginTestBase {
         MAS.registerMultiFactorAuthenticator(new DummyMultiFactorAuthenticator() {
 
             @Override
-            protected void onMultiFactorAuthenticationRequest(Context context, MASRequest originalRequest, MASMultiFactorHandler handler) {
+            protected void onMultiFactorAuthenticationRequest(Context context, MASRequest originalRequest, MASResponse<?> response, MASMultiFactorHandler handler) {
                 Bundle data = new Bundle();
                 data.putString("TEST", "VALUE");
                 handler.cancel(data);
@@ -163,7 +163,7 @@ public class MASMultiFactorTest extends MASLoginTestBase {
     private abstract static class DummyMultiFactorAuthenticator extends MASMultiFactorAuthenticator<MASMultiFactorHandler> {
 
         @Override
-        public MASMultiFactorHandler getMultiFactorHandler(long requestId, MASRequest request, MASResponse response) {
+        public MASMultiFactorHandler getMultiFactorHandler(long requestId, MASRequest request, MASResponse<?> response) {
             int statusCode = response.getResponseCode();
             if (statusCode == HttpURLConnection.HTTP_BAD_REQUEST) {
                 List<String> errors = (List<String>) response.getHeaders().get(FIRST_FACTOR_ERROR);

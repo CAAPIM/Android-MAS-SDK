@@ -40,7 +40,7 @@ public abstract class MASMultiFactorAuthenticator<T extends MASMultiFactorHandle
      * @param originalRequest The original request that may trigger the multi-factor authentication.
      * @param handler         To handle and provide more information required for step up authentication.
      */
-    protected abstract void onMultiFactorAuthenticationRequest(Context context, MASRequest originalRequest, T handler);
+    protected abstract void onMultiFactorAuthenticationRequest(Context context, MASRequest originalRequest, MASResponse<?> response, T handler);
 
     @Override
     public boolean intercept(long requestId, MASRequest originalRequest, Bundle requestExtra, MASResponse<?> response) {
@@ -48,7 +48,7 @@ public abstract class MASMultiFactorAuthenticator<T extends MASMultiFactorHandle
         if (response.getResponseCode() < HttpURLConnection.HTTP_OK || response.getResponseCode() >= HttpURLConnection.HTTP_MULT_CHOICE) {
             T handler = getMultiFactorHandler(requestId, originalRequest, response);
             if (handler != null) {
-                onMultiFactorAuthenticationRequest(MAS.getCurrentActivity(), originalRequest, handler);
+                onMultiFactorAuthenticationRequest(MAS.getCurrentActivity(), originalRequest, response, handler);
                 //return true to keep the request in the queue
                 return true;
             }

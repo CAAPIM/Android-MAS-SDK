@@ -26,7 +26,6 @@ import com.ca.mas.core.policy.PolicyManager;
 import com.ca.mas.core.policy.RequestInfo;
 import com.ca.mas.core.policy.exceptions.CertificateExpiredException;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
-import com.ca.mas.core.policy.exceptions.InvalidIdentifierException;
 import com.ca.mas.core.policy.exceptions.RetryRequestException;
 import com.ca.mas.core.registration.RegistrationClient;
 import com.ca.mas.core.request.MAGInternalRequest;
@@ -457,9 +456,6 @@ public class MssoContext {
         }
         if (s.endsWith(CertificateExpiredException.CERTIFICATE_EXPIRED_SUFFIX)) { //Invalid client Certificate - The given client certificate has expired
             throw new CertificateExpiredException(e);
-        }
-        if (s.endsWith(InvalidIdentifierException.INVALID_MAG_IDENTIFIER_SUFFIX)) {
-            throw new InvalidIdentifierException(e);
         }
         //Remove credentials for exception which cannot be handled on SDK
         clearCredentials();

@@ -24,6 +24,7 @@ import com.squareup.okhttp.mockwebserver.RecordedRequest;
 import junit.framework.Assert;
 
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -200,7 +201,7 @@ public class MASRegistrationTest extends MASStartTestBase {
         assertNotNull(tm.getMagIdentifier());
     }
 
-    @Test
+    @Ignore(value = "Due to DE363094")
     public void testInvalidMAGIdentifierDuringRegistration() throws InterruptedException, ExecutionException {
 
         final boolean[] override = {true};

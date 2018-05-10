@@ -791,14 +791,15 @@ public class MASTest extends MASLoginTestBase {
 
     @Test
     public void testLoading() throws Exception {
-        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_SLOW))
-                .build();
 
         final int[] failed = {0};
 
         int noOfRequest = 150;
         final CountDownLatch countDownLatch = new CountDownLatch(noOfRequest);
         for (int i = 0; i < noOfRequest; i++) {
+            MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_SLOW))
+                    .build();
+
             MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
 
                 @Override

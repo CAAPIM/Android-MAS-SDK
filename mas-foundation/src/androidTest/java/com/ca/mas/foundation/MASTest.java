@@ -31,6 +31,7 @@ import junit.framework.Assert;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -880,7 +881,7 @@ public class MASTest extends MASLoginTestBase {
 
     }
 
-    @Test
+    @Ignore(value = "Due to DE363094")
     public void testInvalidMAGIdentifierDuringServiceRequest() throws InterruptedException, ExecutionException, URISyntaxException {
 
         final boolean[] override = {true};

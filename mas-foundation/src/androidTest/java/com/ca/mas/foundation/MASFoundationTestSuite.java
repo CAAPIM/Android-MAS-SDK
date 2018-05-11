@@ -26,6 +26,7 @@ import org.junit.runners.Suite;
         MASGeoFencingTest.class,
         MASJwtSigningTest.class,
         MASLoginTest.class,
+        MASMultiFactorTest.class,
         MASMultiServerTest.class,
         MASMultiUserTest.class,
         MASOAuthLoginTest.class,

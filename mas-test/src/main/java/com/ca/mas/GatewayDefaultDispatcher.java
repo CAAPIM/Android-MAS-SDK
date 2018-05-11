@@ -52,6 +52,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String AUTH_OTP = "/auth/generateOTP";
     public static final String USER_INFO = "/openid/connect/v1/userinfo";
     public static final String ECHO = "/echo";
+    public static final String MULTIFACTOR_ENDPOINT = "/multifactor";
 
     public static final String OTHER = "other";
 
@@ -123,6 +124,8 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return enterpriseBrowser(request);
             } else if (request.getPath().contains(ECHO)) {
                 return echo(request);
+            } else if (request.getPath().contains(MULTIFACTOR_ENDPOINT)) {
+                return multiFactor(request);
             }
 
             for (Dispatcher d : dispatchers) {
@@ -135,7 +138,14 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
         } catch (Exception e) {
             return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR).
                     setBody(e.toString());
+        }
+    }
 
+    protected MockResponse multiFactor(RecordedRequest request) {
+        if (request.getHeader("multi-factor-value") != null) {
+            return new MockResponse().setResponseCode(200).setBody("{\"test\":\"test value\"}");
+        } else {
+            return new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST).addHeader("x-Dummy-err", "1234");
         }
     }
 

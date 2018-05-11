@@ -11,6 +11,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoListener;
+import com.ca.mas.core.ResponseInterceptor;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.foundation.MASGrantProvider;
@@ -27,6 +28,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import static com.ca.mas.core.conf.Config.HOSTNAME;
@@ -45,6 +48,7 @@ public class ConfigurationManager {
 
     private MASConnectionListener connectionListener;
     private MobileSsoListener mobileSsoListener;
+    private LinkedHashMap<Class, ResponseInterceptor> responseInterceptors = new LinkedHashMap<>();
 
     private MASGrantProvider defaultGrantProvider = MASGrantProvider.PASSWORD;
 
@@ -214,8 +218,6 @@ public class ConfigurationManager {
         String organization = getValue(Config.ORGANIZATION, jsonObject);
         String scope = getValue(Config.SCOPE, jsonObject);
         String redirectUri = getValue(Config.REDIRECT_URI, jsonObject);
-
-
 
 
         DefaultConfiguration conf = new DefaultConfiguration(jsonObject, tokenHost, port, tokenUriPrefix, clientId, clientSecret, organization, scope, redirectUri);
@@ -424,5 +426,25 @@ public class ConfigurationManager {
 
     public void setCertificateAdvancedRenewTimeframe(int certificateAdvancedRenewTimeframe) {
         this.certificateAdvancedRenewTimeframe = certificateAdvancedRenewTimeframe;
+    }
+
+    /**
+     * Register a {@link ResponseInterceptor} for any API response.
+     * @param responseInterceptor The {@link ResponseInterceptor}  to handle the response.
+     */
+    public synchronized void registerResponseInterceptor(ResponseInterceptor responseInterceptor) {
+        responseInterceptors.put(responseInterceptor.getClass(), responseInterceptor);
+    }
+
+    /**
+     * Unregister a previously registered {@link ResponseInterceptor} .
+     * @param responseInterceptor The {@link ResponseInterceptor}  to unregister.
+     */
+    public synchronized void unregisterResponseInterceptor(ResponseInterceptor responseInterceptor) {
+        responseInterceptors.remove(responseInterceptor.getClass());
+    }
+
+    public Collection<ResponseInterceptor> getResponseInterceptors() {
+        return responseInterceptors.values();
     }
 }

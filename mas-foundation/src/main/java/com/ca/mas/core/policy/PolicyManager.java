@@ -40,7 +40,7 @@ public class PolicyManager {
         defaultPolicy.add(new AccessTokenAssertion());
         defaultPolicy.add(new LocationAssertion());
         defaultPolicy.add(new TelephoneAssertion());
-        defaultPolicy.add(new OtpAssertion());
+        defaultPolicy.add(new CustomHeaderAssertion());
         defaultPolicy.add(new ResponseRecoveryAssertion());
     }
 

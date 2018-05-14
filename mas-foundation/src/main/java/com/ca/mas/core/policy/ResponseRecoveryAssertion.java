@@ -14,7 +14,6 @@ import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.policy.exceptions.CertificateExpiredException;
-import com.ca.mas.core.policy.exceptions.InvalidIdentifierException;
 import com.ca.mas.foundation.MASResponse;
 
 /**
@@ -41,9 +40,7 @@ class ResponseRecoveryAssertion implements MssoAssertion {
             return;
         }
         String s = Integer.toString(errorCode);
-        if (s.endsWith(InvalidIdentifierException.INVALID_MAG_IDENTIFIER_SUFFIX)) {
-            throw new InvalidIdentifierException();
-        }
+
         if (s.endsWith(CertificateExpiredException.CERTIFICATE_EXPIRED_SUFFIX)) {
             throw new CertificateExpiredException();
         }

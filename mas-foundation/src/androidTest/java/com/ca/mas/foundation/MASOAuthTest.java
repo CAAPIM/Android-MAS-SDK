@@ -17,6 +17,7 @@ import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.HttpURLConnection;
@@ -56,7 +57,7 @@ public class MASOAuthTest extends MASStartTestBase {
         }
     }
 
-    @Test
+    @Ignore(value = "Due to DE363094")
     public void testInvalidMAGIdentifierDuringTokenRequest() throws InterruptedException, ExecutionException {
 
         final boolean[] override = {true};

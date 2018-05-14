@@ -9,18 +9,19 @@
 package com.ca.mas.core.oauth;
 
 import com.ca.mas.core.error.MAGServerException;
+import com.ca.mas.foundation.MASResponse;
 
 /**
  * This exception is thrown when an error occurs while accessing OAuth endpoint.
  */
 public class OAuthServerException extends MAGServerException {
 
-    public OAuthServerException(int errorCode, int status, String contentType, String detailMessage) {
-        super(errorCode, status, contentType, detailMessage);
+    public OAuthServerException(MASResponse response, int errorCode, int status, String contentType, String detailMessage) {
+        super(response, errorCode, status, contentType, detailMessage);
     }
 
-    public OAuthServerException(int errorCode, int status, String contentType, String detailMessage, Throwable throwable) {
-        super(errorCode, status, contentType, detailMessage, throwable);
+    public OAuthServerException(MASResponse response, int errorCode, int status, String contentType, String detailMessage, Throwable throwable) {
+        super(response, errorCode, status, contentType, detailMessage, throwable);
     }
 
     public OAuthServerException(MAGServerException e) {

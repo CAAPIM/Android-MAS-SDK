@@ -98,7 +98,8 @@ public class MssoService extends IntentService {
         } catch (Exception e) {
             //In case we got rejected to assign a thread to serve the request
             request.setRunning(false);
-            throw e;
+            requestFinished(request);
+            respondError(request.getResultReceiver(), new MAGError(e));
         }
     }
 

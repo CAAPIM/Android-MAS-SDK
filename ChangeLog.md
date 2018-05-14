@@ -10,6 +10,7 @@
     - Do not execute pending request when authentication failed. The pending queue will only be executed after authentication success.
 - Refactor MAS interface to resolve Xamarin Binding [US477776]
 - MASUser.getAuthCredentialsType has been removed [DE354252]
+- Provide exception to application instead of terminating the process when RejectedExecutionException is thrown [DE363148]
 
 ### Deprecated Classes
 - MASOtpAuthFragment.java is removed, please use MASOtpActivity/MASOtpDialogFragment.

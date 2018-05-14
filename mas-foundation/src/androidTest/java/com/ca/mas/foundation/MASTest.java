@@ -47,6 +47,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.RejectedExecutionException;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -787,6 +788,37 @@ public class MASTest extends MASLoginTestBase {
         //With Multi-thread, all requests should completed within 1-3 seconds.
         assertTrue((duration.compareTo(new BigDecimal(3)) == -1));
 
+    }
+
+    @Test
+    public void testLoading() throws Exception {
+
+        final int[] failed = {0};
+
+        int noOfRequest = 150;
+        final CountDownLatch countDownLatch = new CountDownLatch(noOfRequest);
+        for (int i = 0; i < noOfRequest; i++) {
+            MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_SLOW))
+                    .build();
+
+            MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+
+                @Override
+                public void onSuccess(MASResponse<JSONObject> result) {
+                    countDownLatch.countDown();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    failed[0]++;
+                    assertTrue(e.getCause() instanceof RejectedExecutionException);
+                    countDownLatch.countDown();
+                }
+            });
+        }
+        countDownLatch.await();
+
+        Assert.assertTrue(failed[0]> 0);
     }
 
     @Test

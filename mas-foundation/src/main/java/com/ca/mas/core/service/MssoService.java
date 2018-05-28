@@ -14,40 +14,21 @@ import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoListener;
-import com.ca.mas.core.auth.AuthenticationException;
-import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
-import com.ca.mas.core.auth.otp.OtpConstants;
-import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
-import com.ca.mas.core.clientcredentials.ClientCredentialsException;
-import com.ca.mas.core.clientcredentials.ClientCredentialsServerException;
+import com.ca.mas.core.ResponseInterceptor;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGError;
+import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.oauth.OAuthException;
 import com.ca.mas.core.oauth.OAuthServerException;
 import com.ca.mas.core.policy.exceptions.CredentialRequiredException;
-import com.ca.mas.core.policy.exceptions.LocationInvalidException;
-import com.ca.mas.core.policy.exceptions.LocationRequiredException;
-import com.ca.mas.core.policy.exceptions.MobileNumberInvalidException;
-import com.ca.mas.core.policy.exceptions.MobileNumberRequiredException;
-import com.ca.mas.core.policy.exceptions.OtpException;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
-import com.ca.mas.core.registration.DeviceRegistrationAwaitingActivationException;
-import com.ca.mas.core.registration.RegistrationException;
-import com.ca.mas.core.registration.RegistrationServerException;
-import com.ca.mas.core.request.internal.AuthenticateRequest;
-import com.ca.mas.core.token.JWTExpiredException;
-import com.ca.mas.core.token.JWTInvalidAUDException;
-import com.ca.mas.core.token.JWTInvalidAZPException;
-import com.ca.mas.core.token.JWTInvalidSignatureException;
-import com.ca.mas.core.token.JWTValidationException;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthCredentials;
+import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -86,47 +67,47 @@ public class MssoService extends IntentService {
 
         MssoRequest request = takeActiveRequest(requestId);
         if (request == null) {
-            if (DEBUG) Log.d(TAG, "Request ID not found, assuming request is canceled or already processed");
+            if (DEBUG)
+                Log.d(TAG, "Request ID not found, assuming request is canceled or already processed");
             return;
         }
 
         if (MssoIntents.ACTION_PROCESS_REQUEST.equals(action)) {
-            startThreadedRequest(request);
+            startThreadedRequest(extras, request);
             return;
         } else if (MssoIntents.ACTION_CREDENTIALS_OBTAINED.equals(action)) {
+            //The request is AuthenticateRequest
             onCredentialsObtained(extras, request);
-            return;
-        } else if (MssoIntents.ACTION_VALIDATE_OTP.equals(action)) {
-            //Once we retrieve the OTP from the user
-            onOtpObtained(extras, request);
             return;
         }
 
         if (DEBUG) Log.w(TAG, "Ignoring intent with unrecognized action " + action);
     }
 
-    private void startThreadedRequest(final MssoRequest request) {
-        MssoExecutorService.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                onProcessRequest(request);
-            }
-        });
-    }
-
-    private void onOtpObtained(Bundle extras, MssoRequest request) {
-        Bundle bundle = new Bundle();
-        bundle.putString(OtpConstants.X_OTP, extras.getString(MssoIntents.EXTRA_OTP_VALUE));
-        bundle.putString(OtpConstants.X_OTP_CHANNEL, extras.getString(MssoIntents.EXTRA_OTP_SELECTED_CHANNELS));
-        //Associate the OTP and selected channels to the request
-        request.setExtra(bundle);
-        startThreadedRequest(request);
+    private void startThreadedRequest(final Bundle extras, final MssoRequest request) {
+        //Before assign the request to thread task,
+        request.setRunning(true);
+        request.setExtra(extras);
+        try {
+            MssoExecutorService.getInstance().execute(new Runnable() {
+                @Override
+                public void run() {
+                    onProcessRequest(request);
+                }
+            });
+        } catch (Exception e) {
+            //In case we got rejected to assign a thread to serve the request
+            request.setRunning(false);
+            requestFinished(request);
+            respondError(request.getResultReceiver(), new MAGError(e));
+        }
     }
 
     private void onCredentialsObtained(Bundle extras, final MssoRequest request) {
         //Make credentials available to this request's MssoContext
         MASAuthCredentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
         request.getMssoContext().setCredentials(creds);
+        //For AuthenticateRequest, we don't want to run it with new thread
         onProcessRequest(request);
 
     }
@@ -134,17 +115,24 @@ public class MssoService extends IntentService {
     private void onProcessAllPendingRequests() {
         final Collection<MssoRequest> requests = new ArrayList<>(MssoActiveQueue.getInstance().getAllRequest());
         for (MssoRequest mssoRequest : requests) {
-            startThreadedRequest(mssoRequest);
+            if (!mssoRequest.isRunning()) {
+                startThreadedRequest(null, mssoRequest);
+            }
         }
     }
 
     private void onProcessRequest(final MssoRequest request) {
+        //The request is in running state
+        request.setRunning(true);
         ResultReceiver receiver = request.getResultReceiver();
 
         MssoContext mssoContext = request.getMssoContext();
         try {
             MASResponse magResponse = mssoContext.executeRequest(request.getExtra(), request.getRequest());
-
+            if (handleInterceptors(request.getId(), request.getRequest(), request.getExtra(), magResponse)) {
+                //The request is intercepted and keep in the pending queue.
+                return;
+            }
             //Success: move to response queue and send a success notification.
             if (requestFinished(request)) {
                 MssoResponse response = createMssoResponse(request, magResponse);
@@ -157,55 +145,57 @@ public class MssoService extends IntentService {
             if (DEBUG) Log.d(TAG, "Request for user credentials");
             //Notify listener
             MobileSsoListener mobileSsoListener = ConfigurationManager.getInstance().getMobileSsoListener();
-            try {
-                AuthenticationProvider authProvider = null;
-                if (!MAS.isBrowserBasedAuthenticationEnabled()) {
+            AuthenticationProvider authProvider = null;
+            if (!MAS.isBrowserBasedAuthenticationEnabled()) {
+                try {
                     authProvider = new OAuthClient(request.getMssoContext()).getSocialPlatformProvider(getApplicationContext());
+                } catch (OAuthException | OAuthServerException e1) {
+                    if (DEBUG) Log.e(TAG, e1.getMessage(), e1);
+                    authProvider = null;
                 }
-                if (mobileSsoListener != null) {
-                    mobileSsoListener.onAuthenticateRequest(request.getId(), authProvider);
-                } else {
-                    if (DEBUG) Log.w(TAG, "No Authentication listener is registered");
-                }
-            } catch (OAuthException | OAuthServerException e1) {
-                if (DEBUG) Log.e(TAG, e1.getMessage(), e1);
-                requestFinished(request);
-                respondError(request.getResultReceiver(), new MAGError(e1));
+            }
+            if (mobileSsoListener != null) {
+                mobileSsoListener.onAuthenticateRequest(request.getId(), authProvider);
+            } else {
+                if (DEBUG) Log.w(TAG, "No Authentication listener is registered");
             }
         } catch (TokenStoreUnavailableException e) {
             try {
                 mssoContext.getTokenManager().getTokenStore().unlock();
             } catch (Exception e1) {
-                requestFinished(request);
-                respondError(receiver, new MAGError(e));
+                handleErrorResponse(request, e1);
             }
-        } catch (OtpException e) {
-            OtpResponseHeaders otpResponseHeaders = e.getOtpResponseHeaders();
-            MobileSsoListener mobileSsoListener = ConfigurationManager.getInstance().getMobileSsoListener();
-
-            if (mobileSsoListener != null) {
-                if (OtpResponseHeaders.X_OTP_VALUE.REQUIRED.equals(otpResponseHeaders.getxOtpValue())) {
-                    mobileSsoListener.onOtpAuthenticationRequest(new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), false, null));
-                } else if (OtpResponseHeaders.X_CA_ERROR.OTP_INVALID == otpResponseHeaders.getErrorCode()) {
-                    Bundle extra = request.getExtra();
-                    String selectedChannels = null;
-                    if (extra != null) {
-                        selectedChannels = extra.getString(OtpConstants.X_OTP_CHANNEL);
-                    }
-
-                    OtpAuthenticationHandler otpHandler = new OtpAuthenticationHandler(request.getId(), otpResponseHeaders.getChannels(), true, selectedChannels);
-                    mobileSsoListener.onOtpAuthenticationRequest(otpHandler);
-                }
+        } catch (MAGServerException e) {
+            if (handleInterceptors(request.getId(), request.getRequest(), request.getExtra(), e.getResponse())) {
+                //The request is intercepted and keep in the pending queue.
                 return;
             }
-            if (DEBUG) Log.e(TAG, e.getMessage(), e);
-            requestFinished(request);
-            respondError(receiver, new MAGError(e));
-        } catch (Exception e2) {
-            if (DEBUG) Log.e(TAG, e2.getMessage(), e2);
-            requestFinished(request);
-            respondError(receiver,  new MAGError(e2));
+            handleErrorResponse(request, e);
+        } catch (Exception e) {
+            handleErrorResponse(request, e);
+        } finally {
+            //The request is not running, may or may not stay in the active queue
+            request.setRunning(false);
         }
+    }
+
+    private void handleErrorResponse(MssoRequest request, Exception e) {
+        if (DEBUG) Log.e(TAG, e.getMessage(), e);
+        if (requestFinished(request)) {
+            respondError(request.getResultReceiver(), new MAGError(e));
+        }
+    }
+
+    /**
+     * @return True to keep the request message to the queue
+     */
+    private boolean handleInterceptors(long requestId, MASRequest request, Bundle requestExtra, MASResponse response) {
+        for (ResponseInterceptor ri : ConfigurationManager.getInstance().getResponseInterceptors()) {
+            if (ri.intercept(requestId, request, requestExtra, response)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private MssoResponse createMssoResponse(MssoRequest request, MASResponse response) {
@@ -224,9 +214,7 @@ public class MssoService extends IntentService {
             MssoActiveQueue.getInstance().addRequest(request);
             return request;
         }
-
         request = MssoActiveQueue.getInstance().getRequest(requestId);
-        // TODO check if another service thread is already processing this request, if we later give the service more than one thread
         return request;
     }
 

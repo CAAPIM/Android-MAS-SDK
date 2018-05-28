@@ -31,7 +31,7 @@ import android.os.ParcelUuid;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.MobileSsoFactory;
-import com.ca.mas.core.conf.ConfigurationProvider;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGException;
@@ -53,7 +53,6 @@ public class BluetoothLePeripheral {
     private static BluetoothLePeripheral instance = new BluetoothLePeripheral();
 
     private Context appContext;
-    private ConfigurationProvider configurationProvider;
     private BluetoothLePeripheralCallback callback;
 
     private BluetoothLeAdvertiser advertiser;
@@ -69,9 +68,8 @@ public class BluetoothLePeripheral {
         return instance;
     }
 
-    public void init(ConfigurationProvider configurationProvider, Context context) {
+    public void init(Context context) {
         this.appContext = context.getApplicationContext();
-        this.configurationProvider = configurationProvider;
         stop();
     }
 
@@ -112,7 +110,9 @@ public class BluetoothLePeripheral {
             return;
         }
 
-        String uuid = configurationProvider.getProperty(MobileSsoConfig.PROP_BLE_SERVICE_UUID);
+        String uuid = ConfigurationManager.getInstance()
+                .getConnectedGatewayConfigurationProvider()
+                .getProperty(MobileSsoConfig.PROP_BLE_SERVICE_UUID);
 
         if (uuid == null || uuid.trim().length() == 0) {
             notifyWithError(BluetoothLe.BLE_ERROR_INVALID_UUID);
@@ -128,7 +128,9 @@ public class BluetoothLePeripheral {
             return;
         }
 
-        uuid = configurationProvider.getProperty(MobileSsoConfig.PROP_BLE_CHARACTERISTIC_UUID);
+        uuid = ConfigurationManager.getInstance()
+                .getConnectedGatewayConfigurationProvider()
+                .getProperty(MobileSsoConfig.PROP_BLE_CHARACTERISTIC_UUID);
 
         if (uuid == null || uuid.trim().length() == 0) {
             notifyWithError(BluetoothLe.BLE_ERROR_INVALID_UUID);

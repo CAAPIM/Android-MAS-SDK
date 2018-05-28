@@ -28,6 +28,15 @@ class MssoRequest {
     private final ResultReceiver resultReceiver;
     //Extra data for the request
     private Bundle extra;
+    private boolean isRunning;
+
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    public void setRunning(boolean running) {
+        isRunning = running;
+    }
 
     MssoRequest(Object creator, MssoContext mssoContext, MASRequest request, ResultReceiver resultReceiver) {
         this.id = nextRequestId.incrementAndGet();

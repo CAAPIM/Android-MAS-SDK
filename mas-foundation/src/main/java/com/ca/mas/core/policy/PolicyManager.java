@@ -10,13 +10,13 @@ package com.ca.mas.core.policy;
 
 import android.content.Context;
 
-import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
 import com.ca.mas.foundation.MASResponse;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,31 +26,22 @@ import java.util.List;
 public class PolicyManager {
 
     private final MssoContext mssoContext;
-    private final List<MssoAssertion> policies = new ArrayList<>();
+    private final List<MssoAssertion> defaultPolicy = new ArrayList<>();
     private final Object policySync = new Object();
 
     public PolicyManager(MssoContext mssoContext) {
         this.mssoContext = mssoContext;
 
-        List<String> customPolicies = mssoContext.getConfigurationProvider().getProperty(MobileSsoConfig.PROP_ADD_CUSTOM_POLICIES);
-        if (customPolicies != null && !customPolicies.isEmpty()) {
-            for (String policy : customPolicies) {
-                try {
-                    policies.add((MssoAssertion) Class.forName(policy).newInstance());
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("Unable to initialize policy: " + policy, e);
-                }
-            }
-        }
         //Default Policy setting
-        policies.add(new StorageReadyAssertion());
-        policies.add(new SecureLockAssertion());
-        policies.add(new ClientCredentialAssertion());
-        policies.add(new DeviceRegistrationAssertion());
-        policies.add(new AccessTokenAssertion());
-        policies.add(new LocationAssertion());
-        policies.add(new TelephoneAssertion());
-        policies.add(new OtpAssertion());
+        defaultPolicy.add(new StorageReadyAssertion());
+        defaultPolicy.add(new SecureLockAssertion());
+        defaultPolicy.add(new ClientCredentialAssertion());
+        defaultPolicy.add(new DeviceRegistrationAssertion());
+        defaultPolicy.add(new AccessTokenAssertion());
+        defaultPolicy.add(new LocationAssertion());
+        defaultPolicy.add(new TelephoneAssertion());
+        defaultPolicy.add(new CustomHeaderAssertion());
+        defaultPolicy.add(new ResponseRecoveryAssertion());
     }
 
     /**
@@ -59,8 +50,13 @@ public class PolicyManager {
      * @param sysContext Android context.  Required.
      */
     public void init(Context sysContext) {
-        for (MssoAssertion policy : policies) {
-            policy.init(mssoContext, sysContext);
+        init(sysContext, defaultPolicy);
+    }
+
+    private void init(Context sysContext, List<MssoAssertion> policy) {
+        Context appContext = sysContext.getApplicationContext();
+        for (MssoAssertion assertion : policy) {
+            assertion.init(mssoContext, appContext);
         }
     }
 
@@ -73,14 +69,14 @@ public class PolicyManager {
      *
      * @param request the request to process.  Required.
      * @throws MAGStateException if the request cannot be processed in the current MSSO engine state.
-     * @throws MAGException Exception occur in MAG Engine
+     * @throws MAGException      Exception occur in MAG Engine
      */
-    public void processRequest(RequestInfo request) throws MAGException, MAGServerException{
+    private void processRequest(RequestInfo request, List<MssoAssertion> policy) throws MAGException, MAGServerException {
         // For now, we will serialize all policies to prevent things like device registration and token acquisition
         // from being attempted in parallel.
         synchronized (policySync) {
-            for (MssoAssertion policy : policies) {
-                policy.processRequest(mssoContext, request);
+            for (MssoAssertion assertion : policy) {
+                assertion.processRequest(mssoContext, request);
             }
         }
     }
@@ -92,21 +88,37 @@ public class PolicyManager {
      * @param request  the original request to which this is a response.  Required.
      * @param response the response to examine.  Required.
      * @throws MAGStateException only for a failed (non-200) response, if the nature of the response indicates that
-     *                            the request cannot be processed in the current MSSO engine state (or should be retried).
-     * @throws MAGException Exception occur in MAG Engine
+     *                           the request cannot be processed in the current MSSO engine state (or should be retried).
+     * @throws MAGException      Exception occur in MAG Engine
      */
-    public void processResponse(RequestInfo request, MASResponse response) throws MAGException ,MAGServerException{
+    private void processResponse(RequestInfo request, MASResponse response, List<MssoAssertion> policy) throws MAGException, MAGServerException {
         // For now, we will serialize all policies
         synchronized (policySync) {
-            for (MssoAssertion policy : policies) {
-                policy.processResponse(mssoContext, request, response);
+            for (MssoAssertion assertion : policy) {
+                assertion.processResponse(mssoContext, request, response);
             }
         }
     }
 
+    public MASResponse execute(RequestInfo requestInfo, Route<MASResponse> function) throws MAGException, MAGServerException, IOException {
+        processRequest(requestInfo, defaultPolicy);
+        MASResponse response = function.invoke();
+        processResponse(requestInfo, response, defaultPolicy);
+        return response;
+    }
+
+    public interface Route<R> {
+        R invoke() throws IOException;
+    }
+
+
     public void close() {
-        for (MssoAssertion policy : policies) {
-            policy.close();
+        close(defaultPolicy);
+    }
+
+    private void close(List<MssoAssertion> policy) {
+        for (MssoAssertion assertion : policy) {
+            assertion.close();
         }
     }
 }

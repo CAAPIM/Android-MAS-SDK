@@ -11,15 +11,11 @@ package com.ca.mas.core;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
-import com.ca.mas.core.auth.ble.BluetoothLePeripheralCallback;
-import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.service.AuthenticationProvider;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASRequest;
 
 import org.json.JSONObject;
-
-import java.net.URI;
 
 /**
  * <p>Top-level interface for the Mobile SSO SDK.</p>
@@ -158,48 +154,12 @@ public interface MobileSso {
     boolean isDeviceRegistered();
 
     /**
-     * Provides the configuration detail for the MobileSso.
-     *
-     * @return The Configuration Provider
-     */
-    ConfigurationProvider getConfigurationProvider();
-
-    /**
      * Performs a remote authorization with the provider URL. (For Example QRCode)
      *
      * @param url            The temporary URL to enable the remote session.
      * @param resultReceiver the resultReceiver to notify when a response is available, or if there is an error.  Required.
      */
     void authorize(String url, ResultReceiver resultReceiver);
-
-    /**
-     * This method is used by a device to start a BLE session sharing in a peripheral role.
-     * Register your callback to receive events and errors during the session sharing.
-     *
-     * @param callback Register your callback to receive event and error during the session sharing.
-     */
-    void startBleSessionSharing(BluetoothLePeripheralCallback callback);
-
-    /**
-     * Stops the Bluetooth LE session sharing.
-     */
-    void stopBleSessionSharing();
-
-    /**
-     * Retrieves the absolute URI for the given relative path based on the provided SDK configuration.
-     * For path /my/endpoint, the result URI will be https://<host>:<port>/my/endpoint.
-     *
-     * @param relativePath the relative path to the resource.
-     * @return the absolute URI.
-     */
-    URI getURI(String relativePath);
-
-    /**
-     * Retrieves the prefix configured for the MAG based on the provided configuration to the SDK.
-     *
-     * @return the prefix configured for MAG
-     */
-    String getPrefix();
 
     /**
      * Retrieves the Authentication Providers from the server.

@@ -12,10 +12,10 @@ import android.content.Context;
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
-import com.ca.mas.core.auth.otp.OtpAuthenticationHandler;
 import com.ca.mas.core.error.TargetApiException;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.squareup.okhttp.mockwebserver.MockResponse;
+import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import org.json.JSONObject;
 import org.junit.Test;
@@ -73,9 +73,12 @@ public class MASOneTimePasswordTest extends MASLoginTestBase {
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
         assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+        RecordedRequest deliver = getRecordRequest(GatewayDefaultDispatcher.AUTH_OTP);
         assertTrue(success[0]);
-
-
+        assertEquals(deliver.getHeader("X-OTP-CHANNEL"), "EMAIL");
+        RecordedRequest otpProtected = getRecordRequest(GatewayDefaultDispatcher.OTP_PROTECTED_URL);
+        assertEquals(otpProtected.getHeader("X-OTP-CHANNEL"), "EMAIL");
+        assertEquals(otpProtected.getHeader("X-OTP"), "1234");
     }
 
     /*
@@ -455,8 +458,7 @@ public class MASOneTimePasswordTest extends MASLoginTestBase {
             @Override
             public void onOtpAuthenticateRequest(Context context, final MASOtpAuthenticationHandler handler) {
                 if (handler.isInvalidOtp()) {
-                    OtpAuthenticationHandler h = getValue(handler, "handler",  OtpAuthenticationHandler.class);
-                    String selectedChannels = getValue(h, "selectedChannels", String.class);
+                    String selectedChannels = getValue(handler, "selectedChannels", String.class);
                     if ("EMAIL".equals(selectedChannels)) {
                         success[0] = true;
                     }

@@ -31,6 +31,7 @@ import junit.framework.Assert;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -46,6 +47,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.RejectedExecutionException;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -789,6 +791,37 @@ public class MASTest extends MASLoginTestBase {
     }
 
     @Test
+    public void testLoading() throws Exception {
+
+        final int[] failed = {0};
+
+        int noOfRequest = 150;
+        final CountDownLatch countDownLatch = new CountDownLatch(noOfRequest);
+        for (int i = 0; i < noOfRequest; i++) {
+            MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_SLOW))
+                    .build();
+
+            MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+
+                @Override
+                public void onSuccess(MASResponse<JSONObject> result) {
+                    countDownLatch.countDown();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    failed[0]++;
+                    assertTrue(e.getCause() instanceof RejectedExecutionException);
+                    countDownLatch.countDown();
+                }
+            });
+        }
+        countDownLatch.await();
+
+        Assert.assertTrue(failed[0]> 0);
+    }
+
+    @Test
     public void testMultiThreadRequestWithResponse() throws Exception {
         Uri.Builder builder1 = new Uri.Builder();
         builder1.encodedPath(GatewayDefaultDispatcher.ECHO);
@@ -879,4 +912,94 @@ public class MASTest extends MASLoginTestBase {
         assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
 
     }
+
+    @Ignore(value = "Due to DE363094")
+    public void testInvalidMAGIdentifierDuringServiceRequest() throws InterruptedException, ExecutionException, URISyntaxException {
+
+        final boolean[] override = {true};
+        final int expectedErrorCode = 3003107;
+        final String expectedErrorMessage = "{ \"error\":\"invalid_request\", \"error_description\":\"The given mag-identifier is either invalid or it points to an unknown device\" }";
+        final String CONTENT_TYPE = "Content-Type";
+        final String CONTENT_TYPE_VALUE = "application/json";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse secureServiceResponse() {
+                if (override[0]) {
+                    override[0] = false; //for retry
+                    return new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST)
+                            .setHeader("x-ca-err", expectedErrorCode)
+                            .setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+                } else {
+                    return super.secureServiceResponse();
+                }
+            }
+        });
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+    }
+
+    @Test
+    public void testInvalidClientCredentialDuringServiceRequest() throws InterruptedException, ExecutionException, URISyntaxException {
+
+        final boolean[] override = {true};
+        final int expectedErrorCode = 3003201;
+        final String expectedErrorMessage = "{ \"error\":\"invalid_request\", \"error_description\":\"The given client credentials were not valid\" }";
+        final String CONTENT_TYPE = "Content-Type";
+        final String CONTENT_TYPE_VALUE = "application/json";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse secureServiceResponse() {
+                if (override[0]) {
+                    override[0] = false; //for retry
+                    return new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST)
+                            .setHeader("x-ca-err", expectedErrorCode)
+                            .setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+                } else {
+                    return super.secureServiceResponse();
+                }
+            }
+        });
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+    }
+
+    @Test
+    public void testInvalidClientCertificateDuringServiceRequest() throws InterruptedException, ExecutionException, URISyntaxException {
+
+        final boolean[] override = {true};
+        final int expectedErrorCode = 3003206;
+        final String expectedErrorMessage = "{ \"error\":\"invalid_request\", \"error_description\":\"The given client certificate has expired\" }";
+        final String CONTENT_TYPE = "Content-Type";
+        final String CONTENT_TYPE_VALUE = "application/json";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse secureServiceResponse() {
+                if (override[0]) {
+                    override[0] = false; //for retry
+                    return new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST)
+                            .setHeader("x-ca-err", expectedErrorCode)
+                            .setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+                } else {
+                    return super.secureServiceResponse();
+                }
+            }
+        });
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+        //Make sure it has invoke renew endpoint
+        assertNotNull(getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_RENEW));
+    }
+
 }

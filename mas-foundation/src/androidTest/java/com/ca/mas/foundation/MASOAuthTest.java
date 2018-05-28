@@ -13,14 +13,18 @@ import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
 import com.ca.mas.core.oauth.OAuthException;
 import com.squareup.okhttp.mockwebserver.MockResponse;
+import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
+import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
@@ -52,5 +56,93 @@ public class MASOAuthTest extends MASStartTestBase {
             assertTrue(((MASException) e.getCause()).getRootCause() instanceof OAuthException);
         }
     }
+
+    @Ignore(value = "Due to DE363094")
+    public void testInvalidMAGIdentifierDuringTokenRequest() throws InterruptedException, ExecutionException {
+
+        final boolean[] override = {true};
+        final int expectedErrorCode = 3003107;
+        final String expectedErrorMessage = "{ \"error\":\"invalid_request\", \"error_description\":\"The given mag-identifier is either invalid or it points to an unknown device\" }";
+        final String CONTENT_TYPE = "Content-Type";
+        final String CONTENT_TYPE_VALUE = "application/json";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse retrieveTokenResponse() {
+                if (override[0]) {
+                    override[0] = false; //for retry
+                    return new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST)
+                            .setHeader("x-ca-err", expectedErrorCode)
+                            .setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+                } else {
+                    return super.retrieveTokenResponse();
+                }
+            }
+        });
+
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASUser.login("test", "test".toCharArray(), callback);
+        Assert.assertNotNull(callback.get());
+    }
+
+    @Test
+    public void testInvalidClientCredentialDuringTokenRequest() throws InterruptedException, ExecutionException {
+
+        final boolean[] override = {true};
+        final int expectedErrorCode = 3003201;
+        final String expectedErrorMessage = "{ \"error\":\"invalid_request\", \"error_description\":\"The given client credentials were not valid\" }";
+        final String CONTENT_TYPE = "Content-Type";
+        final String CONTENT_TYPE_VALUE = "application/json";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse retrieveTokenResponse() {
+                if (override[0]) {
+                    override[0] = false; //for retry
+                    return new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST)
+                            .setHeader("x-ca-err", expectedErrorCode)
+                            .setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+                } else {
+                    return super.retrieveTokenResponse();
+                }
+            }
+        });
+
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASUser.login("test", "test".toCharArray(), callback);
+        Assert.assertNotNull(callback.get());
+    }
+
+    @Test
+    public void testInvalidClientCertificateDuringTokenRequest() throws InterruptedException, ExecutionException {
+
+        final boolean[] override = {true};
+        final int expectedErrorCode = 3003206;
+        final String expectedErrorMessage = "{ \"error\":\"invalid_request\", \"error_description\":\"The given client certificate has expired\" }";
+        final String CONTENT_TYPE = "Content-Type";
+        final String CONTENT_TYPE_VALUE = "application/json";
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse retrieveTokenResponse() {
+                if (override[0]) {
+                    override[0] = false; //for retry
+                    return new MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST)
+                            .setHeader("x-ca-err", expectedErrorCode)
+                            .setHeader(CONTENT_TYPE, CONTENT_TYPE_VALUE).setBody(expectedErrorMessage);
+                } else {
+                    return super.retrieveTokenResponse();
+                }
+            }
+        });
+
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASUser.login("test", "test".toCharArray(), callback);
+        Assert.assertNotNull(callback.get());
+        //Make sure it has invoke renew endpoint
+        assertNotNull(getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_RENEW));
+    }
+
+
 
 }

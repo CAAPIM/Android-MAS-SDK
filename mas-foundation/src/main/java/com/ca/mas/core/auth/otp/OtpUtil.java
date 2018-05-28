@@ -14,49 +14,50 @@ import com.ca.mas.core.auth.otp.model.OtpResponseHeaders;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class OtpUtil {
 
+    private OtpUtil() {
+    }
+
     public static OtpResponseHeaders getXotpValueFromHeaders(Map<String, List<String>> headers) {
         OtpResponseHeaders otpHeaders = new OtpResponseHeaders();
         if (headers != null) {
             List<String> otpStatusList = headers.get(OtpConstants.X_OTP);
-            if (otpStatusList != null && otpStatusList.size() > 0) {
+            if (otpStatusList != null && !otpStatusList.isEmpty()) {
                 String otpStatus = otpStatusList.get(0);
-                OtpResponseHeaders.X_OTP_VALUE x_otp_value = convertOtpStatusToEnum(otpStatus);
-                otpHeaders.setxOtpValue(x_otp_value);
+                OtpResponseHeaders.X_OTP_VALUE otpValue = convertOtpStatusToEnum(otpStatus);
+                otpHeaders.setxOtpValue(otpValue);
             }
 
             List<String> otpChannelList = headers.get(OtpConstants.X_OTP_CHANNEL);
             if (otpChannelList != null && otpChannelList.get(0) != null) {
                 String channels = otpChannelList.get(0);
-                String channelsStringArray[] = channels.split(",");
+                String[] channelsStringArray = channels.split(",");
                 otpHeaders.setChannels(Arrays.asList(channelsStringArray));
             }
 
             List<String> otpRetryList = headers.get(OtpConstants.X_OTP_RETRY);
-            if (otpRetryList != null && otpRetryList.size() > 0) {
+            if (otpRetryList != null && !otpRetryList.isEmpty()) {
                 String otpRetry = otpRetryList.get(0);
                 if (otpRetry != null && !"".equals(otpRetry))
                     otpHeaders.setRetry(Integer.decode(otpRetry));
             }
             List<String> otpRetryIntervalList = headers.get(OtpConstants.X_OTP_RETRY_INTERVAL);
-            if (otpRetryIntervalList != null && otpRetryIntervalList.size() > 0) {
+            if (otpRetryIntervalList != null && !otpRetryIntervalList.isEmpty()) {
                 String otpRetryInterval = otpRetryIntervalList.get(0);
                 if (otpRetryInterval != null && !"".equals(otpRetryInterval))
                     otpHeaders.setRetryInterval(Integer.decode(otpRetryInterval));
             }
 
             List<String> errorCodeList = headers.get(OtpConstants.X_CA_ERR);
-            if (errorCodeList != null && errorCodeList.size() > 0) {
+            if (errorCodeList != null && !errorCodeList.isEmpty()) {
                 String xCaError = errorCodeList.get(0);
-                OtpResponseHeaders.X_CA_ERROR x_ca_error = convertOtpErrorCodeToEnum(xCaError);
-                otpHeaders.setErrorCode(x_ca_error);
+                OtpResponseHeaders.X_CA_ERROR error = convertOtpErrorCodeToEnum(xCaError);
+                otpHeaders.setErrorCode(error);
             }
         }
         return otpHeaders;
@@ -145,65 +146,9 @@ public class OtpUtil {
             otpResponseBody.setError(jsonObj.getString("error"));
             otpResponseBody.setErrorDescription(jsonObj.getString("error_description"));
         } catch (JSONException e) {
+            //ignore
         }
         return otpResponseBody;
-    }
-
-    public static String toPrettyFormat(String jsonString) {
-        String response = "";
-        try {
-            JSONObject jsonObject = (new JSONObject(jsonString));
-            response = jsonObject.toString(2);
-        } catch (JSONException e) {
-        }
-        //response = response.toString().replaceAll(":,[{}]", "  ");
-        response = response.toString().replaceAll(",", "");
-        response = response.toString().replaceAll("\\{", "");
-        response = response.toString().replaceAll("\\}", "");
-        response = response.toString().replaceAll("\\[", "");
-        response = response.toString().replaceAll("\\]", "");
-        response = response.toString().replaceAll("\"", "");
-        response = response.toString().replaceAll(":", "  ");
-        return response;
-
-    }
-
-    public static boolean isOtpErrorCode (String errorCode) {
-        if (errorCode.endsWith("140")
-                || errorCode.endsWith("141")
-                || errorCode.endsWith("142")
-                || errorCode.endsWith("143")
-                || errorCode.endsWith("144")
-                || errorCode.endsWith("145")
-                ) {
-            return true;
-        }
-        return false;
-    }
-
-    public static List<String> convertCommaSeparatedStringToList(String str) {
-        if (str == null ) {
-            return null;
-        }
-        String[] arr =  str.split(",");
-        return new ArrayList<String> (Arrays.asList(arr));
-
-    }
-
-    public static String convertListToCommaSeparatedString(List<String>  list) {
-        if (list == null || list.size() == 0) {
-            return null;
-        }
-        String result = "";
-        Iterator itr = list.iterator();
-        String next = (String)itr.next();
-        result = next;
-        while(itr.hasNext()) {
-            next = (String)itr.next();
-            result += (","+next);
-        }
-        return result;
-
     }
 }
 

@@ -9,18 +9,19 @@
 package com.ca.mas.core.clientcredentials;
 
 import com.ca.mas.core.error.MAGServerException;
+import com.ca.mas.foundation.MASResponse;
 
 /**
  * This exception is thrown when an error occurs while accessing the MAG Server initialize endpoint
  */
 public class ClientCredentialsServerException extends MAGServerException{
 
-    public ClientCredentialsServerException(int errorCode, int status, String contentType, String detailMessage) {
-        super(errorCode, status, contentType, detailMessage);
+    public ClientCredentialsServerException(MASResponse response, int errorCode, int status, String contentType, String detailMessage) {
+        super(response, errorCode, status, contentType, detailMessage);
     }
 
-    public ClientCredentialsServerException(int errorCode, int status, String contentType, String detailMessage, Throwable throwable) {
-        super(errorCode, status, contentType, detailMessage, throwable);
+    public ClientCredentialsServerException(MASResponse response, int errorCode, int status, String contentType, String detailMessage, Throwable throwable) {
+        super(response, errorCode, status, contentType, detailMessage, throwable);
     }
 
     public ClientCredentialsServerException(MAGServerException e) {

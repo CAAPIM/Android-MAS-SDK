@@ -53,6 +53,7 @@ public class MAGHttpClient {
      * @throws IOException if any error occur or the connection was aborted.
      */
     public <T> MASResponse<T> execute(MASRequest request, SSLSocketFactory sslSocketFactory) throws IOException {
+
         final HttpURLConnection urlConnection = (HttpURLConnection) request.getURL().openConnection();
 
         if (DEBUG) {

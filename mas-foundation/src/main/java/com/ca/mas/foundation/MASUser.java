@@ -8,8 +8,8 @@
 
 package com.ca.mas.foundation;
 
-import android.content.AsyncTaskLoader;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Parcel;
@@ -25,10 +25,6 @@ import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.security.LockableEncryptionProvider;
 import com.ca.mas.core.security.SecureLockException;
-import com.ca.mas.core.storage.Storage;
-import com.ca.mas.core.storage.StorageException;
-import com.ca.mas.core.storage.StorageResult;
-import com.ca.mas.core.storage.implementation.MASStorageManager;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
@@ -59,7 +55,6 @@ import java.util.Observer;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
-import static com.ca.mas.foundation.MAS.getContext;
 import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN;
 
 /**
@@ -183,6 +178,20 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      */
     public abstract String getAccessToken();
 
+    private static class LogoutAsyncTask extends AsyncTask<MASCallback<Void>, Void, Void> {
+
+        @Override
+        protected Void doInBackground(MASCallback<Void>... callbacks) {
+            try {
+                MobileSsoFactory.getInstance().logout(true);
+                Callback.onSuccess(callbacks[0], null);
+            } catch (Exception e) {
+                Callback.onError(callbacks[0], e);
+            }
+            return null;
+        }
+    }
+
     private static MASUser createMASUser() {
 
         MASUser user = new User() {
@@ -297,30 +306,9 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             @Override
             public void logout(final MASCallback<Void> callback) {
                 current = null;
-
-                new AsyncTaskLoader<Object>(MAS.getContext()) {
-                    @Override
-                    protected void onStartLoading() {
-                        super.onStartLoading();
-                        forceLoad();
-                    }
-
-                    @Override
-                    public Object loadInBackground() {
-                        try {
-                            if (!isSessionLocked()) {
-                                MobileSsoFactory.getInstance().logout(true);
-                                Callback.onSuccess(callback, null);
-                            } else {
-                                Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_SESSION_CURRENTLY_LOCKED));
-                            }
-                        } catch (Exception e) {
-                            Callback.onError(callback, e);
-                        }
-                        return null;
-                    }
-                }.startLoading();
+                new LogoutAsyncTask().execute(callback);
             }
+
 
             @Override
             public void getUserById(String id, MASCallback<MASUser> callback) {
@@ -597,26 +585,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             user = new JSONObject(userProfile);
         }
         return user;
-    }
-
-    /**
-     * Returns the last authenticated session's type of auth credentials used.
-     */
-    public static String getAuthCredentialsType() {
-        try {
-            Storage accountManager = new MASStorageManager().getStorage(
-                    MASStorageManager.MASStorageType.TYPE_AMS,
-                    new Object[]{getContext(), false});
-            StorageResult result = accountManager.readData(MASAuthCredentials.REGISTRATION_TYPE);
-            if (result.getStatus().equals(StorageResult.StorageOperationStatus.SUCCESS)) {
-                return new String((byte[]) result.getData());
-            }
-        } catch (StorageException e) {
-            if (DEBUG)
-                Log.w(TAG, "Unable to retrieve last authenticated credentials type from local storage.", e);
-        }
-
-        return "";
     }
 
     public abstract Bitmap getThumbnailImage();

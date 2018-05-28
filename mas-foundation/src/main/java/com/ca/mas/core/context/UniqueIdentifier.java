@@ -1,7 +1,5 @@
 package com.ca.mas.core.context;
 
-import android.content.Context;
-
 import com.ca.mas.core.io.IoUtils;
 import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.util.KeyUtilsAsymmetric;
@@ -13,16 +11,13 @@ import java.security.PublicKey;
 public abstract class UniqueIdentifier {
 
     protected String identifier = "";
-    private String identifierKey;
 
     /**
      * Generates a set of asymmetric keys in the Android keystore and builds the device identifier off of the public key.
      * Apps built with the same sharedUserId value in AndroidManifest.xml will reuse the same identifier.
-     *
-     * @param context
      */
-    public UniqueIdentifier(Context context) throws KeyStoreException, NoSuchAlgorithmException {
-        identifierKey = getIdentifierKey();
+    public UniqueIdentifier() throws KeyStoreException, NoSuchAlgorithmException {
+        String identifierKey = getIdentifierKey();
         PublicKey publicKey = KeyUtilsAsymmetric.getRsaPublicKey(identifierKey);
         if (publicKey == null) {
             KeyUtilsAsymmetric.generateRsaPrivateKey(  identifierKey,

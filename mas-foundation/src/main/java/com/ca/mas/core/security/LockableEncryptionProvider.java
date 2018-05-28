@@ -49,15 +49,11 @@ public class LockableEncryptionProvider implements EncryptionProvider {
     @RequiresApi(Build.VERSION_CODES.M)
     public byte[] encrypt(byte[] data) {
         try {
-            // retrieve the key if it exists
+            //Do not remove, this will generate private/public key in keychain
+            generateRsaPrivateKey(
+                    keyAlias, "cn=" + keyAlias,
+                    true, true, 4, false);
             PublicKey pubkey = KeyUtilsAsymmetric.getRsaPublicKey(keyAlias);
-            if (pubkey == null) {
-                //Do not remove, this will generate private/public key in keychain
-                generateRsaPrivateKey(
-                        keyAlias, "cn=" + keyAlias,
-                        true, true, 4, false);
-                pubkey = KeyUtilsAsymmetric.getRsaPublicKey(keyAlias);
-            }
             return KeyUtilsAsymmetric.encrypt(pubkey, data);
         } catch (Exception x) {
             if (DEBUG) Log.e(TAG, "Unable to encrypt given data");

@@ -32,7 +32,7 @@ public class MASAuthenticationProviders implements Parcelable {
     private String idp;
 
     public MASAuthenticationProviders(AuthenticationProvider provider) {
-        providers = new ArrayList<MASAuthenticationProvider>();
+        providers = new ArrayList<>();
         if (provider != null) {
             List<Provider> ps = provider.getProviders();
             if (ps != null && !ps.isEmpty()) {

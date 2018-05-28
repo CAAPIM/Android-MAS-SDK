@@ -16,12 +16,12 @@ import com.ca.mas.core.error.MAGServerException;
 
 public class MASServerException extends MAGServerException {
 
-    public MASServerException(int errorCode, int status, String contentType, String detailMessage) {
-        super(errorCode, status, contentType, detailMessage);
+    public MASServerException(MASResponse response, int errorCode, int status, String contentType, String detailMessage) {
+        super(response, errorCode, status, contentType, detailMessage);
     }
 
-    public MASServerException(int errorCode, int status, String contentType, String detailMessage, Throwable throwable) {
-        super(errorCode, status, contentType, detailMessage, throwable);
+    public MASServerException(MASResponse response, int errorCode, int status, String contentType, String detailMessage, Throwable throwable) {
+        super(response, errorCode, status, contentType, detailMessage, throwable);
     }
 
     public MASServerException(MAGServerException e) {

@@ -99,8 +99,8 @@ public abstract class ServerClient {
                 }
             }
             int statusCode = response.getResponseCode();
-            Constructor constructor = c.getConstructor(int.class, int.class, String.class, String.class);
-            return (T) constructor.newInstance(errorCode, statusCode, contentType, message);
+            Constructor constructor = c.getConstructor(MASResponse.class, int.class, int.class, String.class, String.class);
+            return (T) constructor.newInstance(response, errorCode, statusCode, contentType, message);
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }

@@ -9,6 +9,7 @@ package com.ca.mas.foundation;
 
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
+import com.ca.mas.core.auth.ble.BluetoothLePeripheral;
 import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEPeripheralListener;
 import com.ca.mas.foundation.notify.Callback;
@@ -60,8 +61,12 @@ public abstract class MASDevice {
     public abstract String getIdentifier();
 
     /**
-     * Starts the device acting as a bluetooth peripheral.
+     * This method is used by a device to start a BLE session sharing in a peripheral role.
+     * Register your callback to receive events and errors during the session sharing.
+     *
+     * @param listener Register your listener to receive event and error during the session sharing.
      */
+
     public abstract void startAsBluetoothPeripheral(MASProximityLoginBLEPeripheralListener listener);
 
     /**
@@ -111,7 +116,7 @@ public abstract class MASDevice {
                 @Override
                 public String getIdentifier() {
                     try {
-                        return (new DeviceIdentifier(MAS.getContext())).toString();
+                        return (new DeviceIdentifier().toString());
                     } catch (Exception e) {
                         throw new IllegalArgumentException("Keystore is not available", e);
                     }
@@ -119,12 +124,14 @@ public abstract class MASDevice {
 
                 @Override
                 public void startAsBluetoothPeripheral(MASProximityLoginBLEPeripheralListener listener) {
-                    MobileSsoFactory.getInstance().startBleSessionSharing(listener);
+                    final BluetoothLePeripheral bleServer = BluetoothLePeripheral.getInstance();
+                    bleServer.init(MAS.getContext());
+                    bleServer.start(listener);
                 }
 
                 @Override
                 public void stopAsBluetoothPeripheral() {
-                    MobileSsoFactory.getInstance().stopBleSessionSharing();
+                    BluetoothLePeripheral.getInstance().stop();
                 }
             };
         }

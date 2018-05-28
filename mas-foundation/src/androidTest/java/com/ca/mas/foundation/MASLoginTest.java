@@ -158,6 +158,7 @@ public class MASLoginTest extends MASStartTestBase {
                     public void onError(Throwable e) {
                         throwable[0] = e;
                         override[0] = false;
+                        MAS.processPendingRequests();
                         countDownLatch.countDown();
                     }
                 });

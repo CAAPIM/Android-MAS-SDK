@@ -56,12 +56,13 @@ class TelephoneAssertion implements MssoAssertion {
     @Override
     public void processResponse(MssoContext mssoContext, RequestInfo request, MASResponse response) throws MAGException {
         int statusCode = response.getResponseCode();
-        if (statusCode >= 400 && statusCode < 500) {
+        if (statusCode == 449 || statusCode == 448) {
             String responseContent = new String(response.getBody().getRawContent());
             if (responseContent.toLowerCase().contains("msisdn")) {
                 if (statusCode == 449) {
                     throw new MobileNumberRequiredException("MSISDN is required by the application to function properly. Enable MSISDN permission.");
-                } else if (statusCode == 448) {
+                } else {
+                    //448
                     throw new MobileNumberInvalidException("MSISDN is not authorized to access protected resource.");
                 }
             }

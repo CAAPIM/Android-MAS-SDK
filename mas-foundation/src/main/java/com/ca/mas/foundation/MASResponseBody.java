@@ -58,18 +58,21 @@ public class MASResponseBody<T> {
      */
     public T getContent() {
 
+        String retValue = "";
         if (contentType != null) {
 
             if (contentType.contains("application/json")) {
                 try {
+
                     if (buffer == null || buffer.length == 0) {
                         return null;
                     }
-                    return (T) new JSONObject(new String(buffer));
+                    retValue = new String(buffer);
+                    return (T) new JSONObject(retValue);
                 } catch (JSONException e) {
 
                     try {
-                        return (T) new JSONArray(new String(buffer));
+                        return (T) new JSONArray(retValue);
                     } catch (JSONException e1) {
                         throw new RuntimeException(e1);
                     }

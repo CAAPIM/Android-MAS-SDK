@@ -315,8 +315,8 @@ public class MASTest extends MASLoginTestBase {
     @Test
     public void testOverrideResponseWithJSONArray() throws Exception {
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY))
-                .responseBody(new JSONArrayResponse())
                 .build();
+
         MASCallbackFuture<MASResponse<JSONArray>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
         assertNotNull(callback.get());
@@ -325,16 +325,6 @@ public class MASTest extends MASLoginTestBase {
         assertNotNull(array);
     }
 
-    private static class JSONArrayResponse extends MASResponseBody<JSONArray> {
-        @Override
-        public JSONArray getContent() {
-            try {
-                return new JSONArray(new String(getRawContent()));
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
 
     private static final String RESPONSE_DATA = "Expected Response Data";
 
@@ -887,7 +877,6 @@ public class MASTest extends MASLoginTestBase {
 
         MASRequest request = new MASRequest.MASRequestBuilder(uri)
                 .post(new JSONArrayRequestBody(requestData))
-                .responseBody(new JSONArrayResponse())
                 .build();
 
         MASCallbackFuture<MASResponse<JSONArray>> callback = new MASCallbackFuture<>();

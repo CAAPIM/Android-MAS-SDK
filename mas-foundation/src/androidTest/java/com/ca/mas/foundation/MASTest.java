@@ -325,6 +325,72 @@ public class MASTest extends MASLoginTestBase {
         assertNotNull(array);
     }
 
+    @Test
+    public void testOverrideResponseWithProduct() throws Exception {
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+                .responseBody(new ProductResponseBody())
+                .build();
+
+        MASCallbackFuture<MASResponse<Product>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+        Product products = callback.get().getBody().getContent();
+        assertNotNull(products);
+    }
+
+    @Test
+    public void testOverrideResponseWithProductList() throws Exception {
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+                .responseBody(new ListProductResponseBody())
+                .build();
+
+        MASCallbackFuture<MASResponse<List<Product>>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+        List<Product> productList = callback.get().getBody().getContent();
+        assertNotNull(productList);
+        assertEquals(productList.size(),2);
+    }
+
+    public class Product {
+
+        private JSONArray products;
+
+        public Product(String source) {
+            try {
+                JSONObject job = new JSONObject(source);
+                this.products = job.optJSONArray("products");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    class ProductResponseBody extends MASResponseBody<Product> {
+
+        @Override
+        public Product getContent() {
+            String source = new String(getRawContent());
+            Product staff = new Product(source);
+            return staff;
+        }
+    }
+
+    class ListProductResponseBody extends MASResponseBody<List<Product>> {
+        @Override
+        public List<Product> getContent() {
+
+            String source = new String(getRawContent());
+            Product staff = new Product(source);
+            List<Product> productList =  new ArrayList<Product>();
+            productList.add(staff);
+            productList.add(staff);
+            return productList;
+        }
+    }
+
 
     private static final String RESPONSE_DATA = "Expected Response Data";
 

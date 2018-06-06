@@ -36,6 +36,7 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -365,6 +366,10 @@ public class MASTest extends MASLoginTestBase {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        }
+
+        public JSONArray getProducts() {
+            return products;
         }
     }
 
@@ -954,6 +959,60 @@ public class MASTest extends MASLoginTestBase {
         RecordedRequest recordedRequest = getRecordRequest(uri.getPath());
 
         assertEquals(requestData.toString(), new String(recordedRequest.getBody().readUtf8()));
+    }
+
+    @Test
+    public void testHttpPostWithProductObject () throws JSONException, InterruptedException, ExecutionException {
+        final JSONObject requestData = new JSONObject();
+        final JSONArray arr = new JSONArray();
+        requestData.put("products", arr);
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK).
+                        setHeader("Content-type", ContentType.APPLICATION_JSON).
+                        setBody(requestData.toString());
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .post(new ProductRequestBody(requestData.toString()))
+                .build();
+
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        assertEquals(requestData.toString(), callback.get().getBody().getContent().toString());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+    }
+
+    class ProductRequestBody extends MASRequestBody {
+
+        private Product product;
+
+        public ProductRequestBody(String dta) {
+            this.product = new Product(dta);
+        }
+
+        @Override
+        public ContentType getContentType() {
+            return ContentType.APPLICATION_JSON;
+        }
+
+        @Override
+        public long getContentLength() {
+            return product.getProducts().toString().getBytes(getContentType().getCharset()).length;
+        }
+
+        @Override
+        public void write(OutputStream outputStream) throws IOException {
+            outputStream.write( product.getProducts().toString().getBytes(getContentType().getCharset()));
+        }
     }
 
     @Test

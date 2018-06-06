@@ -942,7 +942,7 @@ public class MASTest extends MASLoginTestBase {
                 appendEncodedPath(GatewayDefaultDispatcher.OTHER).build();
 
         MASRequest request = new MASRequest.MASRequestBuilder(uri)
-                .post(new JSONArrayRequestBody(requestData))
+                .post(MASRequestBody.jsonArrayBody(requestData))
                 .build();
 
         MASCallbackFuture<MASResponse<JSONArray>> callback = new MASCallbackFuture<>();

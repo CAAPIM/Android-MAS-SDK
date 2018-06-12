@@ -10,17 +10,17 @@ import com.ca.mas.foundation.MAS;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
-public class SecureSharedStorage extends MASSharedStorage {
+public class MASSecureSharedStorage extends MASSharedStorage {
 
     private EncryptionProvider encProvider = null;
 
     /**
-     * Creates or retrieves a SecureSharedStorage with the specified name.
+     * Creates or retrieves a MASSecureSharedStorage with the specified name.
      * Ensure that this does not conflict with any existing accountName on the device.
      *
      * @param accountName the name of the account to be created in the AccountManager
      */
-    public SecureSharedStorage(@NonNull String accountName, boolean activeSecureMode) {
+    public MASSecureSharedStorage(@NonNull String accountName, boolean activeSecureMode) {
         super(accountName);
 
         if (activeSecureMode) {

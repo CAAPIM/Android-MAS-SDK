@@ -137,6 +137,22 @@ public class SecureSharedStorageTest extends MASLoginTestBase {
         fail();
     }
 
+    @Test
+    public void testOtherAccountName() {
+        String key = "testKey123";
+        String value = "testValue12345";
+
+
+        SecureSharedStorage storage = new SecureSharedStorage(accountName, true);
+        storage.save(key, value);
+
+        SecureSharedStorage storageb = new SecureSharedStorage(accountNameb, true);
+        String retValue = storageb.getString(key);
+
+        assertNull(retValue);
+
+    }
+
     @Test(expected = NullPointerException.class)
     public void testStorageErrorSaveNullKeyFalseMode() {
         SecureSharedStorage storage = new SecureSharedStorage(accountName, false);

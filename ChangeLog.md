@@ -11,7 +11,7 @@
 - Refactor MAS interface to resolve Xamarin Binding [US477776]
 - MASUser.getAuthCredentialsType has been removed [DE354252]
 - Provide exception to application instead of terminating the process when RejectedExecutionException is thrown [DE363148]
-- No matter the server is reachable or not or return error during logout, tokens will be removed locally  [DE367122]
+- No matter if the server is reachable or not, or return error during logout, the tokens will be removed locally  [DE367122]
 
 ### Deprecated Classes
 - MASOtpAuthFragment.java is removed, please use MASOtpActivity/MASOtpDialogFragment.

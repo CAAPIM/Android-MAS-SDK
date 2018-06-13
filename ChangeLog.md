@@ -15,6 +15,7 @@
 - Refactor MAS interface to resolve Xamarin Binding [US477776]
 - MASUser.getAuthCredentialsType has been removed [DE354252]
 - Provide exception to application instead of terminating the process when RejectedExecutionException is thrown [DE363148]
+- No matter if the server is reachable or not, or if it returns an error during logout, the tokens will be removed locally  [DE367122]
 
 ### Deprecated Classes
 - MASOtpAuthFragment.java is removed, please use MASOtpActivity/MASOtpDialogFragment.
@@ -38,8 +39,6 @@
     - com.nimbusds:nimbus-jose-jwt to 5.9
     - com.google.zxing:core to 3.3.0
     - Migrate from compile to implementation for build.gradle
-- Recover from error 107 "The given mag-identifier is either invalid or it points to an unknown device",
-the SDK perform device recovery and re-register the device. [US486057]
 
 # Version 1.6.10
 

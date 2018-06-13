@@ -1,3 +1,7 @@
+# Version 1.8.00
+- Support JSONArray response [US500100]
+- Support JSONArray request [US506882]
+
 # Version 1.7.00
 
 ### Bug fixes

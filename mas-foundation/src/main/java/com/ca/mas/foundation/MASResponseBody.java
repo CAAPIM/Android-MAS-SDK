@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.ca.mas.core.io.IoUtils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -56,15 +57,25 @@ public class MASResponseBody<T> {
      * @return The parsed response object
      */
     public T getContent() {
+
+        String retValue = "";
         if (contentType != null) {
+
             if (contentType.contains("application/json")) {
                 try {
+
                     if (buffer == null || buffer.length == 0) {
-                        return (T) new JSONObject();
+                        return null;
                     }
-                    return (T) new JSONObject(new String(buffer));
+                    retValue = new String(buffer);
+                    return (T) new JSONObject(retValue);
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+
+                    try {
+                        return (T) new JSONArray(retValue);
+                    } catch (JSONException e1) {
+                        throw new RuntimeException(e1);
+                    }
                 }
             }
             if (contentType.contains("text/plain")) {

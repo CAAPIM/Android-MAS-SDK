@@ -34,19 +34,11 @@ public class MASSharedStorageTest extends MASLoginTestBase {
         assertEquals(1, accounts.length);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testStorageCreationMissingParameters() {
-        try {
-            MASSharedStorage storage = new MASSharedStorage(null);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
+        MASSharedStorage storage = new MASSharedStorage(null);
 
-        try {
-            MASSharedStorage storage = new MASSharedStorage("");
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
+        MASSharedStorage storageb = new MASSharedStorage("");
     }
 
     @Test
@@ -120,7 +112,7 @@ public class MASSharedStorageTest extends MASLoginTestBase {
         assertEquals(retrievedObject, retrievedObject2);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testStorageErrorSaveNullKey() {
         MASSharedStorage storage = new MASSharedStorage(accountName);
         String data = "testValue12345";
@@ -148,7 +140,7 @@ public class MASSharedStorageTest extends MASLoginTestBase {
         fail();
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testStorageErrorDeleteNullKey() {
         MASSharedStorage storage = new MASSharedStorage(accountName);
 
@@ -162,7 +154,7 @@ public class MASSharedStorageTest extends MASLoginTestBase {
         fail();
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testStorageErrorRetrieveNullKey() {
         MASSharedStorage storage = new MASSharedStorage(accountName);
 

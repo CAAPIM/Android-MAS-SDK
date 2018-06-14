@@ -1,6 +1,7 @@
 package com.ca.mas.core.storage.securesharedstorage;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
@@ -13,6 +14,8 @@ import java.nio.charset.Charset;
 public class MASSecureSharedStorage extends MASSharedStorage {
 
     private EncryptionProvider encProvider = null;
+    private boolean secureMode;
+    private static final String LOGTAG = "MASSecureSharedStorage";
 
     /**
      * Creates or retrieves a MASSecureSharedStorage with the specified name.
@@ -22,61 +25,51 @@ public class MASSecureSharedStorage extends MASSharedStorage {
      */
     public MASSecureSharedStorage(@NonNull String accountName, boolean activeSecureMode) {
         super(accountName);
-
-        if (activeSecureMode) {
-            encProvider = new DefaultEncryptionProvider(MAS.getContext());
-        }
+        secureMode = activeSecureMode;
     }
 
     @Override
-    public void save(@NonNull String key, String value){
-        isValidKey(key);
+    public void save(@NonNull String key, String value) {
+        preconditionCheck(key);
 
         String retValue = value;
 
-        if (encProvider != null) {
-            try {
-                byte[] encryptedValue = encProvider.encrypt(value.getBytes());
-                retValue = new String(encryptedValue, "ISO-8859-1");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+        try {
+            byte[] encryptedValue = getEncryptionProvider().encrypt(value.getBytes());
+            retValue = new String(encryptedValue, "ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            Log.e(LOGTAG, e.getMessage());
         }
+
 
         super.save(key, retValue);
     }
 
     @Override
     public void save(@NonNull String key, byte[] value) {
-        isValidKey(key);
+        preconditionCheck(key);
 
-        byte[] retValue = value;
-
-        if (encProvider != null) {
-            retValue = encProvider.encrypt(value);
-        }
-
-        super.save(key, retValue);
+        super.save(key, getEncryptionProvider().encrypt(value));
     }
 
     @Override
     public void delete(@NonNull String key) {
-        isValidKey(key);
         super.delete(key);
     }
 
     @Override
     public String getString(String key) {
-        isValidKey(key);
+        preconditionCheck(key);
 
         String retValue = super.getString(key);
 
-        if (encProvider != null && retValue != null) {
+        if (retValue != null) {
             try {
-                byte[] encodedbytes = encProvider.decrypt(retValue.getBytes("ISO-8859-1"));
-                retValue = new String(encodedbytes, Charset.forName("UTF-8"));
+                byte[] encodedbytes = getEncryptionProvider().decrypt(retValue.getBytes("ISO-8859-1"));
+                retValue = new String(encodedbytes);
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                Log.e(LOGTAG, e.getMessage());
+                retValue = null;
             }
         }
 
@@ -85,16 +78,25 @@ public class MASSecureSharedStorage extends MASSharedStorage {
 
     @Override
     public byte[] getBytes(String key) {
-        isValidKey(key);
+        preconditionCheck(key);
 
         byte[] retValue = super.getBytes(key);
-        if (encProvider != null && retValue != null) {
-            retValue = encProvider.decrypt(retValue);
+
+        if (retValue != null) {
+            retValue = getEncryptionProvider().decrypt(retValue);
         }
+
         return retValue;
     }
 
-    private void isValidKey(String key) {
-        if (key == null || key.isEmpty()) {return;}
+    @Override
+    protected EncryptionProvider getEncryptionProvider () {
+        if (secureMode) {
+            encProvider = new DefaultEncryptionProvider(MAS.getContext());
+        } else {
+            encProvider = super.getEncryptionProvider();
+        }
+        return encProvider;
     }
+
 }

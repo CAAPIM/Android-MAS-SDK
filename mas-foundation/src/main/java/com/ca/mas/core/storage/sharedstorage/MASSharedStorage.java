@@ -20,6 +20,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoFactory;
+import com.ca.mas.core.security.EncryptionProvider;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASFoundationStrings;
 import com.ca.mas.foundation.MASSharedStorageException;
@@ -107,13 +108,13 @@ public class MASSharedStorage {
         }
     }
 
-    private void preconditionCheck(String key) {
+    protected void preconditionCheck(String key) {
         //If the SDK hasn't been initialized, throw an IllegalStateException
         MobileSsoFactory.getInstance();
 
         //If the data key is null, throw an exception
         if (key == null || key.isEmpty()) {
-            throw new NullPointerException("Data key cannot be null or empty.");
+            throw new IllegalArgumentException("Data key should be a String that cannot be null or empty.");
         }
     }
 
@@ -265,5 +266,17 @@ public class MASSharedStorage {
     private Set<String> getKeySet() {
         String keyString = mAccountManager.getUserData(mAccount, KEYINDEX_COLUMN_NAME);
         return new HashSet<>(unmarshall(keyString));
+    }
+
+    protected EncryptionProvider getEncryptionProvider () {
+        return new EncryptionProvider() {
+            public byte[] encrypt(byte[] data) {
+                return data;
+            }
+
+            public byte[] decrypt(byte[] data) {
+                return data;
+            }
+        };
     }
 }

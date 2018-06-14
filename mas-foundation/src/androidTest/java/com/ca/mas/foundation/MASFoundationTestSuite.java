@@ -8,6 +8,8 @@
 
 package com.ca.mas.foundation;
 
+import com.ca.mas.core.storage.securesharedstorage.MASSecureSharedStorage;
+
 import org.junit.experimental.categories.Categories;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -37,6 +39,7 @@ import org.junit.runners.Suite;
         MASSessionLockTest.class,
         MASSharedStorageSDKStopTest.class,
         MASSharedStorageTest.class,
+        MASSecureSharedStorage.class,
         MASStartTest.class,
         MASTest.class,
         MASUserTest.class,

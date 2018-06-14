@@ -20,7 +20,7 @@ import static junit.framework.Assert.fail;
 public class MASSecureSharedStorageTest extends MASLoginTestBase {
 
     private final String accountName = "testNameEncrypted";
-    private final String accountNameb = "testNameNoEncripted";
+    private final String accountNameb = "testNameNoEncrypted";
 
     private final String accountType = "com.mas.foundation.sharedstorage";
 
@@ -33,19 +33,10 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
         assertEquals(1, accounts.length);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testStorageCreationMissingParameters() {
-        try {
-            MASSecureSharedStorage storage = new MASSecureSharedStorage(null, true);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
-
-        try {
-            MASSecureSharedStorage storage = new MASSecureSharedStorage("", true);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(null, true);
+        MASSecureSharedStorage storageShared = new MASSecureSharedStorage("", true);
     }
 
     @Test
@@ -109,7 +100,7 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
     }
 
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testStorageErrorSaveNullKey() {
         MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true);
         String data = "testValue12345";
@@ -153,7 +144,7 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
 
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testStorageErrorSaveNullKeyFalseMode() {
         MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, false);
         String data = "testValue12345";
@@ -181,7 +172,7 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
         fail();
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testStorageErrorDeleteNullKey() {
         MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName,true);
 
@@ -206,7 +197,7 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
         fail();
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testStorageErrorRetrieveNullKey() {
         MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName,true);
 
@@ -233,7 +224,7 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
     }
 
     @Test
-    public void saveKeyEncriptedRetrieveUnEncripted() {
+    public void saveKeyEncryptedRetrieveUnEncrypted() {
         String key = "testKey123";
         String value = "testValue12345";
         String comparea = "";
@@ -256,7 +247,7 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
 
 
     @Test(expected = RuntimeException.class)
-    public void saveKeyUnencriptedRetrieveEncripted() {
+    public void saveKeyUnencryptedRetrieveEncrypted() {
         String key = "testKey123";
         String value = "testValue12345";
         String comparea = "";

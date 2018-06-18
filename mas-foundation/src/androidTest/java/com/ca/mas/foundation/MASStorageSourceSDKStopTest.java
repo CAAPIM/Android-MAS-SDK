@@ -1,14 +1,14 @@
 package com.ca.mas.foundation;
 
 import com.ca.mas.MASStartTestBase;
-import com.ca.mas.core.storage.sharedstorage.MASSharedStorage;
+import com.ca.mas.core.storage.storagesource.MASStorageSource;
 
 import org.junit.After;
 import org.junit.Test;
 
 import static junit.framework.Assert.fail;
 
-public class MASSharedStorageSDKStopTest extends MASStartTestBase {
+public class MASStorageSourceSDKStopTest extends MASStartTestBase {
 
     private final String accountName = "testName";
     // Currently matches the value in massharedauthenticator.xml
@@ -20,7 +20,7 @@ public class MASSharedStorageSDKStopTest extends MASStartTestBase {
         String key = "testKey123";
         String object = "testValue123";
 
-        MASSharedStorage storage = new MASSharedStorage(accountName);
+        MASStorageSource storage = new MASStorageSource(accountName, true);
         storage.save(key, object);
     }
 
@@ -29,7 +29,7 @@ public class MASSharedStorageSDKStopTest extends MASStartTestBase {
         masStop();
         String key = "testKey123";
 
-        MASSharedStorage storage = new MASSharedStorage(accountName);
+        MASStorageSource storage = new MASStorageSource(accountName, true);
         storage.delete(key);
         fail();
     }
@@ -38,7 +38,7 @@ public class MASSharedStorageSDKStopTest extends MASStartTestBase {
     public void testStorageErrorRetrieveNonInitializedSdk() throws Exception {
         masStop();
         String key = "testKey123";
-        MASSharedStorage storage = new MASSharedStorage(accountName);
+        MASStorageSource storage = new MASStorageSource(accountName, true);
 
         try {
             storage.getString(key);

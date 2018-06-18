@@ -6,7 +6,7 @@
  *
  */
 
-package com.ca.mas.core.storage.sharedstorage;
+package com.ca.mas.core.storage.storagesource;
 
 import android.app.Service;
 import android.content.Intent;

@@ -1,17 +1,18 @@
-package com.ca.mas.core.storage.securesharedstorage;
+package com.ca.mas.core.storage.securestoragesource;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
+import android.util.Base64;
 
 import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
-import com.ca.mas.core.storage.sharedstorage.MASSharedStorage;
+import com.ca.mas.core.storage.storagesource.MASStorageSource;
 import com.ca.mas.foundation.MAS;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
-public class MASSecureSharedStorage extends MASSharedStorage {
+import static com.ca.mas.core.client.ServerClient.UTF_8;
+
+public class MASSecureStorageSource extends MASStorageSource {
 
     private EncryptionProvider encProvider = null;
     private boolean secureMode;
@@ -23,8 +24,8 @@ public class MASSecureSharedStorage extends MASSharedStorage {
      *
      * @param accountName the name of the account to be created in the AccountManager
      */
-    public MASSecureSharedStorage(@NonNull String accountName, boolean activeSecureMode) {
-        super(accountName);
+    public MASSecureStorageSource(@NonNull String accountName, boolean activeSecureMode, boolean sharedMode) {
+        super(accountName, sharedMode);
         secureMode = activeSecureMode;
     }
 
@@ -32,17 +33,9 @@ public class MASSecureSharedStorage extends MASSharedStorage {
     public void save(@NonNull String key, String value) {
         preconditionCheck(key);
 
-        String retValue = value;
-
-        try {
-            byte[] encryptedValue = getEncryptionProvider().encrypt(value.getBytes());
-            retValue = new String(encryptedValue, "ISO-8859-1");
-        } catch (UnsupportedEncodingException e) {
-            Log.e(LOGTAG, e.getMessage());
-        }
-
-
-        super.save(key, retValue);
+        Charset charSet = Charset.forName(UTF_8);
+        byte[] encrypted = getEncryptionProvider().encrypt(value.getBytes(charSet));
+        super.save(key, Base64.encodeToString(encrypted, Base64.NO_WRAP));
     }
 
     @Override
@@ -64,13 +57,10 @@ public class MASSecureSharedStorage extends MASSharedStorage {
         String retValue = super.getString(key);
 
         if (retValue != null) {
-            try {
-                byte[] encodedbytes = getEncryptionProvider().decrypt(retValue.getBytes("ISO-8859-1"));
-                retValue = new String(encodedbytes);
-            } catch (UnsupportedEncodingException e) {
-                Log.e(LOGTAG, e.getMessage());
-                retValue = null;
-            }
+            Charset charSet = Charset.forName(UTF_8);
+            byte[] encodedbytes = getEncryptionProvider().decrypt(Base64.decode(retValue, Base64.NO_WRAP));
+            retValue = new String(encodedbytes, charSet);
+
         }
 
         return retValue;

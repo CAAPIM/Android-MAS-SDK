@@ -14,6 +14,7 @@ import android.util.Log;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.datasource.AccountManagerStoreDataSource;
 import com.ca.mas.core.datasource.DataSource;
+import com.ca.mas.core.datasource.SecureStorageDataSource;
 import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.token.IdToken;
@@ -157,7 +158,7 @@ class DefaultTokenManager implements TokenManager {
 
     @Override
     public PrivateKey createPrivateKey(Context ctx, int keyBits) throws KeyStoreException {
-        if (storage instanceof AccountManagerStoreDataSource) {
+        if (storage instanceof AccountManagerStoreDataSource || storage instanceof SecureStorageDataSource) {
 
             // don't require a pin/password/swipe
             return KeyUtilsAsymmetric.generateRsaPrivateKey(keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),

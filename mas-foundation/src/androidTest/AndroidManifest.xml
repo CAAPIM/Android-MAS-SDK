@@ -35,7 +35,7 @@
                 android:resource="@xml/mastest" />
         </service>
 
-        <service android:name="com.ca.mas.core.storage.sharedstorage.MASAuthenticatorService">
+        <service android:name="com.ca.mas.core.storage.storagesource.MASAuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>

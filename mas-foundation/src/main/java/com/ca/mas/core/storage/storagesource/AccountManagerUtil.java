@@ -1,11 +1,4 @@
-/*
- * Copyright (c) 2017 CA. All rights reserved.
- *
- * This software may be modified and distributed under the terms
- * of the MIT license.  See the LICENSE file for details.
- *
- */
-package com.ca.mas.core.storage.sharedstorage;
+package com.ca.mas.core.storage.storagesource;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -19,8 +12,7 @@ import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
 
-import com.ca.mas.core.MobileSsoFactory;
-import com.ca.mas.core.security.EncryptionProvider;
+import com.ca.mas.core.storage.StorageActions;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASFoundationStrings;
 import com.ca.mas.foundation.MASSharedStorageException;
@@ -33,46 +25,18 @@ import java.util.List;
 import java.util.Set;
 
 import static com.ca.mas.foundation.MAS.TAG;
-import static com.ca.mas.foundation.MAS.getContext;
 
-/**
- * MASSharedStorage is designed for developers to write, read, and delete String or byte[] data into
- * the AccountManager so that multiple applications signed with the same key and using the same
- * account name can share data.
- *
- * Note: the framework should be initialized prior to using any of MASSharedStorage's CRUD operations.
- * <p>
- * Requires the android.permission.AUTHENTICATE_ACCOUNTS and
- * android:name="android.permission.MANAGE_ACCOUNTS" permissions
- * in your application's AndroidManifest.xml.
- * <p>
- * By default, the massharedauthenticator.xml file will be used to create the accounts,
- * but can be overridden in AndroidManifest.xml with your own xml file for another account type.
- */
-@SuppressWarnings({"MissingPermission"})
-public class MASSharedStorage {
+public class AccountManagerUtil implements StorageActions {
 
     private static final Object mutex = new Object();
     private static final String KEYINDEX_COLUMN_NAME = "mas_shared_storage_lookup_index";
     private AccountManager mAccountManager;
+
     private Account mAccount;
 
-    /**
-     * Creates or retrieves a MASSharedStorage with the specified name and account type.
-     * Ensure that this does not conflict with any existing accountType on the device.
-     *
-     * @param accountName the name of the account to be created in the AccountManager
-     */
-    public MASSharedStorage(@NonNull String accountName) {
-        if (accountName == null || accountName.isEmpty()) {
-            throw new IllegalArgumentException(MASFoundationStrings.SHARED_STORAGE_NULL_ACCOUNT_NAME);
-        }
+    protected static final String UTF8 = "UTF-8";
 
-        // The SDK must be initialized before creating the storage
-        Context context = MAS.getContext();
-        if (context == null) {
-            throw new IllegalStateException(MASFoundationStrings.SDK_UNINITIALIZED);
-        }
+    public AccountManagerUtil(Context context, String accountName){
 
         // Gets the account type from the manifest
         String accountType = getAccountType(context);
@@ -105,16 +69,6 @@ public class MASSharedStorage {
             }
         } catch (Exception e) {
             throw new MASSharedStorageException(e.getMessage(), e);
-        }
-    }
-
-    protected void preconditionCheck(String key) {
-        //If the SDK hasn't been initialized, throw an IllegalStateException
-        MobileSsoFactory.getInstance();
-
-        //If the data key is null, throw an exception
-        if (key == null || key.isEmpty()) {
-            throw new IllegalArgumentException("Data key should be a String that cannot be null or empty.");
         }
     }
 
@@ -159,42 +113,6 @@ public class MASSharedStorage {
         return null;
     }
 
-    /**
-     * Saves a string value with the given key into the shared storage.
-     *
-     * @param key string of the key to store the string value
-     * @param value the string value to be stored
-     */
-    public void save(@NonNull String key, String value) {
-        preconditionCheck(key);
-        mAccountManager.setUserData(mAccount, key, value == null ? "" : value);
-        updateIndex(key, true);
-    }
-
-    /**
-     * Saves a byte array with the given key into the shared storage.
-     *
-     * @param key string of the key to store the byte[] value
-     * @param value the byte[] value to be stored
-     */
-    public void save(@NonNull String key, byte[] value) {
-        preconditionCheck(key);
-        mAccountManager.setUserData(mAccount, key, value == null ? "" : Base64.encodeToString(value, Base64.DEFAULT));
-        updateIndex(key, true);
-    }
-
-    /**
-     * Deletes any data with the given key in the shared storage.
-     * Functionally the same as calling save(key, null).
-     *
-     * @param key string of the key to be deleted
-     */
-    public void delete(@NonNull String key) {
-        preconditionCheck(key);
-        mAccountManager.setUserData(mAccount, key, null);
-        updateIndex(key, false);
-    }
-
     // Updates the key index in the AccountManager by adding or removing the key
     private void updateIndex(@NonNull String key, boolean add) {
         synchronized (mutex) {
@@ -237,15 +155,59 @@ public class MASSharedStorage {
         return result;
     }
 
+    private Set<String> getKeySet() {
+        String keyString = mAccountManager.getUserData(mAccount, KEYINDEX_COLUMN_NAME);
+        return new HashSet<>(unmarshall(keyString));
+    }
+
+    /**
+     * Saves a string value with the given key into the shared storage.
+     *
+     * @param key string of the key to store the string value
+     * @param value the string value to be stored
+     */
+    @Override
+    public void save(@NonNull String key, String value) {
+        mAccountManager.setUserData(mAccount, key,value == null ? "" : value);
+        updateIndex(key, true);
+    }
+
+    /**
+     * Saves a byte array with the given key into the shared storage.
+     *
+     * @param key string of the key to store the byte[] value
+     * @param value the byte[] value to be stored
+     */
+    @Override
+    public void save(@NonNull String key, byte[] value) {
+        mAccountManager.setUserData(mAccount, key, value == null ? "" : Base64.encodeToString(value, Base64.DEFAULT));
+        updateIndex(key, true);
+    }
+
+    /**
+     * Deletes any data with the given key in the shared storage.
+     * Functionally the same as calling save(key, null).
+     *
+     * @param key string of the key to be deleted
+     */
+    @Override
+    public void delete(@NonNull String key) {
+        mAccountManager.setUserData(mAccount, key, null);
+        updateIndex(key, false);
+    }
+
+
+
     /**
      * Retrieves a string value in the shared storage given by the key.
      *
      * @param key string of the key to retrieve the string value
      * @return value associated with the key
      */
+    @Override
     public String getString(String key) {
-        preconditionCheck(key);
-        return mAccountManager.getUserData(mAccount, key);
+        String value = mAccountManager.getUserData(mAccount, key);
+        return  value;
     }
 
     /**
@@ -254,29 +216,12 @@ public class MASSharedStorage {
      * @param key string of the key to retrieve the byte[] value
      * @return value associated with the key
      */
+    @Override
     public byte[] getBytes(String key) {
-        preconditionCheck(key);
         String byteString = mAccountManager.getUserData(mAccount, key);
         if (byteString != null) {
             return Base64.decode(byteString, Base64.DEFAULT);
         }
         return null;
-    }
-
-    private Set<String> getKeySet() {
-        String keyString = mAccountManager.getUserData(mAccount, KEYINDEX_COLUMN_NAME);
-        return new HashSet<>(unmarshall(keyString));
-    }
-
-    protected EncryptionProvider getEncryptionProvider () {
-        return new EncryptionProvider() {
-            public byte[] encrypt(byte[] data) {
-                return data;
-            }
-
-            public byte[] decrypt(byte[] data) {
-                return data;
-            }
-        };
     }
 }

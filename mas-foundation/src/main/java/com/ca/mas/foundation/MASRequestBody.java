@@ -157,6 +157,29 @@ public abstract class MASRequestBody {
         };
     }
 
+    public static MASRequestBody jsonArrayBody(final JSONArray jsonArray) {
+        MASRequestBody result = new MASRequestBody() {
+            private byte[] content = jsonArray.toString().getBytes(getContentType().getCharset());
+
+            @Override
+            public ContentType getContentType() {
+                return ContentType.APPLICATION_JSON;
+            }
+
+            @Override
+            public long getContentLength() {
+                return content.length;
+            }
+
+            @Override
+            public void write(OutputStream outputStream) throws IOException {
+                outputStream.write(content);
+            }
+        };
+
+        return result;
+    }
+
     /**
      * @param form The request body as url encoded form body.
      * @return A new request with content of a url encoded form.

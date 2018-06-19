@@ -3,6 +3,7 @@ package com.ca.mas.core.storage.storagesource;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.util.Base64;
 
 import com.ca.mas.core.storage.StorageActions;
 import com.ca.mas.foundation.MAS;
@@ -10,43 +11,42 @@ import com.ca.mas.foundation.MAS;
 public class SharedPreferencesUtil implements StorageActions {
 
     // - same as the account_name for the AndroidAccount Manager
-    private String prefs_name;
+    private String prefsName;
     private Context context;
     private SharedPreferences sharedpreferences;
 
     public SharedPreferencesUtil(@NonNull Context ctx, String prefs_name) {
-        this.prefs_name = prefs_name;
+        this.prefsName = prefs_name;
         this.context = MAS.getContext();
     }
 
     @Override
     public void save(@NonNull String key, byte[] value) {
-        sharedpreferences = context.getSharedPreferences(prefs_name, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        String text = new String(value);
-        editor.putString(key,text);
-        editor.apply();
+        put(key, value == null ? "" : Base64.encodeToString(value, Base64.DEFAULT));
     }
 
     @Override
     public void save(@NonNull String key, String value) {
-        sharedpreferences = context.getSharedPreferences(prefs_name, Context.MODE_PRIVATE);
+        put(key,value);
+    }
+
+    private void put(@NonNull String key, String value){
+        sharedpreferences = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedpreferences.edit();
-        String text = new String(value);
-        editor.putString(key,text);
+        editor.putString(key,value);
         editor.apply();
     }
 
     @Override
     public String getString(@NonNull String key) {
-        sharedpreferences = context.getSharedPreferences(prefs_name, Context.MODE_PRIVATE);
+        sharedpreferences = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         String retrieve = sharedpreferences.getString(key, null);
         return retrieve;
     }
 
     @Override
     public byte[] getBytes(@NonNull String key) {
-        sharedpreferences = context.getSharedPreferences(prefs_name, Context.MODE_PRIVATE);
+        sharedpreferences = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         String retrieve = sharedpreferences.getString(key, null);
 
         if (retrieve != null) {
@@ -58,7 +58,7 @@ public class SharedPreferencesUtil implements StorageActions {
 
     @Override
     public void delete(@NonNull String key) {
-        sharedpreferences = context.getSharedPreferences(prefs_name, Context.MODE_PRIVATE);
+        sharedpreferences = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.remove(key);
         editor.apply();

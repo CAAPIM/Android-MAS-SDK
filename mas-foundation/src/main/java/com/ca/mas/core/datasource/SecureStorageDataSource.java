@@ -23,22 +23,25 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
     private static final String LOGTAG = "SecureStorageDataSource";
     private MASSecureStorageSource storage;
     private boolean shared;
-    private SecureStorageDataSource storageDataSource;
     private Context context;
 
     // - This returning type of the GET method depend on this field
     private DataConverter converter;
 
     private static final String ACCOUNT_NAME = "account.name";
-    private static final String CA_MAS = "CA MAS";
+    private static final String CA_MAS = "CA MAS Secure";
 
     public SecureStorageDataSource(Context context, JSONObject param, DataConverter converter){
+
+        if (param == null) {
+            return;
+        }
 
         this.shared = param.optBoolean(SHARE, false);
         this.converter = converter;
         this.context = context;
-        boolean encryptMode = this.converter == null && shared;
-        // TODO: getAccountName should go into a utils class
+
+        // - For this DataSource we will always encrypt
         this.storage = new MASSecureStorageSource(getAccountName(), true, shared);
     }
 
@@ -152,7 +155,7 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
      *             android:resource="@string/acc_name" /&gt;
      * </pre>
      *
-     * @return The Account name or "CA MAS" if account name is not defined
+     * @return The Account name or "CA MAS Secure" if account name is not defined
      */
     private String getAccountName() {
         ComponentName myService = new ComponentName(context, MASAuthenticatorService.class);

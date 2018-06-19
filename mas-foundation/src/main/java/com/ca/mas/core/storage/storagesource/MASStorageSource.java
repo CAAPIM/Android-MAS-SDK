@@ -16,11 +16,11 @@ import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASFoundationStrings;
 
 /**
- * MASSharedStorage is designed for developers to write, read, and delete String or byte[] data into
- * the AccountManager so that multiple applications signed with the same key and using the same
+ * MASStorageSource is designed for developers to write, read, and delete String or byte[] data into
+ * the AccountManager or the SharedPreferences. Using AccountManager allows that multiple applications signed with the same key and using the same
  * account name can share data.
  *
- * Note: the framework should be initialized prior to using any of MASSharedStorage's CRUD operations.
+ * Note: the framework should be initialized prior to using any of StorageActions's CRUD operations.
  * <p>
  * Requires the android.permission.AUTHENTICATE_ACCOUNTS and
  * android:name="android.permission.MANAGE_ACCOUNTS" permissions
@@ -38,7 +38,7 @@ public class MASStorageSource {
     private String mAccountName;
 
     /**
-     * Creates or retrieves a MASSharedStorage with the specified name and account type.
+     * Creates or retrieves a MASStorageSource with the specified name and account type.
      * Ensure that this does not conflict with any existing accountType on the device.
      *
      * @param accountName the name of the account to be created in the AccountManager
@@ -61,9 +61,6 @@ public class MASStorageSource {
         storageProvider = getStorageProvider();
     }
 
-    public MASStorageSource(String id) {
-        new MASStorageSource(id, false);
-    }
 
     protected void preconditionCheck(String key) {
         //If the SDK hasn't been initialized, throw an IllegalStateException

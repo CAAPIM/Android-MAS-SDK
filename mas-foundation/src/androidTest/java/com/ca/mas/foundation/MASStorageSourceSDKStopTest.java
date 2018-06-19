@@ -1,22 +1,17 @@
 package com.ca.mas.foundation;
 
-import com.ca.mas.MASStartTestBase;
 import com.ca.mas.core.storage.storagesource.MASStorageSource;
 
-import org.junit.After;
 import org.junit.Test;
 
 import static junit.framework.Assert.fail;
 
-public class MASStorageSourceSDKStopTest extends MASStartTestBase {
+public class MASStorageSourceSDKStopTest {
 
     private final String accountName = "testName";
-    // Currently matches the value in massharedauthenticator.xml
-    private final String accountType = "com.mas.foundation.sharedstorage";
 
     @Test(expected = IllegalStateException.class)
     public void testStorageErrorSaveNonInitializedSdk() {
-        masStop();
         String key = "testKey123";
         String object = "testValue123";
 
@@ -26,7 +21,6 @@ public class MASStorageSourceSDKStopTest extends MASStartTestBase {
 
     @Test(expected = IllegalStateException.class)
     public void testStorageErrorDeleteNonInitializedSdk() throws Exception {
-        masStop();
         String key = "testKey123";
 
         MASStorageSource storage = new MASStorageSource(accountName, true);
@@ -36,7 +30,6 @@ public class MASStorageSourceSDKStopTest extends MASStartTestBase {
 
     @Test(expected = IllegalStateException.class)
     public void testStorageErrorRetrieveNonInitializedSdk() throws Exception {
-        masStop();
         String key = "testKey123";
         MASStorageSource storage = new MASStorageSource(accountName, true);
 
@@ -48,10 +41,5 @@ public class MASStorageSourceSDKStopTest extends MASStartTestBase {
 
         storage.getBytes(key);
         fail();
-    }
-
-    @After
-    public void restartSDK() throws Exception {
-        masStart();
     }
 }

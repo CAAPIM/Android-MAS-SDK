@@ -160,62 +160,31 @@ public class AccountManagerUtil implements StorageActions {
         return new HashSet<>(unmarshall(keyString));
     }
 
-    /**
-     * Saves a string value with the given key into the shared storage.
-     *
-     * @param key string of the key to store the string value
-     * @param value the string value to be stored
-     */
+
     @Override
     public void save(@NonNull String key, String value) {
         mAccountManager.setUserData(mAccount, key,value == null ? "" : value);
         updateIndex(key, true);
     }
 
-    /**
-     * Saves a byte array with the given key into the shared storage.
-     *
-     * @param key string of the key to store the byte[] value
-     * @param value the byte[] value to be stored
-     */
     @Override
     public void save(@NonNull String key, byte[] value) {
         mAccountManager.setUserData(mAccount, key, value == null ? "" : Base64.encodeToString(value, Base64.DEFAULT));
         updateIndex(key, true);
     }
 
-    /**
-     * Deletes any data with the given key in the shared storage.
-     * Functionally the same as calling save(key, null).
-     *
-     * @param key string of the key to be deleted
-     */
     @Override
     public void delete(@NonNull String key) {
         mAccountManager.setUserData(mAccount, key, null);
         updateIndex(key, false);
     }
 
-
-
-    /**
-     * Retrieves a string value in the shared storage given by the key.
-     *
-     * @param key string of the key to retrieve the string value
-     * @return value associated with the key
-     */
     @Override
     public String getString(String key) {
         String value = mAccountManager.getUserData(mAccount, key);
         return  value;
     }
 
-    /**
-     * Retrieves a byte array in the shared storage given by the key.
-     *
-     * @param key string of the key to retrieve the byte[] value
-     * @return value associated with the key
-     */
     @Override
     public byte[] getBytes(String key) {
         String byteString = mAccountManager.getUserData(mAccount, key);

@@ -1,0 +1,132 @@
+package com.ca.mas.core.datasource;
+
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.os.Build;
+
+import com.ca.mas.AndroidVersionAwareTestRunner;
+import com.ca.mas.MASLoginTestBase;
+import com.ca.mas.TargetApi;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
+
+@RunWith(AndroidVersionAwareTestRunner.class)
+public class SecureStorageDataSourceTest extends MASLoginTestBase {
+
+    JSONObject param = new JSONObject();
+
+    // - same as authenticator_masunit.xml
+    private final String accountType = "com.ca.mas.testAccountType";
+
+    public void shareParameter() {
+        try {
+            param.put("share",true);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void shareParameterFalse() {
+        try {
+            param.put("share",false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @After
+    public void resetAccountsAndData() {
+        AccountManager am = AccountManager.get(getContext());
+        Account[] accounts = am.getAccountsByType(accountType);
+        for (Account account : accounts) {
+            try {
+                am.removeAccountExplicitly(account);
+            } catch (NoSuchMethodError e) {
+                //ignore
+            }
+        }
+    }
+
+    @Test
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void testStorageSaveGetStringShared() {
+        shareParameter();
+        DataSource<String, String> dataSource = DataSourceFactory.getStorage(
+                getContext(),
+                SecureStorageDataSource.class, param, new StringDataConverter());
+
+        String key = "testKey123";
+        String object = "testValue123";
+        String retObj = "";
+
+        dataSource.put(key, object);
+        retObj = dataSource.get(key);
+
+        assertEquals(object, retObj);
+    }
+
+    @Test
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void testStorageSaveGetByteShared() {
+        shareParameter();
+
+        DataSource<String, byte[]> dataSource = DataSourceFactory.getStorage(
+                getContext(),
+                SecureStorageDataSource.class, param, null);
+
+        String key = "testKey123";
+        byte[] object = key.getBytes();
+        byte[] retObj;
+
+        dataSource.put(key,object);
+        retObj = dataSource.get(key);
+
+        assertEquals(key, new String(retObj));
+    }
+
+    @Test
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void testStorageSaveGetString() {
+        shareParameterFalse();
+        DataSource<String, String> dataSource = DataSourceFactory.getStorage(
+                getContext(),
+                SecureStorageDataSource.class, param, new StringDataConverter());
+
+        String key = "testKey123";
+        String object = "testValue123";
+        String retObj = "";
+
+        dataSource.put(key, object);
+        retObj = dataSource.get(key);
+
+        assertEquals(object, retObj);
+    }
+
+    @Test
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void testStorageSaveGetByte() {
+        shareParameterFalse();
+
+        DataSource<String, byte[]> dataSource = DataSourceFactory.getStorage(
+                getContext(),
+                SecureStorageDataSource.class, param, null);
+
+        String key = "testKey123";
+        byte[] object = key.getBytes();
+        byte[] retObj;
+
+        dataSource.put(key,object);
+        retObj = dataSource.get(key);
+
+        assertNull(retObj);
+    }
+
+}

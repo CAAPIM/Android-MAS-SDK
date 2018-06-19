@@ -19,7 +19,7 @@ public class MASSecureStorageSource extends MASStorageSource {
     private static final String LOGTAG = "MASSecureSharedStorage";
 
     /**
-     * Creates or retrieves a MASSecureSharedStorage with the specified name.
+     * Creates or retrieves a MASSecureStorageSource with the specified name.
      * Ensure that this does not conflict with any existing accountName on the device.
      *
      * @param accountName the name of the account to be created in the AccountManager
@@ -88,5 +88,7 @@ public class MASSecureStorageSource extends MASStorageSource {
         }
         return encProvider;
     }
+
+
 
 }

@@ -81,7 +81,7 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
 dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':mas-foundation')
+    api project(':mas-foundation')
 
     androidTestImplementation project(':mas-test')
 

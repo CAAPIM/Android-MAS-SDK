@@ -28,10 +28,10 @@ android {
 
 dependencies {
 
-    implementation project(':mas-foundation')
-    implementation project(':mas-connecta')
-    implementation project(':mas-storage')
-    implementation project(':mas-identity-management')
+    api project(':mas-foundation')
+    api project(':mas-connecta')
+    api project(':mas-storage')
+    api project(':mas-identity-management')
 
 }
 

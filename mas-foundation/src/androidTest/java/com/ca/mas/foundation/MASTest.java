@@ -36,6 +36,7 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -315,8 +316,8 @@ public class MASTest extends MASLoginTestBase {
     @Test
     public void testOverrideResponseWithJSONArray() throws Exception {
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY))
-                .responseBody(new JSONArrayResponse())
                 .build();
+
         MASCallbackFuture<MASResponse<JSONArray>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
         assertNotNull(callback.get());
@@ -325,16 +326,76 @@ public class MASTest extends MASLoginTestBase {
         assertNotNull(array);
     }
 
-    private static class JSONArrayResponse extends MASResponseBody<JSONArray> {
-        @Override
-        public JSONArray getContent() {
+    @Test
+    public void testOverrideResponseWithProduct() throws Exception {
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+                .responseBody(new ProductResponseBody())
+                .build();
+
+        MASCallbackFuture<MASResponse<Product>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+        Product products = callback.get().getBody().getContent();
+        assertNotNull(products);
+    }
+
+    @Test
+    public void testOverrideResponseWithProductList() throws Exception {
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+                .responseBody(new ListProductResponseBody())
+                .build();
+
+        MASCallbackFuture<MASResponse<List<Product>>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+        List<Product> productList = callback.get().getBody().getContent();
+        assertNotNull(productList);
+        assertEquals(productList.size(),2);
+    }
+
+    public class Product {
+
+        private JSONArray products;
+
+        public Product(String source) {
             try {
-                return new JSONArray(new String(getRawContent()));
+                JSONObject job = new JSONObject(source);
+                this.products = job.optJSONArray("products");
             } catch (JSONException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
+
+        public JSONArray getProducts() {
+            return products;
+        }
     }
+
+    class ProductResponseBody extends MASResponseBody<Product> {
+
+        @Override
+        public Product getContent() {
+            String source = new String(getRawContent());
+            Product staff = new Product(source);
+            return staff;
+        }
+    }
+
+    class ListProductResponseBody extends MASResponseBody<List<Product>> {
+        @Override
+        public List<Product> getContent() {
+
+            String source = new String(getRawContent());
+            Product staff = new Product(source);
+            List<Product> productList =  new ArrayList<Product>();
+            productList.add(staff);
+            productList.add(staff);
+            return productList;
+        }
+    }
+
 
     private static final String RESPONSE_DATA = "Expected Response Data";
 
@@ -886,8 +947,7 @@ public class MASTest extends MASLoginTestBase {
                 appendEncodedPath(GatewayDefaultDispatcher.OTHER).build();
 
         MASRequest request = new MASRequest.MASRequestBuilder(uri)
-                .post(new JSONArrayRequestBody(requestData))
-                .responseBody(new JSONArrayResponse())
+                .post(MASRequestBody.jsonArrayBody(requestData))
                 .build();
 
         MASCallbackFuture<MASResponse<JSONArray>> callback = new MASCallbackFuture<>();
@@ -899,6 +959,60 @@ public class MASTest extends MASLoginTestBase {
         RecordedRequest recordedRequest = getRecordRequest(uri.getPath());
 
         assertEquals(requestData.toString(), new String(recordedRequest.getBody().readUtf8()));
+    }
+
+    @Test
+    public void testHttpPostWithProductObject () throws JSONException, InterruptedException, ExecutionException {
+        final JSONObject requestData = new JSONObject();
+        final JSONArray arr = new JSONArray();
+        requestData.put("products", arr);
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK).
+                        setHeader("Content-type", ContentType.APPLICATION_JSON).
+                        setBody(requestData.toString());
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .post(new ProductRequestBody(requestData.toString()))
+                .build();
+
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        assertEquals(requestData.toString(), callback.get().getBody().getContent().toString());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+    }
+
+    class ProductRequestBody extends MASRequestBody {
+
+        private Product product;
+
+        public ProductRequestBody(String dta) {
+            this.product = new Product(dta);
+        }
+
+        @Override
+        public ContentType getContentType() {
+            return ContentType.APPLICATION_JSON;
+        }
+
+        @Override
+        public long getContentLength() {
+            return product.getProducts().toString().getBytes(getContentType().getCharset()).length;
+        }
+
+        @Override
+        public void write(OutputStream outputStream) throws IOException {
+            outputStream.write( product.getProducts().toString().getBytes(getContentType().getCharset()));
+        }
     }
 
     @Test

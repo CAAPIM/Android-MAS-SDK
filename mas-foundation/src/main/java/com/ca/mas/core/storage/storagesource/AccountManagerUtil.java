@@ -34,8 +34,6 @@ public class AccountManagerUtil implements StorageActions {
 
     private Account mAccount;
 
-    protected static final String UTF8 = "UTF-8";
-
     public AccountManagerUtil(Context context, String accountName){
 
         // Gets the account type from the manifest
@@ -180,13 +178,12 @@ public class AccountManagerUtil implements StorageActions {
     }
 
     @Override
-    public String getString(String key) {
-        String value = mAccountManager.getUserData(mAccount, key);
-        return  value;
+    public String getString(@NonNull String key) {
+        return  mAccountManager.getUserData(mAccount, key);
     }
 
     @Override
-    public byte[] getBytes(String key) {
+    public byte[] getBytes(@NonNull String key) {
         String byteString = mAccountManager.getUserData(mAccount, key);
         if (byteString != null) {
             return Base64.decode(byteString, Base64.DEFAULT);

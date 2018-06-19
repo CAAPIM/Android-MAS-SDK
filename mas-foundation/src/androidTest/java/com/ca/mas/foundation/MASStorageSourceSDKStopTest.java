@@ -20,7 +20,7 @@ public class MASStorageSourceSDKStopTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testStorageErrorDeleteNonInitializedSdk() throws Exception {
+    public void testStorageErrorDeleteNonInitializedSdk() {
         String key = "testKey123";
 
         MASStorageSource storage = new MASStorageSource(accountName, true);
@@ -29,7 +29,7 @@ public class MASStorageSourceSDKStopTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testStorageErrorRetrieveNonInitializedSdk() throws Exception {
+    public void testStorageErrorRetrieveNonInitializedSdk() {
         String key = "testKey123";
         MASStorageSource storage = new MASStorageSource(accountName, true);
 

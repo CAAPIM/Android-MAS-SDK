@@ -22,7 +22,6 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
 
     private static final String LOGTAG = "SecureStorageDataSource";
     private MASSecureStorageSource storage;
-    private boolean shared;
     private Context context;
 
     // - This returning type of the GET method depend on this field
@@ -37,7 +36,7 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
             return;
         }
 
-        this.shared = param.optBoolean(SHARE, false);
+        boolean shared = param.optBoolean(SHARE, false);
         this.converter = converter;
         this.context = context;
 
@@ -47,7 +46,7 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
 
     @Override
     public void put(K key, V value) {
-        if (!isKeyString(key)) {
+        if (isKeyString(key)) {
             return;
         }
 
@@ -100,7 +99,7 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
 
     @Override
     public void remove(K key) {
-        if (!isKeyString(key)) {
+        if (isKeyString(key)) {
             return;
         }
 
@@ -145,7 +144,7 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
     }
 
     private boolean isKeyString(Object key) {
-        return (key != null) && (key instanceof String);
+        return (key == null) || (!(key instanceof String));
     }
 
     /**

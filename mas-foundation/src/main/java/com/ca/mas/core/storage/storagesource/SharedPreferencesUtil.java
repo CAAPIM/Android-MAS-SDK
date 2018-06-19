@@ -15,7 +15,12 @@ public class SharedPreferencesUtil implements StorageActions {
     private Context context;
     private SharedPreferences sharedpreferences;
 
-    public SharedPreferencesUtil(@NonNull Context ctx, String prefs_name) {
+    public SharedPreferencesUtil(String prefs_name) {
+
+        if (prefs_name == null || prefs_name.isEmpty()) {
+            return;
+        }
+
         this.prefsName = prefs_name;
         this.context = MAS.getContext();
     }
@@ -40,8 +45,7 @@ public class SharedPreferencesUtil implements StorageActions {
     @Override
     public String getString(@NonNull String key) {
         sharedpreferences = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
-        String retrieve = sharedpreferences.getString(key, null);
-        return retrieve;
+        return sharedpreferences.getString(key, null);
     }
 
     @Override

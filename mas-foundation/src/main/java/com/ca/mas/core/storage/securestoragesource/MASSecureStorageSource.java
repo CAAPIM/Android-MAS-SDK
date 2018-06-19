@@ -16,7 +16,6 @@ public class MASSecureStorageSource extends MASStorageSource {
 
     private EncryptionProvider encProvider = null;
     private boolean secureMode;
-    private static final String LOGTAG = "MASSecureSharedStorage";
 
     /**
      * Creates or retrieves a MASSecureStorageSource with the specified name.

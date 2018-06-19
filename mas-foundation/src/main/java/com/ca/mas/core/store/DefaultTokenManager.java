@@ -65,7 +65,7 @@ class DefaultTokenManager implements TokenManager {
     }
 
     @Override
-    public void saveClientCertificateChain(X509Certificate[] chain) throws TokenStoreException {
+    public void saveClientCertificateChain(X509Certificate[] chain) {
         try {
             KeyUtilsAsymmetric.setCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX), chain);
         } catch (Exception e) {
@@ -112,7 +112,7 @@ class DefaultTokenManager implements TokenManager {
     }
 
     @Override
-    public void clearAll() throws TokenStoreException {
+    public void clearAll() {
         storage.removeAll(null);
         KeyUtilsAsymmetric.deletePrivateKey(getKey(MSSO_CLIENT_PRIVATE_KEY));
         KeyUtilsAsymmetric.clearCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX));

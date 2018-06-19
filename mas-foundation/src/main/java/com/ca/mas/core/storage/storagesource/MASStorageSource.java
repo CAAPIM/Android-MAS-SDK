@@ -42,6 +42,9 @@ public class MASStorageSource {
      * Ensure that this does not conflict with any existing accountType on the device.
      *
      * @param accountName the name of the account to be created in the AccountManager
+     *
+     * @param shared true for using AccountManager false for using SharedPreferences
+     *
      */
     public MASStorageSource(@NonNull String accountName, boolean shared) {
         if (accountName == null || accountName.isEmpty()) {
@@ -109,15 +112,14 @@ public class MASStorageSource {
 
 
     /**
-     * Retrieves a string value in the shared storage given by the key.
+     * Retrieves a string value in the storage given by the key.
      *
      * @param key string of the key to retrieve the string value
      * @return value associated with the key
      */
     public String getString(String key) {
         preconditionCheck(key);
-        String value = storageProvider.getString(key);
-        return  value;
+        return  storageProvider.getString(key);
     }
 
     /**
@@ -148,7 +150,7 @@ public class MASStorageSource {
         if (isSharedStorage) {
             storage = new AccountManagerUtil(context, mAccountName);
         } else {
-            storage = new SharedPreferencesUtil(context, mAccountName);
+            storage = new SharedPreferencesUtil(mAccountName);
         }
 
         return storage;

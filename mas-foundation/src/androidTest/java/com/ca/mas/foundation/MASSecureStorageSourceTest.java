@@ -39,7 +39,7 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
     }
 
     @Test
-    public void testStorageSaveGetString() throws Exception {
+    public void testStorageSaveGetString() {
         String key = "testKey123";
         String object = "testValue123";
         MASSecureStorageSource storage = new MASSecureStorageSource(accountName, true, true);
@@ -55,7 +55,7 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
     }
 
     @Test
-    public void testStorageSaveGetBytes() throws Exception {
+    public void testStorageSaveGetBytes() {
         String key = "testKey123";
         byte[] bytes = "testValue12345".getBytes();
 
@@ -73,7 +73,7 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
     }
 
     @Test
-    public void testStorageDeleteGetString() throws Exception {
+    public void testStorageDeleteGetString() {
         String key = "testKey123";
         String value = "testValue12345";
 
@@ -226,8 +226,8 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
     public void saveKeyEncryptedRetrieveUnEncrypted() {
         String key = "testKey123";
         String value = "testValue12345";
-        String comparea = "";
-        String compareb = "";
+        String comparea;
+        String compareb;
 
         MASSecureStorageSource storage = new MASSecureStorageSource(accountName, true, true);
         storage.save(key, value);
@@ -249,8 +249,8 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
     public void saveKeyUnencryptedRetrieveEncrypted() {
         String key = "testKey123";
         String value = "testValue12345";
-        String comparea = "";
-        String compareb = "";
+        String comparea;
+        String compareb;
 
         MASSecureStorageSource storage = new MASSecureStorageSource(accountName, false, true);
         storage.save(key, value);
@@ -258,6 +258,8 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
 
         MASSecureStorageSource storageb = new MASSecureStorageSource(accountName, true, true);
         compareb = storageb.getString(key);
+
+        assertEquals(comparea,compareb);
     }
 
     @Test
@@ -265,8 +267,8 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
 
         String key = "testKey123";
         String value = "testValue12345";
-        String comparea = "";
-        String compareb = "";
+        String comparea;
+        String compareb;
 
         MASSecureStorageSource storage = new MASSecureStorageSource(accountName, false, true);
         storage.save(key, value);

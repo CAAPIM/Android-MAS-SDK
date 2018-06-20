@@ -15,13 +15,13 @@ public class SharedPreferencesUtil implements StorageActions {
     private Context context;
     private SharedPreferences sharedpreferences;
 
-    public SharedPreferencesUtil(String prefs_name) {
+    public SharedPreferencesUtil(String prefsName) {
 
-        if (prefs_name == null || prefs_name.isEmpty()) {
+        if (prefsName == null || prefsName.isEmpty()) {
             return;
         }
 
-        this.prefsName = prefs_name;
+        this.prefsName = prefsName;
         this.context = MAS.getContext();
     }
 

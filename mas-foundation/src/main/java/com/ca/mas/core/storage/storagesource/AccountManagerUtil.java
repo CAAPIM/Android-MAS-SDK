@@ -1,9 +1,11 @@
 package com.ca.mas.core.storage.storagesource;
 
+import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.content.res.XmlResourceParser;
@@ -38,7 +40,7 @@ public class AccountManagerUtil implements StorageActions {
 
         // Gets the account type from the manifest
         String accountType = getAccountType(context);
-        if (accountType == null || accountType.isEmpty()) {
+        if (accountType == null || accountType.isEmpty() || !checkACMPermissions()) {
             throw new IllegalArgumentException(MASFoundationStrings.SHARED_STORAGE_NULL_ACCOUNT_TYPE);
         }
 
@@ -189,5 +191,35 @@ public class AccountManagerUtil implements StorageActions {
             return Base64.decode(byteString, Base64.DEFAULT);
         }
         return null;
+    }
+
+    private boolean checkACMPermissions() {
+        String oAuthAccounts = "android.permission.AUTHENTICATE_ACCOUNTS";
+        String getAccounts = Manifest.permission.GET_ACCOUNTS;
+
+        return checkPermission(oAuthAccounts) && checkPermission(getAccounts);
+    }
+
+    private boolean checkPermission(String permission) {
+        boolean retValue = false;
+        PackageInfo info = null;
+
+        String packageName = MAS.getContext().getPackageName();
+
+        try {
+            info = MAS.getContext().getPackageManager().getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if (info!= null && info.requestedPermissions != null) {
+            for (String p : info.requestedPermissions) {
+                if (p.equals(permission)) {
+                    retValue = true;
+                }
+            }
+        }
+
+        return retValue;
     }
 }

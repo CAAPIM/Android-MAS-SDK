@@ -14,7 +14,6 @@ import static com.ca.mas.core.client.ServerClient.UTF_8;
 
 public class MASSecureStorageSource extends MASStorageSource {
 
-    private EncryptionProvider encProvider = null;
     private boolean secureMode;
 
     /**
@@ -42,11 +41,6 @@ public class MASSecureStorageSource extends MASStorageSource {
         preconditionCheck(key);
 
         super.save(key, getEncryptionProvider().encrypt(value));
-    }
-
-    @Override
-    public void delete(@NonNull String key) {
-        super.delete(key);
     }
 
     @Override
@@ -80,6 +74,8 @@ public class MASSecureStorageSource extends MASStorageSource {
 
     @Override
     protected EncryptionProvider getEncryptionProvider () {
+        EncryptionProvider encProvider;
+
         if (secureMode) {
             encProvider = new DefaultEncryptionProvider(MAS.getContext());
         } else {

@@ -125,6 +125,7 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
 
     @Override
     public List<K> getKeys(Object filter) {
+        // no implementation
         return null;
     }
 
@@ -144,7 +145,7 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
     }
 
     private boolean isKeyString(Object key) {
-        return (key == null) || (!(key instanceof String));
+        return !(key instanceof String);
     }
 
     /**

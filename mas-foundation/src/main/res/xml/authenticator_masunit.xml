@@ -8,6 +8,7 @@
   -->
 
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:allowBackup="true"
     android:accountType="com.ca.mas.testSecureAccountType"
     android:icon="@drawable/ca_logo"
     android:smallIcon="@drawable/ca_logo"

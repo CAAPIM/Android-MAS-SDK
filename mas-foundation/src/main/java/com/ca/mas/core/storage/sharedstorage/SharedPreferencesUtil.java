@@ -1,12 +1,15 @@
-package com.ca.mas.core.storage.storagesource;
+package com.ca.mas.core.storage.sharedstorage;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 
-import com.ca.mas.core.storage.StorageActions;
 import com.ca.mas.foundation.MAS;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class SharedPreferencesUtil implements StorageActions {
 
@@ -23,6 +26,7 @@ public class SharedPreferencesUtil implements StorageActions {
 
         this.prefsName = prefsName;
         this.context = MAS.getContext();
+        sharedpreferences = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -36,7 +40,6 @@ public class SharedPreferencesUtil implements StorageActions {
     }
 
     private void put(@NonNull String key, String value){
-        sharedpreferences = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putString(key,value);
         editor.apply();
@@ -44,13 +47,11 @@ public class SharedPreferencesUtil implements StorageActions {
 
     @Override
     public String getString(@NonNull String key) {
-        sharedpreferences = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         return sharedpreferences.getString(key, null);
     }
 
     @Override
     public byte[] getBytes(@NonNull String key) {
-        sharedpreferences = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         String retrieve = sharedpreferences.getString(key, null);
 
         if (retrieve != null) {
@@ -61,11 +62,31 @@ public class SharedPreferencesUtil implements StorageActions {
     }
 
     @Override
+    public List<String> getKeys() {
+        Map<String, ?> allEntries = sharedpreferences.getAll();
+
+        List<String> retData = new ArrayList<>();
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            retData.add(entry.getKey());
+        }
+
+        return retData;
+    }
+
+    @Override
     public void delete(@NonNull String key) {
-        sharedpreferences = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.remove(key);
         editor.apply();
+    }
+
+    @Override
+    public void removeAll() {
+        List<String> keys = getKeys();
+
+        for (String key:keys) {
+            delete(key);
+        }
     }
 }
 

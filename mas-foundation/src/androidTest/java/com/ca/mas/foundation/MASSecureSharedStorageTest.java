@@ -1,31 +1,40 @@
+/*
+ * Copyright (c) 2017 CA. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ *
+ */
 package com.ca.mas.foundation;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
 
 import com.ca.mas.MASLoginTestBase;
-import com.ca.mas.core.storage.securestoragesource.MASSecureStorageSource;
+import com.ca.mas.core.storage.MASSecureSharedStorage;
 
 import org.junit.After;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
-public class MASSecureStorageSourceTest extends MASLoginTestBase {
+public class MASSecureSharedStorageTest extends MASLoginTestBase {
 
     private final String accountName = "testNameEncrypted";
     private final String accountNameb = "testNameNoEncrypted";
 
-    private final String accountType = "com.mas.foundation.sharedstorage";
+    private final String accountType = "com.ca.mas.testSecureAccountType";
 
     @Test
     public void testStorageCreation() {
-        MASSecureStorageSource storage = new MASSecureStorageSource(accountName, true, true);
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, true);
 
         AccountManager am = AccountManager.get(getContext());
         Account[] accounts = am.getAccountsByType(accountType);
@@ -34,18 +43,18 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
 
     @Test(expected = IllegalArgumentException.class)
     public void testStorageCreationMissingParameters() {
-        MASSecureStorageSource storage = new MASSecureStorageSource(null, true, true);
-        MASSecureStorageSource storageShared = new MASSecureStorageSource("", true, true);
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(null, true, true, true);
+        MASSecureSharedStorage storageShared = new MASSecureSharedStorage("", true, true, true);
     }
 
     @Test
     public void testStorageSaveGetString() {
         String key = "testKey123";
         String object = "testValue123";
-        MASSecureStorageSource storage = new MASSecureStorageSource(accountName, true, true);
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, true);
         storage.save(key, object);
 
-        MASSecureStorageSource storageb = new MASSecureStorageSource(accountNameb, false, true);
+        MASSecureSharedStorage storageb = new MASSecureSharedStorage(accountNameb, false, true, true);
         storageb.save(key,object);
 
         String retrievedObject = storage.getString(key);
@@ -59,10 +68,10 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
         String key = "testKey123";
         byte[] bytes = "testValue12345".getBytes();
 
-        MASSecureStorageSource storage = new MASSecureStorageSource(accountName, true, true);
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, true);
         storage.save(key, bytes);
 
-        MASSecureStorageSource storageb = new MASSecureStorageSource(accountNameb, false, true);
+        MASSecureSharedStorage storageb = new MASSecureSharedStorage(accountNameb, false, true, true);
         storageb.save(key, bytes);
 
 
@@ -77,11 +86,11 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
         String key = "testKey123";
         String value = "testValue12345";
 
-        MASSecureStorageSource storage = new MASSecureStorageSource(accountName, true, true);
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, true);
         storage.save(key, value);
         storage.delete(key);
 
-        MASSecureStorageSource storageb = new MASSecureStorageSource(accountNameb, true, true);
+        MASSecureSharedStorage storageb = new MASSecureSharedStorage(accountNameb, true, true, true);
         storageb.save(key, value);
         storageb.delete(key);
 
@@ -101,7 +110,7 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
 
     @Test(expected = IllegalArgumentException.class)
     public void testStorageErrorSaveNullKey() {
-        MASSecureStorageSource storage = new MASSecureStorageSource(accountName, true, true);
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, true);
         String data = "testValue12345";
         byte[] bytes = "testValue12345".getBytes();
 
@@ -133,10 +142,10 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
         String value = "testValue12345";
 
 
-        MASSecureStorageSource storage = new MASSecureStorageSource(accountName, true, true);
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, true);
         storage.save(key, value);
 
-        MASSecureStorageSource storageb = new MASSecureStorageSource(accountNameb, true, true);
+        MASSecureSharedStorage storageb = new MASSecureSharedStorage(accountNameb, true, true, true);
         String retValue = storageb.getString(key);
 
         assertNull(retValue);
@@ -145,7 +154,7 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
 
     @Test(expected = IllegalArgumentException.class)
     public void testStorageErrorSaveNullKeyFalseMode() {
-        MASSecureStorageSource storage = new MASSecureStorageSource(accountName, false, true);
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, false, true, true);
         String data = "testValue12345";
         byte[] bytes = "testValue12345".getBytes();
 
@@ -173,7 +182,7 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
 
     @Test(expected = IllegalArgumentException.class)
     public void testStorageErrorDeleteNullKey() {
-        MASSecureStorageSource storage = new MASSecureStorageSource(accountName,true, true);
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName,true, true, true);
 
         try {
             storage.delete(null);
@@ -184,7 +193,7 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
         storage.delete("");
         fail();
 
-        MASSecureStorageSource storageb = new MASSecureStorageSource(accountName,false, true);
+        MASSecureSharedStorage storageb = new MASSecureSharedStorage(accountName,false, true, true);
 
         try {
             storageb.delete(null);
@@ -198,7 +207,7 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
 
     @Test(expected = IllegalArgumentException.class)
     public void testStorageErrorRetrieveNullKey() {
-        MASSecureStorageSource storage = new MASSecureStorageSource(accountName,true, true);
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName,true, true, true);
 
         try {
             storage.getString(null);
@@ -229,11 +238,11 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
         String comparea;
         String compareb;
 
-        MASSecureStorageSource storage = new MASSecureStorageSource(accountName, true, true);
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, true);
         storage.save(key, value);
         comparea = storage.getString(key);
 
-        MASSecureStorageSource storageb = new MASSecureStorageSource(accountName, false, true);
+        MASSecureSharedStorage storageb = new MASSecureSharedStorage(accountName, false, true, true);
         compareb = storageb.getString(key);
 
         if (!comparea.equals(compareb)) {
@@ -252,11 +261,11 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
         String comparea;
         String compareb;
 
-        MASSecureStorageSource storage = new MASSecureStorageSource(accountName, false, true);
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, false, true, true);
         storage.save(key, value);
         comparea = storage.getString(key);
 
-        MASSecureStorageSource storageb = new MASSecureStorageSource(accountName, true, true);
+        MASSecureSharedStorage storageb = new MASSecureSharedStorage(accountName, true, true, true);
         compareb = storageb.getString(key);
 
         assertEquals(comparea,compareb);
@@ -270,15 +279,67 @@ public class MASSecureStorageSourceTest extends MASLoginTestBase {
         String comparea;
         String compareb;
 
-        MASSecureStorageSource storage = new MASSecureStorageSource(accountName, false, true);
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, false, true, true);
         storage.save(key, value);
         comparea = storage.getString(key);
 
-        MASSecureStorageSource storageb = new MASSecureStorageSource(accountNameb, true, true);
+        MASSecureSharedStorage storageb = new MASSecureSharedStorage(accountNameb, true, true, true);
         storageb.save(key,value);
         compareb = storageb.getString(key);
 
         assertEquals(comparea, compareb);
+    }
+
+    @Test
+    public void testGetAllKeys() {
+        List<String> result;
+
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, true);
+        String v1 = "value1";
+        String v2 = "value2";
+        String v3 = "value3";
+
+
+        storage.save("key1",v1);
+        assertNotNull(storage.getString("key1"));
+        assertEquals(storage.getString("key1"), v1);
+
+        storage.save("key2", v2);
+        assertNotNull(storage.getString("key2"));
+        assertEquals(storage.getString("key2"), v2);
+
+        storage.save("key3", v3);
+        assertNotNull(storage.getString("key3"));
+        assertEquals(storage.getString("key3"), v3);
+
+
+        result = storage.getKeys();
+        assertNotNull(result);
+        assertEquals(result.size(), 3);
+    }
+
+    @Test
+    public void testRemoveAll() {
+
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, true);
+        String v1 = "value1";
+        String v2 = "value2";
+        String v3 = "value3";
+
+
+        storage.save("key1",v1);
+        assertNotNull(storage.getString("key1"));
+        assertEquals(storage.getString("key1"), v1);
+
+        storage.save("key2", v2);
+        assertNotNull(storage.getString("key2"));
+        assertEquals(storage.getString("key2"), v2);
+
+        storage.save("key3", v3);
+        assertNotNull(storage.getString("key3"));
+        assertEquals(storage.getString("key3"), v3);
+
+        storage.removeAll();
     }
 
 

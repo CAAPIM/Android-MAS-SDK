@@ -1,12 +1,12 @@
 package com.ca.mas.foundation;
 
-import com.ca.mas.core.storage.storagesource.MASStorageSource;
+import com.ca.mas.core.storage.sharedstorage.MASSharedStorage;
 
 import org.junit.Test;
 
 import static junit.framework.Assert.fail;
 
-public class MASStorageSourceSDKStopTest {
+public class MASSharedStorageSDKStopTest {
 
     private final String accountName = "testName";
 
@@ -15,7 +15,7 @@ public class MASStorageSourceSDKStopTest {
         String key = "testKey123";
         String object = "testValue123";
 
-        MASStorageSource storage = new MASStorageSource(accountName, true);
+        MASSharedStorage storage = new MASSharedStorage(accountName);
         storage.save(key, object);
     }
 
@@ -23,7 +23,7 @@ public class MASStorageSourceSDKStopTest {
     public void testStorageErrorDeleteNonInitializedSdk() {
         String key = "testKey123";
 
-        MASStorageSource storage = new MASStorageSource(accountName, true);
+        MASSharedStorage storage = new MASSharedStorage(accountName);
         storage.delete(key);
         fail();
     }
@@ -31,7 +31,7 @@ public class MASStorageSourceSDKStopTest {
     @Test(expected = IllegalStateException.class)
     public void testStorageErrorRetrieveNonInitializedSdk() {
         String key = "testKey123";
-        MASStorageSource storage = new MASStorageSource(accountName, true);
+        MASSharedStorage storage = new MASSharedStorage(accountName);
 
         try {
             storage.getString(key);

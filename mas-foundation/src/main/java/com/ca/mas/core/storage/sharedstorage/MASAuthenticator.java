@@ -6,12 +6,11 @@
  *
  */
 
-package com.ca.mas.core.storage.storagesource;
+package com.ca.mas.core.storage.sharedstorage;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
-import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.os.Bundle;
 

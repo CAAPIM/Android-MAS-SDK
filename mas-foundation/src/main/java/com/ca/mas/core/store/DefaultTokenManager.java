@@ -14,7 +14,7 @@ import android.util.Log;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.datasource.AccountManagerStoreDataSource;
 import com.ca.mas.core.datasource.DataSource;
-import com.ca.mas.core.datasource.SecureStorageDataSource;
+import com.ca.mas.core.datasource.MASSecureStorageDataSource;
 import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.token.IdToken;
@@ -65,11 +65,12 @@ class DefaultTokenManager implements TokenManager {
     }
 
     @Override
-    public void saveClientCertificateChain(X509Certificate[] chain) {
+    public void saveClientCertificateChain(X509Certificate[] chain) throws TokenStoreException {
         try {
             KeyUtilsAsymmetric.setCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX), chain);
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Unable to save client certificate chain: " + e.getMessage(), e);
+            throw new TokenStoreException("Unable to save client certificate chain: " + e.getMessage());
         }
     }
 
@@ -158,7 +159,7 @@ class DefaultTokenManager implements TokenManager {
 
     @Override
     public PrivateKey createPrivateKey(Context ctx, int keyBits) throws KeyStoreException {
-        if (storage instanceof AccountManagerStoreDataSource || storage instanceof SecureStorageDataSource) {
+        if (storage instanceof AccountManagerStoreDataSource || storage instanceof MASSecureStorageDataSource) {
 
             // don't require a pin/password/swipe
             return KeyUtilsAsymmetric.generateRsaPrivateKey(keyBits, getKey(MSSO_CLIENT_PRIVATE_KEY),

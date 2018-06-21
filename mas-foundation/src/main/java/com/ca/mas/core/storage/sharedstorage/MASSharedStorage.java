@@ -5,18 +5,19 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-package com.ca.mas.core.storage.storagesource;
+package com.ca.mas.core.storage.sharedstorage;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.ca.mas.core.security.EncryptionProvider;
-import com.ca.mas.core.storage.StorageActions;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASFoundationStrings;
 
+import java.util.List;
+
 /**
- * MASStorageSource is designed for developers to write, read, and delete String or byte[] data into
+ * MASSharedStorage is designed for developers to write, read, and delete String or byte[] data into
  * the AccountManager or the SharedPreferences. Using AccountManager allows that multiple applications signed with the same key and using the same
  * account name can share data.
  *
@@ -30,15 +31,18 @@ import com.ca.mas.foundation.MASFoundationStrings;
  * but can be overridden in AndroidManifest.xml with your own xml file for another account type.
  */
 @SuppressWarnings({"MissingPermission"})
-public class MASStorageSource {
+public class MASSharedStorage {
 
     private StorageActions storageProvider;
     private boolean isSharedStorage;
+
+    // - True: AccountManager | false: SharedPreferences
+    private boolean storageMode;
     private Context context;
     private String mAccountName;
 
     /**
-     * Creates or retrieves a MASStorageSource with the specified name and account type.
+     * Creates or retrieves a MASSharedStorage with the specified name and account type.
      * Ensure that this does not conflict with any existing accountType on the device.
      *
      * @param accountName the name of the account to be created in the AccountManager
@@ -46,7 +50,7 @@ public class MASStorageSource {
      * @param shared true for using AccountManager false for using SharedPreferences
      *
      */
-    public MASStorageSource(@NonNull String accountName, boolean shared) {
+    public MASSharedStorage(@NonNull String accountName, boolean shared, boolean storageSource) {
         if (accountName == null || accountName.isEmpty()) {
             throw new IllegalArgumentException(MASFoundationStrings.SHARED_STORAGE_NULL_ACCOUNT_NAME);
         }
@@ -61,9 +65,21 @@ public class MASStorageSource {
 
         mAccountName = accountName;
         isSharedStorage = shared;
+        storageMode = storageSource;
         storageProvider = getStorageProvider();
     }
 
+    /**
+     * For backward Compatibility purpose
+     * Creates or retrieves a MASSharedStorage with the specified name and account type.
+     * Ensure that this does not conflict with any existing accountType on the device.
+     *
+     * @param accountName the name of the account to be created in the AccountManager
+     *
+     */
+    public MASSharedStorage(String accountName) {
+        new MASSharedStorage(accountName, true, true);
+    }
 
     protected void preconditionCheck(String key) {
         //If the SDK hasn't been initialized, throw an IllegalStateException
@@ -147,12 +163,20 @@ public class MASStorageSource {
 
     private StorageActions getStorageProvider() {
         StorageActions storage;
-        if (isSharedStorage) {
-            storage = new AccountManagerUtil(context, mAccountName);
+        if (storageMode) {
+            storage = new AccountManagerUtil(context, mAccountName, isSharedStorage);
         } else {
             storage = new SharedPreferencesUtil(mAccountName);
         }
 
         return storage;
+    }
+
+    public List<String> getKeys() {
+        return  storageProvider.getKeys();
+    }
+
+    public void removeAll() {
+        storageProvider.removeAll();
     }
 }

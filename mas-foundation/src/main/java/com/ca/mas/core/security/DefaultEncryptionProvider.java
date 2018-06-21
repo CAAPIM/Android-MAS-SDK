@@ -73,7 +73,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
             return KeyUtilsSymmetric.decrypt(encryptedData, secretKey, getKeyAlias());
         } catch (Exception e) {
             if (DEBUG) Log.i(TAG, "Error while decrypting an cipher instance", e);
-            return null;
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 

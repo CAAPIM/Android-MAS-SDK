@@ -1,29 +1,29 @@
-package com.ca.mas.core.storage.securestoragesource;
+package com.ca.mas.core.storage;
 
 import android.support.annotation.NonNull;
 import android.util.Base64;
 
 import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
-import com.ca.mas.core.storage.storagesource.MASStorageSource;
+import com.ca.mas.core.storage.sharedstorage.MASSharedStorage;
 import com.ca.mas.foundation.MAS;
 
 import java.nio.charset.Charset;
 
 import static com.ca.mas.core.client.ServerClient.UTF_8;
 
-public class MASSecureStorageSource extends MASStorageSource {
+public class MASSecureSharedStorage extends MASSharedStorage {
 
     private boolean secureMode;
 
     /**
-     * Creates or retrieves a MASSecureStorageSource with the specified name.
+     * Creates or retrieves a MASSecureSharedStorage with the specified name.
      * Ensure that this does not conflict with any existing accountName on the device.
      *
      * @param accountName the name of the account to be created in the AccountManager
      */
-    public MASSecureStorageSource(@NonNull String accountName, boolean activeSecureMode, boolean sharedMode) {
-        super(accountName, sharedMode);
+    public MASSecureSharedStorage(@NonNull String accountName, boolean activeSecureMode, boolean sharedMode, boolean storageMode) {
+        super(accountName, sharedMode, storageMode);
         secureMode = activeSecureMode;
     }
 
@@ -53,7 +53,6 @@ public class MASSecureStorageSource extends MASStorageSource {
             Charset charSet = Charset.forName(UTF_8);
             byte[] encodedbytes = getEncryptionProvider().decrypt(Base64.decode(retValue, Base64.NO_WRAP));
             retValue = new String(encodedbytes, charSet);
-
         }
 
         return retValue;

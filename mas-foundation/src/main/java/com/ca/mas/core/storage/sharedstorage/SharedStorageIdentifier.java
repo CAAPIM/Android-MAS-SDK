@@ -5,7 +5,7 @@
  * of the MIT license.  See the LICENSE file for details.
  *
  */
-package com.ca.mas.core.storage.storagesource;
+package com.ca.mas.core.storage.sharedstorage;
 
 import com.ca.mas.core.context.UniqueIdentifier;
 import com.ca.mas.core.security.KeyStoreException;

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016 CA. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
 package com.ca.mas.core.datasource;
 
 import android.accounts.Account;
@@ -16,9 +24,10 @@ import org.junit.runner.RunWith;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 
 @RunWith(AndroidVersionAwareTestRunner.class)
-public class SecureStorageDataSourceTest extends MASLoginTestBase {
+public class MASSecureStorageDataSourceTest extends MASLoginTestBase {
 
     JSONObject param = new JSONObject();
 
@@ -61,7 +70,7 @@ public class SecureStorageDataSourceTest extends MASLoginTestBase {
         shareParameter();
         DataSource<String, String> dataSource = DataSourceFactory.getStorage(
                 getContext(),
-                SecureStorageDataSource.class, param, new StringDataConverter());
+                MASSecureStorageDataSource.class, param, new StringDataConverter());
 
         String key = "testKey123";
         String object = "testValue123";
@@ -80,7 +89,7 @@ public class SecureStorageDataSourceTest extends MASLoginTestBase {
 
         DataSource<String, byte[]> dataSource = DataSourceFactory.getStorage(
                 getContext(),
-                SecureStorageDataSource.class, param, null);
+                MASSecureStorageDataSource.class, param, null);
 
         String key = "testKey123";
         byte[] object = key.getBytes();
@@ -98,7 +107,7 @@ public class SecureStorageDataSourceTest extends MASLoginTestBase {
         shareParameterFalse();
         DataSource<String, String> dataSource = DataSourceFactory.getStorage(
                 getContext(),
-                SecureStorageDataSource.class, param, new StringDataConverter());
+                MASSecureStorageDataSource.class, param, new StringDataConverter());
 
         String key = "testKey123";
         String object = "testValue123";
@@ -117,7 +126,7 @@ public class SecureStorageDataSourceTest extends MASLoginTestBase {
 
         DataSource<String, byte[]> dataSource = DataSourceFactory.getStorage(
                 getContext(),
-                SecureStorageDataSource.class, param, null);
+                MASSecureStorageDataSource.class, param, null);
 
         String key = "testKey123";
         byte[] object = key.getBytes();

@@ -1,6 +1,15 @@
-package com.ca.mas.core.storage;
+/*
+ * Copyright (c) 2016 CA. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+package com.ca.mas.core.storage.sharedstorage;
 
 import android.support.annotation.NonNull;
+
+import java.util.List;
 
 public interface StorageActions {
 
@@ -43,4 +52,14 @@ public interface StorageActions {
      * @return value associated with the key
      */
     byte[] getBytes(@NonNull String key);
+
+    /**
+     * Retrieves a List of all the keys currently saved in the storage
+     */
+    List<String> getKeys();
+
+    /**
+     * Delete all data related to the storage
+     */
+    void removeAll();
 }

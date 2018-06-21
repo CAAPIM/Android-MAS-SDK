@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2016 CA. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ *
+ */
 package com.ca.mas.core.datasource;
 import android.content.ComponentName;
 import android.content.Context;
@@ -6,8 +13,8 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.ca.mas.core.storage.securestoragesource.MASSecureStorageSource;
-import com.ca.mas.core.storage.storagesource.MASAuthenticatorService;
+import com.ca.mas.core.storage.MASSecureSharedStorage;
+import com.ca.mas.core.storage.sharedstorage.MASAuthenticatorService;
 import com.ca.mas.foundation.MAS;
 
 import org.json.JSONObject;
@@ -18,10 +25,9 @@ import static com.ca.mas.core.datasource.KeystoreDataSource.SHARE;
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
 
-public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
+public class MASSecureStorageDataSource<K, V> implements DataSource<K, V>  {
 
-    private static final String LOGTAG = "SecureStorageDataSource";
-    private MASSecureStorageSource storage;
+    private MASSecureSharedStorage storage;
     private Context context;
 
     // - This returning type of the GET method depend on this field
@@ -30,18 +36,19 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
     private static final String ACCOUNT_NAME = "account.name";
     private static final String CA_MAS = "CA MAS Secure";
 
-    public SecureStorageDataSource(Context context, JSONObject param, DataConverter converter){
+    public MASSecureStorageDataSource(Context context, JSONObject param, DataConverter conv){
 
         if (param == null) {
             return;
         }
 
         boolean shared = param.optBoolean(SHARE, false);
-        this.converter = converter;
+        this.converter = conv;
         this.context = context;
 
+
         // - For this DataSource we will always encrypt
-        this.storage = new MASSecureStorageSource(getAccountName(), true, shared);
+        this.storage = new MASSecureSharedStorage(getAccountName(), true, shared, converter == null);
     }
 
     @Override
@@ -58,7 +65,7 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
             storage.save(keyString, (String) value);
         } else {
             if (MAS.DEBUG) {
-                Log.e(LOGTAG, "Value type not supported");
+                Log.e(TAG, "Value type not supported");
             }
             throw new UnsupportedOperationException("Value type not supported");
         }
@@ -66,7 +73,7 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
 
     @Override
     public void put(K key, V value, DataSourceCallback callback) {
-        // no implementation
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -84,7 +91,7 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
         } catch (UnsupportedOperationException e){
 
             if (MAS.DEBUG) {
-                Log.e(LOGTAG, e.getMessage());
+                Log.e(TAG, e.getMessage());
             }
         }
 
@@ -94,7 +101,7 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
 
     @Override
     public void get(K key, DataSourceCallback callback) {
-        // no implementation
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -110,28 +117,27 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
 
     @Override
     public void remove(K key, DataSourceCallback callback) {
-        // no implementation
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void removeAll(Object filter) {
-        // no implementation
+        storage.removeAll();
     }
 
     @Override
     public void removeAll(Object filter, DataSourceCallback callback) {
-        // no implementation
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<K> getKeys(Object filter) {
-        // no implementation
-        return null;
+        return (List<K>) storage.getKeys();
     }
 
     @Override
     public void getKeys(Object filter, DataSourceCallback callback) {
-        // no implementation
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -141,7 +147,7 @@ public class SecureStorageDataSource<K, V> implements DataSource<K, V>  {
 
     @Override
     public void unlock() {
-        // no implementation
+        throw new UnsupportedOperationException();
     }
 
     private boolean isKeyString(Object key) {

@@ -1,11 +1,9 @@
-package com.ca.mas.core.storage.storagesource;
+package com.ca.mas.core.storage.sharedstorage;
 
-import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.content.res.XmlResourceParser;
@@ -14,7 +12,6 @@ import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
 
-import com.ca.mas.core.storage.StorageActions;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASFoundationStrings;
 import com.ca.mas.foundation.MASSharedStorageException;
@@ -26,23 +23,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
+import static com.ca.mas.foundation.MAS.getContext;
 
 public class AccountManagerUtil implements StorageActions {
 
     private static final Object mutex = new Object();
     private static final String KEYINDEX_COLUMN_NAME = "mas_shared_storage_lookup_index";
     private AccountManager mAccountManager;
+    private boolean shared;
 
     private Account mAccount;
 
-    public AccountManagerUtil(Context context, String accountName){
+    public AccountManagerUtil(Context context, String accountName, boolean sharedStorage){
 
         // Gets the account type from the manifest
         String accountType = getAccountType(context);
-        if (accountType == null || accountType.isEmpty() || !checkACMPermissions()) {
+        if (accountType == null || accountType.isEmpty()) {
             throw new IllegalArgumentException(MASFoundationStrings.SHARED_STORAGE_NULL_ACCOUNT_TYPE);
         }
+
+        shared = sharedStorage;
 
         try {
             SharedStorageIdentifier identifier = new SharedStorageIdentifier();
@@ -163,63 +165,61 @@ public class AccountManagerUtil implements StorageActions {
 
     @Override
     public void save(@NonNull String key, String value) {
-        mAccountManager.setUserData(mAccount, key,value == null ? "" : value);
+        mAccountManager.setUserData(mAccount, proxyKey(key),value == null ? "" : value);
         updateIndex(key, true);
     }
 
     @Override
     public void save(@NonNull String key, byte[] value) {
-        mAccountManager.setUserData(mAccount, key, value == null ? "" : Base64.encodeToString(value, Base64.DEFAULT));
+        mAccountManager.setUserData(mAccount, proxyKey(key), value == null ? "" : Base64.encodeToString(value, Base64.DEFAULT));
         updateIndex(key, true);
     }
 
     @Override
     public void delete(@NonNull String key) {
-        mAccountManager.setUserData(mAccount, key, null);
+        mAccountManager.setUserData(mAccount, proxyKey(key), null);
         updateIndex(key, false);
     }
 
     @Override
     public String getString(@NonNull String key) {
-        return  mAccountManager.getUserData(mAccount, key);
+        return  mAccountManager.getUserData(mAccount, proxyKey(key));
     }
 
     @Override
     public byte[] getBytes(@NonNull String key) {
-        String byteString = mAccountManager.getUserData(mAccount, key);
+        String byteString = mAccountManager.getUserData(mAccount, proxyKey(key));
         if (byteString != null) {
             return Base64.decode(byteString, Base64.DEFAULT);
         }
         return null;
     }
 
-    private boolean checkACMPermissions() {
-        String oAuthAccounts = "android.permission.AUTHENTICATE_ACCOUNTS";
-        String getAccounts = Manifest.permission.GET_ACCOUNTS;
-
-        return checkPermission(oAuthAccounts) && checkPermission(getAccounts);
+    @Override
+    public List<String> getKeys() {
+        String keyBlob = mAccountManager.getUserData(mAccount, KEYINDEX_COLUMN_NAME);;
+        return unmarshall(keyBlob);
     }
 
-    private boolean checkPermission(String permission) {
-        boolean retValue = false;
-        PackageInfo info = null;
+    @Override
+    public void removeAll() {
+        List<String> keys = getKeys();
 
-        String packageName = MAS.getContext().getPackageName();
+        for (String key:keys) {
+            delete(key);
+        }
+    }
 
-        try {
-            info = MAS.getContext().getPackageManager().getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+    private String proxyKey(String key){
+        if (key == null || key.isEmpty()) {
+            return null;
         }
 
-        if (info!= null && info.requestedPermissions != null) {
-            for (String p : info.requestedPermissions) {
-                if (p.equals(permission)) {
-                    retValue = true;
-                }
-            }
+        String retVal = key;
+        if(!shared) {
+            retVal = getContext().getPackageName() + "_" + retVal;
         }
 
-        return retValue;
+        return retVal;
     }
 }

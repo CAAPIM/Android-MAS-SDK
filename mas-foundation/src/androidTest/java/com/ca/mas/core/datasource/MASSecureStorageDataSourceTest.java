@@ -135,7 +135,7 @@ public class MASSecureStorageDataSourceTest extends MASLoginTestBase {
         dataSource.put(key,object);
         retObj = dataSource.get(key);
 
-        assertNull(retObj);
+        assertEquals(new String(retObj), new String(object));
     }
 
 }

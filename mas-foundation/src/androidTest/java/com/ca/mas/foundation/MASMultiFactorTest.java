@@ -121,6 +121,7 @@ public class MASMultiFactorTest extends MASLoginTestBase {
             assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
             assertNotNull(callback.get().getBody().getContent());
             RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.MULTIFACTOR_ENDPOINT);
+            assertEquals("1234", rr.getHeader(FIRST_FACTOR_VALUE));
             assertEquals("3456", rr.getHeader(SECOND_FACTOR_VALUE));
         } finally {
             ConfigurationManager.getInstance().unregisterResponseInterceptor(authenticator2);
@@ -184,7 +185,6 @@ public class MASMultiFactorTest extends MASLoginTestBase {
 
         public void proceed(Context context, String anotherMultiFactor) {
             Map<String, String> additionalHeaders = new HashMap<>();
-            additionalHeaders.put(FIRST_FACTOR_VALUE, "1234");
             additionalHeaders.put(SECOND_FACTOR_VALUE, anotherMultiFactor);
             super.proceed(context, additionalHeaders);
         }

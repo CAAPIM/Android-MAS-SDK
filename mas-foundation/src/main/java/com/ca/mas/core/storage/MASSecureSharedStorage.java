@@ -76,7 +76,12 @@ public class MASSecureSharedStorage extends MASSharedStorage {
         EncryptionProvider encProvider;
 
         if (secureMode) {
-            encProvider = new DefaultEncryptionProvider(MAS.getContext());
+            encProvider = new DefaultEncryptionProvider(MAS.getContext()) {
+                @Override
+                protected String getKeyAlias() {
+                    return "com.ca.mas.ACCOUNT_MANAGER_SECRET";
+                }
+            };
         } else {
             encProvider = super.getEncryptionProvider();
         }

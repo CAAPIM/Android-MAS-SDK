@@ -23,6 +23,7 @@ import com.ca.mas.core.error.TargetApiException;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.oauth.OAuthServerException;
 import com.ca.mas.core.store.PrivateTokenStorage;
+import com.ca.mas.core.store.StorageProvider;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
@@ -50,6 +51,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RejectedExecutionException;
 
+import static com.ca.mas.core.client.ServerClient.SCOPE;
+import static junit.framework.Assert.*;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
@@ -195,6 +198,37 @@ public class MASTest extends MASLoginTestBase {
         String s = new String(accessTokenRequest.getBody().readByteArray(), "US-ASCII");
         assertTrue(s.contains("scope=" + URLEncoder.encode(SCOPE, "utf-8")));
     }
+
+    @Test
+    public void testAccessProtectedEndpointWithIDToken() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse retrieveTokenResponse() {
+                String token = "{\n" +
+                        "  \"id_token\":\"myIDToken\",\n" +
+                        "  \"id_token_type\":\"myIDTokenType\",\n" +
+                        "  \"access_token\":\"caa5871c-7c0f-44c7-b03b-1783609170e4\",\n" +
+                        "  \"token_type\":\"Bearer\",\n" +
+                        "  \"expires_in\":" + 3600 + ",\n" +
+                        "  \"refresh_token\":\"19785fca-4b86-4f8e-a73c-7de1d420f88d\",\n" +
+                        "  \"scope\":\"openid msso phone profile address email msso_register msso_client_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups\"\n" +
+                        "}";
+                return new MockResponse().setResponseCode(200).setBody(token);
+            }
+        });
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/products?operation=listProducts"))
+                .scope(SCOPE)
+                .build();
+
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        callback.get();
+        //Make sure it persist the id_token using jwt-bearer flow
+        assertEquals("myIDToken", StorageProvider.getInstance().getTokenManager().getIdToken().getValue());
+        assertEquals("myIDTokenType", StorageProvider.getInstance().getTokenManager().getIdToken().getType());
+    }
+
 
 
     @Test
@@ -797,7 +831,7 @@ public class MASTest extends MASLoginTestBase {
     public void testGatewayIsReachable() throws Exception {
         MASCallbackFuture<Boolean> callback = new MASCallbackFuture<>();
         MAS.gatewayIsReachable(callback);
-        Assert.assertTrue(callback.get());
+        assertTrue(callback.get());
     }
 
     @Test
@@ -809,9 +843,9 @@ public class MASTest extends MASLoginTestBase {
 
         try {
             MAS.invoke(request, callback);
-            Assert.fail();
+            fail();
         } catch (Exception e) {
-            Assert.assertEquals(MASConstants.MAS_STATE_STOPPED, MAS.getState(getContext()));
+            assertEquals(MASConstants.MAS_STATE_STOPPED, MAS.getState(getContext()));
             MAS.start(getContext());
         }
     }
@@ -879,7 +913,7 @@ public class MASTest extends MASLoginTestBase {
         }
         countDownLatch.await();
 
-        Assert.assertTrue(failed[0]> 0);
+        assertTrue(failed[0]> 0);
     }
 
     @Test

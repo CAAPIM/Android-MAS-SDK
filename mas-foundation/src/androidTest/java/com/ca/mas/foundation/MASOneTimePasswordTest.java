@@ -77,7 +77,6 @@ public class MASOneTimePasswordTest extends MASLoginTestBase {
         assertTrue(success[0]);
         assertEquals(deliver.getHeader("X-OTP-CHANNEL"), "EMAIL");
         RecordedRequest otpProtected = getRecordRequest(GatewayDefaultDispatcher.OTP_PROTECTED_URL);
-        assertEquals(otpProtected.getHeader("X-OTP-CHANNEL"), "EMAIL");
         assertEquals(otpProtected.getHeader("X-OTP"), "1234");
     }
 
@@ -458,10 +457,6 @@ public class MASOneTimePasswordTest extends MASLoginTestBase {
             @Override
             public void onOtpAuthenticateRequest(Context context, final MASOtpAuthenticationHandler handler) {
                 if (handler.isInvalidOtp()) {
-                    String selectedChannels = getValue(handler, "selectedChannels", String.class);
-                    if ("EMAIL".equals(selectedChannels)) {
-                        success[0] = true;
-                    }
                     setDispatcher(new GatewayDefaultDispatcher() {
                         @Override
                         protected MockResponse otpProtectedResponse() {
@@ -489,7 +484,6 @@ public class MASOneTimePasswordTest extends MASLoginTestBase {
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
         assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
-        assertTrue(success[0]);
 
 
     }

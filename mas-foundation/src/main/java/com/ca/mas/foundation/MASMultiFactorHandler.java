@@ -17,6 +17,7 @@ import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.MssoService;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,7 +25,9 @@ import java.util.Map;
  */
 public class MASMultiFactorHandler implements Parcelable {
 
-    protected long requestId;
+    private long requestId;
+    private Map<String, String> previousAdditionalHeaders;
+
 
     /**
      * Create a MASMultiFactorHandler with the request ID.
@@ -44,7 +47,12 @@ public class MASMultiFactorHandler implements Parcelable {
     public void proceed(Context context, Map<String, String> additionalHeaders) {
         Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, context, MssoService.class);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-        intent.putExtra(MssoIntents.EXTRA_ADDITIONAL_HEADERS, (Serializable) additionalHeaders);
+        if (previousAdditionalHeaders != null) {
+            previousAdditionalHeaders.putAll(additionalHeaders);
+        } else {
+            previousAdditionalHeaders = additionalHeaders;
+        }
+        intent.putExtra(MssoIntents.EXTRA_ADDITIONAL_HEADERS, (Serializable) previousAdditionalHeaders);
         context.startService(intent);
     }
 
@@ -67,6 +75,10 @@ public class MASMultiFactorHandler implements Parcelable {
     }
 
 
+    void setPreviousAdditionalHeaders(Map<String, String> previousAdditionalHeaders) {
+        this.previousAdditionalHeaders = previousAdditionalHeaders;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -75,10 +87,22 @@ public class MASMultiFactorHandler implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(this.requestId);
+        dest.writeInt(this.previousAdditionalHeaders.size());
+        for (Map.Entry<String, String> entry : this.previousAdditionalHeaders.entrySet()) {
+            dest.writeString(entry.getKey());
+            dest.writeString(entry.getValue());
+        }
     }
 
     protected MASMultiFactorHandler(Parcel in) {
         this.requestId = in.readLong();
+        int previousAdditionalHeadersSize = in.readInt();
+        this.previousAdditionalHeaders = new HashMap<String, String>(previousAdditionalHeadersSize);
+        for (int i = 0; i < previousAdditionalHeadersSize; i++) {
+            String key = in.readString();
+            String value = in.readString();
+            this.previousAdditionalHeaders.put(key, value);
+        }
     }
 
     public static final Creator<MASMultiFactorHandler> CREATOR = new Creator<MASMultiFactorHandler>() {

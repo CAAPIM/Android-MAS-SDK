@@ -11,8 +11,10 @@ import android.content.Context;
 import android.os.Bundle;
 
 import com.ca.mas.core.ResponseInterceptor;
+import com.ca.mas.core.service.MssoIntents;
 
 import java.net.HttpURLConnection;
+import java.util.Map;
 
 /**
  * Represents a multi-factor authenticator
@@ -44,12 +46,15 @@ public abstract class MASMultiFactorAuthenticator<T extends MASMultiFactorHandle
      */
     protected abstract void onMultiFactorAuthenticationRequest(Context context, MASRequest originalRequest, MASResponse<?> response, T handler);
 
+
     @Override
     public boolean intercept(long requestId, MASRequest originalRequest, Bundle requestExtra, MASResponse<?> response) {
         //Multi factor authenticator only cares about failed response
         if (response.getResponseCode() < HttpURLConnection.HTTP_OK || response.getResponseCode() >= HttpURLConnection.HTTP_MULT_CHOICE) {
             T handler = getMultiFactorHandler(requestId, originalRequest, response);
             if (handler != null) {
+                //Persist the previous multifactor additional headers
+                handler.setPreviousAdditionalHeaders((Map<String, String>) requestExtra.get(MssoIntents.EXTRA_ADDITIONAL_HEADERS));
                 onMultiFactorAuthenticationRequest(MAS.getCurrentActivity(), originalRequest, response, handler);
                 //return true to keep the request in the queue
                 return true;

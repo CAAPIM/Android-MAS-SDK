@@ -48,9 +48,11 @@ public class MASMultiFactorHandler implements Parcelable {
         Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, context, MssoService.class);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
         if (previousAdditionalHeaders != null) {
-            additionalHeaders.putAll(previousAdditionalHeaders);
+            previousAdditionalHeaders.putAll(additionalHeaders);
+        } else {
+            previousAdditionalHeaders = additionalHeaders;
         }
-        intent.putExtra(MssoIntents.EXTRA_ADDITIONAL_HEADERS, (Serializable) additionalHeaders);
+        intent.putExtra(MssoIntents.EXTRA_ADDITIONAL_HEADERS, (Serializable) previousAdditionalHeaders);
         context.startService(intent);
     }
 

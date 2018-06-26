@@ -6,6 +6,7 @@
 
 ### Bug fixes
 - Persist all additional headers in a Multi-factor chain [DE71056]
+- Use content type of the Request instead of the ResponseBody default [DE369138]
 
 # Version 1.7.00
 

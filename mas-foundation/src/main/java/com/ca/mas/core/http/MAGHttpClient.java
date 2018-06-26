@@ -106,8 +106,11 @@ public class MAGHttpClient {
                         urlConnection.setChunkedStreamingMode(0);
                     }
                 }
-                if (body.getContentType() != null) {
-                    urlConnection.setRequestProperty("Content-Type", body.getContentType().toString());
+                if (body.getContentType() != null && request.getHeaders() != null) {
+                    List<String> reqHeader = request.getHeaders().get("Content-Type");
+                    if (reqHeader == null) {
+                        urlConnection.setRequestProperty("Content-Type", body.getContentType().toString());
+                    }
                 }
                 if (request.getConnectionListener() != null) {
                     request.getConnectionListener().onConnected(urlConnection);

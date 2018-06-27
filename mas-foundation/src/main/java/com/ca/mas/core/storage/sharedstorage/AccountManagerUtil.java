@@ -58,8 +58,10 @@ public class AccountManagerUtil implements StorageActions {
                     String savedPassword = identifier.toString();
                     if (password.equals(savedPassword)) {
                         mAccount = account;
-                    } else {
-                        throw new IllegalArgumentException("Account signature does not match existing signature.");
+                    }else {
+                        // - case migration from old AccountManagerStoreDataSource
+                        mAccount = null;
+                        identifier = new SharedStorageIdentifier();
                     }
                 }
             }

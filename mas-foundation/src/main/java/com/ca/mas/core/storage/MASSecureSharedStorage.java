@@ -5,6 +5,7 @@ import android.util.Base64;
 
 import com.ca.mas.core.security.DefaultEncryptionProvider;
 import com.ca.mas.core.security.EncryptionProvider;
+import com.ca.mas.core.security.MASSecretKeyProvider;
 import com.ca.mas.core.storage.sharedstorage.MASSharedStorage;
 import com.ca.mas.foundation.MAS;
 
@@ -15,6 +16,7 @@ import static com.ca.mas.core.client.ServerClient.UTF_8;
 public class MASSecureSharedStorage extends MASSharedStorage {
 
     private boolean secureMode;
+    private MASSecretKeyProvider secretKeyProvider;
 
     /**
      * Creates or retrieves a MASSecureSharedStorage with the specified name.
@@ -25,6 +27,7 @@ public class MASSecureSharedStorage extends MASSharedStorage {
     public MASSecureSharedStorage(@NonNull String accountName, boolean activeSecureMode, boolean sharedMode, boolean storageMode) {
         super(accountName, sharedMode, storageMode);
         secureMode = activeSecureMode;
+        secretKeyProvider = new MASSecretKeyProvider(MAS.getContext(), accountName);
     }
 
     @Override
@@ -76,7 +79,7 @@ public class MASSecureSharedStorage extends MASSharedStorage {
         EncryptionProvider encProvider;
 
         if (secureMode) {
-            encProvider = new DefaultEncryptionProvider(MAS.getContext()) {
+            encProvider = new DefaultEncryptionProvider(MAS.getContext(), secretKeyProvider) {
                 @Override
                 protected String getKeyAlias() {
                     return "com.ca.mas.ACCOUNT_MANAGER_SECRET";
@@ -87,7 +90,5 @@ public class MASSecureSharedStorage extends MASSharedStorage {
         }
         return encProvider;
     }
-
-
 
 }

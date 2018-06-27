@@ -1,6 +1,12 @@
-# Version 1.8.00
+# Version 1.7.10
+
+### New features
 - Support JSONArray response [US500100]
 - Support JSONArray request [US506882]
+
+### Bug fixes
+- Persist all additional headers in a Multi-factor chain [DE71056]
+- Use content type of the Request instead of the ResponseBody default [DE369138]
 
 # Version 1.7.00
 

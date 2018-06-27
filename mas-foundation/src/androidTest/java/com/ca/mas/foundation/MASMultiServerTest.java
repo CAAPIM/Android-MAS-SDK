@@ -15,6 +15,7 @@ import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.core.cert.CertUtils;
 import com.ca.mas.core.cert.PublicKeyHash;
 import com.ca.mas.core.http.ContentType;
+import com.ca.mas.core.io.Charsets;
 import com.squareup.okhttp.mockwebserver.Dispatcher;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
@@ -63,6 +64,7 @@ import javax.net.ssl.X509TrustManager;
 import javax.security.auth.x500.X500Principal;
 
 import static com.ca.mas.TestUtils.getJSONObject;
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 public class MASMultiServerTest extends MASLoginTestBase {
@@ -114,6 +116,34 @@ public class MASMultiServerTest extends MASLoginTestBase {
 
         Assert.assertEquals(expectResponse.toString(), callback.get().getBody().getContent().toString());
     }
+
+    @Test
+    public void testHttpOverrideContentType() throws InterruptedException {
+
+        final ContentType customCharset = new ContentType("application/x-www-form-urlencoded", Charsets.UTF8);
+
+        MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
+                .host(new Uri.Builder().encodedAuthority(HOST).build())
+                .add(certificate)
+                .build();
+
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
+        MASRequest request = new MASRequest.MASRequestBuilder(
+                new Uri.Builder().encodedAuthority(HOST)
+                        .scheme("https")
+                        .path("test")
+                        .build())
+                .header("Content-Type", customCharset.toString())
+                .build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        RecordedRequest req = mockServer.takeRequest();
+        String head = req.getHeader("Content-type");
+
+        assertEquals(head, customCharset.toString());
+    }
+
 
     @Test
     public void testMultiServerCertificatePinningWithCertChain() throws Exception {

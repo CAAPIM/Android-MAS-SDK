@@ -21,6 +21,7 @@ import com.ca.mas.core.datasource.DataSourceFactory;
 import com.ca.mas.core.datasource.KeystoreDataSource;
 import com.ca.mas.core.error.TargetApiException;
 import com.ca.mas.core.http.ContentType;
+import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.oauth.OAuthServerException;
 import com.ca.mas.core.store.PrivateTokenStorage;
 import com.ca.mas.core.store.StorageProvider;
@@ -563,6 +564,40 @@ public class MASTest extends MASLoginTestBase {
         assertEquals(requestData, new String(recordedRequest.getBody().readUtf8()));
         assertEquals(RESPONSE_HEADER_VALUE, recordedRequest.getHeader(RESPONSE_HEADER_NAME));
     }
+
+    @Test
+    public void testHttpOverrideCharset() throws Exception {
+        String requestData = "Expected Request Data";
+        final ContentType customCharset = new ContentType("application/x-www-form-urlencoded", Charsets.UTF8);
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK).
+                        setHeader("Content-Type", customCharset.toString()).
+                        setHeader(RESPONSE_HEADER_NAME, RESPONSE_HEADER_VALUE).
+                        setBody(RESPONSE_DATA);
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).
+                appendQueryParameter(QUERY_PARAMETER_NAME, QUERY_PARAMETER_VALUE).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .post(MASRequestBody.stringBody(requestData))
+                .header("Content-Type", customCharset.toString())
+                .header(RESPONSE_HEADER_NAME, RESPONSE_HEADER_VALUE)
+                .build();
+
+        MASCallbackFuture<MASResponse<String>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        String header = request.getHeaders().get("Content-Type").get(0);
+        assertEquals(header, callback.get().getBody().getContentType());
+    }
+
 
     @Test
     public void testHttpPostWithJson() throws Exception {

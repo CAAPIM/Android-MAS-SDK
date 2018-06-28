@@ -12,6 +12,7 @@ import android.accounts.AccountManager;
 
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.core.storage.MASSecureSharedStorage;
+import com.ca.mas.core.storage.sharedstorage.MASSharedStorage;
 
 import org.junit.After;
 import org.junit.Test;
@@ -29,8 +30,11 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
 
     private final String accountName = "testNameEncrypted";
     private final String accountNameb = "testNameNoEncrypted";
+    private final int TIME = 3500;
 
     private final String accountType = "com.ca.mas.testSecureAccountType";
+    String value = "Test value";
+    String keyName = "key";
 
     @Test
     public void testStorageCreation() {
@@ -340,6 +344,101 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
         assertEquals(storage.getString("key3"), v3);
 
         storage.removeAll();
+    }
+
+    @Test
+    public void loadEncryptedACTestString() {
+
+
+        // - Encrypted, shared, AccountManager
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, true);
+
+        long totalTime = storageString(storage);
+
+        if (totalTime > TIME*1.5) {
+            fail();
+        }
+    }
+
+    private long storageString(MASSharedStorage storage) {
+        long startTime = System.nanoTime();
+        for(int i = 0; i<100 ; i++ ){
+            keyName = keyName + i;
+            storage.save(keyName, value);
+            keyName = "key";
+        }
+        long endTime   = System.nanoTime();
+        long totalTime = endTime - startTime;
+
+        // - nano to miliseconds
+        totalTime = totalTime/1000000;
+        return totalTime;
+    }
+
+    private long storageBytes(MASSharedStorage storage) {
+        long startTime = System.nanoTime();
+        for(int i = 0; i<100 ; i++ ){
+            keyName = keyName + i;
+            storage.save(keyName, value.getBytes());
+            keyName = "key";
+        }
+        long endTime   = System.nanoTime();
+        long totalTime = endTime - startTime;
+
+        // - nano to miliseconds
+        totalTime = totalTime/1000000;
+        return totalTime;
+    }
+
+    @Test
+    public void loadEncryptedACTestBytes() {
+
+        // - Encrypted, shared, AccountManager
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, true);
+
+        // - nano to miliseconds
+        long totalTime = storageBytes(storage);
+
+        if (totalTime > TIME*1.5) {
+            fail();
+        }
+    }
+
+    @Test
+    public void loadNotEncryptedACTest() {
+
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, false, true, true);
+
+        long totalTime = storageString(storage);
+
+        if (totalTime > TIME) {
+            fail();
+        }
+    }
+
+    @Test
+    public void loadEncryptedSPTestString() {
+
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, false);
+
+        long totalTime = storageString(storage);
+
+        if (totalTime > TIME/2) {
+            fail();
+        }
+    }
+
+    @Test
+    public void loadEncryptedSPTestBytes() {
+
+        // - encrypted, shared, SharedPreferences
+        MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, false);
+
+        long totalTime = storageBytes(storage);
+
+        if (totalTime > TIME/2) {
+            fail();
+        }
     }
 
 

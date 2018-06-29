@@ -29,6 +29,7 @@ import com.ca.mas.core.registration.RegistrationException;
 import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.security.KeyStoreRepository;
 import com.ca.mas.core.store.TokenManager;
+import com.ca.mas.core.store.TokenStoreException;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASResponse;
@@ -104,12 +105,19 @@ class DeviceRegistrationAssertion implements MssoAssertion {
     }
 
     private void registerDevice(MssoContext mssoContext, RequestInfo request) throws MAGException, MAGServerException {
+
         // Ensure credentials are available
         MASAuthCredentials creds = request.getRequest().getGrantProvider().getCredentials(mssoContext);
         if (creds == null || !creds.isValid())
             throw new CredentialRequiredException();
 
         if (DEBUG) Log.d(TAG, "Device registration process start");
+
+        try {
+            tokenManager.clear();
+        } catch (TokenStoreException e) {
+            throw new TokenStoreUnavailableException(e);
+        }
 
         // Perform device registration
         PrivateKey privateKey = tokenManager.getClientPrivateKey();

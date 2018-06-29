@@ -16,14 +16,18 @@ import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.core.client.ServerClient;
+import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.datasource.DataSourceFactory;
 import com.ca.mas.core.datasource.KeystoreDataSource;
 import com.ca.mas.core.error.TargetApiException;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.io.Charsets;
+import com.ca.mas.core.io.IoUtils;
 import com.ca.mas.core.oauth.OAuthServerException;
+import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.store.PrivateTokenStorage;
+import com.ca.mas.core.store.StorageProvider;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
@@ -44,6 +48,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -53,6 +58,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNotSame;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
@@ -161,7 +167,7 @@ public class MASTest extends MASLoginTestBase {
     @Test
     public void testAccessProtectedEndpointWithInvalidScope() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
         final int expectedErrorCode = 3003115;
-        final String expectedErrorMessage =  "{\n" +
+        final String expectedErrorMessage = "{\n" +
                 "\"error\":\"invalid_scope\",\n" +
                 "\"error_description\":\"No registered scope value for this client has been requested\"\n" +
                 "}";
@@ -188,7 +194,7 @@ public class MASTest extends MASLoginTestBase {
         } catch (ExecutionException e) {
             assertTrue(e.getCause().getCause() instanceof OAuthServerException);
             assertTrue(((MASException) e.getCause()).getRootCause() instanceof OAuthServerException);
-            assertEquals(expectedErrorCode, ((OAuthServerException)((MASException) e.getCause()).getRootCause()).getErrorCode());
+            assertEquals(expectedErrorCode, ((OAuthServerException) ((MASException) e.getCause()).getRootCause()).getErrorCode());
             assertEquals(expectedErrorMessage, (((MASException) e.getCause()).getRootCause()).getMessage());
         }
 
@@ -353,7 +359,7 @@ public class MASTest extends MASLoginTestBase {
         assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
         List<Product> productList = callback.get().getBody().getContent();
         assertNotNull(productList);
-        assertEquals(productList.size(),2);
+        assertEquals(productList.size(), 2);
     }
 
     public class Product {
@@ -390,7 +396,7 @@ public class MASTest extends MASLoginTestBase {
 
             String source = new String(getRawContent());
             Product staff = new Product(source);
-            List<Product> productList =  new ArrayList<Product>();
+            List<Product> productList = new ArrayList<Product>();
             productList.add(staff);
             productList.add(staff);
             return productList;
@@ -914,7 +920,7 @@ public class MASTest extends MASLoginTestBase {
         }
         countDownLatch.await();
 
-        Assert.assertTrue(failed[0]> 0);
+        Assert.assertTrue(failed[0] > 0);
     }
 
     @Test
@@ -997,7 +1003,7 @@ public class MASTest extends MASLoginTestBase {
     }
 
     @Test
-    public void testHttpPostWithProductObject () throws JSONException, InterruptedException, ExecutionException {
+    public void testHttpPostWithProductObject() throws JSONException, InterruptedException, ExecutionException {
         final JSONObject requestData = new JSONObject();
         final JSONArray arr = new JSONArray();
         requestData.put("products", arr);
@@ -1046,7 +1052,7 @@ public class MASTest extends MASLoginTestBase {
 
         @Override
         public void write(OutputStream outputStream) throws IOException {
-            outputStream.write( product.getProducts().toString().getBytes(getContentType().getCharset()));
+            outputStream.write(product.getProducts().toString().getBytes(getContentType().getCharset()));
         }
     }
 
@@ -1151,4 +1157,34 @@ public class MASTest extends MASLoginTestBase {
         assertNotNull(getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_RENEW));
     }
 
+    /**
+     * Storage Change scenarios:
+     * 1. When reset device Pin, the mag-identifier will be removed from the keystore
+     * 2. Change Account from AMS
+     * 3. Change from KeyStore to AMS
+     * DE369778
+     */
+    @Test
+    public void testReRegistrationWithStorageChange() throws KeyStoreException, NoSuchAlgorithmException, URISyntaxException, ExecutionException, InterruptedException {
+
+
+        //mock to switch storage
+        invoke(StorageProvider.getInstance().getTokenManager(), "deleteSecureItem",
+                new Class[]{String.class}, new Object[]{"msso.magIdentifier"}, Void.class);
+
+        DeviceIdentifier oldDeviceIdentifier = new DeviceIdentifier();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+
+        //Device ID renewed
+        assertNotSame(oldDeviceIdentifier.toString(), new DeviceIdentifier().toString());
+        RecordedRequest recordedRequest = getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_REGISTER);
+        //Hitting the /register with new device ID
+        assertEquals(recordedRequest.getHeader(ServerClient.DEVICE_ID),
+                IoUtils.base64(new DeviceIdentifier().toString(), Charsets.ASCII));
+
+    }
 }

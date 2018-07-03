@@ -311,7 +311,7 @@ public class MASLoginTest extends MASStartTestBase {
     }
 
     @Test
-    public void invalidAlgorithmLogin() throws InterruptedException {
+    public void invalidAlgorithmLogin() throws InterruptedException, ExecutionException {
        
         // - the idtoken with RS254
         final String idToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJleHAiOjI0MDA4Nzg1OTEsImF6cCI6InRlc3QtZGV2aWNlIiwic3ViIjoieCIsImF1ZCI6ImR1bW15IiwiaXNzIjoiaHR0cDovL20ubGF5ZXI3dGVjaC5jb20vY29ubmVjdCIsImlhdCI6MTQwMDg3ODU5MX0.HJ5B3CZZ7Oxk8SZfHNARYialgF8E0r4WQPd4uQLYJPp0VUhOVkbUbPxS95rFbIUHADFYPbMOQcEGscJ0864LnBOXCkXCBEybOH56hKNKQuMl1Kg5Ow2f80-9-8zStqEikgSCZ8-fpeH_8KMgSsdHp21kiDe1BIwIcxIZ_o-WO0M";

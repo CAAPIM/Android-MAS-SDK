@@ -70,6 +70,10 @@ public class JWTValidation {
                         idTokenDef.getPayload(),
                         clientSecret.getBytes(),
                         idTokenDef.getSignature());
+            } else {
+                // - US514785
+                signatureValid = true;
+                Log.w(TAG, algorithm +" not supported");
             }
         }
 

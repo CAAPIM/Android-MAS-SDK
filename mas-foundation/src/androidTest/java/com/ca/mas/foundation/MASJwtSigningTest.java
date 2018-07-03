@@ -7,7 +7,6 @@
  */
 package com.ca.mas.foundation;
 
-import android.support.test.InstrumentationRegistry;
 import android.util.Base64;
 import android.util.Pair;
 
@@ -15,8 +14,14 @@ import com.ca.mas.DataSource;
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
+import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.security.KeyStoreException;
+import com.ca.mas.core.store.ClientCredentialContainer;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.token.IdToken;
+import com.ca.mas.core.token.JWTValidation;
+import com.ca.mas.core.token.JWTValidationException;
 import com.ca.mas.core.util.KeyUtilsAsymmetric;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
@@ -260,5 +265,24 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         }
         MASClaims claims = new MASClaimsBuilder().build();
         MAS.sign(claims);
+    }
+
+    @Test
+    public void validateTokenWithAlgorithmRS256() throws JWTValidationException {
+
+        ClientCredentialContainer cc = StorageProvider.getInstance().getClientCredentialContainer();
+
+        // - generated in https://jwt.io/
+        IdToken idToken = new IdToken("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjo5OTk5OTk5OTk5LCJhdWQiOiJkdW1teSIsImF6cCI6ImY0NzM1MjVkLWMxMzAtNGJiYS04NmNjLWRiMjZkODg3NTM4NiJ9.Q25Tm1yqs-KLR_qX-t6iuq38K_yFeobil3oMAXx9E2L1ds-DUG6tzm3BNQZUTQdNALRI47pGJUF4ZLJkqyC-z_THqwZwBq9ISfalmDxmSdf_ec7qt6Ll-mFj7epAfMY5JsEG7YO6ReDmfToke95ZJup9x25GHZOuH_gyiSd94SM", "urn:ietf:params:oauth:grant-type:jwt-bearer");
+        String deviceIdentifier = "f473525d-c130-4bba-86cc-db26d8875386";
+        String clientId = cc.getClientId();
+        String clientSecret = cc.getClientSecret();
+
+        // - validate the token
+        if (JWTValidation.validateIdToken(idToken, deviceIdentifier, clientId, clientSecret)) {
+            assertTrue(true);
+        } else {
+            throw new JWTValidationException(MAGErrorCode.TOKEN_INVALID_ID_TOKEN, "JWT Token is not valid");
+        }
     }
 }

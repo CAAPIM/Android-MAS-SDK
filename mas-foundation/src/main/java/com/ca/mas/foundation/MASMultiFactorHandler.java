@@ -87,21 +87,27 @@ public class MASMultiFactorHandler implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(this.requestId);
-        dest.writeInt(this.previousAdditionalHeaders.size());
-        for (Map.Entry<String, String> entry : this.previousAdditionalHeaders.entrySet()) {
-            dest.writeString(entry.getKey());
-            dest.writeString(entry.getValue());
+        if (previousAdditionalHeaders == null) {
+            dest.writeInt(0);
+        } else {
+            dest.writeInt(this.previousAdditionalHeaders.size());
+            for (Map.Entry<String, String> entry : this.previousAdditionalHeaders.entrySet()) {
+                dest.writeString(entry.getKey());
+                dest.writeString(entry.getValue());
+            }
         }
     }
 
     protected MASMultiFactorHandler(Parcel in) {
         this.requestId = in.readLong();
         int previousAdditionalHeadersSize = in.readInt();
-        this.previousAdditionalHeaders = new HashMap<String, String>(previousAdditionalHeadersSize);
-        for (int i = 0; i < previousAdditionalHeadersSize; i++) {
-            String key = in.readString();
-            String value = in.readString();
-            this.previousAdditionalHeaders.put(key, value);
+        if (previousAdditionalHeadersSize > 0) {
+            this.previousAdditionalHeaders = new HashMap<>(previousAdditionalHeadersSize);
+            for (int i = 0; i < previousAdditionalHeadersSize; i++) {
+                String key = in.readString();
+                String value = in.readString();
+                this.previousAdditionalHeaders.put(key, value);
+            }
         }
     }
 

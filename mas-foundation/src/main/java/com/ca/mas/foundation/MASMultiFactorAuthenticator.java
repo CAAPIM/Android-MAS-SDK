@@ -54,7 +54,9 @@ public abstract class MASMultiFactorAuthenticator<T extends MASMultiFactorHandle
             T handler = getMultiFactorHandler(requestId, originalRequest, response);
             if (handler != null) {
                 //Persist the previous multifactor additional headers
-                handler.setPreviousAdditionalHeaders((Map<String, String>) requestExtra.get(MssoIntents.EXTRA_ADDITIONAL_HEADERS));
+                if (requestExtra != null) {
+                    handler.setPreviousAdditionalHeaders((Map<String, String>) requestExtra.get(MssoIntents.EXTRA_ADDITIONAL_HEADERS));
+                }
                 onMultiFactorAuthenticationRequest(MAS.getCurrentActivity(), originalRequest, response, handler);
                 //return true to keep the request in the queue
                 return true;

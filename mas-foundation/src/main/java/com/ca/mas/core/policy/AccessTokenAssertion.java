@@ -199,6 +199,11 @@ class AccessTokenAssertion implements MssoAssertion {
 
         try {
             OAuthTokenResponse response = oAuthTokenClient.obtainAccessTokenUsingIdToken(idToken, clientId, clientSecret, scope);
+
+            IdToken responseIdToken = response.getIdToken();
+            if (responseIdToken != null) {
+                mssoContext.onIdTokenAvailable(responseIdToken);
+            }
             String accessToken = response.getAccessToken();
             mssoContext.onAccessTokenAvailable(accessToken, response.getRefreshToken(), response.getExpiresIn(), response.getGrantedScope());
             return accessToken;

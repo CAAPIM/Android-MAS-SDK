@@ -138,9 +138,19 @@ task javadoc(type: Javadoc) {
     include '**/*MAS*.java'
     include '**/Device.java'
     include '**/ScimUser.java'
+    include '**/*MAGE*.java'
+    include '**/*MAGR*.java'
+    include '**/*MAGS*.java'
+    include '**/TargetApiException.java'
 
     exclude '**/MASTransformable.java'
     exclude '**/MASResultReceiver.java'
+    exclude '**/CertificateExpiredException.java'
+    exclude '**/CredentialRequiredException.java'
+    exclude '**/InvalidAttributeIdentifierException.java'
+    exclude '**/InvalidIdentifierException.java'
+    exclude '**/RetryRequestException.java'
+    exclude '**/TokenStoreUnavailableException.java'
 }
 
 //jcenter integration

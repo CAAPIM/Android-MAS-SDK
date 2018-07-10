@@ -152,24 +152,20 @@ public abstract class MASDevice {
      * @param callback MASCallback<Void>
      */
     public void addAttribute(@NonNull String attr, String value, MASCallback<Void> callback) {
-        if (MAS.DEBUG) {
-            Log.d(TAG, "addAttribute operation");
-        }
+        checkParamsNull(attr, callback);
 
         // TODO: MASDeviceAttributeOverflowException ?? whow do I know that has been excideed
-        if (!getCurrentDevice().isRegistered()) {
-            MASDeviceMetadata.putAttribute(attr, value, callback);
-        }
+        MASDeviceMetadata.putAttribute(attr, value, callback);
     }
 
     /**
      *  Remove all attributes
      *  @param callback MASCallback<Void>
      */
-    private void removeAllAttributes(MASCallback<Void> callback){
-        if (!getCurrentDevice().isRegistered()) {
-            MASDeviceMetadata.deleteAttributes(callback);
-        }
+    public void removeAllAttributes(MASCallback<Void> callback){
+        checkCallbackNull(callback);
+
+        MASDeviceMetadata.deleteAttributes(callback);
     }
 
     /**
@@ -178,20 +174,20 @@ public abstract class MASDevice {
      * @param callback MASCallback<Void>
      */
     public void removeAttribute(@NonNull String attr, MASCallback<Void> callback){
-        if (!getCurrentDevice().isRegistered()) {
-            MASDeviceMetadata.deleteAttribute(callback);
-        }
+        checkParamsNull(attr, callback);
+
+        MASDeviceMetadata.deleteAttribute(attr, callback);
     }
 
     /**
      * Get attribute by name, return empty String if no attribute is found.
-     * @param name String
-     * @param callback MASCallback<Void>
+     * @param attr String
+     * @param callback MASCallback
      */
-    public void getAttribute(@NonNull String name, MASCallback<String> callback){
-        if (!getCurrentDevice().isRegistered()) {
-            MASDeviceMetadata.getAttribute(callback);
-        }
+    public void getAttribute(@NonNull String attr, MASCallback<JSONArray> callback){
+        checkParamsNull(attr, callback);
+
+        MASDeviceMetadata.getAttribute(attr,callback);
     }
 
     /**
@@ -199,9 +195,25 @@ public abstract class MASDevice {
      * @param callback MASCallback<Map<String, String>>
      */
     public void getAttributes(MASCallback<JSONArray> callback) {
-        if (!getCurrentDevice().isRegistered()) {
-            MASDeviceMetadata.getAttributes(callback);
+        checkCallbackNull(callback);
+
+        MASDeviceMetadata.getAttributes(callback);
+
+    }
+
+    private void checkParamsNull(String attr, MASCallback callback) {
+        if (attr == null) {
+            throw new IllegalArgumentException();
+        }
+
+        checkCallbackNull(callback);
+    }
+
+    private void checkCallbackNull(MASCallback callback) {
+        if (callback == null) {
+            throw new IllegalArgumentException();
         }
     }
+
 
 }

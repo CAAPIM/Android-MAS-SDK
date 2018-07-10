@@ -299,8 +299,11 @@ public interface MobileSsoConfig {
 
     /**
      * String.  URL suffix for Device Metadata endpoint.
+     * matches the device metadata scope in the msso_config file
+     * If not specified, will default to "/connect/device/metadata".
      */
-    String DEVICE_METADATA_PATH = "msso.device.metadata"; // TODO I don;t know if this is correct :S where do i get that value??
+    String DEVICE_METADATA_PATH = "msso_device_metadata";
+
     // If you add any properties to this file, you must update MobileSsoFactory.createConfig()
     // or they will be ignored.
 

@@ -7,12 +7,19 @@
  */
 package com.ca.mas.foundation;
 
+import android.support.annotation.NonNull;
+import android.util.Log;
+
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.auth.ble.BluetoothLePeripheral;
 import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEPeripheralListener;
 import com.ca.mas.foundation.notify.Callback;
+
+import org.json.JSONArray;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * <p>The <b>MASDevice</b> class is a local representation of device data.</p>
@@ -136,6 +143,65 @@ public abstract class MASDevice {
             };
         }
         return current;
+    }
+
+    /**
+     * Update or create attribute to the device, throw MASDeviceAttributeOverflowException when exceed ${mag-device-max-tag}
+     * @param attr String
+     * @param value String
+     * @param callback MASCallback<Void>
+     */
+    public void addAttribute(@NonNull String attr, String value, MASCallback<Void> callback) {
+        if (MAS.DEBUG) {
+            Log.d(TAG, "addAttribute operation");
+        }
+
+        // TODO: MASDeviceAttributeOverflowException ?? whow do I know that has been excideed
+        if (!getCurrentDevice().isRegistered()) {
+            MASDeviceMetadata.putAttribute(attr, value, callback);
+        }
+    }
+
+    /**
+     *  Remove all attributes
+     *  @param callback MASCallback<Void>
+     */
+    private void removeAllAttributes(MASCallback<Void> callback){
+        if (!getCurrentDevice().isRegistered()) {
+            MASDeviceMetadata.deleteAttributes(callback);
+        }
+    }
+
+    /**
+     * Remove attribute by name, succeed even device attribute does not exists
+     * @param attr String
+     * @param callback MASCallback<Void>
+     */
+    public void removeAttribute(@NonNull String attr, MASCallback<Void> callback){
+        if (!getCurrentDevice().isRegistered()) {
+            MASDeviceMetadata.deleteAttribute(callback);
+        }
+    }
+
+    /**
+     * Get attribute by name, return empty String if no attribute is found.
+     * @param name String
+     * @param callback MASCallback<Void>
+     */
+    public void getAttribute(@NonNull String name, MASCallback<String> callback){
+        if (!getCurrentDevice().isRegistered()) {
+            MASDeviceMetadata.getAttribute(callback);
+        }
+    }
+
+    /**
+     * Get all attributes, return empty Map if no attributes found.
+     * @param callback MASCallback<Map<String, String>>
+     */
+    public void getAttributes(MASCallback<JSONArray> callback) {
+        if (!getCurrentDevice().isRegistered()) {
+            MASDeviceMetadata.getAttributes(callback);
+        }
     }
 
 }

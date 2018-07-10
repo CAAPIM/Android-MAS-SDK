@@ -82,4 +82,20 @@ public class MASDeviceTest extends MASLoginTestBase {
         Assert.assertFalse(identifier1.equals(identifier2));
     }
 
+    @Test
+    public void testAddAttribute() {
+        MASDevice deviceInstance = MASDevice.getCurrentDevice();
+        deviceInstance.addAttribute("attr", "valueAttr", new MASCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                assertTrue(true);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                assertTrue(true);
+            }
+        });
+    }
+
 }

@@ -17,6 +17,7 @@ import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import junit.framework.Assert;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -29,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 public class MASDeviceTest extends MASLoginTestBase {
 
@@ -93,9 +95,91 @@ public class MASDeviceTest extends MASLoginTestBase {
 
             @Override
             public void onError(Throwable e) {
-                assertTrue(true);
+                fail();
             }
         });
     }
 
+    @Test
+    public void testRemoveAttribute() {
+        MASDevice device = MASDevice.getCurrentDevice();
+
+        device.removeAttribute("attr", new MASCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                assertTrue(true);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                fail();
+            }
+        });
+    }
+
+    @Test
+    public void testGetAttribute() {
+        MASDevice devi = MASDevice.getCurrentDevice();
+
+        devi.getAttribute("attr", new MASCallback<JSONArray>() {
+            @Override
+            public void onSuccess(JSONArray result) {
+                assertTrue(true);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                fail();
+            }
+        });
+    }
+
+    @Test
+    public void testGetAttributes() {
+        MASDevice device = MASDevice.getCurrentDevice();
+
+        device.getAttributes(new MASCallback<JSONArray>() {
+            @Override
+            public void onSuccess(JSONArray result) {
+                if(result != null && result.length() >= 0) {
+                    assertTrue(true);
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                fail();
+            }
+        });
+    }
+
+    @Test
+    public void testRemoveAttributes() {
+        MASDevice device = MASDevice.getCurrentDevice();
+
+        device.removeAllAttributes(new MASCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                assertTrue(true);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                fail();
+            }
+        });
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullCallback(){
+        MASDevice device = MASDevice.getCurrentDevice();
+        device.addAttribute("attr", "value", null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullKey(){
+        MASDevice device = MASDevice.getCurrentDevice();
+        device.addAttribute(null, "value", null);
+    }
 }

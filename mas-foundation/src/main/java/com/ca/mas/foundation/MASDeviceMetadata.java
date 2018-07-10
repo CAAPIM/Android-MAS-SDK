@@ -155,7 +155,7 @@ public class MASDeviceMetadata {
         try {
             request = new MASRequest.MASRequestBuilder(new URI(endpointPath))
                     .header("mag-identifier ", magIdent)
-                    .delete(MASRequestBody.stringBody("all"))
+                    .delete(MASRequestBody.stringBody(""))
                     .build();
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -164,7 +164,9 @@ public class MASDeviceMetadata {
         MAS.invoke(request, new MASCallback<MASResponse<String>>() {
             @Override
             public void onSuccess(MASResponse<String> response) {
-                callback.onSuccess(null);
+                if (checkResponse(response) && response.getBody().getContent().equalsIgnoreCase("removed")) {
+                    callback.onSuccess(null);
+                }
             }
 
             @Override
@@ -175,7 +177,6 @@ public class MASDeviceMetadata {
     }
 
     private static boolean checkResponse(MASResponse response) {
-
         if(response == null) {
             return false;
         }

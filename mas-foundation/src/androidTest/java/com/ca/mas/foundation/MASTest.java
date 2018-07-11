@@ -16,13 +16,18 @@ import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.core.client.ServerClient;
+import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.datasource.DataSourceFactory;
 import com.ca.mas.core.datasource.KeystoreDataSource;
 import com.ca.mas.core.error.TargetApiException;
 import com.ca.mas.core.http.ContentType;
+import com.ca.mas.core.io.Charsets;
+import com.ca.mas.core.io.IoUtils;
 import com.ca.mas.core.oauth.OAuthServerException;
+import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.store.PrivateTokenStorage;
+import com.ca.mas.core.store.StorageProvider;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
@@ -36,12 +41,14 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -49,8 +56,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RejectedExecutionException;
 
+import static com.ca.mas.core.client.ServerClient.SCOPE;
+import static junit.framework.Assert.*;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNotSame;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
@@ -159,7 +169,7 @@ public class MASTest extends MASLoginTestBase {
     @Test
     public void testAccessProtectedEndpointWithInvalidScope() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
         final int expectedErrorCode = 3003115;
-        final String expectedErrorMessage =  "{\n" +
+        final String expectedErrorMessage = "{\n" +
                 "\"error\":\"invalid_scope\",\n" +
                 "\"error_description\":\"No registered scope value for this client has been requested\"\n" +
                 "}";
@@ -186,7 +196,7 @@ public class MASTest extends MASLoginTestBase {
         } catch (ExecutionException e) {
             assertTrue(e.getCause().getCause() instanceof OAuthServerException);
             assertTrue(((MASException) e.getCause()).getRootCause() instanceof OAuthServerException);
-            assertEquals(expectedErrorCode, ((OAuthServerException)((MASException) e.getCause()).getRootCause()).getErrorCode());
+            assertEquals(expectedErrorCode, ((OAuthServerException) ((MASException) e.getCause()).getRootCause()).getErrorCode());
             assertEquals(expectedErrorMessage, (((MASException) e.getCause()).getRootCause()).getMessage());
         }
 
@@ -194,6 +204,37 @@ public class MASTest extends MASLoginTestBase {
         String s = new String(accessTokenRequest.getBody().readByteArray(), "US-ASCII");
         assertTrue(s.contains("scope=" + URLEncoder.encode(SCOPE, "utf-8")));
     }
+
+    @Test
+    public void testAccessProtectedEndpointWithIDToken() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse retrieveTokenResponse() {
+                String token = "{\n" +
+                        "  \"id_token\":\"myIDToken\",\n" +
+                        "  \"id_token_type\":\"myIDTokenType\",\n" +
+                        "  \"access_token\":\"caa5871c-7c0f-44c7-b03b-1783609170e4\",\n" +
+                        "  \"token_type\":\"Bearer\",\n" +
+                        "  \"expires_in\":" + 3600 + ",\n" +
+                        "  \"refresh_token\":\"19785fca-4b86-4f8e-a73c-7de1d420f88d\",\n" +
+                        "  \"scope\":\"openid msso phone profile address email msso_register msso_client_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups\"\n" +
+                        "}";
+                return new MockResponse().setResponseCode(200).setBody(token);
+            }
+        });
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI("/protected/resource/products?operation=listProducts"))
+                .scope(SCOPE)
+                .build();
+
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        callback.get();
+        //Make sure it persist the id_token using jwt-bearer flow
+        assertEquals("myIDToken", StorageProvider.getInstance().getTokenManager().getIdToken().getValue());
+        assertEquals("myIDTokenType", StorageProvider.getInstance().getTokenManager().getIdToken().getType());
+    }
+
 
 
     @Test
@@ -315,8 +356,8 @@ public class MASTest extends MASLoginTestBase {
     @Test
     public void testOverrideResponseWithJSONArray() throws Exception {
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY))
-                .responseBody(new JSONArrayResponse())
                 .build();
+
         MASCallbackFuture<MASResponse<JSONArray>> callback = new MASCallbackFuture<>();
         MAS.invoke(request, callback);
         assertNotNull(callback.get());
@@ -325,16 +366,76 @@ public class MASTest extends MASLoginTestBase {
         assertNotNull(array);
     }
 
-    private static class JSONArrayResponse extends MASResponseBody<JSONArray> {
-        @Override
-        public JSONArray getContent() {
+    @Test
+    public void testOverrideResponseWithProduct() throws Exception {
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+                .responseBody(new ProductResponseBody())
+                .build();
+
+        MASCallbackFuture<MASResponse<Product>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+        Product products = callback.get().getBody().getContent();
+        assertNotNull(products);
+    }
+
+    @Test
+    public void testOverrideResponseWithProductList() throws Exception {
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+                .responseBody(new ListProductResponseBody())
+                .build();
+
+        MASCallbackFuture<MASResponse<List<Product>>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+        List<Product> productList = callback.get().getBody().getContent();
+        assertNotNull(productList);
+        assertEquals(productList.size(), 2);
+    }
+
+    public class Product {
+
+        private JSONArray products;
+
+        public Product(String source) {
             try {
-                return new JSONArray(new String(getRawContent()));
+                JSONObject job = new JSONObject(source);
+                this.products = job.optJSONArray("products");
             } catch (JSONException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
+
+        public JSONArray getProducts() {
+            return products;
+        }
     }
+
+    class ProductResponseBody extends MASResponseBody<Product> {
+
+        @Override
+        public Product getContent() {
+            String source = new String(getRawContent());
+            Product staff = new Product(source);
+            return staff;
+        }
+    }
+
+    class ListProductResponseBody extends MASResponseBody<List<Product>> {
+        @Override
+        public List<Product> getContent() {
+
+            String source = new String(getRawContent());
+            Product staff = new Product(source);
+            List<Product> productList = new ArrayList<Product>();
+            productList.add(staff);
+            productList.add(staff);
+            return productList;
+        }
+    }
+
 
     private static final String RESPONSE_DATA = "Expected Response Data";
 
@@ -468,6 +569,40 @@ public class MASTest extends MASLoginTestBase {
         assertEquals(requestData, new String(recordedRequest.getBody().readUtf8()));
         assertEquals(RESPONSE_HEADER_VALUE, recordedRequest.getHeader(RESPONSE_HEADER_NAME));
     }
+
+    @Test
+    public void testHttpOverrideCharset() throws Exception {
+        String requestData = "Expected Request Data";
+        final ContentType customCharset = new ContentType("application/x-www-form-urlencoded", Charsets.UTF8);
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK).
+                        setHeader("Content-Type", customCharset.toString()).
+                        setHeader(RESPONSE_HEADER_NAME, RESPONSE_HEADER_VALUE).
+                        setBody(RESPONSE_DATA);
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).
+                appendQueryParameter(QUERY_PARAMETER_NAME, QUERY_PARAMETER_VALUE).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .post(MASRequestBody.stringBody(requestData))
+                .header("Content-Type", customCharset.toString())
+                .header(RESPONSE_HEADER_NAME, RESPONSE_HEADER_VALUE)
+                .build();
+
+        MASCallbackFuture<MASResponse<String>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        String header = request.getHeaders().get("Content-Type").get(0);
+        assertEquals(header, callback.get().getBody().getContentType());
+    }
+
 
     @Test
     public void testHttpPostWithJson() throws Exception {
@@ -736,7 +871,7 @@ public class MASTest extends MASLoginTestBase {
     public void testGatewayIsReachable() throws Exception {
         MASCallbackFuture<Boolean> callback = new MASCallbackFuture<>();
         MAS.gatewayIsReachable(callback);
-        Assert.assertTrue(callback.get());
+        assertTrue(callback.get());
     }
 
     @Test
@@ -748,9 +883,9 @@ public class MASTest extends MASLoginTestBase {
 
         try {
             MAS.invoke(request, callback);
-            Assert.fail();
+            fail();
         } catch (Exception e) {
-            Assert.assertEquals(MASConstants.MAS_STATE_STOPPED, MAS.getState(getContext()));
+            assertEquals(MASConstants.MAS_STATE_STOPPED, MAS.getState(getContext()));
             MAS.start(getContext());
         }
     }
@@ -818,7 +953,7 @@ public class MASTest extends MASLoginTestBase {
         }
         countDownLatch.await();
 
-        Assert.assertTrue(failed[0]> 0);
+        assertTrue(failed[0] > 0);
     }
 
     @Test
@@ -886,8 +1021,7 @@ public class MASTest extends MASLoginTestBase {
                 appendEncodedPath(GatewayDefaultDispatcher.OTHER).build();
 
         MASRequest request = new MASRequest.MASRequestBuilder(uri)
-                .post(new JSONArrayRequestBody(requestData))
-                .responseBody(new JSONArrayResponse())
+                .post(MASRequestBody.jsonArrayBody(requestData))
                 .build();
 
         MASCallbackFuture<MASResponse<JSONArray>> callback = new MASCallbackFuture<>();
@@ -899,6 +1033,60 @@ public class MASTest extends MASLoginTestBase {
         RecordedRequest recordedRequest = getRecordRequest(uri.getPath());
 
         assertEquals(requestData.toString(), new String(recordedRequest.getBody().readUtf8()));
+    }
+
+    @Test
+    public void testHttpPostWithProductObject() throws JSONException, InterruptedException, ExecutionException {
+        final JSONObject requestData = new JSONObject();
+        final JSONArray arr = new JSONArray();
+        requestData.put("products", arr);
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse other() {
+                return new MockResponse().
+                        setResponseCode(HttpURLConnection.HTTP_OK).
+                        setHeader("Content-type", ContentType.APPLICATION_JSON).
+                        setBody(requestData.toString());
+            }
+        });
+
+        Uri uri = new Uri.Builder().
+                appendEncodedPath(GatewayDefaultDispatcher.OTHER).build();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                .post(new ProductRequestBody(requestData.toString()))
+                .build();
+
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        assertEquals(requestData.toString(), callback.get().getBody().getContent().toString());
+        assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
+    }
+
+    class ProductRequestBody extends MASRequestBody {
+
+        private Product product;
+
+        public ProductRequestBody(String dta) {
+            this.product = new Product(dta);
+        }
+
+        @Override
+        public ContentType getContentType() {
+            return ContentType.APPLICATION_JSON;
+        }
+
+        @Override
+        public long getContentLength() {
+            return product.getProducts().toString().getBytes(getContentType().getCharset()).length;
+        }
+
+        @Override
+        public void write(OutputStream outputStream) throws IOException {
+            outputStream.write(product.getProducts().toString().getBytes(getContentType().getCharset()));
+        }
     }
 
     @Test
@@ -1002,4 +1190,34 @@ public class MASTest extends MASLoginTestBase {
         assertNotNull(getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_RENEW));
     }
 
+    /**
+     * Storage Change scenarios:
+     * 1. When reset device Pin, the mag-identifier will be removed from the keystore
+     * 2. Change Account from AMS
+     * 3. Change from KeyStore to AMS
+     * DE369778
+     */
+    @Test
+    public void testReRegistrationWithStorageChange() throws KeyStoreException, NoSuchAlgorithmException, URISyntaxException, ExecutionException, InterruptedException {
+
+
+        //mock to switch storage
+        invoke(StorageProvider.getInstance().getTokenManager(), "deleteSecureItem",
+                new Class[]{String.class}, new Object[]{"msso.magIdentifier"}, Void.class);
+
+        DeviceIdentifier oldDeviceIdentifier = new DeviceIdentifier();
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+        assertNotNull(callback.get());
+
+        //Device ID renewed
+        assertNotSame(oldDeviceIdentifier.toString(), new DeviceIdentifier().toString());
+        RecordedRequest recordedRequest = getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_REGISTER);
+        //Hitting the /register with new device ID
+        assertEquals(recordedRequest.getHeader(ServerClient.DEVICE_ID),
+                IoUtils.base64(new DeviceIdentifier().toString(), Charsets.ASCII));
+
+    }
 }

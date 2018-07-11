@@ -154,7 +154,6 @@ public abstract class MASDevice {
     public void addAttribute(@NonNull String attr, String value, MASCallback<Void> callback) {
         checkParamsNull(attr, callback);
 
-        // TODO: MASDeviceAttributeOverflowException ?? whow do I know that has been excideed
         MASDeviceMetadata.putAttribute(attr, value, callback);
     }
 

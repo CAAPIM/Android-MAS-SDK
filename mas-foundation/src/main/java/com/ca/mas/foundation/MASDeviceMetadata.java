@@ -18,12 +18,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class MASDeviceMetadata {
-    // TODO : name and package for this class, this will perform the API call to the server part, and it shouldn't be in the same package as the public interface ??
 
-    static String endpointPath = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.DEVICE_METADATA_PATH);
-    private static String magIdent = StorageProvider.getInstance().getTokenManager().getMagIdentifier();
+    private static final String ENDPOINT_PATH = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.DEVICE_METADATA_PATH);
+    private static final String MAG_IDENTIFIER = StorageProvider.getInstance().getTokenManager().getMagIdentifier();
+    private static final String HEADER_KEY = "mag-identifier";
 
-    private MASDeviceMetadata() {throw new IllegalStateException("Not allowed to instantiate this class");
+    private MASDeviceMetadata() {throw new IllegalStateException("Not allowed to instantiate");
 
     }
 
@@ -39,14 +39,12 @@ public class MASDeviceMetadata {
             data.put("name", attr);
             data.put("value", value);
 
-            request = new MASRequest.MASRequestBuilder(new URI(endpointPath))
-                    .header("mag-identifier", magIdent)
+            request = new MASRequest.MASRequestBuilder(new URI(ENDPOINT_PATH))
+                    .header(HEADER_KEY, MAG_IDENTIFIER)
                     .put(MASRequestBody.jsonBody(data))
                     .build();
 
-        } catch (URISyntaxException e) {
-            Callback.onError(callback, e);
-        } catch (JSONException e) {
+        } catch (URISyntaxException | JSONException e) {
             Callback.onError(callback, e);
         }
 
@@ -67,12 +65,12 @@ public class MASDeviceMetadata {
 
     public static void getAttribute(String name, final MASCallback<JSONArray> callback) {
 
-        String route = endpointPath + "/" +name;
+        String route = ENDPOINT_PATH + "/" +name;
         MASRequest request = null;
 
         try {
             request = new MASRequest.MASRequestBuilder(new URI(route))
-                    .header("mag-identifier ", magIdent)
+                    .header(HEADER_KEY, MAG_IDENTIFIER)
                     .responseBody(MASResponseBody.jsonArrayBody())
                     .get()
                     .build();
@@ -99,12 +97,12 @@ public class MASDeviceMetadata {
 
         MASRequest request = null;
         try {
-            request = new MASRequest.MASRequestBuilder(new URI(endpointPath))
-                    .header("mag-identifier ", magIdent)
+            request = new MASRequest.MASRequestBuilder(new URI(ENDPOINT_PATH))
+                    .header(HEADER_KEY, MAG_IDENTIFIER)
                     .get()
                     .build();
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Callback.onError(callback, e);
         }
 
         MAS.invoke(request, new MASCallback<MASResponse<JSONArray>>() {
@@ -124,11 +122,11 @@ public class MASDeviceMetadata {
 
     public static void deleteAttribute(String attr, final MASCallback<Void> callback) {
         MASRequest request = null;
-        String route = endpointPath + "/" +attr;
+        String route = ENDPOINT_PATH + "/" +attr;
 
         try {
             request = new MASRequest.MASRequestBuilder(new URI(route))
-                    .header("mag-identifier ", magIdent)
+                    .header(HEADER_KEY, MAG_IDENTIFIER)
                     .delete(MASRequestBody.stringBody(attr))
                     .build();
         } catch (URISyntaxException e) {
@@ -153,12 +151,12 @@ public class MASDeviceMetadata {
     public static void deleteAttributes(final MASCallback<Void> callback) {
         MASRequest request = null;
         try {
-            request = new MASRequest.MASRequestBuilder(new URI(endpointPath))
-                    .header("mag-identifier ", magIdent)
+            request = new MASRequest.MASRequestBuilder(new URI(ENDPOINT_PATH))
+                    .header(HEADER_KEY, MAG_IDENTIFIER)
                     .delete(MASRequestBody.stringBody(""))
                     .build();
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Callback.onError(callback, e);
         }
 
         MAS.invoke(request, new MASCallback<MASResponse<String>>() {

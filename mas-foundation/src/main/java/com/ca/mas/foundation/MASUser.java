@@ -319,11 +319,14 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 current = null;
                 new LogoutAsyncTask().execute(callback);
             }
+
             /**
              * <b>Description:</b> Logout from the server.
+             * @param callback
+             * @param force by default true it will clean the localstorage
              */
             @Override
-            public void logout(final MASCallback<Void> callback, final boolean force) {
+            public void logout(final boolean force, final MASCallback<Void> callback) {
                 current = null;
 
                 final TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
@@ -344,6 +347,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
                 }
+
                 MASRequest request = new MASRequest.MASRequestBuilder(uri)
                         .post(MASRequestBody.urlEncodedFormBody(form))
                         .responseBody(MASResponseBody.stringBody())
@@ -354,10 +358,9 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                     @Override
                     public void onSuccess(MASResponse<JSONObject> result) {
                         try {
+                            // - Paramenter to delete or not the local storage
                             if (force) {
-                                tokenManager.deleteIdToken();
-                                tokenManager.deleteSecureIdToken();
-                                tokenManager.deleteUserProfile();
+                                tokenManager.clearAll();
                                 clientCredentialContainer.clearAll();
                             }
                         } catch (TokenStoreException e) {
@@ -663,6 +666,8 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      *                 will be logout from the Application.
      */
     public abstract void logout(final MASCallback<Void> callback);
+
+    public abstract void logout(boolean force,final MASCallback<Void> callback);
 
     /**
      * Determines if the user is currently authenticated with the MAG server.

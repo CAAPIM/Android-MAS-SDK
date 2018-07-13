@@ -187,20 +187,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      */
     public abstract String getAccessToken();
 
-    private static class LogoutAsyncTask extends AsyncTask<MASCallback<Void>, Void, Void> {
-
-        @Override
-        protected Void doInBackground(MASCallback<Void>... callbacks) {
-            try {
-                MobileSsoFactory.getInstance().logout(true);
-                Callback.onSuccess(callbacks[0], null);
-            } catch (Exception e) {
-                Callback.onError(callbacks[0], e);
-            }
-            return null;
-        }
-    }
-
     private static MASUser createMASUser() {
 
         MASUser user = new User() {

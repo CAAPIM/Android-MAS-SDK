@@ -27,6 +27,7 @@ public class PolicyManager {
 
     private final MssoContext mssoContext;
     private final List<MssoAssertion> defaultPolicy = new ArrayList<>();
+    private final List<MssoAssertion> logoutPolicy = new ArrayList<>();
     private final Object policySync = new Object();
 
     public PolicyManager(MssoContext mssoContext) {
@@ -42,6 +43,14 @@ public class PolicyManager {
         defaultPolicy.add(new TelephoneAssertion());
         defaultPolicy.add(new CustomHeaderAssertion());
         defaultPolicy.add(new ResponseRecoveryAssertion());
+
+        logoutPolicy.add(new StorageReadyAssertion());
+        logoutPolicy.add(new SecureLockAssertion());
+        logoutPolicy.add(new ClientCredentialAssertion());
+        logoutPolicy.add(new LocationAssertion());
+        logoutPolicy.add(new TelephoneAssertion());
+        logoutPolicy.add(new CustomHeaderAssertion());
+        logoutPolicy.add(new ResponseRecoveryAssertion());
     }
 
     /**
@@ -101,9 +110,19 @@ public class PolicyManager {
     }
 
     public MASResponse execute(RequestInfo requestInfo, Route<MASResponse> function) throws MAGException, MAGServerException, IOException {
-        processRequest(requestInfo, defaultPolicy);
-        MASResponse response = function.invoke();
-        processResponse(requestInfo, response, defaultPolicy);
+
+        MASResponse response = null;
+        if (requestInfo.getExtra() != null && Boolean.parseBoolean((String) requestInfo.getExtra().get("logout"))) {
+            processRequest(requestInfo, logoutPolicy);
+            response = function.invoke();
+            processResponse(requestInfo, response, logoutPolicy);
+        } else {
+
+            processRequest(requestInfo, defaultPolicy);
+            response = function.invoke();
+            processResponse(requestInfo, response, defaultPolicy);
+        }
+
         return response;
     }
 

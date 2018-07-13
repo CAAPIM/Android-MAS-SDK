@@ -15,6 +15,7 @@ import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.ca.mas.core.MAGResultReceiver;
+import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
@@ -66,6 +67,10 @@ public class MssoClient {
         Context context = appContext;
         Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, context, MssoService.class);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
+
+        if (request.getURL().toString().contains("/connect/session/logout")){
+            intent.putExtra("logout", "true");
+        }
         context.startService(intent);
         return requestId;
     }

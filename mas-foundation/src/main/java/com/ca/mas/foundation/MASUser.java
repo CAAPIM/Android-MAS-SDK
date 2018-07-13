@@ -17,14 +17,22 @@ import android.security.keystore.UserNotAuthenticatedException;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
+import android.util.Pair;
 
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSso;
+import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.MobileSsoFactory;
+import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGError;
+import com.ca.mas.core.io.Charsets;
+import com.ca.mas.core.io.IoUtils;
+import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.security.LockableEncryptionProvider;
 import com.ca.mas.core.security.SecureLockException;
+import com.ca.mas.core.storage.Storage;
+import com.ca.mas.core.store.ClientCredentialContainer;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
@@ -47,6 +55,9 @@ import com.ca.mas.messaging.topic.MASTopic;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -307,6 +318,61 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             public void logout(final MASCallback<Void> callback) {
                 current = null;
                 new LogoutAsyncTask().execute(callback);
+            }
+            /**
+             * <b>Description:</b> Logout from the server.
+             */
+            @Override
+            public void logout(final MASCallback<Void> callback, final boolean force) {
+                current = null;
+
+                final TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
+                final ClientCredentialContainer clientCredentialContainer = StorageProvider.getInstance().getClientCredentialContainer();
+                IdToken idToken = tokenManager.getIdToken();
+                String clientId = clientCredentialContainer.getClientId();
+                String clientSecret = clientCredentialContainer.getClientSecret();
+
+                List<Pair<String, String>> form = new ArrayList<>();
+                form.add(new Pair<String, String>(OAuthClient.ID_TOKEN, idToken.getValue()));
+                form.add(new Pair<String, String>(OAuthClient.ID_TOKEN_TYPE, idToken.getType()));
+                form.add(new Pair<String, String>(OAuthClient.LOGOUT_APPS, Boolean.toString(true)));
+
+                String endpointPatht = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT);
+                URI uri = null;
+                try {
+                    uri = new URI(endpointPatht);
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+                MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                        .post(MASRequestBody.urlEncodedFormBody(form))
+                        .responseBody(MASResponseBody.stringBody())
+                        .header(OAuthClient.AUTHORIZATION, "Basic " + IoUtils.base64(clientId + ":" + clientSecret, Charsets.ASCII))
+                        .build();
+
+                MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+                    @Override
+                    public void onSuccess(MASResponse<JSONObject> result) {
+                        try {
+                            if (force) {
+                                tokenManager.deleteIdToken();
+                                tokenManager.deleteSecureIdToken();
+                                tokenManager.deleteUserProfile();
+                                clientCredentialContainer.clearAll();
+                            }
+                        } catch (TokenStoreException e) {
+                            e.printStackTrace();
+                        }
+
+                        Callback.onSuccess(callback, null);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Callback.onError(callback, e);
+                    }
+                });
+
             }
 
 

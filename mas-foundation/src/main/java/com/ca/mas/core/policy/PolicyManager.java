@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.ca.mas.foundation.MASConstants.LOGOUT_EXTRA;
+
 /**
  * Keeps track of policies that can be applied to requests.
  */
@@ -29,13 +31,13 @@ public class PolicyManager {
     private final Object policySync = new Object();
     private final StorageReadyAssertion storageReadyAssertion;
     private final SecureLockAssertion secureLockAssertion;
-    ClientCredentialAssertion clientCredentialAssertion;
-    DeviceRegistrationAssertion deviceRegistrationAssertion;
-    AccessTokenAssertion accessTokenAssertion;
-    LocationAssertion locationAssertion;
-    TelephoneAssertion telephoneAssertion;
-    CustomHeaderAssertion customHeaderAssertion;
-    ResponseRecoveryAssertion responseRecoveryAssertion;
+    private ClientCredentialAssertion clientCredentialAssertion;
+    private DeviceRegistrationAssertion deviceRegistrationAssertion;
+    private AccessTokenAssertion accessTokenAssertion;
+    private LocationAssertion locationAssertion;
+    private TelephoneAssertion telephoneAssertion;
+    private CustomHeaderAssertion customHeaderAssertion;
+    private ResponseRecoveryAssertion responseRecoveryAssertion;
 
     public PolicyManager(MssoContext mssoContext) {
         this.mssoContext = mssoContext;
@@ -140,7 +142,7 @@ public class PolicyManager {
     public MASResponse execute(RequestInfo requestInfo, Route<MASResponse> function) throws MAGException, MAGServerException, IOException {
 
         boolean whichPolicy = true;
-        if (requestInfo.getExtra() != null && Boolean.parseBoolean((String) requestInfo.getExtra().get("logout"))) {
+        if (requestInfo.getExtra() != null && Boolean.parseBoolean((String) requestInfo.getExtra().get(LOGOUT_EXTRA))) {
             whichPolicy = false;
         }
 

@@ -24,14 +24,12 @@ import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.MobileSsoFactory;
-import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.io.IoUtils;
 import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.security.LockableEncryptionProvider;
 import com.ca.mas.core.security.SecureLockException;
-import com.ca.mas.core.storage.Storage;
 import com.ca.mas.core.store.ClientCredentialContainer;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
@@ -317,15 +315,14 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             @Override
             public void logout(final MASCallback<Void> callback) {
                 current = null;
-                new LogoutAsyncTask().execute(callback);
+                logout(true, callback);
             }
 
             /**
              * <b>Description:</b> Logout from the server.
-             * @param callback
+             * @param callback MASCallback
              * @param force by default true it will clean the localstorage
              */
-            @Override
             public void logout(final boolean force, final MASCallback<Void> callback) {
                 current = null;
 
@@ -336,9 +333,9 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 String clientSecret = clientCredentialContainer.getClientSecret();
 
                 List<Pair<String, String>> form = new ArrayList<>();
-                form.add(new Pair<String, String>(OAuthClient.ID_TOKEN, idToken.getValue()));
-                form.add(new Pair<String, String>(OAuthClient.ID_TOKEN_TYPE, idToken.getType()));
-                form.add(new Pair<String, String>(OAuthClient.LOGOUT_APPS, Boolean.toString(true)));
+                form.add(new Pair<>(OAuthClient.ID_TOKEN, idToken.getValue()));
+                form.add(new Pair<>(OAuthClient.ID_TOKEN_TYPE, idToken.getType()));
+                form.add(new Pair<>(OAuthClient.LOGOUT_APPS, Boolean.toString(true)));
 
                 String endpointPatht = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT);
                 URI uri = null;
@@ -357,27 +354,34 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
                     @Override
                     public void onSuccess(MASResponse<JSONObject> result) {
-                        try {
-                            // - Paramenter to delete or not the local storage
-                            if (force) {
+                        if (force) {
+                            try {
+                                // - Paramenter to delete or not the local storage
+
                                 tokenManager.clearAll();
                                 clientCredentialContainer.clearAll();
-                            }
-                        } catch (TokenStoreException e) {
-                            e.printStackTrace();
-                        }
 
+                            } catch (TokenStoreException e) {
+                                Callback.onError(callback, e);
+                            }
+                        }
                         Callback.onSuccess(callback, null);
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        if (force) {
+                            try {
+                                clientCredentialContainer.clearAll();
+                                tokenManager.clearAll();
+                            } catch (TokenStoreException e1) {
+                                Callback.onError(callback, e);
+                            }
+                        }
                         Callback.onError(callback, e);
                     }
                 });
-
             }
-
 
             @Override
             public void getUserById(String id, MASCallback<MASUser> callback) {
@@ -666,8 +670,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      *                 will be logout from the Application.
      */
     public abstract void logout(final MASCallback<Void> callback);
-
-    public abstract void logout(boolean force,final MASCallback<Void> callback);
 
     /**
      * Determines if the user is currently authenticated with the MAG server.

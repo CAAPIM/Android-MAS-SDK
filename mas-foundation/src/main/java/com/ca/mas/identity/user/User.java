@@ -442,11 +442,6 @@ public class User extends MASUser {
     }
 
     @Override
-    public void logout(boolean force, MASCallback<Void> callback) {
-        throw new UserNotAuthenticatedException();
-    }
-
-    @Override
     public boolean isAuthenticated() {
         return false;
     }

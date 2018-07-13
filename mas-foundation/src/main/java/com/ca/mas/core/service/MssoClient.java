@@ -22,11 +22,13 @@ import com.ca.mas.core.request.internal.AuthenticateRequest;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.MASAuthCredentials;
+import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
+import static com.ca.mas.foundation.MASConstants.LOGOUT_EXTRA;
 
 /**
  * Encapsulates use of the MssoService.
@@ -68,8 +70,9 @@ public class MssoClient {
         Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, context, MssoService.class);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
 
-        if (request.getURL().toString().contains("/connect/session/logout")){
-            intent.putExtra("logout", "true");
+        String endpointPatht = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT);
+        if (request.getURL().toString().contains(endpointPatht)){
+            intent.putExtra(LOGOUT_EXTRA, "true");
         }
         context.startService(intent);
         return requestId;

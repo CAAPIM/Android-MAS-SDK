@@ -49,7 +49,5 @@ public class MASConstants {
      */
     public static final int MAS_STATE_STOPPED = 4;
 
-    public static final String LOGOUT_EXTRA = "logout";
-
 }
 

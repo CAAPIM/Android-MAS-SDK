@@ -28,7 +28,6 @@ import com.ca.mas.foundation.MASResponse;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
-import static com.ca.mas.foundation.MASConstants.LOGOUT_EXTRA;
 
 /**
  * Encapsulates use of the MssoService.
@@ -69,11 +68,6 @@ public class MssoClient {
         Context context = appContext;
         Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, context, MssoService.class);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-
-        String endpointPatht = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT);
-        if (request.getURL().toString().contains(endpointPatht)){
-            intent.putExtra(LOGOUT_EXTRA, "true");
-        }
         context.startService(intent);
         return requestId;
     }

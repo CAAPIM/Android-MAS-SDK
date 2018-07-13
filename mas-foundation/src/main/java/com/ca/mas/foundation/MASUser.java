@@ -9,7 +9,6 @@
 package com.ca.mas.foundation;
 
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Parcel;
@@ -53,6 +52,7 @@ import com.ca.mas.messaging.topic.MASTopic;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -314,41 +314,54 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
                 final TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
                 final ClientCredentialContainer clientCredentialContainer = StorageProvider.getInstance().getClientCredentialContainer();
-                IdToken idToken = tokenManager.getIdToken();
-                String clientId = clientCredentialContainer.getClientId();
-                String clientSecret = clientCredentialContainer.getClientSecret();
 
-                List<Pair<String, String>> form = new ArrayList<>();
-                form.add(new Pair<>(OAuthClient.ID_TOKEN, idToken.getValue()));
-                form.add(new Pair<>(OAuthClient.ID_TOKEN_TYPE, idToken.getType()));
+                final List<Pair<String, String>> form = new ArrayList<>();
+                form.add(new Pair<>(OAuthClient.ID_TOKEN, tokenManager.getIdToken().getValue()));
+                form.add(new Pair<>(OAuthClient.ID_TOKEN_TYPE, tokenManager.getIdToken().getType()));
                 form.add(new Pair<>(OAuthClient.LOGOUT_APPS, Boolean.toString(true)));
 
-                String endpointPatht = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT);
-                URI uri = null;
+                String endpointPath = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT);
+                URI uri;
                 try {
-                    uri = new URI(endpointPatht);
+                    uri = new URI(endpointPath);
                 } catch (URISyntaxException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e.getMessage());
                 }
 
-                MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                final MASRequest request = new MASRequest.MASRequestBuilder(uri)
                         .post(MASRequestBody.urlEncodedFormBody(form))
                         .responseBody(MASResponseBody.stringBody())
-                        .header(OAuthClient.AUTHORIZATION, "Basic " + IoUtils.base64(clientId + ":" + clientSecret, Charsets.ASCII))
+                        .connectionListener(new MASConnectionListener() {
+                            @Override
+                            public void onObtained(HttpURLConnection connection) {
+                                // - There are some scenarios, where the credential may be empty, override connectionListener
+                                // - put header on this connection once whe for sure have the credentials connectionListener.onObtained
+                                String clientId = clientCredentialContainer.getClientId();
+                                String clientSecret = clientCredentialContainer.getClientSecret();
+
+                                String header = "Basic " + IoUtils.base64(clientId + ":" + clientSecret, Charsets.ASCII);
+                                connection.setRequestProperty(OAuthClient.AUTHORIZATION, header);
+                            }
+
+                            @Override
+                            public void onConnected(HttpURLConnection connection) {
+                            }
+                        })
                         .build();
 
                 MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
                     @Override
                     public void onSuccess(MASResponse<JSONObject> result) {
+                        // - Paramenter to delete or not the local storage
                         if (force) {
                             try {
-                                // - Paramenter to delete or not the local storage
-
-                                tokenManager.clearAll();
-                                clientCredentialContainer.clearAll();
+                                tokenManager.deleteIdToken();
+                                tokenManager.deleteSecureIdToken();
+                                tokenManager.deleteUserProfile();
+                                clientCredentialContainer.clear();
 
                             } catch (TokenStoreException e) {
-                                Callback.onError(callback, e);
+                                throw new RuntimeException(e.getMessage());
                             }
                         }
                         Callback.onSuccess(callback, null);
@@ -358,10 +371,12 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                     public void onError(Throwable e) {
                         if (force) {
                             try {
-                                clientCredentialContainer.clearAll();
-                                tokenManager.clearAll();
+                                tokenManager.deleteIdToken();
+                                tokenManager.deleteSecureIdToken();
+                                tokenManager.deleteUserProfile();
+                                clientCredentialContainer.clear();
                             } catch (TokenStoreException e1) {
-                                Callback.onError(callback, e);
+                                throw new RuntimeException(e1.getMessage());
                             }
                         }
                         Callback.onError(callback, e);

@@ -10,17 +10,19 @@ package com.ca.mas.core.policy;
 
 import android.content.Context;
 
+import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
+import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import static com.ca.mas.foundation.MASConstants.LOGOUT_EXTRA;
+import java.util.Map;
 
 /**
  * Keeps track of policies that can be applied to requests.
@@ -29,17 +31,24 @@ public class PolicyManager {
 
     private final MssoContext mssoContext;
     private final Object policySync = new Object();
+
+    private final Map<String, List<MssoAssertion>> policys = new HashMap<>();
     private final StorageReadyAssertion storageReadyAssertion;
     private final SecureLockAssertion secureLockAssertion;
-    private ClientCredentialAssertion clientCredentialAssertion;
-    private DeviceRegistrationAssertion deviceRegistrationAssertion;
-    private AccessTokenAssertion accessTokenAssertion;
-    private LocationAssertion locationAssertion;
-    private TelephoneAssertion telephoneAssertion;
-    private CustomHeaderAssertion customHeaderAssertion;
-    private ResponseRecoveryAssertion responseRecoveryAssertion;
+    private final ClientCredentialAssertion clientCredentialAssertion;
+    private final DeviceRegistrationAssertion deviceRegistrationAssertion;
+    private final AccessTokenAssertion accessTokenAssertion;
+    private final LocationAssertion locationAssertion;
+    private final TelephoneAssertion telephoneAssertion;
+    private final CustomHeaderAssertion customHeaderAssertion;
+    private final ResponseRecoveryAssertion responseRecoveryAssertion;
+    private static final String DEF_KEY = "default";
+    private final String endpointPath = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT);
 
     public PolicyManager(MssoContext mssoContext) {
+        List<MssoAssertion> defaultPolicy = new ArrayList<>();
+        List<MssoAssertion> logoutPolicy = new ArrayList<>();
+
         this.mssoContext = mssoContext;
         storageReadyAssertion = new StorageReadyAssertion();
         secureLockAssertion = new SecureLockAssertion();
@@ -50,37 +59,25 @@ public class PolicyManager {
         telephoneAssertion = new TelephoneAssertion();
         customHeaderAssertion = new CustomHeaderAssertion();
         responseRecoveryAssertion = new ResponseRecoveryAssertion();
-    }
 
-    // - By default use true
-    private List<MssoAssertion> getSwapPolicy(boolean useDefaultPolicy) {
-        List<MssoAssertion> retPolicy;
-        List<MssoAssertion> defaultPolicy = new ArrayList<>();
-        List<MssoAssertion> logoutPolicy = new ArrayList<>();
+        defaultPolicy.add(storageReadyAssertion);
+        defaultPolicy.add(secureLockAssertion);
+        defaultPolicy.add(clientCredentialAssertion);
+        defaultPolicy.add(deviceRegistrationAssertion);
+        defaultPolicy.add(accessTokenAssertion);
+        defaultPolicy.add(locationAssertion);
+        defaultPolicy.add(telephoneAssertion);
+        defaultPolicy.add(customHeaderAssertion);
+        defaultPolicy.add(responseRecoveryAssertion);
+        policys.put(DEF_KEY, defaultPolicy);
 
-        if (useDefaultPolicy) {
-            //Default Policy setting
-            defaultPolicy.add(storageReadyAssertion);
-            defaultPolicy.add(secureLockAssertion);
-            defaultPolicy.add(clientCredentialAssertion);
-            defaultPolicy.add(deviceRegistrationAssertion);
-            defaultPolicy.add(accessTokenAssertion);
-            defaultPolicy.add(locationAssertion);
-            defaultPolicy.add(telephoneAssertion);
-            defaultPolicy.add(customHeaderAssertion);
-            defaultPolicy.add(responseRecoveryAssertion);
-            retPolicy = defaultPolicy;
-        } else {
-            logoutPolicy.add(storageReadyAssertion);
-            logoutPolicy.add(secureLockAssertion);
-            logoutPolicy.add(clientCredentialAssertion);
-            logoutPolicy.add(deviceRegistrationAssertion);
-            logoutPolicy.add(locationAssertion);
-            logoutPolicy.add(responseRecoveryAssertion);
-            retPolicy = logoutPolicy;
-        }
-
-        return retPolicy;
+        logoutPolicy.add(storageReadyAssertion);
+        logoutPolicy.add(secureLockAssertion);
+        logoutPolicy.add(clientCredentialAssertion);
+        logoutPolicy.add(deviceRegistrationAssertion);
+        logoutPolicy.add(locationAssertion);
+        logoutPolicy.add(responseRecoveryAssertion);
+        policys.put(endpointPath, logoutPolicy);
     }
 
     /**
@@ -89,7 +86,7 @@ public class PolicyManager {
      * @param sysContext Android context.  Required.
      */
     public void init(Context sysContext) {
-        init(sysContext, getSwapPolicy(true));
+        init(sysContext, policys.get(DEF_KEY));
     }
 
     private void init(Context sysContext, List<MssoAssertion> policy) {
@@ -141,14 +138,17 @@ public class PolicyManager {
 
     public MASResponse execute(RequestInfo requestInfo, Route<MASResponse> function) throws MAGException, MAGServerException, IOException {
 
-        boolean whichPolicy = true;
-        if (requestInfo.getExtra() != null && Boolean.parseBoolean((String) requestInfo.getExtra().get(LOGOUT_EXTRA))) {
-            whichPolicy = false;
+        List<MssoAssertion> activePolicy = policys.get(DEF_KEY);
+
+        String requestUrl = requestInfo.getRequest().getURL() == null ? "":requestInfo.getRequest().getURL().toString();
+
+        if (requestUrl.contains(endpointPath)){
+            activePolicy = policys.get(endpointPath);
         }
 
-        processRequest(requestInfo, getSwapPolicy(whichPolicy));
+        processRequest(requestInfo, activePolicy);
         MASResponse response = function.invoke();
-        processResponse(requestInfo, response, getSwapPolicy(whichPolicy));
+        processResponse(requestInfo, response, activePolicy);
         return response;
     }
 
@@ -158,7 +158,7 @@ public class PolicyManager {
 
 
     public void close() {
-        close(getSwapPolicy(true));
+        close(policys.get(DEF_KEY));
     }
 
     private void close(List<MssoAssertion> policy) {

@@ -437,7 +437,13 @@ public class User extends MASUser {
     }
 
     @Override
+    @Deprecated
     public void logout(MASCallback<Void> callback) {
+        throw new UserNotAuthenticatedException();
+    }
+
+    @Override
+    public void logout(MASCallback<Void> callback, final boolean force) {
         throw new UserNotAuthenticatedException();
     }
 

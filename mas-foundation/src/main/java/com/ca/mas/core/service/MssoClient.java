@@ -22,12 +22,15 @@ import com.ca.mas.core.request.internal.AuthenticateRequest;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.MASAuthCredentials;
+import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASUser;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
+import static com.ca.mas.foundation.MAS.invoke;
 
 /**
  * Encapsulates use of the MssoService.
@@ -111,16 +114,21 @@ public class MssoClient {
 
         @Override
         protected Void doInBackground(Void... params) {
-            try {
-                aMssoContext.logout(true);
-            } catch (SecureLockException e) {
-                if (aResultReceiver != null) {
-                    aResultReceiver.onError(new MAGError(e));
-                }
-            } catch (Exception ignore) {
-                if (DEBUG) Log.w(TAG, ignore);
+            MASUser user = MASUser.getCurrentUser();
+            if (user != null) {
+                user.logout(new MASCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void result) {
+                        aAppContext.startService(aIntent);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+                },true);
+            } else {
+                aAppContext.startService(aIntent);
             }
-            aAppContext.startService(aIntent);
             return null;
         }
     }

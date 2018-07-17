@@ -43,7 +43,8 @@ public class PolicyManager {
     private final CustomHeaderAssertion customHeaderAssertion;
     private final ResponseRecoveryAssertion responseRecoveryAssertion;
     private static final String DEF_KEY = "default";
-    private final String endpointPath = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT);
+    private final String endpointPathLogout = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT);
+    private final String endpointPathRevoke = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.REVOKE_ENDPOINT);
 
     public PolicyManager(MssoContext mssoContext) {
         List<MssoAssertion> defaultPolicy = new ArrayList<>();
@@ -74,10 +75,9 @@ public class PolicyManager {
         logoutPolicy.add(storageReadyAssertion);
         logoutPolicy.add(secureLockAssertion);
         logoutPolicy.add(clientCredentialAssertion);
-        logoutPolicy.add(deviceRegistrationAssertion);
         logoutPolicy.add(locationAssertion);
         logoutPolicy.add(responseRecoveryAssertion);
-        policys.put(endpointPath, logoutPolicy);
+        policys.put(endpointPathLogout, logoutPolicy);
     }
 
     /**
@@ -142,8 +142,8 @@ public class PolicyManager {
 
         String requestUrl = requestInfo.getRequest().getURL() == null ? "":requestInfo.getRequest().getURL().toString();
 
-        if (requestUrl.contains(endpointPath)){
-            activePolicy = policys.get(endpointPath);
+        if (requestUrl.contains(endpointPathLogout) || requestUrl.contains(endpointPathRevoke)){
+            activePolicy = policys.get(endpointPathLogout);
         }
 
         processRequest(requestInfo, activePolicy);

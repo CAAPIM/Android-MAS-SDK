@@ -9,6 +9,7 @@
 package com.ca.mas.foundation;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Parcel;
@@ -30,6 +31,7 @@ import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.security.LockableEncryptionProvider;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.ClientCredentialContainer;
+import com.ca.mas.core.store.OAuthTokenContainer;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
@@ -299,26 +301,13 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
              * <b>Description:</b> Logout from the server.
              */
             @Override
+            @Deprecated
             public void logout(final MASCallback<Void> callback) {
                 current = null;
-                logout(true, callback);
+                logout(callback, true);
             }
 
-            /**
-             * <b>Description:</b> Logout from the server.
-             * @param callback MASCallback
-             * @param force by default true it will clean the localstorage
-             */
-            public void logout(final boolean force, final MASCallback<Void> callback) {
-                current = null;
-
-                final TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
-                final ClientCredentialContainer clientCredentialContainer = StorageProvider.getInstance().getClientCredentialContainer();
-
-                final List<Pair<String, String>> form = new ArrayList<>();
-                form.add(new Pair<>(OAuthClient.ID_TOKEN, tokenManager.getIdToken().getValue()));
-                form.add(new Pair<>(OAuthClient.ID_TOKEN_TYPE, tokenManager.getIdToken().getType()));
-                form.add(new Pair<>(OAuthClient.LOGOUT_APPS, Boolean.toString(true)));
+            private MASRequest getLogoutRequest(TokenManager tokenManager, final ClientCredentialContainer credentialContainer){
 
                 String endpointPath = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT);
                 URI uri;
@@ -328,7 +317,12 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                     throw new RuntimeException(e.getMessage());
                 }
 
-                final MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                final List<Pair<String, String>> form = new ArrayList<>();
+                form.add(new Pair<>(OAuthClient.ID_TOKEN, tokenManager.getIdToken().getValue()));
+                form.add(new Pair<>(OAuthClient.ID_TOKEN_TYPE, tokenManager.getIdToken().getType()));
+                form.add(new Pair<>(OAuthClient.LOGOUT_APPS, Boolean.toString(true)));
+
+                MASRequest request = new MASRequest.MASRequestBuilder(uri)
                         .post(MASRequestBody.urlEncodedFormBody(form))
                         .responseBody(MASResponseBody.stringBody())
                         .connectionListener(new MASConnectionListener() {
@@ -336,8 +330,8 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                             public void onObtained(HttpURLConnection connection) {
                                 // - There are some scenarios, where the credential may be empty, override connectionListener
                                 // - put header on this connection once whe for sure have the credentials connectionListener.onObtained
-                                String clientId = clientCredentialContainer.getClientId();
-                                String clientSecret = clientCredentialContainer.getClientSecret();
+                                String clientId = credentialContainer.getClientId();
+                                String clientSecret = credentialContainer.getClientSecret();
 
                                 String header = "Basic " + IoUtils.base64(clientId + ":" + clientSecret, Charsets.ASCII);
                                 connection.setRequestProperty(OAuthClient.AUTHORIZATION, header);
@@ -348,6 +342,50 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                             }
                         })
                         .build();
+                return request;
+            }
+
+            private MASRequest getRevokeRequest(final ClientCredentialContainer clientCredentialContainer) {
+                MASRequest request;
+
+                OAuthTokenContainer tokenContainer = StorageProvider.getInstance().getOAuthTokenContainer();
+                String endpointPath = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.REVOKE_ENDPOINT);
+
+                Uri.Builder uriBuilder = new Uri.Builder().encodedPath(endpointPath);
+                uriBuilder.appendQueryParameter(OAuthClient.TOKEN, tokenContainer.getRefreshToken())
+                        .appendQueryParameter(OAuthClient.TOKEN_TYPE, "refresh_token");
+                Uri uri = uriBuilder.build();
+
+                request = new MASRequest.MASRequestBuilder(uri)
+                        .delete(null)
+                        .responseBody(MASResponseBody.stringBody())
+                        .header(OAuthClient.AUTHORIZATION,"Basic " + IoUtils.base64(clientCredentialContainer.getClientId() + ":" + clientCredentialContainer.getClientSecret(), Charsets.ASCII) )
+                        .build();
+                return request;
+            }
+
+            /**
+             * <b>Description:</b> Logout from the server.
+             * @param callback MASCallback
+             * @param force by default true it will clean the localstorage
+             */
+            @Override
+            public void logout(final MASCallback<Void> callback, final boolean force) {
+                current = null;
+
+                MASRequest request = null;
+                final TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
+                final ClientCredentialContainer clientCredentialContainer = StorageProvider.getInstance().getClientCredentialContainer();
+
+                if (tokenManager == null || clientCredentialContainer == null) {
+                    return;
+                }
+
+                if (tokenManager.getIdToken() != null) {
+                    request = getLogoutRequest(tokenManager, clientCredentialContainer);
+                } else {
+                    request = getRevokeRequest(clientCredentialContainer);
+                }
 
                 MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
                     @Override
@@ -358,8 +396,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                                 tokenManager.deleteIdToken();
                                 tokenManager.deleteSecureIdToken();
                                 tokenManager.deleteUserProfile();
-                                clientCredentialContainer.clear();
-
+                                clientCredentialContainer.clearAll();
                             } catch (TokenStoreException e) {
                                 throw new RuntimeException(e.getMessage());
                             }
@@ -374,7 +411,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                                 tokenManager.deleteIdToken();
                                 tokenManager.deleteSecureIdToken();
                                 tokenManager.deleteUserProfile();
-                                clientCredentialContainer.clear();
+                                clientCredentialContainer.clearAll();
                             } catch (TokenStoreException e1) {
                                 throw new RuntimeException(e1.getMessage());
                             }
@@ -670,7 +707,19 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * @param callback The Callback that receives the results. On a successful completion, the user
      *                 will be logout from the Application.
      */
+    @Deprecated
     public abstract void logout(final MASCallback<Void> callback);
+
+    /**
+     * <p>Logs off an already authenticated user via an asynchronous request.</p>
+     * This will invoke {@link Callback#onSuccess} upon a successful result.
+     *
+     * @param callback The Callback that receives the results. On a successful completion, the user
+     *                 will be logout from the Application.
+     *
+     * @param force delete local storage
+     */
+    public abstract void logout(final MASCallback<Void> callback, boolean force);
 
     /**
      * Determines if the user is currently authenticated with the MAG server.

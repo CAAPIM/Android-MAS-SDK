@@ -24,6 +24,7 @@ import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.MobileSsoFactory;
+import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.io.IoUtils;
@@ -391,16 +392,19 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                     @Override
                     public void onSuccess(MASResponse<JSONObject> result) {
                         // - Paramenter to delete or not the local storage
-                        if (force) {
                             try {
                                 tokenManager.deleteIdToken();
                                 tokenManager.deleteSecureIdToken();
                                 tokenManager.deleteUserProfile();
-                                clientCredentialContainer.clearAll();
                             } catch (TokenStoreException e) {
-                                throw new RuntimeException(e.getMessage());
+                                onError(e);
                             }
-                        }
+                            try {
+                                StorageProvider.getInstance().getOAuthTokenContainer().clear();
+                            } catch (DataSourceException e) {
+                                onError(e);
+                            }
+
                         Callback.onSuccess(callback, null);
                     }
 
@@ -411,9 +415,14 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                                 tokenManager.deleteIdToken();
                                 tokenManager.deleteSecureIdToken();
                                 tokenManager.deleteUserProfile();
-                                clientCredentialContainer.clearAll();
                             } catch (TokenStoreException e1) {
-                                throw new RuntimeException(e1.getMessage());
+                                Callback.onError(callback, e);
+                                return;
+                            }
+                            try {
+                                StorageProvider.getInstance().getOAuthTokenContainer().clear();
+                            } catch (DataSourceException e1) {
+                                Callback.onError(callback, e);
                             }
                         }
                         Callback.onError(callback, e);

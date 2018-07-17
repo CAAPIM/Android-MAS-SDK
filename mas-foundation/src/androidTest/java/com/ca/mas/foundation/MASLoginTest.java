@@ -354,6 +354,35 @@ public class MASLoginTest extends MASStartTestBase {
         Assert.assertEquals(rr.getHeader("x-authorization-type"), MASIdToken.JWT_DEFAULT);
     }
 
+    @Test
+    public void testLoginFailFalseParameter() throws ExecutionException, InterruptedException {
+        String expected = "dummy_id_token";
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASIdToken idToken = new MASIdToken.Builder().value(expected).build();
+        MASUser.login(idToken, callback);
+        callback.get();
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse retrieveTokenResponse() {
+                return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+            }
+        });
+
+        MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<Void>();
+        MASUser.getCurrentUser().logout(false, new MASCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                fail();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Assert.assertNotNull(StorageProvider.getInstance().getTokenManager().getIdToken());
+            }
+        });
+    }
+
     @Test(expected = NullPointerException.class)
     public void testLoginWithIDTokenNullValue() throws Exception {
         new MASIdToken.Builder().build();

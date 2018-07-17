@@ -34,7 +34,7 @@ public abstract class MASLoginTestBase extends MASStartTestBase {
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<Void>();
         MASUser currentUser = MASUser.getCurrentUser();
         if (currentUser != null) {
-            currentUser.logout(logoutCallback);
+            currentUser.logout(true,logoutCallback);
             Assert.assertNull(logoutCallback.get());
         }
 

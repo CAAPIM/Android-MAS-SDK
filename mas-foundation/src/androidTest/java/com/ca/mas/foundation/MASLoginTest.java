@@ -15,6 +15,8 @@ import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
 import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.client.ServerClient;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.token.JWTExpiredException;
 import com.ca.mas.core.token.JWTInvalidAUDException;
 import com.ca.mas.core.token.JWTInvalidAZPException;
@@ -69,7 +71,7 @@ public class MASLoginTest extends MASStartTestBase {
         if (isSkipped) return;
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<Void>();
         if (MASUser.getCurrentUser() != null) {
-            MASUser.getCurrentUser().logout(logoutCallback);
+            MASUser.getCurrentUser().logout(true, logoutCallback);
             Assert.assertNull(logoutCallback.get());
         }
 
@@ -325,7 +327,7 @@ public class MASLoginTest extends MASStartTestBase {
 
         //Logout
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
-        MASUser.getCurrentUser().logout(logoutCallback);
+        MASUser.getCurrentUser().logout(true, logoutCallback);
         logoutCallback.get();
 
         //invoke token with id token
@@ -529,7 +531,7 @@ public class MASLoginTest extends MASStartTestBase {
 
         //Logout
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
-        MASUser.getCurrentUser().logout(logoutCallback);
+        MASUser.getCurrentUser().logout(true,logoutCallback );
         logoutCallback.get();
 
         //invoke token with id token

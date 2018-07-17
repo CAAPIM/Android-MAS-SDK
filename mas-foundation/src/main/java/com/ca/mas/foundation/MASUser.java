@@ -410,6 +410,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
                     @Override
                     public void onError(Throwable e) {
+                        // - Paramenter to delete or not the local storage
                         if (force) {
                             try {
                                 tokenManager.deleteIdToken();

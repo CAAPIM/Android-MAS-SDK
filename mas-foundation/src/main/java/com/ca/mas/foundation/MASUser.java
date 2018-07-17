@@ -627,7 +627,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                                 Callback.onSuccess(callback, null);
                             } else {
                                 // The ID token must be placed back before calling logout()
-                                logout(null);
+                                logout(null, true);
                                 Callback.onError(callback, new SecureLockException(MASFoundationStrings.TOKEN_ID_EXPIRED));
                             }
                         } catch (Exception e) {

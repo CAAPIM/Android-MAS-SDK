@@ -15,6 +15,8 @@ import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
 import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.client.ServerClient;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.token.JWTExpiredException;
 import com.ca.mas.core.token.JWTInvalidAUDException;
 import com.ca.mas.core.token.JWTInvalidAZPException;
@@ -69,7 +71,7 @@ public class MASLoginTest extends MASStartTestBase {
         if (isSkipped) return;
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<Void>();
         if (MASUser.getCurrentUser() != null) {
-            MASUser.getCurrentUser().logout(logoutCallback);
+            MASUser.getCurrentUser().logout(logoutCallback, true);
             Assert.assertNull(logoutCallback.get());
         }
 
@@ -325,7 +327,7 @@ public class MASLoginTest extends MASStartTestBase {
 
         //Logout
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
-        MASUser.getCurrentUser().logout(logoutCallback);
+        MASUser.getCurrentUser().logout(logoutCallback, true);
         logoutCallback.get();
 
         //invoke token with id token
@@ -338,6 +340,31 @@ public class MASLoginTest extends MASStartTestBase {
         String body = URLDecoder.decode(tokenRequest.getBody().readUtf8(), "UTF-8");
         assertTrue(body.contains(ServerClient.ASSERTION + "=" + expected));
         assertTrue(body.contains(ServerClient.GRANT_TYPE + "=" + expectedType));
+    }
+
+    @Test
+    public void testLoginOutWithNotDeletingIdToken() throws Exception {
+        String expected = "dummy_id_token";
+        String expectedType = "dummy_id_token_type";
+
+        //Register with id token
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASIdToken idToken = new MASIdToken.Builder().value(expected).type(expectedType).build();
+        MASUser.login(idToken, callback);
+        Assert.assertNotNull(callback.get());
+        RecordedRequest registerRequest = getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_REGISTER);
+        Assert.assertEquals(registerRequest.getHeader("authorization"), "Bearer " + expected);
+        Assert.assertEquals(registerRequest.getHeader("x-authorization-type"), expectedType);
+
+        //Logout
+        MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
+        MASUser.getCurrentUser().logout(logoutCallback, false);
+        logoutCallback.get();
+
+        //invoke token with id token
+        MASCallbackFuture<MASUser> loginCallback = new MASCallbackFuture<>();
+        assertNotNull(StorageProvider.getInstance().getTokenManager().getIdToken());
+
     }
 
     @Test
@@ -529,7 +556,7 @@ public class MASLoginTest extends MASStartTestBase {
 
         //Logout
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
-        MASUser.getCurrentUser().logout(logoutCallback);
+        MASUser.getCurrentUser().logout(logoutCallback, true);
         logoutCallback.get();
 
         //invoke token with id token

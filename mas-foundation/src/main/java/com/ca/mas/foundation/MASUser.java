@@ -24,6 +24,7 @@ import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.MobileSsoFactory;
+import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.io.IoUtils;
@@ -371,7 +372,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
              * If you specify the `false` parameter, the SDK clears local tokens only if the logout call to the server is successful.
              *
              * @param callback MASCallback
-             * @param force by default true it will clean the local tokens
+             * @param force boolean
              */
             @Override
             public void logout(final boolean force, final MASCallback<Void> callback) {
@@ -394,14 +395,20 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
                     @Override
                     public void onSuccess(MASResponse<JSONObject> result) {
-                        try {
-                            tokenManager.deleteIdToken();
-                            tokenManager.deleteSecureIdToken();
-                            tokenManager.deleteUserProfile();
-                            clientCredentialContainer.clearAll();
-                        } catch (TokenStoreException e) {
-                            throw new RuntimeException(e.getMessage());
-                        }
+                        // - Paramenter to delete or not the local storage
+                            try {
+                                tokenManager.deleteIdToken();
+                                tokenManager.deleteSecureIdToken();
+                                tokenManager.deleteUserProfile();
+                            } catch (TokenStoreException e) {
+                                onError(e);
+                            }
+                            try {
+                                StorageProvider.getInstance().getOAuthTokenContainer().clear();
+                            } catch (DataSourceException e) {
+                                onError(e);
+                            }
+
                         Callback.onSuccess(callback, null);
                     }
 
@@ -413,9 +420,14 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                                 tokenManager.deleteIdToken();
                                 tokenManager.deleteSecureIdToken();
                                 tokenManager.deleteUserProfile();
-                                clientCredentialContainer.clearAll();
                             } catch (TokenStoreException e1) {
-                                throw new RuntimeException(e1.getMessage());
+                                Callback.onError(callback, e);
+                                return;
+                            }
+                            try {
+                                StorageProvider.getInstance().getOAuthTokenContainer().clear();
+                            } catch (DataSourceException e1) {
+                                Callback.onError(callback, e);
                             }
                         }
                         Callback.onError(callback, e);
@@ -629,7 +641,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                                 Callback.onSuccess(callback, null);
                             } else {
                                 // The ID token must be placed back before calling logout()
-                                logout( true, null);
+                                logout(null);
                                 Callback.onError(callback, new SecureLockException(MASFoundationStrings.TOKEN_ID_EXPIRED));
                             }
                         } catch (Exception e) {
@@ -716,12 +728,12 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * <p>Logs off an already authenticated user via an asynchronous request.</p>
      * This will invoke {@link Callback#onSuccess} upon a successful result.
      *
+     * @param force delete local storage
      * @param callback The Callback that receives the results. On a successful completion, the user
      *                 will be logout from the Application.
      *
-     * @param force delete local storage
      */
-    public abstract void logout(final boolean force, final MASCallback<Void> callback);
+    public abstract void logout(boolean force, final MASCallback<Void> callback);
 
     /**
      * Determines if the user is currently authenticated with the MAG server.

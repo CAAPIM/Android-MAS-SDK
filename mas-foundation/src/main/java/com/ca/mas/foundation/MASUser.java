@@ -305,7 +305,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             @Deprecated
             public void logout(final MASCallback<Void> callback) {
                 current = null;
-                logout(callback, true);
+                logout(true, callback);
             }
 
             private MASRequest getLogoutRequest(TokenManager tokenManager, final ClientCredentialContainer credentialContainer){
@@ -367,11 +367,11 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
             /**
              * <b>Description:</b> Logout from the server.
-             * @param callback MASCallback
              * @param force by default true it will clean the localstorage
+             * @param callback MASCallback
              */
             @Override
-            public void logout(final MASCallback<Void> callback, final boolean force) {
+            public void logout(final boolean force, final MASCallback<Void> callback) {
                 current = null;
 
                 MASRequest request = null;
@@ -724,12 +724,12 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * <p>Logs off an already authenticated user via an asynchronous request.</p>
      * This will invoke {@link Callback#onSuccess} upon a successful result.
      *
+     * @param force delete local storage
      * @param callback The Callback that receives the results. On a successful completion, the user
      *                 will be logout from the Application.
      *
-     * @param force delete local storage
      */
-    public abstract void logout(final MASCallback<Void> callback, boolean force);
+    public abstract void logout(boolean force, final MASCallback<Void> callback);
 
     /**
      * Determines if the user is currently authenticated with the MAG server.

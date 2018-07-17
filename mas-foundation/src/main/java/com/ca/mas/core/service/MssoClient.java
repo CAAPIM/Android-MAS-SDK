@@ -89,7 +89,7 @@ public class MssoClient {
         final Intent intent = createAuthenticationIntent(credentials, resultReceiver);
         MASUser user = MASUser.getCurrentUser();
         if (user != null) {
-            user.logout(new MASCallback<Void>() {
+            user.logout(true, new MASCallback<Void>() {
                 @Override
                 public void onSuccess(Void result) {
                     appContext.startService(intent);
@@ -99,7 +99,7 @@ public class MssoClient {
                 public void onError(Throwable e) {
                     resultReceiver.onError(new MAGError(e));
                 }
-            },true);
+            });
         } else {
             appContext.startService(intent);
         }

@@ -90,7 +90,7 @@ public class MASAuthorizationCodeFlowTest extends MASStartTestBase {
 
         loginCallback.get();
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
-        MASUser.getCurrentUser().logout(logoutCallback, true);
+        MASUser.getCurrentUser().logout(true, logoutCallback);
         logoutCallback.get();
 
         loginCallback.reset();
@@ -166,7 +166,7 @@ public class MASAuthorizationCodeFlowTest extends MASStartTestBase {
         loginCallback.get();
 
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
-        MASUser.getCurrentUser().logout(logoutCallback, true);
+        MASUser.getCurrentUser().logout(true, logoutCallback);
         logoutCallback.get();
 
 

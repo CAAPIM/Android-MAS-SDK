@@ -116,7 +116,7 @@ public class MssoClient {
         protected Void doInBackground(Void... params) {
             MASUser user = MASUser.getCurrentUser();
             if (user != null) {
-                user.logout(new MASCallback<Void>() {
+                user.logout(true, new MASCallback<Void>() {
                     @Override
                     public void onSuccess(Void result) {
                         aAppContext.startService(aIntent);
@@ -125,7 +125,7 @@ public class MssoClient {
                     @Override
                     public void onError(Throwable e) {
                     }
-                },true);
+                });
             } else {
                 aAppContext.startService(aIntent);
             }

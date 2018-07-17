@@ -443,7 +443,7 @@ public class User extends MASUser {
     }
 
     @Override
-    public void logout(MASCallback<Void> callback, final boolean force) {
+    public void logout(final boolean force, MASCallback<Void> callback) {
         throw new UserNotAuthenticatedException();
     }
 

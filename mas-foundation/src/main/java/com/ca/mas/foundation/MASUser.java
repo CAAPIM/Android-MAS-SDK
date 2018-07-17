@@ -304,7 +304,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             @Deprecated
             public void logout(final MASCallback<Void> callback) {
                 current = null;
-                logout(callback, true);
+                logout(true, callback);
             }
 
             private MASRequest getLogoutRequest(TokenManager tokenManager, final ClientCredentialContainer credentialContainer){
@@ -370,7 +370,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
              * @param force by default true it will clean the localstorage
              */
             @Override
-            public void logout(final MASCallback<Void> callback, final boolean force) {
+            public void logout(final boolean force, final MASCallback<Void> callback) {
                 current = null;
 
                 MASRequest request = null;
@@ -390,22 +390,20 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
                     @Override
                     public void onSuccess(MASResponse<JSONObject> result) {
-                        // - Paramenter to delete or not the local storage
-                        if (force) {
-                            try {
-                                tokenManager.deleteIdToken();
-                                tokenManager.deleteSecureIdToken();
-                                tokenManager.deleteUserProfile();
-                                clientCredentialContainer.clearAll();
-                            } catch (TokenStoreException e) {
-                                throw new RuntimeException(e.getMessage());
-                            }
+                        try {
+                            tokenManager.deleteIdToken();
+                            tokenManager.deleteSecureIdToken();
+                            tokenManager.deleteUserProfile();
+                            clientCredentialContainer.clearAll();
+                        } catch (TokenStoreException e) {
+                            throw new RuntimeException(e.getMessage());
                         }
                         Callback.onSuccess(callback, null);
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        // - Paramenter to delete or not the local storage
                         if (force) {
                             try {
                                 tokenManager.deleteIdToken();
@@ -627,7 +625,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                                 Callback.onSuccess(callback, null);
                             } else {
                                 // The ID token must be placed back before calling logout()
-                                logout(null, true);
+                                logout( true, null);
                                 Callback.onError(callback, new SecureLockException(MASFoundationStrings.TOKEN_ID_EXPIRED));
                             }
                         } catch (Exception e) {
@@ -719,7 +717,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      *
      * @param force delete local storage
      */
-    public abstract void logout(final MASCallback<Void> callback, boolean force);
+    public abstract void logout(final boolean force, final MASCallback<Void> callback);
 
     /**
      * Determines if the user is currently authenticated with the MAG server.

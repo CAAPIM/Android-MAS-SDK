@@ -1,3 +1,6 @@
+# Version 1.8.00
+-  Refactor logout implementatiom [US510647]
+
 # Version 1.7.10
 
 ### New features

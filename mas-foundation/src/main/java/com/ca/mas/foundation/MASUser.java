@@ -299,6 +299,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
             /**
              * <b>Description:</b> Logout from the server.
+             * See {@link #logout(boolean, MASCallback)}
              */
             @Override
             @Deprecated
@@ -365,9 +366,12 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             }
 
             /**
-             * <b>Description:</b> Logout from the server.
+             * To log out a currently-authenticated user using an asynchronous request.
+             * If you specify the `true` parameter, the  SDK clears local tokens regardless if the logout call to the server is successful or not.
+             * If you specify the `false` parameter, the SDK clears local tokens only if the logout call to the server is successful.
+             *
              * @param callback MASCallback
-             * @param force by default true it will clean the localstorage
+             * @param force by default true it will clean the local tokens
              */
             @Override
             public void logout(final boolean force, final MASCallback<Void> callback) {

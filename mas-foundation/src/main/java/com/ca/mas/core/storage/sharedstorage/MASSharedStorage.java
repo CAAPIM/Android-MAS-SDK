@@ -78,7 +78,7 @@ public class MASSharedStorage {
      *
      */
     public MASSharedStorage(String accountName) {
-        new MASSharedStorage(accountName, true, true);
+        this(accountName, true, true);
     }
 
     protected void preconditionCheck(String key) {

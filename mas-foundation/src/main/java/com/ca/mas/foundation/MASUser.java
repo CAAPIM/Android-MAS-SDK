@@ -415,7 +415,8 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                     @Override
                     public void onError(Throwable e) {
                         // - Paramenter to delete or not the local storage
-                        if (force) {
+                        boolean lockSession = getCurrentUser() != null ? getCurrentUser().isSessionLocked() : false;
+                        if (force && !lockSession) {
                             try {
                                 tokenManager.deleteIdToken();
                                 tokenManager.deleteSecureIdToken();

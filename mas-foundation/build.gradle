@@ -61,9 +61,9 @@ dependencies {
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation "com.google.zxing:core:$rootProject.ext.zxingVersion"
+    api "com.google.zxing:core:$rootProject.ext.zxingVersion"
     implementation "com.android.support:support-annotations:$rootProject.ext.supportLibsVersion"
-    implementation "com.nimbusds:nimbus-jose-jwt:$rootProject.ext.nimbusJoseVersion"
+    api "com.nimbusds:nimbus-jose-jwt:$rootProject.ext.nimbusJoseVersion"
 
     //For Android API 16 and 17
     compileOnly "org.bouncycastle:bcpkix-jdk15on:$rootProject.ext.bcpVersion"
@@ -138,9 +138,25 @@ task javadoc(type: Javadoc) {
     include '**/*MAS*.java'
     include '**/Device.java'
     include '**/ScimUser.java'
+    include '**/MAGError.java'
+    include '**/MAGErrorCode.java'
+    include '**/MAGRuntimeException.java'
+    include '**/MAGServerException.java'
+    include '**/MAGStateException.java'
+    include '**/TargetApiException.java'
+    include '**/LocationInvalidException.java'
+    include '**/LocationRequiredException.java'
+    include '**/MobileNumberInvalidException.java'
+    include '**/MobileNumberRequiredException.java'
 
     exclude '**/MASTransformable.java'
     exclude '**/MASResultReceiver.java'
+    exclude '**/CertificateExpiredException.java'
+    exclude '**/CredentialRequiredException.java'
+    exclude '**/InvalidAttributeIdentifierException.java'
+    exclude '**/InvalidIdentifierException.java'
+    exclude '**/RetryRequestException.java'
+    exclude '**/TokenStoreUnavailableException.java'
 }
 
 //jcenter integration

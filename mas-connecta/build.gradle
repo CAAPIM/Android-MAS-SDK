@@ -95,11 +95,11 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':mas-foundation')
-    implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibsVersion"
+    api project(':mas-foundation')
+    api "com.android.support:appcompat-v7:$rootProject.ext.supportLibsVersion"
 
     api 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
-    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+    api 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 
     androidTestImplementation project(':mas-test')
 }

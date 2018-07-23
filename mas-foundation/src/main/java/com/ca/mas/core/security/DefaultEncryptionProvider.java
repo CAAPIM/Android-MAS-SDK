@@ -8,7 +8,9 @@
 package com.ca.mas.core.security;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import com.ca.mas.core.util.KeyUtilsSymmetric;
@@ -81,6 +83,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
      *
      * @param key
      */
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void destroyKey(SecretKey key) {
         if (key instanceof Destroyable) {
             Destroyable destroyable = (Destroyable) key;

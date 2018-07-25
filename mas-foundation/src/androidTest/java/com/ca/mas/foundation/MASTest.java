@@ -886,6 +886,7 @@ public class MASTest extends MASLoginTestBase {
             fail();
         } catch (Exception e) {
             assertEquals(MASConstants.MAS_STATE_STOPPED, MAS.getState(getContext()));
+            assertNull(MAS.getContext());
             MAS.start(getContext());
         }
     }

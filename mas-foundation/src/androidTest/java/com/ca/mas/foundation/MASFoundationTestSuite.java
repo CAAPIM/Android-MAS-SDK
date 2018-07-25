@@ -36,7 +36,7 @@ import org.junit.runners.Suite;
         MASRegistrationTest.class,
         MASSessionLockTest.class,
         MASSharedStorageSDKStopTest.class,
-        MASSharedStorageTest.class,
+        MASSecureSharedStorageTest.class,
         MASStartTest.class,
         MASTest.class,
         MASUserTest.class,

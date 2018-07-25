@@ -133,15 +133,6 @@ task javadoc(type: Javadoc) {
     println "Classpath: $source"
     destinationDir = file("../docs/mas_foundation_javadoc/")
     failOnError false
-
-    exclude '**/MASTransformable.java'
-    exclude '**/MASResultReceiver.java'
-    exclude '**/CertificateExpiredException.java'
-    exclude '**/CredentialRequiredException.java'
-    exclude '**/InvalidAttributeIdentifierException.java'
-    exclude '**/InvalidIdentifierException.java'
-    exclude '**/RetryRequestException.java'
-    exclude '**/TokenStoreUnavailableException.java'
 }
 
 //jcenter integration

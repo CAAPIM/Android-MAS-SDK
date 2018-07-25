@@ -15,6 +15,8 @@ import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
 import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.client.ServerClient;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.token.JWTExpiredException;
 import com.ca.mas.core.token.JWTInvalidAUDException;
 import com.ca.mas.core.token.JWTInvalidAZPException;
@@ -69,7 +71,7 @@ public class MASLoginTest extends MASStartTestBase {
         if (isSkipped) return;
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<Void>();
         if (MASUser.getCurrentUser() != null) {
-            MASUser.getCurrentUser().logout(logoutCallback);
+            MASUser.getCurrentUser().logout(true, logoutCallback);
             Assert.assertNull(logoutCallback.get());
         }
 
@@ -325,7 +327,7 @@ public class MASLoginTest extends MASStartTestBase {
 
         //Logout
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
-        MASUser.getCurrentUser().logout(logoutCallback);
+        MASUser.getCurrentUser().logout(true, logoutCallback);
         logoutCallback.get();
 
         //invoke token with id token
@@ -350,6 +352,35 @@ public class MASLoginTest extends MASStartTestBase {
         RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_REGISTER);
         Assert.assertEquals(rr.getHeader("authorization"), "Bearer " + expected);
         Assert.assertEquals(rr.getHeader("x-authorization-type"), MASIdToken.JWT_DEFAULT);
+    }
+
+    @Test
+    public void testLoginFailFalseParameter() throws ExecutionException, InterruptedException {
+        String expected = "dummy_id_token";
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASIdToken idToken = new MASIdToken.Builder().value(expected).build();
+        MASUser.login(idToken, callback);
+        callback.get();
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse retrieveTokenResponse() {
+                return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+            }
+        });
+
+        MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<Void>();
+        MASUser.getCurrentUser().logout(false, new MASCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                fail();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Assert.assertNotNull(StorageProvider.getInstance().getTokenManager().getIdToken());
+            }
+        });
     }
 
     @Test(expected = NullPointerException.class)
@@ -529,7 +560,7 @@ public class MASLoginTest extends MASStartTestBase {
 
         //Logout
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
-        MASUser.getCurrentUser().logout(logoutCallback);
+        MASUser.getCurrentUser().logout(true,logoutCallback );
         logoutCallback.get();
 
         //invoke token with id token

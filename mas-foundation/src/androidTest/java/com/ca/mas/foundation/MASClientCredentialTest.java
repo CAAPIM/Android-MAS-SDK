@@ -99,7 +99,7 @@ public class MASClientCredentialTest extends MASStartTestBase {
 
         //remove the id token
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
-        MASUser.getCurrentUser().logout(logoutCallback);
+        MASUser.getCurrentUser().logout(true, logoutCallback);
         logoutCallback.get();
 
         final int expectedErrorCode = 3003201;

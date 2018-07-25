@@ -221,11 +221,6 @@ public final class MobileSsoFactory {
             }
 
             @Override
-            public void logout(boolean contactServer) {
-                mssoContext.logout(contactServer);
-            }
-
-            @Override
             public void destroyAllPersistentTokens() {
                 EventDispatcher.RESET_LOCALLY.notifyObservers();
                 mssoContext.destroyAllPersistentTokens();

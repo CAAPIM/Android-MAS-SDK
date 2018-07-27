@@ -57,6 +57,7 @@ import com.ca.mas.messaging.topic.MASTopic;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -708,13 +709,15 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
     public static boolean isDeviceSecure()
     {
-        if (MAS.getContext() == null) {return false;}
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-        {
+        boolean retValue;
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             KeyguardManager manager = (KeyguardManager) MAS.getContext().getSystemService(Context.KEYGUARD_SERVICE);
-            return manager.isDeviceSecure();
+            retValue =  manager.isDeviceSecure();
+        } else {
+            throw new SecureLockException(MASFoundationStrings.SECURE_LOCK_SCREEN_LOCK);
         }
-        return false;
+        return retValue;
     }
 
     private static JSONObject getLocalUserProfile() throws JSONException {

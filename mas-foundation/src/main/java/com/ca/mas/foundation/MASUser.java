@@ -8,6 +8,8 @@
 
 package com.ca.mas.foundation;
 
+import android.app.KeyguardManager;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -532,7 +534,9 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                         Callback.onError(callback, new SecureLockException(MASFoundationStrings.USER_NOT_CURRENTLY_AUTHENTICATED));
                     } else if (isSessionLocked()) {
                         Callback.onSuccess(callback, null);
-                    } else {
+                    } else if(!isDeviceSecure()){
+                        Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_SCREEN_LOCK));
+                    } else{
 
                         // Retrieve the ID token
                         IdToken idToken = StorageProvider.getInstance()
@@ -700,6 +704,17 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
         }
         Extension.inject(user);
         return user;
+    }
+
+    public static boolean isDeviceSecure()
+    {
+        if (MAS.getContext() == null) {return false;}
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
+            KeyguardManager manager = (KeyguardManager) MAS.getContext().getSystemService(Context.KEYGUARD_SERVICE);
+            return manager.isDeviceSecure();
+        }
+        return false;
     }
 
     private static JSONObject getLocalUserProfile() throws JSONException {

@@ -228,10 +228,25 @@ public class MASDynamicSDKTest extends MASStartTestBase {
         storageContainsMultipleGatewayData();
         MASDevice.getCurrentDevice().resetLocally();
 
-        KeystoreDataSource<String, Object> keystoreDataSource = new KeystoreDataSource<String, Object>(
-                getContext(),
-                null, null);
-        assertTrue(keystoreDataSource.getKeys(null).isEmpty());
+
+        assertNull(StorageProvider.getInstance().getTokenManager().getUserProfile());
+        assertNull(StorageProvider.getInstance().getTokenManager().getClientCertificateChain());
+        assertNull(StorageProvider.getInstance().getTokenManager().getClientPrivateKey());
+        assertNull(StorageProvider.getInstance().getTokenManager().getClientPublicKey());
+        assertNull(StorageProvider.getInstance().getTokenManager().getIdToken());
+        assertNull(StorageProvider.getInstance().getTokenManager().getMagIdentifier());
+        assertNull(StorageProvider.getInstance().getTokenManager().getSecureIdToken());
+
+        assertNull(StorageProvider.getInstance().getOAuthTokenContainer().getAccessToken());
+        assertEquals(0,StorageProvider.getInstance().getOAuthTokenContainer().getExpiry());
+        assertNull(StorageProvider.getInstance().getOAuthTokenContainer().getGrantedScope());
+        assertNull(StorageProvider.getInstance().getOAuthTokenContainer().getRefreshToken());
+
+        assertEquals(new Long(-1), StorageProvider.getInstance().getClientCredentialContainer().getClientExpiration());
+        assertNull(StorageProvider.getInstance().getClientCredentialContainer().getClientId());
+        assertNull(StorageProvider.getInstance().getClientCredentialContainer().getClientSecret());
+        assertNull(StorageProvider.getInstance().getClientCredentialContainer().getMasterClientId());
+
     }
 
     @Test

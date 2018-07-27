@@ -18,8 +18,6 @@ import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.core.datasource.DataSource;
-import com.ca.mas.core.datasource.DataSourceFactory;
-import com.ca.mas.core.datasource.KeystoreDataSource;
 import com.ca.mas.core.error.TargetApiException;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.io.Charsets;
@@ -30,8 +28,6 @@ import com.ca.mas.core.store.PrivateTokenStorage;
 import com.ca.mas.core.store.StorageProvider;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
-
-import junit.framework.Assert;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,7 +53,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RejectedExecutionException;
 
 import static com.ca.mas.core.client.ServerClient.SCOPE;
-import static junit.framework.Assert.*;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNotSame;
@@ -271,8 +266,7 @@ public class MASTest extends MASLoginTestBase {
         newToken[0] = true;
 
         //Remove Access Token
-        DataSource<String, String> dataSource = DataSourceFactory.getStorage(getContext(),
-                KeystoreDataSource.class, null, null);
+        DataSource<String, String> dataSource = getValue(StorageProvider.getInstance().getOAuthTokenContainer(), "storage", DataSource.class);
         for (String k : dataSource.getKeys(null)) {
             if (k.contains(PrivateTokenStorage.KEY.PREF_ACCESS_TOKEN.name())) {
                 dataSource.remove(k);

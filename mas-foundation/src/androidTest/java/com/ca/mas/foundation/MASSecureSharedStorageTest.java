@@ -42,7 +42,7 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
 
         AccountManager am = AccountManager.get(getContext());
         Account[] accounts = am.getAccountsByType(accountType);
-        assertEquals(1, accounts.length);
+        assertTrue( accounts.length >= 1);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -8,6 +8,7 @@
 
 package com.ca.mas.foundation;
 
+import android.app.KeyguardManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -532,7 +533,9 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                         Callback.onError(callback, new SecureLockException(MASFoundationStrings.USER_NOT_CURRENTLY_AUTHENTICATED));
                     } else if (isSessionLocked()) {
                         Callback.onSuccess(callback, null);
-                    } else {
+                    } else if(!isDeviceSecure()){
+                        Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_SCREEN_LOCK));
+                    } else{
 
                         // Retrieve the ID token
                         IdToken idToken = StorageProvider.getInstance()
@@ -591,7 +594,19 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 }
             }
 
-            @Override
+            private boolean isDeviceSecure() {
+                boolean retValue;
+
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    KeyguardManager manager = (KeyguardManager) MAS.getContext().getSystemService(MAS.getContext().KEYGUARD_SERVICE);
+                    retValue =  manager.isDeviceSecure();
+                } else {
+                    throw new SecureLockException(MASFoundationStrings.SECURE_LOCK_SCREEN_LOCK);
+                }
+
+                return retValue;
+            }
+
             @RequiresApi(Build.VERSION_CODES.M)
             public void unlockSession(MASSessionUnlockCallback<Void> callback) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

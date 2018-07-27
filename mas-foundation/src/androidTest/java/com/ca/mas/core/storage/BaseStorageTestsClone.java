@@ -12,7 +12,6 @@ import android.os.Build;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
-
 import com.ca.mas.MASTestBase;
 import com.ca.mas.MaxTargetAPI;
 
@@ -32,13 +31,15 @@ import static junit.framework.Assert.fail;
  * this class instead of the  ApplicationTestCase and by overriding the setup() to initialize
  * {@code currentStorage} with a valid storage instance.
  * <p/>
+ *
+ * This is a clone from {@link BaseStorageTests}, limitation to only set @MaxTargetAPI(Build.VERSION_CODES.O) on
+ * {@link KeyStoreStorageTests}
  */
-@MaxTargetAPI(Build.VERSION_CODES.O)
 @RunWith(AndroidJUnit4.class)
-public abstract class BaseStorageTests extends MASTestBase {
+public abstract class BaseStorageTestsClone extends MASTestBase {
 
 
-    private static final String TAG = BaseStorageTests.class.getCanonicalName();
+    private static final String TAG = BaseStorageTestsClone.class.getCanonicalName();
 
     /**
      * The current storage instance

@@ -14,7 +14,7 @@ import android.os.Build;
 
 import com.ca.mas.AndroidVersionAwareTestRunner;
 import com.ca.mas.MASLoginTestBase;
-import com.ca.mas.TargetApi;
+import com.ca.mas.MinTargetAPI;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,7 +65,7 @@ public class MASSecureStorageDataSourceTest extends MASLoginTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN)
     public void testStorageSaveGetStringShared() {
         shareParameter();
         DataSource<String, String> dataSource = DataSourceFactory.getStorage(
@@ -83,7 +83,7 @@ public class MASSecureStorageDataSourceTest extends MASLoginTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN)
     public void testStorageSaveGetByteShared() {
         shareParameter();
 
@@ -102,7 +102,7 @@ public class MASSecureStorageDataSourceTest extends MASLoginTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN)
     public void testStorageSaveGetString() {
         shareParameterFalse();
         DataSource<String, String> dataSource = DataSourceFactory.getStorage(
@@ -120,7 +120,7 @@ public class MASSecureStorageDataSourceTest extends MASLoginTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN)
     public void testStorageSaveGetByte() {
         shareParameterFalse();
 

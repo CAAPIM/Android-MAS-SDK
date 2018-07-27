@@ -20,13 +20,36 @@ public class AndroidVersionAwareTestRunner extends BlockJUnit4ClassRunner {
         super(testClass);
     }
 
+
     @Override
     protected void runChild(FrameworkMethod method, RunNotifier notifier) {
-        TargetApi condition = method.getAnnotation(TargetApi.class);
-        if(condition.value() >= Build.VERSION.SDK_INT) {
+        MinTargetAPI minCondition = method.getDeclaringClass().getAnnotation(MinTargetAPI.class);
+        MaxTargetAPI maxCondition = method.getDeclaringClass().getAnnotation(MaxTargetAPI.class);
+
+        //Class Level
+        if (minCondition != null && minCondition.value() > Build.VERSION.SDK_INT) {
             notifier.fireTestIgnored(describeChild(method));
-        } else {
-            super.runChild(method, notifier);
+            return;
         }
+        if (maxCondition != null && maxCondition.value() < Build.VERSION.SDK_INT) {
+            notifier.fireTestIgnored(describeChild(method));
+            return;
+        }
+
+        //Method Level
+        minCondition = method.getAnnotation(MinTargetAPI.class);
+        maxCondition = method.getAnnotation(MaxTargetAPI.class);
+
+        if (minCondition != null && minCondition.value() > Build.VERSION.SDK_INT) {
+            notifier.fireTestIgnored(describeChild(method));
+            return;
+        }
+        if (maxCondition != null && maxCondition.value() < Build.VERSION.SDK_INT) {
+            notifier.fireTestIgnored(describeChild(method));
+            return;
+        }
+
+        super.runChild(method, notifier);
+
     }
 }

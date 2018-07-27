@@ -28,8 +28,11 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    api 'com.squareup.okhttp:mockwebserver:2.5.0'
+    api 'com.squareup.okhttp:mockwebserver:2.7.5'
     api 'org.skyscreamer:jsonassert:1.5.0'
+
+    //For Android API 16 and 17
+    api "org.bouncycastle:bcpkix-jdk15on:$rootProject.ext.bcpVersion"
 
     api "com.android.support.test:runner:$rootProject.ext.testRunner"
     api "com.android.support.test:rules:$rootProject.ext.testRules"

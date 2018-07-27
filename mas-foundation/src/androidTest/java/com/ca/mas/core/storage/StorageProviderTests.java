@@ -12,7 +12,8 @@ import android.os.Build;
 
 import com.ca.mas.AndroidVersionAwareTestRunner;
 import com.ca.mas.MASTestBase;
-import com.ca.mas.TargetApi;
+import com.ca.mas.MaxTargetAPI;
+import com.ca.mas.MinTargetAPI;
 import com.ca.mas.TestUtils;
 import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.store.StorageProvider;
@@ -48,6 +49,7 @@ public class StorageProviderTests extends MASTestBase {
     }
 
 
+    @MaxTargetAPI(Build.VERSION_CODES.O)
     @Test
     public void testKeystoreDataSource() {
         try {
@@ -60,7 +62,7 @@ public class StorageProviderTests extends MASTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testAMSDataSource() {
         try {
             JSONObject configO = createMockConfig(TYPE_AMS);

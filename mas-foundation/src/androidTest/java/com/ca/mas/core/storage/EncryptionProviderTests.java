@@ -14,7 +14,7 @@ import android.security.keystore.KeyProperties;
 
 import com.ca.mas.AndroidVersionAwareTestRunner;
 import com.ca.mas.MASTestBase;
-import com.ca.mas.TargetApi;
+import com.ca.mas.MinTargetAPI;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,7 +55,7 @@ public class EncryptionProviderTests extends MASTestBase {
     private static final int KEY_LENGTH = 256;
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testEncryption() throws Exception {
         KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
         ks.load(null);

@@ -42,6 +42,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNotSame;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
@@ -185,10 +186,6 @@ public class MASDynamicSDKTest extends MASStartTestBase {
         assertNotNull(callback.get());
         assertEquals(HttpURLConnection.HTTP_OK, callback.get().getResponseCode());
 
-        Server server1 = new Server(MASConfiguration.getCurrentConfiguration().getGatewayHostName(),
-                MASConfiguration.getCurrentConfiguration().getGatewayPort(),
-                MASConfiguration.getCurrentConfiguration().getGatewayPrefix());
-
         //Wait for request
         Thread.sleep(1000);
 
@@ -200,27 +197,38 @@ public class MASDynamicSDKTest extends MASStartTestBase {
         MAS.invoke(request2, callback2);
         assertNotNull(callback2.get());
 
-        Server server2 = new Server(MASConfiguration.getCurrentConfiguration().getGatewayHostName(),
-                MASConfiguration.getCurrentConfiguration().getGatewayPort(),
-                MASConfiguration.getCurrentConfiguration().getGatewayPrefix());
-
         MASCallbackFuture<Void> deregisterCallback = new MASCallbackFuture<>();
         MASDevice.getCurrentDevice().deregister(deregisterCallback);
         deregisterCallback.get();
 
-        //Validate the result
-        KeystoreDataSource<String, Object> keystoreDataSource = new KeystoreDataSource(getContext(),
-                null, null);
+        //Data should removed after de-register server2
+        assertNull(StorageProvider.getInstance().getTokenManager().getUserProfile());
+        assertNull(StorageProvider.getInstance().getTokenManager().getClientCertificateChain());
+        assertNull(StorageProvider.getInstance().getTokenManager().getClientPrivateKey());
+        assertNull(StorageProvider.getInstance().getTokenManager().getClientPublicKey());
+        assertNull(StorageProvider.getInstance().getTokenManager().getIdToken());
+        assertNull(StorageProvider.getInstance().getTokenManager().getMagIdentifier());
 
-        List<String> keys = keystoreDataSource.getKeys(null);
-        assertTrue(!keys.isEmpty());
+        assertNull(StorageProvider.getInstance().getOAuthTokenContainer().getAccessToken());
+        assertEquals(0,StorageProvider.getInstance().getOAuthTokenContainer().getExpiry());
+        assertNull(StorageProvider.getInstance().getOAuthTokenContainer().getGrantedScope());
+        assertNull(StorageProvider.getInstance().getOAuthTokenContainer().getRefreshToken());
 
-        for (String k : keystoreDataSource.getKeys(null)) {
-            //Failed if keychain contains gateway2 data.
-            if (k.contains(server2.toString())) {
-                fail();
-            }
-        }
+        //switch back to server 1
+        MAS.start(getContext(), TestUtils.getJSONObject("/msso_config.json"));
+        assertNotNull(StorageProvider.getInstance().getTokenManager().getUserProfile());
+        assertNotNull(StorageProvider.getInstance().getTokenManager().getClientCertificateChain());
+        assertNotNull(StorageProvider.getInstance().getTokenManager().getClientPrivateKey());
+        assertNotNull(StorageProvider.getInstance().getTokenManager().getClientPublicKey());
+        assertNotNull(StorageProvider.getInstance().getTokenManager().getIdToken());
+        assertNotNull(StorageProvider.getInstance().getTokenManager().getMagIdentifier());
+
+        assertNotNull(StorageProvider.getInstance().getOAuthTokenContainer().getAccessToken());
+        assertNotSame(0,StorageProvider.getInstance().getOAuthTokenContainer().getExpiry());
+        assertNotNull(StorageProvider.getInstance().getOAuthTokenContainer().getGrantedScope());
+        assertNotNull(StorageProvider.getInstance().getOAuthTokenContainer().getRefreshToken());
+
+
     }
 
     @Test

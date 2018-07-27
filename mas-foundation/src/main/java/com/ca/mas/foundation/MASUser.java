@@ -707,7 +707,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
         return user;
     }
 
-    public static boolean isDeviceSecure()
+    private boolean isDeviceSecure()
     {
         boolean retValue;
 

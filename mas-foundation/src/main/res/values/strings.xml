@@ -35,6 +35,7 @@
     <string name="uri_create_failed">The request resulted in an invalid URI. Please check your parameters and try again.</string>
 
     <string name="acc_name">MAS_ELS</string>
+    <string name="sacc_name"></string>
 
 </resources>
 

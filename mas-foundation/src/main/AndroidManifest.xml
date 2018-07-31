@@ -38,11 +38,11 @@
             <meta-data
                 tools:replace="android:resource"
                 android:name="account.name"
-                android:resource="@string/acc_name" />
+                android:resource="${sacc_name}" />
             <meta-data
                 tools:replace="android:resource"
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator_masunit" />
+                android:resource="@xml/massharedauthenticator" />
         </service>
     </application>
 

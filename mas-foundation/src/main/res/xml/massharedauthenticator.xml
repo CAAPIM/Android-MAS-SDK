@@ -8,8 +8,9 @@
   -->
 
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
-    android:icon="@drawable/ca_logo"
-    android:smallIcon="@drawable/ca_logo"
-    android:label="@string/acc_name"
-    android:accountPreferences="@xml/prefs"
-    android:accountType="com.mas.foundation.sharedstorage"/>
+    xmlns:tools="http://schemas.android.com/tools"
+    android:allowBackup="true"
+    android:accountType="com.mas.foundation.sharedstorage"
+    android:label="${sacc_name}"
+    tools:replace="android:icon"
+    android:accountPreferences="@xml/prefs"/>

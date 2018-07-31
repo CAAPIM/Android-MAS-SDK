@@ -33,6 +33,7 @@ android {
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders = [sacc_name:"@string/sacc_name"]
     }
 
     lintOptions {

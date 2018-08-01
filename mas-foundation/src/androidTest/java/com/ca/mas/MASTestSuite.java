@@ -16,8 +16,8 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        CoreTestSuite.class,
         MASFoundationTestSuite.class,
+        CoreTestSuite.class,
 })
 
 public class MASTestSuite {

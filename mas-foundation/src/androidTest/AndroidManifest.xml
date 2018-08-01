@@ -35,6 +35,23 @@
                 android:resource="@xml/mastest" />
         </service>
 
+        <service
+            android:allowBackup="true"
+            android:name="com.ca.mas.core.storage.sharedstorage.MASAuthenticatorService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+
+            <meta-data
+                android:name="account.name"
+                android:resource="@string/acc_name" />
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator_masunit" />
+        </service>
+
+
     </application>
 
 </manifest>

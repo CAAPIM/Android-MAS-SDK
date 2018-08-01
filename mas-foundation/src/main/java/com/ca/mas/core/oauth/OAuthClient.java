@@ -67,7 +67,9 @@ public class OAuthClient extends ServerClient {
     public static final String AUTH_URL = "auth_url";
     public static final String POLL_URL = "poll_url";
     public static final String ID_TOKEN = "id_token";
+    public static final String TOKEN = "token";
     public static final String ID_TOKEN_TYPE = "id_token_type";
+    public static final String TOKEN_TYPE = "token_type_hint";
     public static final String LOGOUT_APPS = "logout_apps";
     public static final String AUTHORIZATION = "authorization";
     public static final String CODE_CHALLENGE = "code_challenge";

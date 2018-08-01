@@ -477,5 +477,36 @@ public class AccountManagerStorageTests extends BaseStorageTests {
         }
     }
 
+    @Test
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public void loadTest() {
+        String value = "Test value";
+        String keyName = "key";
+
+        Storage d = currentStorage;
+
+        long startTime = System.nanoTime();
+        for(int i = 0; i<100 ; i++ ){
+            keyName = keyName + i;
+
+            try {
+                d.writeData(keyName,value.getBytes());
+            } catch (StorageException e) {
+                e.printStackTrace();
+            }
+            keyName = "key";
+        }
+        long endTime   = System.nanoTime();
+        long totalTime = endTime - startTime;
+
+        // - nano to miliseconds
+        totalTime = totalTime/1000000;
+
+        // - more then 3.5 seconds force fail
+        if (totalTime > 3500) {
+            fail();
+        }
+    }
+
 
 }

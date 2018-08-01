@@ -502,6 +502,7 @@ public class MAS {
         state = MASConstants.MAS_STATE_STOPPED;
         EventDispatcher.STOP.notifyObservers();
         MobileSsoFactory.reset();
+        appContext = null;
     }
 
 

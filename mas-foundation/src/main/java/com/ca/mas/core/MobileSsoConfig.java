@@ -196,7 +196,6 @@ public interface MobileSsoConfig {
      */
     String PROP_TOKEN_URL_SUFFIX_REGISTER_DEVICE_CLIENT = "msso.url.register_device_client";
 
-
     /**
      * String.  URL suffix for token server's resource_owner_logout endpoint.
      * Used with {@link #PROP_TOKEN_URI_PREFIX} to build the URL to log out the current device
@@ -205,6 +204,12 @@ public interface MobileSsoConfig {
      * If not specified, will default to "/connect/session/logout".
      */
     String PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT = "msso.url.resource_owner_logout";
+
+    /**
+     * String.  URL suffix for token server's revoke endpoint.
+     * If not specified, will default to "/auth/oauth/v2/token/revoke".
+     */
+    String REVOKE_ENDPOINT = "msso.url.usersession_logout_endpoint_path";
 
     /**
      * String.  URL suffix for token server's remove_device_x509 endpoint.

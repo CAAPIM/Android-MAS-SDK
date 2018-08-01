@@ -32,6 +32,7 @@ public class Config {
     public static final Config REGISTER_TOKEN_PATH = new Config(false, MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_REQUEST_TOKEN, "oauth.system_endpoints.token_endpoint_path", String.class);
     public static final Config REGISTER_TOKEN_PATH_SSO = new Config(false, MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_REQUEST_TOKEN_SSO, "oauth.system_endpoints.token_endpoint_path", String.class);
     public static final Config LOGOUT_DEVICE_PATH = new Config(false, MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT, "oauth.system_endpoints.usersession_logout_endpoint_path", String.class);
+    public static final Config REVOKE_PATH = new Config(false, MobileSsoConfig.REVOKE_ENDPOINT, "oauth.system_endpoints.token_revocation_endpoint_path", String.class);
 
     //mag.system_endpoints
     public static final Config REMOVE_DEVICE_PATH = new Config(false, MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_REMOVE_DEVICE_X509, "mag.system_endpoints.device_remove_endpoint_path", String.class);

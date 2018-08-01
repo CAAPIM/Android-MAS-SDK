@@ -10,15 +10,19 @@ package com.ca.mas.core.policy;
 
 import android.content.Context;
 
+import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.core.error.MAGStateException;
+import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Keeps track of policies that can be applied to requests.
@@ -26,22 +30,54 @@ import java.util.List;
 public class PolicyManager {
 
     private final MssoContext mssoContext;
-    private final List<MssoAssertion> defaultPolicy = new ArrayList<>();
     private final Object policySync = new Object();
 
-    public PolicyManager(MssoContext mssoContext) {
-        this.mssoContext = mssoContext;
+    private final Map<String, List<MssoAssertion>> policys = new HashMap<>();
+    private final StorageReadyAssertion storageReadyAssertion;
+    private final SecureLockAssertion secureLockAssertion;
+    private final ClientCredentialAssertion clientCredentialAssertion;
+    private final DeviceRegistrationAssertion deviceRegistrationAssertion;
+    private final AccessTokenAssertion accessTokenAssertion;
+    private final LocationAssertion locationAssertion;
+    private final TelephoneAssertion telephoneAssertion;
+    private final CustomHeaderAssertion customHeaderAssertion;
+    private final ResponseRecoveryAssertion responseRecoveryAssertion;
+    private static final String DEF_KEY = "default";
+    private final String endpointPathLogout = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT);
+    private final String endpointPathRevoke = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.REVOKE_ENDPOINT);
 
-        //Default Policy setting
-        defaultPolicy.add(new StorageReadyAssertion());
-        defaultPolicy.add(new SecureLockAssertion());
-        defaultPolicy.add(new ClientCredentialAssertion());
-        defaultPolicy.add(new DeviceRegistrationAssertion());
-        defaultPolicy.add(new AccessTokenAssertion());
-        defaultPolicy.add(new LocationAssertion());
-        defaultPolicy.add(new TelephoneAssertion());
-        defaultPolicy.add(new CustomHeaderAssertion());
-        defaultPolicy.add(new ResponseRecoveryAssertion());
+    public PolicyManager(MssoContext mssoContext) {
+        List<MssoAssertion> defaultPolicy = new ArrayList<>();
+        List<MssoAssertion> logoutPolicy = new ArrayList<>();
+
+        this.mssoContext = mssoContext;
+        storageReadyAssertion = new StorageReadyAssertion();
+        secureLockAssertion = new SecureLockAssertion();
+        clientCredentialAssertion = new ClientCredentialAssertion();
+        deviceRegistrationAssertion = new DeviceRegistrationAssertion();
+        accessTokenAssertion = new AccessTokenAssertion();
+        locationAssertion = new LocationAssertion();
+        telephoneAssertion = new TelephoneAssertion();
+        customHeaderAssertion = new CustomHeaderAssertion();
+        responseRecoveryAssertion = new ResponseRecoveryAssertion();
+
+        defaultPolicy.add(storageReadyAssertion);
+        defaultPolicy.add(secureLockAssertion);
+        defaultPolicy.add(clientCredentialAssertion);
+        defaultPolicy.add(deviceRegistrationAssertion);
+        defaultPolicy.add(accessTokenAssertion);
+        defaultPolicy.add(locationAssertion);
+        defaultPolicy.add(telephoneAssertion);
+        defaultPolicy.add(customHeaderAssertion);
+        defaultPolicy.add(responseRecoveryAssertion);
+        policys.put(DEF_KEY, defaultPolicy);
+
+        logoutPolicy.add(storageReadyAssertion);
+        logoutPolicy.add(secureLockAssertion);
+        logoutPolicy.add(clientCredentialAssertion);
+        logoutPolicy.add(locationAssertion);
+        logoutPolicy.add(responseRecoveryAssertion);
+        policys.put(endpointPathLogout, logoutPolicy);
     }
 
     /**
@@ -50,7 +86,7 @@ public class PolicyManager {
      * @param sysContext Android context.  Required.
      */
     public void init(Context sysContext) {
-        init(sysContext, defaultPolicy);
+        init(sysContext, policys.get(DEF_KEY));
     }
 
     private void init(Context sysContext, List<MssoAssertion> policy) {
@@ -101,9 +137,18 @@ public class PolicyManager {
     }
 
     public MASResponse execute(RequestInfo requestInfo, Route<MASResponse> function) throws MAGException, MAGServerException, IOException {
-        processRequest(requestInfo, defaultPolicy);
+
+        List<MssoAssertion> activePolicy = policys.get(DEF_KEY);
+
+        String requestUrl = requestInfo.getRequest().getURL() == null ? "":requestInfo.getRequest().getURL().toString();
+
+        if (requestUrl.contains(endpointPathLogout) || requestUrl.contains(endpointPathRevoke)){
+            activePolicy = policys.get(endpointPathLogout);
+        }
+
+        processRequest(requestInfo, activePolicy);
         MASResponse response = function.invoke();
-        processResponse(requestInfo, response, defaultPolicy);
+        processResponse(requestInfo, response, activePolicy);
         return response;
     }
 
@@ -113,7 +158,7 @@ public class PolicyManager {
 
 
     public void close() {
-        close(defaultPolicy);
+        close(policys.get(DEF_KEY));
     }
 
     private void close(List<MssoAssertion> policy) {

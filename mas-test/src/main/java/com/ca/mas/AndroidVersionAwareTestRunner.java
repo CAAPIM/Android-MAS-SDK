@@ -40,11 +40,11 @@ public class AndroidVersionAwareTestRunner extends BlockJUnit4ClassRunner {
         minCondition = method.getAnnotation(MinTargetAPI.class);
         maxCondition = method.getAnnotation(MaxTargetAPI.class);
 
-        if (minCondition != null && minCondition.value() > Build.VERSION.SDK_INT) {
+        if (minCondition != null && minCondition.value() >= Build.VERSION.SDK_INT) {
             notifier.fireTestIgnored(describeChild(method));
             return;
         }
-        if (maxCondition != null && maxCondition.value() < Build.VERSION.SDK_INT) {
+        if (maxCondition != null && maxCondition.value() <= Build.VERSION.SDK_INT) {
             notifier.fireTestIgnored(describeChild(method));
             return;
         }

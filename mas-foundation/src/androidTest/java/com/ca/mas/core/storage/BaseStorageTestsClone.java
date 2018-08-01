@@ -32,7 +32,7 @@ import static junit.framework.Assert.fail;
  * {@code currentStorage} with a valid storage instance.
  * <p/>
  *
- * This is a clone from {@link BaseStorageTests}, limitation to only set @MaxTargetAPI(Build.VERSION_CODES.O) on
+ * This is a clone from {@link BaseStorageTests}, limitation to only set @MaxTargetAPI(Build.VERSION_CODES.O_MR1) on
  * {@link KeyStoreStorageTests}
  */
 @RunWith(AndroidJUnit4.class)

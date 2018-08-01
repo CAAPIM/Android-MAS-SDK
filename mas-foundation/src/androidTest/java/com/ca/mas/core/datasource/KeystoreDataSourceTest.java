@@ -26,7 +26,7 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 @RunWith(AndroidVersionAwareTestRunner.class)
-@MaxTargetAPI(Build.VERSION_CODES.O)
+@MaxTargetAPI(Build.VERSION_CODES.O_MR1)
 public class KeystoreDataSourceTest extends MASTestBase {
 
     private final String KEY = "KEY";

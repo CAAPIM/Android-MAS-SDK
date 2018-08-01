@@ -49,7 +49,7 @@ public class StorageProviderTests extends MASTestBase {
     }
 
 
-    @MaxTargetAPI(Build.VERSION_CODES.O)
+    @MaxTargetAPI(Build.VERSION_CODES.O_MR1)
     @Test
     public void testKeystoreDataSource() {
         try {

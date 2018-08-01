@@ -32,7 +32,7 @@ import static junit.framework.Assert.fail;
  * Uses the @{link BaseStorageTests} to do some of the basic tests.
  */
 @RunWith(AndroidVersionAwareTestRunner.class)
-@MaxTargetAPI(Build.VERSION_CODES.O)
+@MaxTargetAPI(Build.VERSION_CODES.O_MR1)
 public class KeyStoreStorageTests extends BaseStorageTests {
 
     private static final String TAG = KeyStoreStorageTests.class.getCanonicalName();

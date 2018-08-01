@@ -33,7 +33,7 @@ import static junit.framework.Assert.fail;
  * {@code currentStorage} with a valid storage instance.
  * <p/>
  */
-@MaxTargetAPI(Build.VERSION_CODES.O)
+@MaxTargetAPI(Build.VERSION_CODES.O_MR1)
 @RunWith(AndroidJUnit4.class)
 public abstract class BaseStorageTests extends MASTestBase {
 

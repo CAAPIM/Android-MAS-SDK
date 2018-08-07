@@ -15,6 +15,7 @@ import com.ca.mas.core.storage.MASSecureSharedStorage;
 import com.ca.mas.core.storage.sharedstorage.MASSharedStorage;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -32,7 +33,7 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
     private final String accountNameb = "testNameNoEncrypted";
     private final int TIME = 3500;
 
-    private final String accountType = "com.ca.mas.testSecureAccountType";
+    private final String accountType = "com.mas.mastest";
     String value = "Test value";
     String keyName = "key";
 
@@ -440,7 +441,6 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
             fail();
         }
     }
-
 
     @After
     public void resetAccountsAndData() {

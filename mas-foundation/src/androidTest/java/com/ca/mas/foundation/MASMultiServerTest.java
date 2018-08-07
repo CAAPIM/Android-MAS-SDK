@@ -643,7 +643,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
     private SSLSocketFactory getSSLSocketFactory() throws Exception {
         char[] password = "password".toCharArray();
 
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(1024, new SecureRandom());
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
@@ -658,12 +658,11 @@ public class MASMultiServerTest extends MASLoginTestBase {
                 keyPair.getPublic());
 
         ContentSigner contentSigner = new JcaContentSignerBuilder("SHA256WithRSAEncryption")
-                .setProvider("BC")
                 .build(keyPair.getPrivate());
 
         builder.build(contentSigner);
 
-        certificate = new JcaX509CertificateConverter().setProvider("BC").getCertificate(builder.build(contentSigner));
+        certificate = new JcaX509CertificateConverter().getCertificate(builder.build(contentSigner));
 
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         InputStream in = null;

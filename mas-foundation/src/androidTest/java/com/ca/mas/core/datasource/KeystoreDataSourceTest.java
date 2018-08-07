@@ -8,9 +8,12 @@
 
 package com.ca.mas.core.datasource;
 
-import android.support.test.runner.AndroidJUnit4;
+import android.os.Build;
 
+import com.ca.mas.AndroidVersionAwareTestRunner;
 import com.ca.mas.MASTestBase;
+import com.ca.mas.MaxTargetAPI;
+import com.ca.mas.MinTargetAPI;
 
 import org.junit.After;
 import org.junit.Ignore;
@@ -22,7 +25,8 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(AndroidVersionAwareTestRunner.class)
+@MaxTargetAPI(Build.VERSION_CODES.O_MR1)
 public class KeystoreDataSourceTest extends MASTestBase {
 
     private final String KEY = "KEY";
@@ -100,12 +104,4 @@ public class KeystoreDataSourceTest extends MASTestBase {
                 KeystoreDataSource.class, null, null);
         assertFalse(d.isReady());
     }
-
-
-
-
-
-
-
-
 }

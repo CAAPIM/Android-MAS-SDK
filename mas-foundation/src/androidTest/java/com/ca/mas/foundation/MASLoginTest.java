@@ -363,24 +363,22 @@ public class MASLoginTest extends MASStartTestBase {
         callback.get();
 
         setDispatcher(new GatewayDefaultDispatcher() {
+
             @Override
-            protected MockResponse retrieveTokenResponse() {
+            protected MockResponse logout() {
                 return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         });
 
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<Void>();
-        MASUser.getCurrentUser().logout(false, new MASCallback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                fail();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Assert.assertNotNull(StorageProvider.getInstance().getTokenManager().getIdToken());
-            }
-        });
+        MASUser.getCurrentUser().logout(false, logoutCallback);
+        try {
+            logoutCallback.get();
+            fail();
+        } catch (Exception e) {
+            assertNotNull(StorageProvider.getInstance().getTokenManager().getIdToken());
+        }
+        setDispatcher(new GatewayDefaultDispatcher());
     }
 
     @Test(expected = NullPointerException.class)

@@ -8,9 +8,12 @@
 
 package com.ca.mas.core.storage;
 
-import android.support.test.runner.AndroidJUnit4;
+import android.os.Build;
 import android.util.Log;
 
+import com.ca.mas.AndroidVersionAwareTestRunner;
+import com.ca.mas.MaxTargetAPI;
+import com.ca.mas.MinTargetAPI;
 import com.ca.mas.TestUtils;
 import com.ca.mas.core.storage.implementation.MASStorageManager;
 
@@ -28,7 +31,8 @@ import static junit.framework.Assert.fail;
  * KeyStoreStorage Tests.
  * Uses the @{link BaseStorageTests} to do some of the basic tests.
  */
-@RunWith(AndroidJUnit4.class)
+@RunWith(AndroidVersionAwareTestRunner.class)
+@MaxTargetAPI(Build.VERSION_CODES.O_MR1)
 public class KeyStoreStorageTests extends BaseStorageTests {
 
     private static final String TAG = KeyStoreStorageTests.class.getCanonicalName();
@@ -344,6 +348,11 @@ public class KeyStoreStorageTests extends BaseStorageTests {
 
     //Combination test-cases
 
+    @Override
+    public void testWriteData() {
+        super.testWriteData();
+    }
+
     @Test
     public void testDataIndependenceBetweenSharedAndPrivateStore() {
 
@@ -399,6 +408,4 @@ public class KeyStoreStorageTests extends BaseStorageTests {
 
 
     }
-
-
 }

@@ -160,7 +160,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
     }
 
-    private MockResponse logout() {
+    protected MockResponse logout() {
         return new MockResponse().setResponseCode(200).setBody("{\"session_status\":\"logged out\"}");
     }
 

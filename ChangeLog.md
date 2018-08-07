@@ -4,7 +4,11 @@
 -  Invoking MAS User lockSession API without screen lock activated [DE377125]
 
 ### New features
--  Refactor logout implementation, new com.ca.mas.foundation.MASUser#logout(boolean, com.ca.mas.foundation.MASCallback<java.lang.Void>) interface is added, the new logout interface was added the 'force' parameter, a boolean value. If set to True, the SDK will clear local tokens no matter the logout call to the server success or not. [US510647]
+- Refactor logout implementation, new com.ca.mas.foundation.MASUser#logout(boolean, com.ca.mas.foundation.MASCallback<java.lang.Void>) interface is added, the new logout interface was added the 'force' parameter, a boolean value. If set to True, the SDK will clear local tokens no matter the logout call to the server success or not. [US510647]
+- Android P Support [US527906]
+    - Refactor Unit Test to avoid using Bouncy Castle and Keystore Daemon
+    - Avoid using non-sdk interface for Android P
+    - Default to use MASSecureStorageDataSource for Android P
 
 ### Deprecated Interface
 - com.ca.mas.foundation.MASUser#logout(com.ca.mas.foundation.MASCallback<java.lang.Void>) is deprecated, use com.ca.mas.foundation.MASUser#logout(boolean, com.ca.mas.foundation.MASCallback<java.lang.Void>) instead.

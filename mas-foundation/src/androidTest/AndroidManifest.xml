@@ -36,7 +36,6 @@
         </service>
 
         <service
-            android:allowBackup="true"
             android:name="com.ca.mas.core.storage.sharedstorage.MASAuthenticatorService"
             android:exported="false">
             <intent-filter>
@@ -48,9 +47,8 @@
                 android:resource="@string/acc_name" />
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator_masunit" />
+                android:resource="@xml/mastest" />
         </service>
-
 
     </application>
 

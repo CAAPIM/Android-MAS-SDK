@@ -11,7 +11,6 @@ package com.ca.mas.core;
 import com.ca.mas.core.datasource.AccountManagerStoreDataSourceTest;
 import com.ca.mas.core.datasource.KeystoreDataSourceTest;
 import com.ca.mas.core.datasource.MASSecureStorageDataSourceTest;
-import com.ca.mas.core.datasource.SecureAccountManagerStoreDataSourceTest;
 import com.ca.mas.core.storage.AccountManagerStorageTests;
 import com.ca.mas.core.storage.EncryptionProviderTests;
 import com.ca.mas.core.storage.KeyStoreStorageTests;
@@ -30,7 +29,6 @@ import org.junit.runners.Suite;
 
         AccountManagerStoreDataSourceTest.class,
         KeystoreDataSourceTest.class,
-        SecureAccountManagerStoreDataSourceTest.class,
         MASSecureStorageDataSourceTest.class
 
 

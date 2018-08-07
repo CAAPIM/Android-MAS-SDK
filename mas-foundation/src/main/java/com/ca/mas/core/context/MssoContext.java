@@ -245,7 +245,7 @@ public class MssoContext {
      */
     public boolean isDeviceRegistered() {
         try {
-            return tokenManager != null && tokenManager.isClientCertificateChainAvailable();
+            return tokenManager != null && tokenManager.isClientCertificateChainAvailable() && tokenManager.getMagIdentifier() != null;
         } catch (DataSourceException e) {
             if (DEBUG) Log.w(TAG, "Device not registered: " + e);
             return false;

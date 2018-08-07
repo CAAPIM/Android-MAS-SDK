@@ -243,7 +243,10 @@ public class ConfigurationManager {
                 conf.setAlsoTrustPublicPki((Boolean) getValue(Config.TRUSTED_PUBLIC_PKI, jsonObject, Boolean.FALSE));
                 continue;
             }
-            conf.putProperty(attr.key, getValue(attr, jsonObject));
+            Object value = getValue(attr, jsonObject);
+            if (value != null) {
+                conf.putProperty(attr.key, value);
+            }
         }
 
         //Load Application specific configuration

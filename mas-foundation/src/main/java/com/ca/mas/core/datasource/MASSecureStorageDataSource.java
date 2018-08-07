@@ -58,6 +58,10 @@ public class MASSecureStorageDataSource<K, V> implements DataSource<K, V>  {
         }
 
         String keyString = (String) key;
+        if (value == null) {
+            remove(key);
+            return;
+        }
 
         if (value instanceof byte[]) {
             storage.save(keyString, (byte[]) value);

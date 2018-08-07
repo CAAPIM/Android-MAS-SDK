@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2016 CA. All rights reserved.
  *
@@ -13,8 +14,8 @@ import android.accounts.AccountManager;
 import android.os.Build;
 
 import com.ca.mas.AndroidVersionAwareTestRunner;
+import com.ca.mas.MinTargetAPI;
 import com.ca.mas.MASTestBase;
-import com.ca.mas.TargetApi;
 import com.ca.mas.foundation.MAS;
 
 import org.json.JSONException;
@@ -77,7 +78,7 @@ public class MASSecureStorageDataSourceTest extends MASTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN)
     public void testStorageSaveGetStringShared() {
         shareParameter();
         DataSource<String, String> dataSource = DataSourceFactory.getStorage(
@@ -95,7 +96,7 @@ public class MASSecureStorageDataSourceTest extends MASTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN)
     public void testStorageSaveGetByteShared() {
         shareParameter();
 
@@ -114,7 +115,7 @@ public class MASSecureStorageDataSourceTest extends MASTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN)
     public void testStorageSaveGetString() {
         shareParameterFalse();
         DataSource<String, String> dataSource = DataSourceFactory.getStorage(
@@ -132,7 +133,7 @@ public class MASSecureStorageDataSourceTest extends MASTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN)
     public void testStorageSaveGetByte() {
         shareParameterFalse();
 

@@ -42,6 +42,6 @@ ext {
     zxingVersion = '3.3.0'
     testRunner = '1.0.1'
     testRules = '1.0.1'
-    bcpVersion = '1.60'
+    bcpVersion = '1.59'
     coverageEnabled = false
 }

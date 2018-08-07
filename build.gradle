@@ -37,7 +37,7 @@ ext {
     minSdkVersion = 16
     nimbusJoseVersion = '5.9'
     targetSdkVersion = 28
-    versionCode = 19
+    versionCode = 20
     versionName = '1.7.10'
     zxingVersion = '3.3.0'
     testRunner = '1.0.1'

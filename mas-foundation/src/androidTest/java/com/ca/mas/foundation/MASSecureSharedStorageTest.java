@@ -259,7 +259,7 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
     }
 
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void saveKeyUnencryptedRetrieveEncrypted() {
         String key = "testKey123";
         String value = "testValue12345";
@@ -273,7 +273,8 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
         MASSecureSharedStorage storageb = new MASSecureSharedStorage(accountName, true, true, true);
         compareb = storageb.getString(key);
 
-        assertEquals(comparea,compareb);
+        assertEquals(value,comparea);
+        assertNull(compareb);
     }
 
     @Test

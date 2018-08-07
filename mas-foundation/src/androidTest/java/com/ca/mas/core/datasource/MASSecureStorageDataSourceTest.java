@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2016 CA. All rights reserved.
  *
@@ -13,21 +14,22 @@ import android.accounts.AccountManager;
 import android.os.Build;
 
 import com.ca.mas.AndroidVersionAwareTestRunner;
-import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.MinTargetAPI;
+import com.ca.mas.MASTestBase;
+import com.ca.mas.foundation.MAS;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
+
 
 @RunWith(AndroidVersionAwareTestRunner.class)
-public class MASSecureStorageDataSourceTest extends MASLoginTestBase {
+public class MASSecureStorageDataSourceTest extends MASTestBase {
 
     JSONObject param = new JSONObject();
 
@@ -49,6 +51,17 @@ public class MASSecureStorageDataSourceTest extends MASLoginTestBase {
             e.printStackTrace();
         }
     }
+
+    @Before
+    public void startSDK() {
+        MAS.start(getContext());
+    }
+
+    @After
+    public void stopSDK() {
+        MAS.stop();
+    }
+
 
 
     @After

@@ -47,7 +47,7 @@
                 android:resource="@string/acc_name" />
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/massharedauthenticator" />
+                android:resource="@xml/mastest" />
         </service>
 
     </application>

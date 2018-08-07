@@ -31,6 +31,7 @@ public class MASFoundationStrings {
     // Secure lock strings
     public static final String SECURE_LOCK_SESSION_CURRENTLY_LOCKED = "The session is currently locked.";
     public static final String SECURE_LOCK_FAILED_TO_SAVE_ID_TOKEN = "Failed to save ID token.";
+    public static final String SECURE_LOCK_SCREEN_LOCK = "Screen lock is not active";
     public static final String SECURE_LOCK_FAILED_TO_RETRIEVE_ID_TOKEN = "Failed to retrieve ID token.";
     public static final String SECURE_LOCK_FAILED_TO_SAVE_SECURE_ID_TOKEN = "Failed to save encrypted ID token.";
     public static final String SECURE_LOCK_FAILED_TO_DELETE_ID_TOKEN = "Failed to delete encrypted ID token.";

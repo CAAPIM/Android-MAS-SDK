@@ -9,6 +9,7 @@
     - Refactor Unit Test to avoid using Bouncy Castle and Keystore Daemon
     - Avoid using non-sdk interface for Android P
     - Default to use MASSecureStorageDataSource for Android P
+- Configurable option for id_token validation signature [US514785] 
 
 ### Deprecated Interface
 - com.ca.mas.foundation.MASUser#logout(com.ca.mas.foundation.MASCallback<java.lang.Void>) is deprecated, use com.ca.mas.foundation.MASUser#logout(boolean, com.ca.mas.foundation.MASCallback<java.lang.Void>) instead.

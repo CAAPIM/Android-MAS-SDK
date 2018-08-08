@@ -69,6 +69,8 @@ public class MASLoginTest extends MASStartTestBase {
 
     @After
     public void deregister() throws InterruptedException, ExecutionException {
+        // - reset singleton value to default one
+        MAS.enableIdTokenValidation(true);
         if (isSkipped) return;
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<Void>();
         if (MASUser.getCurrentUser() != null) {

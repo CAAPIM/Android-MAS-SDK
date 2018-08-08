@@ -45,6 +45,7 @@ public class ConfigurationManager {
     private List<Config> appConfigs;
     private String configurationFileName = null;
     private boolean enablePKCE = true;
+    private boolean idTokenValidation = true;
 
     private MASConnectionListener connectionListener;
     private MobileSsoListener mobileSsoListener;
@@ -72,6 +73,14 @@ public class ConfigurationManager {
 
     public void enablePKCE(boolean enablePKCE) {
         this.enablePKCE = enablePKCE;
+    }
+
+    public void enableIdTokenValidation(boolean enableValidation) {
+        this.idTokenValidation = enableValidation;
+    }
+
+    public boolean isIdTokenValidationEnabled() {
+        return idTokenValidation;
     }
 
     public boolean isPKCEEnabled() {

@@ -29,7 +29,7 @@
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
             <meta-data android:name="account.name"
-                android:resource="@string/acc_name"/>
+                android:resource="@string/acc_name2"/>
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/mastest" />

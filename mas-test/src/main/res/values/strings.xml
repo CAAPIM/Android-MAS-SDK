@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">MAS Test</string>
+
+    <string name="acc_name">MAS_ELS</string>
+    <string name="acc_name2">MAS_ELS2</string>
 </resources>

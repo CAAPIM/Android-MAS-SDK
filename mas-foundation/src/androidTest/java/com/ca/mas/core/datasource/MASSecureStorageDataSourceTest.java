@@ -14,14 +14,12 @@ import android.accounts.AccountManager;
 import android.os.Build;
 
 import com.ca.mas.AndroidVersionAwareTestRunner;
+import com.ca.mas.MASStartTestBase;
 import com.ca.mas.MinTargetAPI;
-import com.ca.mas.MASTestBase;
-import com.ca.mas.foundation.MAS;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -29,12 +27,12 @@ import static junit.framework.Assert.assertEquals;
 
 
 @RunWith(AndroidVersionAwareTestRunner.class)
-public class MASSecureStorageDataSourceTest extends MASTestBase {
+public class MASSecureStorageDataSourceTest extends MASStartTestBase {
 
     JSONObject param = new JSONObject();
 
     // - same as authenticator_masunit.xml
-    private final String accountType = "com.ca.mas.testAccountType";
+    private final String accountType = "com.mas.mastest";
 
     public void shareParameter() {
         try {
@@ -51,18 +49,6 @@ public class MASSecureStorageDataSourceTest extends MASTestBase {
             e.printStackTrace();
         }
     }
-
-    @Before
-    public void startSDK() {
-        MAS.start(getContext());
-    }
-
-    @After
-    public void stopSDK() {
-        MAS.stop();
-    }
-
-
 
     @After
     public void resetAccountsAndData() {

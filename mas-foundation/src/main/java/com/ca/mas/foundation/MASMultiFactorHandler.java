@@ -53,7 +53,7 @@ public class MASMultiFactorHandler implements Parcelable {
             previousAdditionalHeaders = additionalHeaders;
         }
         intent.putExtra(MssoIntents.EXTRA_ADDITIONAL_HEADERS, (Serializable) previousAdditionalHeaders);
-        context.startService(intent);
+        MssoService.enqueueWork(context,MssoService.class, 1000, intent);
     }
 
     /**

@@ -11,6 +11,8 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.support.annotation.NonNull;
+import android.support.v4.app.JobIntentService;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoListener;
@@ -39,14 +41,10 @@ import static com.ca.mas.foundation.MAS.TAG;
  * An IntentService that receives outbound HTTP requests encoded into Intents and returns the eventual responses
  * via a ResultReceiver.
  */
-public class MssoService extends IntentService {
-
-    public MssoService() {
-        super("MssoService");
-    }
+public class MssoService extends JobIntentService {
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    protected void onHandleWork(@NonNull Intent intent) {
         String action = intent.getAction();
         if (action == null) {
             if (DEBUG) Log.w(TAG, "Intent did not contain an action");

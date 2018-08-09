@@ -62,7 +62,8 @@ public class MssoClient {
         Context context = appContext;
         Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, context, MssoService.class);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-        context.startService(intent);
+        //context.startService(intent);
+        MssoService.enqueueWork(context,MssoService.class, 1000, intent);
         return requestId;
     }
 
@@ -92,7 +93,8 @@ public class MssoClient {
             user.logout(true, new MASCallback<Void>() {
                 @Override
                 public void onSuccess(Void result) {
-                    appContext.startService(intent);
+                    //appContext.startService(intent);
+                    MssoService.enqueueWork(appContext,MssoService.class, 1000, intent);
                 }
 
                 @Override
@@ -101,7 +103,8 @@ public class MssoClient {
                 }
             });
         } else {
-            appContext.startService(intent);
+            //appContext.startService(intent);
+            MssoService.enqueueWork(appContext,MssoService.class, 1000, intent);
         }
     }
 
@@ -113,7 +116,8 @@ public class MssoClient {
         // For the Log On activity, it should take care of signalling the MssoService when it should retry.
         Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, appContext, MssoService.class);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, (long) -1);
-        appContext.startService(intent);
+        //appContext.startService(intent);
+        MssoService.enqueueWork(appContext,MssoService.class, 1000, intent);
     }
 
     /**

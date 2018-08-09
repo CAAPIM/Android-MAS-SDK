@@ -211,6 +211,10 @@ public class MAS {
             return;
         }
 
+        if (appContext == null) {
+            appContext = context.getApplicationContext();
+        }
+
         final Uri uri = Uri.parse(url.toString());
         final String publicKeyHash = uri.getQueryParameter("subjectKeyHash");
         if (publicKeyHash == null || publicKeyHash.trim().isEmpty()) {

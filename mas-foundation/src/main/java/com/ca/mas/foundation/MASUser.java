@@ -397,6 +397,8 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                     @Override
                     public void onSuccess(MASResponse<JSONObject> result) {
                         // - Paramenter to delete or not the local storage
+                            EventDispatcher.LOGOUT.notifyObservers();
+
                             try {
                                 tokenManager.deleteIdToken();
                                 tokenManager.deleteSecureIdToken();
@@ -418,6 +420,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                         // - Paramenter to delete or not the local storage
                         boolean lockSession = getCurrentUser() != null ? getCurrentUser().isSessionLocked() : false;
                         if (force && !lockSession) {
+                            EventDispatcher.LOGOUT.notifyObservers();
                             try {
                                 tokenManager.deleteIdToken();
                                 tokenManager.deleteSecureIdToken();

@@ -9,6 +9,7 @@ package com.ca.mas.foundation;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.os.Build;
 
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.core.storage.MASSecureSharedStorage;
@@ -301,6 +302,7 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
         List<String> result;
 
         MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, true);
+        storage.removeAll();
         String v1 = "value1";
         String v2 = "value2";
         String v3 = "value3";
@@ -321,7 +323,16 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
 
         result = storage.getKeys();
         assertNotNull(result);
-        assertEquals(result.size(), 3);
+
+        int expected = 3;
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            // - for lower than 4.1 we storage the AliasKey on the AccountManager instead of keystore
+            // - so we expect one more key
+            expected = 4;
+        }
+
+        assertEquals(result.size(), expected);
     }
 
     @Test

@@ -45,7 +45,7 @@ public class MASMultiFactorHandler implements Parcelable {
      * @param additionalHeaders Additional headers that will inject to the original pending request.
      */
     public void proceed(Context context, Map<String, String> additionalHeaders) {
-        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, context, MssoService.class);
+        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
         if (previousAdditionalHeaders != null) {
             previousAdditionalHeaders.putAll(additionalHeaders);
@@ -53,7 +53,7 @@ public class MASMultiFactorHandler implements Parcelable {
             previousAdditionalHeaders = additionalHeaders;
         }
         intent.putExtra(MssoIntents.EXTRA_ADDITIONAL_HEADERS, (Serializable) previousAdditionalHeaders);
-        MssoService.enqueueWork(context,MssoService.class, 1000, intent);
+        MssoService.enqueueWork(context,intent);
     }
 
     /**

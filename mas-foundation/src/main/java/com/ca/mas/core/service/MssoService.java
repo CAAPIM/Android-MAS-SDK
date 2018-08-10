@@ -7,7 +7,7 @@
  */
 package com.ca.mas.core.service;
 
-import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
@@ -38,10 +38,19 @@ import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
 
 /**
- * An IntentService that receives outbound HTTP requests encoded into Intents and returns the eventual responses
+ * An JobIntentService that receives outbound HTTP requests encoded into Intents and returns the eventual responses
  * via a ResultReceiver.
  */
 public class MssoService extends JobIntentService {
+
+    private static final int JOB_ID = 1000;
+
+    /**
+     * Enqueuing work to this service
+     */
+    public static void enqueueWork(Context context, Intent work) {
+        enqueueWork(context, MssoService.class, JOB_ID, work);
+    }
 
     @Override
     protected void onHandleWork(@NonNull Intent intent) {

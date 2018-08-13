@@ -7,10 +7,12 @@
  */
 package com.ca.mas.core.service;
 
-import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.support.annotation.NonNull;
+import android.support.v4.app.JobIntentService;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoListener;
@@ -36,17 +38,22 @@ import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
 
 /**
- * An IntentService that receives outbound HTTP requests encoded into Intents and returns the eventual responses
+ * An JobIntentService that receives outbound HTTP requests encoded into Intents and returns the eventual responses
  * via a ResultReceiver.
  */
-public class MssoService extends IntentService {
+public class MssoService extends JobIntentService {
 
-    public MssoService() {
-        super("MssoService");
+    private static final int JOB_ID = 1000;
+
+    /**
+     * Enqueuing work to this service
+     */
+    public static void enqueueWork(Context context, Intent work) {
+        enqueueWork(context, MssoService.class, JOB_ID, work);
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    protected void onHandleWork(@NonNull Intent intent) {
         String action = intent.getAction();
         if (action == null) {
             if (DEBUG) Log.w(TAG, "Intent did not contain an action");

@@ -10,6 +10,8 @@
     - Avoid using non-sdk interface for Android P
     - Default to use MASSecureStorageDataSource for Android P
 - Configurable option for id_token validation signature [US514785] 
+- Refactor SDK to use JobIntentService instead of IntentService for background services [US532557]
+    - android.permission.WAKE_LOCK is required.
 
 ### Deprecated Interface
 - com.ca.mas.foundation.MASUser#logout(com.ca.mas.foundation.MASCallback<java.lang.Void>) is deprecated, use com.ca.mas.foundation.MASUser#logout(boolean, com.ca.mas.foundation.MASCallback<java.lang.Void>) instead.

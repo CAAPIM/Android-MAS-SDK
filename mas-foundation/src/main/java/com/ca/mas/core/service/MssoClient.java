@@ -59,10 +59,9 @@ public class MssoClient {
         MssoRequestQueue.getInstance().addRequest(mssoRequest);
 
         final long requestId = mssoRequest.getId();
-        Context context = appContext;
-        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, context, MssoService.class);
+        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-        context.startService(intent);
+        MssoService.enqueueWork(appContext, intent);
         return requestId;
     }
 
@@ -71,7 +70,7 @@ public class MssoClient {
         MssoRequestQueue.getInstance().addRequest(mssoRequest);
         long requestId = mssoRequest.getId();
 
-        Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
+        Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED);
         intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
         return intent;
@@ -92,7 +91,7 @@ public class MssoClient {
             user.logout(true, new MASCallback<Void>() {
                 @Override
                 public void onSuccess(Void result) {
-                    appContext.startService(intent);
+                    MssoService.enqueueWork(appContext, intent);
                 }
 
                 @Override
@@ -101,7 +100,7 @@ public class MssoClient {
                 }
             });
         } else {
-            appContext.startService(intent);
+            MssoService.enqueueWork(appContext, intent);
         }
     }
 
@@ -111,9 +110,9 @@ public class MssoClient {
     public void processPendingRequests() {
         // Currently this should only be necessary when we have started the UNLOCK activity.
         // For the Log On activity, it should take care of signalling the MssoService when it should retry.
-        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, appContext, MssoService.class);
+        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, (long) -1);
-        appContext.startService(intent);
+        MssoService.enqueueWork(appContext, intent);
     }
 
     /**

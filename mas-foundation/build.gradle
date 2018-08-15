@@ -63,6 +63,7 @@ dependencies {
 
     api "com.google.zxing:core:$rootProject.ext.zxingVersion"
     implementation "com.android.support:support-annotations:$rootProject.ext.supportLibsVersion"
+    implementation "com.android.support:support-compat:$rootProject.ext.supportLibsVersion"
     api "com.nimbusds:nimbus-jose-jwt:$rootProject.ext.nimbusJoseVersion"
 
     //For Android API 16 and 17
@@ -131,16 +132,8 @@ task javadoc(type: Javadoc) {
     println "Source: $source"
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
     println "Classpath: $source"
-    options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
     destinationDir = file("../docs/mas_foundation_javadoc/")
     failOnError false
-
-    include '**/*MAS*.java'
-    include '**/Device.java'
-    include '**/ScimUser.java'
-
-    exclude '**/MASTransformable.java'
-    exclude '**/MASResultReceiver.java'
 }
 
 //jcenter integration

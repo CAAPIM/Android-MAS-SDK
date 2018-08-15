@@ -9,23 +9,19 @@ package com.ca.mas.core.service;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.util.Log;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
-import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.MASAuthCredentials;
+import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
-
-import static com.ca.mas.foundation.MAS.DEBUG;
-import static com.ca.mas.foundation.MAS.TAG;
+import com.ca.mas.foundation.MASUser;
 
 /**
  * Encapsulates use of the MssoService.
@@ -63,10 +59,9 @@ public class MssoClient {
         MssoRequestQueue.getInstance().addRequest(mssoRequest);
 
         final long requestId = mssoRequest.getId();
-        Context context = appContext;
-        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, context, MssoService.class);
+        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-        context.startService(intent);
+        MssoService.enqueueWork(appContext, intent);
         return requestId;
     }
 
@@ -75,7 +70,7 @@ public class MssoClient {
         MssoRequestQueue.getInstance().addRequest(mssoRequest);
         long requestId = mssoRequest.getId();
 
-        Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED, null, appContext, MssoService.class);
+        Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED);
         intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
         return intent;
@@ -90,36 +85,22 @@ public class MssoClient {
      * @param resultReceiver The resultReceiver to notify when a response is available, or if there is an error. Required.
      */
     public void authenticate(final MASAuthCredentials credentials, final MAGResultReceiver resultReceiver) {
-        Intent intent = createAuthenticationIntent(credentials, resultReceiver);
-        new MssoClientAuthenticateAsyncTask(appContext, mssoContext, resultReceiver, intent).execute((Void) null);
-    }
-
-    private static class MssoClientAuthenticateAsyncTask extends AsyncTask<Void, Void, Void> {
-        private Context aAppContext;
-        private MAGResultReceiver aResultReceiver;
-        private Intent aIntent;
-        private MssoContext aMssoContext;
-
-        MssoClientAuthenticateAsyncTask(Context context, MssoContext mssoContext, MAGResultReceiver resultReceiver, Intent intent) {
-            aAppContext = context;
-            aResultReceiver = resultReceiver;
-            aMssoContext = mssoContext;
-            aIntent = intent;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                aMssoContext.logout(true);
-            } catch (SecureLockException e) {
-                if (aResultReceiver != null) {
-                    aResultReceiver.onError(new MAGError(e));
+        final Intent intent = createAuthenticationIntent(credentials, resultReceiver);
+        MASUser user = MASUser.getCurrentUser();
+        if (user != null) {
+            user.logout(true, new MASCallback<Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    MssoService.enqueueWork(appContext, intent);
                 }
-            } catch (Exception ignore) {
-                if (DEBUG) Log.w(TAG, ignore);
-            }
-            aAppContext.startService(aIntent);
-            return null;
+
+                @Override
+                public void onError(Throwable e) {
+                    resultReceiver.onError(new MAGError(e));
+                }
+            });
+        } else {
+            MssoService.enqueueWork(appContext, intent);
         }
     }
 
@@ -129,9 +110,9 @@ public class MssoClient {
     public void processPendingRequests() {
         // Currently this should only be necessary when we have started the UNLOCK activity.
         // For the Log On activity, it should take care of signalling the MssoService when it should retry.
-        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST, null, appContext, MssoService.class);
+        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, (long) -1);
-        appContext.startService(intent);
+        MssoService.enqueueWork(appContext, intent);
     }
 
     /**

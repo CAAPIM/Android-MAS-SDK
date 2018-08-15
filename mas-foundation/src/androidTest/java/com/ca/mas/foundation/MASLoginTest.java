@@ -15,10 +15,13 @@ import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
 import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.client.ServerClient;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.token.JWTExpiredException;
 import com.ca.mas.core.token.JWTInvalidAUDException;
 import com.ca.mas.core.token.JWTInvalidAZPException;
 import com.ca.mas.core.token.JWTInvalidSignatureException;
+import com.ca.mas.core.token.JWTValidationException;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
@@ -66,10 +69,12 @@ public class MASLoginTest extends MASStartTestBase {
 
     @After
     public void deregister() throws InterruptedException, ExecutionException {
+        // - reset singleton value to default one
+        MAS.enableIdTokenValidation(true);
         if (isSkipped) return;
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<Void>();
         if (MASUser.getCurrentUser() != null) {
-            MASUser.getCurrentUser().logout(logoutCallback);
+            MASUser.getCurrentUser().logout(true, logoutCallback);
             Assert.assertNull(logoutCallback.get());
         }
 
@@ -213,6 +218,54 @@ public class MASLoginTest extends MASStartTestBase {
         }
     }
 
+    @Test(expected = ExecutionException.class)
+    public void invalidAlgorithmLoginValidationEnabled() throws InterruptedException, ExecutionException {
+
+        // - the idtoken with RS254
+        final String idToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJleHAiOjI0MDA4Nzg1OTEsImF6cCI6InRlc3QtZGV2aWNlIiwic3ViIjoieCIsImF1ZCI6ImR1bW15IiwiaXNzIjoiaHR0cDovL20ubGF5ZXI3dGVjaC5jb20vY29ubmVjdCIsImlhdCI6MTQwMDg3ODU5MX0.HJ5B3CZZ7Oxk8SZfHNARYialgF8E0r4WQPd4uQLYJPp0VUhOVkbUbPxS95rFbIUHADFYPbMOQcEGscJ0864LnBOXCkXCBEybOH56hKNKQuMl1Kg5Ow2f80-9-8zStqEikgSCZ8-fpeH_8KMgSsdHp21kiDe1BIwIcxIZ_o-WO0M";
+        final String idTokenType = "urn:ietf:params:oauth:grant-type:jwt-bearer";
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse registerDeviceResponse(RecordedRequest request) {
+                return new MockResponse()
+                        .setResponseCode(200)
+                        .setHeader("device-status", "activated")
+                        .setHeader("mag-identifier", "test-device")
+                        .setHeader("id-token", idToken)
+                        .setHeader("id-token-type", idTokenType)
+                        .setBody(cert);
+            }
+        });
+        MAS.enableIdTokenValidation(true);
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASUser.login("test", "test".toCharArray(), callback);
+        assertNotNull(callback.get());
+    }
+
+    @Test
+    public void invalidAlgorithmLoginValidationDisabled() throws InterruptedException, ExecutionException {
+
+        // - the idtoken with RS254
+        final String idToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJleHAiOjI0MDA4Nzg1OTEsImF6cCI6InRlc3QtZGV2aWNlIiwic3ViIjoieCIsImF1ZCI6ImR1bW15IiwiaXNzIjoiaHR0cDovL20ubGF5ZXI3dGVjaC5jb20vY29ubmVjdCIsImlhdCI6MTQwMDg3ODU5MX0.HJ5B3CZZ7Oxk8SZfHNARYialgF8E0r4WQPd4uQLYJPp0VUhOVkbUbPxS95rFbIUHADFYPbMOQcEGscJ0864LnBOXCkXCBEybOH56hKNKQuMl1Kg5Ow2f80-9-8zStqEikgSCZ8-fpeH_8KMgSsdHp21kiDe1BIwIcxIZ_o-WO0M";
+        final String idTokenType = "urn:ietf:params:oauth:grant-type:jwt-bearer";
+        setDispatcher(new GatewayDefaultDispatcher() {
+            @Override
+            protected MockResponse registerDeviceResponse(RecordedRequest request) {
+                return new MockResponse()
+                        .setResponseCode(200)
+                        .setHeader("device-status", "activated")
+                        .setHeader("mag-identifier", "test-device")
+                        .setHeader("id-token", idToken)
+                        .setHeader("id-token-type", idTokenType)
+                        .setBody(cert);
+            }
+        });
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MAS.enableIdTokenValidation(false);
+        MASUser.login("test", "test".toCharArray(), callback);
+        assertNotNull(callback.get());
+    }
+
     @Test
     public void invalidAud() throws InterruptedException {
 
@@ -325,7 +378,7 @@ public class MASLoginTest extends MASStartTestBase {
 
         //Logout
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
-        MASUser.getCurrentUser().logout(logoutCallback);
+        MASUser.getCurrentUser().logout(true, logoutCallback);
         logoutCallback.get();
 
         //invoke token with id token
@@ -350,6 +403,33 @@ public class MASLoginTest extends MASStartTestBase {
         RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.CONNECT_DEVICE_REGISTER);
         Assert.assertEquals(rr.getHeader("authorization"), "Bearer " + expected);
         Assert.assertEquals(rr.getHeader("x-authorization-type"), MASIdToken.JWT_DEFAULT);
+    }
+
+    @Test
+    public void testLoginFailFalseParameter() throws ExecutionException, InterruptedException {
+        String expected = "dummy_id_token";
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASIdToken idToken = new MASIdToken.Builder().value(expected).build();
+        MASUser.login(idToken, callback);
+        callback.get();
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+
+            @Override
+            protected MockResponse logout() {
+                return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+            }
+        });
+
+        MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<Void>();
+        MASUser.getCurrentUser().logout(false, logoutCallback);
+        try {
+            logoutCallback.get();
+            fail();
+        } catch (Exception e) {
+            assertNotNull(StorageProvider.getInstance().getTokenManager().getIdToken());
+        }
+        setDispatcher(new GatewayDefaultDispatcher());
     }
 
     @Test(expected = NullPointerException.class)
@@ -529,7 +609,7 @@ public class MASLoginTest extends MASStartTestBase {
 
         //Logout
         MASCallbackFuture<Void> logoutCallback = new MASCallbackFuture<>();
-        MASUser.getCurrentUser().logout(logoutCallback);
+        MASUser.getCurrentUser().logout(true,logoutCallback );
         logoutCallback.get();
 
         //invoke token with id token

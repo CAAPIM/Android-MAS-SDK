@@ -7,23 +7,10 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.ca.mas.foundation">
+          package="com.ca.mas.storage">
 
     <application android:allowBackup="true"
                  android:label="@string/app_name">
-
-        <!-- AMS Service -->
-        <!-- AMS Service -->
-        <service android:name="com.ca.mas.core.storage.implementation.AMSAuthenticatorService">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
-            <meta-data android:name="account.name"
-                android:resource="@string/acc_name2"/>
-            <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/mastest" />
-        </service>
 
         <service
             android:name="com.ca.mas.core.storage.sharedstorage.MASAuthenticatorService"

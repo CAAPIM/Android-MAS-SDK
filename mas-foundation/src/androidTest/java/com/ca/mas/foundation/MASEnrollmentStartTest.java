@@ -36,10 +36,15 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
+
 public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
 
     @Test
     public void testEnrollment() throws Exception {
+
         SSLSocketFactory factory = createSSLSocketFactory();
         SSLSocket socket = (SSLSocket) factory.createSocket(getHost(), getPort());
         socket.startHandshake();
@@ -61,7 +66,7 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
         MAS.setConnectionListener(null);
 
         MAS.start(InstrumentationRegistry.getTargetContext(), new URL(uri.toString()), callback);
-        Assert.assertNull(callback.get());
+        assertNull(callback.get());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -81,7 +86,7 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
 
         try {
             callback.get();
-            Assert.fail();
+            fail();
         } catch (Exception e) {
             throw ((MASException) e.getCause()).getRootCause();
         }
@@ -113,10 +118,10 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
         MAS.start(InstrumentationRegistry.getTargetContext(), new URL(uri.toString()), callback);
         try {
             callback.get();
-            Assert.fail();
+            fail();
         } catch (Exception e) {
-            Assert.assertTrue(e.getCause().getCause() instanceof SSLHandshakeException);
-            Assert.assertTrue(((MASException) e.getCause()).getRootCause() instanceof SSLHandshakeException);
+            assertTrue(e.getCause().getCause() instanceof SSLHandshakeException);
+            assertTrue(((MASException) e.getCause()).getRootCause() instanceof SSLHandshakeException);
         }
     }
 
@@ -142,10 +147,10 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
         MAS.start(InstrumentationRegistry.getTargetContext(), new URL(uri.toString()), callback);
         try {
             callback.get();
-            Assert.fail();
+            fail();
         } catch (Exception e) {
-            Assert.assertTrue(e.getCause().getCause() instanceof MASServerException);
-            Assert.assertTrue(((MASException) e.getCause()).getRootCause() instanceof MASServerException);
+            assertTrue(e.getCause().getCause() instanceof MASServerException);
+            assertTrue(((MASException) e.getCause()).getRootCause() instanceof MASServerException);
         }
     }
 

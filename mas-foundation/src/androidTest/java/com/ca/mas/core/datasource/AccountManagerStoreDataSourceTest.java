@@ -12,7 +12,7 @@ import android.os.Build;
 
 import com.ca.mas.AndroidVersionAwareTestRunner;
 import com.ca.mas.MASTestBase;
-import com.ca.mas.TargetApi;
+import com.ca.mas.MinTargetAPI;
 
 import org.json.JSONObject;
 import org.junit.After;
@@ -44,7 +44,7 @@ public class AccountManagerStoreDataSourceTest extends MASTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testReadWriteString() {
         DataSource<String, String> d = (DataSource<String, String>) getDataSource(new StringDataConverter());
         d.put(KEY, VALUE);
@@ -52,7 +52,7 @@ public class AccountManagerStoreDataSourceTest extends MASTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testReadWriteByteArray() {
         DataSource<String, byte[]> d = (DataSource<String, byte[]>) getDataSource( null );
         d.put(KEY, VALUE.getBytes());
@@ -60,7 +60,7 @@ public class AccountManagerStoreDataSourceTest extends MASTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testReadWriteGeneric() {
         DataSource<String, Object> d = (DataSource<String, Object>) getDataSource(new DataConverter() {
             @Override
@@ -80,7 +80,7 @@ public class AccountManagerStoreDataSourceTest extends MASTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testGetKeys() {
         DataSource<String, Object> d = (DataSource<String, Object>) getDataSource(null);
 
@@ -91,7 +91,7 @@ public class AccountManagerStoreDataSourceTest extends MASTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    @MinTargetAPI(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void testRemove() {
         DataSource<String, Object> d = (DataSource<String, Object>) getDataSource(null);
         d.put(KEY, VALUE);

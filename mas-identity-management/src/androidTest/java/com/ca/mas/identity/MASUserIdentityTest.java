@@ -186,7 +186,7 @@ public class MASUserIdentityTest extends MASLoginTestBase {
         }
 
         try {
-            masUser.logout(null);
+            masUser.logout( true, null);
             fail();
         } catch (UserNotAuthenticatedException ignored) {
         }

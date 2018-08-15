@@ -45,6 +45,7 @@ public class ConfigurationManager {
     private List<Config> appConfigs;
     private String configurationFileName = null;
     private boolean enablePKCE = true;
+    private boolean idTokenValidation = true;
 
     private MASConnectionListener connectionListener;
     private MobileSsoListener mobileSsoListener;
@@ -72,6 +73,14 @@ public class ConfigurationManager {
 
     public void enablePKCE(boolean enablePKCE) {
         this.enablePKCE = enablePKCE;
+    }
+
+    public void enableIdTokenValidation(boolean enableValidation) {
+        this.idTokenValidation = enableValidation;
+    }
+
+    public boolean isIdTokenValidationEnabled() {
+        return idTokenValidation;
     }
 
     public boolean isPKCEEnabled() {
@@ -243,7 +252,10 @@ public class ConfigurationManager {
                 conf.setAlsoTrustPublicPki((Boolean) getValue(Config.TRUSTED_PUBLIC_PKI, jsonObject, Boolean.FALSE));
                 continue;
             }
-            conf.putProperty(attr.key, getValue(attr, jsonObject));
+            Object value = getValue(attr, jsonObject);
+            if (value != null) {
+                conf.putProperty(attr.key, value);
+            }
         }
 
         //Load Application specific configuration

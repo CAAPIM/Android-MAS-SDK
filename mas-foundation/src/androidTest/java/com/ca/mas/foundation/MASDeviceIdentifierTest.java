@@ -7,14 +7,14 @@
  */
 package com.ca.mas.foundation;
 
-import com.ca.mas.MASTestBase;
+import com.ca.mas.MASStartTestBase;
 import com.ca.mas.core.context.DeviceIdentifier;
 
 import org.junit.Test;
 
 import static junit.framework.Assert.assertNotNull;
 
-public class MASDeviceIdentifierTest extends MASTestBase {
+public class MASDeviceIdentifierTest extends MASStartTestBase {
 
     @Test
     public void testDeviceIdentifierGenerationWithoutLogin() throws Exception {

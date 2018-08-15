@@ -7,6 +7,7 @@
  */
 package com.ca.mas.core.store;
 
+import android.os.Build;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoConfig;
@@ -16,6 +17,7 @@ import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.datasource.DataSourceFactory;
 import com.ca.mas.core.datasource.KeystoreDataSource;
+import com.ca.mas.core.datasource.MASSecureStorageDataSource;
 import com.ca.mas.core.datasource.StringDataConverter;
 
 import org.json.JSONException;
@@ -159,7 +161,11 @@ public class StorageProvider {
             if (storageJson == null) {
                 if (DEBUG)
                     Log.d(TAG, "No storage configuration found in JSON config, falling back to DEFAULT ");
-                storageClass = KeystoreDataSource.class;
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                    storageClass = KeystoreDataSource.class;
+                } else {
+                    storageClass = MASSecureStorageDataSource.class;
+                }
                 config = new JSONObject();
             } else {
                 try {

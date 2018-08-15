@@ -14,6 +14,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Categories.class)
 @Suite.SuiteClasses({
+        MASEnrollmentStartTest.class,
         MASAuthorizationCodeFlowTest.class,
         MASAuthorizationProviderTest.class,
         MASClaimsTest.class,
@@ -22,7 +23,6 @@ import org.junit.runners.Suite;
         MASDeviceIdentifierTest.class,
         MASDeviceTest.class,
         MASDynamicSDKTest.class,
-        MASEnrollmentStartTest.class,
         MASGeoFencingTest.class,
         MASJwtSigningTest.class,
         MASLoginTest.class,
@@ -36,7 +36,7 @@ import org.junit.runners.Suite;
         MASRegistrationTest.class,
         MASSessionLockTest.class,
         MASSharedStorageSDKStopTest.class,
-        MASSharedStorageTest.class,
+        MASSecureSharedStorageTest.class,
         MASStartTest.class,
         MASTest.class,
         MASUserTest.class,

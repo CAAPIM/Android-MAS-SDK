@@ -1,22 +1,17 @@
 package com.ca.mas.foundation;
 
-import com.ca.mas.MASStartTestBase;
 import com.ca.mas.core.storage.sharedstorage.MASSharedStorage;
 
-import org.junit.After;
 import org.junit.Test;
 
 import static junit.framework.Assert.fail;
 
-public class MASSharedStorageSDKStopTest extends MASStartTestBase {
+public class MASSharedStorageSDKStopTest {
 
     private final String accountName = "testName";
-    // Currently matches the value in massharedauthenticator.xml
-    private final String accountType = "com.mas.foundation.sharedstorage";
 
     @Test(expected = IllegalStateException.class)
     public void testStorageErrorSaveNonInitializedSdk() {
-        masStop();
         String key = "testKey123";
         String object = "testValue123";
 
@@ -25,8 +20,7 @@ public class MASSharedStorageSDKStopTest extends MASStartTestBase {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testStorageErrorDeleteNonInitializedSdk() throws Exception {
-        masStop();
+    public void testStorageErrorDeleteNonInitializedSdk() {
         String key = "testKey123";
 
         MASSharedStorage storage = new MASSharedStorage(accountName);
@@ -35,8 +29,7 @@ public class MASSharedStorageSDKStopTest extends MASStartTestBase {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testStorageErrorRetrieveNonInitializedSdk() throws Exception {
-        masStop();
+    public void testStorageErrorRetrieveNonInitializedSdk() {
         String key = "testKey123";
         MASSharedStorage storage = new MASSharedStorage(accountName);
 
@@ -48,10 +41,5 @@ public class MASSharedStorageSDKStopTest extends MASStartTestBase {
 
         storage.getBytes(key);
         fail();
-    }
-
-    @After
-    public void restartSDK() throws Exception {
-        masStart();
     }
 }

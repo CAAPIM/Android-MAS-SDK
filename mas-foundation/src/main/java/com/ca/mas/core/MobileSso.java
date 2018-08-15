@@ -85,36 +85,6 @@ public interface MobileSso {
      */
     void cancelAllRequests(Bundle data);
 
-
-    /**
-     * <p>Log out the current user and all SSO apps on this device, leaving the device registered, and
-     * optionally informing the token server of the logout.</p>
-     * <p>This method takes no action if the use is already logged out.</p>
-     * <p>This method destroys the access token and cached password (if any). If SSO is enabled, this method also
-     * removes the ID token from the shared token store.</p>
-     * <p>If contactServer is true, this method additionally makes a best-effort attempt to notify the server that the
-     * access token (and possibly ID token) should be invalidated.</p>
-     * <p>If the server needs to be contact, this will be done on the current thread. As this may take some time,
-     * callers running on the UI thread and passing true for contactServer should consider running this method
-     * within an AsyncTask.</p>
-     * <b>NOTE:</b> It is extremely important to make at least one attempt to inform the server
-     * of the logout before destroying the tokens client side to try and prevent the server
-     * from getting out of sync with the client. <b>Pass contactServer=false only if
-     * absolutely necessary</b> (such as to avoid blocking the GUI if you have already made
-     * at least one attempt to contact the server).
-     *
-     * @param contactServer true to make a single best-effort attempt to notify the server of the logout so that
-     *                      it can revoke the tokens.  This may fail if we lack network connectivity.
-     *                      <br>
-     *                      false to destroy the tokens client side but make no effort to inform the server that
-     *                      it needs to revoke them.
-     *                      <br>
-     *                      This option does nothing if there is no ID token (whether or not SSO is enabled).
-     * @throws com.ca.mas.core.context.MssoException if contactServer is true, and SSO is enabled, and there is an error while attempting
-     *                                               to notify the server of the logout.
-     */
-    void logout(boolean contactServer);
-
     /**
      * <p>Clear all tokens in the shared token store.</p>
      * <b>NOTE: You should not normally use this method.</b>

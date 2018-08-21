@@ -9,12 +9,14 @@ package com.ca.mas.foundation;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.os.Build;
 
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.core.storage.MASSecureSharedStorage;
 import com.ca.mas.core.storage.sharedstorage.MASSharedStorage;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -32,7 +34,7 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
     private final String accountNameb = "testNameNoEncrypted";
     private final int TIME = 3500;
 
-    private final String accountType = "com.ca.mas.testSecureAccountType";
+    private final String accountType = "com.mas.mastest";
     String value = "Test value";
     String keyName = "key";
 
@@ -42,7 +44,7 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
 
         AccountManager am = AccountManager.get(getContext());
         Account[] accounts = am.getAccountsByType(accountType);
-        assertEquals(1, accounts.length);
+        assertTrue( accounts.length >= 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -258,7 +260,7 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
     }
 
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void saveKeyUnencryptedRetrieveEncrypted() {
         String key = "testKey123";
         String value = "testValue12345";
@@ -272,7 +274,8 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
         MASSecureSharedStorage storageb = new MASSecureSharedStorage(accountName, true, true, true);
         compareb = storageb.getString(key);
 
-        assertEquals(comparea,compareb);
+        assertEquals(value,comparea);
+        assertNull(compareb);
     }
 
     @Test
@@ -299,6 +302,7 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
         List<String> result;
 
         MASSecureSharedStorage storage = new MASSecureSharedStorage(accountName, true, true, true);
+        storage.removeAll();
         String v1 = "value1";
         String v2 = "value2";
         String v3 = "value3";
@@ -319,7 +323,16 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
 
         result = storage.getKeys();
         assertNotNull(result);
-        assertEquals(result.size(), 3);
+
+        int expected = 3;
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            // - for lower than 4.1 we storage the AliasKey on the AccountManager instead of keystore
+            // - so we expect one more key
+            expected = 4;
+        }
+
+        assertEquals(result.size(), expected);
     }
 
     @Test
@@ -440,7 +453,6 @@ public class MASSecureSharedStorageTest extends MASLoginTestBase {
             fail();
         }
     }
-
 
     @After
     public void resetAccountsAndData() {

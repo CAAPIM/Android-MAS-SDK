@@ -211,6 +211,10 @@ public class MAS {
             return;
         }
 
+        if (appContext == null) {
+            appContext = context.getApplicationContext();
+        }
+
         final Uri uri = Uri.parse(url.toString());
         final String publicKeyHash = uri.getQueryParameter("subjectKeyHash");
         if (publicKeyHash == null || publicKeyHash.trim().isEmpty()) {
@@ -484,6 +488,25 @@ public class MAS {
      */
     public static void enablePKCE(boolean enablePKCE) {
         ConfigurationManager.getInstance().enablePKCE(enablePKCE);
+    }
+
+    /**
+     *  Sets boolean indicator of enforcing id_token validation upon device registration/user authentication. id_token is being validated as part of authentication/registration process against known signing algorithm.
+     *  Mobile SDK currently supports following algorithm(s):HS256
+     *  Any other signing algorithm will cause authentication/registration failure due to unknown signing algorithm.
+     *  If the server side is configured to return a different or custom algorithm, ensure to disable id_token validation to avoid any failure on Mobile SDK.
+     *  By default, id_token validation is enabled and enforced in authentication and/or registration process; it can be opted-out.
+     *  @param enableValidation BOOL value of indicating whether id_token validation is enabled or not.
+     */
+    public static void enableIdTokenValidation(boolean enableValidation) {
+        ConfigurationManager.getInstance().enableIdTokenValidation(enableValidation);
+    }
+
+    /**
+     *  Value of the boolean indicator which indicate if the id_token validation is active or not.
+     */
+    public static boolean isIdTokenValidationEnabled(){
+        return ConfigurationManager.getInstance().isIdTokenValidationEnabled();
     }
 
     /**

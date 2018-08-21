@@ -74,7 +74,9 @@ public class MASDeviceTest extends MASLoginTestBase {
     public void testDeviceIdentifierAfterDeregister() throws InterruptedException, ExecutionException {
         MASDevice deviceInstance = MASDevice.getCurrentDevice();
         String identifier1 = deviceInstance.getIdentifier();
-        deviceInstance.deregister(null);
+        MASCallbackFuture<Void> deRegistrationCallback = new MASCallbackFuture<>();
+        deviceInstance.deregister(deRegistrationCallback);
+        deRegistrationCallback.get();
 
         MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
         MASUser.login("admin", "7layer".toCharArray(), callback);

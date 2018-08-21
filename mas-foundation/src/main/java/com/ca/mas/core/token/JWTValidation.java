@@ -13,6 +13,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.ca.mas.core.error.MAGErrorCode;
+import com.ca.mas.foundation.MAS;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,7 +29,7 @@ public class JWTValidation {
     public static final String AZP = "azp";
 
     public enum Algorithm {
-        HS256(1), RSA(2);
+        HS256(1), RSA(2), RS256(3);
         private int value;
 
         private Algorithm(int value) {
@@ -64,13 +65,25 @@ public class JWTValidation {
 
         String algorithm = getAlgorithm(new String(Base64.decode(idTokenDef.getHeader(), Base64.URL_SAFE)));
         boolean signatureValid = false;
-        if (algorithm != null) {
+
+        // - if validation is enabled check the algorithms encryption
+        boolean idTokenValidationEnabled = MAS.isIdTokenValidationEnabled();
+
+        if (algorithm != null && idTokenValidationEnabled) {
             if (algorithm.equals(Algorithm.HS256.toString())) {
                 signatureValid = JWTHmac.validateHMacSignature(idTokenDef.getHeader(),
                         idTokenDef.getPayload(),
                         clientSecret.getBytes(),
                         idTokenDef.getSignature());
             }
+
+            if (algorithm.equals(Algorithm.RS256.toString())){
+                throw new JWTValidationException(MAGErrorCode.TOKEN_INVALID_ID_TOKEN);
+            }
+        }
+
+        if (!idTokenValidationEnabled){
+            signatureValid = true;
         }
 
         isValid = payloadValid & signatureValid;

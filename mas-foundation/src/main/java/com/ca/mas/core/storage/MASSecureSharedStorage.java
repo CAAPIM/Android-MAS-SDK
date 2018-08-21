@@ -54,8 +54,13 @@ public class MASSecureSharedStorage extends MASSharedStorage {
 
         if (retValue != null) {
             Charset charSet = Charset.forName(UTF_8);
-            byte[] encodedbytes = getEncryptionProvider().decrypt(Base64.decode(retValue, Base64.NO_WRAP));
-            retValue = new String(encodedbytes, charSet);
+            try {
+                byte[] encodedbytes = getEncryptionProvider().decrypt(Base64.decode(retValue, Base64.NO_WRAP));
+                retValue = new String(encodedbytes, charSet);
+            } catch (Exception e) {
+                delete(key);
+                retValue = null;
+            }
         }
 
         return retValue;
@@ -68,7 +73,12 @@ public class MASSecureSharedStorage extends MASSharedStorage {
         byte[] retValue = super.getBytes(key);
 
         if (retValue != null) {
-            retValue = getEncryptionProvider().decrypt(retValue);
+            try {
+                retValue = getEncryptionProvider().decrypt(retValue);
+            } catch (Exception e) {
+                delete(key);
+                retValue = null;
+            }
         }
 
         return retValue;

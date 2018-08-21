@@ -646,9 +646,9 @@ public class KeyUtilsSymmetric {
     private static void destroyKey(SecretKey key) {
         if (key instanceof Destroyable) {
             try {
-                ((Destroyable) key).destroy();
+                (key).destroy();
             } catch (DestroyFailedException e) {
-                if (DEBUG) Log.e(TAG, "Could not destroy key");
+                if (DEBUG) Log.w(TAG, "Could not destroy key");
             }
         }
     }

@@ -12,7 +12,7 @@ import android.os.Build;
 import com.ca.mas.AndroidVersionAwareTestRunner;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
-import com.ca.mas.TargetApi;
+import com.ca.mas.MinTargetAPI;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
@@ -30,7 +30,7 @@ import static junit.framework.Assert.assertNull;
 public class MASSessionLockTest extends MASLoginTestBase {
 
     @Test
-    @TargetApi(Build.VERSION_CODES.M)
+    @MinTargetAPI(Build.VERSION_CODES.M)
     public void testLockSession() throws Exception {
         MASUser currentUser = MASUser.getCurrentUser();
         MASCallbackFuture<Void> callbackFuture = new MASCallbackFuture<>();
@@ -47,7 +47,7 @@ public class MASSessionLockTest extends MASLoginTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.M)
+    @MinTargetAPI(Build.VERSION_CODES.M)
     public void testLockSessionAlreadyLocked() throws Exception {
         MASUser currentUser = MASUser.getCurrentUser();
         MASCallbackFuture<Void> callbackFuture = new MASCallbackFuture<>();
@@ -66,7 +66,7 @@ public class MASSessionLockTest extends MASLoginTestBase {
     }
 
     @Test(expected = SecureLockException.class)
-    @TargetApi(Build.VERSION_CODES.M)
+    @MinTargetAPI(Build.VERSION_CODES.M)
     public void testLockSessionMissingIdToken() throws Throwable {
         MASUser currentUser = MASUser.getCurrentUser();
         TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
@@ -85,7 +85,7 @@ public class MASSessionLockTest extends MASLoginTestBase {
     }
 
     @Test(expected = Exception.class)
-    @TargetApi(Build.VERSION_CODES.M)
+    @MinTargetAPI(Build.VERSION_CODES.M)
     public void testUnlockSessionCallsOnUserAuthenticationRequired() throws Throwable {
         MASUser currentUser = MASUser.getCurrentUser();
         MASSessionUnlockCallbackFuture<Void> callbackFuture = new MASSessionUnlockCallbackFuture<>();
@@ -107,7 +107,7 @@ public class MASSessionLockTest extends MASLoginTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.M)
+    @MinTargetAPI(Build.VERSION_CODES.M)
     public void testUnlockSessionMissingIdToken() throws Throwable {
         MASUser currentUser = MASUser.getCurrentUser();
         MASSessionUnlockCallbackFuture<Void> callbackFuture = new MASSessionUnlockCallbackFuture<>();
@@ -119,7 +119,7 @@ public class MASSessionLockTest extends MASLoginTestBase {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.M)
+    @MinTargetAPI(Build.VERSION_CODES.M)
     public void testRemoveSessionLockAlreadyUnlocked() throws Throwable {
         MASUser currentUser = MASUser.getCurrentUser();
         MASSessionUnlockCallbackFuture<Void> callbackFuture = new MASSessionUnlockCallbackFuture<>();

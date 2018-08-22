@@ -7,12 +7,20 @@
  */
 package com.ca.mas.foundation;
 
+import android.support.annotation.NonNull;
+import android.util.Log;
+
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.auth.ble.BluetoothLePeripheral;
 import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEPeripheralListener;
 import com.ca.mas.foundation.notify.Callback;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * <p>The <b>MASDevice</b> class is a local representation of device data.</p>
@@ -137,5 +145,75 @@ public abstract class MASDevice {
         }
         return current;
     }
+
+    /**
+     * Update or create attribute to the device, throw MASDeviceAttributeOverflowException when exceed ${mag-device-max-tag}
+     * @param attr String
+     * @param value String
+     * @param callback MASCallback<Void>
+     */
+    public void addAttribute(@NonNull String attr, String value, MASCallback<Void> callback) {
+        checkParamsNull(attr, callback);
+
+        DeviceMetadata.putAttribute(attr, value, callback);
+    }
+
+    /**
+     *  Remove all attributes
+     *  @param callback MASCallback<Void>
+     */
+    public void removeAllAttributes(MASCallback<Void> callback){
+        checkCallbackNull(callback);
+
+        DeviceMetadata.deleteAttributes(callback);
+    }
+
+    /**
+     * Remove attribute by name, succeed even device attribute does not exists
+     * @param attr String
+     * @param callback MASCallback<Void>
+     */
+    public void removeAttribute(@NonNull String attr, MASCallback<Void> callback){
+        checkParamsNull(attr, callback);
+
+        DeviceMetadata.deleteAttribute(attr, callback);
+    }
+
+    /**
+     * Get attribute by name, return empty String if no attribute is found.
+     * @param attr String
+     * @param callback MASCallback
+     */
+    public void getAttribute(@NonNull String attr, MASCallback<JSONObject> callback){
+        checkParamsNull(attr, callback);
+
+        DeviceMetadata.getAttribute(attr,callback);
+    }
+
+    /**
+     * Get all attributes, return empty Map if no attributes found.
+     * @param callback MASCallback<Map<String, String>>
+     */
+    public void getAttributes(MASCallback<JSONArray> callback) {
+        checkCallbackNull(callback);
+
+        DeviceMetadata.getAttributes(callback);
+
+    }
+
+    private void checkParamsNull(String attr, MASCallback callback) {
+        if (attr == null) {
+            throw new IllegalArgumentException();
+        }
+
+        checkCallbackNull(callback);
+    }
+
+    private void checkCallbackNull(MASCallback callback) {
+        if (callback == null) {
+            throw new IllegalArgumentException();
+        }
+    }
+
 
 }

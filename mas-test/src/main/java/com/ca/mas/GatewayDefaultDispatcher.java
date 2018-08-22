@@ -127,6 +127,8 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return echo(request);
             } else if (request.getPath().contains(MULTIFACTOR_ENDPOINT)) {
                 return multiFactor(request);
+            } else if (request.getPath().contains(DEVICEMETADATA_ENDPOINT)) {
+                return deviceMetadata();
             }
 
             for (Dispatcher d : dispatchers) {
@@ -382,6 +384,15 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     protected MockResponse generateOtp() {
         return new MockResponse().setResponseCode(200)
                 .setHeader("X-OTP", "generated");
+    }
+
+    protected MockResponse deviceMetadata() throws JSONException {
+        JSONObject data = new JSONObject();
+        data.put("name", "attr");
+        data.put("value", "attrVAlue");
+        return new MockResponse().setResponseCode(200)
+                .setHeader("Content-type", ContentType.APPLICATION_JSON)
+                .setBody(data.toString());
     }
 
     protected MockResponse userInfo() {

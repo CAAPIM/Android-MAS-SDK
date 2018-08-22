@@ -13,8 +13,6 @@ import java.net.URISyntaxException;
 
 class DeviceMetadata {
     private static final String ENDPOINT_PATH = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.DEVICE_METADATA_PATH);
-    private static final String MAG_IDENTIFIER = StorageProvider.getInstance().getTokenManager().getMagIdentifier();
-    private static final String HEADER_KEY = "mag-identifier";
 
     private DeviceMetadata() {throw new IllegalStateException("Not allowed to instantiate");
 
@@ -33,7 +31,6 @@ class DeviceMetadata {
             data.put("value", value);
 
             request = new MASRequest.MASRequestBuilder(new URI(ENDPOINT_PATH))
-                    .header(HEADER_KEY, MAG_IDENTIFIER)
                     .put(MASRequestBody.jsonBody(data))
                     .build();
 
@@ -44,9 +41,7 @@ class DeviceMetadata {
         MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
             @Override
             public void onSuccess(MASResponse<JSONObject> response) {
-                if (checkResponse(response)) {
-                    Callback.onSuccess(callback, null);
-                }
+                Callback.onSuccess(callback, null);
             }
 
             @Override
@@ -63,8 +58,7 @@ class DeviceMetadata {
 
         try {
             request = new MASRequest.MASRequestBuilder(new URI(route))
-                    .header(HEADER_KEY, MAG_IDENTIFIER)
-                    .responseBody(MASResponseBody.jsonArrayBody())
+                    .responseBody(MASResponseBody.jsonBody())
                     .get()
                     .build();
         } catch (URISyntaxException e) {
@@ -74,9 +68,7 @@ class DeviceMetadata {
         MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
             @Override
             public void onSuccess(MASResponse<JSONObject> response) {
-                if (checkResponse(response)) {
-                    Callback.onSuccess(callback, response.getBody().getContent());
-                }
+                Callback.onSuccess(callback, response.getBody().getContent());
             }
 
             @Override
@@ -91,7 +83,6 @@ class DeviceMetadata {
         MASRequest request = null;
         try {
             request = new MASRequest.MASRequestBuilder(new URI(ENDPOINT_PATH))
-                    .header(HEADER_KEY, MAG_IDENTIFIER)
                     .get()
                     .build();
         } catch (URISyntaxException e) {
@@ -101,9 +92,7 @@ class DeviceMetadata {
         MAS.invoke(request, new MASCallback<MASResponse<JSONArray>>() {
             @Override
             public void onSuccess(MASResponse<JSONArray> response) {
-                if (checkResponse(response)) {
-                    callback.onSuccess(response.getBody().getContent());
-                }
+                callback.onSuccess(response.getBody().getContent());
             }
 
             @Override
@@ -119,7 +108,6 @@ class DeviceMetadata {
 
         try {
             request = new MASRequest.MASRequestBuilder(new URI(route))
-                    .header(HEADER_KEY, MAG_IDENTIFIER)
                     .delete(MASRequestBody.stringBody(attr))
                     .build();
         } catch (URISyntaxException e) {
@@ -129,9 +117,7 @@ class DeviceMetadata {
         MAS.invoke(request, new MASCallback<MASResponse<String>>() {
             @Override
             public void onSuccess(MASResponse<String> response) {
-                if (checkResponse(response) && response.getBody().getContent().equalsIgnoreCase("removed")) {
-                    callback.onSuccess(null);
-                }
+                callback.onSuccess(null);
             }
 
             @Override
@@ -145,7 +131,6 @@ class DeviceMetadata {
         MASRequest request = null;
         try {
             request = new MASRequest.MASRequestBuilder(new URI(ENDPOINT_PATH))
-                    .header(HEADER_KEY, MAG_IDENTIFIER)
                     .delete(MASRequestBody.stringBody(""))
                     .build();
         } catch (URISyntaxException e) {
@@ -155,9 +140,7 @@ class DeviceMetadata {
         MAS.invoke(request, new MASCallback<MASResponse<String>>() {
             @Override
             public void onSuccess(MASResponse<String> response) {
-                if (checkResponse(response) && response.getBody().getContent().equalsIgnoreCase("removed")) {
-                    callback.onSuccess(null);
-                }
+                callback.onSuccess(null);
             }
 
             @Override
@@ -165,15 +148,5 @@ class DeviceMetadata {
                 Callback.onError(callback, e);
             }
         });
-    }
-
-    private static boolean checkResponse(MASResponse response) {
-        if(response == null) {
-            return false;
-        }
-        int respCode = response.getResponseCode();
-        boolean range = respCode >= 200 && respCode < 300;
-
-        return range && response.getBody()!= null;
     }
 }

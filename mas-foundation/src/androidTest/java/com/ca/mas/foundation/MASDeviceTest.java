@@ -121,9 +121,9 @@ public class MASDeviceTest extends MASLoginTestBase {
     public void testGetAttribute() {
         MASDevice devi = MASDevice.getCurrentDevice();
 
-        devi.getAttribute("attr", new MASCallback<JSONArray>() {
+        devi.getAttribute("attr", new MASCallback<JSONObject>() {
             @Override
-            public void onSuccess(JSONArray result) {
+            public void onSuccess(JSONObject result) {
                 assertTrue(true);
             }
 

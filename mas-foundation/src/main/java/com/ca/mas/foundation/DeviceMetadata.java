@@ -1,7 +1,8 @@
 package com.ca.mas.foundation;
 
 import com.ca.mas.core.MobileSsoConfig;
-import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.error.MAGException;
+import com.ca.mas.core.error.TargetApiException;
 import com.ca.mas.foundation.notify.Callback;
 
 import org.json.JSONArray;
@@ -11,8 +12,11 @@ import org.json.JSONObject;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static com.ca.mas.core.client.ServerClient.findErrorCode;
+
 class DeviceMetadata {
     private static final String ENDPOINT_PATH = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.DEVICE_METADATA_PATH);
+    private static final int MAG_DEVICE_MAX_METADATA = 1016155;
 
     private DeviceMetadata() {throw new IllegalStateException("Not allowed to instantiate");
 
@@ -46,7 +50,20 @@ class DeviceMetadata {
 
             @Override
             public void onError(Throwable e) {
-                Callback.onError(callback, e);
+                try {
+                    if (((MASException) e).getRootCause() instanceof TargetApiException){
+                        TargetApiException tException = (TargetApiException) ((MASException) e).getRootCause();
+                        int errorCode = findErrorCode(tException.getResponse());
+
+                        if (errorCode == MAG_DEVICE_MAX_METADATA) {
+                            Callback.onError(callback, new MASDeviceAttributeOverflowException(errorCode, e));
+                        }
+                    }
+                } catch (Exception e1) {
+                    Callback.onError(callback, e);
+                } finally {
+                    Callback.onError(callback, e);
+                }
             }
         });
     }

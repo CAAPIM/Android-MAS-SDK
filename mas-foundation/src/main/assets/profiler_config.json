@@ -8,7 +8,7 @@
     {
       "id": 1,
       "name": "loginTest",
-      "benchmark": 250.0,
+      "benchmark": 250.0,  //in milliseconds
       "iteration": 1,
       "desc":" "
     },

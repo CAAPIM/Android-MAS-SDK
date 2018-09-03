@@ -41,6 +41,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
     private final String TAG = MASPerformanceTest.class.getSimpleName();
     private static Context context = null;
     private static Map<Integer, ScenarioInfo> map = new HashMap<>();
+    private static boolean isBenchmark = false;
 
     @BeforeClass
     public static void loadConfig() {
@@ -48,12 +49,16 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
         context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         String jsonString = readJSONFromAsset();
         Gson gson = new GsonBuilder().create();
+
         Scenarios scenarios = gson.fromJson(jsonString, Scenarios.class);
-        ScenarioMasterInfo masterConfig = scenarios.getMaster();
         for (ScenarioInfo scenarioInfo : scenarios.getScenarios()){
             map.put(scenarioInfo.getId(), scenarioInfo);
         }
 
+        ScenarioMasterInfo masterConfig = scenarios.getMaster();
+        if(masterConfig.getOperation_type().equalsIgnoreCase("benchmark"))  {
+            isBenchmark = true;
+        } 
 
     }
 
@@ -79,13 +84,20 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
 
         int value = testId.value();
         ScenarioInfo scenarioInfo = map.get(value);
+        int noOfIterations;
 
         Double sum = 0.0;
+
+        if(!isBenchmark){
+            noOfIterations = scenarioInfo.getIteration();
+        }  else {
+            noOfIterations = 1;
+        }
         MAS.start(getContext());
 
         MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_PASSWORD);
 
-        for (int i = 0; i < scenarioInfo.getIteration(); i++) {
+        for (int i = 0; i < noOfIterations; i++) {
             final CountDownLatch countDownLatch = new CountDownLatch(1);
             long start = System.currentTimeMillis();
             MASUser.login("admin", "7layer".toCharArray(), new MASCallback<MASUser>() {
@@ -113,7 +125,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             Log.d(TAG, "Duration of login flow for iteration " + i + " = " + (end - start));
         }
 
-        Double avg = sum / scenarioInfo.getIteration();
+        Double avg = sum / noOfIterations;
         Log.d(TAG, "Benchmark = " + avg + "ms");
         assertTrue("Taken more than " +scenarioInfo.getBenchmark() +" time to execute", avg <= scenarioInfo.getBenchmark());
 

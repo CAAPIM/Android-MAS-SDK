@@ -1,0 +1,23 @@
+{
+  "master": {
+    "operation_type": "profile",
+    "iteration": 50
+
+  },
+  "scenarios": [
+    {
+      "id": 1,
+      "name": "loginTest",
+      "benchmark": 250.0,
+      "iteration": 1,
+      "desc":" "
+    },
+    {
+      "id": 2,
+      "name": "loginDeregisterTest",
+      "benchmark": 400.0,
+      "iteration": 10
+    }
+  ]
+
+}

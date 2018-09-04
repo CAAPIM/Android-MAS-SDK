@@ -8,7 +8,6 @@
 package com.ca.mas.foundation;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
@@ -20,7 +19,6 @@ import com.ca.mas.foundation.notify.Callback;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * <p>The <b>MASDevice</b> class is a local representation of device data.</p>

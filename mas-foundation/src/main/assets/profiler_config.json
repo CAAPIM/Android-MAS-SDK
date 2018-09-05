@@ -1,6 +1,6 @@
 {
   "master": {
-    "operation_type": "profile",
+    "operation_type": "benchmark",
     "iteration": 50
 
   },
@@ -9,14 +9,15 @@
       "id": 1,
       "name": "loginTest",
       "benchmark": 250.0,  //in milliseconds
-      "iteration": 1,
-      "desc":" "
+      "iteration": 5,
+      "desc":"This test gives Login execution time."
     },
     {
       "id": 2,
       "name": "loginDeregisterTest",
       "benchmark": 400.0,
-      "iteration": 10
+      "iteration": 10,
+      "desc": "This test gives Login -> Deregister flow's execution time"
     }
   ]
 

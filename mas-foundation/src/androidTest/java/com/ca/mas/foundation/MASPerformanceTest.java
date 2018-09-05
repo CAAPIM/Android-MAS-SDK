@@ -9,6 +9,7 @@
 package com.ca.mas.foundation;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
@@ -20,14 +21,28 @@ import com.ca.mas.Scenarios;
 import com.ca.mas.TestId;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonWriter;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -42,6 +57,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
     private static Context context = null;
     private static Map<Integer, ScenarioInfo> map = new HashMap<>();
     private static boolean isBenchmark = false;
+    private static Scenarios scenarios;
 
     @BeforeClass
     public static void loadConfig() {
@@ -50,7 +66,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
         String jsonString = readJSONFromAsset();
         Gson gson = new GsonBuilder().create();
 
-        Scenarios scenarios = gson.fromJson(jsonString, Scenarios.class);
+        scenarios = gson.fromJson(jsonString, Scenarios.class);
         for (ScenarioInfo scenarioInfo : scenarios.getScenarios()){
             map.put(scenarioInfo.getId(), scenarioInfo);
         }
@@ -82,13 +98,13 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
 
         TestId testId = new Object() {}.getClass().getEnclosingMethod().getAnnotation(TestId.class);
 
-        int value = testId.value();
-        ScenarioInfo scenarioInfo = map.get(value);
+        int id = testId.value();
+        ScenarioInfo scenarioInfo = map.get(id);
         int noOfIterations;
 
-        Double sum = 0.0;
+        long sum = 0L;
 
-        if(!isBenchmark){
+        if(isBenchmark){
             noOfIterations = scenarioInfo.getIteration();
         }  else {
             noOfIterations = 1;
@@ -124,10 +140,30 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             sum = sum + (end - start);
             Log.d(TAG, "Duration of login flow for iteration " + i + " = " + (end - start));
         }
+        long avg = sum / noOfIterations;
+        if(isBenchmark)  {
+            updateBenchmark(avg, id);
+        }
 
-        Double avg = sum / noOfIterations;
         Log.d(TAG, "Benchmark = " + avg + "ms");
+
         assertTrue("Taken more than " +scenarioInfo.getBenchmark() +" time to execute", avg <= scenarioInfo.getBenchmark());
+
+    }
+
+    private void updateBenchmark(long avg, int testId) {
+
+        ScenarioInfo scenarioInfo = map.get(testId);
+        scenarioInfo.setBenchmark(avg);
+         Gson gson = new GsonBuilder().create();
+         String jsonStr = gson.toJson(scenarios);
+
+        try {
+            Log.d(TAG, " \n\n"+new JSONObject(jsonStr).toString(4));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -146,6 +182,10 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             ex.printStackTrace();
             return null;
         }
-        return json;
+        return "\n\n"+json;
     }
+
+
+
+
 }

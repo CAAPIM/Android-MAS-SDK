@@ -16,7 +16,9 @@ import static com.ca.mas.core.client.ServerClient.findErrorCode;
 
 class DeviceMetadata {
     private static final String ENDPOINT_PATH = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.DEVICE_METADATA_PATH);
-    private static final int MAG_DEVICE_MAX_METADATA = 1016155;
+    private static final int MAG_MAX_METADATA = 1016155;
+    private static final int MAG_ATTR_NOT_FOUND = 1016156;
+    private static final int MAG_ATTR_DUPLICATED = 1016157;
 
     private DeviceMetadata() {throw new IllegalStateException("Not allowed to instantiate");
 
@@ -55,8 +57,12 @@ class DeviceMetadata {
                         TargetApiException tException = (TargetApiException) ((MASException) e).getRootCause();
                         int errorCode = findErrorCode(tException.getResponse());
 
-                        if (errorCode == MAG_DEVICE_MAX_METADATA) {
+                        if (errorCode == MAG_MAX_METADATA) {
                             Callback.onError(callback, new MASDeviceAttributeOverflowException(errorCode, e));
+                        }
+
+                        if (errorCode == MAG_ATTR_DUPLICATED) {
+                            Callback.onError(callback, new MAGException(errorCode, "Attribute duplicated"));
                         }
                     }
                 } catch (Exception e1) {
@@ -90,7 +96,21 @@ class DeviceMetadata {
 
             @Override
             public void onError(Throwable e) {
-                Callback.onError(callback, e);
+                try {
+                    if (((MASException) e).getRootCause() instanceof TargetApiException){
+                        TargetApiException tException = (TargetApiException) ((MASException) e).getRootCause();
+                        int errorCode = findErrorCode(tException.getResponse());
+
+                        if (errorCode == MAG_ATTR_NOT_FOUND) {
+                            // - return empty object if that resource does not exist
+                            Callback.onSuccess(callback, new JSONObject());
+                        }
+                    }
+                } catch (Exception e1) {
+                    Callback.onError(callback, e);
+                } finally {
+                    Callback.onError(callback, e);
+                }
             }
         });
     }
@@ -139,10 +159,24 @@ class DeviceMetadata {
 
             @Override
             public void onError(Throwable e) {
-                Callback.onError(callback, e);
+                try {
+                    if (((MASException) e).getRootCause() instanceof TargetApiException){
+                        TargetApiException tException = (TargetApiException) ((MASException) e).getRootCause();
+                        int errorCode = findErrorCode(tException.getResponse());
+
+                        if (errorCode == MAG_ATTR_NOT_FOUND) {
+                            callback.onSuccess(null);
+                        }
+                    }
+                } catch (Exception e1) {
+                    Callback.onError(callback, e);
+                } finally {
+                    Callback.onError(callback, e);
+                }
             }
         });
     }
+
 
     public static void deleteAttributes(final MASCallback<Void> callback) {
         MASRequest request = null;

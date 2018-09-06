@@ -1,6 +1,6 @@
 {
   "master": {
-    "operation_type": "profile", //valid values - 1- "benchmark" 2- "profile"
+    "operation_type": "benchmark", //valid values - 1- "benchmark" 2- "profile"
     "iteration": 50
 
   },
@@ -9,7 +9,7 @@
       "id": 1,
       "name": "LoginTest",
       "benchmark": 0.882,  //in seconds
-      "iteration": 5,
+      "iteration": 50,
       "desc":"This test gives Login execution time."
     },
     {
@@ -18,6 +18,20 @@
       "benchmark": 0.7407,
       "iteration": 10,
       "desc": "This test gives Login -> Logout flow's execution time"
+    },
+    {
+      "id": 3,
+      "name": "LoginDeregisterTest",
+      "benchmark": 0.7407,
+      "iteration": 10,
+      "desc": "This test gives Login -> Deregister flow's execution time"
+    },
+    {
+      "id": 4,
+      "name": "LoginGetTest",
+      "benchmark": 1.907,
+      "iteration": 10,
+      "desc": "This test gives Login -> Get flow's execution time"
     }
   ]
 

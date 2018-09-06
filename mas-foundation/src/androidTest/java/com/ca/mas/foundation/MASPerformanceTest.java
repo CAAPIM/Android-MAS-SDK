@@ -14,6 +14,8 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
+import com.ca.mas.GatewayDefaultDispatcher;
+import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASMockGatewayTestBase;
 import com.ca.mas.ScenarioInfo;
 import com.ca.mas.ScenarioMasterInfo;
@@ -42,6 +44,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -96,7 +100,9 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
         if (MASDevice.getCurrentDevice() != null && MASDevice.getCurrentDevice().isRegistered()) {
             MASDevice.getCurrentDevice().deregister(null);
         }
+        MAS.processPendingRequests();
         MAS.stop();
+
     }
 
     @AfterClass
@@ -172,13 +178,11 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
 
         Double sum = 0.0;
 
-        MAS.start(getContext());
-
-        MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_PASSWORD);
-
         for (int i = 0; i < scenarioInfo.getIteration(); i++) {
             final CountDownLatch countDownLatch = new CountDownLatch(1);
             long start = System.currentTimeMillis();
+            MAS.start(getContext());
+            MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_PASSWORD);
             MASUser.login("admin", "7layer".toCharArray(), new MASCallback<MASUser>() {
 
                 @Override
@@ -225,7 +229,132 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
 
     }
 
+    @Test
+    @TestId(3)
+    public void loginDeregisterFlow() {
 
+        TestId testId = new Object() {}.getClass().getEnclosingMethod().getAnnotation(TestId.class);
+        int id = testId.value();
+        ScenarioInfo scenarioInfo = map.get(id);
+
+        Double sum = 0.0;
+        for (int i = 0; i < scenarioInfo.getIteration(); i++) {
+            final CountDownLatch countDownLatch = new CountDownLatch(1);
+            long start = System.currentTimeMillis();
+            MAS.start(getContext());
+            MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_PASSWORD);
+            MASUser.login("admin", "7layer".toCharArray(), new MASCallback<MASUser>() {
+
+                @Override
+                public void onSuccess(MASUser result) {
+                    MASDevice.getCurrentDevice().deregister(new MASCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            countDownLatch.countDown();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            countDownLatch.countDown();
+                        }
+                    });
+
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    countDownLatch.countDown();
+
+                }
+            });
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            long end = System.currentTimeMillis();
+
+            sum = sum + (end - start);
+            Log.d(TAG, "Duration of login - deregister flow for iteration " + i + " = " + (end - start)/(double) TENS + "s");
+        }
+        double avg = sum / (scenarioInfo.getIteration()* TENS);
+        if(isBenchmark)  {
+            scenarioInfo.setBenchmark(avg);
+        }
+
+        Log.d(TAG, "Benchmark = " + avg + "s");
+
+        assertTrue("Taken more than " +scenarioInfo.getBenchmark() +" time to execute", avg <= scenarioInfo.getBenchmark());
+
+    }
+
+    @Test
+    @TestId(4)
+    public void loginGetFlow() throws MalformedURLException {
+
+        TestId testId = new Object() {}.getClass().getEnclosingMethod().getAnnotation(TestId.class);
+
+        int id = testId.value();
+        ScenarioInfo scenarioInfo = map.get(id);
+        Double sum = 0.0;
+        final MASRequest request = new MASRequest.MASRequestBuilder(new URL(
+                MASConfiguration.getCurrentConfiguration().getGatewayUrl() +
+                        GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+
+        for (int i = 0; i < scenarioInfo.getIteration(); i++) {
+            final CountDownLatch countDownLatch = new CountDownLatch(1);
+            long start = System.currentTimeMillis();
+            MAS.start(getContext());
+            MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_PASSWORD);
+
+            MASUser.login("admin", "7layer".toCharArray(), new MASCallback<MASUser>() {
+
+                @Override
+                public void onSuccess(MASUser result) {
+                    MAS.invoke(request,new MASCallback<MASResponse<JSONObject>>()
+
+                    {
+
+                        @Override
+                        public void onSuccess (MASResponse < JSONObject > result) {
+                            Log.d(TAG, result.toString());
+                            countDownLatch.countDown();
+                        }
+
+                        @Override
+                        public void onError (Throwable e){
+                            countDownLatch.countDown();
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(Throwable e) {
+
+                    countDownLatch.countDown();
+                }
+            });
+
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            long end = System.currentTimeMillis();
+
+            sum = sum + (end - start);
+            Log.d(TAG, "Duration of login - get flow for iteration " + i + " = " + (end - start)/(double) TENS + "s");
+        }
+        double avg = sum / (scenarioInfo.getIteration()* TENS);
+        if(isBenchmark)  {
+            scenarioInfo.setBenchmark(avg);
+        }
+        Log.d(TAG, "Benchmark = " + avg + "s");
+        assertTrue("Taken more than " +scenarioInfo.getBenchmark() +" time to execute", avg <= scenarioInfo.getBenchmark());
+
+    }
 
 
     private static void printUpdatedBenchmark() {

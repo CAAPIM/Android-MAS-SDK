@@ -127,8 +127,6 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return echo(request);
             } else if (request.getPath().contains(MULTIFACTOR_ENDPOINT)) {
                 return multiFactor(request);
-            } else if (request.getPath().contains(DEVICEMETADATA_ENDPOINT) && request.getMethod().contains("PUT")){
-                return deviceMetadataErrorOverflow();
             }else if (request.getPath().contains(DEVICEMETADATA_ENDPOINT)) {
                 return deviceMetadata();
             }

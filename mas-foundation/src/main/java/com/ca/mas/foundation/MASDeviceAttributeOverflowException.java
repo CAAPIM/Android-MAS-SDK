@@ -1,10 +1,11 @@
 package com.ca.mas.foundation;
 
-import com.ca.mas.core.error.MAGException;
 
-public class MASDeviceAttributeOverflowException extends MAGException {
+public class MASDeviceAttributeOverflowException extends Exception {
 
-    public MASDeviceAttributeOverflowException(int errorCode, Throwable throwable) {
-        super(errorCode, throwable);
+    private final Throwable object;
+
+    public MASDeviceAttributeOverflowException(Throwable e) {
+        this.object = e;
     }
 }

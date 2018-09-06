@@ -54,7 +54,7 @@ class DeviceMetadata {
                 int errorCode = getSpecialError(e);
 
                 if (errorCode == MAG_MAX_METADATA) {
-                    Callback.onError(callback, new MASDeviceAttributeOverflowException(errorCode, e));
+                    Callback.onError(callback, new MASDeviceAttributeOverflowException(e));
                 } else if (errorCode == MAG_ATTR_DUPLICATED) {
                     Callback.onError(callback, new MAGException(errorCode, "Attribute duplicated"));
                 } else {
@@ -193,7 +193,7 @@ class DeviceMetadata {
 
     private static void checkConditions(String name, MASCallback callback){
         if (name == null || !MASDevice.getCurrentDevice().isRegistered()) {
-            Callback.onError(callback, new Throwable());
+            Callback.onError(callback, new IllegalArgumentException());
         }
     }
 }

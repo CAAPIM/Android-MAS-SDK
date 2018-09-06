@@ -13,6 +13,8 @@ import android.util.Base64;
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
+import com.ca.mas.core.http.ContentType;
+import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import junit.framework.Assert;
@@ -31,6 +33,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 public class MASDeviceTest extends MASLoginTestBase {
 
@@ -139,13 +142,30 @@ public class MASDeviceTest extends MASLoginTestBase {
     }
 
     @Test(expected = MASDeviceAttributeOverflowException.class)
-    public void testOverflow() throws ExecutionException, InterruptedException {
+    public void testOverflow() throws Throwable {
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+
+            @Override
+            protected MockResponse deviceMetadata() {
+                 return new MockResponse().setResponseCode(400)
+                        .setHeader("Content-type", ContentType.APPLICATION_JSON)
+                        .setHeader("x-ca-err","1016155");
+            }
+        });
+
         MASDevice device = MASDevice.getCurrentDevice();
 
         MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
         device.addAttribute("overflow", "overflow", callback);
 
-        assertNull(callback.get());
+        try {
+            callback.get();
+            fail();
+        } catch (ExecutionException e) {
+            throw ((MASException) e.getCause()).getRootCause();
+        }
+
     }
 
     public void testNullCallback() {
@@ -154,8 +174,17 @@ public class MASDeviceTest extends MASLoginTestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNullKey() {
+    public void testNullKey() throws Throwable {
         MASDevice device = MASDevice.getCurrentDevice();
-        device.addAttribute(null, "value", null);
+        MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
+
+        device.addAttribute(null, "value", callback);
+
+        try {
+            callback.get();
+            fail();
+        }catch (ExecutionException e){
+            throw ((MASException) e.getCause()).getRootCause();
+        }
     }
 }

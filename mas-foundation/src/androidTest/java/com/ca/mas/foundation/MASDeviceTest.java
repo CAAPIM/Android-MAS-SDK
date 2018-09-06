@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertNull;
 
 public class MASDeviceTest extends MASLoginTestBase {
 
@@ -74,7 +74,7 @@ public class MASDeviceTest extends MASLoginTestBase {
     public void testDeviceIdentifierAfterDeregister() throws InterruptedException, ExecutionException {
         MASDevice deviceInstance = MASDevice.getCurrentDevice();
         String identifier1 = deviceInstance.getIdentifier();
-        MASCallbackFuture<Void> deRegistrationCallback = new MASCallbackFuture<>();	        deviceInstance.deregister(null);
+        MASCallbackFuture<Void> deRegistrationCallback = new MASCallbackFuture<>();
         deviceInstance.deregister(deRegistrationCallback);
         deRegistrationCallback.get();
 
@@ -87,100 +87,74 @@ public class MASDeviceTest extends MASLoginTestBase {
     }
 
     @Test
-    public void testAddAttribute() {
+    public void testAddAttribute() throws ExecutionException, InterruptedException {
         MASDevice deviceInstance = MASDevice.getCurrentDevice();
-        deviceInstance.addAttribute("attr", "valueAttr", new MASCallback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                assertTrue(true);
-            }
 
-            @Override
-            public void onError(Throwable e) {
-                fail();
-            }
-        });
+        MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
+        deviceInstance.addAttribute("attr", "valueAttr", callback);
+        assertNull(callback.get());
     }
 
     @Test
-    public void testRemoveAttribute() {
-        MASDevice device = MASDevice.getCurrentDevice();
+    public void testRemoveAttribute() throws ExecutionException, InterruptedException {
 
-        device.removeAttribute("attr", new MASCallback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                assertTrue(true);
-            }
+        MASDevice deviceInstance = MASDevice.getCurrentDevice();
+        MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
 
-            @Override
-            public void onError(Throwable e) {
-                fail();
-            }
-        });
+        deviceInstance.removeAttribute("attr", callback);
+        assertNull(callback.get());
     }
 
     @Test
-    public void testGetAttribute() {
+    public void testGetAttribute() throws ExecutionException, InterruptedException {
         MASDevice devi = MASDevice.getCurrentDevice();
+        MASCallbackFuture<JSONObject> callback = new MASCallbackFuture<>();
 
-        devi.getAttribute("attr", new MASCallback<JSONObject>() {
-            @Override
-            public void onSuccess(JSONObject result) {
-                assertTrue(true);
-            }
+        devi.getAttribute("attr", callback);
+        assertNotNull(callback.get());
 
-            @Override
-            public void onError(Throwable e) {
-                fail();
-            }
-        });
+        assertNotNull(callback.get().toString().contains("name"));
+        assertNotNull(callback.get().toString().contains("value"));
+
     }
 
     @Test
-    public void testGetAttributes() {
+    public void testGetAttributes() throws ExecutionException, InterruptedException {
         MASDevice device = MASDevice.getCurrentDevice();
 
-        device.getAttributes(new MASCallback<JSONArray>() {
-            @Override
-            public void onSuccess(JSONArray result) {
-                if(result != null && result.length() >= 0) {
-                    assertTrue(true);
-                }
-            }
+        MASCallbackFuture<JSONArray> callback = new MASCallbackFuture<>();
 
-            @Override
-            public void onError(Throwable e) {
-                fail();
-            }
-        });
+        device.getAttributes(callback);
+        assertNotNull(callback.get());
     }
 
     @Test
-    public void testRemoveAttributes() {
+    public void testRemoveAttributes() throws ExecutionException, InterruptedException {
         MASDevice device = MASDevice.getCurrentDevice();
 
-        device.removeAllAttributes(new MASCallback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                assertTrue(true);
-            }
+        MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
+        device.removeAllAttributes(callback);
 
-            @Override
-            public void onError(Throwable e) {
-                fail();
-            }
-        });
+        assertNull(callback.get());
     }
 
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testNullCallback(){
+    @Test(expected = MASDeviceAttributeOverflowException.class)
+    public void testOverflow() throws ExecutionException, InterruptedException {
         MASDevice device = MASDevice.getCurrentDevice();
-        device.addAttribute("attr", "value", null);
+
+        MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
+        device.addAttribute("overflow", "overflow", callback);
+
+        assertNull(callback.get());
+    }
+
+    public void testNullCallback() {
+        MASDevice device = MASDevice.getCurrentDevice();
+        device.getAttribute("attr", null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNullKey(){
+    public void testNullKey() {
         MASDevice device = MASDevice.getCurrentDevice();
         device.addAttribute(null, "value", null);
     }

@@ -151,8 +151,6 @@ public abstract class MASDevice {
      * @param callback MASCallback<Void>
      */
     public void addAttribute(@NonNull String attr, String value, MASCallback<Void> callback) {
-        checkParamsNull(attr, callback);
-
         DeviceMetadata.putAttribute(attr, value, callback);
     }
 
@@ -161,8 +159,6 @@ public abstract class MASDevice {
      *  @param callback MASCallback<Void>
      */
     public void removeAllAttributes(MASCallback<Void> callback){
-        checkCallbackNull(callback);
-
         DeviceMetadata.deleteAttributes(callback);
     }
 
@@ -172,8 +168,6 @@ public abstract class MASDevice {
      * @param callback MASCallback<Void>
      */
     public void removeAttribute(@NonNull String attr, MASCallback<Void> callback){
-        checkParamsNull(attr, callback);
-
         DeviceMetadata.deleteAttribute(attr, callback);
     }
 
@@ -183,8 +177,6 @@ public abstract class MASDevice {
      * @param callback MASCallback
      */
     public void getAttribute(@NonNull String attr, MASCallback<JSONObject> callback){
-        checkParamsNull(attr, callback);
-
         DeviceMetadata.getAttribute(attr,callback);
     }
 
@@ -193,25 +185,7 @@ public abstract class MASDevice {
      * @param callback MASCallback<Map<String, String>>
      */
     public void getAttributes(MASCallback<JSONArray> callback) {
-        checkCallbackNull(callback);
-
         DeviceMetadata.getAttributes(callback);
-
     }
-
-    private void checkParamsNull(String attr, MASCallback callback) {
-        if (attr == null) {
-            throw new IllegalArgumentException();
-        }
-
-        checkCallbackNull(callback);
-    }
-
-    private void checkCallbackNull(MASCallback callback) {
-        if (callback == null) {
-            throw new IllegalArgumentException();
-        }
-    }
-
 
 }

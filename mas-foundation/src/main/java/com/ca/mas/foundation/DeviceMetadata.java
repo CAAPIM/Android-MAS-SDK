@@ -26,10 +26,8 @@ class DeviceMetadata {
 
     public static void putAttribute(String attr, String value, final MASCallback<Void> callback) {
 
+        checkConditions(attr, callback);
         MASRequest request = null;
-        if (attr == null || !MASDevice.getCurrentDevice().isRegistered()) {
-            Callback.onError(callback, new Throwable());
-        }
 
         try {
             JSONObject data = new JSONObject();
@@ -52,29 +50,36 @@ class DeviceMetadata {
 
             @Override
             public void onError(Throwable e) {
-                try {
-                    if (((MASException) e).getRootCause() instanceof TargetApiException){
-                        TargetApiException tException = (TargetApiException) ((MASException) e).getRootCause();
-                        int errorCode = findErrorCode(tException.getResponse());
 
-                        if (errorCode == MAG_MAX_METADATA) {
-                            Callback.onError(callback, new MASDeviceAttributeOverflowException(errorCode, e));
-                        }
+                int errorCode = getSpecialError(e);
 
-                        if (errorCode == MAG_ATTR_DUPLICATED) {
-                            Callback.onError(callback, new MAGException(errorCode, "Attribute duplicated"));
-                        }
-                    }
-                } catch (Exception e1) {
-                    Callback.onError(callback, e);
-                } finally {
+                if (errorCode == MAG_MAX_METADATA) {
+                    Callback.onError(callback, new MASDeviceAttributeOverflowException(errorCode, e));
+                } else if (errorCode == MAG_ATTR_DUPLICATED) {
+                    Callback.onError(callback, new MAGException(errorCode, "Attribute duplicated"));
+                } else {
                     Callback.onError(callback, e);
                 }
             }
         });
     }
 
+    private static int getSpecialError(Throwable e) {
+        int error = -1;
+        try {
+            if (((MASException) e).getRootCause() instanceof TargetApiException){
+                TargetApiException tException = (TargetApiException) ((MASException) e).getRootCause();
+                error = findErrorCode(tException.getResponse());
+            }
+        } catch (Exception e1) {
+        }
+
+        return error;
+    }
+
     public static void getAttribute(String name, final MASCallback<JSONObject> callback) {
+
+        checkConditions(name, callback);
 
         String route = ENDPOINT_PATH + "/" +name;
         MASRequest request = null;
@@ -96,21 +101,14 @@ class DeviceMetadata {
 
             @Override
             public void onError(Throwable e) {
-                try {
-                    if (((MASException) e).getRootCause() instanceof TargetApiException){
-                        TargetApiException tException = (TargetApiException) ((MASException) e).getRootCause();
-                        int errorCode = findErrorCode(tException.getResponse());
-
-                        if (errorCode == MAG_ATTR_NOT_FOUND) {
-                            // - return empty object if that resource does not exist
-                            Callback.onSuccess(callback, new JSONObject());
-                        }
-                    }
-                } catch (Exception e1) {
-                    Callback.onError(callback, e);
-                } finally {
+                int errorCode = getSpecialError(e);
+                if (errorCode == MAG_ATTR_NOT_FOUND) {
+                    // - return empty object if that resource does not exist
+                    Callback.onSuccess(callback, new JSONObject());
+                } else {
                     Callback.onError(callback, e);
                 }
+
             }
         });
     }
@@ -129,7 +127,7 @@ class DeviceMetadata {
         MAS.invoke(request, new MASCallback<MASResponse<JSONArray>>() {
             @Override
             public void onSuccess(MASResponse<JSONArray> response) {
-                callback.onSuccess(response.getBody().getContent());
+                Callback.onSuccess(callback, response.getBody().getContent());
             }
 
             @Override
@@ -140,6 +138,8 @@ class DeviceMetadata {
     }
 
     public static void deleteAttribute(String attr, final MASCallback<Void> callback) {
+        checkConditions(attr, callback);
+
         MASRequest request = null;
         String route = ENDPOINT_PATH + "/" +attr;
 
@@ -154,29 +154,19 @@ class DeviceMetadata {
         MAS.invoke(request, new MASCallback<MASResponse<String>>() {
             @Override
             public void onSuccess(MASResponse<String> response) {
-                callback.onSuccess(null);
+                Callback.onSuccess(callback, null);
             }
 
             @Override
             public void onError(Throwable e) {
-                try {
-                    if (((MASException) e).getRootCause() instanceof TargetApiException){
-                        TargetApiException tException = (TargetApiException) ((MASException) e).getRootCause();
-                        int errorCode = findErrorCode(tException.getResponse());
-
-                        if (errorCode == MAG_ATTR_NOT_FOUND) {
-                            callback.onSuccess(null);
-                        }
-                    }
-                } catch (Exception e1) {
-                    Callback.onError(callback, e);
-                } finally {
-                    Callback.onError(callback, e);
+                int errorCode = getSpecialError(e);
+                if (errorCode == MAG_ATTR_NOT_FOUND) {
+                    callback.onSuccess(null);
                 }
+
             }
         });
     }
-
 
     public static void deleteAttributes(final MASCallback<Void> callback) {
         MASRequest request = null;
@@ -191,7 +181,7 @@ class DeviceMetadata {
         MAS.invoke(request, new MASCallback<MASResponse<String>>() {
             @Override
             public void onSuccess(MASResponse<String> response) {
-                callback.onSuccess(null);
+                Callback.onSuccess(callback, null);
             }
 
             @Override
@@ -199,5 +189,11 @@ class DeviceMetadata {
                 Callback.onError(callback, e);
             }
         });
+    }
+
+    private static void checkConditions(String name, MASCallback callback){
+        if (name == null || !MASDevice.getCurrentDevice().isRegistered()) {
+            Callback.onError(callback, new Throwable());
+        }
     }
 }

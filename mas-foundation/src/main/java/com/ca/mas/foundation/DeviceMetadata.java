@@ -1,7 +1,6 @@
 package com.ca.mas.foundation;
 
 import com.ca.mas.core.MobileSsoConfig;
-import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.TargetApiException;
 import com.ca.mas.foundation.notify.Callback;
 
@@ -18,7 +17,6 @@ class DeviceMetadata {
     private static final String ENDPOINT_PATH = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.DEVICE_METADATA_PATH);
     private static final int MAG_MAX_METADATA = 1016155;
     private static final int MAG_ATTR_NOT_FOUND = 1016156;
-    private static final int MAG_ATTR_DUPLICATED = 1016157;
 
     private DeviceMetadata() {throw new IllegalStateException("Not allowed to instantiate");
 
@@ -56,8 +54,6 @@ class DeviceMetadata {
 
                 if (errorCode == MAG_MAX_METADATA) {
                     Callback.onError(callback, new MASDeviceAttributeOverflowException(e));
-                } else if (errorCode == MAG_ATTR_DUPLICATED) {
-                    Callback.onError(callback, new MAGException(errorCode, "Attribute duplicated"));
                 } else {
                     Callback.onError(callback, e);
                 }

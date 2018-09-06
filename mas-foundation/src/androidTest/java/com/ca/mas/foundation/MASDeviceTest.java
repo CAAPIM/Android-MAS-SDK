@@ -141,6 +141,48 @@ public class MASDeviceTest extends MASLoginTestBase {
         assertNull(callback.get());
     }
 
+    @Test
+    public void getAttrNotFound() throws ExecutionException, InterruptedException {
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+
+            @Override
+            protected MockResponse deviceMetadata() {
+                return new MockResponse().setResponseCode(404)
+                        .setHeader("Content-type", ContentType.APPLICATION_JSON)
+                        .setHeader("x-ca-err","1016156");
+            }
+        });
+
+        MASDevice devi = MASDevice.getCurrentDevice();
+        MASCallbackFuture<JSONObject> callback = new MASCallbackFuture<>();
+
+        devi.getAttribute("attr", callback);
+        assertNotNull(callback.get());
+        assertTrue(callback.get() != null);
+    }
+
+    @Test
+    public void deleteAttrNotFound() throws ExecutionException, InterruptedException {
+
+        setDispatcher(new GatewayDefaultDispatcher() {
+
+            @Override
+            protected MockResponse deviceMetadata() {
+                return new MockResponse().setResponseCode(404)
+                        .setHeader("Content-type", ContentType.APPLICATION_JSON)
+                        .setHeader("x-ca-err","1016156");
+            }
+        });
+
+        MASDevice device = MASDevice.getCurrentDevice();
+
+        MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
+        device.removeAttribute("NoWayAttr", callback);
+
+        assertNull(callback.get());
+    }
+
     @Test(expected = MASDeviceAttributeOverflowException.class)
     public void testOverflow() throws Throwable {
 

@@ -28,6 +28,8 @@ import com.google.gson.stream.JsonWriter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,7 +55,8 @@ import static junit.framework.TestCase.assertTrue;
 public class MASPerformanceTest extends MASMockGatewayTestBase {
 
     private static final String PROFILER_CONFIG_FILE = "profiler_config.json";
-    private final String TAG = MASPerformanceTest.class.getSimpleName();
+    private  final int TENS = 1000;
+    private static final String TAG = MASPerformanceTest.class.getSimpleName();
     private static Context context = null;
     private static Map<Integer, ScenarioInfo> map = new HashMap<>();
     private static boolean isBenchmark = false;
@@ -67,14 +70,20 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
         Gson gson = new GsonBuilder().create();
 
         scenarios = gson.fromJson(jsonString, Scenarios.class);
-        for (ScenarioInfo scenarioInfo : scenarios.getScenarios()){
-            map.put(scenarioInfo.getId(), scenarioInfo);
-        }
-
         ScenarioMasterInfo masterConfig = scenarios.getMaster();
+
         if(masterConfig.getOperation_type().equalsIgnoreCase("benchmark"))  {
             isBenchmark = true;
-        } 
+        }
+
+        for (ScenarioInfo scenarioInfo : scenarios.getScenarios()){
+            map.put(scenarioInfo.getId(), scenarioInfo);
+            if(!isBenchmark){
+                scenarioInfo.setIteration(1);
+            }
+        }
+
+
 
     }
 
@@ -90,6 +99,14 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
         MAS.stop();
     }
 
+    @AfterClass
+    public static void compelete(){
+        if(isBenchmark){
+            printUpdatedBenchmark();
+        }
+
+    }
+
 
     @Test
     @TestId(1)
@@ -100,20 +117,13 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
 
         int id = testId.value();
         ScenarioInfo scenarioInfo = map.get(id);
-        int noOfIterations;
+        Double sum = 0.0;
 
-        long sum = 0L;
-
-        if(isBenchmark){
-            noOfIterations = scenarioInfo.getIteration();
-        }  else {
-            noOfIterations = 1;
-        }
         MAS.start(getContext());
 
         MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_PASSWORD);
 
-        for (int i = 0; i < noOfIterations; i++) {
+        for (int i = 0; i < scenarioInfo.getIteration(); i++) {
             final CountDownLatch countDownLatch = new CountDownLatch(1);
             long start = System.currentTimeMillis();
             MASUser.login("admin", "7layer".toCharArray(), new MASCallback<MASUser>() {
@@ -138,26 +148,90 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             long end = System.currentTimeMillis();
 
             sum = sum + (end - start);
-            Log.d(TAG, "Duration of login flow for iteration " + i + " = " + (end - start));
+            Log.d(TAG, "Duration of login flow for iteration " + i + " = " + (end - start)/(double) TENS + "s");
         }
-        long avg = sum / noOfIterations;
+        double avg = sum / (scenarioInfo.getIteration()* TENS);
         if(isBenchmark)  {
-            updateBenchmark(avg, id);
+            scenarioInfo.setBenchmark(avg);
         }
 
-        Log.d(TAG, "Benchmark = " + avg + "ms");
+        Log.d(TAG, "Benchmark = " + avg + "s");
 
         assertTrue("Taken more than " +scenarioInfo.getBenchmark() +" time to execute", avg <= scenarioInfo.getBenchmark());
 
     }
 
-    private void updateBenchmark(long avg, int testId) {
+    @Test
+    @TestId(2)
+    public void loginLogoutFlow() {
 
-        ScenarioInfo scenarioInfo = map.get(testId);
-        scenarioInfo.setBenchmark(avg);
-         Gson gson = new GsonBuilder().create();
-         String jsonStr = gson.toJson(scenarios);
+        TestId testId = new Object() {}.getClass().getEnclosingMethod().getAnnotation(TestId.class);
 
+        int id = testId.value();
+        ScenarioInfo scenarioInfo = map.get(id);
+
+        Double sum = 0.0;
+
+        MAS.start(getContext());
+
+        MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_PASSWORD);
+
+        for (int i = 0; i < scenarioInfo.getIteration(); i++) {
+            final CountDownLatch countDownLatch = new CountDownLatch(1);
+            long start = System.currentTimeMillis();
+            MASUser.login("admin", "7layer".toCharArray(), new MASCallback<MASUser>() {
+
+                @Override
+                public void onSuccess(MASUser result) {
+                    result.logout(true, new MASCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            countDownLatch.countDown();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            countDownLatch.countDown();
+                        }
+                    });
+
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    countDownLatch.countDown();
+
+                }
+            });
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            long end = System.currentTimeMillis();
+
+            sum = sum + (end - start);
+            Log.d(TAG, "Duration of login - logout flow for iteration " + i + " = " + (end - start)/(double) TENS + "s");
+        }
+        double avg = sum / (scenarioInfo.getIteration()* TENS);
+        if(isBenchmark)  {
+            scenarioInfo.setBenchmark(avg);
+        }
+
+        Log.d(TAG, "Benchmark = " + avg + "s");
+
+        assertTrue("Taken more than " +scenarioInfo.getBenchmark() +" time to execute", avg <= scenarioInfo.getBenchmark());
+
+    }
+
+
+
+
+    private static void printUpdatedBenchmark() {
+
+        Gson gson = new GsonBuilder().create();
+        String jsonStr = gson.toJson(scenarios);
         try {
             Log.d(TAG, " \n\n"+new JSONObject(jsonStr).toString(4));
         } catch (JSONException e) {

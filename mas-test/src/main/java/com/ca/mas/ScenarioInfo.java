@@ -4,7 +4,8 @@ public class ScenarioInfo {
     private int id = -1;
     private String name = null;
     private int iteration = 1;
-    private long benchmark = 0L;
+    private Double benchmark = 0.0;
+    private String desc= " ";
 
     public int getId() {
         return id;
@@ -30,11 +31,19 @@ public class ScenarioInfo {
         this.iteration = iteration;
     }
 
-    public long getBenchmark() {
+    public Double getBenchmark() {
         return benchmark;
     }
 
-    public void setBenchmark(long benchmark) {
+    public void setBenchmark(Double benchmark) {
         this.benchmark = benchmark;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 }

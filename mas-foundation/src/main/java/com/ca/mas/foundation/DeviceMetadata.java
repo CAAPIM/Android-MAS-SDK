@@ -40,6 +40,7 @@ class DeviceMetadata {
 
         } catch (URISyntaxException | JSONException e) {
             Callback.onError(callback, e);
+            return;
         }
 
         MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
@@ -91,6 +92,7 @@ class DeviceMetadata {
                     .build();
         } catch (URISyntaxException e) {
             Callback.onError(callback, e);
+            return;
         }
 
         MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
@@ -122,6 +124,7 @@ class DeviceMetadata {
                     .build();
         } catch (URISyntaxException e) {
             Callback.onError(callback, e);
+            return;
         }
 
         MAS.invoke(request, new MASCallback<MASResponse<JSONArray>>() {
@@ -149,6 +152,7 @@ class DeviceMetadata {
                     .build();
         } catch (URISyntaxException e) {
             callback.onError(e);
+            return;
         }
 
         MAS.invoke(request, new MASCallback<MASResponse<String>>() {
@@ -176,6 +180,7 @@ class DeviceMetadata {
                     .build();
         } catch (URISyntaxException e) {
             Callback.onError(callback, e);
+            return;
         }
 
         MAS.invoke(request, new MASCallback<MASResponse<String>>() {

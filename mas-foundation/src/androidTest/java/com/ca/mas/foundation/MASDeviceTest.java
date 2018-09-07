@@ -116,8 +116,8 @@ public class MASDeviceTest extends MASLoginTestBase {
         devi.getAttribute("attr", callback);
         assertNotNull(callback.get());
 
-        assertNotNull(callback.get().toString().contains("name"));
-        assertNotNull(callback.get().toString().contains("value"));
+        assertTrue(callback.get().toString().contains("name"));
+        assertTrue(callback.get().toString().contains("value"));
 
     }
 
@@ -221,12 +221,5 @@ public class MASDeviceTest extends MASLoginTestBase {
         MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
 
         device.addAttribute(null, "value", callback);
-
-        try {
-            callback.get();
-            fail();
-        }catch (ExecutionException e){
-            throw ((MASException) e.getCause()).getRootCause();
-        }
     }
 }

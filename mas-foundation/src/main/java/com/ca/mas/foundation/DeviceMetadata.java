@@ -24,7 +24,7 @@ class DeviceMetadata {
 
     public static void putAttribute(String attr, String value, final MASCallback<Void> callback) {
 
-        checkConditions(attr, callback);
+        checkConditions(attr);
         MASRequest request = null;
 
         try {
@@ -69,6 +69,7 @@ class DeviceMetadata {
                 error = findErrorCode(tException.getResponse());
             }
         } catch (Exception e1) {
+            //ignore
         }
 
         return error;
@@ -76,7 +77,7 @@ class DeviceMetadata {
 
     public static void getAttribute(String name, final MASCallback<JSONObject> callback) {
 
-        checkConditions(name, callback);
+        checkConditions(name);
 
         String route = ENDPOINT_PATH + "/" +name;
         MASRequest request = null;
@@ -136,18 +137,18 @@ class DeviceMetadata {
         });
     }
 
-    public static void deleteAttribute(String attr, final MASCallback<Void> callback) {
-        checkConditions(attr, callback);
+    public static void deleteAttribute(String name, final MASCallback<Void> callback) {
+        checkConditions(name);
 
         MASRequest request = null;
-        String route = ENDPOINT_PATH + "/" +attr;
+        String route = ENDPOINT_PATH + "/" +name;
 
         try {
             request = new MASRequest.MASRequestBuilder(new URI(route))
-                    .delete(MASRequestBody.stringBody(attr))
+                    .delete(MASRequestBody.stringBody(name))
                     .build();
         } catch (URISyntaxException e) {
-            callback.onError(e);
+            Callback.onError(callback, e);
             return;
         }
 
@@ -161,7 +162,9 @@ class DeviceMetadata {
             public void onError(Throwable e) {
                 int errorCode = getSpecialError(e);
                 if (errorCode == MAG_ATTR_NOT_FOUND) {
-                    callback.onSuccess(null);
+                    Callback.onSuccess(callback,null);
+                } else {
+                    Callback.onError(callback, e);
                 }
 
             }
@@ -192,9 +195,9 @@ class DeviceMetadata {
         });
     }
 
-    private static void checkConditions(String name, MASCallback callback){
-        if (name == null || !MASDevice.getCurrentDevice().isRegistered()) {
-            Callback.onError(callback, new IllegalArgumentException());
+    private static void checkConditions(String name){
+        if (name == null) {
+            throw new IllegalArgumentException("Attribute name cannot be null");
         }
     }
 }

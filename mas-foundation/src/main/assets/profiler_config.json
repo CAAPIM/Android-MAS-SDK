@@ -1,6 +1,6 @@
 {
   "master": {
-    "operation_type": "benchmark", //valid values - 1- "benchmark" 2- "profile"
+    "operation_type": "profile", //valid values - 1- "benchmark" 2- "profile"
     "iteration": 50
 
   },
@@ -32,6 +32,13 @@
       "benchmark": 1.907,
       "iteration": 10,
       "desc": "This test gives Login -> Get flow's execution time"
+    },
+    {
+      "id": 5,
+      "name": "GetTest",
+      "benchmark": 1.907,
+      "iteration": 10,
+      "desc": "This test gives GET call execution time"
     }
   ]
 

@@ -21,12 +21,15 @@ import com.ca.mas.ScenarioInfo;
 import com.ca.mas.ScenarioMasterInfo;
 import com.ca.mas.Scenarios;
 import com.ca.mas.TestId;
+import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
+
+import junit.framework.Assert;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,7 +55,9 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
@@ -356,6 +361,66 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
 
     }
 
+
+    @Test
+    @TestId(5)
+    public void getFlow() throws MalformedURLException, ExecutionException, InterruptedException {
+
+        TestId testId = new Object() {}.getClass().getEnclosingMethod().getAnnotation(TestId.class);
+
+        int id = testId.value();
+        ScenarioInfo scenarioInfo = map.get(id);
+        Double sum = 0.0;
+        final MASRequest request = new MASRequest.MASRequestBuilder(new URL(
+                MASConfiguration.getCurrentConfiguration().getGatewayUrl() +
+                        GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+
+        MAS.start(getContext());
+        MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_PASSWORD);
+
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASUser.login("admin", "7layer".toCharArray(), callback);
+        assertNotNull(callback.get());
+
+        for (int i = 0; i < scenarioInfo.getIteration(); i++) {
+            final CountDownLatch countDownLatch = new CountDownLatch(1);
+            long start = System.currentTimeMillis();
+
+
+            MAS.invoke(request,new MASCallback<MASResponse<JSONObject>>()
+            {
+                @Override
+                public void onSuccess (MASResponse < JSONObject > result) {
+                    Log.d(TAG, result.getResponseMessage());
+                    countDownLatch.countDown();
+                }
+
+                @Override
+                public void onError (Throwable e){
+                    countDownLatch.countDown();
+                }
+            });
+
+
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            long end = System.currentTimeMillis();
+
+            sum = sum + (end - start);
+            Log.d(TAG, "Duration of get flow for iteration " + i + " = " + (end - start)/(double) TENS + "s");
+        }
+        double avg = sum / (scenarioInfo.getIteration()* TENS);
+        if(isBenchmark)  {
+            scenarioInfo.setBenchmark(avg);
+        }
+        Log.d(TAG, "Benchmark = " + avg + "s");
+        assertTrue("Taken more than " +scenarioInfo.getBenchmark() +" time to execute", avg <= scenarioInfo.getBenchmark());
+
+    }
 
     private static void printUpdatedBenchmark() {
 

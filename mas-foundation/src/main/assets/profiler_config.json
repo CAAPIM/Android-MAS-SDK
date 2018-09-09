@@ -1,45 +1,57 @@
 {
   "master": {
-    "operation_type": "profile", //valid values - 1- "benchmark" 2- "profile"
-    "iteration": 50
-
+    "iteration": 50,
+    "operation_type": "profile"
   },
   "scenarios": [
     {
+      "benchmark": 0.186,
+      "desc": "This test gives Login execution time.",
       "id": 1,
-      "name": "LoginTest",
-      "benchmark": 0.882,  //in seconds
-      "iteration": 50,
-      "desc":"This test gives Login execution time."
+      "iteration": 10,
+      "name": "LoginTest"
     },
     {
+      "benchmark": 0.3243,
+      "desc": "This test gives Login -> Logout flow's execution time",
       "id": 2,
-      "name": "LoginLogoutTest",
-      "benchmark": 0.7407,
       "iteration": 10,
-      "desc": "This test gives Login -> Logout flow's execution time"
+      "name": "LoginLogoutTest"
     },
     {
+      "benchmark": 1.8971,
+      "desc": "This test gives Login -> Deregister flow's execution time",
       "id": 3,
-      "name": "LoginDeregisterTest",
-      "benchmark": 0.7407,
       "iteration": 10,
-      "desc": "This test gives Login -> Deregister flow's execution time"
+      "name": "LoginDeregisterTest"
     },
     {
+      "benchmark": 0.2472,
+      "desc": "This test gives Login -> Get flow's execution time",
       "id": 4,
-      "name": "LoginGetTest",
-      "benchmark": 1.907,
       "iteration": 10,
-      "desc": "This test gives Login -> Get flow's execution time"
+      "name": "LoginGetTest"
     },
     {
+      "benchmark": 0.0516,
+      "desc": "This test gives GET call execution time",
       "id": 5,
-      "name": "GetTest",
-      "benchmark": 1.907,
       "iteration": 10,
-      "desc": "This test gives GET call execution time"
+      "name": "GetTest"
+    },
+    {
+      "benchmark": 0.1166,
+      "desc": "This test gives GET(OTP) with implicit login call execution time",
+      "id": 6,
+      "iteration": 10,
+      "name": "GetViaOTPImplicitLoginTest"
+    },
+    {
+      "benchmark": 0.1067,
+      "desc": "This test gives GET(OTP) call execution time",
+      "id": 7,
+      "iteration": 10,
+      "name": "GetViaOTPTest"
     }
   ]
-
 }

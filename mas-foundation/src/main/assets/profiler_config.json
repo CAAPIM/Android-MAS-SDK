@@ -1,11 +1,11 @@
 {
   "master": {
     "iteration": 50,
-    "operation_type": "profile"
+    "operation_type": "profile"    //valid values 1- benchmark , 2- profile
   },
   "scenarios": [
     {
-      "benchmark": 0.186,
+      "benchmark": 0.186, //in seconds
       "desc": "This test gives Login execution time.",
       "id": 1,
       "iteration": 10,
@@ -52,6 +52,13 @@
       "id": 7,
       "iteration": 10,
       "name": "GetViaOTPTest"
+    },
+    {
+      "benchmark": 0.0143,
+      "desc": "This test gives start call execution time",
+      "id": 8,
+      "iteration": 10,
+      "name": "StartTest"
     }
   ]
 }

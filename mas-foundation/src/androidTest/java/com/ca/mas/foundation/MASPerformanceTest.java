@@ -119,9 +119,39 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
     }
 
 
+
+    @Test
+    @TestId(8)
+    public void startTest() throws URISyntaxException, ExecutionException, InterruptedException {
+
+        TestId testId = new Object() {}.getClass().getEnclosingMethod().getAnnotation(TestId.class);
+
+        int id = testId.value();
+        ScenarioInfo scenarioInfo = map.get(id);
+        Double sum = 0.0;
+
+        for (int i = 0; i < scenarioInfo.getIteration(); i++) {
+            long start = System.currentTimeMillis();
+            MAS.start(getContext());
+            long end = System.currentTimeMillis();
+
+            sum = sum + (end - start);
+            Log.d(TAG, "Duration of start for iteration " + i + " = " + (end - start) / (double) TENS + "s");
+        }
+        double avg = sum / (scenarioInfo.getIteration()* TENS);
+        if(isBenchmark)  {
+            scenarioInfo.setBenchmark(avg);
+        }
+        Log.d(TAG, "Benchmark = " + avg + "s");
+        assertTrue("Taken more than " +scenarioInfo.getBenchmark() +" time to execute", avg <= scenarioInfo.getBenchmark());
+
+    }
+
+
+
     @Test
     @TestId(1)
-    public void loginFlow() {
+    public void loginTest() {
 
 
         TestId testId = new Object() {}.getClass().getEnclosingMethod().getAnnotation(TestId.class);
@@ -174,7 +204,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
 
     @Test
     @TestId(2)
-    public void loginLogoutFlow() {
+    public void loginLogoutFlowTest() {
 
         TestId testId = new Object() {}.getClass().getEnclosingMethod().getAnnotation(TestId.class);
 
@@ -236,7 +266,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
 
     @Test
     @TestId(3)
-    public void loginDeregisterFlow() {
+    public void loginDeregisterFlowTest() {
 
         TestId testId = new Object() {}.getClass().getEnclosingMethod().getAnnotation(TestId.class);
         int id = testId.value();
@@ -296,7 +326,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
 
     @Test
     @TestId(4)
-    public void loginGetFlow() throws MalformedURLException {
+    public void loginGetFlowTest() throws MalformedURLException {
 
         TestId testId = new Object() {}.getClass().getEnclosingMethod().getAnnotation(TestId.class);
 
@@ -364,7 +394,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
 
     @Test
     @TestId(5)
-    public void getFlow() throws MalformedURLException, ExecutionException, InterruptedException {
+    public void getTest() throws MalformedURLException, ExecutionException, InterruptedException {
 
         TestId testId = new Object() {}.getClass().getEnclosingMethod().getAnnotation(TestId.class);
 
@@ -425,7 +455,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
 
     @Test
     @TestId(6)
-    public void implicitLoginGetViaOtpFlow() throws  URISyntaxException {
+    public void implicitLoginGetViaOtpFlowTest() throws  URISyntaxException {
 
         TestId testId = new Object() {}.getClass().getEnclosingMethod().getAnnotation(TestId.class);
 
@@ -517,7 +547,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
 
     @Test
     @TestId(7)
-    public void getViaOtpFlow() throws URISyntaxException, ExecutionException, InterruptedException {
+    public void getViaOtpFlowTest() throws URISyntaxException, ExecutionException, InterruptedException {
 
         TestId testId = new Object() {}.getClass().getEnclosingMethod().getAnnotation(TestId.class);
 

@@ -90,7 +90,6 @@ public class MASLoginTest extends MASStartTestBase {
     public void testAuthenticationListener() throws JSONException, InterruptedException, URISyntaxException, ExecutionException {
 
         final boolean[] result = {false};
-        long start = System.nanoTime();
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         MAS.setAuthenticationListener(new MASAuthenticationListener() {
 
@@ -122,7 +121,6 @@ public class MASLoginTest extends MASStartTestBase {
         MAS.invoke(request, callback);
         Assert.assertNotNull(callback.get());
         countDownLatch.await();
-        Log.d("LOGIN", System.nanoTime() - start+" ns");
         Assert.assertTrue(result[0]);
 
     }
@@ -499,12 +497,9 @@ public class MASLoginTest extends MASStartTestBase {
     @Test
     public void loginTest() throws InterruptedException, ExecutionException {
 
-        long start = System.nanoTime();
         MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
         MASUser.login("admin", "7layer".toCharArray(), callback);
         assertNotNull(callback.get());
-        long end = System.nanoTime();
-        assertTrue("time = " + (end-start) , false);
         assertNotNull(MASUser.getCurrentUser());
 
     }

@@ -1,3 +1,10 @@
+
+#Version 1.X.X (Not release yet)
+
+### New features
+- Allow end users to store additional data about the device. [US507853]
+
+
 # Version 1.8.00
 
 ### Bug fixes

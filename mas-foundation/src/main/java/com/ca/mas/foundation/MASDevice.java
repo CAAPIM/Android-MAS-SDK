@@ -7,12 +7,18 @@
  */
 package com.ca.mas.foundation;
 
+import android.support.annotation.NonNull;
+
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.auth.ble.BluetoothLePeripheral;
 import com.ca.mas.core.context.DeviceIdentifier;
 import com.ca.mas.foundation.auth.MASProximityLoginBLEPeripheralListener;
 import com.ca.mas.foundation.notify.Callback;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 
 /**
  * <p>The <b>MASDevice</b> class is a local representation of device data.</p>
@@ -136,6 +142,57 @@ public abstract class MASDevice {
             };
         }
         return current;
+    }
+
+    /**
+     * Create or update a new attribute for the current device,
+     * throw MASDeviceAttributeOverflowException when exceed maximum attribute allowed.
+     *
+     * @param attr     Key of the attribute to be associated with the device
+     * @param value    Value of the attribute to be associated with the device
+     * @param callback MASCallback The callback to notify when a response is available
+     */
+    public void addAttribute(@NonNull String attr, String value, MASCallback<Void> callback) {
+        DeviceMetadata.putAttribute(attr, value, callback);
+    }
+
+    /**
+     * Remove all attributes for the current device
+     *
+     * @param callback MASCallback The callback to notify when a response is available
+     */
+    public void removeAllAttributes(MASCallback<Void> callback) {
+        DeviceMetadata.deleteAttributes(callback);
+    }
+
+    /**
+     * Remove attribute by name, succeed even device attribute does not exists
+     *
+     * @param attr     Key of the attribute to be removed for the current device
+     * @param callback MASCallback The callback to notify when a response is available
+     */
+
+    public void removeAttribute(@NonNull String attr, MASCallback<Void> callback) {
+        DeviceMetadata.deleteAttribute(attr, callback);
+    }
+
+    /**
+     * Get attribute by name, return empty JSONObject if no attribute is found.
+     *
+     * @param attr     Key of the attribute to be removed for the current device
+     * @param callback MASCallback The callback to notify when a response is available
+     */
+    public void getAttribute(@NonNull String attr, MASCallback<JSONObject> callback) {
+        DeviceMetadata.getAttribute(attr, callback);
+    }
+
+    /**
+     * Get all attributes, return empty JSONArray if no attributes found.
+     *
+     * @param callback MASCallback The callback to notify when a response is available
+     */
+    public void getAttributes(MASCallback<JSONArray> callback) {
+        DeviceMetadata.getAttributes(callback);
     }
 
 }

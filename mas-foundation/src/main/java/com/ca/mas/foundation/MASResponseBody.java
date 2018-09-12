@@ -183,6 +183,28 @@ public class MASResponseBody<T> {
     }
 
     /**
+     * @return Return a new ResponseBody with {@link JSONObject} content.
+     */
+    public static MASResponseBody<JSONArray> jsonArrayBody() {
+
+        return new MASResponseBody<JSONArray>() {
+
+            @Override
+            public JSONArray getContent() {
+                if (buffer == null || buffer.length == 0) {
+                    return new JSONArray();
+                }
+                try {
+                    return new JSONArray(new String(buffer));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+    }
+
+
+    /**
      * @return Return a new ResponseBody with {@link String} content.
      */
     public static MASResponseBody<String> stringBody() {

@@ -10,6 +10,7 @@ package com.ca.mas.foundation;
 
 import android.app.KeyguardManager;
 import android.graphics.Bitmap;
+import android.hardware.fingerprint.FingerprintManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -52,6 +53,9 @@ import com.ca.mas.identity.util.IdentityUtil;
 import com.ca.mas.messaging.MASMessage;
 import com.ca.mas.messaging.MASMessenger;
 import com.ca.mas.messaging.topic.MASTopic;
+import com.samsung.android.sdk.SsdkUnsupportedException;
+import com.samsung.android.sdk.SsdkVendorCheck;
+import com.samsung.android.sdk.pass.Spass;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,8 +70,10 @@ import java.util.NoSuchElementException;
 import java.util.Observable;
 import java.util.Observer;
 
+import static android.content.Context.FINGERPRINT_SERVICE;
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
+import static com.ca.mas.foundation.MAS.getContext;
 import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN;
 
 /**
@@ -394,6 +400,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 }
 
                 MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+                    @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onSuccess(MASResponse<JSONObject> result) {
                         // - Paramenter to delete or not the local storage
@@ -415,6 +422,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                         Callback.onSuccess(callback, null);
                     }
 
+                    @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onError(Throwable e) {
                         // - Paramenter to delete or not the local storage
@@ -438,6 +446,22 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                         Callback.onError(callback, e);
                     }
                 });
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            private boolean isFingerprintSupported() {
+                FingerprintManager fingerprintManager = (FingerprintManager) MAS.getContext().getSystemService(FINGERPRINT_SERVICE);
+                boolean isFingerprintSupported = fingerprintManager != null && fingerprintManager.isHardwareDetected();
+                if (!isFingerprintSupported && SsdkVendorCheck.isSamsungDevice()) {
+                    Spass spass = new Spass();
+                    try {
+                        spass.initialize(getContext());
+                        isFingerprintSupported = spass.isFeatureEnabled(Spass.DEVICE_FINGERPRINT);
+                    } catch (SsdkUnsupportedException | UnsupportedOperationException e) {
+                        // Error handling
+                    }
+                }
+                return isFingerprintSupported;
             }
 
             @Override
@@ -528,8 +552,11 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 }
             }
 
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void lockSession(MASCallback<Void> callback) {
+
+                boolean isSamFing = isFingerprintSupported();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     MASUser currentUser = MASUser.getCurrentUser();
                     if (currentUser == null) {
@@ -612,6 +639,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
             @RequiresApi(Build.VERSION_CODES.M)
             public void unlockSession(MASSessionUnlockCallback<Void> callback) {
+                boolean isSamFing = isFingerprintSupported();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (isSessionLocked()) {
 

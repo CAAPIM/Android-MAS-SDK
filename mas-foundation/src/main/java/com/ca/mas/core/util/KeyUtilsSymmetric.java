@@ -9,11 +9,18 @@
 package com.ca.mas.core.util;
 
 import android.annotation.TargetApi;
+import android.app.KeyguardManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProtection;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.ca.mas.core.security.KeyStoreRepository;
+import com.ca.mas.foundation.MAS;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -37,14 +44,17 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 
+import static android.content.Context.KEYGUARD_SERVICE;
 import static android.security.keystore.KeyProperties.BLOCK_MODE_CBC;
 import static android.security.keystore.KeyProperties.BLOCK_MODE_CTR;
 import static android.security.keystore.KeyProperties.BLOCK_MODE_GCM;
 import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE;
 import static android.security.keystore.KeyProperties.PURPOSE_DECRYPT;
 import static android.security.keystore.KeyProperties.PURPOSE_ENCRYPT;
+import static android.support.v4.content.ContextCompat.getSystemService;
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
+import static com.ca.mas.foundation.MAS.getContext;
 
 
 /**
@@ -205,7 +215,7 @@ public class KeyUtilsSymmetric {
      *                                          to be used after the user is successfully authenticated.
      * @return secret key
      */
-    @TargetApi(Build.VERSION_CODES.M)
+    @RequiresApi(api = 28)
     private static SecretKey generateKeyInAndroidKeyStoreAndroidM(
             String alias, String algorithm, int keyLength,
             boolean userAuthenticationRequired,
@@ -219,6 +229,7 @@ public class KeyUtilsSymmetric {
                     .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_GCM)
                     .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
                     .setRandomizedEncryptionRequired(true)
+                    .setUnlockedDeviceRequired(true)
                     .setUserAuthenticationRequired(userAuthenticationRequired);
 
             if (userAuthenticationRequired && userAuthenticationValiditySeconds > 0)
@@ -350,7 +361,7 @@ public class KeyUtilsSymmetric {
      * @param userAuthenticationValiditySeconds sets the duration for which this key is authorized
      *                                          to be used after the user is successfully authenticated.
      */
-    @TargetApi(Build.VERSION_CODES.M)
+    @RequiresApi(api = 28)
     public static boolean storeKeyAndroidM(String alias, SecretKey secretKey,
                                            boolean userAuthenticationRequired,
                                            int userAuthenticationValiditySeconds) {
@@ -367,6 +378,7 @@ public class KeyUtilsSymmetric {
                 .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_GCM)
                 .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
                 .setRandomizedEncryptionRequired(true)
+                .setUnlockedDeviceRequired(true)
                 .setUserAuthenticationRequired(userAuthenticationRequired);
 
         if (userAuthenticationRequired && userAuthenticationValiditySeconds > 0)
@@ -401,6 +413,7 @@ public class KeyUtilsSymmetric {
      *                                          a key if a fingerprint is added.  Setting this value to true ensures
      *                                          the key is usable even if a fingerprint is added.
      */
+    @TargetApi(28)
     @RequiresApi(Build.VERSION_CODES.N)
     public static boolean storeKeyAndroidN(
             String alias, SecretKey secretKey,
@@ -421,6 +434,7 @@ public class KeyUtilsSymmetric {
                 .setEncryptionPaddings(ENCRYPTION_PADDING_NONE)
                 .setRandomizedEncryptionRequired(true)
                 .setUserAuthenticationRequired(userAuthenticationRequired)
+                .setUnlockedDeviceRequired(true)
                 .setInvalidatedByBiometricEnrollment(invalidatedByBiometricEnrollment);
 
         if (userAuthenticationRequired && userAuthenticationValiditySeconds > 0)
@@ -664,6 +678,20 @@ public class KeyUtilsSymmetric {
         if (!(e instanceof android.security.keystore.UserNotAuthenticatedException)) {
             deleteKey(alias);
             if (DEBUG) Log.e(TAG, "deleted key " + alias + " since User not authenticated");
+        } else {
+            authenticate();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static void authenticate() {
+
+        KeyguardManager keyguardManager = (KeyguardManager)MAS.getContext().getSystemService(Context.KEYGUARD_SERVICE);
+
+        Intent intent = keyguardManager.createConfirmDeviceCredentialIntent("title", "description");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (intent != null) {
+            getContext().startActivity(intent);
         }
     }
 

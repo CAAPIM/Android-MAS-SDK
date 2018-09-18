@@ -7,6 +7,7 @@
  */
 package com.ca.mas.core.security;
 
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -14,17 +15,21 @@ import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import com.ca.mas.core.util.KeyUtilsSymmetric;
+import com.ca.mas.foundation.MAS;
 
 import javax.crypto.SecretKey;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 
+import static android.content.Context.KEYGUARD_SERVICE;
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
 
 public class DefaultEncryptionProvider implements EncryptionProvider {
     private KeyStorageProvider ksp;
     private static final String KEY_ALIAS = "secret";
+
+    KeyguardManager keyguardManager = (KeyguardManager) MAS.getContext().getSystemService(KEYGUARD_SERVICE);
 
     public DefaultEncryptionProvider(@NonNull Context ctx) {
         //The Secret key will be encrypted and stored on SharedPreferences for Pre-M
@@ -45,20 +50,31 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
      * @param data : the data to encrypt
      * @return encrypted data as byte[]
      */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public byte[] encrypt(byte[] data) {
         if (data == null) {
             return null;
         }
 
-        byte[] encryptedData;
+        byte[] encryptedData = null;
         try {
-            SecretKey secretKey = ksp.getKey(getKeyAlias(), false);
-            encryptedData = KeyUtilsSymmetric.encrypt(data, secretKey, getKeyAlias());
+            if (keyguardManager.isDeviceSecure()) {
+                SecretKey secretKey = ksp.getKey(getKeyAlias(), true);
+                encryptedData = KeyUtilsSymmetric.encrypt(data, secretKey, getKeyAlias());
+            }  else {
+                throw new RuntimeException("Not secured, active PIN");
+            }
         } catch (Exception e) {
-            if (DEBUG) Log.e(TAG, "inside exception of encrypt function: ", e);
-            throw new RuntimeException(e.getMessage(), e);
+
+            if (e instanceof android.security.keystore.UserNotAuthenticatedException) {
+                KeyUtilsSymmetric.authenticate();
+            } else {
+                if (DEBUG) Log.e(TAG, "inside exception of encrypt function: ", e);
+                throw new RuntimeException(e.getMessage(), e);
+            }
         }
+
         return encryptedData;
     }
 
@@ -66,15 +82,27 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
      * @param encryptedData : data to be decrypted
      * @return byte[] of decrypted data
      */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public byte[] decrypt(byte[] encryptedData) {
         try {
-            SecretKey secretKey = ksp.getKey(getKeyAlias(), false);
-            return KeyUtilsSymmetric.decrypt(encryptedData, secretKey, getKeyAlias());
+            if (keyguardManager.isDeviceSecure()) {
+                SecretKey secretKey = ksp.getKey(getKeyAlias(), true);
+                return KeyUtilsSymmetric.decrypt(encryptedData, secretKey, getKeyAlias());
+            } else {
+                throw new RuntimeException("Not secured, active PIN");
+            }
         } catch (Exception e) {
-            if (DEBUG) Log.i(TAG, "Error while decrypting an cipher instance", e);
-            throw new RuntimeException(e.getMessage(), e);
+
+            if (e instanceof android.security.keystore.UserNotAuthenticatedException) {
+                KeyUtilsSymmetric.authenticate();
+            } else {
+                if (DEBUG) Log.i(TAG, "Error while decrypting an cipher instance", e);
+                throw new RuntimeException(e.getMessage(), e);
+            }
         }
+
+        return null;
     }
 
 

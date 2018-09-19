@@ -9,7 +9,6 @@
 package com.ca.mas.foundation;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;

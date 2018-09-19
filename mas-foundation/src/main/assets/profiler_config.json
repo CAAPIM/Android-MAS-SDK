@@ -1,21 +1,22 @@
 {
   "master": {
-    "iteration": 50,
-    "operation_type": "profile"    //valid values 1- benchmark , 2- profile
+    "iteration": 10,
+    "operation_type": "benchmark",  //valid values 1- benchmark , 2- profile
+    "use_default": true
   },
   "scenarios": [
     {
       "benchmark": 0.186, //in seconds
       "desc": "This test gives Login execution time.",
       "id": 1,
-      "iteration": 10,
+      "iteration": 15,
       "name": "LoginTest"
     },
     {
       "benchmark": 0.3243,
       "desc": "This test gives Login -> Logout flow's execution time",
       "id": 2,
-      "iteration": 10,
+      "iteration": 15,
       "name": "LoginLogoutTest"
     },
     {
@@ -36,7 +37,7 @@
       "benchmark": 0.0516,
       "desc": "This test gives GET call execution time",
       "id": 5,
-      "iteration": 10,
+      "iteration": 15,
       "name": "GetTest"
     },
     {
@@ -57,7 +58,7 @@
       "benchmark": 0.0143,
       "desc": "This test gives start call execution time",
       "id": 8,
-      "iteration": 10,
+      "iteration": 20,
       "name": "StartTest"
     }
   ]

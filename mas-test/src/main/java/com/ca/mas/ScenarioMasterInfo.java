@@ -4,6 +4,7 @@ public class ScenarioMasterInfo {
 
     String operation_type = "profile";
     int iteration = 1;
+    boolean use_default = false;
 
     public String getOperation_type() {
         return operation_type;
@@ -19,5 +20,13 @@ public class ScenarioMasterInfo {
 
     public void setIteration(int iteration) {
         this.iteration = iteration;
+    }
+
+    public boolean isUse_default() {
+        return use_default;
+    }
+
+    public void setUse_default(boolean use_default) {
+        this.use_default = use_default;
     }
 }

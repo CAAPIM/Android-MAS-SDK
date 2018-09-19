@@ -124,13 +124,15 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             long end = System.currentTimeMillis();
 
             sum = sum + (end - start);
-            Log.d(TAG, "Duration of start for iteration " + i + " = " + (end - start) / (double) TENS + "s");
+            Log.d(TAG, "Duration of start flow iteration " + i + " = " + (end - start) / (double) TENS + "s");
         }
         double avg = sum / (scenarioInfo.getIteration() * TENS);
         if (isBenchmark) {
             scenarioInfo.setBenchmark(avg);
+            Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
+        } else {
+            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
-        Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
         assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
     }
@@ -182,9 +184,10 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
         double avg = sum / (scenarioInfo.getIteration() * TENS);
         if (isBenchmark) {
             scenarioInfo.setBenchmark(avg);
+            Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
+        } else {
+            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
-
-        Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
 
         assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
@@ -245,9 +248,10 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
         double avg = sum / (scenarioInfo.getIteration() * TENS);
         if (isBenchmark) {
             scenarioInfo.setBenchmark(avg);
+            Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
+        } else {
+            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
-
-        Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
 
         assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
@@ -306,9 +310,10 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
         double avg = sum / (scenarioInfo.getIteration() * TENS);
         if (isBenchmark) {
             scenarioInfo.setBenchmark(avg);
+            Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
+        } else {
+            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
-
-        Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
 
         assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
@@ -374,8 +379,10 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
         double avg = sum / (scenarioInfo.getIteration() * TENS);
         if (isBenchmark) {
             scenarioInfo.setBenchmark(avg);
+            Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
+        } else {
+            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
-        Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
         assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
     }
@@ -434,8 +441,10 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
         double avg = sum / (scenarioInfo.getIteration() * TENS);
         if (isBenchmark) {
             scenarioInfo.setBenchmark(avg);
+            Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
+        } else {
+            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
-        Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
         assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
     }
@@ -525,8 +534,10 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
         double avg = sum / (scenarioInfo.getIteration() * TENS);
         if (isBenchmark) {
             scenarioInfo.setBenchmark(avg);
+            Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
+        } else {
+            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
-        Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
         assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
     }
@@ -606,8 +617,10 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
         double avg = sum / (scenarioInfo.getIteration() * TENS);
         if (isBenchmark) {
             scenarioInfo.setBenchmark(avg);
+            Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
+        } else {
+            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
-        Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
         assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
     }

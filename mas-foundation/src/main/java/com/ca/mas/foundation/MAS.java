@@ -28,11 +28,6 @@ import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.foundation.notify.Callback;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.proc.JWEKeySelector;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -82,7 +77,7 @@ public class MAS {
 
                  if (!masLifecycleListener.isEmpty())
                      for (MASLifecycleListener listner:masLifecycleListener) {
-                         US542357                         listner.onStarted();
+                         listner.onStarted();
                      }
 
              }
@@ -639,7 +634,7 @@ public class MAS {
     }
 
 
-    public static void loadJWKS(){
+    public static void loadJWKS() {
         try {
             MASRequest request_well_know_uri = new MASRequest.MASRequestBuilder(new URL(MASConfiguration.getCurrentConfiguration().getGatewayUrl()+
                     WELL_KNOW_URI)).setPublic().build();
@@ -657,9 +652,7 @@ public class MAS {
                             public void onSuccess(MASResponse<JSONObject> result) {
                                 ConfigurationManager.getInstance().setJwks(result.getBody().getContent().toString());
                                 Log.d(TAG, "JWT Key Set = "+ result.getBody().getContent().toString());
-
                             }
-
                             @Override
                             public void onError(Throwable e) {
 
@@ -683,7 +676,7 @@ public class MAS {
 
 
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            if (DEBUG) Log.e(TAG, "Incorrect URL", e);
         }
     }
 

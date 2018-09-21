@@ -14,9 +14,15 @@ import com.ca.mas.core.MobileSsoListener;
 import com.ca.mas.core.ResponseInterceptor;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
+import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASGrantProvider;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.foundation.MASConnectionListener;
+import com.ca.mas.foundation.MASLifecycleListener;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,10 +33,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import static com.ca.mas.core.conf.Config.HOSTNAME;
 import static com.ca.mas.core.conf.Config.PORT;
@@ -40,12 +49,16 @@ import static com.ca.mas.foundation.MAS.TAG;
 public class ConfigurationManager {
 
     private static final String CONNECTED_GATEWAY_CONFIG = "connected_gateway.json";
+
     private ConfigurationProvider connectedGatewayConfigurationProvider = null;
     private Context appContext;
     private List<Config> appConfigs;
     private String configurationFileName = null;
     private boolean enablePKCE = true;
     private boolean idTokenValidation = true;
+    private String jwks;
+
+
 
     private MASConnectionListener connectionListener;
     private MobileSsoListener mobileSsoListener;
@@ -58,6 +71,7 @@ public class ConfigurationManager {
     private List<ConfigurationListener> configurationListeners = new ArrayList<>();
 
     private int certificateAdvancedRenewTimeframe = 30;
+
 
     private ConfigurationManager() {
         configurationListeners.add(new ClientChangeListener());
@@ -153,7 +167,10 @@ public class ConfigurationManager {
             //Unable to load the cached one.
             activateDefault();
         }
+
     }
+
+
 
     public void activateDefault() {
         JSONObject jsonObject = getConfig(getConfigurationFileName());
@@ -227,6 +244,7 @@ public class ConfigurationManager {
         String organization = getValue(Config.ORGANIZATION, jsonObject);
         String scope = getValue(Config.SCOPE, jsonObject);
         String redirectUri = getValue(Config.REDIRECT_URI, jsonObject);
+
 
 
         DefaultConfiguration conf = new DefaultConfiguration(jsonObject, tokenHost, port, tokenUriPrefix, clientId, clientSecret, organization, scope, redirectUri);
@@ -442,6 +460,7 @@ public class ConfigurationManager {
 
     /**
      * Register a {@link ResponseInterceptor} for any API response.
+     *
      * @param responseInterceptor The {@link ResponseInterceptor}  to handle the response.
      */
     public synchronized void registerResponseInterceptor(ResponseInterceptor responseInterceptor) {
@@ -450,6 +469,7 @@ public class ConfigurationManager {
 
     /**
      * Unregister a previously registered {@link ResponseInterceptor} .
+     *
      * @param responseInterceptor The {@link ResponseInterceptor}  to unregister.
      */
     public synchronized void unregisterResponseInterceptor(ResponseInterceptor responseInterceptor) {
@@ -459,4 +479,16 @@ public class ConfigurationManager {
     public Collection<ResponseInterceptor> getResponseInterceptors() {
         return responseInterceptors.values();
     }
+
+
+    public String getJwks() {
+        return jwks;
+    }
+
+    public void setJwks(String jwks) {
+        this.jwks = jwks;
+    }
+
+
+
 }

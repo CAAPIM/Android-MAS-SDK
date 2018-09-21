@@ -28,14 +28,25 @@ import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.foundation.notify.Callback;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.proc.JWEKeySelector;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.PrivateKey;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * The top level MAS object represents the Mobile App Services SDK in its entirety.
@@ -55,10 +66,28 @@ public class MAS {
     private static MASOtpMultiFactorAuthenticator otpMultiFactorAuthenticator = new MASOtpMultiFactorAuthenticator();
     private static int state;
 
+    private static List<MASLifecycleListener> masLifecycleListener = new ArrayList<>();
+    private static final String WELL_KNOW_URI = "/.well-known/openid-configuration";
+    private static final String JWKS_URI = "jwks_uri";
+
     private static boolean browserBasedAuthenticationEnabled = false;
 
     private MAS() {
     }
+
+     static {
+         EventDispatcher.STARTED.addObserver(new Observer() {
+             @Override
+             public void update(Observable o, Object arg) {
+
+                 if (!masLifecycleListener.isEmpty())
+                     for (MASLifecycleListener listner:masLifecycleListener) {
+                         US542357                         listner.onStarted();
+                     }
+
+             }
+         });
+     }
 
     private static synchronized void init(@NonNull final Context context) {
         stop();
@@ -74,6 +103,7 @@ public class MAS {
         new MASConfiguration(appContext);
         ConfigurationManager.getInstance().setMobileSsoListener(new AuthenticationListener(appContext));
         registerMultiFactorAuthenticator(otpMultiFactorAuthenticator);
+        addLifeCycleListener(new JWKPreLoadListener());
     }
 
     private static void registerActivityLifecycleCallbacks(Application application) {
@@ -355,6 +385,17 @@ public class MAS {
         return masAuthenticationListener;
     }
 
+
+
+    /**
+     * Sets a listener to listen for MAS lifecycle events.
+     *
+     * @param listner The listener to listen for MAS lifecycle events.
+     */
+    public static void addLifeCycleListener(MASLifecycleListener listner) {
+        masLifecycleListener.add(listner);
+    }
+
     /**
      * Checks whether the consumer of MAS has set any authentication listener or not.
      * This would help other frameworks to override the listener (and the login UI) as a fallback instead of default
@@ -596,4 +637,54 @@ public class MAS {
     private static void unregisterMultiFactorAuthenticator(MASMultiFactorAuthenticator authenticator) {
         ConfigurationManager.getInstance().unregisterResponseInterceptor(authenticator);
     }
+
+
+    public static void loadJWKS(){
+        try {
+            MASRequest request_well_know_uri = new MASRequest.MASRequestBuilder(new URL(MASConfiguration.getCurrentConfiguration().getGatewayUrl()+
+                    WELL_KNOW_URI)).setPublic().build();
+
+            MAS.invoke(request_well_know_uri, new MASCallback<MASResponse<JSONObject>>() {
+                @Override
+                public void onSuccess(MASResponse<JSONObject> result) {
+                    JSONObject responseObject = result.getBody().getContent();
+                    try {
+                        String jwksUri = responseObject.getString(JWKS_URI);
+                        MASRequest request_jks_uri = new MASRequest.MASRequestBuilder(new URL(jwksUri
+                        )).setPublic().build();
+                        MAS.invoke(request_jks_uri, new MASCallback<MASResponse<JSONObject>>() {
+                            @Override
+                            public void onSuccess(MASResponse<JSONObject> result) {
+                                ConfigurationManager.getInstance().setJwks(result.getBody().getContent().toString());
+                                Log.d(TAG, "JWT Key Set = "+ result.getBody().getContent().toString());
+
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+
+                            }
+                        });
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                @Override
+                public void onError(Throwable e) {
+
+
+                }
+            });
+
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

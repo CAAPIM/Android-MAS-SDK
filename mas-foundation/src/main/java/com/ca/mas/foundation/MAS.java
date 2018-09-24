@@ -78,6 +78,7 @@ public class MAS {
                  if (!masLifecycleListener.isEmpty())
                      for (MASLifecycleListener listner:masLifecycleListener) {
                          listner.onStarted();
+
                      }
 
              }

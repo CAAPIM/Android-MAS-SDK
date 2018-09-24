@@ -78,7 +78,9 @@ public class JWTValidation {
             }
 
             if (algorithm.equals(Algorithm.RS256.toString())){
-                throw new JWTValidationException(MAGErrorCode.TOKEN_INVALID_ID_TOKEN);
+
+                signatureValid = JwtRS256.validateRS256Signature(idToken.getValue());
+                //throw new JWTValidationException(MAGErrorCode.TOKEN_INVALID_ID_TOKEN);
             }
         }
 

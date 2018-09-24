@@ -9,7 +9,7 @@ public class JWKPreLoadListener implements MASLifecycleListener {
     @Override
     public void onStarted() {
 
-        Log.d(MASLifecycleListener.class.getSimpleName(), "onStarted");
+        Log.d("START", "onStarted");
          if(ConfigurationManager.getInstance().getJwks() == null){
              Log.d(MASLifecycleListener.class.getSimpleName(), "onStarted - no keys chached");
              MAS.loadJWKS();

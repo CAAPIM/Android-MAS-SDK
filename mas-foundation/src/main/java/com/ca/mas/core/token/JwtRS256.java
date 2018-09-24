@@ -17,24 +17,16 @@ import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.BadJOSEException;
-import com.nimbusds.jose.proc.JWSKeySelector;
-import com.nimbusds.jose.proc.JWSVerificationKeySelector;
-import com.nimbusds.jose.proc.SecurityContext;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
-import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.SignedJWT;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -51,66 +43,32 @@ public class JwtRS256 {
     }
 
     /*
-    * https://connect2id.com/products/nimbus-jose-jwt/examples/validating-jwt-access-tokens for details
-    */
+     * Validates the signature of JWT which is signed using RS256. The JWKeys are loaded when the SDK is started.
+     */
 
-    static boolean validateRS256Signature(String idToken) throws JWTInvalidSignatureException {
+    static boolean validateRS256Signature(String idToken, String kid) throws JWTInvalidSignatureException {
 
-        ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
-        File file = null;
-        if (ConfigurationManager.getInstance().getJwks() != null) {
-            file = createFileFromString(ConfigurationManager.getInstance().getJwks());
-        } else {
-           //TODO  MAS.loadJWKS();
-        }
 
-        JWKSet jwkSet = null;
+        boolean isSignatureValid = false;
         try {
-            jwkSet = JWKSet.load(file);
-        } catch (IOException | ParseException e) {
-            throw new JWTInvalidSignatureException(e.getLocalizedMessage());
+            JWKSet jwkSet = JWKSet.parse(ConfigurationManager.getInstance().getJwks());
+            JWK publicKey = jwkSet.getKeyByKeyId(kid);
+            JWSVerifier verifier = new RSASSAVerifier((RSAKey) publicKey);
+            SignedJWT signedJWT = SignedJWT.parse(idToken);
+
+            isSignatureValid = signedJWT.verify(verifier);
+        } catch (ParseException | JOSEException e) {
+            throw new JWTInvalidSignatureException(e.getMessage());
         }
 
-        JWKSource keySource = new ImmutableJWKSet(jwkSet);
+        return isSignatureValid;
 
-        JWSAlgorithm expectedJWSAlg = JWSAlgorithm.RS256;
-
-        JWSKeySelector keySelector = new JWSVerificationKeySelector(expectedJWSAlg, keySource);
-        jwtProcessor.setJWSKeySelector(keySelector);
-
-        SecurityContext ctx = null; // optional context parameter, not required here
-        JWTClaimsSet claimsSet = null;
-
-        try {
-            claimsSet = jwtProcessor.process(idToken, ctx);
-        } catch (ParseException | BadJOSEException | JOSEException e) {
-            throw new JWTInvalidSignatureException(e.getLocalizedMessage());
-        }
-        Log.d(TAG, claimsSet.toString());
-        return true;
     }
-
-    private static File createFileFromString(String s) {
-
-        try {
-
-            File directory = MAS.getContext().getFilesDir();
-            File outFile = new File(directory, "keys.json");
-            FileOutputStream out = new FileOutputStream(outFile);
-            out.write(s.getBytes());
-            return outFile;
-        } catch (IOException e) {
-            Log.d("TAG", e.getMessage());
-        }
-
-        return null;
-    }
-
 
 
     public static void loadJWKS() {
         try {
-            MASRequest request_well_know_uri = new MASRequest.MASRequestBuilder(new URL(MASConfiguration.getCurrentConfiguration().getGatewayUrl()+
+            MASRequest request_well_know_uri = new MASRequest.MASRequestBuilder(new URL(MASConfiguration.getCurrentConfiguration().getGatewayUrl() +
                     WELL_KNOW_URI)).setPublic().build();
 
             MAS.invoke(request_well_know_uri, new MASCallback<MASResponse<JSONObject>>() {
@@ -125,14 +83,14 @@ public class JwtRS256 {
                             @Override
                             public void onSuccess(MASResponse<JSONObject> result) {
                                 ConfigurationManager.getInstance().setJwks(result.getBody().getContent().toString());
-                                Log.d(TAG, "JWT Key Set = "+ result.getBody().getContent().toString());
+                                Log.d(TAG, "JWT Key Set = " + result.getBody().getContent().toString());
                             }
+
                             @Override
                             public void onError(Throwable e) {
 
                             }
                         });
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                     } catch (MalformedURLException e) {
@@ -144,12 +102,8 @@ public class JwtRS256 {
                     Log.e(TAG, "Error", e);
                 }
             });
-
-
         } catch (MalformedURLException e) {
-             Log.e(TAG, "Incorrect URL", e);
+            Log.e(TAG, "Incorrect URL", e);
         }
     }
-
-
 }

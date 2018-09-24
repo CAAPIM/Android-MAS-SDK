@@ -27,6 +27,7 @@ public class JWTValidation {
     public static final String EXP = "exp";
     public static final String AUD = "aud";
     public static final String AZP = "azp";
+    public static final String KID = "kid"; //Key ID
 
     public enum Algorithm {
         HS256(1), RSA(2), RS256(3);
@@ -64,6 +65,7 @@ public class JWTValidation {
         boolean payloadValid = validateJwtPayload(idTokenDef, deviceIdentifier, clientId);
 
         String algorithm = getAlgorithm(new String(Base64.decode(idTokenDef.getHeader(), Base64.URL_SAFE)));
+        String kid = getKid(new String(Base64.decode(idTokenDef.getHeader(), Base64.URL_SAFE)));
         boolean signatureValid = false;
 
         // - if validation is enabled check the algorithms encryption
@@ -79,7 +81,7 @@ public class JWTValidation {
 
             if (algorithm.equals(Algorithm.RS256.toString())){
 
-                signatureValid = JwtRS256.validateRS256Signature(idToken.getValue());
+                signatureValid = JwtRS256.validateRS256Signature(idToken.getValue(), kid);
                 //throw new JWTValidationException(MAGErrorCode.TOKEN_INVALID_ID_TOKEN);
             }
         }
@@ -103,6 +105,18 @@ public class JWTValidation {
             throw new JWTValidationException(MAGErrorCode.TOKEN_INVALID_ID_TOKEN, e.getMessage(), e);
         }
     }
+
+
+    private static String getKid(String header) throws JWTValidationException {
+        try {
+            JSONObject jsonObject = new JSONObject(header);
+            return jsonObject.getString(KID);
+        } catch (JSONException e) {
+            Log.w(TAG, "JWT header is not JSON Object");
+            throw new JWTValidationException(MAGErrorCode.TOKEN_INVALID_ID_TOKEN, e.getMessage(), e);
+        }
+    }
+
 
     private static boolean validateJwtPayload(IdTokenDef idTokenDef, String deviceIdentifier, String clientId) throws JWTValidationException {
 

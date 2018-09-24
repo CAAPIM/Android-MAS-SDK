@@ -12,7 +12,7 @@ import java.net.URL;
 
 /**
  * Interface that allows for implementing classes to listen for MAS lifecycle events.
- * Listener is registered with {@link MAS#addConnectionListener(MASLifecycleListener)} object.
+ * Listener is registered with {@link MAS#addLifeCycleListener(MASLifecycleListener)} object.
  */
 public interface MASLifecycleListener {
 

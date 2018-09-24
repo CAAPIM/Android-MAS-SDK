@@ -62,8 +62,7 @@ public class MAS {
     private static int state;
 
     private static List<MASLifecycleListener> masLifecycleListener = new ArrayList<>();
-    private static final String WELL_KNOW_URI = "/.well-known/openid-configuration";
-    private static final String JWKS_URI = "jwks_uri";
+
 
     private static boolean browserBasedAuthenticationEnabled = false;
 
@@ -634,51 +633,5 @@ public class MAS {
         ConfigurationManager.getInstance().unregisterResponseInterceptor(authenticator);
     }
 
-
-    public static void loadJWKS() {
-        try {
-            MASRequest request_well_know_uri = new MASRequest.MASRequestBuilder(new URL(MASConfiguration.getCurrentConfiguration().getGatewayUrl()+
-                    WELL_KNOW_URI)).setPublic().build();
-
-            MAS.invoke(request_well_know_uri, new MASCallback<MASResponse<JSONObject>>() {
-                @Override
-                public void onSuccess(MASResponse<JSONObject> result) {
-                    JSONObject responseObject = result.getBody().getContent();
-                    try {
-                        String jwksUri = responseObject.getString(JWKS_URI);
-                        MASRequest request_jks_uri = new MASRequest.MASRequestBuilder(new URL(jwksUri
-                        )).setPublic().build();
-                        MAS.invoke(request_jks_uri, new MASCallback<MASResponse<JSONObject>>() {
-                            @Override
-                            public void onSuccess(MASResponse<JSONObject> result) {
-                                ConfigurationManager.getInstance().setJwks(result.getBody().getContent().toString());
-                                Log.d(TAG, "JWT Key Set = "+ result.getBody().getContent().toString());
-                            }
-                            @Override
-                            public void onError(Throwable e) {
-
-                            }
-                        });
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-                @Override
-                public void onError(Throwable e) {
-
-
-                }
-            });
-
-
-        } catch (MalformedURLException e) {
-            if (DEBUG) Log.e(TAG, "Incorrect URL", e);
-        }
-    }
 
 }

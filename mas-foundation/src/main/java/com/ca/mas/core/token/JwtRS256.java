@@ -12,6 +12,10 @@ import android.util.Log;
 
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASCallback;
+import com.ca.mas.foundation.MASConfiguration;
+import com.ca.mas.foundation.MASRequest;
+import com.ca.mas.foundation.MASResponse;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -25,15 +29,22 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 
 
-class JwtRS256 {
+public class JwtRS256 {
 
     private static final String TAG = JwtRS256.class.getSimpleName();
+    private static final String WELL_KNOW_URI = "/.well-known/openid-configuration";
+    private static final String JWKS_URI = "jwks_uri";
 
     private JwtRS256() {
         throw new IllegalAccessError("Utility class");
@@ -93,6 +104,51 @@ class JwtRS256 {
         }
 
         return null;
+    }
+
+
+
+    public static void loadJWKS() {
+        try {
+            MASRequest request_well_know_uri = new MASRequest.MASRequestBuilder(new URL(MASConfiguration.getCurrentConfiguration().getGatewayUrl()+
+                    WELL_KNOW_URI)).setPublic().build();
+
+            MAS.invoke(request_well_know_uri, new MASCallback<MASResponse<JSONObject>>() {
+                @Override
+                public void onSuccess(MASResponse<JSONObject> result) {
+                    JSONObject responseObject = result.getBody().getContent();
+                    try {
+                        String jwksUri = responseObject.getString(JWKS_URI);
+                        MASRequest request_jks_uri = new MASRequest.MASRequestBuilder(new URL(jwksUri
+                        )).setPublic().build();
+                        MAS.invoke(request_jks_uri, new MASCallback<MASResponse<JSONObject>>() {
+                            @Override
+                            public void onSuccess(MASResponse<JSONObject> result) {
+                                ConfigurationManager.getInstance().setJwks(result.getBody().getContent().toString());
+                                Log.d(TAG, "JWT Key Set = "+ result.getBody().getContent().toString());
+                            }
+                            @Override
+                            public void onError(Throwable e) {
+
+                            }
+                        });
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+                }
+                @Override
+                public void onError(Throwable e) {
+                    Log.e(TAG, "Error", e);
+                }
+            });
+
+
+        } catch (MalformedURLException e) {
+             Log.e(TAG, "Incorrect URL", e);
+        }
     }
 
 

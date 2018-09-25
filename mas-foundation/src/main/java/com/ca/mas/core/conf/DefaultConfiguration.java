@@ -59,6 +59,7 @@ public class DefaultConfiguration implements ConfigurationProvider {
         put(PROP_TOKEN_URL_SUFFIX_AUTHORIZE, "/auth/oauth/v2/authorize");
         put(PROP_TOKEN_URL_SUFFIX_ENTERPRISE_APPS, "/connect/enterprise/browser");
         put(PROP_TOKEN_URL_SUFFIX_CLIENT_CREDENTIALS, "/connect/client/initialize");
+        put(PROP_DEVICE_METADATA_PATH, "/connect/device/metadata");
     }};
 
     private List<X509Certificate> trustedCertificateAnchors = new ArrayList<X509Certificate>();

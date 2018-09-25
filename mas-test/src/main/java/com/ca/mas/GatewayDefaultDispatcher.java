@@ -42,6 +42,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String PROTECTED_RESOURCE_SLOW = "/protected/resource/slow";
     public static final String PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY = "/protected/resource/productsAsArray";
     public static final String PROTECTED_RESOURCE_PRODUCTS = "/protected/resource/products";
+    public static final String DEVICEMETADATA_ENDPOINT = "/connect/device/metadata";
     public static final String TEST_NO_CONTENT = "/testNoContent";
     public static final String AUTH_OAUTH_V2_AUTHORIZE = "/auth/oauth/v2/authorize";
     public static final String CONNECT_DEVICE_REGISTER_CLIENT = "/connect/device/register/client";
@@ -126,6 +127,8 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return echo(request);
             } else if (request.getPath().contains(MULTIFACTOR_ENDPOINT)) {
                 return multiFactor(request);
+            }else if (request.getPath().contains(DEVICEMETADATA_ENDPOINT)) {
+                return deviceMetadata();
             }
 
             for (Dispatcher d : dispatchers) {
@@ -381,6 +384,21 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     protected MockResponse generateOtp() {
         return new MockResponse().setResponseCode(200)
                 .setHeader("X-OTP", "generated");
+    }
+
+    protected MockResponse deviceMetadataErrorOverflow() throws JSONException {
+        return new MockResponse().setResponseCode(400)
+                .setHeader("Content-type", ContentType.APPLICATION_JSON)
+                .setHeader("x-ca-err","1016155");
+    }
+
+    protected MockResponse deviceMetadata() throws JSONException {
+        JSONObject data = new JSONObject();
+        data.put("name", "attr");
+        data.put("value", "attrVAlue");
+        return new MockResponse().setResponseCode(200)
+                .setHeader("Content-type", ContentType.APPLICATION_JSON)
+                .setBody(data.toString());
     }
 
     protected MockResponse userInfo() {

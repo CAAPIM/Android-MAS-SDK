@@ -9,6 +9,7 @@
 package com.ca.mas.foundation;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
@@ -18,12 +19,14 @@ import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASMockGatewayTestBase;
 import com.ca.mas.ScenarioInfo;
 import com.ca.mas.ScenarioMasterInfo;
+import com.ca.mas.ScenarioTestResult;
 import com.ca.mas.Scenarios;
 import com.ca.mas.TestId;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.AfterClass;
@@ -38,7 +41,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -56,6 +61,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
     private static Map<Integer, ScenarioInfo> map = new HashMap<>();
     private static boolean isBenchmark = false;
     private static Scenarios scenarios;
+    private static List<ScenarioTestResult> testResult = new ArrayList<>();
 
     @BeforeClass
     public static void loadConfig() {
@@ -76,7 +82,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             if (!isBenchmark) {
                 scenarioInfo.setIteration(1);
             } else {
-                if( masterConfig.isUse_default())
+                if (masterConfig.isUse_default())
                     scenarioInfo.setIteration(masterConfig.getIteration());
             }
         }
@@ -102,13 +108,15 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
     public static void complete() {
         if (isBenchmark) {
             printUpdatedBenchmark();
+        } else {
+            printResult();
         }
 
     }
 
 
     @Test
-    @TestId(8)
+    @TestId(1)
     public void startTest() {
 
         TestId testId = new Object() {
@@ -131,15 +139,16 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             scenarioInfo.setBenchmark(avg);
             Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
         } else {
+            ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
+            testResult.add(result);
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
         assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
     }
 
-
     @Test
-    @TestId(1)
+    @TestId(2)
     public void loginTest() {
 
 
@@ -186,6 +195,9 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             scenarioInfo.setBenchmark(avg);
             Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
         } else {
+
+            ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
+            testResult.add(result);
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
 
@@ -194,7 +206,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
     }
 
     @Test
-    @TestId(2)
+    @TestId(3)
     public void loginLogoutFlowTest() {
 
         TestId testId = new Object() {
@@ -250,6 +262,8 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             scenarioInfo.setBenchmark(avg);
             Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
         } else {
+            ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
+            testResult.add(result);
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
 
@@ -258,7 +272,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
     }
 
     @Test
-    @TestId(3)
+    @TestId(4)
     public void loginDeregisterFlowTest() {
 
         TestId testId = new Object() {
@@ -312,6 +326,8 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             scenarioInfo.setBenchmark(avg);
             Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
         } else {
+            ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
+            testResult.add(result);
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
 
@@ -320,7 +336,71 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
     }
 
     @Test
-    @TestId(4)
+    @TestId(5)
+    public void getTest() throws MalformedURLException, ExecutionException, InterruptedException {
+
+        TestId testId = new Object() {
+        }.getClass().getEnclosingMethod().getAnnotation(TestId.class);
+
+        int id = testId.value();
+        ScenarioInfo scenarioInfo = map.get(id);
+        Double sum = 0.0;
+        final MASRequest request = new MASRequest.MASRequestBuilder(new URL(
+                MASConfiguration.getCurrentConfiguration().getGatewayUrl() +
+                        GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+
+        MAS.start(getContext());
+        MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_PASSWORD);
+        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
+        MASUser.login("admin", "7layer".toCharArray(), callback);
+        assertNotNull(callback.get());
+
+        for (int i = 0; i < scenarioInfo.getIteration(); i++) {
+            final CountDownLatch countDownLatch = new CountDownLatch(1);
+            long start = System.currentTimeMillis();
+
+
+            MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+                @Override
+                public void onSuccess(MASResponse<JSONObject> result) {
+                    Log.d(TAG, result.getResponseMessage());
+                    countDownLatch.countDown();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    countDownLatch.countDown();
+                }
+            });
+
+
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            long end = System.currentTimeMillis();
+
+            sum = sum + (end - start);
+            Log.d(TAG, "Duration of get flow for iteration " + i + " = " + (end - start) / (double) TENS + "s");
+        }
+        double avg = sum / (scenarioInfo.getIteration() * TENS);
+        if (isBenchmark) {
+            scenarioInfo.setBenchmark(avg);
+            Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
+        } else {
+            ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
+            testResult.add(result);
+            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
+        }
+        assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
+
+    }
+
+
+    @Test
+    @TestId(6)
     public void loginGetFlowTest() throws MalformedURLException {
 
         TestId testId = new Object() {
@@ -381,16 +461,17 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             scenarioInfo.setBenchmark(avg);
             Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
         } else {
+            ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
+            testResult.add(result);
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
         assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
     }
 
-
     @Test
-    @TestId(5)
-    public void getTest() throws MalformedURLException, ExecutionException, InterruptedException {
+    @TestId(7)
+    public void getViaOtpFlowTest() throws URISyntaxException, ExecutionException, InterruptedException {
 
         TestId testId = new Object() {
         }.getClass().getEnclosingMethod().getAnnotation(TestId.class);
@@ -398,20 +479,41 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
         int id = testId.value();
         ScenarioInfo scenarioInfo = map.get(id);
         Double sum = 0.0;
-        final MASRequest request = new MASRequest.MASRequestBuilder(new URL(
-                MASConfiguration.getCurrentConfiguration().getGatewayUrl() +
-                        GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS)).build();
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.OTP_PROTECTED_URL)).build();
 
         MAS.start(getContext());
         MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_PASSWORD);
         MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
         MASUser.login("admin", "7layer".toCharArray(), callback);
-        assertNotNull(callback.get());
 
+        callback.get();
         for (int i = 0; i < scenarioInfo.getIteration(); i++) {
             final CountDownLatch countDownLatch = new CountDownLatch(1);
             long start = System.currentTimeMillis();
 
+
+            MAS.setAuthenticationListener(new MASAuthenticationListener() {
+
+                @Override
+                public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {
+
+                }
+
+                @Override
+                public void onOtpAuthenticateRequest(Context context, final MASOtpAuthenticationHandler handler) {
+                    handler.deliver("EMAIL", new MASCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            handler.proceed(getContext(), "1234");
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+                    });
+                }
+            });
 
             MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
                 @Override
@@ -443,6 +545,8 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             scenarioInfo.setBenchmark(avg);
             Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
         } else {
+            ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
+            testResult.add(result);
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
         assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
@@ -451,7 +555,7 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
 
 
     @Test
-    @TestId(6)
+    @TestId(8)
     public void implicitLoginGetViaOtpFlowTest() throws URISyntaxException {
 
         TestId testId = new Object() {
@@ -536,94 +640,14 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             scenarioInfo.setBenchmark(avg);
             Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
         } else {
+            ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
+            testResult.add(result);
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
         assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
     }
 
-
-    @Test
-    @TestId(7)
-    public void getViaOtpFlowTest() throws URISyntaxException, ExecutionException, InterruptedException {
-
-        TestId testId = new Object() {
-        }.getClass().getEnclosingMethod().getAnnotation(TestId.class);
-
-        int id = testId.value();
-        ScenarioInfo scenarioInfo = map.get(id);
-        Double sum = 0.0;
-        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.OTP_PROTECTED_URL)).build();
-
-        MAS.start(getContext());
-        MAS.setGrantFlow(MASConstants.MAS_GRANT_FLOW_PASSWORD);
-        MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
-        MASUser.login("admin", "7layer".toCharArray(), callback);
-
-        callback.get();
-        for (int i = 0; i < scenarioInfo.getIteration(); i++) {
-            final CountDownLatch countDownLatch = new CountDownLatch(1);
-            long start = System.currentTimeMillis();
-
-
-            MAS.setAuthenticationListener(new MASAuthenticationListener() {
-
-                @Override
-                public void onAuthenticateRequest(Context context, long requestId, MASAuthenticationProviders providers) {
-
-                }
-
-                @Override
-                public void onOtpAuthenticateRequest(Context context, final MASOtpAuthenticationHandler handler) {
-                    handler.deliver("EMAIL", new MASCallback<Void>() {
-                        @Override
-                        public void onSuccess(Void result) {
-                            handler.proceed(getContext(), "1234");
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-
-                        }
-                    });
-                }
-            });
-
-            MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
-                @Override
-                public void onSuccess(MASResponse<JSONObject> result) {
-                    Log.d(TAG, result.getResponseMessage());
-                    countDownLatch.countDown();
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    countDownLatch.countDown();
-                }
-            });
-
-
-            try {
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            long end = System.currentTimeMillis();
-
-            sum = sum + (end - start);
-            Log.d(TAG, "Duration of get flow for iteration " + i + " = " + (end - start) / (double) TENS + "s");
-        }
-        double avg = sum / (scenarioInfo.getIteration() * TENS);
-        if (isBenchmark) {
-            scenarioInfo.setBenchmark(avg);
-            Log.d(TAG, "Benchmark for " + scenarioInfo.getName() + "= " + avg + "s");
-        } else {
-            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
-        }
-        assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
-
-    }
 
     private static void printUpdatedBenchmark() {
 
@@ -635,6 +659,18 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             e.printStackTrace();
         }
 
+
+    }
+
+    private static void printResult() {
+
+        Gson gson = new GsonBuilder().create();
+        String jsonStr = gson.toJson(testResult);
+        try {
+            Log.d(TAG, " \n\nTest Results: " + new JSONArray(jsonStr).toString(4));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -654,6 +690,27 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             return null;
         }
         return "\n\n" + json;
+    }
+
+    private ScenarioTestResult getScenarioTestResult(ScenarioInfo scenarioInfo, double avg) {
+        ScenarioTestResult result = new ScenarioTestResult();
+        result.setBenchmark(scenarioInfo.getBenchmark());
+        result.setTestId(scenarioInfo.getId());
+        result.setTestName(scenarioInfo.getName());
+        result.setCurrentRunTime(avg);
+        result.setResult(getResult(scenarioInfo.getBenchmark(), avg));
+        return result;
+    }
+
+    private String getResult(Double benchmark, double avg) {
+        long result = (long) ((benchmark - avg) * 100 / benchmark);
+        if (result > 0)
+            return result + "% Faster";
+        else if (result < 0) {
+            return Math.abs(result) + "% Slower";
+        } else {
+            return "No change";
+        }
     }
 
 }

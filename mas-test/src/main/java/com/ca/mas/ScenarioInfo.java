@@ -1,11 +1,11 @@
 package com.ca.mas;
 
 public class ScenarioInfo {
-    private int id = -1;
-    private String name = null;
-    private int iteration = 1;
-    private Double benchmark = 0.0;
-    private String desc= " ";
+    private int id;
+    private String name;
+    private int iteration;
+    private Double benchmark;
+    private String desc;
 
     public int getId() {
         return id;
@@ -46,4 +46,5 @@ public class ScenarioInfo {
     public void setDesc(String desc) {
         this.desc = desc;
     }
+
 }

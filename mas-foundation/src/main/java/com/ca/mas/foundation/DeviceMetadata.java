@@ -1,6 +1,9 @@
 package com.ca.mas.foundation;
 
+import android.net.Uri;
+
 import com.ca.mas.core.MobileSsoConfig;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.TargetApiException;
 import com.ca.mas.foundation.notify.Callback;
 
@@ -14,12 +17,16 @@ import java.net.URISyntaxException;
 import static com.ca.mas.core.client.ServerClient.findErrorCode;
 
 class DeviceMetadata {
-    private static final String ENDPOINT_PATH = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.DEVICE_METADATA_PATH);
     private static final int MAG_MAX_METADATA = 1016155;
     private static final int MAG_ATTR_NOT_FOUND = 1016156;
 
-    private DeviceMetadata() {throw new IllegalStateException("Not allowed to instantiate");
+    private DeviceMetadata() {
+        throw new IllegalStateException("Not allowed to instantiate");
 
+    }
+
+    private static URI getPath() {
+        return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getTokenUri(MobileSsoConfig.PROP_DEVICE_METADATA_PATH);
     }
 
     public static void putAttribute(String attr, String value, final MASCallback<Void> callback) {
@@ -32,11 +39,11 @@ class DeviceMetadata {
             data.put("name", attr);
             data.put("value", value);
 
-            request = new MASRequest.MASRequestBuilder(new URI(ENDPOINT_PATH))
+            request = new MASRequest.MASRequestBuilder(getPath())
                     .put(MASRequestBody.jsonBody(data))
                     .build();
 
-        } catch (URISyntaxException | JSONException e) {
+        } catch (JSONException e) {
             Callback.onError(callback, e);
             return;
         }
@@ -64,7 +71,7 @@ class DeviceMetadata {
     private static int getSpecialError(Throwable e) {
         int error = -1;
         try {
-            if (((MASException) e).getRootCause() instanceof TargetApiException){
+            if (((MASException) e).getRootCause() instanceof TargetApiException) {
                 TargetApiException tException = (TargetApiException) ((MASException) e).getRootCause();
                 error = findErrorCode(tException.getResponse());
             }
@@ -78,24 +85,20 @@ class DeviceMetadata {
     public static void getAttribute(String name, final MASCallback<JSONObject> callback) {
 
         checkConditions(name);
+        Uri route = Uri.parse(getPath().toString()).buildUpon().appendPath(name).build();
 
-        String route = ENDPOINT_PATH + "/" +name;
         MASRequest request = null;
 
-        try {
-            request = new MASRequest.MASRequestBuilder(new URI(route))
-                    .responseBody(MASResponseBody.jsonBody())
-                    .get()
-                    .build();
-        } catch (URISyntaxException e) {
-            Callback.onError(callback, e);
-            return;
-        }
+        request = new MASRequest.MASRequestBuilder(route)
+                .responseBody(MASResponseBody.jsonBody())
+                .get()
+                .build();
 
         MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
             @Override
             public void onSuccess(MASResponse<JSONObject> response) {
                 Callback.onSuccess(callback, response.getBody().getContent());
+                System.out.print("test");
             }
 
             @Override
@@ -112,17 +115,12 @@ class DeviceMetadata {
         });
     }
 
-    public static void getAttributes(final MASCallback<JSONArray> callback){
+    public static void getAttributes(final MASCallback<JSONArray> callback) {
 
         MASRequest request = null;
-        try {
-            request = new MASRequest.MASRequestBuilder(new URI(ENDPOINT_PATH))
-                    .get()
-                    .build();
-        } catch (URISyntaxException e) {
-            Callback.onError(callback, e);
-            return;
-        }
+        request = new MASRequest.MASRequestBuilder(getPath())
+                .get()
+                .build();
 
         MAS.invoke(request, new MASCallback<MASResponse<JSONArray>>() {
             @Override
@@ -141,7 +139,7 @@ class DeviceMetadata {
         checkConditions(name);
 
         MASRequest request = null;
-        String route = ENDPOINT_PATH + "/" +name;
+        String route = getPath().toString() + "/" + name;
 
         try {
             request = new MASRequest.MASRequestBuilder(new URI(route))
@@ -162,7 +160,7 @@ class DeviceMetadata {
             public void onError(Throwable e) {
                 int errorCode = getSpecialError(e);
                 if (errorCode == MAG_ATTR_NOT_FOUND) {
-                    Callback.onSuccess(callback,null);
+                    Callback.onSuccess(callback, null);
                 } else {
                     Callback.onError(callback, e);
                 }
@@ -173,14 +171,9 @@ class DeviceMetadata {
 
     public static void deleteAttributes(final MASCallback<Void> callback) {
         MASRequest request = null;
-        try {
-            request = new MASRequest.MASRequestBuilder(new URI(ENDPOINT_PATH))
-                    .delete(MASRequestBody.stringBody(""))
-                    .build();
-        } catch (URISyntaxException e) {
-            Callback.onError(callback, e);
-            return;
-        }
+        request = new MASRequest.MASRequestBuilder(getPath())
+                .delete(MASRequestBody.stringBody(""))
+                .build();
 
         MAS.invoke(request, new MASCallback<MASResponse<String>>() {
             @Override
@@ -195,7 +188,7 @@ class DeviceMetadata {
         });
     }
 
-    private static void checkConditions(String name){
+    private static void checkConditions(String name) {
         if (name == null) {
             throw new IllegalArgumentException("Attribute name cannot be null");
         }

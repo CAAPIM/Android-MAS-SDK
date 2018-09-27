@@ -8,9 +8,11 @@
 
 package com.ca.mas.core.token;
 
+import android.util.Base64;
 import android.util.Log;
 
 import com.ca.mas.core.conf.ConfigurationManager;
+import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConfiguration;
@@ -24,6 +26,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.SignedJWT;
 
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -32,42 +35,70 @@ import java.net.URL;
 import java.text.ParseException;
 
 
-public class JwtRS256 {
+public class JWTRS256Validator implements JWTValidator {
 
-    private static final String TAG = JwtRS256.class.getSimpleName();
+    public static final String TAG = JWTRS256Validator.class.getSimpleName();
     private static final String WELL_KNOW_URI = "/.well-known/openid-configuration";
     private static final String JWKS_URI = "jwks_uri";
+    public static final String KID = "kid"; //Key ID
 
-    private JwtRS256() {
-        throw new IllegalAccessError("Utility class");
-    }
+
 
     /*
      * Validates the signature of JWT which is signed using RS256. The JWKeys are loaded when the SDK is started.
      */
+    @Override
+    public boolean validate(final IdToken idToken) throws JWTInvalidSignatureException {
 
-    static boolean validateRS256Signature(String idToken, String kid) throws JWTInvalidSignatureException {
 
 
-        boolean isSignatureValid = false;
+        IdTokenDef idTokenDef = new IdTokenDef(idToken);
+        String kid = null;
         try {
-            JWKSet jwkSet = JWKSet.parse(ConfigurationManager.getInstance().getJwks());
-            JWK publicKey = jwkSet.getKeyByKeyId(kid);
-            JWSVerifier verifier = new RSASSAVerifier((RSAKey) publicKey);
-            SignedJWT signedJWT = SignedJWT.parse(idToken);
-
-            isSignatureValid = signedJWT.verify(verifier);
-        } catch (ParseException | JOSEException e) {
-            throw new JWTInvalidSignatureException(e.getMessage());
+            kid = getKid(new String(Base64.decode(idTokenDef.getHeader(), Base64.URL_SAFE)));
+        } catch (JWTValidationException e) {
+            throw new JWTInvalidSignatureException(e.getLocalizedMessage());
         }
 
-        return isSignatureValid;
+
+        final String finalKid = kid;
+        final boolean[] isSignatureValid = {false};
+
+        loadJWKS(new MASCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+
+                try {
+                    JWKSet jwkSet = JWKSet.parse(result);
+                    JWK publicKey = jwkSet.getKeyByKeyId(finalKid);
+                    JWSVerifier verifier = new RSASSAVerifier((RSAKey) publicKey);
+                    SignedJWT signedJWT = SignedJWT.parse(idToken.getValue());
+                    isSignatureValid[0] = signedJWT.verify(verifier);
+                }catch (ParseException | JOSEException e){
+                    Log.e(TAG, e.getLocalizedMessage());
+                }
+            }
+            @Override
+            public void onError(Throwable e) {
+                Log.e(TAG, e.getLocalizedMessage());
+
+            }
+        });
+
+        return isSignatureValid[0];
 
     }
 
 
-    public static void loadJWKS() {
+    public static void loadJWKS(final MASCallback<String> callback) {
+
+
         try {
+
+            if(ConfigurationManager.getInstance().getJwks() != null){
+                callback.onSuccess(ConfigurationManager.getInstance().getJwks());
+                return;
+            }
             MASRequest request_well_know_uri = new MASRequest.MASRequestBuilder(new URL(MASConfiguration.getCurrentConfiguration().getGatewayUrl() +
                     WELL_KNOW_URI)).setPublic().build();
 
@@ -83,12 +114,15 @@ public class JwtRS256 {
                             @Override
                             public void onSuccess(MASResponse<JSONObject> result) {
                                 ConfigurationManager.getInstance().setJwks(result.getBody().getContent().toString());
+                                if(callback != null)
+                                    callback.onSuccess(result.getBody().getContent().toString());
                                 Log.d(TAG, "JWT Key Set = " + result.getBody().getContent().toString());
                             }
 
                             @Override
                             public void onError(Throwable e) {
-
+                                if(callback != null)
+                                    callback.onError(e);
                             }
                         });
                     } catch (JSONException e) {
@@ -106,4 +140,16 @@ public class JwtRS256 {
             Log.e(TAG, "Incorrect URL", e);
         }
     }
+
+
+    private String getKid(String header) throws JWTValidationException {
+        try {
+            JSONObject jsonObject = new JSONObject(header);
+            return jsonObject.getString(KID);
+        } catch (JSONException e) {
+            Log.w(TAG, "JWT header is not JSON Object");
+            throw new JWTValidationException(MAGErrorCode.TOKEN_INVALID_ID_TOKEN, e.getMessage(), e);
+        }
+    }
+
 }

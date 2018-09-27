@@ -29,13 +29,11 @@ import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.foundation.notify.Callback;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.PrivateKey;
 import java.util.ArrayList;
@@ -380,8 +378,6 @@ public class MAS {
         return masAuthenticationListener;
     }
 
-
-
     /**
      * Sets a listener to listen for MAS lifecycle events.
      *
@@ -632,6 +628,4 @@ public class MAS {
     private static void unregisterMultiFactorAuthenticator(MASMultiFactorAuthenticator authenticator) {
         ConfigurationManager.getInstance().unregisterResponseInterceptor(authenticator);
     }
-
-
 }

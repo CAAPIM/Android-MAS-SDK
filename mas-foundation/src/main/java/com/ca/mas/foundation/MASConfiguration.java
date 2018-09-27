@@ -9,7 +9,6 @@ package com.ca.mas.foundation;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MobileSsoConfig;
@@ -17,9 +16,6 @@ import com.ca.mas.core.cert.PublicKeyHash;
 import com.ca.mas.core.conf.Config;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.ConfigurationProvider;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,10 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.CountDownLatch;
-
-import static com.ca.mas.foundation.MAS.TAG;
-import static com.ca.mas.foundation.MAS.getContext;
 
 public class MASConfiguration {
 
@@ -50,10 +42,6 @@ public class MASConfiguration {
     private static MASConfiguration currentConfiguration;
     private static Map<Uri, MASSecurityConfiguration> securityConfigurations = new HashMap<>();
 
-    private static final String WELL_KNOW_URI = "/.well-known/openid-configuration";
-    private static final String JWKS_URI = "jwks_uri";
-    private static JSONObject responseObject;
-
     static {
         EventDispatcher.STARTED.addObserver(new Observer() {
             @Override
@@ -66,7 +54,6 @@ public class MASConfiguration {
                         .build();
                 MASSecurityConfiguration primaryConfig = createPrimaryConfiguration(uri);
                 securityConfigurations.put(uri, primaryConfig);
-
             }
         });
 
@@ -317,80 +304,5 @@ public class MASConfiguration {
     private Uri getSanitizedHost(Uri uri) {
         return new Uri.Builder().encodedAuthority(uri.getHost() + ":" + uri.getPort()).build();
     }
-
-
-
-    private void loadJWKS() {
-
-        JSONObject jsonObject = getJWKSUri();
-        String jwksUri = null;
-        try {
-
-
-            jwksUri = jsonObject.getString(JWKS_URI);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        JSONObject jwks = getKeys(jwksUri);
-
-
-    }
-
-    private static JSONObject getJWKSUri() {
-        String url = MASConfiguration.getCurrentConfiguration().getGatewayUrl() +
-                WELL_KNOW_URI;
-        return getResponse(url);
-    }
-
-    synchronized private static JSONObject getResponse(String url) {
-
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
-
-        MASRequest request = null;
-
-        try {
-
-            request = new MASRequest.MASRequestBuilder(new URL(
-                    url)).setPublic().build();
-
-            MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
-                @Override
-                public void onSuccess(MASResponse<JSONObject> result) {
-                    responseObject = result.getBody().getContent();
-                    countDownLatch.countDown();
-
-                }
-
-                @Override
-                public void onError(Throwable e) {
-
-                    countDownLatch.countDown();
-                }
-            });
-
-
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        try {
-            countDownLatch.wait();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        return responseObject;
-    }
-
-    private  JSONObject getKeys(String jwksUri) {
-
-        return getResponse(jwksUri);
-    }
-
-
-
-
 
 }

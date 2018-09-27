@@ -8,6 +8,8 @@
 
 package com.ca.mas.identity.group;
 
+import android.support.annotation.Keep;
+
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.identity.common.MASFilteredRequest;
@@ -17,6 +19,7 @@ import java.util.List;
 /**
  * This interface enables Identity Management features for the MASGroup object.
  */
+@Keep
 public interface MASGroupRepository extends MASGroupIdentity {
 
     /**

@@ -9,6 +9,7 @@
 package com.ca.mas.core.datasource;
 
 import android.content.Context;
+import android.support.annotation.Keep;
 
 import com.ca.mas.core.security.KeyStoreRepository;
 import com.ca.mas.core.storage.StorageException;
@@ -24,6 +25,7 @@ import java.util.List;
 /**
  * SDK uses this utility wrapper class to use {@link com.ca.mas.core.storage.implementation.AccountManagerStorage}.
  */
+@Keep
 public class AccountManagerStoreDataSource<K, V> implements DataSource<K, V> {
 
     private static final String SHARE = "share";

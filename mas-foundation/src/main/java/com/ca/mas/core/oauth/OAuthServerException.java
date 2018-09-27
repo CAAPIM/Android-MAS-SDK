@@ -8,12 +8,15 @@
 
 package com.ca.mas.core.oauth;
 
+import android.support.annotation.Keep;
+
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.foundation.MASResponse;
 
 /**
  * This exception is thrown when an error occurs while accessing OAuth endpoint.
  */
+@Keep
 public class OAuthServerException extends MAGServerException {
 
     public OAuthServerException(MASResponse response, int errorCode, int status, String contentType, String detailMessage) {

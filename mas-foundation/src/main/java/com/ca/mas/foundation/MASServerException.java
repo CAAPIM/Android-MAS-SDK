@@ -8,12 +8,15 @@
 
 package com.ca.mas.foundation;
 
+import android.support.annotation.Keep;
+
 import com.ca.mas.core.error.MAGServerException;
 
 /**
  * <p><b>MASServerException</b> is a general exception wrapper used by the MAS SDK</p>
  */
 
+@Keep
 public class MASServerException extends MAGServerException {
 
     public MASServerException(MASResponse response, int errorCode, int status, String contentType, String detailMessage) {

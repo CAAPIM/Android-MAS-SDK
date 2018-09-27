@@ -11,6 +11,7 @@ package com.ca.mas.core.storage.implementation;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
+import android.support.annotation.Keep;
 import android.util.Base64;
 import android.util.Log;
 
@@ -30,6 +31,7 @@ import static com.ca.mas.foundation.MAS.TAG;
  * Android Account based storage implementation. This leverages the {@link AccountManager}
  * to store key value pairs in the Android Accounts Database (inside the "extras" table).
  */
+@Keep
 public class AccountManagerStorage extends Storage {
 
     /**

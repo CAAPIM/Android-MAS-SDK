@@ -7,6 +7,8 @@
 
 package com.ca.mas.messaging;
 
+import android.support.annotation.Keep;
+
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASException;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Keep
 public class MASMessengerImpl implements MASMessenger {
 
     @Override

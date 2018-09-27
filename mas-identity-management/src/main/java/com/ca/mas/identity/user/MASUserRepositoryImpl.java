@@ -8,6 +8,7 @@
 package com.ca.mas.identity.user;
 
 import android.net.Uri;
+import android.support.annotation.Keep;
 import android.text.TextUtils;
 
 import com.ca.mas.core.conf.ConfigurationManager;
@@ -45,6 +46,7 @@ import java.util.List;
  * <p><b>onFail</b>
  * </p>
  */
+@Keep
 public class MASUserRepositoryImpl implements MASUserRepository {
 
     @Override

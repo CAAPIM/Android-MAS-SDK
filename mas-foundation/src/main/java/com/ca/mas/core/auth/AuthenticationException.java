@@ -8,12 +8,15 @@
 
 package com.ca.mas.core.auth;
 
+import android.support.annotation.Keep;
+
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.foundation.MASResponse;
 
 /**
  * This exception is thrown when an authentication error occurs while accessing the MAG Server register or token endpoint.
  */
+@Keep
 public class AuthenticationException extends MAGServerException {
 
     public static final String INVALID_RESOURCE_OWNER_SUFFIX = "202";

@@ -8,12 +8,15 @@
 
 package com.ca.mas.core.registration;
 
+import android.support.annotation.Keep;
+
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.foundation.MASResponse;
 
 /**
  * This exception is thrown when an error occurs while accessing register endpoint.
  */
+@Keep
 public class RegistrationServerException extends MAGServerException {
 
     public RegistrationServerException(MASResponse response, int errorCode, int status, String contentType, String detailMessage) {

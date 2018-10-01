@@ -11,6 +11,7 @@ package com.ca.mas.core.token;
 import android.util.Base64;
 import android.util.Log;
 
+import com.ca.mas.core.MASCallbackFuture;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.foundation.MAS;
@@ -26,13 +27,13 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.SignedJWT;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.concurrent.ExecutionException;
 
 
 public class JWTRS256Validator implements JWTValidator {
@@ -43,56 +44,54 @@ public class JWTRS256Validator implements JWTValidator {
     public static final String KID = "kid"; //Key ID
 
 
-
     /*
      * Validates the signature of JWT which is signed using RS256. The JWKeys are loaded when the SDK is started.
      */
     @Override
     public boolean validate(final IdToken idToken) throws JWTInvalidSignatureException {
 
+        boolean isSignatureValid = false;
 
-
+        MASCallbackFuture<String> masCallbackFuture = new MASCallbackFuture();
         IdTokenDef idTokenDef = new IdTokenDef(idToken);
         String kid = null;
         try {
             kid = getKid(new String(Base64.decode(idTokenDef.getHeader(), Base64.URL_SAFE)));
         } catch (JWTValidationException e) {
-            throw new JWTInvalidSignatureException(e.getLocalizedMessage());
+            throw new JWTInvalidSignatureException(e);
         }
 
-
-        final String finalKid = kid;
-        final boolean[] isSignatureValid = {false};
-
-        loadJWKS(new MASCallback<String>() {
-            @Override
-            public void onSuccess(String result) {
-
-                try {
-                    JWKSet jwkSet = JWKSet.parse(result);
-                    JWK publicKey = jwkSet.getKeyByKeyId(finalKid);
-                    JWSVerifier verifier = new RSASSAVerifier((RSAKey) publicKey);
-                    SignedJWT signedJWT = SignedJWT.parse(idToken.getValue());
-                    isSignatureValid[0] = signedJWT.verify(verifier);
-                }catch (ParseException | JOSEException e){
-                    Log.e(TAG, e.getLocalizedMessage());
-                }
+        loadJWKS(masCallbackFuture);
+        try {
+            JWK publicKey = getJwk(kid);
+            if (publicKey == null) {
+                ConfigurationManager.getInstance().setJwks(null);
+                publicKey = getJwk(kid);
             }
-            @Override
-            public void onError(Throwable e) {
-                Log.e(TAG, e.getLocalizedMessage());
+            JWSVerifier verifier = new RSASSAVerifier((RSAKey) publicKey);
+            SignedJWT signedJWT = SignedJWT.parse(idToken.getValue());
+            isSignatureValid = signedJWT.verify(verifier);
+        } catch (InterruptedException | ExecutionException | ParseException | JOSEException e) {
+            throw new JWTInvalidSignatureException(e);
+        }
+        return isSignatureValid;
+    }
 
-            }
-        });
-
-        return isSignatureValid[0];
-
+    private JWK getJwk(String kid) throws InterruptedException, ExecutionException, ParseException {
+        MASCallbackFuture<String> masCallbackFuture = new MASCallbackFuture<>();
+        loadJWKS(masCallbackFuture);
+        String result = masCallbackFuture.get();
+        JWKSet jwkSet = JWKSet.parse(result);
+        return jwkSet.getKeyByKeyId(kid);
     }
 
 
-    public static void loadJWKS(final MASCallback<String> callback) {
-
-
+    /**
+     * Loads JSON Web Key Set (JWKS) using well-know url whose response gives jwks-uri.
+     *
+     * @param callback a callback object of class implementing Future.  Required.
+     */
+    public static void loadJWKS(final MASCallbackFuture<String> callback) {
         try {
 
             if(ConfigurationManager.getInstance().getJwks() != null){
@@ -101,6 +100,7 @@ public class JWTRS256Validator implements JWTValidator {
             }
             MASRequest request_well_know_uri = new MASRequest.MASRequestBuilder(new URL(MASConfiguration.getCurrentConfiguration().getGatewayUrl() +
                     WELL_KNOW_URI)).setPublic().build();
+
 
             MAS.invoke(request_well_know_uri, new MASCallback<MASResponse<JSONObject>>() {
                 @Override
@@ -117,12 +117,14 @@ public class JWTRS256Validator implements JWTValidator {
                                 if(callback != null)
                                     callback.onSuccess(result.getBody().getContent().toString());
                                 Log.d(TAG, "JWT Key Set = " + result.getBody().getContent().toString());
+
                             }
 
                             @Override
                             public void onError(Throwable e) {
                                 if(callback != null)
                                     callback.onError(e);
+
                             }
                         });
                     } catch (JSONException e) {
@@ -153,3 +155,5 @@ public class JWTRS256Validator implements JWTValidator {
     }
 
 }
+
+

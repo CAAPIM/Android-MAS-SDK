@@ -98,7 +98,6 @@ class DeviceMetadata {
             @Override
             public void onSuccess(MASResponse<JSONObject> response) {
                 Callback.onSuccess(callback, response.getBody().getContent());
-                System.out.print("test");
             }
 
             @Override
@@ -139,16 +138,11 @@ class DeviceMetadata {
         checkConditions(name);
 
         MASRequest request = null;
-        String route = getPath().toString() + "/" + name;
+        Uri route = Uri.parse(getPath().toString()).buildUpon().appendPath(name).build();
 
-        try {
-            request = new MASRequest.MASRequestBuilder(new URI(route))
-                    .delete(MASRequestBody.stringBody(name))
-                    .build();
-        } catch (URISyntaxException e) {
-            Callback.onError(callback, e);
-            return;
-        }
+        request = new MASRequest.MASRequestBuilder(route)
+                .delete(MASRequestBody.stringBody(name))
+                .build();
 
         MAS.invoke(request, new MASCallback<MASResponse<String>>() {
             @Override

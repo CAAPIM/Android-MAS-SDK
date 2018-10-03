@@ -11,18 +11,20 @@ public class JWKPreLoadListener implements MASLifecycleListener {
     @Override
     public void onStarted() {
 
-        if (JWTRS256Validator.getJwks() == null) {
-            SharedPreferences prefs = MAS.getContext().getSharedPreferences(JWTRS256Validator.JWT_KEY_SET_FILE, Context.MODE_PRIVATE);
-            String keySet = prefs.getString(ConfigurationManager.getInstance().getConnectedGateway().getHost(), null);
+        if (JWTRS256Validator.getJwks() != null) {
+            return;
+        }
 
-            if (keySet == null) {
+        SharedPreferences prefs = MAS.getContext().getSharedPreferences(JWTRS256Validator.JWT_KEY_SET_FILE, Context.MODE_PRIVATE);
+        String keySet = prefs.getString(ConfigurationManager.getInstance().getConnectedGateway().getHost(), null);
 
-                JWTRS256Validator.loadJWKS(null);
+        if (keySet == null) {
 
-            } else {
+            JWTRS256Validator.loadJWKS(null);
 
-                JWTRS256Validator.setJwks(keySet);
-            }
+        } else {
+
+            JWTRS256Validator.setJwks(keySet);
         }
     }
 

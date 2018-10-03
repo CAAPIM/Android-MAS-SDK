@@ -37,6 +37,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.security.PrivateKey;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -59,7 +60,7 @@ public class MAS {
     private static MASOtpMultiFactorAuthenticator otpMultiFactorAuthenticator = new MASOtpMultiFactorAuthenticator();
     private static int state;
 
-    private static List<MASLifecycleListener> masLifecycleListener = new ArrayList<>();
+    private static LinkedHashMap<Class, MASLifecycleListener> masLifecycleListener = new LinkedHashMap<>();
 
 
     private static boolean browserBasedAuthenticationEnabled = false;
@@ -73,11 +74,9 @@ public class MAS {
              public void update(Observable o, Object arg) {
 
                  if (!masLifecycleListener.isEmpty())
-                     for (MASLifecycleListener listner:masLifecycleListener) {
+                     for(MASLifecycleListener listner: masLifecycleListener.values()){
                          listner.onStarted();
-
                      }
-
              }
          });
      }
@@ -384,7 +383,7 @@ public class MAS {
      * @param listner The listener to listen for MAS lifecycle events.
      */
     public static void addLifeCycleListener(MASLifecycleListener listner) {
-        masLifecycleListener.add(listner);
+        masLifecycleListener.put(listner.getClass(), listner);
     }
 
     /**

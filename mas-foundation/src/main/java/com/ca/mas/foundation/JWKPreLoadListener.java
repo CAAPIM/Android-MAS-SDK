@@ -1,6 +1,7 @@
 package com.ca.mas.foundation;
 
-import android.util.Log;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.token.JWTRS256Validator;
@@ -10,13 +11,19 @@ public class JWKPreLoadListener implements MASLifecycleListener {
     @Override
     public void onStarted() {
 
-        Log.d("START", "onStarted"); //TODO remove
-         if(ConfigurationManager.getInstance().getJwks() == null){
-             Log.d(MASLifecycleListener.class.getSimpleName(), "onStarted - no keys chached"); //TODO remove
+        if (JWTRS256Validator.getJwks() == null) {
+            SharedPreferences prefs = MAS.getContext().getSharedPreferences(JWTRS256Validator.JWT_KEY_SET_FILE, Context.MODE_PRIVATE);
+            String keySet = prefs.getString(ConfigurationManager.getInstance().getConnectedGateway().getHost(), null);
 
-             JWTRS256Validator jwtrs256Validator = new JWTRS256Validator();
-             jwtrs256Validator.loadJWKS(null);
-         }
+            if (keySet == null) {
+
+                JWTRS256Validator.loadJWKS(null);
+
+            } else {
+
+                JWTRS256Validator.setJwks(keySet);
+            }
+        }
     }
 
     @Override

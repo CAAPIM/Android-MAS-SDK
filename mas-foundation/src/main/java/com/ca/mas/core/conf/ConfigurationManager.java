@@ -47,7 +47,7 @@ public class ConfigurationManager {
     private String configurationFileName = null;
     private boolean enablePKCE = true;
     private boolean idTokenValidation = true;
-    private String jwks;
+
 
 
 
@@ -154,6 +154,7 @@ public class ConfigurationManager {
                 jsonConfig.append(str);
             }
             connectedGatewayConfigurationProvider = create(new JSONObject(jsonConfig.toString()));
+
         } catch (IOException | JSONException e) {
             //Unable to load the cached one.
             activateDefault();
@@ -470,16 +471,5 @@ public class ConfigurationManager {
     public Collection<ResponseInterceptor> getResponseInterceptors() {
         return responseInterceptors.values();
     }
-
-
-    public String getJwks() {
-        return jwks;
-    }
-
-    public void setJwks(String jwks) {
-        this.jwks = jwks;
-    }
-
-
 
 }

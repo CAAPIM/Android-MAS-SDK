@@ -8,7 +8,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 
 public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
@@ -17,21 +16,10 @@ public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
     private boolean done = false;
     private T result;
     private Throwable throwableResult;
-    private Handler handler;
 
     public MASCallbackFuture() {
     }
 
-    public MASCallbackFuture(Handler handler) {
-        this.handler = handler;
-    }
-
-    public void reset() {
-        this.result = null;
-        this.throwableResult = null;
-        this.done = false;
-        this.countDownLatch = new CountDownLatch(1);
-    }
 
     @Override
     public void onSuccess(T result) {
@@ -49,7 +37,7 @@ public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        return false;
+        throw new UnsupportedOperationException("Unsupported Operations");
     }
 
     @Override
@@ -74,7 +62,7 @@ public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
     }
 
     @Override
-    public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException {
         if (!done) {
             countDownLatch.await(timeout, unit);
         }
@@ -84,8 +72,4 @@ public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
         return result;
     }
 
-    @Override
-    public Handler getHandler() {
-        return handler;
-    }
 }

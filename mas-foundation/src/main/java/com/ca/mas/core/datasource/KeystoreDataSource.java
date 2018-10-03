@@ -10,6 +10,7 @@ package com.ca.mas.core.datasource;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.Keep;
 
 import com.ca.mas.core.storage.StorageException;
 import com.ca.mas.core.storage.StorageResult;
@@ -21,6 +22,7 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+@Keep
 public class KeystoreDataSource<K, V> implements DataSource<K, V> {
 
     public static final String SHARE = "share";
@@ -29,7 +31,6 @@ public class KeystoreDataSource<K, V> implements DataSource<K, V> {
     private DataConverter converter;
     private Context context;
     private boolean isShared;
-
 
     public KeystoreDataSource(Context context, JSONObject param, DataConverter converter) {
         this.converter = converter;

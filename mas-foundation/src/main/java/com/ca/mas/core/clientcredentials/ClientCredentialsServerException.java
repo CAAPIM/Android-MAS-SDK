@@ -8,12 +8,15 @@
 
 package com.ca.mas.core.clientcredentials;
 
+import android.support.annotation.Keep;
+
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.foundation.MASResponse;
 
 /**
  * This exception is thrown when an error occurs while accessing the MAG Server initialize endpoint
  */
+@Keep
 public class ClientCredentialsServerException extends MAGServerException{
 
     public ClientCredentialsServerException(MASResponse response, int errorCode, int status, String contentType, String detailMessage) {

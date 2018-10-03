@@ -8,6 +8,8 @@
 
 package com.ca.mas.messaging;
 
+import android.support.annotation.Keep;
+
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASGroup;
 import com.ca.mas.foundation.MASUser;
@@ -16,6 +18,7 @@ import com.ca.mas.messaging.topic.MASTopic;
 /**
  * <b>MASMessenger</b> is an interface which enables messaging feature for the authenticated user.
  */
+@Keep
 public interface MASMessenger {
 
     // --------------- USER Messaging -----------------------------------------

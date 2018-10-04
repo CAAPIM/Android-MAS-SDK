@@ -88,7 +88,7 @@ public class JWTRS256Validator implements JWTValidator {
     private JWK getJwk(String kid) throws InterruptedException, ExecutionException, ParseException{
         MASCallbackFuture<String> masCallbackFuture = new MASCallbackFuture<>();
         loadJWKS(masCallbackFuture);
-        String result = masCallbackFuture.get(3000, TimeUnit.MILLISECONDS);
+        String result = masCallbackFuture.get();
         JWKSet jwkSet = JWKSet.parse(result);
         return jwkSet.getKeyByKeyId(kid);
     }

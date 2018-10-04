@@ -37,6 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 
@@ -71,6 +72,7 @@ public class JWTRS256Validator implements JWTValidator {
             JWK publicKey = getJwk(kid);
             if (publicKey == null) {
                 jwks = null;
+                resetPrefs();
                 publicKey = getJwk(kid);
             }
             JWSVerifier verifier = new RSASSAVerifier((RSAKey) publicKey);
@@ -82,10 +84,11 @@ public class JWTRS256Validator implements JWTValidator {
         return isSignatureValid;
     }
 
+
     private JWK getJwk(String kid) throws InterruptedException, ExecutionException, ParseException{
         MASCallbackFuture<String> masCallbackFuture = new MASCallbackFuture<>();
         loadJWKS(masCallbackFuture);
-        String result = masCallbackFuture.get();
+        String result = masCallbackFuture.get(3000, TimeUnit.MILLISECONDS);
         JWKSet jwkSet = JWKSet.parse(result);
         return jwkSet.getKeyByKeyId(kid);
     }
@@ -152,6 +155,12 @@ public class JWTRS256Validator implements JWTValidator {
         editor.commit();
     }
 
+    private void resetPrefs() {
+        SharedPreferences prefs = MAS.getContext().getSharedPreferences(JWT_KEY_SET_FILE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(ConfigurationManager.getInstance().getConnectedGateway().getHost(), null);
+        editor.commit();
+    }
 
     private String getKid(String header) throws JWTValidationException {
         try {

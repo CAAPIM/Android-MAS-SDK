@@ -27,6 +27,7 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.token.JWTValidatorFactory;
 import com.ca.mas.foundation.notify.Callback;
 
 import org.json.JSONObject;
@@ -93,7 +94,12 @@ public class MAS {
         new MASConfiguration(appContext);
         ConfigurationManager.getInstance().setMobileSsoListener(new AuthenticationListener(appContext));
         registerMultiFactorAuthenticator(otpMultiFactorAuthenticator);
-        addLifeCycleListener(new JWKPreLoadListener());
+        if (isAlgoRS256() || isPreloadJWKSEnabled())
+            addLifeCycleListener(new JWKPreLoadListener());
+    }
+
+    private static boolean isAlgoRS256() {
+       return  JWTValidatorFactory.Algorithm.RS256.equals(MASConfiguration.getCurrentConfiguration().getIdTokenSignAlg());
     }
 
     private static void registerActivityLifecycleCallbacks(Application application) {
@@ -378,9 +384,9 @@ public class MAS {
     /**
      * Sets a listener to listen for MAS lifecycle events.
      *
-     * @param listner The listener to listen for MAS lifecycle events.
+     * @param listner Listener that listens for MAS lifecycle events.
      */
-    public static void addLifeCycleListener(MASLifecycleListener listner) {
+    private static void addLifeCycleListener(MASLifecycleListener listner) {
         masLifecycleListener.put(listner.getClass(), listner);
     }
 
@@ -517,6 +523,21 @@ public class MAS {
      */
     public static void enablePKCE(boolean enablePKCE) {
         ConfigurationManager.getInstance().enablePKCE(enablePKCE);
+    }
+
+    /**
+     * Enable JWKS preload. If enabled, the JWKS is preloaded when the SDK is started.
+     *
+     * @param enablePreloadJwks True to enable preloading of JWKS, False if preload is not needed.
+     */
+    public static void enableJwksPreload(boolean enablePreloadJwks) {
+        ConfigurationManager.getInstance().enableJwksPreload(enablePreloadJwks);
+    }
+    /**
+     *  Value of the boolean indicator which indicate if the JWKS should be preloaded.
+     */
+    public static boolean isPreloadJWKSEnabled() {
+        return  ConfigurationManager.getInstance().isJwksPreloadEnabled();
     }
 
     /**

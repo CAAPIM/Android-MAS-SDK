@@ -10,17 +10,21 @@ package com.ca.mas.core.token;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
 
 import com.ca.mas.core.MASCallbackFuture;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGErrorCode;
+import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASResponseBody;
 import com.ca.mas.foundation.notify.Callback;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSVerifier;
@@ -33,11 +37,10 @@ import com.nimbusds.jwt.SignedJWT;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 
@@ -47,22 +50,42 @@ public class JWTRS256Validator implements JWTValidator {
     public static final String TAG = JWTRS256Validator.class.getSimpleName();
     private static final String WELL_KNOW_URI = "/.well-known/openid-configuration";
     private static final String JWKS_URI = "jwks_uri";
-    public static final String KID = "kid"; //Key ID
-    public static final String JWT_KEY_SET_FILE = "jwks_store";
+    private static final String KID = "kid"; //Key ID
+    private static final String JWT_KEY_SET_FILE = "jwks_store";
 
-    private static String jwks;
+    public static String jwks;
+
+
+    public JWTRS256Validator() {
+
+        if (jwks == null) {
+            SharedPreferences prefs = MAS.getContext().getSharedPreferences(JWTRS256Validator.JWT_KEY_SET_FILE, Context.MODE_PRIVATE);
+            String keySet = prefs.getString(ConfigurationManager.getInstance().getConnectedGateway().getHost(), null);
+            setJwks(keySet);
+        }
+
+    }
+
+    private static void resetPrefs() {
+        final SharedPreferences prefs = MAS.getContext().getSharedPreferences(JWT_KEY_SET_FILE, Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(ConfigurationManager.getInstance().getConnectedGateway().getHost(), null);
+        editor.apply();
+    }
+
+    private static void setJwks(String keySet) {
+        jwks = keySet;
+    }
 
     /*
-     * Validates the signature of JWT which is signed using RS256. The JWKeys are loaded when the SDK is started.
+     * Validates the signature of JWT which is signed using RS256 algorithm.
      */
     @Override
-    public boolean validate(final IdToken idToken) throws JWTValidationException {
+    public boolean validate(final @NonNull IdToken idToken) throws JWTValidationException {
 
-        boolean isSignatureValid = false;
-
-        MASCallbackFuture<String> masCallbackFuture = new MASCallbackFuture();
+        boolean isSignatureValid;
         IdTokenDef idTokenDef = new IdTokenDef(idToken);
-        String kid = null;
+        String kid;
         try {
             kid = getKid(new String(Base64.decode(idTokenDef.getHeader(), Base64.URL_SAFE)));
         } catch (JWTValidationException e) {
@@ -84,8 +107,7 @@ public class JWTRS256Validator implements JWTValidator {
         return isSignatureValid;
     }
 
-
-    private JWK getJwk(String kid) throws InterruptedException, ExecutionException, ParseException{
+    private JWK getJwk(String kid) throws InterruptedException, ExecutionException, ParseException {
         MASCallbackFuture<String> masCallbackFuture = new MASCallbackFuture<>();
         loadJWKS(masCallbackFuture);
         String result = masCallbackFuture.get();
@@ -93,73 +115,19 @@ public class JWTRS256Validator implements JWTValidator {
         return jwkSet.getKeyByKeyId(kid);
     }
 
-
     /**
      * Loads JSON Web Key Set (JWKS) using well-know url whose response gives jwks-uri.
      *
      * @param callback a callback object of class implementing Future.  Required.
      */
-    public static void loadJWKS(final MASCallbackFuture<String> callback)  {
-        try {
+    public void loadJWKS(final @NonNull MASCallbackFuture<String> callback) {
 
-            if(jwks != null){
-                Callback.onSuccess(callback, jwks);
-                return;
-            }
-            MASRequest request_well_know_uri = new MASRequest.MASRequestBuilder(new URL(MASConfiguration.getCurrentConfiguration().getGatewayUrl() +
-                    WELL_KNOW_URI)).setPublic().build();
-
-            MAS.invoke(request_well_know_uri, new MASCallback<MASResponse<JSONObject>>() {
-                @Override
-                public void onSuccess(MASResponse<JSONObject> result) {
-                    JSONObject responseObject = result.getBody().getContent();
-                    try {
-                        String jwksUri = responseObject.getString(JWKS_URI);
-                        MASRequest request_jks_uri = new MASRequest.MASRequestBuilder(new URL(jwksUri
-                        )).setPublic().build();
-                        MAS.invoke(request_jks_uri, new MASCallback<MASResponse<JSONObject>>() {
-                            @Override
-                            public void onSuccess(MASResponse<JSONObject> result) {
-                                jwks = result.getBody().getContent().toString();
-                                writeJwtKeySetToPrefs(jwks);
-                                if(DEBUG)
-                                    Log.d(TAG, "JWT Key Set = " + result.getBody().getContent().toString());
-                                Callback.onSuccess(callback, result.getBody().getContent().toString());
-
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-
-                                Callback.onError(callback, e);
-                            }
-                        });
-                    } catch (JSONException | MalformedURLException e) {
-                        Callback.onError(callback, e);
-                    }
-                }
-                @Override
-                public void onError(Throwable e) {
-                   Callback.onError(callback, e);
-                }
-            });
-        } catch (MalformedURLException e) {
-            Callback.onError(callback, e);
+        if (jwks != null) {
+            Callback.onSuccess(callback, jwks);
+            return;
         }
-    }
+        new JwksLoadAsynTask().execute(callback);
 
-    private static void writeJwtKeySetToPrefs(String jwks) {
-        SharedPreferences prefs = MAS.getContext().getSharedPreferences(JWT_KEY_SET_FILE, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(ConfigurationManager.getInstance().getConnectedGateway().getHost(), jwks);
-        editor.commit();
-    }
-
-    private void resetPrefs() {
-        SharedPreferences prefs = MAS.getContext().getSharedPreferences(JWT_KEY_SET_FILE, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(ConfigurationManager.getInstance().getConnectedGateway().getHost(), null);
-        editor.commit();
     }
 
     private String getKid(String header) throws JWTValidationException {
@@ -172,12 +140,47 @@ public class JWTRS256Validator implements JWTValidator {
         }
     }
 
-    public static String getJwks() {
-        return jwks;
-    }
+    static class JwksLoadAsynTask extends AsyncTask<MASCallback<String>, Void, Void> {
 
-    public static void setJwks(String jwks) {
-        JWTRS256Validator.jwks = jwks;
+        private static void writeJwtKeySetToPrefs(String jwks) {
+            SharedPreferences prefs = MAS.getContext().getSharedPreferences(JWT_KEY_SET_FILE, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(ConfigurationManager.getInstance().getConnectedGateway().getHost(), jwks);
+            editor.apply();
+        }
+
+        @Override
+        protected Void doInBackground(MASCallback<String>... params) {
+            final MASCallback<String> callback = params[0];
+
+            try {
+                URL request_well_know_uri = new URL(MASConfiguration.getCurrentConfiguration().getGatewayUrl() +
+                        WELL_KNOW_URI);
+
+                MAGHttpClient client = new MAGHttpClient();
+                MASRequest request = new MASRequest.MASRequestBuilder(request_well_know_uri).
+                        responseBody(MASResponseBody.jsonBody()).setPublic().build();
+
+                MASResponse<JSONObject> response = client.execute(request);
+
+                JSONObject jsonObject = response.getBody().getContent();
+                String jwksUri = jsonObject.getString(JWKS_URI);
+                MASRequest request_jks_uri = new MASRequest.MASRequestBuilder(new URL(jwksUri
+                )).setPublic().build();
+
+                response = client.execute(request_jks_uri);
+                jwks = response.getBody().getContent().toString();
+                writeJwtKeySetToPrefs(jwks);
+                if (DEBUG)
+                    Log.d(TAG, "JWT Key Set = " + jwks);
+                Callback.onSuccess(callback, jwks);
+            } catch (IOException e) {
+                Callback.onError(callback, e);
+            } catch (JSONException e) {
+                Callback.onError(callback, e);
+            }
+            return null;
+        }
     }
 }
 

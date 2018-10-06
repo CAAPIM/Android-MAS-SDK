@@ -7,7 +7,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-
+/**
+ * A Future represents the result of the MASCallback asynchronous result.
+ * @param <T> The result type returned by this Future's get method
+ */
 public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
 
     private CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -17,7 +20,6 @@ public class MASCallbackFuture<T> extends MASCallback<T> implements Future<T> {
 
     public MASCallbackFuture() {
     }
-
 
     @Override
     public void onSuccess(T result) {

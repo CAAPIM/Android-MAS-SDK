@@ -45,6 +45,10 @@ import java.util.concurrent.ExecutionException;
 import static com.ca.mas.foundation.MAS.DEBUG;
 
 
+/**
+ * This class loads JWKS if not already loaded and stores in SharedPreferences.
+ * Validates signature of the JWT Id Token which is signed by RS256
+ */
 public class JWTRS256Validator implements JWTValidator {
 
     public static final String TAG = JWTRS256Validator.class.getSimpleName();
@@ -79,6 +83,10 @@ public class JWTRS256Validator implements JWTValidator {
 
     /*
      * Validates the signature of JWT which is signed using RS256 algorithm.
+     *
+     * @param idToken The Id Token whose signature is to be validated.
+     *
+     * @return boolean True if signature is valid else false.
      */
     @Override
     public boolean validate(final @NonNull IdToken idToken) throws JWTValidationException {
@@ -118,7 +126,7 @@ public class JWTRS256Validator implements JWTValidator {
     /**
      * Loads JSON Web Key Set (JWKS) using well-know url whose response gives jwks-uri.
      *
-     * @param callback a callback object of class implementing Future.  Required.
+     * @param callback a callback object to return result.  Required.
      */
     public void loadJWKS(final @NonNull MASCallbackFuture<String> callback) {
 

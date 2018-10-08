@@ -57,7 +57,7 @@ public class JWTRS256Validator implements JWTValidator {
     private static final String KID = "kid"; //Key ID
     public static final String JWT_KEY_SET_FILE = "jwks_store";
 
-    public static String jwks;
+    private static String jwks;
 
 
     public JWTRS256Validator() {
@@ -185,6 +185,10 @@ public class JWTRS256Validator implements JWTValidator {
             }
             return null;
         }
+    }
+
+    public static String getJwks() {
+        return jwks;
     }
 }
 

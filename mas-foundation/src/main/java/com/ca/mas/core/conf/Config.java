@@ -37,7 +37,6 @@ public class Config {
 
     //mag.system_endpoints
     public static final Config REMOVE_DEVICE_PATH = new Config(false, MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_REMOVE_DEVICE_X509, "mag.system_endpoints.device_remove_endpoint_path", String.class);
-    public static final Config DEVICE_METADATA_PATH = new Config(false, MobileSsoConfig.DEVICE_METADATA_PATH, "mag.system_endpoints.device_metadata_endpoint_path", String.class);
     public static final Config REGISTER_DEVICE_PATH = new Config(false, MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_REGISTER_DEVICE, "mag.system_endpoints.device_register_endpoint_path", String.class);
     public static final Config RENEW_DEVICE_PATH = new Config(false, MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RENEW_DEVICE, "mag.system_endpoints.device_renew_endpoint_path", String.class);
     public static final Config REGISTER_DEVICE_PATH_CLIENT = new Config(false, MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_REGISTER_DEVICE_CLIENT, "mag.system_endpoints.device_register_client_endpoint_path", String.class);
@@ -46,6 +45,7 @@ public class Config {
 
     //mag.oauth_protected_endpoints
     public static final Config ENTERPRISE_APP_PATH = new Config(false, MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_ENTERPRISE_APPS, "mag.oauth_protected_endpoints.enterprise_browser_endpoint_path", String.class);
+    public static final Config DEVICE_METADATA_PATH = new Config(false, MobileSsoConfig.PROP_DEVICE_METADATA_PATH, "mag.oauth_protected_endpoints.device_metadata_endpoint_path", String.class);
 
     //mag.mobile_sdk
     public static final Config SSO_ENABLED = new Config(false, MobileSsoConfig.PROP_SSO_ENABLED, "mag.mobile_sdk.sso_enabled", Boolean.class);

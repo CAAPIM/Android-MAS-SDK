@@ -8,12 +8,15 @@
 
 package com.ca.mas.identity.user;
 
+import android.support.annotation.Keep;
+
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASUser;
 
 /**
  * The <b>MASUserIdentity</b> interface enables the Identity Management feature for the authenticated user.
  */
+@Keep
 public interface MASUserRepository extends MASUserIdentity {
 
     void me(MASCallback<MASUser> callback);

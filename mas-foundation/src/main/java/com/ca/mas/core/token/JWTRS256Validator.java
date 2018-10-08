@@ -55,7 +55,7 @@ public class JWTRS256Validator implements JWTValidator {
     private static final String WELL_KNOW_URI = "/.well-known/openid-configuration";
     private static final String JWKS_URI = "jwks_uri";
     private static final String KID = "kid"; //Key ID
-    private static final String JWT_KEY_SET_FILE = "jwks_store";
+    public static final String JWT_KEY_SET_FILE = "jwks_store";
 
     public static String jwks;
 
@@ -65,7 +65,7 @@ public class JWTRS256Validator implements JWTValidator {
         if (jwks == null) {
             SharedPreferences prefs = MAS.getContext().getSharedPreferences(JWTRS256Validator.JWT_KEY_SET_FILE, Context.MODE_PRIVATE);
             String keySet = prefs.getString(ConfigurationManager.getInstance().getConnectedGateway().getHost(), null);
-            setJwks(keySet);
+            jwks = keySet;
         }
 
     }
@@ -73,12 +73,8 @@ public class JWTRS256Validator implements JWTValidator {
     private static void resetPrefs() {
         final SharedPreferences prefs = MAS.getContext().getSharedPreferences(JWT_KEY_SET_FILE, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(ConfigurationManager.getInstance().getConnectedGateway().getHost(), null);
+        editor.clear();
         editor.apply();
-    }
-
-    private static void setJwks(String keySet) {
-        jwks = keySet;
     }
 
     /*
@@ -177,7 +173,7 @@ public class JWTRS256Validator implements JWTValidator {
                 )).setPublic().build();
 
                 response = client.execute(request_jks_uri);
-                jwks = response.getBody().getContent().toString();
+                jwks =response.getBody().getContent().toString();
                 writeJwtKeySetToPrefs(jwks);
                 if (DEBUG)
                     Log.d(TAG, "JWT Key Set = " + jwks);

@@ -16,6 +16,8 @@ import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.security.KeyStoreException;
+import com.ca.mas.core.store.ClientCredentialContainer;
+import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.token.IdToken;
 import com.ca.mas.core.token.JWTValidation;
 import com.ca.mas.core.token.JWTValidationException;
@@ -256,10 +258,13 @@ public class MASJwtSigningTest extends MASLoginTestBase {
     @Test
     public void validateTokenWithAlgorithmRS256() throws JWTValidationException {
 
-        IdToken idToken = new IdToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHRfc3NsX2tleSJ9.ewogInN1YiI6ICJlaHAxdzVrN3pVdFRrRWYyWEUtSUxuREFhU3FsRHZrY1VXSjZTTTNEUFNzIiwKICJhdWQiOiAiMDdmNjFlNmUtZTE2NC00MTRlLTkyNTItMzMzOTgwOTBmOTAwIiwKICJhY3IiOiAiMCIsCiAiYXpwIjogIllVdEpkR2haZW1kcldteFdkazFpYVRsMU5rTTJkazFYYTNsdlBRPT0iLAogImF1dGhfdGltZSI6IDE1MzkwNzU0OTgsCiAiaXNzIjogImh0dHBzOi8vbWFnZmlkby5jYS5jb206ODQ0MyIsCiAiZXhwIjogMTUzOTE2MTg5OCwKICJpYXQiOiAxNTM5MDc1NDk4Cn0.bW-mEvwxS8AgGWjtpN_DhxobVusW3212m54iK030zcyhBQLUK2M_HJFjVBZByZoMqNLp9zflD8lbxZiOI_JOS3O2ca60gLyvWdEDsZO5dCyMeHZb_6T4FjXRn3v2BktF7raJjRWDfIZRcRZKSLXezig1HFSSYasXlkHyP1vwqs-r_c2oYVmmwQubdcp-PObhqxjO8PGRCB58eYX6lkMXj3AAnl1jeuRmHUns24WjgSWBXQFhSxwJOiXfTajh-bzbjnpeWsKEgVI7BGuIvdIm_YagVo8l3K68dHtuhqTwqiOv9K_z4GlJezdzj4ipx3Wkjm_RjayIWZSLz3-A3AvzWA", "urn:ietf:params:oauth:grant-type:jwt-bearer");
-        String deviceIdentifier = "YUtJdGhZemdrWmxWdk1iaTl1NkM2dk1Xa3lvPQ==";
-        String clientId = "07f61e6e-e164-414e-9252-33398090f900";
-        String clientSecret = "a9af7309-4aed-4d1a-9a6d-877ea9c0407c";
+        ClientCredentialContainer cc = StorageProvider.getInstance().getClientCredentialContainer();
+
+        // - generated in https://jwt.io/
+        IdToken idToken = new IdToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiYXVkIjoiZHVtbXkiLCJhY3IiOiIwIiwiYXpwIjoiZjQ3MzUyNWQtYzEzMC00YmJhLTg2Y2MtZGIyNmQ4ODc1Mzg2IiwiYXV0aF90aW1lIjoxNTM5MDc1NDk4LCJpc3MiOiJodHRwczovL21hZ2ZpZG8uY2EuY29tOjg0NDMiLCJleHAiOjE1MzkwNzI5OTIsImlhdCI6MTUzOTA3NTQ5OSwianRpIjoiZTkyYWRlNDgtN2JmMC00MGZmLWFlNGYtZmIzNDdlMWZmMDY4In0.xb6a1XptFvqZ0roCI7tmNzauDulqLKh8Pf1XyELDCFs", "urn:ietf:params:oauth:grant-type:jwt-bearer");
+        String deviceIdentifier = "f473525d-c130-4bba-86cc-db26d8875386";
+        String clientId = cc.getClientId();
+        String clientSecret = cc.getClientSecret();
         // - validate the token
         Assert.assertTrue(JWTValidation.validateIdToken(idToken, deviceIdentifier, clientId, clientSecret));
     }

@@ -10,11 +10,9 @@ package com.ca.mas.foundation;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.SystemClock;
 
 import com.ca.mas.MASMockGatewayTestBase;
 import com.ca.mas.TestUtils;
-import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.token.JWTRS256Validator;
 
 import org.junit.After;
@@ -24,33 +22,46 @@ import org.junit.Test;
 
 public class MASJWKSPreloadTest extends MASMockGatewayTestBase {
 
-
     @After
     public void clearJWKS(){
-        final SharedPreferences prefs = getContext().getSharedPreferences(JWTRS256Validator.JWT_KEY_SET_FILE, Context.MODE_PRIVATE);
+        final SharedPreferences prefs;
+        prefs = getContext().getSharedPreferences(JWTRS256Validator.JWT_KEY_SET_FILE, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = prefs.edit();
         editor.clear();
         editor.apply();
-        JWTRS256Validator.jwks = null;
+        JWTRS256Validator.setJwks(null);
     }
 
     @Test
     public void testJWKSPreloadEnabledAlgHS256() throws Exception {
-
         MAS.enableJwksPreload(true);
-        MAS.start(getContext(), TestUtils.getJSONObject("/msso_config_rs256.json"));
-        Thread.sleep(1000);
-        Assert.assertNotNull(JWTRS256Validator.jwks);
+        MAS.start(getContext(), TestUtils.getJSONObject("/msso_config_hs256.json"));
+        Thread.sleep(2000);
+        Assert.assertNotNull(JWTRS256Validator.getJwks());
 
     }
 
     @Test
     public void testJWKSPreloadEnabledAlgRS256() throws Exception {
-
         MAS.enableJwksPreload(true);
         MAS.start(getContext(), TestUtils.getJSONObject("/msso_config_rs256.json"));
-        Thread.sleep(1000);
-        Assert.assertNotNull(JWTRS256Validator.jwks);
+        Thread.sleep(2000);
+        Assert.assertNotNull(JWTRS256Validator.getJwks());
+    }
+
+    @Test
+    public void testJWKSPreloadDisabledAlgRS256() throws Exception {
+        MAS.enableJwksPreload(false);
+        MAS.start(getContext(), TestUtils.getJSONObject("/msso_config_rs256.json"));
+        Thread.sleep(2000);
+        Assert.assertNotNull(JWTRS256Validator.getJwks());
+    }
+
+    @Test
+    public void testJWKSPreloadDisabledAlgHS256() throws Exception {
+        MAS.enableJwksPreload(false);
+        MAS.start(getContext(),TestUtils.getJSONObject("/msso_config_hs256.json"));
+        Assert.assertNull(JWTRS256Validator.getJwks());
     }
 
 }

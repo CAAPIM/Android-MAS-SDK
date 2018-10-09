@@ -76,7 +76,7 @@
                 "contacts": [],
                 "response_types": [],
                 "grant_types": [],
-                "id_token_signed_response_alg": "RS256",
+                "id_token_signed_response_alg": "HS256",
                 "userinfo_signed_response_alg": "",
                 "environment": "ALL",
                 "organization": "CA Inc",

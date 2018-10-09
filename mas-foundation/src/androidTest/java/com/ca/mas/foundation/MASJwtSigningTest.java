@@ -253,15 +253,15 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         KeyUtilsAsymmetric.deletePrivateKey("TEST");
     }
 
-    @Test(expected = JWTValidationException.class)
+    @Test
     public void validateTokenWithAlgorithmRS256() throws JWTValidationException {
 
-        IdToken idToken = new IdToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHRfc3NsX2tleSJ9.ewogInN1YiI6ICJ4OFhiQmdpem1MUHhjWnF5Z3VzNEsweEpYTGVjczdOWlZuX3BiTzE1MXA0IiwKICJhdWQiOiAiMWM2OWIzYTUtYzRlNS00OTg0LWI4Y2YtMjUxMjMyOTQ4MWNkIiwKICJhY3IiOiAiMCIsCiAiYXpwIjogIldVTXZORGRIWkc5Q2MzRkZVa1JhTW5GaGNWbHBVRTFLVEVSdlBRPT0iLAogImF1dGhfdGltZSI6IDE1Mzg4NzEzMjAsCiAiaXNzIjogImh0dHBzOi8vbWFnZmlkby5jYS5jb206ODQ0MyIsCiAiZXhwIjogMTUzODk1NzcyMCwKICJpYXQiOiAxNTM4ODcxMzIwCn0.kwaooIYi4nknBq-h7fQYsq042s_1A7fNXF3-CI1w-p6bEpCQ0etuvAhgujCuzOnL1fuJCJIpOxg31MIdi-hUmCYycr0G4zbeMuZL1MXEnMkAmzvXrisrZOe-06QKa5ciRaqhf8ktN9fgOv8_mv0EjUGwiv4x98BQu6o_ubZMjDJmEWAfk7SdHCErv4_fM2lmUvwevkWTpRSpPZAmGW62-Yq7N4M9ZEqCrNcI-iRkOGXwHC5oor8qTY19jU5HalKO_DOPzBIjr4d19JUNjW_dJtiUwqfKpCovSVYVw1dpNEXdjJlIVCUC6m6dr2DTp40_pnyvpCqOsqXerMqbxYEg8w", "urn:ietf:params:oauth:grant-type:jwt-bearer");
-        String deviceIdentifier = "WUMvNDdHZG9Cc3FFUkRaMnFhcVlpUE1KTERvPQ==";
-        String clientId = "1c69b3a5-c4e5-4984-b8cf-2512329481cd";
-        String clientSecret = "6c11262f-6bb6-446a-a0d8-cb439deb25d1";
+        IdToken idToken = new IdToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHRfc3NsX2tleSJ9.ewogInN1YiI6ICJlaHAxdzVrN3pVdFRrRWYyWEUtSUxuREFhU3FsRHZrY1VXSjZTTTNEUFNzIiwKICJhdWQiOiAiMDdmNjFlNmUtZTE2NC00MTRlLTkyNTItMzMzOTgwOTBmOTAwIiwKICJhY3IiOiAiMCIsCiAiYXpwIjogIllVdEpkR2haZW1kcldteFdkazFpYVRsMU5rTTJkazFYYTNsdlBRPT0iLAogImF1dGhfdGltZSI6IDE1MzkwNzU0OTgsCiAiaXNzIjogImh0dHBzOi8vbWFnZmlkby5jYS5jb206ODQ0MyIsCiAiZXhwIjogMTUzOTE2MTg5OCwKICJpYXQiOiAxNTM5MDc1NDk4Cn0.bW-mEvwxS8AgGWjtpN_DhxobVusW3212m54iK030zcyhBQLUK2M_HJFjVBZByZoMqNLp9zflD8lbxZiOI_JOS3O2ca60gLyvWdEDsZO5dCyMeHZb_6T4FjXRn3v2BktF7raJjRWDfIZRcRZKSLXezig1HFSSYasXlkHyP1vwqs-r_c2oYVmmwQubdcp-PObhqxjO8PGRCB58eYX6lkMXj3AAnl1jeuRmHUns24WjgSWBXQFhSxwJOiXfTajh-bzbjnpeWsKEgVI7BGuIvdIm_YagVo8l3K68dHtuhqTwqiOv9K_z4GlJezdzj4ipx3Wkjm_RjayIWZSLz3-A3AvzWA", "urn:ietf:params:oauth:grant-type:jwt-bearer");
+        String deviceIdentifier = "YUtJdGhZemdrWmxWdk1iaTl1NkM2dk1Xa3lvPQ==";
+        String clientId = "07f61e6e-e164-414e-9252-33398090f900";
+        String clientSecret = "a9af7309-4aed-4d1a-9a6d-877ea9c0407c";
         // - validate the token
-        JWTValidation.validateIdToken(idToken, deviceIdentifier, clientId, clientSecret);
+        Assert.assertTrue(JWTValidation.validateIdToken(idToken, deviceIdentifier, clientId, clientSecret));
     }
 
     @Test(expected = IllegalStateException.class)

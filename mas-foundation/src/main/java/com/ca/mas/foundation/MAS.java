@@ -99,7 +99,7 @@ public class MAS {
     }
 
     private static boolean isAlgoRS256() {
-       return  JWTValidatorFactory.Algorithm.RS256.equals(MASConfiguration.getCurrentConfiguration().getIdTokenSignAlg());
+       return  JWTValidatorFactory.Algorithm.RS256.toString().equals(MASConfiguration.getCurrentConfiguration().getIdTokenSignAlg());
     }
 
     private static void registerActivityLifecycleCallbacks(Application application) {

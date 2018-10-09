@@ -461,6 +461,6 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 "  } ]\n" +
                 "}";
 
-        return new MockResponse().setResponseCode(200).setBody(result);
+        return new MockResponse().setResponseCode(200).setBody(result).addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
     }
 }

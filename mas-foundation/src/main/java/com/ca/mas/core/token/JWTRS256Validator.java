@@ -188,7 +188,11 @@ public class JWTRS256Validator implements JWTValidator {
     }
 
     public static String getJwks() {
-        return jwks;
+        return JWTRS256Validator.jwks;
+    }
+
+    public static void setJwks(String jwks) {
+        JWTRS256Validator.jwks = jwks;
     }
 }
 

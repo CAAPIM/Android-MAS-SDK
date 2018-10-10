@@ -156,7 +156,11 @@ abstract class AndroidKeyStoreRepository extends KeyStoreRepository {
             PKCS10 pkcs10 = new PKCS10(publicKey);
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initSign(privateKey);
-            sun.security.x509.X500Name x500Name = new sun.security.x509.X500Name("cn=" + commonName + ", ou=" + deviceId + ", dc=" + deviceName + ", o=" + organization);
+            sun.security.x509.X500Name x500Name = new sun.security.x509.X500Name(
+                    "cn=\"" + commonName +
+                            "\", ou=\"" + deviceId +
+                            "\", dc=\"" + deviceName +
+                            "\", o=\"" + organization + "\"");
 
             pkcs10.encodeAndSign(new X500Signer(signature, x500Name));
             return pkcs10.getEncoded();

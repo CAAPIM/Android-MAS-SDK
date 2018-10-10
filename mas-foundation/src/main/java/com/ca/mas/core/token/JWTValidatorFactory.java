@@ -16,9 +16,8 @@ public class JWTValidatorFactory {
         } else if (algorithm.equals(Algorithm.RS256.toString())) {
             jwtValidator = new JWTRS256Validator();
         } else {
-            throw new JWTValidationException(MAGErrorCode.TOKEN_INVALID_ID_TOKEN);
+            throw new JWTValidationException(MAGErrorCode.TOKEN_UNSUPPORTED_ALG);
         }
-
         return jwtValidator;
     }
 

@@ -12,6 +12,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.ca.mas.core.context.MssoContext;
+import com.ca.mas.core.store.StorageProvider;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -28,8 +29,7 @@ class JWTHmacValidator implements  JWTValidator{
         byte[] header = idTokenDef.getHeader();
         byte[] payload = idTokenDef.getPayload();
         byte[] signature = idTokenDef.getSignature();
-
-        String clientSecret = MssoContext.newContext().getClientSecret();
+        String clientSecret = StorageProvider.getInstance().getClientCredentialContainer().getClientSecret();
         byte[] signToCompare = signData(header, payload, clientSecret.getBytes());
         byte[] decodedSignature = Base64.decode(signature, Base64.URL_SAFE);
 

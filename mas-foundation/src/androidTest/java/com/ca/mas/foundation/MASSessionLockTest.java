@@ -89,9 +89,11 @@ public class MASSessionLockTest extends MASLoginTestBase {
     public void testUnlockSessionCallsOnUserAuthenticationRequired() throws Throwable {
         MASUser currentUser = MASUser.getCurrentUser();
         MASSessionUnlockCallbackFuture<Void> callbackFuture = new MASSessionUnlockCallbackFuture<>();
-        currentUser.lockSession(null);
+        MASCallbackFuture<Void> masCallbackFuture = new MASCallbackFuture<>();
+        currentUser.lockSession(masCallbackFuture);
 
         try {
+            masCallbackFuture.get();
             currentUser.unlockSession(callbackFuture);
             try {
                 callbackFuture.get();

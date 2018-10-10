@@ -25,6 +25,7 @@ import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.MobileSsoFactory;
+import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.io.Charsets;
@@ -310,22 +311,15 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 logout(true, callback);
             }
 
-            private MASRequest getLogoutRequest(TokenManager tokenManager, final ClientCredentialContainer credentialContainer){
-
-                String endpointPath = MASConfiguration.getCurrentConfiguration().getEndpointPath(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT);
-                URI uri;
-                try {
-                    uri = new URI(endpointPath);
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e.getMessage());
-                }
+            private MASRequest getLogoutRequest(TokenManager tokenManager, final ClientCredentialContainer credentialContainer) {
+                URI uri = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT); ;
 
                 final List<Pair<String, String>> form = new ArrayList<>();
                 form.add(new Pair<>(OAuthClient.ID_TOKEN, tokenManager.getIdToken().getValue()));
                 form.add(new Pair<>(OAuthClient.ID_TOKEN_TYPE, tokenManager.getIdToken().getType()));
                 form.add(new Pair<>(OAuthClient.LOGOUT_APPS, Boolean.toString(true)));
 
-                MASRequest request = new MASRequest.MASRequestBuilder(uri)
+                return new MASRequest.MASRequestBuilder(uri)
                         .post(MASRequestBody.urlEncodedFormBody(form))
                         .responseBody(MASResponseBody.stringBody())
                         .connectionListener(new MASConnectionListener() {
@@ -342,10 +336,10 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
                             @Override
                             public void onConnected(HttpURLConnection connection) {
+                                //ignore
                             }
                         })
                         .build();
-                return request;
             }
 
             private MASRequest getRevokeRequest(final ClientCredentialContainer clientCredentialContainer) {
@@ -362,7 +356,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 request = new MASRequest.MASRequestBuilder(uri)
                         .delete(null)
                         .responseBody(MASResponseBody.stringBody())
-                        .header(OAuthClient.AUTHORIZATION,"Basic " + IoUtils.base64(clientCredentialContainer.getClientId() + ":" + clientCredentialContainer.getClientSecret(), Charsets.ASCII) )
+                        .header(OAuthClient.AUTHORIZATION, "Basic " + IoUtils.base64(clientCredentialContainer.getClientId() + ":" + clientCredentialContainer.getClientSecret(), Charsets.ASCII))
                         .build();
                 return request;
             }
@@ -397,20 +391,20 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                     @Override
                     public void onSuccess(MASResponse<JSONObject> result) {
                         // - Paramenter to delete or not the local storage
-                            EventDispatcher.LOGOUT.notifyObservers();
+                        EventDispatcher.LOGOUT.notifyObservers();
 
-                            try {
-                                tokenManager.deleteIdToken();
-                                tokenManager.deleteSecureIdToken();
-                                tokenManager.deleteUserProfile();
-                            } catch (TokenStoreException e) {
-                                onError(e);
-                            }
-                            try {
-                                StorageProvider.getInstance().getOAuthTokenContainer().clear();
-                            } catch (DataSourceException e) {
-                                onError(e);
-                            }
+                        try {
+                            tokenManager.deleteIdToken();
+                            tokenManager.deleteSecureIdToken();
+                            tokenManager.deleteUserProfile();
+                        } catch (TokenStoreException e) {
+                            onError(e);
+                        }
+                        try {
+                            StorageProvider.getInstance().getOAuthTokenContainer().clear();
+                        } catch (DataSourceException e) {
+                            onError(e);
+                        }
 
                         Callback.onSuccess(callback, null);
                     }
@@ -529,19 +523,19 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             }
 
             @Override
-            public void lockSession(MASCallback<Void> callback) {
+            public void lockSession(final MASCallback<Void> callback) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     MASUser currentUser = MASUser.getCurrentUser();
                     if (currentUser == null) {
                         Callback.onError(callback, new SecureLockException(MASFoundationStrings.USER_NOT_CURRENTLY_AUTHENTICATED));
                     } else if (isSessionLocked()) {
                         Callback.onSuccess(callback, null);
-                    } else if(!isDeviceSecure()){
+                    } else if (!isDeviceSecure()) {
                         Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_SCREEN_LOCK));
-                    } else{
+                    } else {
 
                         // Retrieve the ID token
-                        IdToken idToken = StorageProvider.getInstance()
+                        final IdToken idToken = StorageProvider.getInstance()
                                 .getTokenManager()
                                 .getIdToken();
 
@@ -550,47 +544,68 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                             return;
                         }
 
-                        try {
-                            // Remove access and refresh tokens
-                            StorageProvider.getInstance().getOAuthTokenContainer().clear();
+                        //Fire revoke
+                        MASRequest revokeRequest = getRevokeRequest(StorageProvider.getInstance().getClientCredentialContainer());
+                        MAS.invoke(revokeRequest, new MASCallback<MASResponse<JSONObject>>() {
 
-                            // Move the ID token from the Keychain to the fingerprint protected shared Keystore
-                            Parcel idTokenParcel = Parcel.obtain();
-                            idToken.writeToParcel(idTokenParcel, 0);
-                            byte[] idTokenBytes = idTokenParcel.marshall();
+                            @RequiresApi(api = Build.VERSION_CODES.M)
+                            private void lock() {
+                                try {
+                                    // Remove access and refresh tokens
+                                    StorageProvider.getInstance().getOAuthTokenContainer().clear();
+                                    // Move the ID token from the Keychain to the fingerprint protected shared Keystore
+                                    Parcel idTokenParcel = Parcel.obtain();
+                                    idToken.writeToParcel(idTokenParcel, 0);
+                                    byte[] idTokenBytes = idTokenParcel.marshall();
 
-                            // Save the encrypted token
-                            LockableEncryptionProvider lockableEncryptionProvider
-                                    = new LockableEncryptionProvider(MAS.getContext(), SESSION_LOCK_ALIAS);
-                            // Delete any previously generated key due to improper closure
-                            lockableEncryptionProvider.clear();
-                            // now encrypt the data
-                            byte[] encryptedData = lockableEncryptionProvider.encrypt(idTokenBytes);
-                            try {
-                                StorageProvider.getInstance()
-                                        .getTokenManager()
-                                        .saveSecureIdToken(encryptedData);
-                            } catch (TokenStoreException e) {
-                                Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_SECURE_ID_TOKEN, e));
-                                return;
+                                    // Save the encrypted token
+                                    LockableEncryptionProvider lockableEncryptionProvider
+                                            = new LockableEncryptionProvider(MAS.getContext(), SESSION_LOCK_ALIAS);
+                                    // Delete any previously generated key due to improper closure
+                                    lockableEncryptionProvider.clear();
+                                    // now encrypt the data
+                                    byte[] encryptedData = lockableEncryptionProvider.encrypt(idTokenBytes);
+                                    try {
+                                        StorageProvider.getInstance()
+                                                .getTokenManager()
+                                                .saveSecureIdToken(encryptedData);
+                                    } catch (TokenStoreException e) {
+                                        Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_SECURE_ID_TOKEN, e));
+                                        return;
+                                    }
+
+                                    // Remove the unencrypted token
+                                    try {
+                                        StorageProvider.getInstance()
+                                                .getTokenManager()
+                                                .deleteIdToken();
+                                    } catch (TokenStoreException e) {
+                                        Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_ID_TOKEN, e));
+                                        return;
+                                    }
+
+                                    idTokenParcel.recycle();
+
+                                    Callback.onSuccess(callback, null);
+                                } catch (Exception e) {
+                                    Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_SECURE_ID_TOKEN, e));
+                                }
                             }
 
-                            // Remove the unencrypted token
-                            try {
-                                StorageProvider.getInstance()
-                                        .getTokenManager()
-                                        .deleteIdToken();
-                            } catch (TokenStoreException e) {
-                                Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_ID_TOKEN, e));
-                                return;
+                            @RequiresApi(api = Build.VERSION_CODES.M)
+                            @Override
+                            public void onSuccess(MASResponse<JSONObject> result) {
+                                lock();
                             }
 
-                            idTokenParcel.recycle();
+                            @RequiresApi(api = Build.VERSION_CODES.M)
+                            @Override
+                            public void onError(Throwable e) {
+                                lock();
+                            }
+                        });
 
-                            Callback.onSuccess(callback, null);
-                        } catch (Exception e) {
-                            Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_SAVE_SECURE_ID_TOKEN, e));
-                        }
+
                     }
                 } else {
                     Callback.onError(callback, new IllegalAccessException(MASFoundationStrings.API_TARGET_EXCEPTION));
@@ -602,7 +617,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     KeyguardManager manager = (KeyguardManager) MAS.getContext().getSystemService(MAS.getContext().KEYGUARD_SERVICE);
-                    retValue =  manager.isDeviceSecure();
+                    retValue = manager.isDeviceSecure();
                 } else {
                     throw new SecureLockException(MASFoundationStrings.SECURE_LOCK_SCREEN_LOCK);
                 }
@@ -660,13 +675,13 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                                 Callback.onSuccess(callback, null);
                             } else {
                                 // The ID token must be placed back before calling logout()
-                                logout(null);
+                                logout(true,null);
                                 Callback.onError(callback, new SecureLockException(MASFoundationStrings.TOKEN_ID_EXPIRED));
                             }
                         } catch (Exception e) {
                             Throwable t = e.getCause();
                             if (t != null && (t instanceof android.security.keystore.UserNotAuthenticatedException
-                                    || (t.getCause() != null && t.getCause() instanceof UserNotAuthenticatedException))) {
+                                    || (t.getCause() instanceof UserNotAuthenticatedException))) {
                                 // Listener activity to trigger fingerprint
                                 if (callback != null) {
                                     callback.onUserAuthenticationRequired();
@@ -747,10 +762,9 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * <p>Logs off an already authenticated user via an asynchronous request.</p>
      * This will invoke {@link Callback#onSuccess} upon a successful result.
      *
-     * @param force delete local storage
+     * @param force    delete local storage
      * @param callback The Callback that receives the results. On a successful completion, the user
      *                 will be logout from the Application.
-     *
      */
     public abstract void logout(boolean force, final MASCallback<Void> callback);
 

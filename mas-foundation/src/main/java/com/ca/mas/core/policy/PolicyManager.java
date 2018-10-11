@@ -20,7 +20,7 @@ import com.ca.mas.foundation.MASResponse;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,12 +34,12 @@ public class PolicyManager {
     private final Object policySync = new Object();
 
     private final Map<String, List<MssoAssertion>> policies = new HashMap<>();
-    private List<MssoAssertion> defaultPolicy = new ArrayList<>();
+    private List<MssoAssertion> defaultPolicy;
 
     public PolicyManager(MssoContext mssoContext) {
-        List<MssoAssertion> logoutPolicy = new ArrayList<>();
 
         this.mssoContext = mssoContext;
+
         StorageReadyAssertion storageReadyAssertion = new StorageReadyAssertion();
         SecureLockAssertion secureLockAssertion = new SecureLockAssertion();
         ClientCredentialAssertion clientCredentialAssertion = new ClientCredentialAssertion();
@@ -50,33 +50,42 @@ public class PolicyManager {
         CustomHeaderAssertion customHeaderAssertion = new CustomHeaderAssertion();
         ResponseRecoveryAssertion responseRecoveryAssertion = new ResponseRecoveryAssertion();
 
-        defaultPolicy.add(storageReadyAssertion);
-        defaultPolicy.add(secureLockAssertion);
-        defaultPolicy.add(clientCredentialAssertion);
-        defaultPolicy.add(deviceRegistrationAssertion);
-        defaultPolicy.add(accessTokenAssertion);
-        defaultPolicy.add(locationAssertion);
-        defaultPolicy.add(telephoneAssertion);
-        defaultPolicy.add(customHeaderAssertion);
-        defaultPolicy.add(responseRecoveryAssertion);
+        defaultPolicy = Arrays.asList(
+                storageReadyAssertion,
+                secureLockAssertion,
+                clientCredentialAssertion,
+                deviceRegistrationAssertion,
+                accessTokenAssertion,
+                locationAssertion,
+                telephoneAssertion,
+                customHeaderAssertion,
+                responseRecoveryAssertion);
 
         URI logout = ConfigurationManager
                 .getInstance()
                 .getConnectedGatewayConfigurationProvider()
                 .getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_RESOURCE_OWNER_LOGOUT);
+
         URI revoke = ConfigurationManager
                 .getInstance()
                 .getConnectedGatewayConfigurationProvider()
                 .getTokenUri(MobileSsoConfig.REVOKE_ENDPOINT);
 
+        //Logout
+        policies.put(logout.getPath(), Arrays.asList(
+                storageReadyAssertion,
+                secureLockAssertion,
+                clientCredentialAssertion,
+                locationAssertion,
+                responseRecoveryAssertion
+        ));
 
-        logoutPolicy.add(storageReadyAssertion);
-        logoutPolicy.add(secureLockAssertion);
-        logoutPolicy.add(clientCredentialAssertion);
-        logoutPolicy.add(locationAssertion);
-        logoutPolicy.add(responseRecoveryAssertion);
-        policies.put(logout.getPath(), logoutPolicy);
-        policies.put(revoke.getPath(), logoutPolicy);
+        //Revoke
+        policies.put(revoke.getPath(), Arrays.asList(
+                storageReadyAssertion,
+                clientCredentialAssertion,
+                locationAssertion,
+                responseRecoveryAssertion));
     }
 
     /**
@@ -90,6 +99,7 @@ public class PolicyManager {
             assertion.init(mssoContext, appContext);
         }
     }
+
     /**
      * Process a request.  This will apply policies to the request, possibly calling the token server to
      * obtain additional information, possibly adding headers to the request.
@@ -132,8 +142,7 @@ public class PolicyManager {
 
     public MASResponse execute(RequestInfo requestInfo, Route<MASResponse> function) throws MAGException, MAGServerException, IOException {
 
-
-        String path = requestInfo.getRequest().getURL() == null ? "" :requestInfo.getRequest().getURL().getPath();
+        String path = requestInfo.getRequest().getURL() == null ? "" : requestInfo.getRequest().getURL().getPath();
 
         List<MssoAssertion> activePolicy = policies.get(path);
         if (activePolicy == null) {

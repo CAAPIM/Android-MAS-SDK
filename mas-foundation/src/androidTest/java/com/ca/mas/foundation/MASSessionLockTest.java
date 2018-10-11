@@ -7,9 +7,11 @@
  */
 package com.ca.mas.foundation;
 
+import android.net.Uri;
 import android.os.Build;
 
 import com.ca.mas.AndroidVersionAwareTestRunner;
+import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.MinTargetAPI;
@@ -17,9 +19,13 @@ import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
+import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.net.URI;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -33,6 +39,7 @@ public class MASSessionLockTest extends MASLoginTestBase {
     @MinTargetAPI(Build.VERSION_CODES.M)
     public void testLockSession() throws Exception {
         MASUser currentUser = MASUser.getCurrentUser();
+        String refreshToken = StorageProvider.getInstance().getOAuthTokenContainer().getRefreshToken();
         MASCallbackFuture<Void> callbackFuture = new MASCallbackFuture<>();
         currentUser.lockSession(callbackFuture);
         try {
@@ -42,6 +49,12 @@ public class MASSessionLockTest extends MASLoginTestBase {
         }
 
         assertTrue(currentUser.isSessionLocked());
+        //When lockSession, the SDK invokes revoke in the background, we have to sleep for a while and wait
+        //for the revoke to complete
+        Thread.sleep(500);
+        RecordedRequest recordedRequest = getRecordRequest(GatewayDefaultDispatcher.AUTH_OAUTH_V2_REVOKE);
+        Uri uri = Uri.parse(recordedRequest.getPath());
+        Assert.assertEquals(uri.getQueryParameter("token"), refreshToken);
 
         currentUser.removeSessionLock(null);
     }

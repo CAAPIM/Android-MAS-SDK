@@ -102,11 +102,14 @@ public class JWTRS256Validator implements JWTValidator {
                 resetPrefs();
                 publicKey = getJwk(kid);
             }
+            if(publicKey == null)
+                throw new JWTValidationException(MAGErrorCode.TOKEN_INVALID_ID_TOKEN);
+
             JWSVerifier verifier = new RSASSAVerifier((RSAKey) publicKey);
             SignedJWT signedJWT = SignedJWT.parse(idToken.getValue());
             isSignatureValid = signedJWT.verify(verifier);
         } catch (InterruptedException | ExecutionException | ParseException | JOSEException e) {
-            throw new JWTValidationException(MAGErrorCode.TOKEN_ID_TOKEN_INVALID_SIGNATURE, e);
+            throw new JWTValidationException(MAGErrorCode.TOKEN_INVALID_ID_TOKEN, e);
         }
         return isSignatureValid;
     }

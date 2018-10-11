@@ -54,6 +54,7 @@ public class MASSessionLockTest extends MASLoginTestBase {
         Thread.sleep(500);
         RecordedRequest recordedRequest = getRecordRequest(GatewayDefaultDispatcher.AUTH_OAUTH_V2_REVOKE);
         Uri uri = Uri.parse(recordedRequest.getPath());
+        //Make sure we are using refresh to token to revoke.
         Assert.assertEquals(uri.getQueryParameter("token"), refreshToken);
 
         currentUser.removeSessionLock(null);

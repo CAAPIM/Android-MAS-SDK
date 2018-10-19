@@ -290,7 +290,7 @@ public class MASRegistrationTest extends MASStartTestBase {
     @Test
     public void testWithSpecialCharacterUserName() throws ExecutionException, InterruptedException {
         MASCallbackFuture<MASUser> callback = new MASCallbackFuture<>();
-        MASUser.login("admin!#$%&'*+-/=?^_`{|}~@ca.com", "test".toCharArray(), callback);
+        MASUser.login("admin!#$%&'*+-/=?^_`{|}~@ca.com\"", "test".toCharArray(), callback);
         assertNotNull(callback.get());
     }
 }

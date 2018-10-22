@@ -307,7 +307,7 @@ public interface MobileSsoConfig {
      * matches the device metadata scope in the msso_config file
      * If not specified, will default to "/connect/device/metadata".
      */
-    String DEVICE_METADATA_PATH = "msso_device_metadata";
+    String PROP_DEVICE_METADATA_PATH = "msso_device_metadata";
 
 
     // If you add any properties to this file, you must update MobileSsoFactory.createConfig()

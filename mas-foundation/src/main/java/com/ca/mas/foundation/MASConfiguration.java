@@ -37,6 +37,7 @@ public class MASConfiguration {
     private static Config APP_REGISTERED_BY = new Config(false, FoundationConsts.KEY_CONFIG_APP_REGISTERED_BY, "oauth.client.registered_by", String.class);
     private static Config APP_DESCRIPTION = new Config(false, FoundationConsts.KEY_CONFIG_APP_DESCRIPTION, "oauth.client.description", String.class);
     private static Config APP_TYPE = new Config(false, FoundationConsts.KEY_CONFIG_APP_TYPE, "oauth.client.client_type", String.class);
+    public static Config ID_TOKEN_SIGN_ALG = new Config(false, FoundationConsts.KEY_ID_TOKEN_SIGN_ALG, "oauth.client.client_ids.0.client_key_custom.openid_registration.response.id_token_signed_response_alg", String.class);
     public static final EventDispatcher SECURITY_CONFIGURATION_CHANGED = new EventDispatcher();
     public static final EventDispatcher SECURITY_CONFIGURATION_RESET = new EventDispatcher();
     private static MASConfiguration currentConfiguration;
@@ -119,7 +120,7 @@ public class MASConfiguration {
         ConfigurationManager manager = ConfigurationManager.getInstance();
         manager.init(appContext);
         manager.setAppConfigs(Arrays.asList(USERINFO, MAS_SCIM, MAS_STORAGE, APP_NAME,
-                APP_ORGANIZATION, APP_REGISTERED_BY, APP_DESCRIPTION, APP_TYPE));
+                APP_ORGANIZATION, APP_REGISTERED_BY, APP_DESCRIPTION, APP_TYPE, ID_TOKEN_SIGN_ALG));
 
         currentConfiguration = this;
 
@@ -167,6 +168,13 @@ public class MASConfiguration {
      */
     public String getApplicationRegisteredBy() {
         return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(FoundationConsts.KEY_CONFIG_APP_REGISTERED_BY);
+    }
+
+    /**
+     * Returns the algorithm used to sign the Id Token(JWT).
+     */
+    public String getIdTokenSignAlg() {
+        return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(FoundationConsts.KEY_ID_TOKEN_SIGN_ALG);
     }
 
     /**

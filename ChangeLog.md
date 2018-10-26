@@ -1,9 +1,9 @@
 
-#Version 1.X.X (Not release yet)
+#Version 1.8.10
 
 ### New features
 - Allow end users to store additional data about the device. [US507853]
-
+- Special character handling on CSR generation [DE388462]
 
 # Version 1.8.00
 

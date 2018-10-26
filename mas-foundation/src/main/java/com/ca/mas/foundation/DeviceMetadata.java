@@ -12,7 +12,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import static com.ca.mas.core.client.ServerClient.findErrorCode;
 
@@ -41,6 +40,7 @@ class DeviceMetadata {
 
             request = new MASRequest.MASRequestBuilder(getPath())
                     .put(MASRequestBody.jsonBody(data))
+                    .notifyOnCancel()
                     .build();
 
         } catch (JSONException e) {
@@ -92,6 +92,7 @@ class DeviceMetadata {
         request = new MASRequest.MASRequestBuilder(route)
                 .responseBody(MASResponseBody.jsonBody())
                 .get()
+                .notifyOnCancel()
                 .build();
 
         MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
@@ -119,6 +120,7 @@ class DeviceMetadata {
         MASRequest request = null;
         request = new MASRequest.MASRequestBuilder(getPath())
                 .get()
+                .notifyOnCancel()
                 .build();
 
         MAS.invoke(request, new MASCallback<MASResponse<JSONArray>>() {
@@ -142,6 +144,7 @@ class DeviceMetadata {
 
         request = new MASRequest.MASRequestBuilder(route)
                 .delete(MASRequestBody.stringBody(name))
+                .notifyOnCancel()
                 .build();
 
         MAS.invoke(request, new MASCallback<MASResponse<String>>() {
@@ -167,6 +170,7 @@ class DeviceMetadata {
         MASRequest request = null;
         request = new MASRequest.MASRequestBuilder(getPath())
                 .delete(MASRequestBody.stringBody(""))
+                .notifyOnCancel()
                 .build();
 
         MAS.invoke(request, new MASCallback<MASResponse<String>>() {

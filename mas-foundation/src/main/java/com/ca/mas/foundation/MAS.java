@@ -27,6 +27,7 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.token.JWTValidatorFactory;
 import com.ca.mas.foundation.notify.Callback;
 
 import org.json.JSONObject;
@@ -36,6 +37,9 @@ import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 import java.security.PrivateKey;
+import java.util.LinkedHashMap;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * The top level MAS object represents the Mobile App Services SDK in its entirety.
@@ -55,10 +59,26 @@ public class MAS {
     private static MASOtpMultiFactorAuthenticator otpMultiFactorAuthenticator = new MASOtpMultiFactorAuthenticator();
     private static int state;
 
+    private static LinkedHashMap<Class, MASLifecycleListener> masLifecycleListener = new LinkedHashMap<>();
+
+
     private static boolean browserBasedAuthenticationEnabled = false;
 
     private MAS() {
     }
+
+     static {
+         EventDispatcher.STARTED.addObserver(new Observer() {
+             @Override
+             public void update(Observable o, Object arg) {
+
+                 if (!masLifecycleListener.isEmpty())
+                     for(MASLifecycleListener listner: masLifecycleListener.values()){
+                         listner.onStarted();
+                     }
+             }
+         });
+     }
 
     private static synchronized void init(@NonNull final Context context) {
         stop();
@@ -74,6 +94,12 @@ public class MAS {
         new MASConfiguration(appContext);
         ConfigurationManager.getInstance().setMobileSsoListener(new AuthenticationListener(appContext));
         registerMultiFactorAuthenticator(otpMultiFactorAuthenticator);
+        if (isAlgoRS256() || isPreloadJWKSEnabled())
+            addLifeCycleListener(new JWKPreLoadListener());
+    }
+
+    private static boolean isAlgoRS256() {
+       return  JWTValidatorFactory.Algorithm.RS256.toString().equals(MASConfiguration.getCurrentConfiguration().getIdTokenSignAlg());
     }
 
     private static void registerActivityLifecycleCallbacks(Application application) {
@@ -356,6 +382,15 @@ public class MAS {
     }
 
     /**
+     * Sets a listener to listen for MAS lifecycle events.
+     *
+     * @param listner Listener that listens for MAS lifecycle events.
+     */
+    private static void addLifeCycleListener(MASLifecycleListener listner) {
+        masLifecycleListener.put(listner.getClass(), listner);
+    }
+
+    /**
      * Checks whether the consumer of MAS has set any authentication listener or not.
      * This would help other frameworks to override the listener (and the login UI) as a fallback instead of default
      * implementation of MASUI.
@@ -488,6 +523,21 @@ public class MAS {
      */
     public static void enablePKCE(boolean enablePKCE) {
         ConfigurationManager.getInstance().enablePKCE(enablePKCE);
+    }
+
+    /**
+     * Enable JWKS preload. If enabled, the JWKS is preloaded when the SDK is started.
+     *
+     * @param enablePreloadJwks True to enable preloading of JWKS, False if preload is not needed.
+     */
+    public static void enableJwksPreload(boolean enablePreloadJwks) {
+        ConfigurationManager.getInstance().enableJwksPreload(enablePreloadJwks);
+    }
+    /**
+     *  Value of the boolean indicator which indicate if the JWKS should be preloaded.
+     */
+    public static boolean isPreloadJWKSEnabled() {
+        return  ConfigurationManager.getInstance().isJwksPreloadEnabled();
     }
 
     /**

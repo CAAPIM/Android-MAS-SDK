@@ -7,7 +7,6 @@
  */
 package com.ca.mas.foundation;
 
-import android.support.test.InstrumentationRegistry;
 import android.util.Base64;
 import android.util.Pair;
 
@@ -15,7 +14,6 @@ import com.ca.mas.DataSource;
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
-import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.store.ClientCredentialContainer;
@@ -257,12 +255,26 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         KeyUtilsAsymmetric.deletePrivateKey("TEST");
     }
 
-    @Test(expected = JWTValidationException.class)
+    @Test
     public void validateTokenWithAlgorithmRS256() throws JWTValidationException {
+
         ClientCredentialContainer cc = StorageProvider.getInstance().getClientCredentialContainer();
 
         // - generated in https://jwt.io/
-        IdToken idToken = new IdToken("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjo5OTk5OTk5OTk5LCJhdWQiOiJkdW1teSIsImF6cCI6ImY0NzM1MjVkLWMxMzAtNGJiYS04NmNjLWRiMjZkODg3NTM4NiJ9.Q25Tm1yqs-KLR_qX-t6iuq38K_yFeobil3oMAXx9E2L1ds-DUG6tzm3BNQZUTQdNALRI47pGJUF4ZLJkqyC-z_THqwZwBq9ISfalmDxmSdf_ec7qt6Ll-mFj7epAfMY5JsEG7YO6ReDmfToke95ZJup9x25GHZOuH_gyiSd94SM", "urn:ietf:params:oauth:grant-type:jwt-bearer");
+        IdToken idToken = new IdToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiYXVkIjoiZHVtbXkiLCJhY3IiOiIwIiwiYXpwIjoiZjQ3MzUyNWQtYzEzMC00YmJhLTg2Y2MtZGIyNmQ4ODc1Mzg2IiwiYXV0aF90aW1lIjoxNTM5MDc1NDk4LCJpc3MiOiJodHRwczovL21hZ2ZpZG8uY2EuY29tOjg0NDMiLCJleHAiOjE1MzkwNzI5OTIsImlhdCI6MTUzOTA3NTQ5OSwianRpIjoiZTkyYWRlNDgtN2JmMC00MGZmLWFlNGYtZmIzNDdlMWZmMDY4In0.xb6a1XptFvqZ0roCI7tmNzauDulqLKh8Pf1XyELDCFs", "urn:ietf:params:oauth:grant-type:jwt-bearer");
+        String deviceIdentifier = "f473525d-c130-4bba-86cc-db26d8875386";
+        String clientId = cc.getClientId();
+        String clientSecret = cc.getClientSecret();
+        // - validate the token
+        Assert.assertTrue(JWTValidation.validateIdToken(idToken, deviceIdentifier, clientId, clientSecret));
+    }
+
+    @Test(expected = JWTValidationException.class)
+    public void validateTokenWithInvalidAlgorithm() throws JWTValidationException {
+
+        ClientCredentialContainer cc = StorageProvider.getInstance().getClientCredentialContainer();
+        // - generated in https://jwt.io/
+        IdToken idToken = new IdToken("eyJhbGciOiJMUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRlZmF1bHRfc3NsX2tleSJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjo5OTk5OTk5OTk5LCJhdWQiOiJkdW1teSIsImF6cCI6ImY0NzM1MjVkLWMxMzAtNGJiYS04NmNjLWRiMjZkODg3NTM4NiJ9.Q25Tm1yqs-KLR_qX-t6iuq38K_yFeobil3oMAXx9E2L1ds-DUG6tzm3BNQZUTQdNALRI47pGJUF4ZLJkqyC-z_THqwZwBq9ISfalmDxmSdf_ec7qt6Ll-mFj7epAfMY5JsEG7YO6ReDmfToke95ZJup9x25GHZOuH_gyiSd94SM", "urn:ietf:params:oauth:grant-type:jwt-bearer");
         String deviceIdentifier = "f473525d-c130-4bba-86cc-db26d8875386";
         String clientId = cc.getClientId();
         String clientSecret = cc.getClientSecret();

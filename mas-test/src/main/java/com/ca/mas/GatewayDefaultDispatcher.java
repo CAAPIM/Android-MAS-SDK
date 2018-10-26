@@ -54,6 +54,8 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String USER_INFO = "/openid/connect/v1/userinfo";
     public static final String ECHO = "/echo";
     public static final String MULTIFACTOR_ENDPOINT = "/multifactor";
+    public static final String WELL_KNOW_URI = "/.well-known/openid-configuration";
+    public static final String JWKS_URI = "/openid/connect/jwks.json";
 
     public static final String OTHER = "other";
 
@@ -100,6 +102,10 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return secureServiceResponse();
             } else if (request.getPath().contains(TEST_NO_CONTENT)) {
                 return secureServiceResponseWithNoContent();
+            }else if(request.getPath().contains(WELL_KNOW_URI)) {
+                return wellknowURIResponse(request);
+            } else if( request.getPath().contains(JWKS_URI)){
+                return jwksURIResponse();
             } else if (request.getPath().contains(AUTH_OAUTH_V2_AUTHORIZE)) {
                 return authorizeResponse(request);
             } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER_CLIENT)) {
@@ -434,4 +440,27 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     }
 
 
+    private MockResponse wellknowURIResponse(RecordedRequest request) {
+
+        String result = "{\"issuer\":\"https://localhost:41979\",\"authorization_endpoint\":\"https://localhost:41979/auth/oauth/v2/authorize\",\"token_endpoint\":\"https://localhost:41979/auth/oauth/v2/token\",\"jwks_uri\":\"https://localhost:41979/openid/connect/jwks.json\",\"response_types_supported\":[\"code\", \"token id_token\", \"token\", \"code id_token\", \"id_token\", \"code token\", \"code id_token token\"],\"subject_types_supported\":[\"pairwise\"],\"id_token_signing_alg_values_supported\":[\"RS256\", \"HS256\"],\"userinfo_endpoint\":\"https://localhost:41979/openid/connect/v1/userinfo\",\"registration_endpoint\":\"https://localhost:41979/openid/connect/register\",\"scopes_supported\":[\"openid\", \"email\", \"profile\", \"openid_client_registration\"],\"claims_supported\":[\"sub\", \"iss\", \"auth_time\", \"acr\", \"aud\", \"azp\", \"exp\", \"c_hash\", \"at_hash\", \"nonce\"],\"grant_types_supported\":[\"authorization_code\", \"implicit\", \"refresh_token\"],\"acr_values_supported\":[\"0\"],\"token_endpoint_auth_methods_supported\":[\"client_secret_basic\", \"client_secret_post\", \"client_secret_jwt\", \"private_key_jwt\"],\"token_endpoint_auth_signing_alg_values_supported\":[\"RS256\", \"HS256\"],\"display_values_supported\":[\"page\"],\"claim_types_supported\":[\"normal\"],\"service_documentation\":\"https://localhost:41979/apidocs/auth/oauth/v2/swagger\",\"ui_locales_supported\":[\"en-US\"],\"response_modes_supported\":[\"query\", \"fragment\", \"form_post\"],\"userinfo_signing_alg_values_supported\":[\"RS256\", \"HS256\"]}";
+
+        return new MockResponse().setResponseCode(200).setBody(result);
+    }
+
+    protected MockResponse jwksURIResponse() {
+
+        String result  = "{\n" +
+                "  \"keys\" : [ {\n" +
+                "    \"kty\" : \"RSA\",\n" +
+                "    \"kid\" : \"default_ssl_key\",\n" +
+                "    \"use\" : \"sig\",\n" +
+                "    \"n\" : \"p3y7NtvnADvbPV-tQXjUjMcqbWrxwXrJaqUhs0KnIpLLrehgHZo-w7h7tNOqW4Av7wGUZ4j54zaHdqwuwGTMegeZHgrcEITxjsYAA5eRO2uo4Yiqr2hUjmpb04HgvEsoQE5Gr1wrBrw8M6pphvp92X5lGGtWgjo8ZZDQJyt6dhp5MoJdTYChcN8fEsF-ZckhmWklsYylI8VoQDpx7jj--w5g7TSIMiBsTICRnrE_oJfE0_LNxlOL9gyycNZl9Os60tYO9qIvYjsZrfTv9urcTAshbsS1W6JVCGGnA82WCEoEpxldTeombDYVNGXwkHOb7Aqk_6AgnrHp98ZXephO8w\",\n" +
+                "    \"e\" : \"AQAB\",\n" +
+                "    \"x5c\" : [ \"MIIC9zCCAd+gAwIBAgIJAKtskkc74amlMA0GCSqGSIb3DQEBDAUAMBkxFzAVBgNVBAMTDm1hZ2ZpZG8uY2EuY29tMB4XDTE3MDcxNDA4MjcwMVoXDTI3MDcxMjA4MjcwMVowGTEXMBUGA1UEAxMObWFnZmlkby5jYS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCnfLs22+cAO9s9X61BeNSMxyptavHBeslqpSGzQqciksut6GAdmj7DuHu006pbgC/vAZRniPnjNod2rC7AZMx6B5keCtwQhPGOxgADl5E7a6jhiKqvaFSOalvTgeC8SyhATkavXCsGvDwzqmmG+n3ZfmUYa1aCOjxlkNAnK3p2Gnkygl1NgKFw3x8SwX5lySGZaSWxjKUjxWhAOnHuOP77DmDtNIgyIGxMgJGesT+gl8TT8s3GU4v2DLJw1mX06zrS1g72oi9iOxmt9O/26txMCyFuxLVbolUIYacDzZYISgSnGV1N6iZsNhU0ZfCQc5vsCqT/oCCesen3xld6mE7zAgMBAAGjQjBAMB0GA1UdDgQWBBRtEbLFE1SiG8EXI+047xM+hhBOKzAfBgNVHSMEGDAWgBRtEbLFE1SiG8EXI+047xM+hhBOKzANBgkqhkiG9w0BAQwFAAOCAQEApENK8QSc2i/KHM7HtbG78v44lZletODNdjCVIUAMHIQb/zCoOgKSicMEfP4xa1QSOQb1qA5hv7WWEfPRop4/BY3p0sNNmEIfnCenG9sYwfB4Nx4UEmN7qQZvFzQGuLEvz1xP5k3uot51lLi6yUwtyNsC84tgaA1xbaap2dlxH7K/ILg05vZ2I9TE4wdZl33E2io72KaJFJBaWzJCTpa1R3q4EloaAeim/BSuZTXhLxelKgY9ozJmcFhnA2VtY2mjATjy+2QiLfALBnjq5FYjsmSAJslwvHgida2i9LBqlk70chZNRPNtOh9tx8hF/tdKmXodTvYP1PzAhuNKp6tgNw==\" ],\n" +
+                "    \"x5t\" : \"zAVqfuMe21XaBOWNGvwdKmPzJNo=\"\n" +
+                "  } ]\n" +
+                "}";
+
+        return new MockResponse().setResponseCode(200).setBody(result).addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
+    }
 }

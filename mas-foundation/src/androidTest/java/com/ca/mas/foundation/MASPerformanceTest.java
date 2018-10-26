@@ -9,7 +9,6 @@
 package com.ca.mas.foundation;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
@@ -17,6 +16,7 @@ import android.util.Log;
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASMockGatewayTestBase;
+import com.ca.mas.MASStartTestBase;
 import com.ca.mas.ScenarioInfo;
 import com.ca.mas.ScenarioMasterInfo;
 import com.ca.mas.ScenarioTestResult;
@@ -49,10 +49,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
-public class MASPerformanceTest extends MASMockGatewayTestBase {
+public class MASPerformanceTest extends MASStartTestBase {
 
     private static final String PROFILER_CONFIG_FILE = "profiler_config.json";
     private final int TENS = 1000;
@@ -143,7 +142,6 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             testResult.add(result);
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
-        assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
     }
 
@@ -200,8 +198,6 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             testResult.add(result);
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
-
-        assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
     }
 
@@ -267,8 +263,6 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
 
-        assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
-
     }
 
     @Test
@@ -331,8 +325,6 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
 
-        assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
-
     }
 
     @Test
@@ -394,7 +386,6 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             testResult.add(result);
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
-        assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
     }
 
@@ -465,8 +456,6 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             testResult.add(result);
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
-        assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
-
     }
 
     @Test
@@ -549,7 +538,6 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             testResult.add(result);
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
-        assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
     }
 
@@ -644,7 +632,6 @@ public class MASPerformanceTest extends MASMockGatewayTestBase {
             testResult.add(result);
             Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
         }
-        assertTrue("Taken more than " + scenarioInfo.getBenchmark() + " time to execute", avg <= scenarioInfo.getBenchmark());
 
     }
 

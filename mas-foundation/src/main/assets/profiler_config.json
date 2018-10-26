@@ -1,7 +1,7 @@
 {
   "master": {
     "iteration": 5,
-    "operation_type": "benchmark",  //valid values 1- benchmark , 2- profile
+    "operation_type": "profile",  //valid values 1- benchmark , 2- profile
     "use_default": true
   },
   "scenarios": [

@@ -39,6 +39,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String CONNECT_DEVICE_REGISTER = "/connect/device/register";
     public static final String CONNECT_CLIENT_INITIALIZE = "/connect/client/initialize";
     public static final String AUTH_OAUTH_V2_TOKEN = "/auth/oauth/v2/token";
+    public static final String AUTH_OAUTH_V2_REVOKE = "/auth/oauth/v2/token/revoke";
     public static final String PROTECTED_RESOURCE_SLOW = "/protected/resource/slow";
     public static final String PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY = "/protected/resource/productsAsArray";
     public static final String PROTECTED_RESOURCE_PRODUCTS = "/protected/resource/products";
@@ -91,9 +92,11 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return registerDeviceResponse(request);
             } else if (request.getPath().contains(CONNECT_CLIENT_INITIALIZE)) {
                 return initializeResponse();
+            } else if (request.getPath().contains(AUTH_OAUTH_V2_REVOKE)) {
+                return revokeTokenResponse();
             } else if (request.getPath().contains(AUTH_OAUTH_V2_TOKEN)) {
                 return retrieveTokenResponse();
-            } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY)) {
+           } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY)) {
                 return secureServiceResponseAsArray();
             } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS)) {
                 return secureServiceResponse();
@@ -321,6 +324,15 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 "  \"expires_in\":" + 3600 + ",\n" +
                 "  \"refresh_token\":\"19785fca-4b86-4f8e-a73c-7de1d420f88d\",\n" +
                 "  \"scope\":\"openid msso phone profile address email msso_register msso_client_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups\"\n" +
+                "}";
+        return new MockResponse().setResponseCode(200).setBody(token);
+
+    }
+
+    protected MockResponse revokeTokenResponse() {
+        //Mock response for retrieve token
+        String token = "{\n" +
+                "  \"result\":\"revoked\"\n" +
                 "}";
         return new MockResponse().setResponseCode(200).setBody(token);
 

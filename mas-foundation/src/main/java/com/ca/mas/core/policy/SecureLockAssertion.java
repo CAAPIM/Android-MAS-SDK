@@ -11,8 +11,11 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.ca.mas.core.context.MssoContext;
+import com.ca.mas.core.oauth.OAuthClientUtil;
 import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.TokenManager;
+import com.ca.mas.foundation.MAS;
+import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 
 class SecureLockAssertion implements MssoAssertion {
@@ -37,6 +40,10 @@ class SecureLockAssertion implements MssoAssertion {
         byte[] secureToken = tokenManager.getSecureIdToken();
         if (secureToken != null) {
             //Clear the access tokens, the session may be locked by other App.
+            MASRequest revokeRequest = OAuthClientUtil.getRevokeRequest();
+            if (revokeRequest != null) {
+                MAS.invoke(OAuthClientUtil.getRevokeRequest(), null);
+            }
             mssoContext.clearAccessToken();
             throw new SecureLockException("The session is currently locked.");
         }

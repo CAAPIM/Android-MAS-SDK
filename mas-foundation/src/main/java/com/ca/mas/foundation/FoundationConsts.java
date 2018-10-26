@@ -72,5 +72,5 @@ public class FoundationConsts {
     public static final String KEY_CONFIG_APP_ORGANIZATION = "application_organization";
     public static final String KEY_CONFIG_APP_REGISTERED_BY = "application_registered_by";
     public static final String KEY_CONFIG_APP_DESCRIPTION = "application_description";
-
+    public static final String KEY_ID_TOKEN_SIGN_ALG = "id_token_signed_response_alg";
 }

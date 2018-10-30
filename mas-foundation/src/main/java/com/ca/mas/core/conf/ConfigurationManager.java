@@ -46,6 +46,7 @@ public class ConfigurationManager {
     private String configurationFileName = null;
     private boolean enablePKCE = true;
     private boolean idTokenValidation = true;
+    private boolean enableJwksPreload = false;
 
     private MASConnectionListener connectionListener;
     private MobileSsoListener mobileSsoListener;
@@ -458,5 +459,13 @@ public class ConfigurationManager {
 
     public Collection<ResponseInterceptor> getResponseInterceptors() {
         return responseInterceptors.values();
+    }
+
+    public boolean isJwksPreloadEnabled() {
+        return enableJwksPreload;
+    }
+
+    public void enableJwksPreload(boolean enableJwksPreload) {
+        this.enableJwksPreload = enableJwksPreload;
     }
 }

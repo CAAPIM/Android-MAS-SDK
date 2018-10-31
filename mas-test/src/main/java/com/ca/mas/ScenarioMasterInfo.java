@@ -5,6 +5,7 @@ public class ScenarioMasterInfo {
     String operation_type = "profile";
     int iteration = 1;
     boolean use_default = false;
+    int threshold =10;
 
     public String getOperation_type() {
         return operation_type;
@@ -28,5 +29,13 @@ public class ScenarioMasterInfo {
 
     public void setUse_default(boolean use_default) {
         this.use_default = use_default;
+    }
+
+    public int getThreshold() {
+        return threshold;
+    }
+
+    public void setThreshold(int threshold) {
+        this.threshold = threshold;
     }
 }

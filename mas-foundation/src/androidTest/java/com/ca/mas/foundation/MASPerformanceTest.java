@@ -49,6 +49,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class MASPerformanceTest extends MASStartTestBase {
@@ -61,6 +62,7 @@ public class MASPerformanceTest extends MASStartTestBase {
     private static boolean isBenchmark = false;
     private static Scenarios scenarios;
     private static List<ScenarioTestResult> testResult = new ArrayList<>();
+    private static int threshold = 10;
 
     @BeforeClass
     public static void loadConfig() {
@@ -71,6 +73,7 @@ public class MASPerformanceTest extends MASStartTestBase {
 
         scenarios = gson.fromJson(jsonString, Scenarios.class);
         ScenarioMasterInfo masterConfig = scenarios.getMaster();
+        threshold = masterConfig.getThreshold();
 
         if (masterConfig.getOperation_type().equalsIgnoreCase("benchmark")) {
             isBenchmark = true;
@@ -140,7 +143,8 @@ public class MASPerformanceTest extends MASStartTestBase {
         } else {
             ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
             testResult.add(result);
-            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
+            Integer degradePercent = Integer.valueOf(result.getResult().split("%")[0]);
+            assertTrue(scenarioInfo.getName()+"'s performance degraded by more than threshold("+threshold +"%)\n", degradePercent < threshold);
         }
 
     }
@@ -196,7 +200,8 @@ public class MASPerformanceTest extends MASStartTestBase {
 
             ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
             testResult.add(result);
-            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
+            Integer degradePercent = Integer.valueOf(result.getResult().split("%")[0]);
+            assertTrue(scenarioInfo.getName()+"'s performance degraded by more than threshold("+threshold +"%)\n", degradePercent < threshold);
         }
 
     }
@@ -260,7 +265,8 @@ public class MASPerformanceTest extends MASStartTestBase {
         } else {
             ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
             testResult.add(result);
-            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
+            Integer degradePercent = Integer.valueOf(result.getResult().split("%")[0]);
+            assertTrue(scenarioInfo.getName()+"'s performance degraded by more than threshold("+threshold +"%)\n", degradePercent < threshold);
         }
 
     }
@@ -322,7 +328,8 @@ public class MASPerformanceTest extends MASStartTestBase {
         } else {
             ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
             testResult.add(result);
-            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
+            Integer degradePercent = Integer.valueOf(result.getResult().split("%")[0]);
+            assertTrue(scenarioInfo.getName()+"'s performance degraded by more than threshold("+threshold +"%)\n", degradePercent < threshold);
         }
 
     }
@@ -384,7 +391,8 @@ public class MASPerformanceTest extends MASStartTestBase {
         } else {
             ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
             testResult.add(result);
-            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
+            Integer degradePercent = Integer.valueOf(result.getResult().split("%")[0]);
+            assertTrue(scenarioInfo.getName()+"'s performance degraded by more than threshold("+threshold +"%)\n", degradePercent < threshold);
         }
 
     }
@@ -454,7 +462,8 @@ public class MASPerformanceTest extends MASStartTestBase {
         } else {
             ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
             testResult.add(result);
-            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
+            Integer degradePercent = Integer.valueOf(result.getResult().split("%")[0]);
+            assertTrue(scenarioInfo.getName()+"'s performance degraded by more than threshold("+threshold +"%)\n", degradePercent < threshold);
         }
     }
 
@@ -536,7 +545,8 @@ public class MASPerformanceTest extends MASStartTestBase {
         } else {
             ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
             testResult.add(result);
-            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
+            Integer degradePercent = Integer.valueOf(result.getResult().split("%")[0]);
+            assertTrue(scenarioInfo.getName()+"'s performance degraded by more than threshold("+threshold +"%)\n", degradePercent < threshold);
         }
 
     }
@@ -630,7 +640,8 @@ public class MASPerformanceTest extends MASStartTestBase {
         } else {
             ScenarioTestResult result = getScenarioTestResult(scenarioInfo, avg);
             testResult.add(result);
-            Log.d(TAG, "Execution time for " + scenarioInfo.getName() + "= " + avg + "s");
+            Integer degradePercent = Integer.valueOf(result.getResult().split("%")[0]);
+            assertTrue(scenarioInfo.getName()+"'s performance degraded by more than threshold("+threshold +"%)\n", degradePercent < threshold);
         }
 
     }

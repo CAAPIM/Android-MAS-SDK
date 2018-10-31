@@ -1,7 +1,8 @@
 {
   "master": {
-    "iteration": 5,
-    "operation_type": "profile",  //valid values 1- benchmark , 2- profile
+    "iteration": 50,
+    "operation_type": "profile", //valid values 1- benchmark , 2- profile
+    "threshold": 10,             //Minimum allowed performance degradation percentage
     "use_default": true
   },
   "scenarios": [

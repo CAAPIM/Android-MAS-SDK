@@ -36,7 +36,7 @@ dependencies {
 
     api "com.android.support.test:runner:$rootProject.ext.testRunner"
     api "com.android.support.test:rules:$rootProject.ext.testRules"
-    api 'com.google.code.gson:gson:2.8.2'
+
 
     compileOnly project(':mas-foundation')
 }

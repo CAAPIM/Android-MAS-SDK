@@ -25,6 +25,8 @@ import org.junit.runners.Suite;
         MASDynamicSDKTest.class,
         MASGeoFencingTest.class,
         MASJwtSigningTest.class,
+        MASJWKSPreloadTest.class,
+        MASJWTRS256ValidatorTest.class,
         MASLoginTest.class,
         MASMultiFactorTest.class,
         MASMultiServerTest.class,

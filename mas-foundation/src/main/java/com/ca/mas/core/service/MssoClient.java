@@ -14,14 +14,11 @@ import android.os.ResultReceiver;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.MASAuthCredentials;
-import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
-import com.ca.mas.foundation.MASUser;
 
 /**
  * Encapsulates use of the MssoService.
@@ -86,22 +83,10 @@ public class MssoClient {
      */
     public void authenticate(final MASAuthCredentials credentials, final MAGResultReceiver resultReceiver) {
         final Intent intent = createAuthenticationIntent(credentials, resultReceiver);
-        MASUser user = MASUser.getCurrentUser();
-        if (user != null) {
-            user.logout(true, new MASCallback<Void>() {
-                @Override
-                public void onSuccess(Void result) {
-                    MssoService.enqueueWork(appContext, intent);
-                }
 
-                @Override
-                public void onError(Throwable e) {
-                    resultReceiver.onError(new MAGError(e));
-                }
-            });
-        } else {
-            MssoService.enqueueWork(appContext, intent);
-        }
+        // Ignore if there is a current user, the server will revoke current tokens
+        // and those will be overwrite on local
+        MssoService.enqueueWork(appContext, intent);
     }
 
     /**

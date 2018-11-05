@@ -14,11 +14,18 @@ import android.os.ResultReceiver;
 
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.context.MssoContext;
+import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
+import com.ca.mas.core.security.SecureLockException;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
+import com.ca.mas.core.store.TokenStoreException;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.MASAuthCredentials;
+import com.ca.mas.foundation.MASFoundationStrings;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
+import com.ca.mas.foundation.MASUser;
 
 /**
  * Encapsulates use of the MssoService.
@@ -84,8 +91,25 @@ public class MssoClient {
     public void authenticate(final MASAuthCredentials credentials, final MAGResultReceiver resultReceiver) {
         final Intent intent = createAuthenticationIntent(credentials, resultReceiver);
 
-        // Ignore if there is a current user, the server will revoke current tokens
-        // and those will be overwrite on local
+        // If there is a current user, clear current tokens and active user
+        MASUser user = MASUser.getCurrentUser();
+        if (user != null) {
+            final TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
+            try {
+                tokenManager.deleteIdToken();
+                tokenManager.deleteSecureIdToken();
+                tokenManager.deleteUserProfile();
+            } catch (TokenStoreException e) {
+                throw new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_ID_TOKEN, e);
+            }
+
+            try {
+                StorageProvider.getInstance().getOAuthTokenContainer().clear();
+            } catch (DataSourceException e) {
+                throw new DataSourceException(e);
+            }
+        }
+
         MssoService.enqueueWork(appContext, intent);
     }
 

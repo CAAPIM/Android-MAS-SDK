@@ -37,5 +37,6 @@ dependencies {
     api "com.android.support.test:runner:$rootProject.ext.testRunner"
     api "com.android.support.test:rules:$rootProject.ext.testRules"
 
+
     compileOnly project(':mas-foundation')
 }

@@ -12,17 +12,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
+import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
-import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.MASAuthCredentials;
-import com.ca.mas.foundation.MASFoundationStrings;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASUser;
@@ -95,12 +94,13 @@ public class MssoClient {
         MASUser user = MASUser.getCurrentUser();
         if (user != null) {
             final TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
+            EventDispatcher.LOGOUT.notifyObservers();
             try {
                 tokenManager.deleteIdToken();
                 tokenManager.deleteSecureIdToken();
                 tokenManager.deleteUserProfile();
             } catch (TokenStoreException e) {
-                throw new SecureLockException(MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_ID_TOKEN, e);
+                e.printStackTrace();
             }
 
             try {

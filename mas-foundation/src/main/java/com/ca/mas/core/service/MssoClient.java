@@ -12,13 +12,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
+import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.error.MAGError;
+import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
+import com.ca.mas.core.store.StorageProvider;
+import com.ca.mas.core.store.TokenManager;
+import com.ca.mas.core.store.TokenStoreException;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.foundation.MASAuthCredentials;
-import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASUser;
@@ -86,22 +89,28 @@ public class MssoClient {
      */
     public void authenticate(final MASAuthCredentials credentials, final MAGResultReceiver resultReceiver) {
         final Intent intent = createAuthenticationIntent(credentials, resultReceiver);
+
+        // If there is a current user, clear current tokens and active user
         MASUser user = MASUser.getCurrentUser();
         if (user != null) {
-            user.logout(true, new MASCallback<Void>() {
-                @Override
-                public void onSuccess(Void result) {
-                    MssoService.enqueueWork(appContext, intent);
-                }
+            final TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
+            EventDispatcher.LOGOUT.notifyObservers();
+            try {
+                tokenManager.deleteIdToken();
+                tokenManager.deleteSecureIdToken();
+                tokenManager.deleteUserProfile();
+            } catch (TokenStoreException e) {
+                e.printStackTrace();
+            }
 
-                @Override
-                public void onError(Throwable e) {
-                    resultReceiver.onError(new MAGError(e));
-                }
-            });
-        } else {
-            MssoService.enqueueWork(appContext, intent);
+            try {
+                StorageProvider.getInstance().getOAuthTokenContainer().clear();
+            } catch (DataSourceException e) {
+                throw new DataSourceException(e);
+            }
         }
+
+        MssoService.enqueueWork(appContext, intent);
     }
 
     /**

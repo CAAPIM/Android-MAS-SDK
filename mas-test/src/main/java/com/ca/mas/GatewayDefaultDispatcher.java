@@ -238,20 +238,20 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
         //Mock response for device registration
         String cert = "-----BEGIN CERTIFICATE-----\n" +
-                "MIIDCjCCAfKgAwIBAgIIKzRkwk/TRDswDQYJKoZIhvcNAQEMBQAwIzEhMB8GA1UEAxMYYXdpdHJp\n" +
-                "c25hLWRlc2t0b3AuY2EuY29tMB4XDTEzMTEyNzE5MzkwOVoXDTE4MTEyNjE5MzkwOVowIzEhMB8G\n" +
-                "A1UEAxMYYXdpdHJpc25hLWRlc2t0b3AuY2EuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB\n" +
-                "CgKCAQEAoaCzdLbRhqt3T4ROTgOBD5gizxsJ/vhqmIpagXU+3OPhZocwf0FIVjvbrybkj8ZynTve\n" +
-                "p1cJsAmdkuX+w6m8ow2rAR/8BQnIaBD281gNqDCYXAGkguEZBbCQ2TvD4FZYnJZSmrE9PJtIe5pq\n" +
-                "DneOqaO0Kqj3sJpYIG11U8djio9UNAqTd0J9q5+fEMVle/QG0X0ro3MR30PaHIA7bpvISpjFZ0zD\n" +
-                "54rQc+85bOamg4aJFcfiNSMIaAYaFMi/peJLmW8Q4DZriAQSG6PIBcekMx1mi4tuXkSrr3P3ycKu\n" +
-                "bU0ePKnxckxWHygK42bQ5ClLuJeYNPxqHiBapZj2hwmzsQIDAQABo0IwQDAdBgNVHQ4EFgQUZddX\n" +
-                "bkxC+asQgSCSIViGKuGS2f4wHwYDVR0jBBgwFoAUZddXbkxC+asQgSCSIViGKuGS2f4wDQYJKoZI\n" +
-                "hvcNAQEMBQADggEBAHK/QdXrRROjKjxwU05wo1KZNRmi8jBsKF/ughCTqcUCDmEuskW/x9VCIm/r\n" +
-                "ZMFgOA3tou7vT0mX8gBds+95td+aNci1bcBBpiVIwiqOFhBrtbiAhYofgXtbcYchL9SRmIpek/3x\n" +
-                "BwBj5CBmaimOZsTLp6wqzLE4gpAdTMaU+RIlwq+uSUmKhQem6fSthGdWx5Ea9gwKuVi8PwSFCs/Q\n" +
-                "nwUfNnCvOTP8PtQgvmLsXeaFfy/lYK7iQp1CiwwXYpc3Xivv9A7DH7MqVSQZdtjDrRI2++1/1Yw9\n" +
-                "XoYtMDN0dQ5lBNIyJB5rWtCixZgfacHp538bMPMskLePU3dxNdCqhas=\n" +
+                "MIIDGDCCAgCgAwIBAgIIaJHtKa4XQj4wDQYJKoZIhvcNAQEMBQAwKjEoMCYGA1UEAxMfbW9iaWxl\n" +
+                "LXN0YWdpbmctbXlzcWwubDd0ZWNoLmNvbTAeFw0xNzAxMDQxNzI2MzlaFw0yNzAxMDIxNzI2Mzla\n" +
+                "MCoxKDAmBgNVBAMTH21vYmlsZS1zdGFnaW5nLW15c3FsLmw3dGVjaC5jb20wggEiMA0GCSqGSIb3\n" +
+                "DQEBAQUAA4IBDwAwggEKAoIBAQDsr6QwY8DL7J4aa1MWt+qmJKDGk/4M7Cx7sSUiMvuc9S3cGddQ\n" +
+                "lYOaQsg1a6H8DzsCE7WkX/CcYvJSQ/V26pQfbuwp39C7kTofo5OXZNbQX0EYJjUDfJsZ0lo1GUkn\n" +
+                "dCX0ugR1/NXAzmZYcTGIFVi/y2mMynZHLeEZUKL/O3vS3uniEw4qcxQ2Jz1qT4gGJJNcHHM+4SqV\n" +
+                "17yXm5trvr1aHey3G3KgQWVo0OQ/vZoiRSURADUvWRsym+6CALp73KS1wtbsopE2VtSLrm4ztBbH\n" +
+                "EfH/mp4PkZjpNisoaJwyqCCP+f7ITYSXnjuiGrC/z1KrENGCzXSJl3lHjUFOiZYnAgMBAAGjQjBA\n" +
+                "MB0GA1UdDgQWBBRF0EYejzI/wOSIrB+kz+FgATJdcDAfBgNVHSMEGDAWgBRF0EYejzI/wOSIrB+k\n" +
+                "z+FgATJdcDANBgkqhkiG9w0BAQwFAAOCAQEAOKKUsR3RsYCtiJ+3omovqDFmexlWlW02we0ELwia\n" +
+                "312ATazQPFTxjiHnOyhG+K67ItqTbz3X7vQP8yvQ91JWTHesebnYSxJEAqTEiBC2uLPP7XqUWnJa\n" +
+                "J/XGMAhRVIbkaHfzleWl+BtG++B4tclHqhRWrPfP5S1Ys3SCvmhte09XAmuuPYnuzsoZwJVpx/UJ\n" +
+                "lYxOuSIkYxUOCzGVp7qUYBVzMVW2MEKOiJvAuXM0aeY5+D5Z6uMs+F58W5nbYCgjLTVXRAm46ntG\n" +
+                "NP9R2i3LWnjHhdN+WLtSsmj6dFtzjQbrS9LXa8bR4GRncA34UdW/LMsyiJzd2Iy8mfe2sQu3Zg==\n" +
                 "-----END CERTIFICATE-----";
         return new MockResponse()
                 .setResponseCode(200)
@@ -265,30 +265,20 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
     protected MockResponse renewDeviceResponse() {
         String newCert = "-----BEGIN CERTIFICATE-----\n" +
-                "MIIEaDCCA1CgAwIBAgIJAOt1yuj1qKipMA0GCSqGSIb3DQEBCwUAMIGDMQswCQYD\n" +
-                "VQQGEwJJTjEMMAoGA1UECAwDS0FSMQwwCgYDVQQHDANCTFIxEDAOBgNVBAoMB0NB\n" +
-                "IFRlY2gxDTALBgNVBAsMBEFQSU0xGDAWBgNVBAMMD3VuaXR0ZXN0LmNhLmNvbTEd\n" +
-                "MBsGCSqGSIb3DQEJARYObmlrcnUwMUBjYS5jb20wHhcNMTgxMDMxMDkxMTU2WhcN\n" +
-                "MTkxMDMxMDkxMTU2WjCBgzELMAkGA1UEBhMCSU4xDDAKBgNVBAgMA0tBUjEMMAoG\n" +
-                "A1UEBwwDQkxSMRAwDgYDVQQKDAdDQSBUZWNoMQ0wCwYDVQQLDARBUElNMRgwFgYD\n" +
-                "VQQDDA91bml0dGVzdC5jYS5jb20xHTAbBgkqhkiG9w0BCQEWDm5pa3J1MDFAY2Eu\n" +
-                "Y29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAszVtFq/tcG8cX0lH\n" +
-                "Jb24XzahcqJvC8c7yRUz61BNO903EdnSvnrz/dko/HKDrLDnvbG8lNqbwkc0gh7x\n" +
-                "gfZEVANjnoWjxPn1ME84qQ5VN1cPypBxlkmFzLhLQSZGuWAWohhF6l9AqZffH5bR\n" +
-                "g7PVQ+6fiULEiIhTGO7WOgmxnN3ivdFmvS6MdGUiw9wT0uQa4ZCnzr/laOz/oqSy\n" +
-                "zyF37ULsoaUaCzHcpkLNsYvNMUXTh3ibIXmNHzvtVxoozsEpfqqd0IeW9sp7ofO/\n" +
-                "CJFIVvPxz6M1xERAGiKaR59x+R6tm4JnpzBgjYhZ8vjZIvDcEX/pKjH2QPK9K99G\n" +
-                "2TpaewIDAQABo4HcMIHZMIGiBgNVHSMEgZowgZehgYmkgYYwgYMxCzAJBgNVBAYT\n" +
-                "AklOMQwwCgYDVQQIDANLQVIxDDAKBgNVBAcMA0JMUjEQMA4GA1UECgwHQ0EgVGVj\n" +
-                "aDENMAsGA1UECwwEQVBJTTEYMBYGA1UEAwwPdW5pdHRlc3QuY2EuY29tMR0wGwYJ\n" +
-                "KoZIhvcNAQkBFg5uaWtydTAxQGNhLmNvbYIJAOt1yuj1qKipMAkGA1UdEwQCMAAw\n" +
-                "CwYDVR0PBAQDAgTwMBoGA1UdEQQTMBGCD3VuaXR0ZXN0LmNhLmNvbTANBgkqhkiG\n" +
-                "9w0BAQsFAAOCAQEADwA0uJJB8ub9CUotoJ8dV5F6l9f1Njl54SNrGrtfGKHpF7C6\n" +
-                "uol5D5SSP3Q5zoiO5+s/qYPnvwZwBfZUygOhDWcRkmmf10o/HpAU69U9Yzfc5B7m\n" +
-                "u7BeOIeRap4W8i9alMEIvxFvKKU2VgNkb4+Uz0mrIfRN/1dzSaR2sQl77idw2NgV\n" +
-                "nEZMpl5M/xxx+3JZqQFkaVDFSi9PyBrR1E1e4Xc6ox6LDdgiJkMl7wMe3ssSF1ea\n" +
-                "bBk0sOzq4SwNRoZ30Ez+NeWtigGL+BA0eGUbEZ82lReeE0uBbp0PMLqtW1NUfdSG\n" +
-                "+gasHHGVyC73BgzJYCPhaVakUSAjWSurmYINuQ==\n" +
+                "MIIDGDCCAgCgAwIBAgIIaJHtKa4XQj4wDQYJKoZIhvcNAQEMBQAwKjEoMCYGA1UEAxMfbW9iaWxl\n" +
+                "LXN0YWdpbmctbXlzcWwubDd0ZWNoLmNvbTAeFw0xNzAxMDQxNzI2MzlaFw0yNzAxMDIxNzI2Mzla\n" +
+                "MCoxKDAmBgNVBAMTH21vYmlsZS1zdGFnaW5nLW15c3FsLmw3dGVjaC5jb20wggEiMA0GCSqGSIb3\n" +
+                "DQEBAQUAA4IBDwAwggEKAoIBAQDsr6QwY8DL7J4aa1MWt+qmJKDGk/4M7Cx7sSUiMvuc9S3cGddQ\n" +
+                "lYOaQsg1a6H8DzsCE7WkX/CcYvJSQ/V26pQfbuwp39C7kTofo5OXZNbQX0EYJjUDfJsZ0lo1GUkn\n" +
+                "dCX0ugR1/NXAzmZYcTGIFVi/y2mMynZHLeEZUKL/O3vS3uniEw4qcxQ2Jz1qT4gGJJNcHHM+4SqV\n" +
+                "17yXm5trvr1aHey3G3KgQWVo0OQ/vZoiRSURADUvWRsym+6CALp73KS1wtbsopE2VtSLrm4ztBbH\n" +
+                "EfH/mp4PkZjpNisoaJwyqCCP+f7ITYSXnjuiGrC/z1KrENGCzXSJl3lHjUFOiZYnAgMBAAGjQjBA\n" +
+                "MB0GA1UdDgQWBBRF0EYejzI/wOSIrB+kz+FgATJdcDAfBgNVHSMEGDAWgBRF0EYejzI/wOSIrB+k\n" +
+                "z+FgATJdcDANBgkqhkiG9w0BAQwFAAOCAQEAOKKUsR3RsYCtiJ+3omovqDFmexlWlW02we0ELwia\n" +
+                "312ATazQPFTxjiHnOyhG+K67ItqTbz3X7vQP8yvQ91JWTHesebnYSxJEAqTEiBC2uLPP7XqUWnJa\n" +
+                "J/XGMAhRVIbkaHfzleWl+BtG++B4tclHqhRWrPfP5S1Ys3SCvmhte09XAmuuPYnuzsoZwJVpx/UJ\n" +
+                "lYxOuSIkYxUOCzGVp7qUYBVzMVW2MEKOiJvAuXM0aeY5+D5Z6uMs+F58W5nbYCgjLTVXRAm46ntG\n" +
+                "NP9R2i3LWnjHhdN+WLtSsmj6dFtzjQbrS9LXa8bR4GRncA34UdW/LMsyiJzd2Iy8mfe2sQu3Zg==\n" +
                 "-----END CERTIFICATE-----";
         //Mock response for device renew
         return new MockResponse()
@@ -303,20 +293,20 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
         //Mock response for device registration
         String cert = "-----BEGIN CERTIFICATE-----\n" +
-                "MIIDCjCCAfKgAwIBAgIIKzRkwk/TRDswDQYJKoZIhvcNAQEMBQAwIzEhMB8GA1UEAxMYYXdpdHJp\n" +
-                "c25hLWRlc2t0b3AuY2EuY29tMB4XDTEzMTEyNzE5MzkwOVoXDTE4MTEyNjE5MzkwOVowIzEhMB8G\n" +
-                "A1UEAxMYYXdpdHJpc25hLWRlc2t0b3AuY2EuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB\n" +
-                "CgKCAQEAoaCzdLbRhqt3T4ROTgOBD5gizxsJ/vhqmIpagXU+3OPhZocwf0FIVjvbrybkj8ZynTve\n" +
-                "p1cJsAmdkuX+w6m8ow2rAR/8BQnIaBD281gNqDCYXAGkguEZBbCQ2TvD4FZYnJZSmrE9PJtIe5pq\n" +
-                "DneOqaO0Kqj3sJpYIG11U8djio9UNAqTd0J9q5+fEMVle/QG0X0ro3MR30PaHIA7bpvISpjFZ0zD\n" +
-                "54rQc+85bOamg4aJFcfiNSMIaAYaFMi/peJLmW8Q4DZriAQSG6PIBcekMx1mi4tuXkSrr3P3ycKu\n" +
-                "bU0ePKnxckxWHygK42bQ5ClLuJeYNPxqHiBapZj2hwmzsQIDAQABo0IwQDAdBgNVHQ4EFgQUZddX\n" +
-                "bkxC+asQgSCSIViGKuGS2f4wHwYDVR0jBBgwFoAUZddXbkxC+asQgSCSIViGKuGS2f4wDQYJKoZI\n" +
-                "hvcNAQEMBQADggEBAHK/QdXrRROjKjxwU05wo1KZNRmi8jBsKF/ughCTqcUCDmEuskW/x9VCIm/r\n" +
-                "ZMFgOA3tou7vT0mX8gBds+95td+aNci1bcBBpiVIwiqOFhBrtbiAhYofgXtbcYchL9SRmIpek/3x\n" +
-                "BwBj5CBmaimOZsTLp6wqzLE4gpAdTMaU+RIlwq+uSUmKhQem6fSthGdWx5Ea9gwKuVi8PwSFCs/Q\n" +
-                "nwUfNnCvOTP8PtQgvmLsXeaFfy/lYK7iQp1CiwwXYpc3Xivv9A7DH7MqVSQZdtjDrRI2++1/1Yw9\n" +
-                "XoYtMDN0dQ5lBNIyJB5rWtCixZgfacHp538bMPMskLePU3dxNdCqhas=\n" +
+                "MIIDGDCCAgCgAwIBAgIIaJHtKa4XQj4wDQYJKoZIhvcNAQEMBQAwKjEoMCYGA1UEAxMfbW9iaWxl\n" +
+                "LXN0YWdpbmctbXlzcWwubDd0ZWNoLmNvbTAeFw0xNzAxMDQxNzI2MzlaFw0yNzAxMDIxNzI2Mzla\n" +
+                "MCoxKDAmBgNVBAMTH21vYmlsZS1zdGFnaW5nLW15c3FsLmw3dGVjaC5jb20wggEiMA0GCSqGSIb3\n" +
+                "DQEBAQUAA4IBDwAwggEKAoIBAQDsr6QwY8DL7J4aa1MWt+qmJKDGk/4M7Cx7sSUiMvuc9S3cGddQ\n" +
+                "lYOaQsg1a6H8DzsCE7WkX/CcYvJSQ/V26pQfbuwp39C7kTofo5OXZNbQX0EYJjUDfJsZ0lo1GUkn\n" +
+                "dCX0ugR1/NXAzmZYcTGIFVi/y2mMynZHLeEZUKL/O3vS3uniEw4qcxQ2Jz1qT4gGJJNcHHM+4SqV\n" +
+                "17yXm5trvr1aHey3G3KgQWVo0OQ/vZoiRSURADUvWRsym+6CALp73KS1wtbsopE2VtSLrm4ztBbH\n" +
+                "EfH/mp4PkZjpNisoaJwyqCCP+f7ITYSXnjuiGrC/z1KrENGCzXSJl3lHjUFOiZYnAgMBAAGjQjBA\n" +
+                "MB0GA1UdDgQWBBRF0EYejzI/wOSIrB+kz+FgATJdcDAfBgNVHSMEGDAWgBRF0EYejzI/wOSIrB+k\n" +
+                "z+FgATJdcDANBgkqhkiG9w0BAQwFAAOCAQEAOKKUsR3RsYCtiJ+3omovqDFmexlWlW02we0ELwia\n" +
+                "312ATazQPFTxjiHnOyhG+K67ItqTbz3X7vQP8yvQ91JWTHesebnYSxJEAqTEiBC2uLPP7XqUWnJa\n" +
+                "J/XGMAhRVIbkaHfzleWl+BtG++B4tclHqhRWrPfP5S1Ys3SCvmhte09XAmuuPYnuzsoZwJVpx/UJ\n" +
+                "lYxOuSIkYxUOCzGVp7qUYBVzMVW2MEKOiJvAuXM0aeY5+D5Z6uMs+F58W5nbYCgjLTVXRAm46ntG\n" +
+                "NP9R2i3LWnjHhdN+WLtSsmj6dFtzjQbrS9LXa8bR4GRncA34UdW/LMsyiJzd2Iy8mfe2sQu3Zg==\n" +
                 "-----END CERTIFICATE-----";
         return new MockResponse()
                 .setResponseCode(200)

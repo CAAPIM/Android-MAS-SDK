@@ -260,10 +260,9 @@ public class MASJwtSigningTest extends MASLoginTestBase {
 
         ClientCredentialContainer cc = StorageProvider.getInstance().getClientCredentialContainer();
 
-        // - generated in https://jwt.io/
-        IdToken idToken = new IdToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiYXVkIjoiZHVtbXkiLCJhY3IiOiIwIiwiYXpwIjoiZjQ3MzUyNWQtYzEzMC00YmJhLTg2Y2MtZGIyNmQ4ODc1Mzg2IiwiYXV0aF90aW1lIjoxNTM5MDc1NDk4LCJpc3MiOiJodHRwczovL21hZ2ZpZG8uY2EuY29tOjg0NDMiLCJleHAiOjE1MzkwNzI5OTIsImlhdCI6MTUzOTA3NTQ5OSwianRpIjoiZTkyYWRlNDgtN2JmMC00MGZmLWFlNGYtZmIzNDdlMWZmMDY4In0.xb6a1XptFvqZ0roCI7tmNzauDulqLKh8Pf1XyELDCFs", "urn:ietf:params:oauth:grant-type:jwt-bearer");
-        String deviceIdentifier = "f473525d-c130-4bba-86cc-db26d8875386";
-        String clientId = cc.getClientId();
+        IdToken idToken = new IdToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHRfc3NsX2tleSJ9.ewogInN1YiI6ICJmRHRoVGpQcDB2N2J1Y1BGaGFQVWRmQXl6M0R0eGRhWjFMc1NKeG1oQTh3IiwKICJhdWQiOiAiZThmNDI3YjMtMDJlMy00ODEwLTg0MjQtMzY5YjEzMTliNWRmIiwKICJhY3IiOiAiMCIsCiAiYXpwIjogIlRXSTFjRmhoYUhjM1FuUndNa1pvUTJGMFpUaHJTbnA1YjA5SlBRPT0iLAogImF1dGhfdGltZSI6IDE1NDIyODI5NjksCiAiaXNzIjogImh0dHBzOi8vbWFnZmlkby5jYS5jb206ODQ0MyIsCiAiZXhwIjogMTg1NzY0Mjk2OSwKICJpYXQiOiAxNTQyMjgyOTY5Cn0.by-lQCErcn00D8EEOuA8fpoIyI9-wAkYL5nWdaYtFUzrLqkP4VH9OVXaontZrrnoFgz3EW6Bmr4ZIJftIfGWKTWBCKJDd0mykkIyPUevxjtmfTUAxrNS2FzghlEavnvKQ-Ff2E_QlFOCnXh4PBmms-VP9TX7N02gT1Dy5_w3-xSe80YBkFISaj2yckuSXMsBnuhFijg-SNP1QeCRIGkjyETYu8VaT_3H18dgbeGgavn4f-oa0Q_p1qzxz-2CrEaf1U66zivKAP1BVQPYtC8KxUsyfUPwFSxqEWWR1adphvWZVIcID1CLHWF9tN8vCdvOTi-7JnYHiIkx3QYLv5A64g", "urn:ietf:params:oauth:grant-type:jwt-bearer");
+        String deviceIdentifier = "TWI1cFhhaHc3QnRwMkZoQ2F0ZThrSnp5b09JPQ==";
+        String clientId = "e8f427b3-02e3-4810-8424-369b1319b5df";
         String clientSecret = cc.getClientSecret();
         // - validate the token
         Assert.assertTrue(JWTValidation.validateIdToken(idToken, deviceIdentifier, clientId, clientSecret));

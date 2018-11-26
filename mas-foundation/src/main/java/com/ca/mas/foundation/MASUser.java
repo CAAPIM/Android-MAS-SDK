@@ -381,6 +381,8 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                             Callback.onError(callback, e);
                         }
                     });
+                } else {
+                    callback.onError(new SecureLockException(MASFoundationStrings.SECURE_LOCK_SESSION_CURRENTLY_LOCKED));
                 }
             }
 

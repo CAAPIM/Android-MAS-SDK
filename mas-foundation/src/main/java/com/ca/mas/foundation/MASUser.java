@@ -10,7 +10,6 @@ package com.ca.mas.foundation;
 
 import android.app.KeyguardManager;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Parcel;
@@ -18,24 +17,16 @@ import android.security.keystore.UserNotAuthenticatedException;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
-import android.util.Pair;
 
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.MobileSso;
-import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.MobileSsoFactory;
-import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.datasource.DataSourceException;
 import com.ca.mas.core.error.MAGError;
-import com.ca.mas.core.io.Charsets;
-import com.ca.mas.core.io.IoUtils;
-import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.oauth.OAuthClientUtil;
 import com.ca.mas.core.security.LockableEncryptionProvider;
 import com.ca.mas.core.security.SecureLockException;
-import com.ca.mas.core.store.ClientCredentialContainer;
-import com.ca.mas.core.store.OAuthTokenContainer;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
@@ -58,10 +49,6 @@ import com.ca.mas.messaging.topic.MASTopic;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -323,66 +310,69 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
              */
             @Override
             public void logout(final boolean force, final MASCallback<Void> callback) {
-                current = null;
-
-                MASRequest request = null;
-                final TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
-
-                if (tokenManager.getIdToken() != null) {
-                    request = OAuthClientUtil.getLogoutRequest();
+                // If the current session is locked, return an error
+                if (isSessionLocked()) {
+                    callback.onError(new SecureLockException(MASFoundationStrings.SECURE_LOCK_SESSION_CURRENTLY_LOCKED));
                 } else {
-                    request = OAuthClientUtil.getRevokeRequest();
-                }
+                    current = null;
 
-                if (request != null) {
+                    MASRequest request = null;
+                    final TokenManager tokenManager = StorageProvider.getInstance().getTokenManager();
 
-                    MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
-                        @Override
-                        public void onSuccess(MASResponse<JSONObject> result) {
-                            // - Paramenter to delete or not the local storage
-                            EventDispatcher.LOGOUT.notifyObservers();
+                    if (tokenManager.getIdToken() != null) {
+                        request = OAuthClientUtil.getLogoutRequest();
+                    } else {
+                        request = OAuthClientUtil.getRevokeRequest();
+                    }
 
-                            try {
-                                tokenManager.deleteIdToken();
-                                tokenManager.deleteSecureIdToken();
-                                tokenManager.deleteUserProfile();
-                            } catch (TokenStoreException e) {
-                                onError(e);
-                            }
-                            try {
-                                StorageProvider.getInstance().getOAuthTokenContainer().clear();
-                            } catch (DataSourceException e) {
-                                onError(e);
-                            }
+                    if (request != null) {
 
-                            Callback.onSuccess(callback, null);
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            // - Paramenter to delete or not the local storage
-                            boolean lockSession = getCurrentUser() != null ? getCurrentUser().isSessionLocked() : false;
-                            if (force && !lockSession) {
+                        MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {
+                            @Override
+                            public void onSuccess(MASResponse<JSONObject> result) {
+                                // - Paramenter to delete or not the local storage
                                 EventDispatcher.LOGOUT.notifyObservers();
+
                                 try {
                                     tokenManager.deleteIdToken();
                                     tokenManager.deleteSecureIdToken();
                                     tokenManager.deleteUserProfile();
-                                } catch (TokenStoreException e1) {
-                                    Callback.onError(callback, e);
-                                    return;
+                                } catch (TokenStoreException e) {
+                                    onError(e);
                                 }
                                 try {
                                     StorageProvider.getInstance().getOAuthTokenContainer().clear();
-                                } catch (DataSourceException e1) {
-                                    Callback.onError(callback, e);
+                                } catch (DataSourceException e) {
+                                    onError(e);
                                 }
+
+                                Callback.onSuccess(callback, null);
                             }
-                            Callback.onError(callback, e);
-                        }
-                    });
-                } else {
-                    callback.onError(new SecureLockException(MASFoundationStrings.SECURE_LOCK_SESSION_CURRENTLY_LOCKED));
+
+                            @Override
+                            public void onError(Throwable e) {
+                                // - Paramenter to delete or not the local storage
+                                boolean lockSession = getCurrentUser() != null ? getCurrentUser().isSessionLocked() : false;
+                                if (force && !lockSession) {
+                                    EventDispatcher.LOGOUT.notifyObservers();
+                                    try {
+                                        tokenManager.deleteIdToken();
+                                        tokenManager.deleteSecureIdToken();
+                                        tokenManager.deleteUserProfile();
+                                    } catch (TokenStoreException e1) {
+                                        Callback.onError(callback, e);
+                                        return;
+                                    }
+                                    try {
+                                        StorageProvider.getInstance().getOAuthTokenContainer().clear();
+                                    } catch (DataSourceException e1) {
+                                        Callback.onError(callback, e);
+                                    }
+                                }
+                                Callback.onError(callback, e);
+                            }
+                        });
+                    }
                 }
             }
 

@@ -105,19 +105,26 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
      * Authenticates a user with a MASAuthCredentials object.
      */
     public static void login(MASAuthCredentials credentials, final MASCallback<MASUser> callback) {
-        MobileSso mobileSso = MobileSsoFactory.getInstance();
-        mobileSso.authenticate(credentials, new MAGResultReceiver<JSONObject>() {
-            @Override
-            public void onSuccess(MASResponse<JSONObject> response) {
-                login(callback);
-            }
+        // If the current session is locked, return an error
+        if (StorageProvider.getInstance()
+                .getTokenManager()
+                .getSecureIdToken() != null) {
+            Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_SESSION_CURRENTLY_LOCKED));
+        } else {
+            MobileSso mobileSso = MobileSsoFactory.getInstance();
+            mobileSso.authenticate(credentials, new MAGResultReceiver<JSONObject>() {
+                @Override
+                public void onSuccess(MASResponse<JSONObject> response) {
+                    login(callback);
+                }
 
-            @Override
-            public void onError(MAGError error) {
-                current = null;
-                Callback.onError(callback, error);
-            }
-        });
+                @Override
+                public void onError(MAGError error) {
+                    current = null;
+                    Callback.onError(callback, error);
+                }
+            });
+        }
     }
 
     /**
@@ -312,7 +319,7 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             public void logout(final boolean force, final MASCallback<Void> callback) {
                 // If the current session is locked, return an error
                 if (isSessionLocked()) {
-                    callback.onError(new SecureLockException(MASFoundationStrings.SECURE_LOCK_SESSION_CURRENTLY_LOCKED));
+                    Callback.onError(callback, new SecureLockException(MASFoundationStrings.SECURE_LOCK_SESSION_CURRENTLY_LOCKED));
                 } else {
                     current = null;
 

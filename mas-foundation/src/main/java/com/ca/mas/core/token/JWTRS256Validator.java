@@ -17,6 +17,7 @@ import android.util.Log;
 
 import com.ca.mas.core.MASCallbackFuture;
 import com.ca.mas.core.conf.ConfigurationManager;
+import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.foundation.MAS;
@@ -85,7 +86,7 @@ public class JWTRS256Validator implements JWTValidator {
      * @return boolean True if signature is valid else false.
      */
     @Override
-    public boolean validate(final @NonNull IdToken idToken) throws JWTValidationException {
+    public boolean validate(MssoContext context,final @NonNull IdToken idToken) throws JWTValidationException {
 
         boolean isSignatureValid;
         IdTokenDef idTokenDef = new IdTokenDef(idToken);

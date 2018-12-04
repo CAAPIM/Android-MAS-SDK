@@ -287,7 +287,7 @@ public class MssoContext {
         String clientSecret = getClientSecret();
 
         if (idToken.getType().equals(IdToken.JWT_DEFAULT)) {
-            if (JWTValidation.validateIdToken(idToken, deviceIdentifier, clientId, clientSecret)) {
+            if (JWTValidation.validateIdToken(this,idToken, deviceIdentifier, clientId, clientSecret)) {
                 setIdToken(idToken);
             } else {
                 throw new JWTValidationException(MAGErrorCode.TOKEN_INVALID_ID_TOKEN, "JWT Token is not valid");

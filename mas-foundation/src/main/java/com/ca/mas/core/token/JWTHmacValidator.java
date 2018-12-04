@@ -9,27 +9,22 @@
 package com.ca.mas.core.token;
 
 import android.util.Base64;
-import android.util.Log;
 
 import com.ca.mas.core.context.MssoContext;
-import com.ca.mas.core.store.StorageProvider;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import static com.ca.mas.foundation.MAS.DEBUG;
-import static com.ca.mas.foundation.MAS.TAG;
-
 class JWTHmacValidator implements  JWTValidator{
 
     @Override
-    public boolean validate(IdToken token) throws JWTValidationException {
+    public boolean validate(MssoContext context,IdToken token) throws JWTValidationException {
 
         IdTokenDef idTokenDef = new IdTokenDef(token);
         byte[] header = idTokenDef.getHeader();
         byte[] payload = idTokenDef.getPayload();
         byte[] signature = idTokenDef.getSignature();
-        String clientSecret = StorageProvider.getInstance().getClientCredentialContainer().getClientSecret();
+        String clientSecret = context.getClientSecret();
         byte[] signToCompare = signData(header, payload, clientSecret.getBytes());
         byte[] decodedSignature = Base64.decode(signature, Base64.URL_SAFE);
 

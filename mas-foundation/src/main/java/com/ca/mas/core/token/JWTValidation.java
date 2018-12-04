@@ -11,6 +11,7 @@ package com.ca.mas.core.token;
 import android.util.Base64;
 import android.util.Log;
 
+import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.foundation.MAS;
 
@@ -46,7 +47,7 @@ public class JWTValidation {
         return false;
     }
 
-    public static boolean validateIdToken(IdToken idToken, String deviceIdentifier, String clientId, String clientSecret) throws JWTValidationException {
+    public static boolean validateIdToken(MssoContext context,IdToken idToken, String deviceIdentifier, String clientId, String clientSecret) throws JWTValidationException {
 
         boolean isValid = false;
 
@@ -62,7 +63,7 @@ public class JWTValidation {
         boolean idTokenValidationEnabled = MAS.isIdTokenValidationEnabled();
 
         if (algorithm != null && idTokenValidationEnabled) {
-            signatureValid = JWTValidatorFactory.getValidator(algorithm).validate(idToken);
+            signatureValid = JWTValidatorFactory.getValidator(algorithm).validate(context,idToken);
         }
 
         if (!idTokenValidationEnabled){

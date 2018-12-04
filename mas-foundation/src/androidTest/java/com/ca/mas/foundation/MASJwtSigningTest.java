@@ -14,6 +14,7 @@ import com.ca.mas.DataSource;
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
+import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.store.ClientCredentialContainer;
@@ -265,7 +266,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         String clientId = "e8f427b3-02e3-4810-8424-369b1319b5df";
         String clientSecret = cc.getClientSecret();
         // - validate the token
-        Assert.assertTrue(JWTValidation.validateIdToken(idToken, deviceIdentifier, clientId, clientSecret));
+        Assert.assertTrue(JWTValidation.validateIdToken(MssoContext.newContext(), idToken, deviceIdentifier, clientId, clientSecret));
     }
 
     @Test(expected = JWTValidationException.class)
@@ -278,7 +279,7 @@ public class MASJwtSigningTest extends MASLoginTestBase {
         String clientId = cc.getClientId();
         String clientSecret = cc.getClientSecret();
         // - validate the token
-        JWTValidation.validateIdToken(idToken, deviceIdentifier, clientId, clientSecret);
+        JWTValidation.validateIdToken(MssoContext.newContext(), idToken, deviceIdentifier, clientId, clientSecret);
     }
 
     @Test(expected = IllegalStateException.class)

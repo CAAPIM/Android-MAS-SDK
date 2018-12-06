@@ -45,6 +45,7 @@ public class Config {
 
     //mag.oauth_protected_endpoints
     public static final Config ENTERPRISE_APP_PATH = new Config(false, MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_ENTERPRISE_APPS, "mag.oauth_protected_endpoints.enterprise_browser_endpoint_path", String.class);
+    public static final Config DEVICE_METADATA_PATH = new Config(false, MobileSsoConfig.PROP_DEVICE_METADATA_PATH, "mag.oauth_protected_endpoints.device_metadata_endpoint_path", String.class);
 
     //mag.mobile_sdk
     public static final Config SSO_ENABLED = new Config(false, MobileSsoConfig.PROP_SSO_ENABLED, "mag.mobile_sdk.sso_enabled", Boolean.class);
@@ -64,7 +65,7 @@ public class Config {
     public static Config[] values = {
             HOSTNAME, PORT, PREFIX, SERVER_CERTS, ORGANIZATION, CLIENT_KEY, CLIENT_SECRET, SCOPE, REDIRECT_URI, AUTHORIZE_PATH, REGISTER_TOKEN_PATH, REGISTER_TOKEN_PATH_SSO, LOGOUT_DEVICE_PATH, REVOKE_PATH,
             REMOVE_DEVICE_PATH, REGISTER_DEVICE_PATH, RENEW_DEVICE_PATH, REGISTER_DEVICE_PATH_CLIENT, CLIENT_CREDENTIAL_INIT_PATH, ENTERPRISE_APP_PATH, SSO_ENABLED, LOCATION_ENABLED, LOCATION_PROVIDER,
-            MSISDN_ENABLED, TRUSTED_PUBLIC_PKI, TRUSTED_CERT_PINNED_PUBLIC_KEY_HASHES, CLIENT_CERT_RSA_KEYBITS, CLIENT_STORAGE, BLE_SERVICE_UUID, BLE_USER_SESSION_CHARACTERISTIC_UUID,
+            MSISDN_ENABLED, TRUSTED_PUBLIC_PKI,DEVICE_METADATA_PATH, TRUSTED_CERT_PINNED_PUBLIC_KEY_HASHES, CLIENT_CERT_RSA_KEYBITS, CLIENT_STORAGE, BLE_SERVICE_UUID, BLE_USER_SESSION_CHARACTERISTIC_UUID,
             BLE_RSSI, AUTHENTICATE_OTP_PATH
     };
 

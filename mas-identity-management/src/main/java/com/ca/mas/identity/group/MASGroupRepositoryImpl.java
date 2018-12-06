@@ -8,6 +8,7 @@
 package com.ca.mas.identity.group;
 
 import android.net.Uri;
+import android.support.annotation.Keep;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -43,6 +44,7 @@ import static com.ca.mas.foundation.MAS.TAG;
  * ad-hoc group. The difference is that an enterprise group cannot be created, updated, or deleted while and ad-hoc group can be created,
  * updated, or delete by the group's {@link MASOwner}.
  */
+@Keep
 public class MASGroupRepositoryImpl implements MASGroupRepository {
 
     @Override

@@ -1,0 +1,68 @@
+{
+  "master": {
+    "iteration": 50,
+    "operation_type": "profile", //valid values 1- benchmark , 2- profile
+    "threshold": 10,             //Minimum allowed performance degradation percentage
+    "use_default": true
+  },
+  "scenarios": [
+    {
+      "benchmark": 0.2316,
+      "desc": "This test gives start call execution time",
+      "id": 1,
+      "iteration": 5,
+      "name": "StartTest"
+    },
+    {
+      "benchmark": 2.6652,
+      "desc": "This test gives Login execution time.",
+      "id": 2,
+      "iteration": 5,
+      "name": "LoginTest"
+    },
+    {
+      "benchmark": 1.8766,
+      "desc": "This test gives Login -> Logout flow's execution time",
+      "id": 3,
+      "iteration": 3,
+      "name": "LoginLogoutTest"
+    },
+    {
+      "benchmark": 7.3286,
+      "desc": "This test gives Login -> Deregister flow's execution time",
+      "id": 4,
+      "iteration": 5,
+      "name": "LoginDeregisterTest"
+    },
+    {
+      "benchmark": 0.4888,
+      "desc": "This test gives GET call execution time",
+      "id": 5,
+      "iteration": 5,
+      "name": "GetTest"
+    },
+    {
+      "benchmark": 2.171,
+      "desc": "This test gives Login -> Get flow's execution time",
+      "id": 6,
+      "iteration": 5,
+      "name": "LoginGetTest"
+    },
+    {
+      "benchmark": 1.5192,
+      "desc": "This test gives GET(OTP) call execution time",
+      "id": 7,
+      "iteration": 5,
+      "name": "GetViaOTPTest"
+    },
+    {
+      "benchmark": 1.8652,
+      "desc": "This test gives GET(OTP) with implicit login call execution time",
+      "id": 8,
+      "iteration": 5,
+      "name": "GetViaOTPImplicitLoginTest"
+    }
+
+
+  ]
+}

@@ -103,7 +103,15 @@ public class AndroidJellyBeanKeyRepository extends KeyStoreRepository {
     @Override
     public byte[] generateCertificateSigningRequest(String commonName, String deviceId, String deviceName, String organization, PrivateKey privateKey, PublicKey publicKey) throws CertificateException {
         try {
-            X500Principal subject = new X500Principal("cn=" + commonName + ", ou=" + deviceId + ", dc=" + deviceName + ", o=" + organization);
+            commonName = commonName.replace("\"", "\\\"");
+            deviceId = deviceId.replace("\"", "\\\"");
+            deviceName = deviceName.replace("\"", "\\\"");
+            organization = organization.replace("\"", "\\\"");
+
+            X500Principal subject = new X500Principal("cn=\"" + commonName +
+                    "\", ou=\"" + deviceId +
+                    "\", dc=\"" + deviceName +
+                    "\", o=\"" + organization + "\"");
             ASN1Set attrs = new DERSet(new ASN1EncodableVector());
             PKCS10CertificationRequest csr = new PKCS10CertificationRequest("SHA1withRSA", subject, publicKey, attrs, privateKey, null);
             return csr.getEncoded();

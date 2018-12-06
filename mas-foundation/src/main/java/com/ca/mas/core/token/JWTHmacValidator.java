@@ -9,23 +9,23 @@
 package com.ca.mas.core.token;
 
 import android.util.Base64;
-import android.util.Log;
+
+import com.ca.mas.core.context.MssoContext;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import static com.ca.mas.foundation.MAS.DEBUG;
-import static com.ca.mas.foundation.MAS.TAG;
+class JWTHmacValidator implements  JWTValidator{
 
-class JWTHmac {
+    @Override
+    public boolean validate(MssoContext context,IdToken token) throws JWTValidationException {
 
-    private JWTHmac() {
-        throw new IllegalAccessError("Utility class");
-    }
-
-    static  boolean validateHMacSignature(byte[] header, byte[] payload, byte[] clientSecret, byte[] signature) throws JWTValidationException {
-
-        byte[] signToCompare = JWTHmac.signData(header, payload, clientSecret);
+        IdTokenDef idTokenDef = new IdTokenDef(token);
+        byte[] header = idTokenDef.getHeader();
+        byte[] payload = idTokenDef.getPayload();
+        byte[] signature = idTokenDef.getSignature();
+        String clientSecret = context.getClientSecret();
+        byte[] signToCompare = signData(header, payload, clientSecret.getBytes());
         byte[] decodedSignature = Base64.decode(signature, Base64.URL_SAFE);
 
         if (!new String(signToCompare).equals(new String(decodedSignature))) {
@@ -35,7 +35,7 @@ class JWTHmac {
         return true;
     }
 
-    private static byte[] signData(byte[] header, byte[] payload, byte[] secret) throws JWTValidationException {
+    private  byte[] signData(byte[] header, byte[] payload, byte[] secret) throws JWTValidationException {
         try{
 
             if (secret == null || secret.length == 0) {
@@ -57,7 +57,7 @@ class JWTHmac {
         }
     }
 
-    private static byte[] createSecuredInput(byte[] header, byte[] payload) {
+    private byte[] createSecuredInput(byte[] header, byte[] payload) {
 
         byte separator[] = ".".getBytes();
         byte jwsSecuredInput[] = new byte[header.length + separator.length + payload.length];

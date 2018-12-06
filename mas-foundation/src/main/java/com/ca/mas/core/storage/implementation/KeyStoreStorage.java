@@ -9,6 +9,7 @@
 package com.ca.mas.core.storage.implementation;
 
 import android.content.Context;
+import android.support.annotation.Keep;
 import android.util.Log;
 
 import com.ca.mas.core.security.KeyStore;
@@ -27,6 +28,7 @@ import static com.ca.mas.foundation.MAS.TAG;
 /**
  * KeyStore backed Storage implementation.
  */
+@Keep
 public final class KeyStoreStorage extends Storage {
 
     /**

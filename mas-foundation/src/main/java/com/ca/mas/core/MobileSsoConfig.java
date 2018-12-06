@@ -302,6 +302,14 @@ public interface MobileSsoConfig {
      */
     String PROP_STORAGE = "msso.storage";
 
+    /**
+     * String.  URL suffix for Device Metadata endpoint.
+     * matches the device metadata scope in the msso_config file
+     * If not specified, will default to "/connect/device/metadata".
+     */
+    String PROP_DEVICE_METADATA_PATH = "msso_device_metadata";
+
+
     // If you add any properties to this file, you must update MobileSsoFactory.createConfig()
     // or they will be ignored.
 

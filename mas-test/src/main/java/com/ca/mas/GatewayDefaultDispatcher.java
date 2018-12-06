@@ -39,9 +39,11 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String CONNECT_DEVICE_REGISTER = "/connect/device/register";
     public static final String CONNECT_CLIENT_INITIALIZE = "/connect/client/initialize";
     public static final String AUTH_OAUTH_V2_TOKEN = "/auth/oauth/v2/token";
+    public static final String AUTH_OAUTH_V2_REVOKE = "/auth/oauth/v2/token/revoke";
     public static final String PROTECTED_RESOURCE_SLOW = "/protected/resource/slow";
     public static final String PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY = "/protected/resource/productsAsArray";
     public static final String PROTECTED_RESOURCE_PRODUCTS = "/protected/resource/products";
+    public static final String DEVICEMETADATA_ENDPOINT = "/connect/device/metadata";
     public static final String TEST_NO_CONTENT = "/testNoContent";
     public static final String AUTH_OAUTH_V2_AUTHORIZE = "/auth/oauth/v2/authorize";
     public static final String CONNECT_DEVICE_REGISTER_CLIENT = "/connect/device/register/client";
@@ -53,6 +55,8 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String USER_INFO = "/openid/connect/v1/userinfo";
     public static final String ECHO = "/echo";
     public static final String MULTIFACTOR_ENDPOINT = "/multifactor";
+    public static final String WELL_KNOW_URI = "/.well-known/openid-configuration";
+    public static final String JWKS_URI = "/openid/connect/jwks.json";
 
     public static final String OTHER = "other";
 
@@ -88,9 +92,11 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return registerDeviceResponse(request);
             } else if (request.getPath().contains(CONNECT_CLIENT_INITIALIZE)) {
                 return initializeResponse();
+            } else if (request.getPath().contains(AUTH_OAUTH_V2_REVOKE)) {
+                return revokeTokenResponse();
             } else if (request.getPath().contains(AUTH_OAUTH_V2_TOKEN)) {
                 return retrieveTokenResponse();
-            } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY)) {
+           } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY)) {
                 return secureServiceResponseAsArray();
             } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS)) {
                 return secureServiceResponse();
@@ -99,6 +105,10 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return secureServiceResponse();
             } else if (request.getPath().contains(TEST_NO_CONTENT)) {
                 return secureServiceResponseWithNoContent();
+            }else if(request.getPath().contains(WELL_KNOW_URI)) {
+                return wellknowURIResponse(request);
+            } else if( request.getPath().contains(JWKS_URI)){
+                return jwksURIResponse();
             } else if (request.getPath().contains(AUTH_OAUTH_V2_AUTHORIZE)) {
                 return authorizeResponse(request);
             } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER_CLIENT)) {
@@ -126,6 +136,8 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return echo(request);
             } else if (request.getPath().contains(MULTIFACTOR_ENDPOINT)) {
                 return multiFactor(request);
+            }else if (request.getPath().contains(DEVICEMETADATA_ENDPOINT)) {
+                return deviceMetadata();
             }
 
             for (Dispatcher d : dispatchers) {
@@ -226,20 +238,20 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
         //Mock response for device registration
         String cert = "-----BEGIN CERTIFICATE-----\n" +
-                "MIIDCjCCAfKgAwIBAgIIKzRkwk/TRDswDQYJKoZIhvcNAQEMBQAwIzEhMB8GA1UEAxMYYXdpdHJp\n" +
-                "c25hLWRlc2t0b3AuY2EuY29tMB4XDTEzMTEyNzE5MzkwOVoXDTE4MTEyNjE5MzkwOVowIzEhMB8G\n" +
-                "A1UEAxMYYXdpdHJpc25hLWRlc2t0b3AuY2EuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB\n" +
-                "CgKCAQEAoaCzdLbRhqt3T4ROTgOBD5gizxsJ/vhqmIpagXU+3OPhZocwf0FIVjvbrybkj8ZynTve\n" +
-                "p1cJsAmdkuX+w6m8ow2rAR/8BQnIaBD281gNqDCYXAGkguEZBbCQ2TvD4FZYnJZSmrE9PJtIe5pq\n" +
-                "DneOqaO0Kqj3sJpYIG11U8djio9UNAqTd0J9q5+fEMVle/QG0X0ro3MR30PaHIA7bpvISpjFZ0zD\n" +
-                "54rQc+85bOamg4aJFcfiNSMIaAYaFMi/peJLmW8Q4DZriAQSG6PIBcekMx1mi4tuXkSrr3P3ycKu\n" +
-                "bU0ePKnxckxWHygK42bQ5ClLuJeYNPxqHiBapZj2hwmzsQIDAQABo0IwQDAdBgNVHQ4EFgQUZddX\n" +
-                "bkxC+asQgSCSIViGKuGS2f4wHwYDVR0jBBgwFoAUZddXbkxC+asQgSCSIViGKuGS2f4wDQYJKoZI\n" +
-                "hvcNAQEMBQADggEBAHK/QdXrRROjKjxwU05wo1KZNRmi8jBsKF/ughCTqcUCDmEuskW/x9VCIm/r\n" +
-                "ZMFgOA3tou7vT0mX8gBds+95td+aNci1bcBBpiVIwiqOFhBrtbiAhYofgXtbcYchL9SRmIpek/3x\n" +
-                "BwBj5CBmaimOZsTLp6wqzLE4gpAdTMaU+RIlwq+uSUmKhQem6fSthGdWx5Ea9gwKuVi8PwSFCs/Q\n" +
-                "nwUfNnCvOTP8PtQgvmLsXeaFfy/lYK7iQp1CiwwXYpc3Xivv9A7DH7MqVSQZdtjDrRI2++1/1Yw9\n" +
-                "XoYtMDN0dQ5lBNIyJB5rWtCixZgfacHp538bMPMskLePU3dxNdCqhas=\n" +
+                "MIIDGDCCAgCgAwIBAgIIaJHtKa4XQj4wDQYJKoZIhvcNAQEMBQAwKjEoMCYGA1UEAxMfbW9iaWxl\n" +
+                "LXN0YWdpbmctbXlzcWwubDd0ZWNoLmNvbTAeFw0xNzAxMDQxNzI2MzlaFw0yNzAxMDIxNzI2Mzla\n" +
+                "MCoxKDAmBgNVBAMTH21vYmlsZS1zdGFnaW5nLW15c3FsLmw3dGVjaC5jb20wggEiMA0GCSqGSIb3\n" +
+                "DQEBAQUAA4IBDwAwggEKAoIBAQDsr6QwY8DL7J4aa1MWt+qmJKDGk/4M7Cx7sSUiMvuc9S3cGddQ\n" +
+                "lYOaQsg1a6H8DzsCE7WkX/CcYvJSQ/V26pQfbuwp39C7kTofo5OXZNbQX0EYJjUDfJsZ0lo1GUkn\n" +
+                "dCX0ugR1/NXAzmZYcTGIFVi/y2mMynZHLeEZUKL/O3vS3uniEw4qcxQ2Jz1qT4gGJJNcHHM+4SqV\n" +
+                "17yXm5trvr1aHey3G3KgQWVo0OQ/vZoiRSURADUvWRsym+6CALp73KS1wtbsopE2VtSLrm4ztBbH\n" +
+                "EfH/mp4PkZjpNisoaJwyqCCP+f7ITYSXnjuiGrC/z1KrENGCzXSJl3lHjUFOiZYnAgMBAAGjQjBA\n" +
+                "MB0GA1UdDgQWBBRF0EYejzI/wOSIrB+kz+FgATJdcDAfBgNVHSMEGDAWgBRF0EYejzI/wOSIrB+k\n" +
+                "z+FgATJdcDANBgkqhkiG9w0BAQwFAAOCAQEAOKKUsR3RsYCtiJ+3omovqDFmexlWlW02we0ELwia\n" +
+                "312ATazQPFTxjiHnOyhG+K67ItqTbz3X7vQP8yvQ91JWTHesebnYSxJEAqTEiBC2uLPP7XqUWnJa\n" +
+                "J/XGMAhRVIbkaHfzleWl+BtG++B4tclHqhRWrPfP5S1Ys3SCvmhte09XAmuuPYnuzsoZwJVpx/UJ\n" +
+                "lYxOuSIkYxUOCzGVp7qUYBVzMVW2MEKOiJvAuXM0aeY5+D5Z6uMs+F58W5nbYCgjLTVXRAm46ntG\n" +
+                "NP9R2i3LWnjHhdN+WLtSsmj6dFtzjQbrS9LXa8bR4GRncA34UdW/LMsyiJzd2Iy8mfe2sQu3Zg==\n" +
                 "-----END CERTIFICATE-----";
         return new MockResponse()
                 .setResponseCode(200)
@@ -253,20 +265,20 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
     protected MockResponse renewDeviceResponse() {
         String newCert = "-----BEGIN CERTIFICATE-----\n" +
-                "MIIDCjCCAfKgAwIBAgIIKzRkwk/TRDswDQYJKoZIhvcNAQEMBQAwIzEhMB8GA1UEAxMYYXdpdHJp\n" +
-                "c25hLWRlc2t0b3AuY2EuY29tMB4XDTEzMTEyNzE5MzkwOVoXDTE4MTEyNjE5MzkwOVowIzEhMB8G\n" +
-                "A1UEAxMYYXdpdHJpc25hLWRlc2t0b3AuY2EuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB\n" +
-                "CgKCAQEAoaCzdLbRhqt3T4ROTgOBD5gizxsJ/vhqmIpagXU+3OPhZocwf0FIVjvbrybkj8ZynTve\n" +
-                "p1cJsAmdkuX+w6m8ow2rAR/8BQnIaBD281gNqDCYXAGkguEZBbCQ2TvD4FZYnJZSmrE9PJtIe5pq\n" +
-                "DneOqaO0Kqj3sJpYIG11U8djio9UNAqTd0J9q5+fEMVle/QG0X0ro3MR30PaHIA7bpvISpjFZ0zD\n" +
-                "54rQc+85bOamg4aJFcfiNSMIaAYaFMi/peJLmW8Q4DZriAQSG6PIBcekMx1mi4tuXkSrr3P3ycKu\n" +
-                "bU0ePKnxckxWHygK42bQ5ClLuJeYNPxqHiBapZj2hwmzsQIDAQABo0IwQDAdBgNVHQ4EFgQUZddX\n" +
-                "bkxC+asQgSCSIViGKuGS2f4wHwYDVR0jBBgwFoAUZddXbkxC+asQgSCSIViGKuGS2f4wDQYJKoZI\n" +
-                "hvcNAQEMBQADggEBAHK/QdXrRROjKjxwU05wo1KZNRmi8jBsKF/ughCTqcUCDmEuskW/x9VCIm/r\n" +
-                "ZMFgOA3tou7vT0mX8gBds+95td+aNci1bcBBpiVIwiqOFhBrtbiAhYofgXtbcYchL9SRmIpek/3x\n" +
-                "BwBj5CBmaimOZsTLp6wqzLE4gpAdTMaU+RIlwq+uSUmKhQem6fSthGdWx5Ea9gwKuVi8PwSFCs/Q\n" +
-                "nwUfNnCvOTP8PtQgvmLsXeaFfy/lYK7iQp1CiwwXYpc3Xivv9A7DH7MqVSQZdtjDrRI2++1/1Yw9\n" +
-                "XoYtMDN0dQ5lBNIyJB5rWtCixZgfacHp538bMPMskLePU3dxNdCqhas=\n" +
+                "MIIDGDCCAgCgAwIBAgIIaJHtKa4XQj4wDQYJKoZIhvcNAQEMBQAwKjEoMCYGA1UEAxMfbW9iaWxl\n" +
+                "LXN0YWdpbmctbXlzcWwubDd0ZWNoLmNvbTAeFw0xNzAxMDQxNzI2MzlaFw0yNzAxMDIxNzI2Mzla\n" +
+                "MCoxKDAmBgNVBAMTH21vYmlsZS1zdGFnaW5nLW15c3FsLmw3dGVjaC5jb20wggEiMA0GCSqGSIb3\n" +
+                "DQEBAQUAA4IBDwAwggEKAoIBAQDsr6QwY8DL7J4aa1MWt+qmJKDGk/4M7Cx7sSUiMvuc9S3cGddQ\n" +
+                "lYOaQsg1a6H8DzsCE7WkX/CcYvJSQ/V26pQfbuwp39C7kTofo5OXZNbQX0EYJjUDfJsZ0lo1GUkn\n" +
+                "dCX0ugR1/NXAzmZYcTGIFVi/y2mMynZHLeEZUKL/O3vS3uniEw4qcxQ2Jz1qT4gGJJNcHHM+4SqV\n" +
+                "17yXm5trvr1aHey3G3KgQWVo0OQ/vZoiRSURADUvWRsym+6CALp73KS1wtbsopE2VtSLrm4ztBbH\n" +
+                "EfH/mp4PkZjpNisoaJwyqCCP+f7ITYSXnjuiGrC/z1KrENGCzXSJl3lHjUFOiZYnAgMBAAGjQjBA\n" +
+                "MB0GA1UdDgQWBBRF0EYejzI/wOSIrB+kz+FgATJdcDAfBgNVHSMEGDAWgBRF0EYejzI/wOSIrB+k\n" +
+                "z+FgATJdcDANBgkqhkiG9w0BAQwFAAOCAQEAOKKUsR3RsYCtiJ+3omovqDFmexlWlW02we0ELwia\n" +
+                "312ATazQPFTxjiHnOyhG+K67ItqTbz3X7vQP8yvQ91JWTHesebnYSxJEAqTEiBC2uLPP7XqUWnJa\n" +
+                "J/XGMAhRVIbkaHfzleWl+BtG++B4tclHqhRWrPfP5S1Ys3SCvmhte09XAmuuPYnuzsoZwJVpx/UJ\n" +
+                "lYxOuSIkYxUOCzGVp7qUYBVzMVW2MEKOiJvAuXM0aeY5+D5Z6uMs+F58W5nbYCgjLTVXRAm46ntG\n" +
+                "NP9R2i3LWnjHhdN+WLtSsmj6dFtzjQbrS9LXa8bR4GRncA34UdW/LMsyiJzd2Iy8mfe2sQu3Zg==\n" +
                 "-----END CERTIFICATE-----";
         //Mock response for device renew
         return new MockResponse()
@@ -281,20 +293,20 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
         //Mock response for device registration
         String cert = "-----BEGIN CERTIFICATE-----\n" +
-                "MIIDCjCCAfKgAwIBAgIIKzRkwk/TRDswDQYJKoZIhvcNAQEMBQAwIzEhMB8GA1UEAxMYYXdpdHJp\n" +
-                "c25hLWRlc2t0b3AuY2EuY29tMB4XDTEzMTEyNzE5MzkwOVoXDTE4MTEyNjE5MzkwOVowIzEhMB8G\n" +
-                "A1UEAxMYYXdpdHJpc25hLWRlc2t0b3AuY2EuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB\n" +
-                "CgKCAQEAoaCzdLbRhqt3T4ROTgOBD5gizxsJ/vhqmIpagXU+3OPhZocwf0FIVjvbrybkj8ZynTve\n" +
-                "p1cJsAmdkuX+w6m8ow2rAR/8BQnIaBD281gNqDCYXAGkguEZBbCQ2TvD4FZYnJZSmrE9PJtIe5pq\n" +
-                "DneOqaO0Kqj3sJpYIG11U8djio9UNAqTd0J9q5+fEMVle/QG0X0ro3MR30PaHIA7bpvISpjFZ0zD\n" +
-                "54rQc+85bOamg4aJFcfiNSMIaAYaFMi/peJLmW8Q4DZriAQSG6PIBcekMx1mi4tuXkSrr3P3ycKu\n" +
-                "bU0ePKnxckxWHygK42bQ5ClLuJeYNPxqHiBapZj2hwmzsQIDAQABo0IwQDAdBgNVHQ4EFgQUZddX\n" +
-                "bkxC+asQgSCSIViGKuGS2f4wHwYDVR0jBBgwFoAUZddXbkxC+asQgSCSIViGKuGS2f4wDQYJKoZI\n" +
-                "hvcNAQEMBQADggEBAHK/QdXrRROjKjxwU05wo1KZNRmi8jBsKF/ughCTqcUCDmEuskW/x9VCIm/r\n" +
-                "ZMFgOA3tou7vT0mX8gBds+95td+aNci1bcBBpiVIwiqOFhBrtbiAhYofgXtbcYchL9SRmIpek/3x\n" +
-                "BwBj5CBmaimOZsTLp6wqzLE4gpAdTMaU+RIlwq+uSUmKhQem6fSthGdWx5Ea9gwKuVi8PwSFCs/Q\n" +
-                "nwUfNnCvOTP8PtQgvmLsXeaFfy/lYK7iQp1CiwwXYpc3Xivv9A7DH7MqVSQZdtjDrRI2++1/1Yw9\n" +
-                "XoYtMDN0dQ5lBNIyJB5rWtCixZgfacHp538bMPMskLePU3dxNdCqhas=\n" +
+                "MIIDGDCCAgCgAwIBAgIIaJHtKa4XQj4wDQYJKoZIhvcNAQEMBQAwKjEoMCYGA1UEAxMfbW9iaWxl\n" +
+                "LXN0YWdpbmctbXlzcWwubDd0ZWNoLmNvbTAeFw0xNzAxMDQxNzI2MzlaFw0yNzAxMDIxNzI2Mzla\n" +
+                "MCoxKDAmBgNVBAMTH21vYmlsZS1zdGFnaW5nLW15c3FsLmw3dGVjaC5jb20wggEiMA0GCSqGSIb3\n" +
+                "DQEBAQUAA4IBDwAwggEKAoIBAQDsr6QwY8DL7J4aa1MWt+qmJKDGk/4M7Cx7sSUiMvuc9S3cGddQ\n" +
+                "lYOaQsg1a6H8DzsCE7WkX/CcYvJSQ/V26pQfbuwp39C7kTofo5OXZNbQX0EYJjUDfJsZ0lo1GUkn\n" +
+                "dCX0ugR1/NXAzmZYcTGIFVi/y2mMynZHLeEZUKL/O3vS3uniEw4qcxQ2Jz1qT4gGJJNcHHM+4SqV\n" +
+                "17yXm5trvr1aHey3G3KgQWVo0OQ/vZoiRSURADUvWRsym+6CALp73KS1wtbsopE2VtSLrm4ztBbH\n" +
+                "EfH/mp4PkZjpNisoaJwyqCCP+f7ITYSXnjuiGrC/z1KrENGCzXSJl3lHjUFOiZYnAgMBAAGjQjBA\n" +
+                "MB0GA1UdDgQWBBRF0EYejzI/wOSIrB+kz+FgATJdcDAfBgNVHSMEGDAWgBRF0EYejzI/wOSIrB+k\n" +
+                "z+FgATJdcDANBgkqhkiG9w0BAQwFAAOCAQEAOKKUsR3RsYCtiJ+3omovqDFmexlWlW02we0ELwia\n" +
+                "312ATazQPFTxjiHnOyhG+K67ItqTbz3X7vQP8yvQ91JWTHesebnYSxJEAqTEiBC2uLPP7XqUWnJa\n" +
+                "J/XGMAhRVIbkaHfzleWl+BtG++B4tclHqhRWrPfP5S1Ys3SCvmhte09XAmuuPYnuzsoZwJVpx/UJ\n" +
+                "lYxOuSIkYxUOCzGVp7qUYBVzMVW2MEKOiJvAuXM0aeY5+D5Z6uMs+F58W5nbYCgjLTVXRAm46ntG\n" +
+                "NP9R2i3LWnjHhdN+WLtSsmj6dFtzjQbrS9LXa8bR4GRncA34UdW/LMsyiJzd2Iy8mfe2sQu3Zg==\n" +
                 "-----END CERTIFICATE-----";
         return new MockResponse()
                 .setResponseCode(200)
@@ -312,6 +324,15 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 "  \"expires_in\":" + 3600 + ",\n" +
                 "  \"refresh_token\":\"19785fca-4b86-4f8e-a73c-7de1d420f88d\",\n" +
                 "  \"scope\":\"openid msso phone profile address email msso_register msso_client_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups\"\n" +
+                "}";
+        return new MockResponse().setResponseCode(200).setBody(token);
+
+    }
+
+    protected MockResponse revokeTokenResponse() {
+        //Mock response for retrieve token
+        String token = "{\n" +
+                "  \"result\":\"revoked\"\n" +
                 "}";
         return new MockResponse().setResponseCode(200).setBody(token);
 
@@ -383,6 +404,21 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 .setHeader("X-OTP", "generated");
     }
 
+    protected MockResponse deviceMetadataErrorOverflow() throws JSONException {
+        return new MockResponse().setResponseCode(400)
+                .setHeader("Content-type", ContentType.APPLICATION_JSON)
+                .setHeader("x-ca-err","1016155");
+    }
+
+    protected MockResponse deviceMetadata() throws JSONException {
+        JSONObject data = new JSONObject();
+        data.put("name", "attr");
+        data.put("value", "attrVAlue");
+        return new MockResponse().setResponseCode(200)
+                .setHeader("Content-type", ContentType.APPLICATION_JSON)
+                .setBody(data.toString());
+    }
+
     protected MockResponse userInfo() {
         return new MockResponse().setResponseCode(200)
                 .setHeader("Content-type", ContentType.APPLICATION_JSON)
@@ -416,4 +452,27 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     }
 
 
+    private MockResponse wellknowURIResponse(RecordedRequest request) {
+
+        String result = "{\"issuer\":\"https://localhost:41979\",\"authorization_endpoint\":\"https://localhost:41979/auth/oauth/v2/authorize\",\"token_endpoint\":\"https://localhost:41979/auth/oauth/v2/token\",\"jwks_uri\":\"https://localhost:41979/openid/connect/jwks.json\",\"response_types_supported\":[\"code\", \"token id_token\", \"token\", \"code id_token\", \"id_token\", \"code token\", \"code id_token token\"],\"subject_types_supported\":[\"pairwise\"],\"id_token_signing_alg_values_supported\":[\"RS256\", \"HS256\"],\"userinfo_endpoint\":\"https://localhost:41979/openid/connect/v1/userinfo\",\"registration_endpoint\":\"https://localhost:41979/openid/connect/register\",\"scopes_supported\":[\"openid\", \"email\", \"profile\", \"openid_client_registration\"],\"claims_supported\":[\"sub\", \"iss\", \"auth_time\", \"acr\", \"aud\", \"azp\", \"exp\", \"c_hash\", \"at_hash\", \"nonce\"],\"grant_types_supported\":[\"authorization_code\", \"implicit\", \"refresh_token\"],\"acr_values_supported\":[\"0\"],\"token_endpoint_auth_methods_supported\":[\"client_secret_basic\", \"client_secret_post\", \"client_secret_jwt\", \"private_key_jwt\"],\"token_endpoint_auth_signing_alg_values_supported\":[\"RS256\", \"HS256\"],\"display_values_supported\":[\"page\"],\"claim_types_supported\":[\"normal\"],\"service_documentation\":\"https://localhost:41979/apidocs/auth/oauth/v2/swagger\",\"ui_locales_supported\":[\"en-US\"],\"response_modes_supported\":[\"query\", \"fragment\", \"form_post\"],\"userinfo_signing_alg_values_supported\":[\"RS256\", \"HS256\"]}";
+
+        return new MockResponse().setResponseCode(200).setBody(result);
+    }
+
+    protected MockResponse jwksURIResponse() {
+
+        String result  = "{\n" +
+                "  \"keys\" : [ {\n" +
+                "    \"kty\" : \"RSA\",\n" +
+                "    \"kid\" : \"default_ssl_key\",\n" +
+                "    \"use\" : \"sig\",\n" +
+                "    \"n\" : \"p3y7NtvnADvbPV-tQXjUjMcqbWrxwXrJaqUhs0KnIpLLrehgHZo-w7h7tNOqW4Av7wGUZ4j54zaHdqwuwGTMegeZHgrcEITxjsYAA5eRO2uo4Yiqr2hUjmpb04HgvEsoQE5Gr1wrBrw8M6pphvp92X5lGGtWgjo8ZZDQJyt6dhp5MoJdTYChcN8fEsF-ZckhmWklsYylI8VoQDpx7jj--w5g7TSIMiBsTICRnrE_oJfE0_LNxlOL9gyycNZl9Os60tYO9qIvYjsZrfTv9urcTAshbsS1W6JVCGGnA82WCEoEpxldTeombDYVNGXwkHOb7Aqk_6AgnrHp98ZXephO8w\",\n" +
+                "    \"e\" : \"AQAB\",\n" +
+                "    \"x5c\" : [ \"MIIC9zCCAd+gAwIBAgIJAKtskkc74amlMA0GCSqGSIb3DQEBDAUAMBkxFzAVBgNVBAMTDm1hZ2ZpZG8uY2EuY29tMB4XDTE3MDcxNDA4MjcwMVoXDTI3MDcxMjA4MjcwMVowGTEXMBUGA1UEAxMObWFnZmlkby5jYS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCnfLs22+cAO9s9X61BeNSMxyptavHBeslqpSGzQqciksut6GAdmj7DuHu006pbgC/vAZRniPnjNod2rC7AZMx6B5keCtwQhPGOxgADl5E7a6jhiKqvaFSOalvTgeC8SyhATkavXCsGvDwzqmmG+n3ZfmUYa1aCOjxlkNAnK3p2Gnkygl1NgKFw3x8SwX5lySGZaSWxjKUjxWhAOnHuOP77DmDtNIgyIGxMgJGesT+gl8TT8s3GU4v2DLJw1mX06zrS1g72oi9iOxmt9O/26txMCyFuxLVbolUIYacDzZYISgSnGV1N6iZsNhU0ZfCQc5vsCqT/oCCesen3xld6mE7zAgMBAAGjQjBAMB0GA1UdDgQWBBRtEbLFE1SiG8EXI+047xM+hhBOKzAfBgNVHSMEGDAWgBRtEbLFE1SiG8EXI+047xM+hhBOKzANBgkqhkiG9w0BAQwFAAOCAQEApENK8QSc2i/KHM7HtbG78v44lZletODNdjCVIUAMHIQb/zCoOgKSicMEfP4xa1QSOQb1qA5hv7WWEfPRop4/BY3p0sNNmEIfnCenG9sYwfB4Nx4UEmN7qQZvFzQGuLEvz1xP5k3uot51lLi6yUwtyNsC84tgaA1xbaap2dlxH7K/ILg05vZ2I9TE4wdZl33E2io72KaJFJBaWzJCTpa1R3q4EloaAeim/BSuZTXhLxelKgY9ozJmcFhnA2VtY2mjATjy+2QiLfALBnjq5FYjsmSAJslwvHgida2i9LBqlk70chZNRPNtOh9tx8hF/tdKmXodTvYP1PzAhuNKp6tgNw==\" ],\n" +
+                "    \"x5t\" : \"zAVqfuMe21XaBOWNGvwdKmPzJNo=\"\n" +
+                "  } ]\n" +
+                "}";
+
+        return new MockResponse().setResponseCode(200).setBody(result).addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
+    }
 }

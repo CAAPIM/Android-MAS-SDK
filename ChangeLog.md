@@ -1,3 +1,16 @@
+
+#Version 1.9.00
+
+### New features
+- Allow end users to store additional data about the device. [US507853]
+- Added client-side validation of ID Token signed with RS256 [US542357]
+- iOS/Android Mobile SDK login behaviour alignment. Previously, when the user session was already authenticated, the iOS SDK returned the error, "User is already authenticated". But the Android SDK revoked the previous set of tokens and invoked the "/token" endpoint to get a new set of tokens associated with new credentials. With the realignment, when a user sessions is already authenticated, both SDKs proceed with the authentication with new credentials without error. [US554077]
+
+### Bug fixes
+- MAS User Logout API call doesn't display session lock error. [DE394086]
+- Special characters are not handled during device registration. [DE388462]
+- In a multi-session scenario, the fingerprint unlock impacts a different session than the one locked. [DE386922]
+
 # Version 1.8.00
 
 ### Bug fixes

@@ -13,6 +13,9 @@ import android.util.Base64;
 
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.io.IoUtils;
+import com.ca.mas.foundation.MASConstants;
+import com.nimbusds.jose.JWSObject;
+import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.mockwebserver.Dispatcher;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.QueueDispatcher;
@@ -22,13 +25,22 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import okio.Buffer;
 import sun.security.pkcs.PKCS10;
 
 public class GatewayDefaultDispatcher extends QueueDispatcher {
@@ -58,6 +70,8 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String WELL_KNOW_URI = "/.well-known/openid-configuration";
     public static final String JWKS_URI = "/openid/connect/jwks.json";
 
+    public static final String MULTIPART = "/multipart";
+
     public static final String OTHER = "other";
 
     public static final String ENTERPRISE_BROWSER = "/connect/enterprise/browser";
@@ -83,7 +97,15 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     @Override
     public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         try {
+
             request.getBody();
+
+            Buffer signedDoc = request.getBody();//.readUtf8();
+            //JWSObject signedObject = JWSObject.parse(signedDoc);
+
+           // String str = new String(request.getBody().readByteArray(), StandardCharsets.UTF_8);//Base64.decode(request.getBody().readByteArray(),Base64.NO_WRAP | Base64.NO_PADDING | Base64.URL_SAFE);
+
+            //targetReader.close();
             if (request.getPath().contains(CONNECT_DEVICE_CONFIG)) {
                 return configDeviceResponse();
             } else if (request.getPath().contains(CONNECT_DEVICE_EXPIRED_CONFIG)) {
@@ -109,6 +131,8 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return wellknowURIResponse(request);
             } else if( request.getPath().contains(JWKS_URI)){
                 return jwksURIResponse();
+            } else if( request.getPath().contains(MULTIPART)){
+                return multipartResponse();
             } else if (request.getPath().contains(AUTH_OAUTH_V2_AUTHORIZE)) {
                 return authorizeResponse(request);
             } else if (request.getPath().contains(CONNECT_DEVICE_REGISTER_CLIENT)) {
@@ -482,6 +506,13 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 "    \"x5t\" : \"zAVqfuMe21XaBOWNGvwdKmPzJNo=\"\n" +
                 "  } ]\n" +
                 "}";
+
+        return new MockResponse().setResponseCode(200).setBody(result).addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
+    }
+
+    protected MockResponse multipartResponse() {
+
+        String result  = "{\"key\": \"Server OUTPUT Multipart\"}";
 
         return new MockResponse().setResponseCode(200).setBody(result).addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
     }

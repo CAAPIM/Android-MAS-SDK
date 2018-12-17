@@ -11,6 +11,7 @@ package com.ca.mas.foundation;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
+import android.webkit.MimeTypeMap;
 
 import com.ca.mas.core.http.ContentType;
 
@@ -18,19 +19,32 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.security.PrivateKey;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import static com.ca.mas.core.io.Charsets.ISO_8859_1;
 import static com.ca.mas.core.io.Charsets.UTF8;
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
 
 public abstract class MASRequestBody {
+
+    public static final String twoHyphens = "--";
+    public static final String lineEnd = "\r\n";
+    public static String _boundary;
 
     /**
      * @return Returns the content type of the POST or PUT body.
@@ -290,4 +304,145 @@ public abstract class MASRequestBody {
             }
         };
     }
+
+
+
+
+    /**
+     *
+     * @param boundary
+     * @param map The request body as multipart/form-data.
+     * @return A new request with content of a multipart/form-data.
+     */
+    public static MASRequestBody multipartBody(final String boundary, final Map<String, Object> map) {
+
+        _boundary = MASConstants.MAS_HTTP_BOUNDARY;
+
+        if(boundary != null){
+            _boundary = boundary;
+        }
+
+        return new MASRequestBody() {
+
+            private final byte[] content = getContent();
+
+
+
+            private byte[] getContent() {
+
+                StringBuilder sb = new StringBuilder();
+
+                for (Map.Entry<String,Object> entry : map.entrySet()) {
+                    System.out.println("Key = " + entry.getKey() +
+                            ", Value = " + entry.getValue());
+
+                    sb.append(twoHyphens + _boundary + lineEnd);
+
+                    if(entry.getValue() instanceof FileField){
+                        sb.append("Content-Disposition: form-data; name=\"" + ((FileField) entry.getValue()).getFieldName() + "\"; filename=\"" + ((FileField) entry.getValue()).getFileName() + "\"" + lineEnd);
+                        sb.append("Content-Type: " + ((FileField) entry.getValue()).getFileType() + lineEnd);
+                        sb.append("Content-Transfer-Encoding: binary" + lineEnd);
+                        sb.append(lineEnd);
+
+                        try {
+                        File file = new File(((FileField) entry.getValue()).getFilePath());
+                            FileInputStream fileInputStream = new FileInputStream(file);
+                            Reader reader = new InputStreamReader(fileInputStream) ;
+                            int c = 0;
+                            while ((c = reader.read()) != -1) {
+                                sb.append((char) c);
+                            }
+
+                            sb.append(lineEnd);
+                        } catch (IOException e) {
+                            new MASException(e);
+                        }
+
+                    } else if(entry.getValue() instanceof String) {
+                       sb.append("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"" + lineEnd);
+                       sb.append(lineEnd);
+                       sb.append(entry.getValue());
+                       sb.append(lineEnd);
+
+
+                    }
+
+                   sb.append(twoHyphens + _boundary + twoHyphens + lineEnd);
+
+                }
+                return sb.toString().getBytes(getContentType().getCharset());
+            }
+
+            @Override
+            public ContentType getContentType() {
+                return new ContentType(ContentType.MUTLIPART_FORM_DATA+";boundary=" + _boundary, ISO_8859_1) ;
+            }
+
+            @Override
+            public long getContentLength() {
+                return content.length;
+            }
+
+            @Override
+            public void write(OutputStream outputStream) throws IOException {
+                if (DEBUG) Log.d(TAG, String.format("Content: %s", new String(getContent())));
+                outputStream.write(content);
+            }
+
+            @Override
+            public Object getContentAsJsonValue() {
+                JSONObject jsonObject = new JSONObject();
+
+                return jsonObject;
+            }
+        };
+    }
+
+
+    /////////////
+
+    static MASRequestBody fileBody(final String filePath) throws IOException {
+
+        return new MASRequestBody() {
+
+            private final byte[] content = getContent();
+
+            private byte[] getContent() throws IOException {
+                File file = new File(filePath);
+                FileInputStream fileInputStream = new FileInputStream(file);
+                byte[] buffer =   new byte[(int) fileInputStream.getChannel().size()];
+                fileInputStream.read(buffer);
+                return buffer;
+            }
+
+            @Override
+            public ContentType getContentType() {
+                return new ContentType(getMimeType(filePath),null );
+            }
+
+            @Override
+            public long getContentLength() {
+                return content.length;
+            }
+
+            @Override
+            public void write(OutputStream outputStream) throws IOException {
+
+                outputStream.write(content);
+            }
+        };
+
+
+    }
+
+
+    public static String getMimeType(String url)
+    {
+        String extension = url.substring(url.lastIndexOf("."));
+        String mimeTypeMap = MimeTypeMap.getFileExtensionFromUrl(extension);
+        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(mimeTypeMap);
+        return mimeType;
+    }
+    /////////////
+
 }

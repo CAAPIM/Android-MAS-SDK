@@ -36,8 +36,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -47,11 +50,14 @@ import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RejectedExecutionException;
 
+import static android.content.Context.MODE_PRIVATE;
 import static com.ca.mas.core.client.ServerClient.SCOPE;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -119,6 +125,8 @@ public class MASTest extends MASLoginTestBase {
             assertEquals(exception.getData().get(KEY), VALUE);
         }
     }
+
+
 
     @Test
     public void testAccessProtectedEndpointCancelAllOnExecutingRequest() throws URISyntaxException, InterruptedException, IOException, ExecutionException {
@@ -1215,4 +1223,93 @@ public class MASTest extends MASLoginTestBase {
                 IoUtils.base64(new DeviceIdentifier().toString(), Charsets.ASCII));
 
     }
+
+
+    @Test
+    public void testMultipartBody() throws URISyntaxException, InterruptedException, IOException {
+
+        String boundary = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
+        Map<String, Object> map = new HashMap<>();
+        FileField fileField = new FileField();
+        fileField.setFieldName("txtfile");
+        fileField.setFilePath(createFile());
+        fileField.setFileType("text/plain");
+        map.put("file", fileField);
+        map.put("key","value");
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.MULTIPART))
+                .notifyOnCancel()
+                .post(MASRequestBody.multipartBody(boundary, map))
+                .header("Content-Type", "multipart/form-data; boundary=" + MASConstants.MAS_HTTP_BOUNDARY)
+                .header("Connection", "Keep-Alive")
+                .header("User-Agent", "Android Multipart HTTP Client 1.0")
+                .setPublic()
+                .build();
+
+        final String KEY = "key";
+        final String VALUE = "This is a test";
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        long requestId = MAS.invoke(request, callback);
+
+
+        try {
+            callback.get();
+
+        } catch (ExecutionException e) {
+            MAS.RequestCancelledException exception = (MAS.RequestCancelledException) e.getCause().getCause();
+
+        }
+    }
+
+    @Test
+    public void fileUploadTes() throws IOException, URISyntaxException {
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.MULTIPART))
+                .notifyOnCancel()
+                .post(MASRequestBody.fileBody(createFile()))
+                .setPublic()
+                .build();
+
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        long requestId = MAS.invoke(request, callback);
+
+
+        try {
+            callback.get();
+
+        } catch (ExecutionException e) {
+            MAS.RequestCancelledException exception = (MAS.RequestCancelledException) e.getCause().getCause();
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+    public String createFile() throws IOException {
+
+        final String TESTSTRING = new String("Hello Android");
+
+        /* We have to use the openFileOutput()-method
+         * the ActivityContext provides, to
+         * protect your file from others and
+         * This is done for security-reasons.
+         * We chose MODE_WORLD_READABLE, because
+         *  we have nothing to hide in our file */
+        FileOutputStream fOut = getContext().openFileOutput("sample.txt",
+                MODE_PRIVATE);
+        OutputStreamWriter osw = new OutputStreamWriter(fOut);
+
+        // Write the string to the file
+        osw.write(TESTSTRING);
+
+        /* ensure that everything is
+         * really written out and close */
+        osw.flush();
+        osw.close();
+
+        File file = new File(getContext().getFilesDir(), "sample.txt");
+        return file.getAbsolutePath();
+
+    }
+
 }

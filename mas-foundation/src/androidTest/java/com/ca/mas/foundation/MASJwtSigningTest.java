@@ -36,7 +36,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidAlgorithmParameterException;
@@ -53,6 +57,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static android.content.Context.MODE_PRIVATE;
 import static junit.framework.Assert.assertTrue;
 
 public class MASJwtSigningTest extends MASLoginTestBase {
@@ -185,6 +190,8 @@ public class MASJwtSigningTest extends MASLoginTestBase {
 
     @Test
     public void testByteArrayPost() throws Exception {
+
+
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
                 .post(MASRequestBody.byteArrayBody("test".getBytes()))
                 .sign()
@@ -200,6 +207,66 @@ public class MASJwtSigningTest extends MASLoginTestBase {
 
         net.minidev.json.JSONObject payload = signedObject.getPayload().toJSONObject();
         Assert.assertEquals("test", new String(Base64.decode((String) payload.get(MASClaimsConstants.CONTENT), Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_PADDING)));
+    }
+
+    @Test
+    public void testFileByteArrayPost() throws Exception {
+
+        byte[] bytes = fileToBytes(createFile());
+
+        MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
+                .post(MASRequestBody.byteArrayBody(bytes))
+                .build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        callback.get();
+
+       /* RecordedRequest rr = getRecordRequest(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS);
+        String signedDoc = rr.getBody().readUtf8();
+        JWSObject signedObject = JWSObject.parse(signedDoc);
+
+        net.minidev.json.JSONObject payload = signedObject.getPayload().toJSONObject();
+        Assert.assertEquals("Hello Android", new String(Base64.decode((String) payload.get(MASClaimsConstants.CONTENT), Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_PADDING)));*/
+    }
+
+    byte[] fileToBytes(File file){
+        byte[] bytes = new byte[0];
+        try(FileInputStream inputStream = new FileInputStream(file)) {
+            bytes = new byte[inputStream.available()];
+            //noinspection ResultOfMethodCallIgnored
+            inputStream.read(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bytes;
+    }
+
+    public File createFile() throws IOException {
+
+        final String TESTSTRING = new String("Hello Android");
+
+        /* We have to use the openFileOutput()-method
+         * the ActivityContext provides, to
+         * protect your file from others and
+         * This is done for security-reasons.
+         * We chose MODE_WORLD_READABLE, because
+         *  we have nothing to hide in our file */
+        FileOutputStream fOut = getContext().openFileOutput("sample.txt",
+                MODE_PRIVATE);
+        OutputStreamWriter osw = new OutputStreamWriter(fOut);
+
+        // Write the string to the file
+        osw.write(TESTSTRING);
+
+        /* ensure that everything is
+         * really written out and close */
+        osw.flush();
+        osw.close();
+
+        File file = new File(getContext().getFilesDir(), "sample.txt");
+        return file;
+
     }
 
     @Test

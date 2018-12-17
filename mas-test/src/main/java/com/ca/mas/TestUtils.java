@@ -1,6 +1,7 @@
 package com.ca.mas;
 
 import com.ca.mas.core.io.IoUtils;
+import com.google.gson.Gson;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -42,6 +43,14 @@ public class TestUtils {
         RSAKey rsaJWK = new RSAKeyGenerator(2048)
                 .keyID("default_ssl_key")
                 .generate();
+
+
+
+        RSAKey rsaPublicJWK = rsaJWK.toPublicJWK();
+
+
+        Gson gson = new Gson();
+        String jsonStr = gson.toJson(rsaPublicJWK);
 
         // Create RSA-signer with the private key
         JWSSigner signer = new RSASSASigner(rsaJWK);

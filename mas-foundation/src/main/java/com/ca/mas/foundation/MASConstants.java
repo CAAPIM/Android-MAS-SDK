@@ -49,5 +49,11 @@ public class MASConstants {
      */
     public static final int MAS_STATE_STOPPED = 4;
 
+    /**
+     * Boundary used in Multipart/Form-data http request.
+     */
+    public static final String MAS_HTTP_BOUNDARY = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
+
+
 }
 

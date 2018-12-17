@@ -595,6 +595,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
     private Certificate[] getCert(URL url) throws Exception {
         //URL url = new URL("https://mobile-staging-androidautomation.l7tech.com:8443");
         //URL url = new URL("https://swapi.co");
+
         SSLContext sslCtx = SSLContext.getInstance("TLS");
         sslCtx.init(null, new TrustManager[]{new X509TrustManager() {
 

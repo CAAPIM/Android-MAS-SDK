@@ -168,7 +168,11 @@ abstract class AndroidKeyStoreRepository extends KeyStoreRepository {
             if(deviceName.isEmpty())
                 deviceName = "Undefined";
 
-            sun.security.x509.X500Name x500Name = new sun.security.x509.X500Name(commonName,deviceId,deviceName,organization,true);
+            sun.security.x509.X500Name x500Name = new sun.security.x509.X500Name(
+                    "cn=\"" + commonName +
+                            "\", ou=\"" + deviceId +
+                            "\", dc=\"" + deviceName +
+                            "\", o=\"" + organization + "\"");
 
             pkcs10.encodeAndSign(new X500Signer(signature, x500Name));
             return pkcs10.getEncoded();

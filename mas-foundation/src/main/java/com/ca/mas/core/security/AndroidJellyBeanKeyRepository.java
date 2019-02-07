@@ -111,6 +111,9 @@ public class AndroidJellyBeanKeyRepository extends KeyStoreRepository {
             // remove special characters from device name
             deviceName = deviceName.replaceAll("[^a-zA-Z0-9]","");
 
+            if(deviceName.isEmpty())
+                deviceName = "Undefined";
+
             X500Principal subject = new X500Principal("cn=\"" + commonName +
                     "\", ou=\"" + deviceId +
                     "\", dc=\"" + deviceName +

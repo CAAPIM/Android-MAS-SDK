@@ -16,6 +16,7 @@ import android.util.Pair;
 
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.conf.ConfigurationManager;
+import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.io.IoUtils;
 import com.ca.mas.core.store.ClientCredentialContainer;
@@ -85,9 +86,9 @@ public class OAuthClientUtil {
                         public void onObtained(HttpURLConnection connection) {
                             // Inject the client credential during runtime instead of compiling the request,
                             // For SSO scenario, the user has login but the client credential is empty
-                            ClientCredentialContainer container = StorageProvider.getInstance().getClientCredentialContainer();
-                            String clientId = container.getClientId();
-                            String clientSecret = container.getClientSecret();
+
+                            String clientId = getClientId();
+                            String clientSecret = getClientSecret();
 
                             String header = "Basic " + IoUtils.base64(clientId + ":" + clientSecret, Charsets.ASCII);
                             connection.setRequestProperty(OAuthClient.AUTHORIZATION, header);
@@ -117,17 +118,26 @@ public class OAuthClientUtil {
                     .appendQueryParameter(OAuthClient.TOKEN_TYPE, "refresh_token");
             Uri uri = uriBuilder.build();
 
-            ClientCredentialContainer container = StorageProvider.getInstance().getClientCredentialContainer();
-
             return new MASRequest.MASRequestBuilder(uri)
                     .delete(null)
                     .responseBody(MASResponseBody.stringBody())
-                    .header(OAuthClient.AUTHORIZATION, "Basic " + IoUtils.base64(container.getClientId() + ":" + container.getClientSecret(), Charsets.ASCII))
+                    .header(OAuthClient.AUTHORIZATION, "Basic " + IoUtils.base64(getClientId() + ":" + getClientSecret(), Charsets.ASCII))
                     .build();
         } else {
             return null;
         }
     }
 
+    private static String getClientId() {
+        ClientCredentialContainer container = StorageProvider.getInstance().getClientCredentialContainer();
+        ConfigurationProvider provider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
+        return container.getClientId() != null ? container.getClientId() : provider.getClientId();
+    }
+
+    private static String getClientSecret() {
+        ClientCredentialContainer container = StorageProvider.getInstance().getClientCredentialContainer();
+        ConfigurationProvider provider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
+        return container.getClientSecret() != null ? container.getClientSecret() : provider.getClientSecret();
+    }
 
 }

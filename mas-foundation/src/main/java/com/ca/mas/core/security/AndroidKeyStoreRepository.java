@@ -162,6 +162,12 @@ abstract class AndroidKeyStoreRepository extends KeyStoreRepository {
             deviceName = deviceName.replace("\"", "\\\"");
             organization = organization.replace("\"", "\\\"");
 
+            // remove special characters from device name
+            deviceName = deviceName.replaceAll("[^a-zA-Z0-9]","");
+
+            if(deviceName.isEmpty())
+                deviceName = "Undefined";
+
             sun.security.x509.X500Name x500Name = new sun.security.x509.X500Name(
                     "cn=\"" + commonName +
                             "\", ou=\"" + deviceId +

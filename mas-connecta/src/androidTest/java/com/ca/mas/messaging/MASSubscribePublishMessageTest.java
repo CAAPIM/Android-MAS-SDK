@@ -165,7 +165,7 @@ public class MASSubscribePublishMessageTest extends MASLoginTestBase {
 
         final Uri.Builder uriBuilder = new Uri.Builder()
                 .scheme("tcp")
-                .encodedAuthority("mobile-autotest-services.l7tech.com:1883");
+                .encodedAuthority("mobile-autotest-services.lvn.broadcom.net:1883");
         final Uri uri = uriBuilder.build();
         final String username = "username";
         final String password = "password";

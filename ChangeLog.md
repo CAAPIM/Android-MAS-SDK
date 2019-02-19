@@ -1,10 +1,10 @@
-#Version 1.9.10
+# Version 1.9.10
 
 ### Bug fixes
 - Special characters on device model are not handled during device registration. [DE397607]
 - While invoking logout with force, app throws "Client is rejected by server" error when logged into app with non-dynamic registration password flow [DE396760]
 
-#Version 1.9.00
+# Version 1.9.00
 
 ### New features
 - Allow end users to store additional data about the device. [US507853]

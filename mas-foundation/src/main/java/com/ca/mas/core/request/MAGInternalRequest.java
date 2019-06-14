@@ -11,6 +11,7 @@ package com.ca.mas.core.request;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.request.internal.LocalRequest;
 import com.ca.mas.core.request.internal.MAGRequestProxy;
+import com.ca.mas.foundation.MASProgressListner;
 import com.ca.mas.foundation.MASRequest;
 
 import java.util.ArrayList;
@@ -51,6 +52,11 @@ public class MAGInternalRequest extends MAGRequestProxy {
     }
 
     @Override
+    public MASProgressListner getProgressListener() {
+        return request.getProgressListener();
+    }
+
+    @Override
     public String getScope() {
         String scope = super.getScope();
         if (scope == null) {
@@ -58,6 +64,11 @@ public class MAGInternalRequest extends MAGRequestProxy {
         } else {
             return scope;
         }
+    }
+
+    @Override
+    public String getDownloadFilePath() {
+        return request.getDownloadFilePath();
     }
 
     public boolean isLocalRequest() {

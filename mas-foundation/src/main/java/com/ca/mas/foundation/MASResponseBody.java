@@ -16,8 +16,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
 
@@ -56,6 +61,9 @@ public class MASResponseBody<T> {
      *
      * @return The parsed response object
      */
+
+    protected File file;
+
     public T getContent() {
 
         String retValue = "";
@@ -146,6 +154,64 @@ public class MASResponseBody<T> {
 
     }
 
+    /**
+     * Immplementation for reading the response body containing a file. Read the http response as stream write into a file.
+     *
+     * @param httpURLConnection The HttpURLConnection to communicate with MAG
+     * @throws IOException if an IO exception occurs during the reading and storing the input stream.
+     */
+
+    public String read(HttpURLConnection httpURLConnection, MASRequest request) throws IOException {
+        this.contentType = httpURLConnection.getContentType();
+        this.contentLength = httpURLConnection.getContentLength();
+
+
+        String disposition = httpURLConnection.getHeaderField("Content-Disposition");
+        String fileName = null;
+
+        if (disposition != null) {
+            // extracts file name from header field
+            int index = disposition.indexOf("filename=");
+            if (index > 0) {
+                fileName = disposition.substring(index + 10,
+                        disposition.length() - 1);
+            }
+        } else {
+            // extracts file name from URL
+            String urlStr = request.getURL().toString();
+            fileName = urlStr.substring(urlStr.lastIndexOf("/") + 1,
+                    urlStr.length());
+        }
+
+
+        file = new File(request.getDownloadFilePath(), fileName);
+
+        InputStream input = httpURLConnection.getInputStream();
+
+        // Output stream to write file
+        OutputStream output = new FileOutputStream(file);
+
+        byte data[] = new byte[4096];
+
+        long total = 0;
+
+        int count=0;
+        while ((count = input.read(data)) != -1) {
+            total += count;
+            // publishing the progress....
+           request.getProgressListener().onProgress( (int) ((total * 100) / contentLength));
+            // writing data to file
+            output.write(data, 0, count);
+        }
+        // flushing output
+        output.flush();
+        // closing streams
+        output.close();
+        input.close();
+        request.getProgressListener().onComplete();
+        return "Downloaded at: " + file.getAbsolutePath();
+    }
+
 
     /**
      * @return Return a new ResponseBody with byte[] content.
@@ -220,5 +286,23 @@ public class MASResponseBody<T> {
             }
         };
     }
+
+    /**
+     * @return Return a new ResponseBody with {@link File} content.
+     */
+    public static MASResponseBody<File> fileBody() {
+
+        return new MASResponseBody<File>() {
+
+            @Override
+            public File getContent() {
+                if (file == null || file.length() == 0) {
+                    return null;
+                }
+                return file;
+            }
+        };
+    }
+
 
 }

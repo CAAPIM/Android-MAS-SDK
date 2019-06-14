@@ -64,6 +64,13 @@ public interface MASRequest {
     MASConnectionListener getConnectionListener();
 
     /**
+     * @return The {@link MASProgressListner} progressListener.
+     */
+
+    MASProgressListner getProgressListener();
+
+
+    /**
      * @return The response body for this request. The default response body is set to
      * {@link MASResponseBody#byteArrayBody()}, you can change the response body to
      * {@link MASResponseBody#jsonBody()}, and {@link MASResponseBody#stringBody()} or you can
@@ -82,6 +89,11 @@ public interface MASRequest {
      * When the value is set to true, all automatically injected credentials in SDK will be excluded in the request.
      */
     boolean isPublic();
+
+    /**
+     * @return The file path to save the file download.
+     */
+    String getDownloadFilePath();
 
     /**
      * Notify the {@link MASCallback#onError(Throwable)} when the request is cancelled by {@link MAS#cancelRequest(long)}.
@@ -104,6 +116,8 @@ public interface MASRequest {
         private MASGrantProvider grantProvider = ConfigurationManager.getInstance().getDefaultGrantProvider();
         private String scope;
         private MASConnectionListener listener;
+        private MASProgressListner progressListener;
+        private String downloadFilePath;
         private boolean isPublic;
         private long timeout;
         private TimeUnit timeUnit;
@@ -184,6 +198,7 @@ public interface MASRequest {
             this.isPublic = request.isPublic();
             this.headers = request.getHeaders();
             this.listener = request.getConnectionListener();
+            this.url = request.getURL();
         }
 
 
@@ -290,6 +305,17 @@ public interface MASRequest {
         }
 
         /**
+         * The request is being made outside of primary gateway.
+         * When the public attribute is set, all automatically injected credentials in SDK will be excluded in the request.
+         *
+         * @return The builder
+         */
+        public MASRequestBuilder setDownloadFilePath(String filePath) {
+            this.downloadFilePath = filePath;
+            return this;
+        }
+
+        /**
          * Adds the specified header to the request.
          *
          * @param name  Header name
@@ -328,6 +354,11 @@ public interface MASRequest {
          */
         public MASRequestBuilder connectionListener(MASConnectionListener listener) {
             this.listener = listener;
+            return this;
+        }
+
+        public MASRequestBuilder progressListener(MASProgressListner listener) {
+            this.progressListener = listener;
             return this;
         }
 
@@ -427,6 +458,11 @@ public interface MASRequest {
                 }
 
                 @Override
+                public MASProgressListner getProgressListener() {
+                    return progressListener;
+                }
+
+                @Override
                 public String getScope() {
                     return scope;
                 }
@@ -434,6 +470,11 @@ public interface MASRequest {
                 @Override
                 public boolean isPublic() {
                     return isPublic;
+                }
+
+                @Override
+                public String getDownloadFilePath() {
+                    return downloadFilePath;
                 }
 
                 @Override

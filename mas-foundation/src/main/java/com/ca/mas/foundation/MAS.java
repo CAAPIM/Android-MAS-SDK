@@ -32,6 +32,7 @@ import com.ca.mas.foundation.notify.Callback;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -645,5 +646,19 @@ public class MAS {
      */
     private static void unregisterMultiFactorAuthenticator(MASMultiFactorAuthenticator authenticator) {
         ConfigurationManager.getInstance().unregisterResponseInterceptor(authenticator);
+    }
+
+    public static void downloadFile(MASRequest request, final MASCallback callback, String filePath, MASProgressListner progressListner){
+
+        File file = new File(filePath);
+        if (!file.exists() || !file.isDirectory()){
+            return;
+        }
+
+        MASRequest downloadRequest = new MASRequest.MASRequestBuilder(request)
+                .setDownloadFilePath(filePath)
+                .progressListener(progressListner).build();
+        MAS.invoke(downloadRequest, callback);
+
     }
 }

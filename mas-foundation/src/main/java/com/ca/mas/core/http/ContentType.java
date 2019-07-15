@@ -21,6 +21,7 @@ public class ContentType {
     public static final ContentType APPLICATION_FORM_URLENCODED = new ContentType("application/x-www-form-urlencoded", Charsets.ISO_8859_1);
     public static final ContentType APPLICATION_JSON = new ContentType("application/json", Charsets.UTF8);
     public static final ContentType TEXT_PLAIN = new ContentType("text/plain", Charsets.ISO_8859_1);
+    public static final ContentType MULTIPART_FORM_DATA = new ContentType("multipart/form-data", Charsets.ISO_8859_1);
 
     private final String mimeType;
     private final Charset charset;

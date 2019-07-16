@@ -65,10 +65,6 @@ public interface MASRequest {
 
 
     /**
-     * @return The {@link MASProgressListener} progressListener.
-     */
-    MASProgressListener getProgressListener();
-    /**
      * @return The response body for this request. The default response body is set to
      * {@link MASResponseBody#byteArrayBody()}, you can change the response body to
      * {@link MASResponseBody#jsonBody()}, and {@link MASResponseBody#stringBody()} or you can
@@ -114,7 +110,6 @@ public interface MASRequest {
         private boolean isPublic;
         private long timeout;
         private TimeUnit timeUnit;
-        private MASProgressListener progressListener;
 
         private boolean notifyOnCancel = false;
         private boolean sign = false;
@@ -192,7 +187,6 @@ public interface MASRequest {
             this.isPublic = request.isPublic();
             this.headers = request.getHeaders();
             this.listener = request.getConnectionListener();
-            this.progressListener = request.getProgressListener();
             this.url = request.getURL();
         }
 
@@ -347,18 +341,6 @@ public interface MASRequest {
         }
 
         /**
-         * <p>Register {@link MASProgressListener} listener.</p>
-         * This lets SDK update the app with the progress.
-         *
-         * @param listener The progress listener
-         * @return The builder
-         */
-        public MASRequestBuilder progressListener(MASProgressListener listener){
-            this.progressListener = listener;
-            return this;
-        }
-
-        /**
          * Signs the request with the device registered private key and injects JWT claims based on the user information.
          * This method will use a default value of 5 minutes for the JWS 'exp' claim.
          *
@@ -446,11 +428,6 @@ public interface MASRequest {
                 @Override
                 public MASConnectionListener getConnectionListener() {
                     return listener;
-                }
-
-                @Override
-                public MASProgressListener getProgressListener() {
-                    return progressListener;
                 }
 
                 @Override

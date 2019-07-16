@@ -52,11 +52,6 @@ public class MAGInternalRequest extends MAGRequestProxy {
     }
 
     @Override
-    public MASProgressListener getProgressListener() {
-        return request.getProgressListener();
-    }
-
-    @Override
     public String getScope() {
         String scope = super.getScope();
         if (scope == null) {

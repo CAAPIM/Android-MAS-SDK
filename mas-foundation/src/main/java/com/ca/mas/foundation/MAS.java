@@ -650,16 +650,14 @@ public class MAS {
 
     /**
      * Uploads multipart form-data to server.
-     *
-     * @param request The {@link MASRequest} to upload multipart form-data.
-     * @param boundary A unique {@link String} to separate multiparts.
+     *  @param request The {@link MASRequest} to upload multipart form-data.
+     * @param multipart The multipart body  {@link MultiPart} .
      * @param progressListener The  {@link MASProgressListener} to receive progress.
      * @param callback The {@link MASCallback}.
      */
-    public static void upload(MASRequest request, String boundary, MASProgressListener progressListener, MASCallback callback){
-        MASRequest masRequest = new MASRequest.MASRequestBuilder(request).progressListener(progressListener).
+    public static void upload(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException {
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(request).post(MASRequestBody.multipartBody(multipart, progressListener)).
                 build();
         MAS.invoke(masRequest, callback);
-
     }
 }

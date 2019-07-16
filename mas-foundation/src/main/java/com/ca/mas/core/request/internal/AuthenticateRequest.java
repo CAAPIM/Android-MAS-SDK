@@ -51,9 +51,4 @@ public class AuthenticateRequest extends MAGRequestProxy implements LocalRequest
             }
         };
     }
-
-    @Override
-    public MASProgressListener getProgressListener() {
-        return request.getProgressListener();
-    }
 }

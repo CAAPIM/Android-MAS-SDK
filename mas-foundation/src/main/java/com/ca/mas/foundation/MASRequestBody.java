@@ -13,6 +13,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.ca.mas.core.http.ContentType;
+import com.ca.mas.core.io.Charsets;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -310,95 +311,101 @@ public abstract class MASRequestBody {
      * @param multipart The request body as multipart/form-data.
      * @return A new request with content of a url encoded form.
      */
-    public static MASRequestBody multipartBody(final MultiPart multipart, final MASProgressListener progressListener) {
+    public static MASRequestBody multipartBody(final MultiPart multipart, final MASProgressListener progressListener) throws MASException {
 
-        return new MASRequestBody() {
+        try {
+            return new MASRequestBody() {
 
-            public final String twoHyphens = "--";
-            public final String lineEnd = "\r\n";
-            public String _boundary = multipart.getBoundary();
+                public final String twoHyphens = "--";
+                public final String lineEnd = "\r\n";
+                public String _boundary = multipart.getBoundary();
 
-            private final byte[] content = getContent();
+                private final byte[] content = getContent();
 
-            private byte[] getContent() {
-                StringBuilder sb = new StringBuilder();
+                private byte[] getContent() throws MASException {
+                    StringBuilder sb = new StringBuilder();
 
-                for (Map.Entry<String, String> entry : multipart.getFormPart().getFormFields().entrySet()) {
-                    System.out.println("Key = " + entry.getKey() +
-                            ", Value = " + entry.getValue());
+                    for (Map.Entry<String, String> entry : multipart.getFormPart().getFormFields().entrySet()) {
+                        System.out.println("Key = " + entry.getKey() +
+                                ", Value = " + entry.getValue());
 
-                    sb.append(twoHyphens + _boundary + lineEnd);
-                    sb.append("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"" + lineEnd);
-                    sb.append(lineEnd);
-                    sb.append(entry.getValue());
-                    sb.append(lineEnd);
-                }
-
-
-                for(FilePart filePart:multipart.getFilePart()){
-                    sb.append(twoHyphens + _boundary + lineEnd);
-
-                    sb.append("Content-Disposition: form-data; name=\"" + filePart.getFieldName() + "\"; filename=\"" + filePart.getFileName() + "\"" + lineEnd);
-                    sb.append("Content-Type: " + filePart.getFileType() + lineEnd);
-                    sb.append("Content-Transfer-Encoding: binary" + lineEnd);
-                    sb.append(lineEnd);
-
-                    try {
-                        File file = new File(filePart.getFilePath());
-                        FileInputStream fileInputStream = new FileInputStream(file);
-                        Reader reader = new InputStreamReader(fileInputStream) ;
-                        int c = 0;
-                        while ((c = reader.read()) != -1) {
-                            sb.append((char) c);
-                        }
+                        sb.append(twoHyphens + _boundary + lineEnd);
+                        sb.append("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"" + lineEnd);
 
                         sb.append(lineEnd);
-                    } catch (IOException e) {
-                        new MASException(e);
+                        sb.append(entry.getValue());
+                        sb.append(lineEnd);
                     }
 
 
+                    for(FilePart filePart:multipart.getFilePart()){
+                        sb.append(twoHyphens + _boundary + lineEnd);
+
+                        sb.append("Content-Disposition: form-data; name=\"" + filePart.getFieldName() + "\"; filename=\"" + filePart.getFileName() + "\"" + lineEnd);
+                        sb.append("Content-Type: " + filePart.getFileType() + lineEnd);
+                        sb.append("Content-Transfer-Encoding: binary" + lineEnd);
+                        sb.append(lineEnd);
+
+                        try {
+                            File file = new File(filePart.getFilePath());
+                            FileInputStream fileInputStream = new FileInputStream(file);
+                            Reader reader = new InputStreamReader(fileInputStream) ;
+                            int c = 0;
+                            while ((c = reader.read()) != -1) {
+                                sb.append((char) c);
+                            }
+
+                            sb.append(lineEnd);
+                        } catch (IOException e) {
+                            throw new MASException(e);
+                        }
+
+
+                    }
+
+                    sb.append(twoHyphens + _boundary + twoHyphens + lineEnd);
+
+                    return sb.toString().getBytes(getContentType().getCharset());
                 }
 
-                sb.append(twoHyphens + _boundary + twoHyphens + lineEnd);
+                @Override
+                public ContentType getContentType() {
+                    return ContentType.MULTIPART_FORM_DATA = new ContentType("multipart/form-data;boundary="+multipart.getBoundary(), Charsets.ISO_8859_1);
+                }
 
-                return sb.toString().getBytes(getContentType().getCharset());
-            }
+                @Override
+                public long getContentLength() {
+                    return content.length;
+                }
 
-            @Override
-            public ContentType getContentType() {
-                return ContentType.MULTIPART_FORM_DATA;
-            }
+                @Override
+                public void write(OutputStream outputStream) throws IOException {
 
-            @Override
-            public long getContentLength() {
-                return content.length;
-            }
+                    InputStream stream = new ByteArrayInputStream(content);
 
-            @Override
-            public void write(OutputStream outputStream) throws IOException {
+                    byte buf[] = new byte[1024];
+                    int progress = 0;
+                    int bytesRead = 0;
+                    BufferedInputStream bufInput = new BufferedInputStream(stream);
 
-                InputStream stream = new ByteArrayInputStream(content);
+                    while ((bytesRead = bufInput.read(buf)) != -1) {
+                        // write output
+                        outputStream.write(buf, 0, bytesRead);
+                        outputStream.flush();
+                        progress += bytesRead; // Here progress is total uploaded bytes
 
-                byte buf[] = new byte[1024];
-                int progress = 0;
-                int bytesRead = 0;
-                BufferedInputStream bufInput = new BufferedInputStream(stream);
-
-                while ((bytesRead = bufInput.read(buf)) != -1) {
-                    // write output
-                    outputStream.write(buf, 0, bytesRead);
+                        progressListener.onProgress(""+(int)((progress*100)/content.length)); // sending progress percent to publishProgress
+                    }
+                    outputStream.write((twoHyphens + _boundary + lineEnd).getBytes());
                     outputStream.flush();
-                    progress += bytesRead; // Here progress is total uploaded bytes
+                    progressListener.onComplete();
+                    outputStream.close();
 
-                    progressListener.onProgress(""+(int)((progress*100)/content.length)); // sending progress percent to publishProgress
+
                 }
-                outputStream.write((twoHyphens + _boundary + lineEnd).getBytes());
-                outputStream.flush();
-                outputStream.close();
-
-
-            }
-        };
+            };
+        } catch (MASException e) {
+            throw new MASException(e);
+        }
     }
 }

@@ -370,7 +370,7 @@ public abstract class MASRequestBody {
 
                 @Override
                 public ContentType getContentType() {
-                    return ContentType.MULTIPART_FORM_DATA = new ContentType("multipart/form-data;boundary="+multipart.getBoundary(), Charsets.ISO_8859_1);
+                    return ContentType.MULTIPART_FORM_DATA  = new ContentType("multipart/form-data;boundary="+multipart.getBoundary(), Charsets.ISO_8859_1);
                 }
 
                 @Override

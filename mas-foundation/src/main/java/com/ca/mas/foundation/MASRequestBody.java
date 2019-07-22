@@ -12,6 +12,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 
+import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.io.Charsets;
 
@@ -318,8 +319,9 @@ public abstract class MASRequestBody {
 
                 public final String twoHyphens = "--";
                 public final String lineEnd = "\r\n";
-                public String _boundary = multipart.getBoundary();
+                public String boundary = multipart.getBoundary();
 
+                public String multipart_separator = twoHyphens+boundary+lineEnd;
                 private final byte[] content = getContent();
 
                 private byte[] getContent() throws MASException {
@@ -329,7 +331,7 @@ public abstract class MASRequestBody {
                         System.out.println("Key = " + entry.getKey() +
                                 ", Value = " + entry.getValue());
 
-                        sb.append(twoHyphens + _boundary + lineEnd);
+                        sb.append(multipart_separator);
                         sb.append("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"" + lineEnd);
 
                         sb.append(lineEnd);
@@ -339,7 +341,7 @@ public abstract class MASRequestBody {
 
 
                     for(FilePart filePart:multipart.getFilePart()){
-                        sb.append(twoHyphens + _boundary + lineEnd);
+                        sb.append(multipart_separator);
 
                         sb.append("Content-Disposition: form-data; name=\"" + filePart.getFieldName() + "\"; filename=\"" + filePart.getFileName() + "\"" + lineEnd);
                         sb.append("Content-Type: " + filePart.getFileType() + lineEnd);
@@ -357,13 +359,14 @@ public abstract class MASRequestBody {
 
                             sb.append(lineEnd);
                         } catch (IOException e) {
+                            progressListener.onError( new MAGError(e));
                             throw new MASException(e);
                         }
 
 
                     }
 
-                    sb.append(twoHyphens + _boundary + twoHyphens + lineEnd);
+                    sb.append(multipart_separator);
 
                     return sb.toString().getBytes(getContentType().getCharset());
                 }
@@ -375,7 +378,7 @@ public abstract class MASRequestBody {
 
                 @Override
                 public long getContentLength() {
-                    return content.length;
+                    return content.length+multipart_separator.length();
                 }
 
                 @Override
@@ -396,7 +399,7 @@ public abstract class MASRequestBody {
 
                         progressListener.onProgress(""+(int)((progress*100)/content.length)); // sending progress percent to publishProgress
                     }
-                    outputStream.write((twoHyphens + _boundary + lineEnd).getBytes());
+                    outputStream.write((multipart_separator).getBytes());
                     outputStream.flush();
                     progressListener.onComplete();
                     outputStream.close();

@@ -327,47 +327,49 @@ public abstract class MASRequestBody {
                 private byte[] getContent() throws MASException {
                     StringBuilder sb = new StringBuilder();
 
-                    for (Map.Entry<String, String> entry : multipart.getFormPart().getFormFields().entrySet()) {
-                        System.out.println("Key = " + entry.getKey() +
-                                ", Value = " + entry.getValue());
+                    if(multipart.getFormPart() != null) {
 
-                        sb.append(multipart_separator);
-                        sb.append("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"" + lineEnd);
+                        for (Map.Entry<String, String> entry : multipart.getFormPart().getFormFields().entrySet()) {
+                            System.out.println("Key = " + entry.getKey() +
+                                    ", Value = " + entry.getValue());
 
-                        sb.append(lineEnd);
-                        sb.append(entry.getValue());
-                        sb.append(lineEnd);
-                    }
-
-
-                    for(FilePart filePart:multipart.getFilePart()){
-                        sb.append(multipart_separator);
-
-                        sb.append("Content-Disposition: form-data; name=\"" + filePart.getFieldName() + "\"; filename=\"" + filePart.getFileName() + "\"" + lineEnd);
-                        sb.append("Content-Type: " + filePart.getFileType() + lineEnd);
-                        sb.append("Content-Transfer-Encoding: binary" + lineEnd);
-                        sb.append(lineEnd);
-
-                        try {
-                            File file = new File(filePart.getFilePath());
-                            FileInputStream fileInputStream = new FileInputStream(file);
-                            Reader reader = new InputStreamReader(fileInputStream) ;
-                            int c = 0;
-                            while ((c = reader.read()) != -1) {
-                                sb.append((char) c);
-                            }
+                            sb.append(multipart_separator);
+                            sb.append("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"" + lineEnd);
 
                             sb.append(lineEnd);
-                        } catch (IOException e) {
-                            progressListener.onError( new MAGError(e));
-                            throw new MASException(e);
+                            sb.append(entry.getValue());
+                            sb.append(lineEnd);
                         }
-
-
                     }
 
-                    sb.append(multipart_separator);
+                    if(multipart.getFilePart() != null) {
 
+                        for (FilePart filePart : multipart.getFilePart()) {
+                            sb.append(multipart_separator);
+
+                            sb.append("Content-Disposition: form-data; name=\"" + filePart.getFieldName() + "\"; filename=\"" + filePart.getFileName() + "\"" + lineEnd);
+                            sb.append("Content-Type: " + filePart.getFileType() + lineEnd);
+                            sb.append("Content-Transfer-Encoding: binary" + lineEnd);
+                            sb.append(lineEnd);
+
+                            try {
+                                File file = new File(filePart.getFilePath());
+                                FileInputStream fileInputStream = new FileInputStream(file);
+                                Reader reader = new InputStreamReader(fileInputStream);
+                                int c = 0;
+                                while ((c = reader.read()) != -1) {
+                                    sb.append((char) c);
+                                }
+
+                                sb.append(lineEnd);
+                            } catch (IOException e) {
+                                progressListener.onError(new MAGError(e));
+                                throw new MASException(e);
+                            }
+
+                        }
+                    }
+                    sb.append(multipart_separator);
                     return sb.toString().getBytes(getContentType().getCharset());
                 }
 
@@ -395,19 +397,24 @@ public abstract class MASRequestBody {
                         // write output
                         outputStream.write(buf, 0, bytesRead);
                         outputStream.flush();
-                        progress += bytesRead; // Here progress is total uploaded bytes
-
-                        progressListener.onProgress(""+(int)((progress*100)/content.length)); // sending progress percent to publishProgress
+                        progress += bytesRead;
+                        if(progressListener != null) {
+                            progressListener.onProgress("" + (int) ((progress * 100) / content.length)); // sending progress percent to publishProgress
+                        }
                     }
                     outputStream.write((multipart_separator).getBytes());
                     outputStream.flush();
-                    progressListener.onComplete();
+                    if(progressListener != null) {
+                        progressListener.onComplete();
+                    }
                     outputStream.close();
-
 
                 }
             };
         } catch (MASException e) {
+            if(progressListener != null) {
+                progressListener.onError(new MAGError(e));
+            }
             throw new MASException(e);
         }
     }

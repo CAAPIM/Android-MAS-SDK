@@ -57,6 +57,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String MULTIFACTOR_ENDPOINT = "/multifactor";
     public static final String WELL_KNOW_URI = "/.well-known/openid-configuration";
     public static final String JWKS_URI = "/openid/connect/jwks.json";
+    public static final String UPLOAD = "/test/ftp";
 
     public static final String OTHER = "other";
 
@@ -130,6 +131,8 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return generateOtp();
             } else if (request.getPath().contains(USER_INFO)) {
                 return userInfo();
+            } else if (request.getPath().contains(UPLOAD)) {
+                return upload(request);
             } else if (request.getPath().startsWith(ENTERPRISE_BROWSER)) {
                 return enterpriseBrowser(request);
             } else if (request.getPath().contains(ECHO)) {
@@ -475,4 +478,13 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
         return new MockResponse().setResponseCode(200).setBody(result).addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
     }
+
+    protected MockResponse upload(RecordedRequest request) throws IOException, JSONException {
+
+        return new MockResponse().setResponseCode(200)
+                .setHeader("Content-type", ContentType.APPLICATION_JSON)
+                .setBody(request.getBody().readUtf8());
+
+    }
+    
 }

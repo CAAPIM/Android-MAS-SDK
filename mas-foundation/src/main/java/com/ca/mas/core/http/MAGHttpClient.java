@@ -81,12 +81,6 @@ public class MAGHttpClient {
             //If not found in the MASSecurityConfiguration, the socket factory will be null
             if (urlConnection instanceof HttpsURLConnection) {
                 ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sslSocketFactory);
-                ((HttpsURLConnection) urlConnection).setHostnameVerifier(new HostnameVerifier() {
-                    @Override
-                    public boolean verify(String s, SSLSession sslSession) {
-                        return true;
-                    }
-                });
             }
 
             if (ConfigurationManager.getInstance().getConnectionListener() != null) {

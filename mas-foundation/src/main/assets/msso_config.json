@@ -1,25 +1,29 @@
 {
   "server": {
-    "hostname": "localhost",
-    "port": 41979,
+    "hostname": "mobile-staging-androidautomation.lvn.broadcom.net",
+    "port": 8443,
     "prefix": "",
     "server_certs": [
       [
         "-----BEGIN CERTIFICATE-----",
-        "MIIDGDCCAgCgAwIBAgIIaJHtKa4XQj4wDQYJKoZIhvcNAQEMBQAwKjEoMCYGA1UEAxMfbW9iaWxl",
-        "LXN0YWdpbmctbXlzcWwubDd0ZWNoLmNvbTAeFw0xNzAxMDQxNzI2MzlaFw0yNzAxMDIxNzI2Mzla",
-        "MCoxKDAmBgNVBAMTH21vYmlsZS1zdGFnaW5nLW15c3FsLmw3dGVjaC5jb20wggEiMA0GCSqGSIb3",
-        "DQEBAQUAA4IBDwAwggEKAoIBAQDsr6QwY8DL7J4aa1MWt+qmJKDGk/4M7Cx7sSUiMvuc9S3cGddQ",
-        "lYOaQsg1a6H8DzsCE7WkX/CcYvJSQ/V26pQfbuwp39C7kTofo5OXZNbQX0EYJjUDfJsZ0lo1GUkn",
-        "dCX0ugR1/NXAzmZYcTGIFVi/y2mMynZHLeEZUKL/O3vS3uniEw4qcxQ2Jz1qT4gGJJNcHHM+4SqV",
-        "17yXm5trvr1aHey3G3KgQWVo0OQ/vZoiRSURADUvWRsym+6CALp73KS1wtbsopE2VtSLrm4ztBbH",
-        "EfH/mp4PkZjpNisoaJwyqCCP+f7ITYSXnjuiGrC/z1KrENGCzXSJl3lHjUFOiZYnAgMBAAGjQjBA",
-        "MB0GA1UdDgQWBBRF0EYejzI/wOSIrB+kz+FgATJdcDAfBgNVHSMEGDAWgBRF0EYejzI/wOSIrB+k",
-        "z+FgATJdcDANBgkqhkiG9w0BAQwFAAOCAQEAOKKUsR3RsYCtiJ+3omovqDFmexlWlW02we0ELwia",
-        "312ATazQPFTxjiHnOyhG+K67ItqTbz3X7vQP8yvQ91JWTHesebnYSxJEAqTEiBC2uLPP7XqUWnJa",
-        "J/XGMAhRVIbkaHfzleWl+BtG++B4tclHqhRWrPfP5S1Ys3SCvmhte09XAmuuPYnuzsoZwJVpx/UJ",
-        "lYxOuSIkYxUOCzGVp7qUYBVzMVW2MEKOiJvAuXM0aeY5+D5Z6uMs+F58W5nbYCgjLTVXRAm46ntG",
-        "NP9R2i3LWnjHhdN+WLtSsmj6dFtzjQbrS9LXa8bR4GRncA34UdW/LMsyiJzd2Iy8mfe2sQu3Zg==",
+        "MIID2zCCAsOgAwIBAgIJAOBkC2rf+dTMMA0GCSqGSIb3DQEBCwUAMIGLMQswCQYDVQQGEwJDQTEZ",
+        "MBcGA1UECAwQQnJpdGlzaCBDb2x1bWJpYTESMBAGA1UEBwwJVmFuY291dmVyMREwDwYDVQQKDAhC",
+        "cm9hZGNvbTE6MDgGA1UEAwwxbW9iaWxlLXN0YWdpbmctYW5kcm9pZGF1dG9tYXRpb24ubHZuLmJy",
+        "b2FkY29tLm5ldDAeFw0xOTAxMTgyMzIwNDBaFw0yMTAxMTcyMzIwNDBaMIGLMQswCQYDVQQGEwJD",
+        "QTEZMBcGA1UECAwQQnJpdGlzaCBDb2x1bWJpYTESMBAGA1UEBwwJVmFuY291dmVyMREwDwYDVQQK",
+        "DAhCcm9hZGNvbTE6MDgGA1UEAwwxbW9iaWxlLXN0YWdpbmctYW5kcm9pZGF1dG9tYXRpb24ubHZu",
+        "LmJyb2FkY29tLm5ldDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMXAdaXZT30ntQn1",
+        "1g2yz35YKjpTXCvPxvMoFNNalNAH96FLKyzY4rQSY9K1AX2r3y23mWNdKr8Dwc9TYQszhrRbAFHm",
+        "BYjMYo+H7ceP4um0tv4yZp8ZM+kPwyW7Gg3ROZ5Es+QhQpSjeqDYBWtoQ8+uAix1JfK+J783foy2",
+        "/vKUcHT0uJ9omg9jVjMfsi4WiWTQsThrTjyzpWXv3lvmJUGWqOo7TWC/RkqLhPRlJKYzWfbtVLmx",
+        "I7dFmBVwqfsgMA5PHnJ1q04Dle1NlPU5+9zddHB8euxouDC1GMq9hQbrvwK+zXY/gszrs/HIQSFt",
+        "G+Hm4BQJeZqmf3maoei7wsUCAwEAAaNAMD4wPAYDVR0RBDUwM4IxbW9iaWxlLXN0YWdpbmctYW5k",
+        "cm9pZGF1dG9tYXRpb24ubHZuLmJyb2FkY29tLm5ldDANBgkqhkiG9w0BAQsFAAOCAQEAuJKdK5KO",
+        "2+JRw+aUdILWKyUeCVfTEcHlEyx8zkwM1bPwstDZVY/XVjUbbMtEdkpzKT7deuYmZp6qP4TTXQGO",
+        "RRPsUDjXGGp7YoFFv6gWF+d69tzL0A6p1jSbdCMENn9zUis8OLl7sbHA95u1oHrMaIY+5IY6QQKj",
+        "q0k+7tnSbijDo3pfKTnk7JY9qOtqcK02DEVe2gDttGNwDAoF7SVVaS81WqMzbFI0aU2JKJW8tbc9",
+        "yvhGgXp97R/tdmth1UoDMBY8jqOEc3rJorhkXpPMzhTrN+F6RNQSnFub31lveDDYmyT2VHdN2glH",
+        "u2tKYdrUIfX+W5mAUMrYfhMfGZAJzA==",
         "-----END CERTIFICATE-----"
       ]
     ]
@@ -27,24 +31,57 @@
   "oauth": {
     "client": {
       "organization": "CA Technologies",
-      "description": "AutomationTestApp",
-      "client_name": "AppA",
+      "description": "What is the app used for?",
+      "client_name": "AndroidAutomation",
       "client_type": "confidential",
       "registered_by": "admin",
       "client_custom": {},
       "client_ids": [
         {
-          "client_id": "8298bc51-f242-4c6d-b547-d1d8e8519cb4",
+          "client_id": "5b672ed8-f930-4aca-8f64-45c968dda932",
           "client_secret": "",
-
-          "scope": "openid msso phone profile address email msso_register msso_client_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups",
-          "redirect_uri": "camsso:/com.camsso.appc",
-          "environment": "Android",
+          "scope": "openid msso phone profile address email msso_client_register msso_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups",
+          "redirect_uri": "camsso://com.camsso.appc",
+          "environment": "ALL",
           "status": "ENABLED",
           "registered_by": "admin",
           "service_ids": "",
           "account_plan_mapping_ids": "",
-          "client_key_custom": {}
+          "client_key_custom": {
+            "openid_registration": {
+              "request": {},
+              "oauth_client": true,
+              "response": {
+                "client_id": "5b672ed8-f930-4aca-8f64-45c968dda932",
+                "client_secret": "5b672ed8-f930-4aca-8f64-45c968dda932",
+                "client_secret_expires_at": "0",
+                "client_id_issued_at": 1548182327,
+                "registration_access_token": "",
+                "registration_client_uri": "",
+                "token_endpoint_auth_method": "client_secret_basic",
+                "token_endpoint_auth_signing_alg": "",
+                "application_type": "",
+                "redirect_uris": [
+                  "camsso://com.camsso.appc"
+                ],
+                "client_name": "AndroidAutomation",
+                "subject_type": "pairwise",
+                "sector_identifier_uri": "",
+                "contacts": [],
+                "response_types": [],
+                "grant_types": [],
+                "id_token_signed_response_alg": "HS256",
+                "userinfo_signed_response_alg": "",
+                "environment": "ALL",
+                "organization": "CA Technologies",
+                "master": true,
+                "description": "What is the app used for?",
+                "scope": "openid msso phone profile address email msso_client_register msso_register mas_messaging mas_storage mas_identity mas_identity_retrieve_users mas_identity_create_users mas_identity_update_users mas_identity_delete_users mas_identity_retrieve_groups mas_identity_create_groups mas_identity_update_groups mas_identity_delete_groups",
+                "jwks": "",
+                "jwks_uri": ""
+              }
+            }
+          }
         }
       ]
     },
@@ -70,12 +107,12 @@
       "device_client_register_endpoint_path": "/connect/device/register/client",
       "device_remove_endpoint_path": "/connect/device/remove",
       "client_credential_init_endpoint_path": "/connect/client/initialize",
-      "authenticate_otp_endpoint_path": "/auth/generateOTP",
-      "device_metadata_endpoint_path":"/connect/device/metadata"
+      "authenticate_otp_endpoint_path": "/auth/generateOTP"
     },
     "oauth_protected_endpoints": {
       "enterprise_browser_endpoint_path": "/connect/enterprise/browser",
-      "device_list_endpoint_path": "/connect/device/list"
+      "device_list_endpoint_path": "/connect/device/list",
+      "device_metadata_endpoint_path": "/connect/device/metadata"
     },
     "mobile_sdk": {
       "sso_enabled": true,
@@ -90,7 +127,7 @@
     "ble": {
       "msso_ble_service_uuid": "980c2f36-bde3-11e4-8dfc-aa07a5b093db",
       "msso_ble_characteristic_uuid": "980c34cc-bde3-11e4-8dfc-aa07a5b093db",
-      "msso_ble_rssi": -35
+      "msso_ble_rssi": -80
     }
   },
   "custom": {

@@ -136,7 +136,7 @@ public abstract class MASMockGatewayTestBase extends MASTestBase {
         TrustManagerFactory trustManagerFactory =
                 TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         trustManagerFactory.init(keyStore);
-        SSLContext sslContext = SSLContext.getInstance("TLS");
+        SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
         sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(),
                 new SecureRandom());
         return sslContext.getSocketFactory();

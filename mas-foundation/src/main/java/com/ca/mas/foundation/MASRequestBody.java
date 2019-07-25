@@ -32,12 +32,10 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.util.List;
 import java.util.Map;
 
-import static com.ca.mas.core.io.Charsets.ISO_8859_1;
 import static com.ca.mas.core.io.Charsets.UTF8;
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;

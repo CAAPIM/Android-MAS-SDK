@@ -1,8 +1,12 @@
 package com.ca.mas.foundation;
 
+import android.util.Log;
+
+import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.TestUtils;
+import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,7 +26,6 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
             FilePart filePart = new FilePart();
             FormPart formPart = new FormPart();
             MultiPart multiPart = new MultiPart();
-            multiPart.setBoundary("==============");
 
             formPart.addFormField("key1", "value1");
             formPart.addFormField("key2", "value2");
@@ -38,11 +41,14 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
 
             multiPart.addFilePart(filePart);
 
-            final MASRequest request = new MASRequest.MASRequestBuilder(new URI("/test/ftp")).build();
+            final MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.UPLOAD)).build();
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
-
             MAS.upload(request, multiPart, null, callbackFuture);
+            callbackFuture.get();
+
+
+
             Assert.assertTrue(callbackFuture.get().getResponseCode() == 200);
 
         } catch (Exception e) {
@@ -57,7 +63,6 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
 
             FormPart formPart = new FormPart();
             MultiPart multiPart = new MultiPart();
-            multiPart.setBoundary("==============");
 
             formPart.addFormField("key1", "value1");
             formPart.addFormField("key2", "value2");
@@ -70,22 +75,45 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
 
             MAS.upload(request, multiPart, null, callbackFuture);
 
-            Assert.assertTrue(callbackFuture.get().getResponseCode() == 200);
+            MASResponse result = callbackFuture.get();
 
-
+            Assert.assertTrue(result.getResponseCode() == 200);
 
         } catch (Exception e) {
             throw new Exception(e);
         }
     }
 
+    @Test(expected = MASException.class)
+    public void uploadMultipartNullTest() throws Exception, MASException {
+
+            final MASRequest request = new MASRequest.MASRequestBuilder(new URI("/test/ftp")).build();
+
+            MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
+
+            MAS.upload(request, null, null, callbackFuture);
+
+    }
+
+    @Test
+    public void uploadMultipartWithFormpartNullTest() throws Exception, MASException {
+
+        MultiPart multiPart = new MultiPart();
+        multiPart.addFormPart(null);
+
+        final MASRequest request = new MASRequest.MASRequestBuilder(new URI("/test/ftp")).build();
+        MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
+        MAS.upload(request, multiPart, null, callbackFuture);
+        MASResponse result = callbackFuture.get();
+        Assert.assertTrue(result.getResponseCode() == 200);
+
+    }
 
     @Test
     public void uploadFilePartOnlyTest() throws Exception, MASException {
         try {
 
             MultiPart multiPart = new MultiPart();
-            multiPart.setBoundary("==============");
             FilePart filepart = new FilePart();
             filepart.setFieldName("file");
             filepart.setFileName("cat.png");
@@ -100,6 +128,31 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
             MAS.upload(request, multiPart, null, callbackFuture);
 
            Assert.assertTrue(callbackFuture.get().getResponseCode() == 200);
+
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
+
+    @Test
+    public void uploadFilePartWithNoFileNameTest() throws Exception, MASException {
+        try {
+
+            MultiPart multiPart = new MultiPart();
+            FilePart filepart = new FilePart();
+            filepart.setFieldName("file");
+            //filepart.setFileName("cat.png");
+            filepart.setFilePath(getFilePath("cat.png"));
+            filepart.setFileType("image/png");
+            multiPart.addFilePart(filepart);
+
+            final MASRequest request = new MASRequest.MASRequestBuilder(new URI("/test/ftp")).build();
+
+            MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
+
+            MAS.upload(request, multiPart, null, callbackFuture);
+
+            Assert.assertTrue(callbackFuture.get().getResponseCode() == 200);
 
         } catch (Exception e) {
             throw new Exception(e);

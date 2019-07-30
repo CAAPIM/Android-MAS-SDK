@@ -19,4 +19,8 @@ public class FormPart {
    public Map<String, String> getFormFields() {
       return formFields;
    }
+
+   public void clear(){
+        formFields.clear();
+   }
 }

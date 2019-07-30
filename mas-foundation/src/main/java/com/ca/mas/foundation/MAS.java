@@ -650,6 +650,7 @@ public class MAS {
 
     /**
      * Uploads multipart form-data to server.
+     *
      *  @param request The {@link MASRequest} to upload multipart form-data.
      * @param multipart The multipart body  {@link MultiPart} .
      * @param progressListener The  {@link MASProgressListener} to receive progress.

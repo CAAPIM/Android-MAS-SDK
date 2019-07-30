@@ -311,15 +311,17 @@ public abstract class MASRequestBody {
      * @return A new request with content of a url encoded form.
      */
     public static MASRequestBody multipartBody(final MultiPart multipart, final MASProgressListener progressListener) throws MASException {
+        if(multipart == null){
+            throw new MASException(new Throwable("Multipart is null"));
+        }
 
         try {
             return new MASRequestBody() {
 
                 public final String twoHyphens = "--";
                 public final String lineEnd = "\r\n";
-                public String boundary = multipart.getBoundary();
 
-                public String multipart_separator = twoHyphens+boundary+lineEnd;
+                public String multipart_separator = twoHyphens+MASConstants.MAS_BOUNDARY+lineEnd;
                 private final byte[] content = getContent();
 
                 private byte[] getContent() throws MASException {
@@ -373,7 +375,7 @@ public abstract class MASRequestBody {
 
                 @Override
                 public ContentType getContentType() {
-                    return ContentType.MULTIPART_FORM_DATA  = new ContentType("multipart/form-data;boundary="+multipart.getBoundary(), Charsets.ISO_8859_1);
+                    return ContentType.MULTIPART_FORM_DATA;
                 }
 
                 @Override

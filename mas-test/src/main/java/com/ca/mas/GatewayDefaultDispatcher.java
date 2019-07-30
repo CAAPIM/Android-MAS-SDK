@@ -481,9 +481,10 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
     protected MockResponse upload(RecordedRequest request) throws IOException, JSONException {
 
+        String reqBody = request.getBody().readUtf8();
         return new MockResponse().setResponseCode(200)
                 .setHeader("Content-type", ContentType.APPLICATION_JSON)
-                .setBody(request.getBody().readUtf8());
+                .setBody(reqBody);
 
     }
     

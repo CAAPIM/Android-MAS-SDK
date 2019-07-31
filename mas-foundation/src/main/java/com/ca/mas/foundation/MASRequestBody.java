@@ -349,7 +349,7 @@ public abstract class MASRequestBody {
 
                             sb.append("Content-Disposition: form-data; name=\"" + filePart.getFieldName() + "\"; filename=\"" + filePart.getFileName() + "\"" + lineEnd);
                             sb.append("Content-Type: " + filePart.getFileType() + lineEnd);
-                            sb.append("Content-Transfer-Encoding: binary" + lineEnd);
+                            //sb.append("Content-Transfer-Encoding: binary" + lineEnd);
                             sb.append(lineEnd);
 
                             try {
@@ -368,8 +368,9 @@ public abstract class MASRequestBody {
                             }
 
                         }
+                        sb.append(twoHyphens + MASConstants.MAS_BOUNDARY + twoHyphens + lineEnd);
                     }
-                    sb.append(multipart_separator);
+
                     return sb.toString().getBytes(getContentType().getCharset());
                 }
 

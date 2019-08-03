@@ -85,7 +85,13 @@ public class MAGHttpClient {
                 ConfigurationManager.getInstance().getConnectionListener().onObtained(urlConnection);
             }
 
-            urlConnection.setRequestMethod(request.getMethod());
+            if (request.getMethod().equals("PATCH") && Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                urlConnection.setRequestProperty("X-HTTP-Method-Override", "PATCH");
+                urlConnection.setRequestMethod("POST");
+            } else {
+                urlConnection.setRequestMethod(request.getMethod());
+            }
+
             urlConnection.setDoInput(true);
             for (String key : request.getHeaders().keySet()) {
                 if (request.getHeaders().get(key) != null) {

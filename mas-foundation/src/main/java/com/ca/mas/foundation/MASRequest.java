@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  */
 public interface MASRequest {
 
-    enum Method {GET, PUT, POST, DELETE}
+    enum Method {GET, PUT, POST, DELETE, PATCH}
 
     /**
      * @return URL of this request
@@ -218,6 +218,18 @@ public interface MASRequest {
          */
         public MASRequestBuilder put(MASRequestBody body) {
             this.method = Method.PUT.name();
+            this.body = body;
+            return this;
+        }
+
+        /**
+         * Sets the request method to PATCH with {@link MASRequestBody}
+         *
+         * @param body The MAGRequestBody to PUT with.
+         * @return The builder
+         */
+        public MASRequestBuilder patch(MASRequestBody body) {
+            this.method = Method.PATCH.name();
             this.body = body;
             return this;
         }

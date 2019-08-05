@@ -225,7 +225,7 @@ public interface MASRequest {
         /**
          * Sets the request method to PATCH with {@link MASRequestBody}
          *
-         * @param body The MAGRequestBody to PUT with.
+         * @param body The MAGRequestBody to PATCH with.
          * @return The builder
          */
         public MASRequestBuilder patch(MASRequestBody body) {

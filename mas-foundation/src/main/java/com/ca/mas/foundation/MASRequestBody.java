@@ -15,6 +15,7 @@ import android.util.Pair;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.io.Charsets;
+import com.ca.mas.core.util.FileUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,8 +23,10 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -324,9 +327,13 @@ public abstract class MASRequestBody {
                 public String multipart_separator = twoHyphens+MASConstants.MAS_BOUNDARY+lineEnd;
                 private final byte[] content = getContent();
 
-                private byte[] getContent() throws MASException {
-                    StringBuilder sb = new StringBuilder();
+                int bytesRead, bytesAvailable, bufferSize;
+                byte[] buffer;
+                int maxBufferSize = 1024 * 1024;
 
+                private byte[] getContent() throws MASException, IOException {
+                    StringBuilder sb = new StringBuilder();
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
                     if(multipart.getFormPart() != null) {
 
                         for (Map.Entry<String, String> entry : multipart.getFormPart().getFormFields().entrySet()) {
@@ -342,36 +349,36 @@ public abstract class MASRequestBody {
                         }
                     }
 
+                    sb.append(multipart_separator);
+                    output.write(sb.toString().getBytes());
+
                     if(multipart.getFilePart() != null) {
 
                         for (FilePart filePart : multipart.getFilePart()) {
-                            sb.append(multipart_separator);
 
-                            sb.append("Content-Disposition: form-data; name=\"" + filePart.getFieldName() + "\"; filename=\"" + filePart.getFileName() + "\"" + lineEnd);
-                            sb.append("Content-Type: " + filePart.getFileType() + lineEnd);
-                            //sb.append("Content-Transfer-Encoding: binary" + lineEnd);
-                            sb.append(lineEnd);
+
+                            output.write(("Content-Disposition: form-data; name=\"" + filePart.getFieldName() + "\"; filename=\"" + filePart.getFileName() + "\"" + lineEnd).getBytes());
+                            output.write(("Content-Type: " + filePart.getFileType() + lineEnd).getBytes());
+                            output.write(("Content-Transfer-Encoding: binary" + lineEnd).getBytes());
+                            output.write((lineEnd).getBytes());
+
 
                             try {
-                                File file = new File(filePart.getFilePath());
-                                FileInputStream fileInputStream = new FileInputStream(file);
-                                Reader reader = new InputStreamReader(fileInputStream);
-                                int c = 0;
-                                while ((c = reader.read()) != -1) {
-                                    sb.append((char) c);
-                                }
 
-                                sb.append(lineEnd);
+                                byte[] bytes = FileUtils.getBytesFromPath(filePart.getFilePath());
+                                output.write(bytes);
+                                output.write(lineEnd.getBytes());
+
                             } catch (IOException e) {
                                 progressListener.onError(new MAGError(e));
                                 throw new MASException(e);
                             }
 
                         }
-                        sb.append(twoHyphens + MASConstants.MAS_BOUNDARY + twoHyphens + lineEnd);
+                        output.write((twoHyphens + MASConstants.MAS_BOUNDARY + twoHyphens + lineEnd).getBytes());
                     }
 
-                    return sb.toString().getBytes(getContentType().getCharset());
+                    return output.toByteArray();
                 }
 
                 @Override
@@ -417,6 +424,12 @@ public abstract class MASRequestBody {
                 progressListener.onError(new MAGError(e));
             }
             throw new MASException(e);
+        } catch (IOException e) {
+           throw new MASException(e);
         }
     }
+
+
+
+
 }

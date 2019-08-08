@@ -26,11 +26,9 @@ import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLProtocolException;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
@@ -81,12 +79,6 @@ public class MAGHttpClient {
             //If not found in the MASSecurityConfiguration, the socket factory will be null
             if (urlConnection instanceof HttpsURLConnection) {
                 ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sslSocketFactory);
-               /* ((HttpsURLConnection) urlConnection).setHostnameVerifier(new HostnameVerifier() {
-                    @Override
-                    public boolean verify(String hostname, SSLSession session) {
-                        return true;
-                    }
-                });*/
             }
 
             if (ConfigurationManager.getInstance().getConnectionListener() != null) {

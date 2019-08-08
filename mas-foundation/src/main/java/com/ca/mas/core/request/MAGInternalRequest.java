@@ -11,7 +11,6 @@ package com.ca.mas.core.request;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.request.internal.LocalRequest;
 import com.ca.mas.core.request.internal.MAGRequestProxy;
-import com.ca.mas.foundation.MASProgressListener;
 import com.ca.mas.foundation.MASRequest;
 
 import java.util.ArrayList;

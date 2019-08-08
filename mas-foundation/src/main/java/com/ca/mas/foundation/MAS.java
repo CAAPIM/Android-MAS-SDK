@@ -657,6 +657,9 @@ public class MAS {
      * @param callback The {@link MASCallback}.
      */
     public static void upload(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException {
+        if(multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormPart()==null)){
+            throw new MASException("Multipart body empty", null);
+        }
         MASRequest masRequest = new MASRequest.MASRequestBuilder(request).post(MASRequestBody.multipartBody(multipart, progressListener)).
                 build();
         MAS.invoke(masRequest, callback);

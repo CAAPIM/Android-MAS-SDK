@@ -57,7 +57,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String MULTIFACTOR_ENDPOINT = "/multifactor";
     public static final String WELL_KNOW_URI = "/.well-known/openid-configuration";
     public static final String JWKS_URI = "/openid/connect/jwks.json";
-    public static final String UPLOAD = "/test/ftp";
+    public static final String UPLOAD = "/test/multipart";
 
     public static final String OTHER = "other";
 

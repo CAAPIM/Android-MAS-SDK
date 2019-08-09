@@ -9,12 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Utility methods for working with Files.
+ * Utility methods for file operations.
  */
 public class FileUtils {
-
-    private static final String TAG = FileUtils.class.getSimpleName();
-
 
     /**
      * Returns the file content as byte array.

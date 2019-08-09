@@ -1,5 +1,8 @@
 package com.ca.mas.foundation;
 
+/**
+ * Class that forms the File Part in Multipart request.
+ */
 public class FilePart {
 
     private String fileName;

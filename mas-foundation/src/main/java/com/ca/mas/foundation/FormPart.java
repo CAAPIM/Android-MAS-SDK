@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class that forms the Form Part, containing the form parameters, in Multipart request.
+ */
 public class FormPart {
 
    private Map<String, String> formFields = new HashMap<>();

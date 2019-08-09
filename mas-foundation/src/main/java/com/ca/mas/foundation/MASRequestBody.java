@@ -310,7 +310,7 @@ public abstract class MASRequestBody {
 
 
     /**
-     * @param multipart The request body as multipart/form-data.
+     * @param multipart The multipart/form-data as request body.
      * @return A new request with content of a url encoded form.
      */
     public static MASRequestBody multipartBody(final MultiPart multipart, final MASProgressListener progressListener) throws MASException {
@@ -323,45 +323,34 @@ public abstract class MASRequestBody {
 
                 public final String twoHyphens = "--";
                 public final String lineEnd = "\r\n";
-
                 public String multipart_separator = twoHyphens+MASConstants.MAS_BOUNDARY+lineEnd;
                 private final byte[] content = getContent();
 
-                int bytesRead, bytesAvailable, bufferSize;
-                byte[] buffer;
-                int maxBufferSize = 1024 * 1024;
-
                 private byte[] getContent() throws MASException, IOException {
-                    StringBuilder sb = new StringBuilder();
+                    StringBuilder formParams = new StringBuilder();
                     ByteArrayOutputStream output = new ByteArrayOutputStream();
                     if(multipart.getFormPart() != null) {
 
                         for (Map.Entry<String, String> entry : multipart.getFormPart().getFormFields().entrySet()) {
-                            System.out.println("Key = " + entry.getKey() +
-                                    ", Value = " + entry.getValue());
-
-                            sb.append(multipart_separator);
-                            sb.append("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"" + lineEnd);
-
-                            sb.append(lineEnd);
-                            sb.append(entry.getValue());
-                            sb.append(lineEnd);
+                            formParams.append(multipart_separator);
+                            formParams.append("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"" + lineEnd);
+                            formParams.append(lineEnd);
+                            formParams.append(entry.getValue());
+                            formParams.append(lineEnd);
                         }
                     }
 
-                    sb.append(multipart_separator);
-                    output.write(sb.toString().getBytes());
+                    formParams.append(multipart_separator);
+                    output.write(formParams.toString().getBytes());
 
                     if(multipart.getFilePart() != null) {
 
                         for (FilePart filePart : multipart.getFilePart()) {
 
-
                             output.write(("Content-Disposition: form-data; name=\"" + filePart.getFieldName() + "\"; filename=\"" + filePart.getFileName() + "\"" + lineEnd).getBytes());
                             output.write(("Content-Type: " + filePart.getFileType() + lineEnd).getBytes());
                             output.write(("Content-Transfer-Encoding: binary" + lineEnd).getBytes());
                             output.write((lineEnd).getBytes());
-
 
                             try {
 
@@ -419,13 +408,11 @@ public abstract class MASRequestBody {
 
                 }
             };
-        } catch (MASException e) {
+        } catch (MASException | IOException e) {
             if(progressListener != null) {
                 progressListener.onError(new MAGError(e));
             }
             throw new MASException(e);
-        } catch (IOException e) {
-           throw new MASException(e);
         }
     }
 

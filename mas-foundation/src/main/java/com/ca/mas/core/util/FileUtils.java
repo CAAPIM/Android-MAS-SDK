@@ -19,16 +19,18 @@ public class FileUtils {
      * @param path the absolute path of file
      * @return file content as byte array
      */
-    public static byte[] getBytesFromPath(String path) throws MASException {
+    public static byte[] getBytesFromPath(String path) throws MASException, IOException {
         byte[] bytes = {};
+        InputStream is = null;
         try {
             File file = new File(path);
             bytes = new byte[(int) file.length()];
-            InputStream is = new FileInputStream(file);
+            is = new FileInputStream(file);
             is.read(bytes);
-            is.close();
         } catch (IOException e) {
             throw new MASException(e);
+        }finally {
+            is.close();
         }
         return bytes;
     }

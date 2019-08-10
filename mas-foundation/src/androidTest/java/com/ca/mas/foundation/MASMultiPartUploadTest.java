@@ -160,6 +160,40 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
 
     }
 
+    @Test
+    public void uploadMultipartFormPDFTest() throws Exception, MASException {
+        try {
+
+            FilePart filePart = new FilePart();
+            FormPart formPart = new FormPart();
+            MultiPart multiPart = new MultiPart();
+
+            formPart.addFormField("key1", "value1");
+            formPart.addFormField("key2", "value2");
+            formPart.addFormField("key3", "value3");
+
+            multiPart.addFormPart(formPart);
+
+            filePart.setFieldName("file1");
+            filePart.setFileName("sample.pdf");
+            filePart.setFilePath(getFilePath("sample.pdf"));
+            filePart.setFileType("application/pdf");
+
+            multiPart.addFilePart(filePart);
+
+            final MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.UPLOAD)).build();
+
+            MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
+            MAS.upload(request, multiPart, null, callbackFuture);
+            MASResponse response = callbackFuture.get();
+
+            Assert.assertTrue(response.getResponseCode() == 200);
+
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
+
     private String getFilePath(String fileName) throws IOException {
         byte[] bytes = TestUtils.getBytes("/"+fileName);
 

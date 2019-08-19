@@ -76,4 +76,5 @@ public class MASTokenRequest extends MAGRequestProxy implements LocalRequest<JSO
             }
         };
     }
+
 }

@@ -87,6 +87,11 @@ public class MAGHttpClient {
 
             urlConnection.setRequestMethod(request.getMethod());
             urlConnection.setDoInput(true);
+            urlConnection.setRequestProperty("Connection", "Keep-Alive");
+
+
+
+
             for (String key : request.getHeaders().keySet()) {
                 if (request.getHeaders().get(key) != null) {
                     for (String value : request.getHeaders().get(key)) {
@@ -118,6 +123,7 @@ public class MAGHttpClient {
                 if (ConfigurationManager.getInstance().getConnectionListener() != null) {
                     ConfigurationManager.getInstance().getConnectionListener().onConnected(urlConnection);
                 }
+
                 body.write(urlConnection.getOutputStream());
             } else {
                 if (request.getConnectionListener() != null) {

@@ -25,6 +25,7 @@ import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
+import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.token.JWTValidatorFactory;
@@ -645,5 +646,22 @@ public class MAS {
      */
     private static void unregisterMultiFactorAuthenticator(MASMultiFactorAuthenticator authenticator) {
         ConfigurationManager.getInstance().unregisterResponseInterceptor(authenticator);
+    }
+
+    /**
+     * Uploads multipart form-data to server.
+     *
+     *  @param request The {@link MASRequest} to upload multipart form-data.
+     * @param multipart The multipart body  {@link MultiPart} .
+     * @param progressListener The  {@link MASProgressListener} to receive progress.
+     * @param callback The {@link MASCallback}.
+     */
+    public static void upload(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException {
+        if(multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormPart()==null)){
+            throw new MASException("Multipart body empty", null);
+        }
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(request).post(MASRequestBody.multipartBody(multipart, progressListener)).
+                build();
+        MAS.invoke(masRequest, callback);
     }
 }

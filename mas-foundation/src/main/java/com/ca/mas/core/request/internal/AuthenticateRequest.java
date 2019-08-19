@@ -50,5 +50,4 @@ public class AuthenticateRequest extends MAGRequestProxy implements LocalRequest
             }
         };
     }
-
 }

@@ -8,6 +8,9 @@
 
 package com.ca.mas.foundation;
 
+import java.util.Random;
+import java.util.UUID;
+
 /**
  * Contains enums for describing the grant flow and the SDK state.
  */
@@ -48,6 +51,11 @@ public class MASConstants {
      * State that SDK did stop; at this state, SDK is properly stopped and should be able to re-start.
      */
     public static final int MAS_STATE_STOPPED = 4;
+
+    /**
+     * Boundary which separates parts of a Multi Part Post request.
+     */
+    public static final String MAS_BOUNDARY = "Boundary"+ UUID.randomUUID();
 
 }
 

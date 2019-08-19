@@ -12,19 +12,32 @@ import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 
+import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.ContentType;
+import com.ca.mas.core.io.Charsets;
+import com.ca.mas.core.util.FileUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.security.PrivateKey;
 import java.util.List;
+import java.util.Map;
 
 import static com.ca.mas.core.io.Charsets.UTF8;
 import static com.ca.mas.foundation.MAS.DEBUG;
@@ -50,6 +63,7 @@ public abstract class MASRequestBody {
      * @throws IOException if an error occurs while writing to this stream.
      */
     public abstract void write(OutputStream outputStream) throws IOException;
+
 
     public Object getContentAsJsonValue() {
         return null;
@@ -225,6 +239,8 @@ public abstract class MASRequestBody {
             @Override
             public void write(OutputStream outputStream) throws IOException {
                 if (DEBUG) Log.d(TAG, String.format("Content: %s", new String(getContent())));
+
+
                 outputStream.write(content);
             }
 
@@ -290,4 +306,117 @@ public abstract class MASRequestBody {
             }
         };
     }
+
+
+
+    /**
+     * @param multipart The multipart/form-data as request body.
+     * @return A new request with content of a url encoded form.
+     */
+    public static MASRequestBody multipartBody(final MultiPart multipart, final MASProgressListener progressListener) throws MASException {
+        if(multipart == null){
+            throw new MASException(new Throwable("Multipart is null"));
+        }
+
+        try {
+            return new MASRequestBody() {
+
+                public final String twoHyphens = "--";
+                public final String lineEnd = "\r\n";
+                public String multipart_separator = twoHyphens+MASConstants.MAS_BOUNDARY+lineEnd;
+                private final byte[] content = getContent();
+
+                private byte[] getContent() throws MASException, IOException {
+                    StringBuilder formParams = new StringBuilder();
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    if(multipart.getFormPart() != null) {
+
+                        for (Map.Entry<String, String> entry : multipart.getFormPart().getFormFields().entrySet()) {
+                            formParams.append(multipart_separator);
+                            formParams.append("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"" + lineEnd);
+                            formParams.append(lineEnd);
+                            formParams.append(entry.getValue());
+                            formParams.append(lineEnd);
+                        }
+                    }
+
+                    formParams.append(multipart_separator);
+                    output.write(formParams.toString().getBytes());
+
+                    if(multipart.getFilePart() != null) {
+
+                        for (FilePart filePart : multipart.getFilePart()) {
+
+                            output.write(("Content-Disposition: form-data; name=\"" + filePart.getFieldName() + "\"; filename=\"" + filePart.getFileName() + "\"" + lineEnd).getBytes());
+                            output.write(("Content-Type: " + filePart.getFileType() + lineEnd).getBytes());
+                            output.write(("Content-Transfer-Encoding: binary" + lineEnd).getBytes());
+                            output.write((lineEnd).getBytes());
+
+                            try {
+
+                                byte[] bytes = FileUtils.getBytesFromPath(filePart.getFilePath());
+                                output.write(bytes);
+                                output.write(lineEnd.getBytes());
+
+                            } catch (IOException e) {
+                                progressListener.onError(new MAGError(e));
+                                throw new MASException(e);
+                            }
+
+                        }
+                        output.write((twoHyphens + MASConstants.MAS_BOUNDARY + twoHyphens + lineEnd).getBytes());
+                    }
+
+                    return output.toByteArray();
+                }
+
+                @Override
+                public ContentType getContentType() {
+                    return ContentType.MULTIPART_FORM_DATA;
+                }
+
+                @Override
+                public long getContentLength() {
+                    return content.length+multipart_separator.length();
+                }
+
+                @Override
+                public void write(OutputStream outputStream) throws IOException {
+
+                    InputStream stream = new ByteArrayInputStream(content);
+
+                    byte buf[] = new byte[1024];
+                    int progress = 0;
+                    int bytesRead = 0;
+                    BufferedInputStream bufInput = new BufferedInputStream(stream);
+
+                    while ((bytesRead = bufInput.read(buf)) != -1) {
+                        // write output
+                        outputStream.write(buf, 0, bytesRead);
+                        outputStream.flush();
+                        progress += bytesRead;
+                        if(progressListener != null) {
+                            progressListener.onProgress("" + (int) ((progress * 100) / content.length)); // sending progress percent to publishProgress
+                        }
+                    }
+                    outputStream.write((multipart_separator).getBytes());
+                    outputStream.flush();
+                    if(progressListener != null) {
+                        progressListener.onComplete();
+                    }
+                    outputStream.close();
+
+                }
+            };
+        } catch (MASException | IOException e) {
+            if(progressListener != null) {
+                progressListener.onError(new MAGError(e));
+            }
+            throw new MASException(e);
+        }
+    }
+
+
+
+
 }

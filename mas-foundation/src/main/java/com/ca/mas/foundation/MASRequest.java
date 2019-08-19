@@ -63,6 +63,7 @@ public interface MASRequest {
      */
     MASConnectionListener getConnectionListener();
 
+
     /**
      * @return The response body for this request. The default response body is set to
      * {@link MASResponseBody#byteArrayBody()}, you can change the response body to
@@ -94,6 +95,8 @@ public interface MASRequest {
     /**
      * Builder class to build {@link MASRequest} object
      */
+
+
     class MASRequestBuilder {
 
         private URL url;
@@ -184,6 +187,7 @@ public interface MASRequest {
             this.isPublic = request.isPublic();
             this.headers = request.getHeaders();
             this.listener = request.getConnectionListener();
+            this.url = request.getURL();
         }
 
 

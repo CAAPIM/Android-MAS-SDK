@@ -1,13 +1,9 @@
 package com.ca.mas.foundation;
 
-import android.util.Log;
-
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.TestUtils;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
-
 import org.junit.Assert;
 import org.junit.Test;
 

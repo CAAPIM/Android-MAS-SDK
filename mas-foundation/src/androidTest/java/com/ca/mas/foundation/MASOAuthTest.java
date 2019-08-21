@@ -12,9 +12,6 @@ import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
 import com.ca.mas.core.oauth.OAuthException;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
-
 import junit.framework.Assert;
 
 import org.junit.Ignore;
@@ -23,6 +20,8 @@ import org.junit.Test;
 import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
+
+import okhttp3.mockwebserver.MockResponse;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;

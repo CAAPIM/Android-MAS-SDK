@@ -1,14 +1,14 @@
 package com.ca.mas.storage;
 
 import com.ca.mas.core.http.ContentType;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.QueueDispatcher;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.QueueDispatcher;
+import okhttp3.mockwebserver.RecordedRequest;
 
 public class StorageDispatcher extends QueueDispatcher {
 

@@ -33,6 +33,7 @@ import com.ca.mas.foundation.notify.Callback;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -648,6 +649,7 @@ public class MAS {
         ConfigurationManager.getInstance().unregisterResponseInterceptor(authenticator);
     }
 
+
     /**
      * Uploads multipart form-data to server.
      *
@@ -657,11 +659,37 @@ public class MAS {
      * @param callback The {@link MASCallback}.
      */
     public static void upload(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException {
-        if(multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormPart()==null)){
+        if (multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormPart() == null)) {
             throw new MASException("Multipart body empty", null);
         }
         MASRequest masRequest = new MASRequest.MASRequestBuilder(request).post(MASRequestBody.multipartBody(multipart, progressListener)).
                 build();
         MAS.invoke(masRequest, callback);
+
     }
+
+
+    /**
+     * Downloads a file from server into the filePath.
+     *
+     *  @param request The {@link MASRequest} to upload multipart form-data.
+     * @param filePath The directory to store the file.
+     * @param progressListener The  {@link MASProgressListener} to receive progress.
+     * @param callback The {@link MASCallback}.
+     */
+    public static void downloadFile(MASRequest request, final MASCallback callback, String filePath, MASProgressListner progressListener) throws MASException {
+
+        File file = new File(filePath);
+        if (!file.exists() || !file.isDirectory()){
+            throw new MASException("File path dows not exist", null);
+        }
+        MASRequest.MASRequestBuilder downloadRequestBuilder = new MASRequest.MASRequestBuilder(request);
+                downloadRequestBuilder.setDownloadFilePath(filePath);
+                 downloadRequestBuilder.progressListener(progressListener);
+
+        MASRequest downloadRequest = downloadRequestBuilder.build();
+        MAS.invoke(downloadRequest, callback);
+
+    }
+
 }

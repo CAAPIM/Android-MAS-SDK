@@ -10,6 +10,7 @@ public class FilePart {
     private String fileType;
     private String fieldName;
 
+
     public String getFileName() {
         return fileName;
     }

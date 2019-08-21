@@ -6,20 +6,14 @@
  */
 package com.ca.mas.foundation;
 
-import android.content.Context;
-
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
-import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.registration.RegistrationServerException;
 import com.ca.mas.core.store.ClientCredentialContainer;
 import com.ca.mas.core.store.OAuthTokenContainer;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
-import com.ca.mas.foundation.auth.MASAuthenticationProviders;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import junit.framework.Assert;
 
@@ -31,13 +25,15 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.RecordedRequest;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 public class MASRegistrationTest extends MASStartTestBase {

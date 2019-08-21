@@ -28,7 +28,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    api 'com.squareup.okhttp:mockwebserver:2.7.5'
+    api 'com.squareup.okhttp3:mockwebserver:4.1.0'
     api 'org.skyscreamer:jsonassert:1.5.0'
 
     //For Android API 16 and 17

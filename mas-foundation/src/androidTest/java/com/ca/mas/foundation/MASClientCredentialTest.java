@@ -19,8 +19,6 @@ import com.ca.mas.core.oauth.OAuthServerException;
 import com.ca.mas.core.policy.exceptions.InvalidClientCredentialException;
 import com.ca.mas.core.registration.RegistrationServerException;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import junit.framework.Assert;
 
@@ -33,6 +31,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.RecordedRequest;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;

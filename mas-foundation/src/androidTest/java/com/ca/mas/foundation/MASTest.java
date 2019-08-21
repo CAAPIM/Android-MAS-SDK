@@ -26,8 +26,6 @@ import com.ca.mas.core.oauth.OAuthServerException;
 import com.ca.mas.core.security.KeyStoreException;
 import com.ca.mas.core.store.PrivateTokenStorage;
 import com.ca.mas.core.store.StorageProvider;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,6 +49,9 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RejectedExecutionException;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.RecordedRequest;
 
 import static com.ca.mas.core.client.ServerClient.SCOPE;
 import static junit.framework.Assert.assertEquals;

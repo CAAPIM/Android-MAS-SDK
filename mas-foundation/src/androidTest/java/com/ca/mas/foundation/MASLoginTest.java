@@ -21,8 +21,6 @@ import com.ca.mas.core.token.JWTInvalidAUDException;
 import com.ca.mas.core.token.JWTInvalidAZPException;
 import com.ca.mas.core.token.JWTInvalidSignatureException;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import junit.framework.Assert;
 
@@ -38,6 +36,9 @@ import java.net.URLDecoder;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.RecordedRequest;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;

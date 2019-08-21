@@ -20,6 +20,7 @@ android {
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
 
     lintOptions {

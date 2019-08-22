@@ -182,7 +182,9 @@ public class MASResponseBody<T> {
             fileName = urlStr.substring(urlStr.lastIndexOf("/") + 1,
                     urlStr.length());
         }
-
+        if(fileName == null){
+            fileName = "mas_file";
+        }
 
         file = new File(request.getDownloadFilePath(), fileName);
 

@@ -25,6 +25,8 @@ import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
+import com.ca.mas.core.error.MAGErrorCode;
+import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.store.StorageProvider;
@@ -653,19 +655,18 @@ public class MAS {
     /**
      * Uploads multipart form-data to server.
      *
-     *  @param request The {@link MASRequest} to upload multipart form-data.
+     * @param request The {@link MASRequest} to upload multipart form-data.
      * @param multipart The multipart body  {@link MultiPart} .
      * @param progressListener The  {@link MASProgressListener} to receive progress.
      * @param callback The {@link MASCallback}.
      */
     public static void upload(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException {
         if (multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormPart() == null)) {
-            throw new MASException("Multipart body empty", null);
+            throw new MAGRuntimeException(MAGErrorCode.INVALID_REQUEST,"Multipart body empty");
         }
         MASRequest masRequest = new MASRequest.MASRequestBuilder(request).post(MASRequestBody.multipartBody(multipart, progressListener)).
                 build();
         MAS.invoke(masRequest, callback);
-
     }
 
 
@@ -677,11 +678,14 @@ public class MAS {
      * @param progressListener The  {@link MASProgressListener} to receive progress.
      * @param callback The {@link MASCallback}.
      */
-    public static void downloadFile(MASRequest request, final MASCallback callback, String filePath, MASProgressListner progressListener) throws MASException {
+    public static void download(MASRequest request, final MASCallback callback, String filePath, MASProgressListner progressListener) throws MAGRuntimeException {
 
         File file = new File(filePath);
         if (!file.exists() || !file.isDirectory()){
-            throw new MASException("File path dows not exist", null);
+            throw new MAGRuntimeException(MAGErrorCode.INVALID_INPUT,"File path does not exist");
+        }
+        if(request.getHeaders().get("request-type")== null){
+            throw new MAGRuntimeException(MAGErrorCode.INVALID_INPUT,"'request-type' header missing", null);
         }
         MASRequest.MASRequestBuilder downloadRequestBuilder = new MASRequest.MASRequestBuilder(request);
                 downloadRequestBuilder.setDownloadFilePath(filePath);
@@ -689,7 +693,6 @@ public class MAS {
 
         MASRequest downloadRequest = downloadRequestBuilder.build();
         MAS.invoke(downloadRequest, callback);
-
     }
 
 }

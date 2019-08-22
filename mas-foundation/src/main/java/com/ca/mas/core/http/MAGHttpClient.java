@@ -87,10 +87,6 @@ public class MAGHttpClient {
 
             urlConnection.setRequestMethod(request.getMethod());
             urlConnection.setDoInput(true);
-            urlConnection.setRequestProperty("Connection", "Keep-Alive");
-
-
-
 
             for (String key : request.getHeaders().keySet()) {
                 if (request.getHeaders().get(key) != null) {

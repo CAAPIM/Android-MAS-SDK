@@ -81,4 +81,8 @@ public interface MAGErrorCode {
     int ENTERPRISE_BROWSER_APP_DOES_NOT_EXIST =140004;
     int ENTERPRISE_BROWSER_INVALID_RESPONSE =140005;
 
+    //Upload/Download
+    int INVALID_REQUEST = 150100;
+    int INVALID_INPUT = 150101;
+
 }

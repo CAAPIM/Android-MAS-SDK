@@ -25,6 +25,8 @@ import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
+import com.ca.mas.core.error.MAGErrorCode;
+import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.store.StorageProvider;
@@ -658,7 +660,7 @@ public class MAS {
      */
     public static void upload(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException {
         if(multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormPart()==null)){
-            throw new MASException("Multipart body empty", null);
+            throw new MAGRuntimeException(MAGErrorCode.INVALID_REUEST, "Multipart body empty");
         }
         MASRequest masRequest = new MASRequest.MASRequestBuilder(request).post(MASRequestBody.multipartBody(multipart, progressListener)).
                 build();

@@ -4,6 +4,8 @@ import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.TestUtils;
+import com.ca.mas.core.error.MAGRuntimeException;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -81,7 +83,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
         }
     }
 
-    @Test(expected = MASException.class)
+    @Test(expected = MAGRuntimeException.class)
     public void uploadMultipartNullTest() throws Exception, MASException {
 
             final MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.UPLOAD)).build();

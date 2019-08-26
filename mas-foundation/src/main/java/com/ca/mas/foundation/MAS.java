@@ -35,6 +35,7 @@ import com.ca.mas.foundation.notify.Callback;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -653,7 +654,7 @@ public class MAS {
     /**
      * Uploads multipart form-data to server.
      *
-     *  @param request The {@link MASRequest} to upload multipart form-data.
+     * @param request The {@link MASRequest} to upload multipart form-data.
      * @param multipart The multipart body  {@link MultiPart} .
      * @param progressListener The  {@link MASProgressListener} to receive progress.
      * @param callback The {@link MASCallback}.
@@ -665,5 +666,29 @@ public class MAS {
         MASRequest masRequest = new MASRequest.MASRequestBuilder(request).post(MASRequestBody.multipartBody(multipart, progressListener)).
                 build();
         MAS.invoke(masRequest, callback);
+    }
+
+    /**
+     * Downloads a file from server into the filePath.
+     *   @param request The {@link MASRequest} to upload multipart form-data.
+     * @param callback The {@link MASCallback}.
+     * @param downloadFile The {@link FileDownload} contains the folder and name of file to save the download.
+     * @param progressListener The  {@link MASProgressListener} to receive progress.
+     */
+    public static void download(MASRequest request, final MASCallback callback, FileDownload downloadFile, MASProgressListener progressListener) throws MAGRuntimeException {
+
+        if (downloadFile.getFilePath() == null  || downloadFile.getFileName() == null ){
+            throw new MAGRuntimeException(MAGErrorCode.INVALID_INPUT,"Either file path or file name is missing");
+        }
+        if(request.getHeaders().get("request-type")== null){
+            throw new MAGRuntimeException(MAGErrorCode.INVALID_INPUT,"'request-type' header missing", null);
+        }
+
+        MASRequest.MASRequestBuilder downloadRequestBuilder = new MASRequest.MASRequestBuilder(request);
+        downloadRequestBuilder.setDownloadFile(downloadFile);
+        downloadRequestBuilder.progressListener(progressListener);
+
+        MASRequest downloadRequest = downloadRequestBuilder.build();
+        MAS.invoke(downloadRequest, callback);
     }
 }

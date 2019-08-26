@@ -9,17 +9,17 @@ import com.ca.mas.core.error.MAGError;
 public interface MASProgressListener {
 
     /**
-     * Invoke while the upload/download is in progress.
+     * Invoked while the upload/download is in progress.
      */
     void onProgress(String progressPercent);
 
     /**
-     * Invoke when the file upload/download is complete.
+     * Invoked when the file upload/download is complete.
      */
     void onComplete();
 
     /**
-     * Invoke when the file upload/download error occurs.
+     * Invoked when the file upload/download error occurs.
      */
     void onError(MAGError error);
 

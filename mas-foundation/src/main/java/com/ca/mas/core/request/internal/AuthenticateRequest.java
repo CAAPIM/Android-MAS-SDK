@@ -9,6 +9,8 @@
 package com.ca.mas.core.request.internal;
 
 import com.ca.mas.core.context.MssoContext;
+import com.ca.mas.foundation.FileDownload;
+import com.ca.mas.foundation.MASProgressListener;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASResponseBody;
@@ -49,5 +51,15 @@ public class AuthenticateRequest extends MAGRequestProxy implements LocalRequest
                 return null;
             }
         };
+    }
+
+    @Override
+    public MASProgressListener getProgressListener() {
+        return request.getProgressListener();
+    }
+
+    @Override
+    public FileDownload getDownloadFile() {
+        return request.getDownloadFile();
     }
 }

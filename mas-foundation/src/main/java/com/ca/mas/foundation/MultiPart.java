@@ -7,14 +7,14 @@ import java.util.List;
 
 public class MultiPart {
 
-    private List<FilePart> filePart = new ArrayList<>();
+    private List<MASFileObject> filePart = new ArrayList<>();
     private FormPart formPart;
 
-    public List<FilePart> getFilePart() {
+    public List<MASFileObject> getFilePart() {
         return filePart;
     }
 
-    public void addFilePart(@NonNull FilePart file) {
+    public void addFilePart(@NonNull MASFileObject file) {
         filePart.add(file);
     }
 

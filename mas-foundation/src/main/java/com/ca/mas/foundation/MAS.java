@@ -27,7 +27,6 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
-import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.token.JWTValidatorFactory;
@@ -35,7 +34,6 @@ import com.ca.mas.foundation.notify.Callback;
 
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -672,12 +670,12 @@ public class MAS {
      * Downloads a file from server into the filePath.
      *   @param request The {@link MASRequest} to upload multipart form-data.
      * @param callback The {@link MASCallback}.
-     * @param downloadFile The {@link FileDownload} contains the folder and name of file to save the download.
+     * @param filePath The {@link MASFileObject} contains the folder and name of file to save the download.
      * @param progressListener The  {@link MASProgressListener} to receive progress.
      */
-    public static void download(MASRequest request, final MASCallback callback, FileDownload downloadFile, MASProgressListener progressListener) throws MAGRuntimeException {
+    public static void download(MASRequest request, final MASCallback callback, MASFileObject filePath, MASProgressListener progressListener) throws MAGRuntimeException {
 
-        if (downloadFile.getFilePath() == null  || downloadFile.getFileName() == null ){
+        if (filePath.getFilePath() == null  || filePath.getFileName() == null ){
             throw new MAGRuntimeException(MAGErrorCode.INVALID_INPUT,"Either file path or file name is missing");
         }
         if(request.getHeaders().get("request-type")== null){
@@ -685,7 +683,7 @@ public class MAS {
         }
 
         MASRequest.MASRequestBuilder downloadRequestBuilder = new MASRequest.MASRequestBuilder(request);
-        downloadRequestBuilder.setDownloadFile(downloadFile);
+        downloadRequestBuilder.setDownloadFile(filePath);
         downloadRequestBuilder.progressListener(progressListener);
 
         MASRequest downloadRequest = downloadRequestBuilder.build();

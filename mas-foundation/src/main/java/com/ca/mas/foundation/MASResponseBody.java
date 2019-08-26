@@ -162,7 +162,7 @@ public class MASResponseBody<T> {
         this.contentType = httpURLConnection.getContentType();
         this.contentLength = httpURLConnection.getContentLength();
 
-        FileDownload downloadFile = request.getDownloadFile();
+        MASFileObject downloadFile = request.getDownloadFile();
         String fileName = downloadFile.getFileName();
 
         file = new File(downloadFile.getFilePath(), fileName);

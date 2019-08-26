@@ -3,7 +3,7 @@ package com.ca.mas.foundation;
 /**
  * Class that forms the File Part in Multipart request.
  */
-public class FilePart {
+public class MASFileObject {
 
     private String fileName;
     private String filePath;

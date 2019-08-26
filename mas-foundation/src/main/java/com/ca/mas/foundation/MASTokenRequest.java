@@ -19,7 +19,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -83,7 +82,7 @@ public class MASTokenRequest extends MAGRequestProxy implements LocalRequest<JSO
     }
 
     @Override
-    public FileDownload getDownloadFile() {
+    public MASFileObject getDownloadFile() {
         return request.getDownloadFile();
     }
 }

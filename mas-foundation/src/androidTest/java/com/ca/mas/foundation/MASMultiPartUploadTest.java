@@ -22,7 +22,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
     public void uploadMultipartFormTest() throws Exception, MASException {
         try {
 
-            FilePart filePart = new FilePart();
+            MASFileObject filePart = new MASFileObject();
             FormPart formPart = new FormPart();
             MultiPart multiPart = new MultiPart();
 
@@ -99,7 +99,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
         try {
 
             MultiPart multiPart = new MultiPart();
-            FilePart filepart = new FilePart();
+            MASFileObject filepart = new MASFileObject();
             filepart.setFieldName("file");
             filepart.setFileName("cat.png");
             filepart.setFilePath(getFilePath("cat.png"));
@@ -124,7 +124,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
         try {
 
             MultiPart multiPart = new MultiPart();
-            FilePart filepart = new FilePart();
+            MASFileObject filepart = new MASFileObject();
             filepart.setFieldName("file");
             //filepart.setFileName("cat.png");
             filepart.setFilePath(getFilePath("cat.png"));
@@ -162,7 +162,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
     public void uploadMultipartFormPDFTest() throws Exception, MASException {
         try {
 
-            FilePart filePart = new FilePart();
+            MASFileObject filePart = new MASFileObject();
             FormPart formPart = new FormPart();
             MultiPart multiPart = new MultiPart();
 

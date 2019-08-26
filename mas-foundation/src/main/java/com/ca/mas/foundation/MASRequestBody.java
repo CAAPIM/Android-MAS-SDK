@@ -14,7 +14,6 @@ import android.util.Pair;
 
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.http.ContentType;
-import com.ca.mas.core.io.Charsets;
 import com.ca.mas.core.util.FileUtils;
 
 import org.json.JSONArray;
@@ -24,14 +23,9 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
@@ -345,7 +339,7 @@ public abstract class MASRequestBody {
 
                     if(multipart.getFilePart() != null) {
 
-                        for (FilePart filePart : multipart.getFilePart()) {
+                        for (MASFileObject filePart : multipart.getFilePart()) {
 
                             output.write(("Content-Disposition: form-data; name=\"" + filePart.getFieldName() + "\"; filename=\"" + filePart.getFileName() + "\"" + lineEnd).getBytes());
                             output.write(("Content-Type: " + filePart.getFileType() + lineEnd).getBytes());

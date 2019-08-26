@@ -94,7 +94,7 @@ public interface MASRequest {
     /**
      * @return The file path to save the file download.
      */
-    FileDownload getDownloadFile();
+    MASFileObject getDownloadFile();
 
     /**
      * Notify the {@link MASCallback#onError(Throwable)} when the request is cancelled by {@link MAS#cancelRequest(long)}.
@@ -120,7 +120,7 @@ public interface MASRequest {
         private String scope;
         private MASConnectionListener listener;
         private MASProgressListener progressListener;
-        private FileDownload downloadFile;
+        private MASFileObject downloadFile;
         private boolean isPublic;
         private long timeout;
         private TimeUnit timeUnit;
@@ -312,8 +312,9 @@ public interface MASRequest {
          * When the public attribute is set, all automatically injected credentials in SDK will be excluded in the request.
          *
          * @return The builder
+         * @param downloadFile
          */
-        public MASRequestBuilder setDownloadFile(FileDownload downloadFile) {
+        public MASRequestBuilder setDownloadFile(MASFileObject downloadFile) {
             this.downloadFile = downloadFile;
             return this;
         }
@@ -476,7 +477,7 @@ public interface MASRequest {
                 }
 
                 @Override
-                public FileDownload getDownloadFile() {
+                public MASFileObject getDownloadFile() {
                     return downloadFile;
                 }
 

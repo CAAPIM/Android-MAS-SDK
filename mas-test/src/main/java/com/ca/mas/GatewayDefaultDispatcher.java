@@ -18,8 +18,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +33,9 @@ import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.QueueDispatcher;
 import okhttp3.mockwebserver.RecordedRequest;
+import okio.BufferedSource;
+import okio.Okio;
+import okio.Source;
 import sun.security.pkcs.PKCS10;
 
 public class GatewayDefaultDispatcher extends QueueDispatcher {
@@ -58,6 +65,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String WELL_KNOW_URI = "/.well-known/openid-configuration";
     public static final String JWKS_URI = "/openid/connect/jwks.json";
     public static final String UPLOAD = "/test/multipart";
+    public static final String DOWNLOAD = "/test/download";
 
     public static final String OTHER = "other";
 
@@ -133,6 +141,8 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return userInfo();
             } else if (request.getPath().contains(UPLOAD)) {
                 return upload(request);
+            } else if (request.getPath().contains(DOWNLOAD)) {
+                return download(request);
             } else if (request.getPath().startsWith(ENTERPRISE_BROWSER)) {
                 return enterpriseBrowser(request);
             } else if (request.getPath().contains(ECHO)) {
@@ -154,6 +164,14 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
             return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR).
                     setBody(e.toString());
         }
+    }
+
+    private MockResponse download(RecordedRequest request) throws IOException {
+    //TODO send file body
+       return new MockResponse()
+                .setResponseCode(200)
+                .setHeader("Content-Type", "image/png");
+
     }
 
     protected MockResponse multiFactor(RecordedRequest request) {

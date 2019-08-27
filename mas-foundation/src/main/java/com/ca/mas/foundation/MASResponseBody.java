@@ -182,7 +182,9 @@ public class MASResponseBody<T> {
             total += count;
             // publishing the progress....
             int progress = (int) ((total * 100) / contentLength);
-            request.getProgressListener().onProgress( ""+progress);
+            if(request.getProgressListener() != null) {
+                request.getProgressListener().onProgress("" + progress);
+            }
             // writing data to file
             output.write(data, 0, count);
         }
@@ -191,7 +193,9 @@ public class MASResponseBody<T> {
         // closing streams
         output.close();
         input.close();
-        request.getProgressListener().onComplete();
+        if(request.getProgressListener() != null) {
+            request.getProgressListener().onComplete();
+        }
         return "Downloaded at: " + file.getAbsolutePath();
     }
 

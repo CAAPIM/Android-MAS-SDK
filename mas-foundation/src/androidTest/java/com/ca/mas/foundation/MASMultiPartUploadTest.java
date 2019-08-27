@@ -23,14 +23,11 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
         try {
 
             MASFileObject filePart = new MASFileObject();
-            FormPart formPart = new FormPart();
+
             MultiPart multiPart = new MultiPart();
-
-            formPart.addFormField("key1", "value1");
-            formPart.addFormField("key2", "value2");
-            formPart.addFormField("key3", "value3");
-
-            multiPart.addFormPart(formPart);
+            multiPart.addFormField("key1", "value1");
+            multiPart.addFormField("key2", "value2");
+            multiPart.addFormField("key3", "value3");
 
 
             filePart.setFieldName("file1");
@@ -43,7 +40,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
             final MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.UPLOAD)).build();
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
-            MAS.postmultipartform(request, multiPart, null, callbackFuture);
+            MAS.postMultiPartForm(request, multiPart, null, callbackFuture);
             callbackFuture.get();
 
 
@@ -60,19 +57,17 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
     public void uploadFormParamsOnlyTest() throws Exception, MASException {
         try {
 
-            FormPart formPart = new FormPart();
             MultiPart multiPart = new MultiPart();
+            multiPart.addFormField("key1", "value1");
+            multiPart.addFormField("key2", "value2");
+            multiPart.addFormField("key3", "value3");
 
-            formPart.addFormField("key1", "value1");
-            formPart.addFormField("key2", "value2");
-            formPart.addFormField("key3", "value3");
-            multiPart.addFormPart(formPart);
 
             final MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.UPLOAD)).build();
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
 
-            MAS.postmultipartform(request, multiPart, null, callbackFuture);
+            MAS.postMultiPartForm(request, multiPart, null, callbackFuture);
 
             MASResponse result = callbackFuture.get();
 
@@ -90,7 +85,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
 
-            MAS.postmultipartform(request, null, null, callbackFuture);
+            MAS.postMultiPartForm(request, null, null, callbackFuture);
 
     }
 
@@ -110,7 +105,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
 
-            MAS.postmultipartform(request, multiPart, null, callbackFuture);
+            MAS.postMultiPartForm(request, multiPart, null, callbackFuture);
 
            Assert.assertTrue(callbackFuture.get().getResponseCode() == 200);
 
@@ -135,7 +130,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
 
-            MAS.postmultipartform(request, multiPart, null, callbackFuture);
+            MAS.postMultiPartForm(request, multiPart, null, callbackFuture);
 
             Assert.assertTrue(callbackFuture.get().getResponseCode() == 200);
 
@@ -153,7 +148,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
 
-            MAS.postmultipartform(request, multiPart, null, callbackFuture);
+            MAS.postMultiPartForm(request, multiPart, null, callbackFuture);
 
 
     }
@@ -163,14 +158,11 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
         try {
 
             MASFileObject filePart = new MASFileObject();
-            FormPart formPart = new FormPart();
             MultiPart multiPart = new MultiPart();
 
-            formPart.addFormField("key1", "value1");
-            formPart.addFormField("key2", "value2");
-            formPart.addFormField("key3", "value3");
-
-            multiPart.addFormPart(formPart);
+            multiPart.addFormField("key1", "value1");
+            multiPart.addFormField("key2", "value2");
+            multiPart.addFormField("key3", "value3");
 
             filePart.setFieldName("file1");
             filePart.setFileName("sample.pdf");
@@ -182,7 +174,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
             final MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.UPLOAD)).build();
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
-            MAS.postmultipartform(request, multiPart, null, callbackFuture);
+            MAS.postMultiPartForm(request, multiPart, null, callbackFuture);
             MASResponse response = callbackFuture.get();
 
             Assert.assertTrue(response.getResponseCode() == 200);

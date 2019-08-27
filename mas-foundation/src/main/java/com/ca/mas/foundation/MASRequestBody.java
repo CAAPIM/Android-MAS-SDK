@@ -323,9 +323,9 @@ public abstract class MASRequestBody {
                 private byte[] getContent() throws MASException, IOException {
                     StringBuilder formParams = new StringBuilder();
                     ByteArrayOutputStream output = new ByteArrayOutputStream();
-                    if(multipart.getFormPart() != null) {
+                    if(!multipart.getFormFields().isEmpty()) {
 
-                        for (Map.Entry<String, String> entry : multipart.getFormPart().getFormFields().entrySet()) {
+                        for (Map.Entry<String, String> entry : multipart.getFormFields().entrySet()) {
                             formParams.append(multipart_separator);
                             formParams.append("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"" + lineEnd);
                             formParams.append(lineEnd);
@@ -334,23 +334,24 @@ public abstract class MASRequestBody {
                         }
                     }
 
-                    formParams.append(multipart_separator);
+                    //formParams.append(multipart_separator);
                     output.write(formParams.toString().getBytes());
 
                     if(multipart.getFilePart() != null) {
 
-                        for (MASFileObject filePart : multipart.getFilePart()) {
-
-                            output.write(("Content-Disposition: form-data; name=\"" + filePart.getFieldName() + "\"; filename=\"" + filePart.getFileName() + "\"" + lineEnd).getBytes());
-                            output.write(("Content-Type: " + filePart.getFileType() + lineEnd).getBytes());
+                        for (int i= 0; i< multipart.getFilePart().size(); i++) {
+                            output.write(multipart_separator.getBytes());
+                            output.write(("Content-Disposition: form-data; name=\"" + multipart.getFilePart().get(i).getFieldName() + "\"; filename=\"" + multipart.getFilePart().get(i).getFileName() + "\"" + lineEnd).getBytes());
+                            output.write(("Content-Type: " + multipart.getFilePart().get(i).getFileType() + lineEnd).getBytes());
                             output.write(("Content-Transfer-Encoding: binary" + lineEnd).getBytes());
                             output.write((lineEnd).getBytes());
 
                             try {
 
-                                byte[] bytes = FileUtils.getBytesFromPath(filePart.getFilePath());
+                                byte[] bytes = FileUtils.getBytesFromPath(multipart.getFilePart().get(i).getFilePath());
                                 output.write(bytes);
                                 output.write(lineEnd.getBytes());
+                                output.write((lineEnd).getBytes());
 
                             } catch (IOException e) {
                                 progressListener.onError(new MAGError(e));
@@ -359,6 +360,7 @@ public abstract class MASRequestBody {
 
                         }
                         output.write((twoHyphens + MASConstants.MAS_BOUNDARY + twoHyphens + lineEnd).getBytes());
+
                     }
 
                     return output.toByteArray();

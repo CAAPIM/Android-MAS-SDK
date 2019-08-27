@@ -3,12 +3,14 @@ package com.ca.mas.foundation;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MultiPart {
 
     private List<MASFileObject> filePart = new ArrayList<>();
-    private FormPart formPart;
+    private Map<String, String> formFields = new HashMap<>();
 
     public List<MASFileObject> getFilePart() {
         return filePart;
@@ -18,20 +20,17 @@ public class MultiPart {
         filePart.add(file);
     }
 
-    public FormPart getFormPart() {
-        return formPart;
+    public void addFormField(String key, String value) {
+        formFields.put(key, value);
     }
-
-    public void addFormPart(@NonNull FormPart formPart) {
-        this.formPart = formPart;
+    public Map<String, String> getFormFields() {
+        return formFields;
     }
 
     public void reset() {
-        if(filePart != null) {
-            filePart.clear();
-        }
-        if(formPart != null){
-            formPart.clear();
-        }
+
+        filePart.clear();
+        formFields.clear();
+
     }
 }

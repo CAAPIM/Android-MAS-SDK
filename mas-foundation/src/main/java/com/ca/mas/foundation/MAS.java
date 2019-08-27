@@ -43,7 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.Observable;
 import java.util.Observer;
 
-/**
+    /**
  * The top level MAS object represents the Mobile App Services SDK in its entirety.
  * It is where the framework lifecycle begins, and ends if necessary.
  * It is the front facing class where many of the configuration settings for the SDK as a whole
@@ -657,8 +657,8 @@ public class MAS {
      * @param progressListener The  {@link MASProgressListener} to receive progress.
      * @param callback The {@link MASCallback}.
      */
-    public static void postmultipartform/**/(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException {
-        if(multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormPart()==null)){
+    public static void postMultiPartForm(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException {
+        if(multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormFields().isEmpty())){
             throw new MAGRuntimeException(MAGErrorCode.INVALID_REUEST, "Multipart body empty");
         }
         MASRequest masRequest = new MASRequest.MASRequestBuilder(request).post(MASRequestBody.multipartBody(multipart, progressListener)).

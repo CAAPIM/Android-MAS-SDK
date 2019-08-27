@@ -65,6 +65,13 @@ public interface MASRequest {
 
 
     /**
+     * @return The {@link MASProgressListener} progressListener.
+     */
+
+    MASProgressListener getProgressListener();
+
+
+    /**
      * @return The response body for this request. The default response body is set to
      * {@link MASResponseBody#byteArrayBody()}, you can change the response body to
      * {@link MASResponseBody#jsonBody()}, and {@link MASResponseBody#stringBody()} or you can
@@ -83,6 +90,11 @@ public interface MASRequest {
      * When the value is set to true, all automatically injected credentials in SDK will be excluded in the request.
      */
     boolean isPublic();
+
+    /**
+     * @return The file path to save the file download.
+     */
+    MASFileObject getDownloadFile();
 
     /**
      * Notify the {@link MASCallback#onError(Throwable)} when the request is cancelled by {@link MAS#cancelRequest(long)}.
@@ -107,6 +119,8 @@ public interface MASRequest {
         private MASGrantProvider grantProvider = ConfigurationManager.getInstance().getDefaultGrantProvider();
         private String scope;
         private MASConnectionListener listener;
+        private MASProgressListener progressListener;
+        private MASFileObject downloadFile;
         private boolean isPublic;
         private long timeout;
         private TimeUnit timeUnit;
@@ -133,7 +147,7 @@ public interface MASRequest {
             if (uri != null) {
                 try {
                     if (!isAbsolute(uri.getScheme())) {
-                       this.url = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(uri.toString()).toURL();
+                        this.url = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(uri.toString()).toURL();
                     } else {
                         this.url = uri.toURL();
                     }
@@ -294,6 +308,18 @@ public interface MASRequest {
         }
 
         /**
+         * The request is being made outside of primary gateway.
+         * When the public attribute is set, all automatically injected credentials in SDK will be excluded in the request.
+         *
+         * @return The builder
+         * @param downloadFile
+         */
+        public MASRequestBuilder setDownloadFile(MASFileObject downloadFile) {
+            this.downloadFile = downloadFile;
+            return this;
+        }
+
+        /**
          * Adds the specified header to the request.
          *
          * @param name  Header name
@@ -332,6 +358,11 @@ public interface MASRequest {
          */
         public MASRequestBuilder connectionListener(MASConnectionListener listener) {
             this.listener = listener;
+            return this;
+        }
+
+        public MASRequestBuilder progressListener(MASProgressListener listener) {
+            this.progressListener = listener;
             return this;
         }
 
@@ -431,6 +462,11 @@ public interface MASRequest {
                 }
 
                 @Override
+                public MASProgressListener getProgressListener() {
+                    return progressListener;
+                }
+
+                @Override
                 public String getScope() {
                     return scope;
                 }
@@ -438,6 +474,11 @@ public interface MASRequest {
                 @Override
                 public boolean isPublic() {
                     return isPublic;
+                }
+
+                @Override
+                public MASFileObject getDownloadFile() {
+                    return downloadFile;
                 }
 
                 @Override

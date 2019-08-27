@@ -43,7 +43,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
             final MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.UPLOAD)).build();
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
-            MAS.upload(request, multiPart, null, callbackFuture);
+            MAS.postmultipartform(request, multiPart, null, callbackFuture);
             callbackFuture.get();
 
 
@@ -72,7 +72,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
 
-            MAS.upload(request, multiPart, null, callbackFuture);
+            MAS.postmultipartform(request, multiPart, null, callbackFuture);
 
             MASResponse result = callbackFuture.get();
 
@@ -90,7 +90,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
 
-            MAS.upload(request, null, null, callbackFuture);
+            MAS.postmultipartform(request, null, null, callbackFuture);
 
     }
 
@@ -110,7 +110,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
 
-            MAS.upload(request, multiPart, null, callbackFuture);
+            MAS.postmultipartform(request, multiPart, null, callbackFuture);
 
            Assert.assertTrue(callbackFuture.get().getResponseCode() == 200);
 
@@ -135,7 +135,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
 
-            MAS.upload(request, multiPart, null, callbackFuture);
+            MAS.postmultipartform(request, multiPart, null, callbackFuture);
 
             Assert.assertTrue(callbackFuture.get().getResponseCode() == 200);
 
@@ -153,7 +153,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
 
-            MAS.upload(request, multiPart, null, callbackFuture);
+            MAS.postmultipartform(request, multiPart, null, callbackFuture);
 
 
     }
@@ -182,7 +182,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
             final MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.UPLOAD)).build();
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
-            MAS.upload(request, multiPart, null, callbackFuture);
+            MAS.postmultipartform(request, multiPart, null, callbackFuture);
             MASResponse response = callbackFuture.get();
 
             Assert.assertTrue(response.getResponseCode() == 200);

@@ -657,7 +657,7 @@ public class MAS {
      * @param progressListener The  {@link MASProgressListener} to receive progress.
      * @param callback The {@link MASCallback}.
      */
-    public static void upload(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException {
+    public static void postmultipartform/**/(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException {
         if(multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormPart()==null)){
             throw new MAGRuntimeException(MAGErrorCode.INVALID_REUEST, "Multipart body empty");
         }

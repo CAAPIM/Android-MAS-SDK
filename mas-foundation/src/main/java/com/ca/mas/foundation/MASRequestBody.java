@@ -308,7 +308,7 @@ public abstract class MASRequestBody {
      * @return A new request with content of a url encoded form.
      */
     public static MASRequestBody multipartBody(final MultiPart multipart, final MASProgressListener progressListener) throws MASException {
-        if(multipart == null){
+        if (multipart == null) {
             throw new MASException(new Throwable("Multipart is null"));
         }
 
@@ -317,49 +317,46 @@ public abstract class MASRequestBody {
 
                 public final String twoHyphens = "--";
                 public final String lineEnd = "\r\n";
-                public String multipart_separator = twoHyphens+MASConstants.MAS_BOUNDARY+lineEnd;
+                public String multipart_separator = twoHyphens + MASConstants.MAS_BOUNDARY + lineEnd;
                 private final byte[] content = getContent();
 
                 private byte[] getContent() throws MASException, IOException {
                     StringBuilder formParams = new StringBuilder();
                     ByteArrayOutputStream output = new ByteArrayOutputStream();
-                    if(multipart.getFormPart() != null) {
+                    if (!multipart.getFormFields().isEmpty()) {
 
-                        for (Map.Entry<String, String> entry : multipart.getFormPart().getFormFields().entrySet()) {
+                        for (Map.Entry<String, String> entry : multipart.getFormFields().entrySet()) {
                             formParams.append(multipart_separator);
                             formParams.append("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"" + lineEnd);
                             formParams.append(lineEnd);
                             formParams.append(entry.getValue());
                             formParams.append(lineEnd);
                         }
+                        output.write(formParams.toString().getBytes());
                     }
 
-                    formParams.append(multipart_separator);
-                    output.write(formParams.toString().getBytes());
 
-                    if(multipart.getFilePart() != null) {
+                    for (MASFileObject fileObject : multipart.getFilePart()) {
+                        output.write(multipart_separator.getBytes());
+                        output.write(("Content-Disposition: form-data; name=\"" + fileObject.getFieldName() + "\"; filename=\"" + fileObject.getFileName() + "\"" + lineEnd).getBytes());
+                        output.write(("Content-Type: " + fileObject.getFileType() + lineEnd).getBytes());
+                        output.write(("Content-Transfer-Encoding: binary" + lineEnd).getBytes());
+                        output.write((lineEnd).getBytes());
 
-                        for (MASFileObject filePart : multipart.getFilePart()) {
+                        try {
 
-                            output.write(("Content-Disposition: form-data; name=\"" + filePart.getFieldName() + "\"; filename=\"" + filePart.getFileName() + "\"" + lineEnd).getBytes());
-                            output.write(("Content-Type: " + filePart.getFileType() + lineEnd).getBytes());
-                            output.write(("Content-Transfer-Encoding: binary" + lineEnd).getBytes());
+                            byte[] bytes = FileUtils.getBytesFromPath(fileObject.getFilePath());
+                            output.write(bytes);
+                            output.write(lineEnd.getBytes());
                             output.write((lineEnd).getBytes());
 
-                            try {
-
-                                byte[] bytes = FileUtils.getBytesFromPath(filePart.getFilePath());
-                                output.write(bytes);
-                                output.write(lineEnd.getBytes());
-
-                            } catch (IOException e) {
-                                progressListener.onError(new MAGError(e));
-                                throw new MASException(e);
-                            }
-
+                        } catch (IOException e) {
+                            progressListener.onError(new MAGError(e));
+                            throw new MASException(e);
                         }
-                        output.write((twoHyphens + MASConstants.MAS_BOUNDARY + twoHyphens + lineEnd).getBytes());
+
                     }
+                    output.write((twoHyphens + MASConstants.MAS_BOUNDARY + twoHyphens + lineEnd).getBytes());
 
                     return output.toByteArray();
                 }
@@ -371,7 +368,7 @@ public abstract class MASRequestBody {
 
                 @Override
                 public long getContentLength() {
-                    return content.length+multipart_separator.length();
+                    return content.length + multipart_separator.length();
                 }
 
                 @Override
@@ -389,13 +386,13 @@ public abstract class MASRequestBody {
                         outputStream.write(buf, 0, bytesRead);
                         outputStream.flush();
                         progress += bytesRead;
-                        if(progressListener != null) {
+                        if (progressListener != null) {
                             progressListener.onProgress("" + (int) ((progress * 100) / content.length)); // sending progress percent to publishProgress
                         }
                     }
                     outputStream.write((multipart_separator).getBytes());
                     outputStream.flush();
-                    if(progressListener != null) {
+                    if (progressListener != null) {
                         progressListener.onComplete();
                     }
                     outputStream.close();
@@ -403,7 +400,7 @@ public abstract class MASRequestBody {
                 }
             };
         } catch (MASException | IOException e) {
-            if(progressListener != null) {
+            if (progressListener != null) {
                 progressListener.onError(new MAGError(e));
             }
             throw new MASException(e);

@@ -25,10 +25,10 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
             MASFileObject filePart = new MASFileObject();
 
             MultiPart multiPart = new MultiPart();
+
             multiPart.addFormField("key1", "value1");
             multiPart.addFormField("key2", "value2");
             multiPart.addFormField("key3", "value3");
-
 
             filePart.setFieldName("file1");
             filePart.setFileName("ca.png");

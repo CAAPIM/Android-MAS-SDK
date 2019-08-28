@@ -667,14 +667,13 @@ public class MAS {
     }
 
     /**
-     * Downloads a file from server into the filePath.
-     *   @param request The {@link MASRequest} to upload multipart form-data.
+     * Downloads a file from server saves in the filePath.
+     * @param request The {@link MASRequest} to upload multipart form-data.
      * @param callback The {@link MASCallback}.
      * @param filePath The {@link MASFileObject} contains the folder and name of file to save the download.
      * @param progressListener The  {@link MASProgressListener} to receive progress.
      */
-    public static void download(MASRequest request, final MASCallback callback, MASFileObject filePath, MASProgressListener progressListener) throws MAGRuntimeException {
-
+    public static void downloadFile(MASRequest request, final MASCallback callback, MASFileObject filePath, MASProgressListener progressListener) throws MAGRuntimeException {
         if (filePath.getFilePath() == null  || filePath.getFileName() == null ){
             throw new MAGRuntimeException(MAGErrorCode.INVALID_INPUT,"Either file path or file name is missing");
         }

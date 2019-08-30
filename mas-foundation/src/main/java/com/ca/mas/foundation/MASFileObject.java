@@ -1,7 +1,7 @@
 package com.ca.mas.foundation;
 
 /**
- * Class that forms the File Part in Multipart request.
+ * <p>The <b>MASFileObject</b> class is a representation of file attributes.</p>
  */
 public class MASFileObject {
 
@@ -9,6 +9,7 @@ public class MASFileObject {
     private String filePath;
     private String fileType;
     private String fieldName;
+
 
     public String getFileName() {
         return fileName;

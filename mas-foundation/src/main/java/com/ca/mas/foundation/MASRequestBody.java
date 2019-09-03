@@ -343,9 +343,13 @@ public abstract class MASRequestBody {
                         output.write(("Content-Transfer-Encoding: binary" + lineEnd).getBytes());
                         output.write((lineEnd).getBytes());
 
+                        byte[] bytes;
                         try {
 
-                            byte[] bytes = FileUtils.getBytesFromPath(fileObject.getFilePath());
+                            if(fileObject.getFileUri() != null){
+                               bytes = FileUtils.getBytesFromUri(fileObject.getFileUri());
+                            } else { bytes = FileUtils.getBytesFromPath(fileObject.getFilePath());
+                            }
                             output.write(bytes);
                             output.write(lineEnd.getBytes());
                             output.write((lineEnd).getBytes());

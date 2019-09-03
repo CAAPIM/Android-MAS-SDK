@@ -38,7 +38,7 @@ public class MASDownloadTest extends MASLoginTestBase {
 
             MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
 
-            MAS.download(request, callbackFuture, fileObject, null);
+            MAS.downloadFile(request, callbackFuture, fileObject, null);
 
     }
     @Test(expected = MAGRuntimeException.class)
@@ -55,7 +55,7 @@ public class MASDownloadTest extends MASLoginTestBase {
 
         MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
 
-        MAS.download(request, callbackFuture, fileObject, null);
+        MAS.downloadFile(request, callbackFuture, fileObject, null);
 
     }
 
@@ -73,7 +73,7 @@ public class MASDownloadTest extends MASLoginTestBase {
 
         MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
 
-        MAS.download(request, callbackFuture, fileObject, null);
+        MAS.downloadFile(request, callbackFuture, fileObject, null);
 
     }
 
@@ -100,7 +100,7 @@ public class MASDownloadTest extends MASLoginTestBase {
 
         MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
 
-        MAS.download(request, callbackFuture, fileObject, null);
+        MAS.downloadFile(request, callbackFuture, fileObject, null);
         Assert.assertTrue(callbackFuture.get().getResponseCode() == 200);
 
     }

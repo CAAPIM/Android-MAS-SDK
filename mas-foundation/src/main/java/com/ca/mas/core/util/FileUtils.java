@@ -33,8 +33,9 @@ public class FileUtils {
             is.read(bytes);
         } catch (IOException e) {
             throw new MASException(e);
-        }finally {
-            is.close();
+        } finally {
+            if (is != null)
+                is.close();
         }
         return bytes;
     }
@@ -54,11 +55,13 @@ public class FileUtils {
             bytes = getBytes(inputStream);
         } catch (IOException e) {
             throw new MASException(e);
-        }finally {
-            inputStream.close();
+        } finally {
+            if (inputStream != null)
+                inputStream.close();
         }
         return bytes;
     }
+
 
     private static byte[] getBytes(InputStream inputStream) throws IOException {
         ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
@@ -70,5 +73,9 @@ public class FileUtils {
             byteBuffer.write(buffer, 0, len);
         }
         return byteBuffer.toByteArray();
+    }
+
+    public static String getFileTyepFromUri(Uri uri) {
+        return MAS.getContext().getContentResolver().getType(uri);
     }
 }

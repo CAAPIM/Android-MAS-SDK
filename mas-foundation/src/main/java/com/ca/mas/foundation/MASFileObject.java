@@ -12,20 +12,23 @@ public class MASFileObject {
     private String fileType;
     private String fieldName;
     private Uri fileUri;
+    private byte[] fileBytes;
 
 
     public MASFileObject(){
 
     }
-    public MASFileObject(String fileName, String filePath, String fileType, String fieldName){
+    public MASFileObject(String fileName, String filePath, String fileType, String fieldName, byte[] fileBytes){
         this.fileName = fileName;
         this.filePath = filePath;
         this.fileType = fileType;
         this.fieldName = fieldName;
+        this.fileBytes = fileBytes;
     }
 
-    public MASFileObject(Uri fileUri, String fileName, String fieldName){
+    public MASFileObject(Uri fileUri, String fileType, String fileName, String fieldName){
         this.fileUri = fileUri;
+        this.fileType = fileType;
         this.fileName = fileName;
         this.fieldName = fieldName;
     }
@@ -48,6 +51,14 @@ public class MASFileObject {
 
     public String getFilePath() {
         return filePath;
+    }
+
+    public byte[] getFileBytes() {
+        return fileBytes;
+    }
+
+    public void setFileBytes(byte[] fileBytes) {
+        this.fileBytes = fileBytes;
     }
 
     public void setFilePath(String filePath) {

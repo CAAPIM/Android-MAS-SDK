@@ -8,6 +8,7 @@
 
 package com.ca.mas.foundation;
 
+import android.net.Uri;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
@@ -335,17 +336,23 @@ public abstract class MASRequestBody {
                         output.write(formParams.toString().getBytes());
                     }
 
-
                     for (MASFileObject fileObject : multipart.getFilePart()) {
-                        output.write(multipart_separator.getBytes());
-                        output.write(("Content-Disposition: form-data; name=\"" + fileObject.getFieldName() + "\"; filename=\"" + fileObject.getFileName() + "\"" + lineEnd).getBytes());
-                        output.write(("Content-Type: " + fileObject.getFileType() + lineEnd).getBytes());
-                        output.write(("Content-Transfer-Encoding: binary" + lineEnd).getBytes());
-                        output.write((lineEnd).getBytes());
-
+                        byte[] bytes = fileObject.getFileBytes();
+                        Uri uri = fileObject.getFileUri();
                         try {
 
-                            byte[] bytes = FileUtils.getBytesFromPath(fileObject.getFilePath());
+                            if( bytes == null) {
+                                if ( uri != null) {
+                                    bytes = FileUtils.getBytesFromUri(uri);
+                                } else if (bytes == null) {
+                                    bytes = FileUtils.getBytesFromPath(fileObject.getFilePath());
+                                }
+                            }
+                            output.write(multipart_separator.getBytes());
+                            output.write(("Content-Disposition: form-data; name=\"" + fileObject.getFieldName() + "\"; filename=\"" + fileObject.getFileName() + "\"" + lineEnd).getBytes());
+                            output.write(("Content-Type: " + fileObject.getFileType() + lineEnd).getBytes());
+                            output.write(("Content-Transfer-Encoding: binary" + lineEnd).getBytes());
+                            output.write((lineEnd).getBytes());
                             output.write(bytes);
                             output.write(lineEnd.getBytes());
                             output.write((lineEnd).getBytes());

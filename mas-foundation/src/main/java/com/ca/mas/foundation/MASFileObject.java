@@ -18,12 +18,18 @@ public class MASFileObject {
     public MASFileObject(){
 
     }
-    public MASFileObject(String fileName, String filePath, String fileType, String fieldName, byte[] fileBytes){
+    public MASFileObject(String fileName, String fileType, String fieldName, byte[] fileBytes){
+        this.fileName = fileName;
+        this.fileType = fileType;
+        this.fieldName = fieldName;
+        this.fileBytes = fileBytes;
+    }
+
+    public MASFileObject(String fileName, String filePath, String fileType, String fieldName){
         this.fileName = fileName;
         this.filePath = filePath;
         this.fileType = fileType;
         this.fieldName = fieldName;
-        this.fileBytes = fileBytes;
     }
 
     public MASFileObject(Uri fileUri, String fileType, String fileName, String fieldName){

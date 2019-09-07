@@ -652,12 +652,14 @@ public class MAS {
     /**
      * Uploads multipart form-data to server.
      *
-     * @param request The {@link MASRequest} to upload multipart form-data.
-     * @param multipart The multipart body  {@link MultiPart} .
-     * @param progressListener The  {@link MASProgressListener} to receive progress.
-     * @param callback The {@link MASCallback}.
+     * @param  request            The {@link MASRequest} to upload multipart form-data, required.
+     * @param  multipart          The multipart body  {@link MultiPart}, required.
+     * @param  progressListener   The  {@link MASProgressListener} to receive progress, optional.
+     * @param  callback           The {@link MASCallback}, required.
+     * @throws MASException       If network call fails due to various reasons.
+     * @throws MAGRuntimeException If multipart is null or file part and form fields are empty.
      */
-    public static void postMultiPartForm(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException {
+    public static void postMultiPartForm(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException, MAGRuntimeException {
         if(multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormFields().isEmpty())){
             throw new MAGRuntimeException(MAGErrorCode.INVALID_REUEST, "Multipart body empty");
         }

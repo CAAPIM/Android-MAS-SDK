@@ -14,10 +14,18 @@ public class MASFileObject {
     private Uri fileUri;
     private byte[] fileBytes;
 
-
     public MASFileObject(){
 
     }
+
+    /**
+     * Constructs MASFileObject using file bytes.
+     *
+     * @param  fileName        The file name.
+     * @param  fileType        The mime type, eg. if file is sample.png the fileType should be "image/png".
+     * @param  fieldName       The field name for the file, in case of file upload using http post.
+     * @param  fileBytes       The file content as bytes.
+     */
     public MASFileObject(String fileName, String fileType, String fieldName, byte[] fileBytes){
         this.fileName = fileName;
         this.fileType = fileType;
@@ -25,14 +33,30 @@ public class MASFileObject {
         this.fileBytes = fileBytes;
     }
 
-    public MASFileObject(String fileName, String filePath, String fileType, String fieldName){
+    /**
+     * Constructs MASFileObject using absolute path of file.
+     *
+     * @param  fileName        The file name.
+     * @param  fileType        The mime type, eg. if file is sample.png the fileType should be "image/png".
+     * @param  fieldName       The filed name in case of file upload using http post.
+     * @param  filePath        Absolute path of the file.
+     */
+    public MASFileObject(String fileName, String fileType, String fieldName, String filePath){
         this.fileName = fileName;
         this.filePath = filePath;
         this.fileType = fileType;
         this.fieldName = fieldName;
     }
 
-    public MASFileObject(Uri fileUri, String fileType, String fileName, String fieldName){
+    /**
+     * Constructs MASFileObject using absolute file uri.
+     *
+     * @param  fileName        The file name.
+     * @param  fileType        The mime type, eg. if file is sample.png the fileType should be "image/png".
+     * @param  fieldName       The filed name in case of file upload using http post.
+     * @param  fileUri         The file uri.
+     */
+    public MASFileObject(String fileName, String fileType, String fieldName, Uri fileUri){
         this.fileUri = fileUri;
         this.fileType = fileType;
         this.fileName = fileName;

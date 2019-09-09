@@ -52,7 +52,7 @@ public class MAGInternalRequest extends MAGRequestProxy {
         return result;
     }
 
-    @Override
+   /* @Override
     public MASProgressListener getProgressListener() {
         return request.getProgressListener();
     }
@@ -60,7 +60,7 @@ public class MAGInternalRequest extends MAGRequestProxy {
     @Override
     public MASFileObject getDownloadFile() {
         return request.getDownloadFile();
-    }
+    }*/
 
     @Override
     public String getScope() {

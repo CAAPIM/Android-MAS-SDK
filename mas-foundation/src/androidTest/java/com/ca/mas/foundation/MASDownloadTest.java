@@ -22,7 +22,7 @@ import java.security.cert.X509Certificate;
 
 public class MASDownloadTest extends MASLoginTestBase {
 
-    private MASSecurityConfiguration.Builder configuration;
+/*    private MASSecurityConfiguration.Builder configuration;
 
     @Test(expected = MAGRuntimeException.class)
     public void downloadMissingHeaderTest() throws Exception, MASException {
@@ -156,6 +156,8 @@ public class MASDownloadTest extends MASLoginTestBase {
         configuration.add(cert);
         MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration.build());
     }
+
+ */
 
 
 }

@@ -68,7 +68,7 @@ public interface MASRequest {
      * @return The {@link MASProgressListener} progressListener.
      */
 
-    MASProgressListener getProgressListener();
+   // MASProgressListener getProgressListener();
 
 
     /**
@@ -94,7 +94,7 @@ public interface MASRequest {
     /**
      * @return The file path to save the file download.
      */
-    MASFileObject getDownloadFile();
+   // MASFileObject getDownloadFile();
 
     /**
      * Notify the {@link MASCallback#onError(Throwable)} when the request is cancelled by {@link MAS#cancelRequest(long)}.
@@ -119,8 +119,8 @@ public interface MASRequest {
         private MASGrantProvider grantProvider = ConfigurationManager.getInstance().getDefaultGrantProvider();
         private String scope;
         private MASConnectionListener listener;
-        private MASProgressListener progressListener;
-        private MASFileObject downloadFile;
+        //private MASProgressListener progressListener;
+        //private MASFileObject downloadFile;
         private boolean isPublic;
         private long timeout;
         private TimeUnit timeUnit;
@@ -314,10 +314,10 @@ public interface MASRequest {
          * @return The builder
          * @param downloadFile
          */
-        public MASRequestBuilder setDownloadFile(MASFileObject downloadFile) {
+        /*   public MASRequestBuilder setDownloadFile(MASFileObject downloadFile) {
             this.downloadFile = downloadFile;
             return this;
-        }
+        }*/
 
         /**
          * Adds the specified header to the request.
@@ -361,10 +361,10 @@ public interface MASRequest {
             return this;
         }
 
-        public MASRequestBuilder progressListener(MASProgressListener listener) {
+     /*   public MASRequestBuilder progressListener(MASProgressListener listener) {
             this.progressListener = listener;
             return this;
-        }
+        }*/
 
         public MASRequestBuilder notifyOnCancel() {
             this.notifyOnCancel = true;
@@ -462,11 +462,6 @@ public interface MASRequest {
                 }
 
                 @Override
-                public MASProgressListener getProgressListener() {
-                    return progressListener;
-                }
-
-                @Override
                 public String getScope() {
                     return scope;
                 }
@@ -474,11 +469,6 @@ public interface MASRequest {
                 @Override
                 public boolean isPublic() {
                     return isPublic;
-                }
-
-                @Override
-                public MASFileObject getDownloadFile() {
-                    return downloadFile;
                 }
 
                 @Override

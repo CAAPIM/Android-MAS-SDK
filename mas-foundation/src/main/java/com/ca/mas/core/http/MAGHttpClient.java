@@ -156,11 +156,12 @@ public class MAGHttpClient {
                     Log.d(TAG, String.format("Response message: %s", responseMessage));
                 }
                 List<String> requestType = request.getHeaders().get("request-type");
-                if(requestType != null && "download".equals(requestType.get(0))) {
+                responseBody.read(urlConnection);
+                /*if(requestType != null && "download".equals(requestType.get(0))) {
                     responseBody.read(urlConnection, request);
                 } else {
                     responseBody.read(urlConnection);
-                }
+                }*/
             } catch (SSLHandshakeException e) {
                 //Related to MCT-104 & MCT-323
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {

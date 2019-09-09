@@ -53,13 +53,4 @@ public class AuthenticateRequest extends MAGRequestProxy implements LocalRequest
         };
     }
 
-    @Override
-    public MASProgressListener getProgressListener() {
-        return request.getProgressListener();
-    }
-
-    @Override
-    public MASFileObject getDownloadFile() {
-        return request.getDownloadFile();
-    }
 }

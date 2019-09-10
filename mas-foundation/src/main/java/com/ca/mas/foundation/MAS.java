@@ -657,7 +657,7 @@ public class MAS {
      * @param  progressListener   The  {@link MASProgressListener} to receive progress, optional.
      * @param  callback           The {@link MASCallback}, required.
      * @throws MASException       If network call fails due to various reasons.
-     * @throws MAGRuntimeException If multipart is null or file part and form fields are empty.
+     * @throws MAGRuntimeException If multipart is null or file part and form fields, both are empty.
      */
     public static void postMultiPartForm(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException, MAGRuntimeException {
         if(multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormFields().isEmpty())){
@@ -675,7 +675,7 @@ public class MAS {
      * @param filePath The {@link MASFileObject} contains the folder and name of file to save the download.
      * @param progressListener The  {@link MASProgressListener} to receive progress.
      */
-    public static void downloadFile(MASRequest request, final MASCallback callback, MASFileObject filePath, MASProgressListener progressListener) throws MAGRuntimeException {
+    /*public static void downloadFile(MASRequest request, final MASCallback callback, MASFileObject filePath, MASProgressListener progressListener) throws MAGRuntimeException {
         if (filePath.getFilePath() == null  || filePath.getFileName() == null ){
             throw new MAGRuntimeException(MAGErrorCode.INVALID_INPUT,"Either file path or file name is missing");
         }
@@ -689,5 +689,5 @@ public class MAS {
 
         MASRequest downloadRequest = downloadRequestBuilder.build();
         MAS.invoke(downloadRequest, callback);
-    }
+    }*/
 }

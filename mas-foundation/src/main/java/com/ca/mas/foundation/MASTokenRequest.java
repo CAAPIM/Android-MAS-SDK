@@ -76,7 +76,7 @@ public class MASTokenRequest extends MAGRequestProxy implements LocalRequest<JSO
         };
     }
 
-    @Override
+  /*  @Override
     public MASProgressListener getProgressListener() {
         return request.getProgressListener();
     }
@@ -84,5 +84,5 @@ public class MASTokenRequest extends MAGRequestProxy implements LocalRequest<JSO
     @Override
     public MASFileObject getDownloadFile() {
         return request.getDownloadFile();
-    }
+    }*/
 }

@@ -158,7 +158,7 @@ public class MASResponseBody<T> {
      * @throws IOException if an IO exception occurs during the reading and storing the input stream.
      */
 
-    public String read(HttpURLConnection httpURLConnection, MASRequest request) throws IOException {
+    /* public String read(HttpURLConnection httpURLConnection, MASRequest request) throws IOException {
         this.contentType = httpURLConnection.getContentType();
         this.contentLength = httpURLConnection.getContentLength();
 
@@ -200,7 +200,7 @@ public class MASResponseBody<T> {
             request.getProgressListener().onComplete();
         }
         return "Downloaded at: " + file.getAbsolutePath();
-    }
+    }*/
 
 
 
@@ -281,7 +281,7 @@ public class MASResponseBody<T> {
     /**
      * @return Return a new ResponseBody with {@link File} content.
      */
-    public static MASResponseBody<File> fileBody() {
+   /* public static MASResponseBody<File> fileBody() {
 
         return new MASResponseBody<File>() {
 
@@ -293,6 +293,6 @@ public class MASResponseBody<T> {
                 return file;
             }
         };
-    }
+    }*/
 
 }

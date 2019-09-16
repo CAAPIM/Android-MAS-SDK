@@ -40,14 +40,14 @@ For more information about our mobile products see the [developer website][mas.c
 Edit your build.gradle file and add below dependency:
 ```gradle
     dependencies {
-        implementation 'com.ca:mas-foundation:1.8.00'
+        implementation 'com.ca:mas-foundation:2.0.00'
 
-        implementation 'com.ca:mas-connecta:1.8.00' // (Optional) Only required when using mas connecta
-        implementation 'com.ca:mas-storage:1.8.00' // (Optional) Only required when using mas storage
-        implementation 'com.ca:mas-identity-management:1.8.00' // (Optional) Only required when using mas identity management
-        implementation 'com.ca:masui:1.8.00' // (Optional) Only required when using MASUI Template. The MAS UI library provides sample user interfaces for Login, OTP, Social Login, and Enterprise Browser.
+        implementation 'com.ca:mas-connecta:2.0.00' // (Optional) Only required when using mas connecta
+        implementation 'com.ca:mas-storage:2.0.00' // (Optional) Only required when using mas storage
+        implementation 'com.ca:mas-identity-management:2.0.00' // (Optional) Only required when using mas identity management
+        implementation 'com.ca:masui:2.0.00' // (Optional) Only required when using MASUI Template. The MAS UI library provides sample user interfaces for Login, OTP, Social Login, and Enterprise Browser.
 
-        implementation 'org.bouncycastle:bcpkix-jdk15on:1.55' // (Optional) Only required when you want to support Android 4.1.x
+        implementation 'org.bouncycastle:bcpkix-jdk15on:1.59' // (Optional) Only required when you want to support Android 4.1.x
     }
 ```
 ## SDK Releases
@@ -75,7 +75,8 @@ Contributions are welcome and much appreciated. To learn more, see the [Contribu
 For more documentation including API references, go to our [main website][docs].
 
 ## License
-Copyright (c) 2017 CA. All rights reserved.
+Copyright (c) 2019 Broadcom. All Rights Reserved.
+The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 
 This software may be modified and distributed under the terms
 of the MIT license. See the [LICENSE][license-link] file for details.

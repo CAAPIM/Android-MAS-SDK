@@ -1,3 +1,11 @@
+# Version 2.0.00
+
+### Bug fixes
+- MAS library fails the authorization flow for Android P. [DE420805]
+
+### New features
+- Support for multipart/form-data post requests. Enables users to upload files and multipart forms. [US605853]
+
 # Version 1.9.10
 
 ### Bug fixes

@@ -139,7 +139,7 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
         }
     }
 
-    @Test(expected = MASException.class)
+    @Test(expected = MAGRuntimeException.class)
     public void uploadEmptyMultipartBodyTest() throws MASException, URISyntaxException {
 
             MultiPart multiPart = new MultiPart();

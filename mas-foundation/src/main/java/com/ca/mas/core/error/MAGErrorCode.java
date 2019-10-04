@@ -29,6 +29,9 @@ public interface MAGErrorCode {
     int FAILED_JSON_VALIDATION = 100203;
     int INVALID_ENDPOINT = 100204;
 
+    int INVALID_REUEST = 100205;
+    int INVALID_INPUT = 100206;
+
     //
     // Geolocation
     //
@@ -80,5 +83,6 @@ public interface MAGErrorCode {
     int ENTERPRISE_BROWSER_NATIVE_APP_CANNOT_OPEN =140003;
     int ENTERPRISE_BROWSER_APP_DOES_NOT_EXIST =140004;
     int ENTERPRISE_BROWSER_INVALID_RESPONSE =140005;
+
 
 }

@@ -19,8 +19,6 @@ import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.group.GroupAttributes;
 import com.ca.mas.identity.group.MASMember;
 import com.ca.mas.identity.util.IdentityConsts;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
-
 import org.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
@@ -30,6 +28,8 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import okhttp3.mockwebserver.RecordedRequest;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;

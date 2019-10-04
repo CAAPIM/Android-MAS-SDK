@@ -17,7 +17,7 @@ The Android Mobile SDK consists of these frameworks:
 - **MASStorage** - Storage services for private local and cloud storage.
 - **MASUI** - Resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).
 
-For more information about our mobile products see the [developer website][mas.ca.com].
+For more information about our mobile products see the [developer website](http://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-sdk-for-ca-mobile-api-gateway/2-0.html).
 
 ## Features
 
@@ -40,14 +40,14 @@ For more information about our mobile products see the [developer website][mas.c
 Edit your build.gradle file and add below dependency:
 ```gradle
     dependencies {
-        implementation 'com.ca:mas-foundation:1.8.00'
+        implementation 'com.ca:mas-foundation:2.0.00'
 
-        implementation 'com.ca:mas-connecta:1.8.00' // (Optional) Only required when using mas connecta
-        implementation 'com.ca:mas-storage:1.8.00' // (Optional) Only required when using mas storage
-        implementation 'com.ca:mas-identity-management:1.8.00' // (Optional) Only required when using mas identity management
-        implementation 'com.ca:masui:1.8.00' // (Optional) Only required when using MASUI Template. The MAS UI library provides sample user interfaces for Login, OTP, Social Login, and Enterprise Browser.
+        implementation 'com.ca:mas-connecta:2.0.00' // (Optional) Only required when using mas connecta
+        implementation 'com.ca:mas-storage:2.0.00' // (Optional) Only required when using mas storage
+        implementation 'com.ca:mas-identity-management:2.0.00' // (Optional) Only required when using mas identity management
+        implementation 'com.ca:masui:2.0.00' // (Optional) Only required when using MASUI Template. The MAS UI library provides sample user interfaces for Login, OTP, Social Login, and Enterprise Browser.
 
-        implementation 'org.bouncycastle:bcpkix-jdk15on:1.55' // (Optional) Only required when you want to support Android 4.1.x
+        implementation 'org.bouncycastle:bcpkix-jdk15on:1.59' // (Optional) Only required when you want to support Android 4.1.x
     }
 ```
 ## SDK Releases
@@ -75,20 +75,16 @@ Contributions are welcome and much appreciated. To learn more, see the [Contribu
 For more documentation including API references, go to our [main website][docs].
 
 ## License
-Copyright (c) 2017 CA. All rights reserved.
+Copyright (c) 2019 Broadcom. All Rights Reserved.
+The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 
 This software may be modified and distributed under the terms
 of the MIT license. See the [LICENSE][license-link] file for details.
 
-[mag]: https://docops.ca.com/mag
-[mas.ca.com]: http://mas.ca.com/
-[docs]: http://mas.ca.com/docs/
-[blog]: http://mas.ca.com/blog/
-[get-started]: http://mas.ca.com/get-started
+[docs]: http://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-sdk-for-ca-mobile-api-gateway/2-0.html
 [StackOverflow]: http://stackoverflow.com/questions/tagged/massdk
 [issues]: https://github.com/CAAPIM/Android-MAS-SDK/issues
 [releases]: ../../releases
 [contributing]: /CONTRIBUTING.md
 [license-link]: /LICENSE
-[video]: https://www.ca.com/us/developers/mas/videos.html
-[documentation]: https://www.ca.com/us/developers/mas/docs.html
+[documentation]: http://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-sdk-for-ca-mobile-api-gateway/2-0.html

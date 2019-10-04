@@ -54,7 +54,7 @@ public abstract class MASDevice {
     public abstract boolean isRegistered();
 
     /**
-     * <p>Resets the application’s locally stored data on the device only. This does NOT call the Gateway to remove the device record.
+     * <p>Resets the application's locally stored data on the device only. This does NOT call the Gateway to remove the device record.
      * You must call {@link MASDevice#deregister(MASCallback)} to do so.</p>
      * WARNING: if you call this, all access credentials will be wiped.
      * You will have to re-register the application on the device to retrieve new ones. It may be necessary to talk to the administrator of your Gateway if you have issues.

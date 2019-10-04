@@ -87,6 +87,11 @@ public class MAGHttpClient {
 
             urlConnection.setRequestMethod(request.getMethod());
             urlConnection.setDoInput(true);
+            urlConnection.setRequestProperty("Connection", "Keep-Alive");
+
+
+
+
             for (String key : request.getHeaders().keySet()) {
                 if (request.getHeaders().get(key) != null) {
                     for (String value : request.getHeaders().get(key)) {
@@ -118,6 +123,7 @@ public class MAGHttpClient {
                 if (ConfigurationManager.getInstance().getConnectionListener() != null) {
                     ConfigurationManager.getInstance().getConnectionListener().onConnected(urlConnection);
                 }
+
                 body.write(urlConnection.getOutputStream());
             } else {
                 if (request.getConnectionListener() != null) {
@@ -149,7 +155,13 @@ public class MAGHttpClient {
                     Log.d(TAG, String.format("Response code: %d", responseCode));
                     Log.d(TAG, String.format("Response message: %s", responseMessage));
                 }
+                List<String> requestType = request.getHeaders().get("request-type");
                 responseBody.read(urlConnection);
+                /*if(requestType != null && "download".equals(requestType.get(0))) {
+                    responseBody.read(urlConnection, request);
+                } else {
+                    responseBody.read(urlConnection);
+                }*/
             } catch (SSLHandshakeException e) {
                 //Related to MCT-104 & MCT-323
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {

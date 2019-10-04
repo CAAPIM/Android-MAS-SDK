@@ -13,10 +13,6 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASConnectionListener;
-import com.squareup.okhttp.internal.SslContextBuilder;
-import com.squareup.okhttp.mockwebserver.Dispatcher;
-import com.squareup.okhttp.mockwebserver.MockWebServer;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -48,6 +44,10 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 import javax.security.auth.x500.X500Principal;
+
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 
 @RunWith(AndroidJUnit4.class)
 public abstract class MASMockGatewayTestBase extends MASTestBase {

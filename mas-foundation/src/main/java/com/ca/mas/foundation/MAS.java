@@ -25,6 +25,8 @@ import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.error.MAGError;
+import com.ca.mas.core.error.MAGErrorCode;
+import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.core.http.MAGHttpClient;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.token.JWTValidatorFactory;
@@ -41,7 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.Observable;
 import java.util.Observer;
 
-/**
+    /**
  * The top level MAS object represents the Mobile App Services SDK in its entirety.
  * It is where the framework lifecycle begins, and ends if necessary.
  * It is the front facing class where many of the configuration settings for the SDK as a whole
@@ -646,4 +648,46 @@ public class MAS {
     private static void unregisterMultiFactorAuthenticator(MASMultiFactorAuthenticator authenticator) {
         ConfigurationManager.getInstance().unregisterResponseInterceptor(authenticator);
     }
+
+    /**
+     * Uploads multipart form-data to server.
+     *
+     * @param  request            The {@link MASRequest} to upload multipart form-data, required.
+     * @param  multipart          The multipart body  {@link MultiPart}, required.
+     * @param  progressListener   The  {@link MASProgressListener} to receive progress, optional.
+     * @param  callback           The {@link MASCallback}, required.
+     * @throws MASException       If network call fails due to various reasons.
+     * @throws MAGRuntimeException If multipart is null or file part and form fields, both are empty.
+     */
+    public static void postMultiPartForm(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException, MAGRuntimeException {
+        if(multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormFields().isEmpty())){
+            throw new MAGRuntimeException(MAGErrorCode.INVALID_REUEST, "Multipart body empty");
+        }
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(request).post(MASRequestBody.multipartBody(multipart, progressListener)).
+                build();
+        MAS.invoke(masRequest, callback);
+    }
+
+    /**
+     * Downloads a file from server saves in the filePath.
+     * @param request The {@link MASRequest} to upload multipart form-data.
+     * @param callback The {@link MASCallback}.
+     * @param filePath The {@link MASFileObject} contains the folder and name of file to save the download.
+     * @param progressListener The  {@link MASProgressListener} to receive progress.
+     */
+    /*public static void downloadFile(MASRequest request, final MASCallback callback, MASFileObject filePath, MASProgressListener progressListener) throws MAGRuntimeException {
+        if (filePath.getFilePath() == null  || filePath.getFileName() == null ){
+            throw new MAGRuntimeException(MAGErrorCode.INVALID_INPUT,"Either file path or file name is missing");
+        }
+        if(request.getHeaders().get("request-type")== null){
+            throw new MAGRuntimeException(MAGErrorCode.INVALID_INPUT,"'request-type' header missing", null);
+        }
+
+        MASRequest.MASRequestBuilder downloadRequestBuilder = new MASRequest.MASRequestBuilder(request);
+        downloadRequestBuilder.setDownloadFile(filePath);
+        downloadRequestBuilder.progressListener(progressListener);
+
+        MASRequest downloadRequest = downloadRequestBuilder.build();
+        MAS.invoke(downloadRequest, callback);
+    }*/
 }

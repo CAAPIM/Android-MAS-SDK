@@ -70,10 +70,10 @@ public class KeyUtilsSymmetric {
      * Generate a symmetric key, allows for full selection of key properties
      * <p>
      * For M+:
-     * “The Android Keystore system lets you store cryptographic keys in a
+     * "The Android Keystore system lets you store cryptographic keys in a
      * container to make it more difficult to extract from the device.
      * Once keys are in the keystore, they can be used for cryptographic
-     * operations with the key material remaining non-exportable”.
+     * operations with the key material remaining non-exportable".
      * This means that the key can't be extracted from the keystore, and
      * note that keys can only be shared between applications with
      * the same signing key and shared user id.
@@ -84,22 +84,22 @@ public class KeyUtilsSymmetric {
      * and nougatInvalidatedByBiometricEnrollment are linked,
      * below are the combinations:
      * <p>
-     * 1) Android M+: userAuthenticationRequired(false) – the keys
+     * 1) Android M+: userAuthenticationRequired(false) - the keys
      * are still protected from export but can be used whenever needed.
      * 2) Android M+: userAuthenticationRequired(true) and
-     * userAuthenticationValidityDurationSeconds( > 0 ) –
+     * userAuthenticationValidityDurationSeconds( > 0 ) -
      * the key can only be used if the pin has been entered within the given
      * number of seconds.  On some devices, when a fingerprint is added
      * the key is invalidated.  The # seconds can be set absurdly high,
      * for example 100,000 if it's ok for more than a day to pass without
      * an unlock.
      * 3) Android M+: userAuthenticationRequired(true) and
-     * userAuthenticationValidityDurationSeconds(zero or neg) –
+     * userAuthenticationValidityDurationSeconds(zero or neg) -
      * works only with fingerprint+pin/swipe/pattern, and requires that
      * the fingerprint is entered every time a key is used.  This requires
      * an added layer to prompt the user to swipe their fingerprint.
      * 4) Android N+: nougatInvalidatedByBiometricEnrollment(true/false)
-     * changes the behavior in #2 – either the key will or won’t be
+     * changes the behavior in #2 - either the key will or won't be
      * invalided when the user adds an or another fingerprint.
      *
      * @param alias                             the alias to use if generated in AndroidKeyStore

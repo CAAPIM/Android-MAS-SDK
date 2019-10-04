@@ -28,8 +28,6 @@ import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.util.DateUtils;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
-
 import junit.framework.Assert;
 
 import org.json.JSONArray;
@@ -53,6 +51,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import okhttp3.mockwebserver.RecordedRequest;
 
 import static junit.framework.Assert.assertTrue;
 

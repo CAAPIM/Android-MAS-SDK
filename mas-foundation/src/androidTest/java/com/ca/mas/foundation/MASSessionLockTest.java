@@ -19,18 +19,17 @@ import com.ca.mas.core.security.SecureLockException;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.net.URI;
+import okhttp3.mockwebserver.RecordedRequest;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 
 @RunWith(AndroidVersionAwareTestRunner.class)
 public class MASSessionLockTest extends MASLoginTestBase {

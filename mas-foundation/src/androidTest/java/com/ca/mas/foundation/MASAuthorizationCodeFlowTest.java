@@ -15,8 +15,6 @@ import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASStartTestBase;
 import com.ca.mas.core.oauth.CodeVerifierCache;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
-
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -25,12 +23,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 
+import okhttp3.mockwebserver.RecordedRequest;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 
 public class MASAuthorizationCodeFlowTest extends MASStartTestBase {
 

@@ -217,7 +217,7 @@ public class MASConfiguration {
     }
 
     /**
-     * Determines if a user’s location coordinates are required. This read only value is within the JSON configuration file and is
+     * Determines if a user's location coordinates are required. This read only value is within the JSON configuration file and is
      * set as a requirement of the application on the Gateway. This means that a set of location coordinates must be sent in the
      * header of all protected endpoint HTTP request to the API on the Gateway.
      */
@@ -241,7 +241,7 @@ public class MASConfiguration {
     }
 
     /**
-     * Determines if the client’s SSO is enabled or not. This value is read from JSON configuration, if there is no value defined in keychain.
+     * Determines if the client's SSO is enabled or not. This value is read from JSON configuration, if there is no value defined in keychain.
      */
     public boolean isSsoEnabled() {
         return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.PROP_SSO_ENABLED);

@@ -16,10 +16,6 @@ import com.ca.mas.core.cert.CertUtils;
 import com.ca.mas.core.cert.PublicKeyHash;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.io.Charsets;
-import com.squareup.okhttp.mockwebserver.Dispatcher;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.MockWebServer;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import junit.framework.Assert;
 
@@ -62,6 +58,11 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import javax.security.auth.x500.X500Principal;
+
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 
 import static com.ca.mas.TestUtils.getJSONObject;
 import static junit.framework.Assert.assertEquals;
@@ -147,7 +148,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
 
     @Test
     public void testMultiServerCertificatePinningWithCertChain() throws Exception {
-        URL url = new URL("https://swapi.co");
+        URL url = new URL("https://swapi.co:443");
 
         MASSecurityConfiguration.Builder configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build());
@@ -177,7 +178,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
 
     @Test
     public void testMultiServerCertificatePinningFailed() throws Exception {
-        URL url = new URL("https://swapi.co");
+        URL url = new URL("https://swapi.co:443");
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(HOST).build())
                 .add(getCert(url)[0])
@@ -250,7 +251,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
 
     @Test
     public void testMultiServerMultiplePublicKeyPinning() throws Exception {
-        URL url = new URL("https://swapi.co");
+        URL url = new URL("https://swapi.co:443");
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(HOST).build())
                 .add(PublicKeyHash.fromCertificate(certificate).getHashString())
@@ -273,7 +274,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
 
     @Test
     public void testMultiServerNoPinning() throws Exception {
-        URL url = new URL("https://swapi.co");
+        URL url = new URL("https://swapi.co:443");
 
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build())
@@ -498,7 +499,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
         //https://api.ipify.org?format=json
 
         //Star Wars API
-        URL url = new URL("https://swapi.co");
+        URL url = new URL("https://swapi.co:443");
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build())
                 .trustPublicPKI(true)
@@ -519,7 +520,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
         Assert.assertEquals("Luke Skywalker", result.getString("name"));
 
         //Google API
-        URL url2 = new URL("https://www.googleapis.com");
+        URL url2 = new URL("https://www.googleapis.com:443");
         MASSecurityConfiguration configuration2 = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(url2.getHost() + ":" + url2.getPort()).build())
                 .trustPublicPKI(true)
@@ -545,7 +546,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
 
     @Test
     public void testNoPinningAndNonTrustPublicPKI() throws Exception {
-        URL url = new URL("https://swapi.co");
+        URL url = new URL("https://swapi.co:443");
         try {
             MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build())
@@ -565,7 +566,7 @@ public class MASMultiServerTest extends MASLoginTestBase {
             config.addSecurityConfiguration(securityConfig);
         }
 
-        URL url = new URL("https://en.wikipedia.org");
+        URL url = new URL("https://en.wikipedia.org:443");
         MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
                 .host(new Uri.Builder().encodedAuthority(url.getHost() + ":" + url.getPort()).build())
                 .trustPublicPKI(true)

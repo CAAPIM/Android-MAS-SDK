@@ -63,6 +63,14 @@ public interface MASRequest {
      */
     MASConnectionListener getConnectionListener();
 
+
+    /**
+     * @return The {@link MASProgressListener} progressListener.
+     */
+
+   // MASProgressListener getProgressListener();
+
+
     /**
      * @return The response body for this request. The default response body is set to
      * {@link MASResponseBody#byteArrayBody()}, you can change the response body to
@@ -84,6 +92,11 @@ public interface MASRequest {
     boolean isPublic();
 
     /**
+     * @return The file path to save the file download.
+     */
+   // MASFileObject getDownloadFile();
+
+    /**
      * Notify the {@link MASCallback#onError(Throwable)} when the request is cancelled by {@link MAS#cancelRequest(long)}.
      *
      * @return True to invoke {@link MASCallback#onError(Throwable)} with {@link com.ca.mas.foundation.MAS.RequestCancelledException} when the request is cancelled by
@@ -94,6 +107,8 @@ public interface MASRequest {
     /**
      * Builder class to build {@link MASRequest} object
      */
+
+
     class MASRequestBuilder {
 
         private URL url;
@@ -104,6 +119,8 @@ public interface MASRequest {
         private MASGrantProvider grantProvider = ConfigurationManager.getInstance().getDefaultGrantProvider();
         private String scope;
         private MASConnectionListener listener;
+        //private MASProgressListener progressListener;
+        //private MASFileObject downloadFile;
         private boolean isPublic;
         private long timeout;
         private TimeUnit timeUnit;
@@ -130,7 +147,7 @@ public interface MASRequest {
             if (uri != null) {
                 try {
                     if (!isAbsolute(uri.getScheme())) {
-                       this.url = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(uri.toString()).toURL();
+                        this.url = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUri(uri.toString()).toURL();
                     } else {
                         this.url = uri.toURL();
                     }
@@ -184,6 +201,7 @@ public interface MASRequest {
             this.isPublic = request.isPublic();
             this.headers = request.getHeaders();
             this.listener = request.getConnectionListener();
+            this.url = request.getURL();
         }
 
 
@@ -290,6 +308,18 @@ public interface MASRequest {
         }
 
         /**
+         * The request is being made outside of primary gateway.
+         * When the public attribute is set, all automatically injected credentials in SDK will be excluded in the request.
+         *
+         * @return The builder
+         * @param downloadFile
+         */
+        /*   public MASRequestBuilder setDownloadFile(MASFileObject downloadFile) {
+            this.downloadFile = downloadFile;
+            return this;
+        }*/
+
+        /**
          * Adds the specified header to the request.
          *
          * @param name  Header name
@@ -330,6 +360,11 @@ public interface MASRequest {
             this.listener = listener;
             return this;
         }
+
+     /*   public MASRequestBuilder progressListener(MASProgressListener listener) {
+            this.progressListener = listener;
+            return this;
+        }*/
 
         public MASRequestBuilder notifyOnCancel() {
             this.notifyOnCancel = true;

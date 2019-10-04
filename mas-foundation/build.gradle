@@ -121,10 +121,10 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
     }
     reports {
         xml.enabled = true
-        xml.destination = "${buildDir}/jacocoTestReport.xml"
+        xml.destination = file("${buildDir}/jacocoTestReport.xml")
         csv.enabled = false
         html.enabled = true
-        html.destination = "${buildDir}/reports/jacoco"
+        html.destination = file("${buildDir}/reports/jacoco")
     }
 }
 
@@ -206,6 +206,6 @@ artifacts {
     archives sourcesJar
 }
 
-task findConventions << {
+task findConventions doLast {
     println project.getConvention()
 }

@@ -13,7 +13,6 @@ import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.core.policy.exceptions.MobileNumberInvalidException;
 import com.ca.mas.core.policy.exceptions.MobileNumberRequiredException;
-import com.squareup.okhttp.mockwebserver.MockResponse;
 
 import org.json.JSONObject;
 import org.junit.Test;
@@ -21,6 +20,8 @@ import org.junit.Test;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
+
+import okhttp3.mockwebserver.MockResponse;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;

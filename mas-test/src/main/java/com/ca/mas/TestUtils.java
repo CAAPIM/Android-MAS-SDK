@@ -36,6 +36,10 @@ public class TestUtils {
         return new String(bytes);
     }
 
+    public static byte[] getBytes(String path) throws IOException {
+        return  IoUtils.slurpStream(TestUtils.class.getResourceAsStream(path), DEFAULT_MAX);
+
+    }
     public static String jwtGenerator() throws JOSEException {
 
         ////////Code snippet reference at https://connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-rsa-signature /////////////////

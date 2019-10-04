@@ -2,11 +2,11 @@ package com.ca.mas.identity;
 
 import com.ca.mas.TestUtils;
 import com.ca.mas.core.http.ContentType;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.QueueDispatcher;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
-
 import java.net.HttpURLConnection;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.QueueDispatcher;
+import okhttp3.mockwebserver.RecordedRequest;
 
 public class IdentityDispatcher extends QueueDispatcher {
 

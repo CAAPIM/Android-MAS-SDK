@@ -15,16 +15,14 @@ import com.ca.mas.MASLoginTestBase;
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.oauth.OAuthServerException;
 import com.ca.mas.foundation.auth.MASAuthenticationProviders;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-
-import org.json.JSONObject;
 import org.junit.Test;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 
-import static junit.framework.Assert.assertNotNull;
+import okhttp3.mockwebserver.MockResponse;
+
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 

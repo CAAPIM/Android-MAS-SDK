@@ -13,22 +13,29 @@ import android.util.Base64;
 
 import com.ca.mas.core.http.ContentType;
 import com.ca.mas.core.io.IoUtils;
-import com.squareup.okhttp.mockwebserver.Dispatcher;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.QueueDispatcher;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.QueueDispatcher;
+import okhttp3.mockwebserver.RecordedRequest;
+import okio.BufferedSource;
+import okio.Okio;
+import okio.Source;
 import sun.security.pkcs.PKCS10;
 
 public class GatewayDefaultDispatcher extends QueueDispatcher {
@@ -57,6 +64,8 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     public static final String MULTIFACTOR_ENDPOINT = "/multifactor";
     public static final String WELL_KNOW_URI = "/.well-known/openid-configuration";
     public static final String JWKS_URI = "/openid/connect/jwks.json";
+    public static final String UPLOAD = "/test/multipart";
+    public static final String DOWNLOAD = "/test/download";
 
     public static final String OTHER = "other";
 
@@ -96,7 +105,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return revokeTokenResponse();
             } else if (request.getPath().contains(AUTH_OAUTH_V2_TOKEN)) {
                 return retrieveTokenResponse();
-           } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY)) {
+            } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS_AS_ARRAY)) {
                 return secureServiceResponseAsArray();
             } else if (request.getPath().contains(PROTECTED_RESOURCE_PRODUCTS)) {
                 return secureServiceResponse();
@@ -105,9 +114,9 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return secureServiceResponse();
             } else if (request.getPath().contains(TEST_NO_CONTENT)) {
                 return secureServiceResponseWithNoContent();
-            }else if(request.getPath().contains(WELL_KNOW_URI)) {
+            } else if (request.getPath().contains(WELL_KNOW_URI)) {
                 return wellknowURIResponse(request);
-            } else if( request.getPath().contains(JWKS_URI)){
+            } else if (request.getPath().contains(JWKS_URI)) {
                 return jwksURIResponse();
             } else if (request.getPath().contains(AUTH_OAUTH_V2_AUTHORIZE)) {
                 return authorizeResponse(request);
@@ -130,13 +139,17 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
                 return generateOtp();
             } else if (request.getPath().contains(USER_INFO)) {
                 return userInfo();
+            } else if (request.getPath().contains(UPLOAD)) {
+                return upload(request);
+            } else if (request.getPath().contains(DOWNLOAD)) {
+                return download(request);
             } else if (request.getPath().startsWith(ENTERPRISE_BROWSER)) {
                 return enterpriseBrowser(request);
             } else if (request.getPath().contains(ECHO)) {
                 return echo(request);
             } else if (request.getPath().contains(MULTIFACTOR_ENDPOINT)) {
                 return multiFactor(request);
-            }else if (request.getPath().contains(DEVICEMETADATA_ENDPOINT)) {
+            } else if (request.getPath().contains(DEVICEMETADATA_ENDPOINT)) {
                 return deviceMetadata();
             }
 
@@ -151,6 +164,14 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
             return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR).
                     setBody(e.toString());
         }
+    }
+
+    private MockResponse download(RecordedRequest request) throws IOException {
+    //TODO send file body
+       return new MockResponse()
+                .setResponseCode(200)
+                .setHeader("Content-Type", "image/png");
+
     }
 
     protected MockResponse multiFactor(RecordedRequest request) {
@@ -407,7 +428,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
     protected MockResponse deviceMetadataErrorOverflow() throws JSONException {
         return new MockResponse().setResponseCode(400)
                 .setHeader("Content-type", ContentType.APPLICATION_JSON)
-                .setHeader("x-ca-err","1016155");
+                .setHeader("x-ca-err", "1016155");
     }
 
     protected MockResponse deviceMetadata() throws JSONException {
@@ -461,7 +482,7 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
     protected MockResponse jwksURIResponse() {
 
-        String result  = "{\n" +
+        String result = "{\n" +
                 "  \"keys\" : [ {\n" +
                 "    \"kty\" : \"RSA\",\n" +
                 "    \"kid\" : \"default_ssl_key\",\n" +
@@ -475,4 +496,14 @@ public class GatewayDefaultDispatcher extends QueueDispatcher {
 
         return new MockResponse().setResponseCode(200).setBody(result).addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
     }
+
+    protected MockResponse upload(RecordedRequest request) throws IOException, JSONException {
+
+        String reqBody = request.getBody().readUtf8();
+        return new MockResponse().setResponseCode(200)
+                .setHeader("Content-type", ContentType.APPLICATION_JSON)
+                .setBody(reqBody);
+
+    }
+
 }

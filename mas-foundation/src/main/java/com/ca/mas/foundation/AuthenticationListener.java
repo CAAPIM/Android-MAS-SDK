@@ -86,7 +86,7 @@ class AuthenticationListener implements MobileSsoListener {
             Class<MASAuthorizationRequestHandler> c = (Class<MASAuthorizationRequestHandler>) Class.forName("com.ca.mas.ui.MASAppAuthAuthorizationRequestHandler");
             Constructor constructor = c.getConstructor(Context.class/*, Intent.class, Intent.class*/);
 
-            return (MASAuthorizationRequestHandler) constructor.newInstance(MAS.getContext());
+            return (MASAuthorizationRequestHandler) constructor.newInstance(MAS.getCurrentActivity());
 
         } catch (Exception e) {
             return null;

@@ -11,17 +11,4 @@ include ':mas', ':masui', ':mas-connecta', ':mas-storage', ':mas-identity-manage
 //MASUnit
 include ':MASUnit'
 
-//Knox
-//include ':Knox', ':SmcControllerSample', ':SamsungLicenseActivationSample'
-//project(':SmcControllerSample').projectDir = new File('Knox/samples/SmcControllerSample')
-//project(':SamsungLicenseActivationSample').projectDir = new File('Knox/samples/SamsungLicenseActivationSample')
 
-// FIDO specific modules
-/*include ':fido',':sds'//, ':MASFIDOSample'
-project(':sds').projectDir = new File('fido/providers/sds')
-//project(':MASFIDOSample').projectDir = new File('fido/samples/MASFIDOSample')
-
-include ':samsungsds-sm-1.5.2',':uaf-authenticator-1.5.2',':uaf-nexsign-client-1.5.2'
-project(':samsungsds-sm-1.5.2').projectDir = new File('fido/providers/sds/libs/samsungsds-sm-1.5.2')
-project(':uaf-authenticator-1.5.2').projectDir = new File('fido/providers/sds/libs/uaf-authenticator-1.5.2')
-project(':uaf-nexsign-client-1.5.2').projectDir = new File('fido/providers/sds/libs/uaf-nexsign-client-1.5.2')*/

@@ -7,11 +7,15 @@
  */
 package com.ca.mas.core.service;
 
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.JobIntentService;
 import android.util.Log;
 
@@ -41,19 +45,36 @@ import static com.ca.mas.foundation.MAS.TAG;
  * An JobIntentService that receives outbound HTTP requests encoded into Intents and returns the eventual responses
  * via a ResultReceiver.
  */
-public class MssoService extends JobIntentService {
+public class MssoService extends Service {
 
     private static final int JOB_ID = 1000;
+    private final IBinder binder = new MASBinder();
+
+
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+    public class MASBinder extends Binder {
+        public MssoService getService() {
+            // Return this instance of MssoService so clients can call public methods
+            return MssoService.this;
+        }
+    }
+
 
     /**
      * Enqueuing work to this service
      */
     public static void enqueueWork(Context context, Intent work) {
-        enqueueWork(context, MssoService.class, JOB_ID, work);
+  //      enqueueWork(context, MssoService.class, JOB_ID, work);
     }
 
-    @Override
-    protected void onHandleWork(@NonNull Intent intent) {
+  //  @Override
+   // protected void onHandleWork(@NonNull Intent intent) {
+    public void processRequest(Intent intent){
         String action = intent.getAction();
         if (action == null) {
             if (DEBUG) Log.w(TAG, "Intent did not contain an action");
@@ -246,4 +267,6 @@ public class MssoService extends JobIntentService {
             receiver.send(MssoIntents.RESULT_CODE_SUCCESS, resultData);
         }
     }
+
+
 }

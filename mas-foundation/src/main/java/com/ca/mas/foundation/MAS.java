@@ -11,10 +11,14 @@ package com.ca.mas.foundation;
 import android.app.Activity;
 import android.app.Application;
 import android.content.AsyncTaskLoader;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
@@ -28,6 +32,7 @@ import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.core.http.MAGHttpClient;
+import com.ca.mas.core.service.MssoService;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.token.JWTValidatorFactory;
 import com.ca.mas.foundation.notify.Callback;
@@ -66,6 +71,9 @@ public class MAS {
 
     private static boolean browserBasedAuthenticationEnabled = false;
 
+        public static MssoService mService;
+        public static boolean mBound;
+
     private MAS() {
     }
 
@@ -98,6 +106,9 @@ public class MAS {
         registerMultiFactorAuthenticator(otpMultiFactorAuthenticator);
         if (isAlgoRS256() || isPreloadJWKSEnabled())
             addLifeCycleListener(new JWKPreLoadListener());
+
+        Intent intent  = new Intent(appContext, MssoService.class);
+        appContext.bindService(intent, connection, Context.BIND_AUTO_CREATE );
     }
 
     private static boolean isAlgoRS256() {
@@ -690,4 +701,24 @@ public class MAS {
         MASRequest downloadRequest = downloadRequestBuilder.build();
         MAS.invoke(downloadRequest, callback);
     }*/
-}
+
+
+        /** Defines callbacks for service binding, passed to bindService() */
+        private static ServiceConnection connection = new ServiceConnection() {
+
+            @Override
+            public void onServiceConnected(ComponentName className,
+                                           IBinder service) {
+                // We've bound to LocalService, cast the IBinder and get LocalService instance
+                MssoService.MASBinder binder = (MssoService.MASBinder) service;
+                mService = binder.getService();
+                mBound = true;
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName arg0) {
+                mBound = false;
+            }
+        };
+
+    }

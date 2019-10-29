@@ -54,7 +54,16 @@ public class MssoService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "MssoService onBind");
         return binder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        stopSelf();
+        Log.d(TAG, "MssoService onUnBind");
+
+        return super.onUnbind(intent);
     }
 
     public class MASBinder extends Binder {
@@ -74,7 +83,8 @@ public class MssoService extends Service {
 
   //  @Override
    // protected void onHandleWork(@NonNull Intent intent) {
-    public void processRequest(Intent intent){
+    public void onHandleWork(Intent intent){
+        Log.d(TAG, "MssoService processRequest");
         String action = intent.getAction();
         if (action == null) {
             if (DEBUG) Log.w(TAG, "Intent did not contain an action");
@@ -105,7 +115,10 @@ public class MssoService extends Service {
             return;
         } else if (MssoIntents.ACTION_CREDENTIALS_OBTAINED.equals(action)) {
             //The request is AuthenticateRequest
-            onCredentialsObtained(extras, request);
+            MASAuthCredentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
+            request.getMssoContext().setCredentials(creds);
+            startThreadedRequest(null, request);
+            //onCredentialsObtained(extras, request);
             return;
         }
 
@@ -136,7 +149,8 @@ public class MssoService extends Service {
         MASAuthCredentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
         request.getMssoContext().setCredentials(creds);
         //For AuthenticateRequest, we don't want to run it with new thread
-        onProcessRequest(request);
+        //onProcessRequest(request);
+        startThreadedRequest(null, request);
 
     }
 
@@ -268,5 +282,9 @@ public class MssoService extends Service {
         }
     }
 
-
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "MssoService onDestroy");
+        super.onDestroy();
+    }
 }

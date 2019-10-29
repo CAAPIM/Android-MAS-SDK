@@ -109,6 +109,7 @@ public class MAS {
 
         Intent intent  = new Intent(appContext, MssoService.class);
         appContext.bindService(intent, connection, Context.BIND_AUTO_CREATE );
+
     }
 
     private static boolean isAlgoRS256() {
@@ -585,6 +586,10 @@ public class MAS {
      * Stops the lifecycle of all MAS processes.
      */
     public static void stop() {
+        if(appContext != null) {
+            appContext.unbindService(connection);
+
+        }
         state = MASConstants.MAS_STATE_STOPPED;
         EventDispatcher.STOP.notifyObservers();
         MobileSsoFactory.reset();

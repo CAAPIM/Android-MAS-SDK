@@ -586,10 +586,10 @@ public class MAS {
      * Stops the lifecycle of all MAS processes.
      */
     public static void stop() {
-        if(appContext != null) {
+       /* if(appContext != null) {
             appContext.unbindService(connection);
 
-        }
+        }*/
         state = MASConstants.MAS_STATE_STOPPED;
         EventDispatcher.STOP.notifyObservers();
         MobileSsoFactory.reset();

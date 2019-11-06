@@ -8,6 +8,7 @@
 
 package com.ca.mas.core.policy;
 
+import android.app.IntentService;
 import android.content.Context;
 
 import com.ca.mas.core.MobileSsoConfig;

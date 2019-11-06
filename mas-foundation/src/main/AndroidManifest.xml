@@ -25,7 +25,8 @@
         android:label="@string/app_name">
         <service
             android:name="com.ca.mas.core.service.MssoService"
-            android:exported="false" />
+            android:exported="false"
+            />
     </application>
 
 </manifest>

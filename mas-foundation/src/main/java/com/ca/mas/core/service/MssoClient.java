@@ -70,7 +70,7 @@ public class MssoClient {
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
 
         if(MAS.mBound){
-              MAS.mService.onHandleWork(intent);
+              MAS.mService.handleWork(intent);
         }
         return requestId;
     }
@@ -119,7 +119,7 @@ public class MssoClient {
 
        // MssoService.enqueueWork(appContext, intent);
         if(MAS.mBound){
-            MAS.mService.onHandleWork(intent);
+            MAS.mService.handleWork(intent);
         }
     }
 
@@ -133,7 +133,7 @@ public class MssoClient {
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, (long) -1);
         //MssoService.enqueueWork(appContext, intent);
         if(MAS.mBound){
-            MAS.mService.onHandleWork(intent);
+            MAS.mService.handleWork(intent);
         }
     }
 

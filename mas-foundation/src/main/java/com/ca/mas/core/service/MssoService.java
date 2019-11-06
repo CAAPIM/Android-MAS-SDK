@@ -73,17 +73,17 @@ public class MssoService extends Service {
         }
     }
 
-
-    /**
-     * Enqueuing work to this service
-     */
-    public static void enqueueWork(Context context, Intent work) {
-  //      enqueueWork(context, MssoService.class, JOB_ID, work);
+    public void handleWork(final Intent work) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                onHandleWork(work);
+            }
+        }).start();
     }
 
-  //  @Override
-   // protected void onHandleWork(@NonNull Intent intent) {
     public void onHandleWork(Intent intent){
+
         Log.d(TAG, "MssoService processRequest");
         String action = intent.getAction();
         if (action == null) {
@@ -103,7 +103,7 @@ public class MssoService extends Service {
             return;
         }
 
-        MssoRequest request = takeActiveRequest(requestId);
+        final MssoRequest request = takeActiveRequest(requestId);
         if (request == null) {
             if (DEBUG)
                 Log.d(TAG, "Request ID not found, assuming request is canceled or already processed");
@@ -117,8 +117,10 @@ public class MssoService extends Service {
             //The request is AuthenticateRequest
             MASAuthCredentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
             request.getMssoContext().setCredentials(creds);
-            startThreadedRequest(null, request);
-            //onCredentialsObtained(extras, request);
+            //request.setExtra(extras);
+           // startThreadedRequest(extras, request);
+            onCredentialsObtained(extras, request);
+
             return;
         }
 
@@ -149,9 +151,7 @@ public class MssoService extends Service {
         MASAuthCredentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
         request.getMssoContext().setCredentials(creds);
         //For AuthenticateRequest, we don't want to run it with new thread
-        //onProcessRequest(request);
-        startThreadedRequest(null, request);
-
+        onProcessRequest(request);
     }
 
     private void onProcessAllPendingRequests() {

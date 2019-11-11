@@ -8,15 +8,16 @@
 package com.ca.mas.core.service;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.os.ResultReceiver;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.JobIntentService;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoListener;
@@ -37,6 +38,7 @@ import com.ca.mas.foundation.MASResponse;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
@@ -49,6 +51,35 @@ public class MssoService extends Service {
 
     private static final int JOB_ID = 1000;
     private final IBinder binder = new MASBinder();
+    private Looper mServiceLooper;
+    private volatile ServiceHandler mServiceHandler;
+    AtomicInteger threadNum = new AtomicInteger(1);
+    private HandlerThread handlerThread;
+
+
+    private final class ServiceHandler extends Handler {
+        public ServiceHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            onHandleWork((Intent)msg.obj);
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        handlerThread = new HandlerThread("BoundService Thread[" + threadNum + "]");
+        handlerThread.start();
+
+        mServiceLooper = handlerThread.getLooper();
+        mServiceHandler = new ServiceHandler(mServiceLooper);
+
+    }
 
 
 
@@ -60,7 +91,7 @@ public class MssoService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        stopSelf();
+
         Log.d(TAG, "MssoService onUnBind");
 
         return super.onUnbind(intent);
@@ -74,12 +105,16 @@ public class MssoService extends Service {
     }
 
     public void handleWork(final Intent work) {
-        new Thread(new Runnable() {
+
+        /*AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
                 onHandleWork(work);
             }
-        }).start();
+        });*/
+        Message msg = new Message();
+        msg.obj = work;
+        mServiceHandler.sendMessage(msg);
     }
 
     public void onHandleWork(Intent intent){
@@ -155,7 +190,10 @@ public class MssoService extends Service {
     }
 
     private void onProcessAllPendingRequests() {
+
+        Log.d(TAG, "In processAllRequests");
         final Collection<MssoRequest> requests = new ArrayList<>(MssoActiveQueue.getInstance().getAllRequest());
+        Log.d(TAG, "In processAllRequests requests = "+ requests.toString());
         for (MssoRequest mssoRequest : requests) {
             if (!mssoRequest.isRunning()) {
                 startThreadedRequest(null, mssoRequest);
@@ -165,6 +203,8 @@ public class MssoService extends Service {
 
     private void onProcessRequest(final MssoRequest request) {
         //The request is in running state
+        Log.d(TAG, "In  onProcessRequest");
+
         request.setRunning(true);
         ResultReceiver receiver = request.getResultReceiver();
 
@@ -284,7 +324,16 @@ public class MssoService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "MssoService onDestroy");
+        if(DEBUG)
+            Log.d(TAG, "MssoService onDestroy");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            //handlerThread.quitSafely();
+            mServiceLooper.quitSafely();
+        } else {
+            //handlerThread.quit();
+            mServiceLooper.quit();
+        }
+
         super.onDestroy();
     }
 }

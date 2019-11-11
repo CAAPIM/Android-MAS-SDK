@@ -301,4 +301,6 @@ public abstract class MASApplication {
          */
         public abstract void onWebAppLaunch(MASApplication application);
     }
+
+
 }

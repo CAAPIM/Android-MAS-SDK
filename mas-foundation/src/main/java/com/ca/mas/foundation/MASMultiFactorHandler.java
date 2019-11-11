@@ -14,7 +14,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.ca.mas.core.service.MssoIntents;
-import com.ca.mas.core.service.MssoService;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -53,7 +52,7 @@ public class MASMultiFactorHandler implements Parcelable {
             previousAdditionalHeaders = additionalHeaders;
         }
         intent.putExtra(MssoIntents.EXTRA_ADDITIONAL_HEADERS, (Serializable) previousAdditionalHeaders);
-        MAS.mService.handleWork(intent);
+        MAS.mssoService.handleWork(intent);
 
     }
 

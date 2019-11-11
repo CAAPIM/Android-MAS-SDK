@@ -48,7 +48,7 @@ import java.util.LinkedHashMap;
 import java.util.Observable;
 import java.util.Observer;
 
-    /**
+/**
  * The top level MAS object represents the Mobile App Services SDK in its entirety.
  * It is where the framework lifecycle begins, and ends if necessary.
  * It is the front facing class where many of the configuration settings for the SDK as a whole
@@ -71,8 +71,8 @@ public class MAS {
 
     private static boolean browserBasedAuthenticationEnabled = false;
 
-        public static MssoService mService;
-        public static boolean mBound;
+        public static MssoService mssoService;
+        public static boolean isBound;
 
     private MAS() {
     }
@@ -586,10 +586,17 @@ public class MAS {
      * Stops the lifecycle of all MAS processes.
      */
     public static void stop() {
-       /* if(appContext != null) {
-            appContext.unbindService(connection);
+        if(appContext != null && isBound && connection != null) {
+            if( MAS.getCurrentActivity() != null) {
+                MAS.getCurrentActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        appContext.unbindService(connection);
+                    }
+                });
+            }
 
-        }*/
+        }
         state = MASConstants.MAS_STATE_STOPPED;
         EventDispatcher.STOP.notifyObservers();
         MobileSsoFactory.reset();
@@ -707,8 +714,15 @@ public class MAS {
         MAS.invoke(downloadRequest, callback);
     }*/
 
+    public static MssoService getService() {
+        return mssoService;
+    }
 
-        /** Defines callbacks for service binding, passed to bindService() */
+    public static boolean isBound() {
+        return isBound;
+    }
+
+    /** Defines callbacks for service binding, passed to bindService() */
         private static ServiceConnection connection = new ServiceConnection() {
 
             @Override
@@ -716,14 +730,15 @@ public class MAS {
                                            IBinder service) {
                 // We've bound to LocalService, cast the IBinder and get LocalService instance
                 MssoService.MASBinder binder = (MssoService.MASBinder) service;
-                mService = binder.getService();
-                mBound = true;
+                mssoService = binder.getService();
+                isBound = true;
             }
 
             @Override
             public void onServiceDisconnected(ComponentName arg0) {
-                mBound = false;
+                isBound= false;
             }
         };
+
 
     }

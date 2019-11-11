@@ -7,12 +7,9 @@
  */
 package com.ca.mas.core.service;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.ResultReceiver;
 
 import com.ca.mas.core.EventDispatcher;
@@ -69,8 +66,10 @@ public class MssoClient {
         intent.setAction(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
 
-        if(MAS.mBound){
-              MAS.mService.handleWork(intent);
+        if(MAS.isBound()){
+              MAS.getService().handleWork(intent);
+        } else {
+            return -1;
         }
         return requestId;
     }
@@ -118,8 +117,8 @@ public class MssoClient {
         }
 
        // MssoService.enqueueWork(appContext, intent);
-        if(MAS.mBound){
-            MAS.mService.handleWork(intent);
+        if(MAS.isBound()){
+            MAS.getService().handleWork(intent);
         }
     }
 
@@ -132,8 +131,8 @@ public class MssoClient {
         Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, (long) -1);
         //MssoService.enqueueWork(appContext, intent);
-        if(MAS.mBound){
-            MAS.mService.handleWork(intent);
+        if(MAS.isBound()){
+            MAS.getService().handleWork(intent);
         }
     }
 

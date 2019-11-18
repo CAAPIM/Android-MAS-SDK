@@ -23,7 +23,7 @@ import java.lang.annotation.RetentionPolicy;
  * <tr><td>MASConstants.MAS_STATE_NOT_CONFIGURED</td><td>State that SDK has not been initialized and does not have configuration file.</td></tr>
  * <tr><td>MASConstants.MAS_STATE_NOT_INITIALIZED</td><td>State that SDK has the active configuration either in the local file system, but has not been initialized yet.</td></tr>
  * <tr><td>MASConstants.MAS_STATE_STARTED</td><td>State that SDK did start; at this state, SDK should be fully functional.</td></tr>
- * <tr><td>MASConstants.MAS_STATE_STOPPED</td><td>State that SDK did stop; at this state, SDK is properly stopped and should be able to re-start.<td></tr>
+ * <tr><td>MASConstants.MAS_STATE_STOPPED</td><td>State that SDK did stopInternal; at this state, SDK is properly stopped and should be able to re-start.<td></tr>
  * </tbody>
  * </table>
  */

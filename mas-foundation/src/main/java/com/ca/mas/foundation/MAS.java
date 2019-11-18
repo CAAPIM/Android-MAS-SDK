@@ -90,8 +90,8 @@ public class MAS {
          });
      }
 
-    private static synchronized void init(@NonNull final Context context) {
-        stop();
+    private static synchronized void init(@NonNull final Context context, MASLifecycleListener lifecycleListener) {
+        stopInternal();
         // Initialize the MASConfiguration
         appContext = context.getApplicationContext();
         if (context instanceof Activity) {
@@ -107,8 +107,14 @@ public class MAS {
         if (isAlgoRS256() || isPreloadJWKSEnabled())
             addLifeCycleListener(new JWKPreLoadListener());
 
-        Intent intent  = new Intent(appContext, MssoService.class);
-        appContext.bindService(intent, connection, Context.BIND_AUTO_CREATE );
+        if(lifecycleListener != null){
+            masLifecycleListener.put(lifecycleListener.getClass(), lifecycleListener);
+        }
+
+        if(!isBound) {
+            Intent intent = new Intent(appContext, MssoService.class);
+            appContext.bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        }
 
     }
 
@@ -176,26 +182,58 @@ public class MAS {
      * it will load from the default JSON configuration file (msso_config.json).
      */
     public static void start(@NonNull Context context) {
-        init(context);
+        init(context, null);
         MobileSsoFactory.getInstance(context);
         state = MASConstants.MAS_STATE_STARTED;
-        EventDispatcher.STARTED.notifyObservers();
+        if(isBound)
+            EventDispatcher.STARTED.notifyObservers();
+    }
+
+    /**
+     * Starts the lifecycle of the MAS processes.
+     * This will load the last used JSON configuration from storage. If there was none,
+     * it will load from the default JSON configuration file (msso_config.json).
+     */
+    public static void start(@NonNull Context context, MASLifecycleListener masLifecycleListener) {
+        init(context, masLifecycleListener);
+        MobileSsoFactory.getInstance(context);
+        state = MASConstants.MAS_STATE_STARTED;
+        if(isBound)
+           EventDispatcher.STARTED.notifyObservers();
     }
 
     /**
      * Starts the lifecycle of the MAS processes.
      * This will load the default JSON configuration rather than from storage;
-     * if the SDK was already initialized, this method will fully stop and restart the SDK.
+     * if the SDK was already initialized, this method will fully stopInternal and restart the SDK.
      * The default JSON configuration file should be msso_config.json.
      * This will ignore the JSON configuration in the keychain storage and replace it with the default configuration.
      *
      * @param shouldUseDefault Boolean: using default configuration rather than the one in storage.
      */
     public static void start(@NonNull Context context, boolean shouldUseDefault) {
-        init(context);
+        init(context, null);
         MobileSsoFactory.getInstance(context, shouldUseDefault);
         state = MASConstants.MAS_STATE_STARTED;
-        EventDispatcher.STARTED.notifyObservers();
+        if(isBound)
+            EventDispatcher.STARTED.notifyObservers();
+    }
+
+    /**
+     * Starts the lifecycle of the MAS processes.
+     * This will load the default JSON configuration rather than from storage;
+     * if the SDK was already initialized, this method will fully stopInternal and restart the SDK.
+     * The default JSON configuration file should be msso_config.json.
+     * This will ignore the JSON configuration in the keychain storage and replace it with the default configuration.
+     *
+     * @param shouldUseDefault Boolean: using default configuration rather than the one in storage.
+     */
+    public static void start(@NonNull Context context, boolean shouldUseDefault, MASLifecycleListener masLifecycleListener) {
+        init(context, masLifecycleListener);
+        MobileSsoFactory.getInstance(context, shouldUseDefault);
+        state = MASConstants.MAS_STATE_STARTED;
+        if(isBound)
+            EventDispatcher.STARTED.notifyObservers();
     }
 
     /**
@@ -205,8 +243,36 @@ public class MAS {
      * @param jsonConfiguration JSON Configuration object.
      */
     public static void start(@NonNull Context context, JSONObject jsonConfiguration) {
-        init(context);
+        init(context, null);
         MobileSsoFactory.getInstance(context, jsonConfiguration);
+        state = MASConstants.MAS_STATE_STARTED;
+        if(isBound)
+            EventDispatcher.STARTED.notifyObservers();
+    }
+
+    /**
+     * Starts the lifecycle of the MAS processes with the given JSON configuration data.
+     * This method will (if it is different) overwrite the JSON configuration that was stored.
+     *
+     * @param jsonConfiguration JSON Configuration object.
+     */
+    public static void start(@NonNull Context context, JSONObject jsonConfiguration, MASLifecycleListener masLifecycleListener) {
+        init(context, masLifecycleListener);
+        MobileSsoFactory.getInstance(context, jsonConfiguration);
+        state = MASConstants.MAS_STATE_STARTED;
+        if(isBound)
+            EventDispatcher.STARTED.notifyObservers();
+    }
+
+    /**
+     * Starts the lifecycle of the MAS processes with given JSON configuration file path.
+     * This method will (if it is different) overwrite the JSON configuration that was stored.
+     *
+     * @param url URL of the JSON configuration file path.
+     */
+    public static void start(@NonNull Context context, URL url) {
+        init(context, null);
+        MobileSsoFactory.getInstance(context, url);
         state = MASConstants.MAS_STATE_STARTED;
         EventDispatcher.STARTED.notifyObservers();
     }
@@ -217,8 +283,8 @@ public class MAS {
      *
      * @param url URL of the JSON configuration file path.
      */
-    public static void start(@NonNull Context context, URL url) {
-        init(context);
+    public static void start(@NonNull Context context,  URL url, MASLifecycleListener masLifecycleListener) {
+        init(context, masLifecycleListener);
         MobileSsoFactory.getInstance(context, url);
         state = MASConstants.MAS_STATE_STARTED;
         EventDispatcher.STARTED.notifyObservers();
@@ -262,6 +328,16 @@ public class MAS {
             return;
         }
         new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected void onPreExecute() {
+                if(!isBound) {
+                    Intent intent = new Intent(context, MssoService.class);
+                    context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
+                }
+                super.onPreExecute();
+            }
+
             @Override
             protected Void doInBackground(Void... params) {
                 try {
@@ -585,23 +661,50 @@ public class MAS {
     /**
      * Stops the lifecycle of all MAS processes.
      */
-    public static void stop() {
-        if(appContext != null && isBound && connection != null) {
-            if( MAS.getCurrentActivity() != null) {
-                MAS.getCurrentActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        appContext.unbindService(connection);
-                    }
-                });
-            }
-
-        }
+    public static void stopInternal() {
         state = MASConstants.MAS_STATE_STOPPED;
         EventDispatcher.STOP.notifyObservers();
         MobileSsoFactory.reset();
         appContext = null;
     }
+
+
+    /*  public static void stopInternal() {
+       /* if(appContext != null && isBound && connection != null) {
+            if( MAS.getCurrentActivity() != null) {
+                MAS.getCurrentActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        appContext.unbindService(connection);
+
+                    }
+                });
+            }
+
+        }*//*
+
+
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    doStop();
+                }
+            });
+        } else {
+            doStop();
+        }
+    }
+
+    private static void doStop() {
+        if (appContext != null && isBound && connection != null)
+            appContext.unbindService(connection);
+
+        state = MASConstants.MAS_STATE_STOPPED;
+        EventDispatcher.STOP.notifyObservers();
+        MobileSsoFactory.reset();
+        appContext = null;
+    }*/
 
 
     /**
@@ -722,6 +825,10 @@ public class MAS {
         return isBound;
     }
 
+    public static void setIsBound(boolean isBound) {
+        MAS.isBound = isBound;
+    }
+
     /** Defines callbacks for service binding, passed to bindService() */
         private static ServiceConnection connection = new ServiceConnection() {
 
@@ -732,13 +839,49 @@ public class MAS {
                 MssoService.MASBinder binder = (MssoService.MASBinder) service;
                 mssoService = binder.getService();
                 isBound = true;
+
+                if( state == MASConstants.MAS_STATE_STARTED)
+                    EventDispatcher.STARTED.notifyObservers();
+
+                if(DEBUG){
+                    Log.d(TAG, "Service Connected");
+                }
             }
 
             @Override
             public void onServiceDisconnected(ComponentName arg0) {
                 isBound= false;
+                if(DEBUG){
+                    Log.d(TAG, "Service DisConnected");
+                }
             }
         };
 
+ /*       public static void startService(final MASCallback callback ){
 
+            appContext.bindService(new Intent(appContext,MssoService.class), new ServiceConnection(){
+
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    MssoService.MASBinder binder = (MssoService.MASBinder) service;
+                    mssoService = binder.getService();
+                    isBound = true;
+
+                    Callback.onSuccess(callback, null);
+
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+
+
+                }
+            }, 1);
+        } */
+
+        public static void stop(){
+            if(appContext != null && isBound)
+                appContext.unbindService(connection);
+            stopInternal();
+        }
     }

@@ -871,7 +871,7 @@ public class MASTest extends MASLoginTestBase {
 
     @Test
     public void testStop() throws Exception {
-        MAS.stop();
+        MAS.stopInternal();
         MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.PROTECTED_RESOURCE_PRODUCTS))
                 .build();
         MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();

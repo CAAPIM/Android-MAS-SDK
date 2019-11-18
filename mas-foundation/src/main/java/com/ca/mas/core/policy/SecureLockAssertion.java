@@ -30,7 +30,7 @@ class SecureLockAssertion implements MssoAssertion {
     }
 
     /**
-     * If a request to a protected endpoint is made with a locked session, we stop the request.
+     * If a request to a protected endpoint is made with a locked session, we stopInternal the request.
      * @param mssoContext The MSSO context. Required.
      * @param request     The pending HTTP request. Required.
      * @throws SecureLockException

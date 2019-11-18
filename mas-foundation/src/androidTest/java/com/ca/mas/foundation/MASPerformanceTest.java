@@ -15,7 +15,6 @@ import android.util.Log;
 
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
-import com.ca.mas.MASMockGatewayTestBase;
 import com.ca.mas.MASStartTestBase;
 import com.ca.mas.ScenarioInfo;
 import com.ca.mas.ScenarioMasterInfo;
@@ -102,7 +101,7 @@ public class MASPerformanceTest extends MASStartTestBase {
             MASDevice.getCurrentDevice().deregister(null);
         }
         MAS.processPendingRequests();
-        MAS.stop();
+        MAS.stopInternal();
 
     }
 

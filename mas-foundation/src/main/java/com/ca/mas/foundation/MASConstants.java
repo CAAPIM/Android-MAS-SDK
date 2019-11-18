@@ -48,7 +48,7 @@ public class MASConstants {
     public static final int MAS_STATE_STARTED = 3;
 
     /**
-     * State that SDK did stop; at this state, SDK is properly stopped and should be able to re-start.
+     * State that SDK did stopInternal; at this state, SDK is properly stopped and should be able to re-start.
      */
     public static final int MAS_STATE_STOPPED = 4;
 

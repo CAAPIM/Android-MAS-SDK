@@ -106,15 +106,10 @@ public class MssoService extends Service {
 
     public void handleWork(final Intent work) {
 
-        /*AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                onHandleWork(work);
-            }
-        });*/
-        Message msg = new Message();
-        msg.obj = work;
-        mServiceHandler.sendMessage(msg);
+            Message msg = new Message();
+            msg.obj = work;
+            mServiceHandler.sendMessage(msg);
+
     }
 
     public void onHandleWork(Intent intent){
@@ -334,6 +329,14 @@ public class MssoService extends Service {
             mServiceLooper.quit();
         }
 
+        MAS.setIsBound(false);
         super.onDestroy();
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        onDestroy();
+        Log.d(TAG, "onTaskRemoved");
     }
 }

@@ -53,7 +53,7 @@ public abstract class MASStartTestBase extends MASMockGatewayTestBase {
         }
         MASDevice.getCurrentDevice().resetLocally();
         MAS.cancelAllRequests();
-        MAS.stop();
+        MAS.stopInternal();
     }
 
     protected boolean isLocal() {

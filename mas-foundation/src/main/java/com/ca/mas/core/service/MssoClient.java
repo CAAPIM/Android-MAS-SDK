@@ -7,9 +7,12 @@
  */
 package com.ca.mas.core.service;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.ResultReceiver;
 
 import com.ca.mas.core.EventDispatcher;
@@ -21,6 +24,7 @@ import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
 import com.ca.mas.core.util.Functions;
+import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
@@ -32,7 +36,6 @@ import com.ca.mas.foundation.MASUser;
 public class MssoClient {
     private final Context appContext;
     private final MssoContext mssoContext;
-
     /**
      * Create a service client with the specified MSSO context and system context.
      *
@@ -62,9 +65,17 @@ public class MssoClient {
         MssoRequestQueue.getInstance().addRequest(mssoRequest);
 
         final long requestId = mssoRequest.getId();
-        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST);
+        final Intent intent = new Intent(appContext, MssoService.class);
+        intent.setAction(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-        MssoService.enqueueWork(appContext, intent);
+
+        if(MAS.isBound()){
+            MAS.getService().handleWork(intent);
+        } else {
+            MssoServiceConnection conn = new MssoServiceConnection(intent);
+            MAS.setServiceConnection(conn);
+            appContext.bindService(intent, conn, Context.BIND_AUTO_CREATE);
+        }
         return requestId;
     }
 
@@ -73,7 +84,8 @@ public class MssoClient {
         MssoRequestQueue.getInstance().addRequest(mssoRequest);
         long requestId = mssoRequest.getId();
 
-        Intent intent = new Intent(MssoIntents.ACTION_CREDENTIALS_OBTAINED);
+        Intent intent = new Intent(appContext, MssoService.class);
+        intent.setAction(MssoIntents.ACTION_CREDENTIALS_OBTAINED);
         intent.putExtra(MssoIntents.EXTRA_CREDENTIALS, credentials);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
         return intent;
@@ -110,7 +122,14 @@ public class MssoClient {
             }
         }
 
-        MssoService.enqueueWork(appContext, intent);
+        // MssoService.enqueueWork(appContext, intent);
+        if(MAS.isBound()){
+            MAS.getService().handleWork(intent);
+        } else {
+            MssoServiceConnection conn = new MssoServiceConnection(intent);
+            MAS.setServiceConnection(conn);
+            appContext.bindService(intent, conn, Context.BIND_AUTO_CREATE);
+        }
     }
 
     /**
@@ -119,9 +138,16 @@ public class MssoClient {
     public void processPendingRequests() {
         // Currently this should only be necessary when we have started the UNLOCK activity.
         // For the Log On activity, it should take care of signalling the MssoService when it should retry.
-        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST);
+        final Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, (long) -1);
-        MssoService.enqueueWork(appContext, intent);
+        //MssoService.enqueueWork(appContext, intent);
+        if(MAS.isBound()){
+            MAS.getService().handleWork(intent);
+        } else {
+            MssoServiceConnection conn = new MssoServiceConnection(intent);
+            MAS.setServiceConnection(conn);
+            appContext.bindService(intent, conn, Context.BIND_AUTO_CREATE);
+        }
     }
 
     /**
@@ -179,4 +205,5 @@ public class MssoClient {
             }
         }, data);
     }
+
 }

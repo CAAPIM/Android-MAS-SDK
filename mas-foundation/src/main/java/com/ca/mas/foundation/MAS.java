@@ -11,10 +11,14 @@ package com.ca.mas.foundation;
 import android.app.Activity;
 import android.app.Application;
 import android.content.AsyncTaskLoader;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
@@ -28,6 +32,7 @@ import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.core.http.MAGHttpClient;
+import com.ca.mas.core.service.MssoService;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.token.JWTValidatorFactory;
 import com.ca.mas.foundation.notify.Callback;
@@ -43,7 +48,7 @@ import java.util.LinkedHashMap;
 import java.util.Observable;
 import java.util.Observer;
 
-    /**
+/**
  * The top level MAS object represents the Mobile App Services SDK in its entirety.
  * It is where the framework lifecycle begins, and ends if necessary.
  * It is the front facing class where many of the configuration settings for the SDK as a whole
@@ -60,29 +65,34 @@ public class MAS {
     private static MASAuthenticationListener masAuthenticationListener;
     private static MASOtpMultiFactorAuthenticator otpMultiFactorAuthenticator = new MASOtpMultiFactorAuthenticator();
     private static int state;
+    private static long requestId;
 
     private static LinkedHashMap<Class, MASLifecycleListener> masLifecycleListener = new LinkedHashMap<>();
 
 
     private static boolean browserBasedAuthenticationEnabled = false;
 
+    public static MssoService mssoService;
+    public static boolean isBound;
+    private static ServiceConnection connection;
+
     private MAS() {
     }
 
-     static {
-         EventDispatcher.STARTED.addObserver(new Observer() {
-             @Override
-             public void update(Observable o, Object arg) {
+    static {
+        EventDispatcher.STARTED.addObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
 
-                 if (!masLifecycleListener.isEmpty())
-                     for(MASLifecycleListener listner: masLifecycleListener.values()){
-                         listner.onStarted();
-                     }
-             }
-         });
-     }
+                if (!masLifecycleListener.isEmpty())
+                    for(MASLifecycleListener listner: masLifecycleListener.values()){
+                        listner.onStarted();
+                    }
+            }
+        });
+    }
 
-    private static synchronized void init(@NonNull final Context context) {
+    private static synchronized void init(@NonNull final Context context, MASLifecycleListener lifecycleListener) {
         stop();
         // Initialize the MASConfiguration
         appContext = context.getApplicationContext();
@@ -98,10 +108,16 @@ public class MAS {
         registerMultiFactorAuthenticator(otpMultiFactorAuthenticator);
         if (isAlgoRS256() || isPreloadJWKSEnabled())
             addLifeCycleListener(new JWKPreLoadListener());
+
+        if(lifecycleListener != null){
+            masLifecycleListener.put(lifecycleListener.getClass(), lifecycleListener);
+        }
+
+
     }
 
     private static boolean isAlgoRS256() {
-       return  JWTValidatorFactory.Algorithm.RS256.toString().equals(MASConfiguration.getCurrentConfiguration().getIdTokenSignAlg());
+        return  JWTValidatorFactory.Algorithm.RS256.toString().equals(MASConfiguration.getCurrentConfiguration().getIdTokenSignAlg());
     }
 
     private static void registerActivityLifecycleCallbacks(Application application) {
@@ -164,7 +180,19 @@ public class MAS {
      * it will load from the default JSON configuration file (msso_config.json).
      */
     public static void start(@NonNull Context context) {
-        init(context);
+        init(context, null);
+        MobileSsoFactory.getInstance(context);
+        state = MASConstants.MAS_STATE_STARTED;
+        EventDispatcher.STARTED.notifyObservers();
+    }
+
+    /**
+     * Starts the lifecycle of the MAS processes.
+     * This will load the last used JSON configuration from storage. If there was none,
+     * it will load from the default JSON configuration file (msso_config.json).
+     */
+    public static void start(@NonNull Context context, MASLifecycleListener masLifecycleListener) {
+        init(context, masLifecycleListener);
         MobileSsoFactory.getInstance(context);
         state = MASConstants.MAS_STATE_STARTED;
         EventDispatcher.STARTED.notifyObservers();
@@ -180,7 +208,7 @@ public class MAS {
      * @param shouldUseDefault Boolean: using default configuration rather than the one in storage.
      */
     public static void start(@NonNull Context context, boolean shouldUseDefault) {
-        init(context);
+        init(context, null);
         MobileSsoFactory.getInstance(context, shouldUseDefault);
         state = MASConstants.MAS_STATE_STARTED;
         EventDispatcher.STARTED.notifyObservers();
@@ -193,7 +221,7 @@ public class MAS {
      * @param jsonConfiguration JSON Configuration object.
      */
     public static void start(@NonNull Context context, JSONObject jsonConfiguration) {
-        init(context);
+        init(context, null);
         MobileSsoFactory.getInstance(context, jsonConfiguration);
         state = MASConstants.MAS_STATE_STARTED;
         EventDispatcher.STARTED.notifyObservers();
@@ -206,7 +234,7 @@ public class MAS {
      * @param url URL of the JSON configuration file path.
      */
     public static void start(@NonNull Context context, URL url) {
-        init(context);
+        init(context, null);
         MobileSsoFactory.getInstance(context, url);
         state = MASConstants.MAS_STATE_STARTED;
         EventDispatcher.STARTED.notifyObservers();
@@ -250,6 +278,16 @@ public class MAS {
             return;
         }
         new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected void onPreExecute() {
+                if(!isBound) {
+                    Intent intent = new Intent(context, MssoService.class);
+                    context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
+                }
+                super.onPreExecute();
+            }
+
             @Override
             protected Void doInBackground(Void... params) {
                 try {
@@ -293,6 +331,11 @@ public class MAS {
      */
     public static <T> long invoke(final MASRequest request, final MASCallback<MASResponse<T>> callback) {
 
+        return process(request, callback);
+
+    }
+
+    private static <T> long process(final MASRequest request, final MASCallback<MASResponse<T>> callback) {
         return MobileSsoFactory.getInstance().processRequest(request, new MAGResultReceiver<T>(Callback.getHandler(callback)) {
             @Override
             public void onSuccess(final MASResponse<T> response) {
@@ -311,6 +354,10 @@ public class MAS {
                 }
             }
         });
+    }
+
+    public static void setServiceConnection(ServiceConnection conn) {
+        connection = conn;
     }
 
     public static class RequestCancelledException extends Exception {
@@ -574,11 +621,16 @@ public class MAS {
      * Stops the lifecycle of all MAS processes.
      */
     public static void stop() {
+        if(appContext != null && isBound)
+            appContext.unbindService(connection);
         state = MASConstants.MAS_STATE_STOPPED;
         EventDispatcher.STOP.notifyObservers();
         MobileSsoFactory.reset();
         appContext = null;
+
     }
+
+
 
 
     /**
@@ -690,4 +742,21 @@ public class MAS {
         MASRequest downloadRequest = downloadRequestBuilder.build();
         MAS.invoke(downloadRequest, callback);
     }*/
+
+    public static MssoService getService() {
+        return mssoService;
+    }
+
+    public static void setService(MssoService mssoService) {
+        MAS.mssoService = mssoService;
+    }
+
+    public static boolean isBound() {
+        return isBound;
+    }
+
+    public static void setIsBound(boolean isBound) {
+        MAS.isBound = isBound;
+    }
+
 }

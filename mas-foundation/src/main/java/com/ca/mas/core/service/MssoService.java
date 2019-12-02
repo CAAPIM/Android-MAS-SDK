@@ -7,12 +7,17 @@
  */
 package com.ca.mas.core.service;
 
-import android.content.Context;
+import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.os.ResultReceiver;
-import android.support.annotation.NonNull;
-import android.support.v4.app.JobIntentService;
 import android.util.Log;
 
 import com.ca.mas.core.MobileSsoListener;
@@ -33,6 +38,7 @@ import com.ca.mas.foundation.MASResponse;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
@@ -41,54 +47,120 @@ import static com.ca.mas.foundation.MAS.TAG;
  * An JobIntentService that receives outbound HTTP requests encoded into Intents and returns the eventual responses
  * via a ResultReceiver.
  */
-public class MssoService extends JobIntentService {
+public class MssoService extends Service {
 
     private static final int JOB_ID = 1000;
+    private final IBinder binder = new MASBinder();
+    private Looper mServiceLooper;
+    private volatile ServiceHandler mServiceHandler;
+    AtomicInteger threadNum = new AtomicInteger(1);
+    private HandlerThread handlerThread;
 
-    /**
-     * Enqueuing work to this service
-     */
-    public static void enqueueWork(Context context, Intent work) {
-        enqueueWork(context, MssoService.class, JOB_ID, work);
+
+    private final class ServiceHandler extends Handler {
+        public ServiceHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            onHandleWork((Intent)msg.obj);
+        }
     }
 
     @Override
-    protected void onHandleWork(@NonNull Intent intent) {
+    public void onCreate() {
+        super.onCreate();
+
+        handlerThread = new HandlerThread("BoundService Thread[" + threadNum + "]");
+        handlerThread.start();
+
+        mServiceLooper = handlerThread.getLooper();
+        mServiceHandler = new ServiceHandler(mServiceLooper);
+
+    }
+
+
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.d(TAG, "MssoService onBind");
+        return binder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+
+        Log.d(TAG, "MssoService onUnBind");
+
+        return super.onUnbind(intent);
+    }
+
+    public class MASBinder extends Binder {
+        public MssoService getService() {
+            // Return this instance of MssoService so clients can call public methods
+            return MssoService.this;
+        }
+    }
+
+    public void handleWork(final Intent work) {
+
+        Message msg = new Message();
+        msg.obj = work;
+        mServiceHandler.sendMessage(msg);
+
+    }
+
+    public void onHandleWork(Intent intent){
+
+        Log.d(TAG, "MssoService processRequest");
         String action = intent.getAction();
         if (action == null) {
             if (DEBUG) Log.w(TAG, "Intent did not contain an action");
+            stopSelf();
             return;
         }
 
         Bundle extras = intent.getExtras();
         if (extras == null || !extras.containsKey(MssoIntents.EXTRA_REQUEST_ID)) {
             if (DEBUG) Log.w(TAG, "Intent did not contain extras that included a request ID");
+            stopSelf();
             return;
         }
 
         long requestId = extras.getLong(MssoIntents.EXTRA_REQUEST_ID);
         if (requestId == -1) {
             onProcessAllPendingRequests();
+            stopSelf();
             return;
         }
 
-        MssoRequest request = takeActiveRequest(requestId);
+        final MssoRequest request = takeActiveRequest(requestId);
         if (request == null) {
             if (DEBUG)
                 Log.d(TAG, "Request ID not found, assuming request is canceled or already processed");
+            stopSelf();
             return;
         }
 
         if (MssoIntents.ACTION_PROCESS_REQUEST.equals(action)) {
             startThreadedRequest(extras, request);
+
             return;
         } else if (MssoIntents.ACTION_CREDENTIALS_OBTAINED.equals(action)) {
             //The request is AuthenticateRequest
+            MASAuthCredentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
+            request.getMssoContext().setCredentials(creds);
+            //request.setExtra(extras);
+            // startThreadedRequest(extras, request);
             onCredentialsObtained(extras, request);
+            stopSelf();
             return;
         }
 
         if (DEBUG) Log.w(TAG, "Ignoring intent with unrecognized action " + action);
+
     }
 
     private void startThreadedRequest(final Bundle extras, final MssoRequest request) {
@@ -116,11 +188,13 @@ public class MssoService extends JobIntentService {
         request.getMssoContext().setCredentials(creds);
         //For AuthenticateRequest, we don't want to run it with new thread
         onProcessRequest(request);
-
     }
 
     private void onProcessAllPendingRequests() {
+
+        Log.d(TAG, "In processAllRequests");
         final Collection<MssoRequest> requests = new ArrayList<>(MssoActiveQueue.getInstance().getAllRequest());
+        Log.d(TAG, "In processAllRequests requests = "+ requests.toString());
         for (MssoRequest mssoRequest : requests) {
             if (!mssoRequest.isRunning()) {
                 startThreadedRequest(null, mssoRequest);
@@ -130,6 +204,8 @@ public class MssoService extends JobIntentService {
 
     private void onProcessRequest(final MssoRequest request) {
         //The request is in running state
+        Log.d(TAG, "In  onProcessRequest");
+
         request.setRunning(true);
         ResultReceiver receiver = request.getResultReceiver();
 
@@ -245,5 +321,28 @@ public class MssoService extends JobIntentService {
             resultData.putLong(MssoIntents.RESULT_REQUEST_ID, requestId);
             receiver.send(MssoIntents.RESULT_CODE_SUCCESS, resultData);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        if(DEBUG)
+            Log.d(TAG, "MssoService onDestroy");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            //handlerThread.quitSafely();
+            mServiceLooper.quitSafely();
+        } else {
+            //handlerThread.quit();
+            mServiceLooper.quit();
+        }
+
+        MAS.setIsBound(false);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        onDestroy();
+        Log.d(TAG, "onTaskRemoved");
     }
 }

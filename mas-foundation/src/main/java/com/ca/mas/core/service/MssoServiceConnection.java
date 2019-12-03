@@ -15,11 +15,21 @@ import static com.ca.mas.foundation.MAS.TAG;
  */
 
 public class MssoServiceConnection implements ServiceConnection {
-    private Intent intent;
+    private static Intent intent;
+    private static MssoServiceConnection _instance;
 
-    public MssoServiceConnection(Intent intent){
-     this.intent = intent;
+    private MssoServiceConnection(){
+
     }
+
+    public static MssoServiceConnection getInstance(Intent mIntent){
+        intent = mIntent;
+        if (_instance == null){
+             _instance = new MssoServiceConnection();
+        }
+        return _instance;
+    }
+
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         if(MAS.DEBUG){
@@ -37,6 +47,8 @@ public class MssoServiceConnection implements ServiceConnection {
             Log.d(TAG, "onServiceDisconnected called");
         }
         MAS.setIsBound(false);
+        MAS.setService(null);
+        _instance = null;
 
     }
 }

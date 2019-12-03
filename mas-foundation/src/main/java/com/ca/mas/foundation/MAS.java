@@ -74,6 +74,7 @@ public class MAS {
 
     public static MssoService mssoService;
     public static boolean isBound;
+    private static boolean shouldUnbind;
     private static ServiceConnection connection;
 
     private MAS() {
@@ -279,14 +280,6 @@ public class MAS {
         }
         new AsyncTask<Void, Void, Void>() {
 
-            @Override
-            protected void onPreExecute() {
-                if(!isBound) {
-                    Intent intent = new Intent(context, MssoService.class);
-                    context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
-                }
-                super.onPreExecute();
-            }
 
             @Override
             protected Void doInBackground(Void... params) {
@@ -621,8 +614,12 @@ public class MAS {
      * Stops the lifecycle of all MAS processes.
      */
     public static void stop() {
-        if(appContext != null && isBound)
-            appContext.unbindService(connection);
+        if(appContext != null && connection != null) {
+                appContext.unbindService(connection);
+                isBound = false;
+                connection = null;
+
+        }//https://developer.android.com/reference/android/app/Service.html
         state = MASConstants.MAS_STATE_STOPPED;
         EventDispatcher.STOP.notifyObservers();
         MobileSsoFactory.reset();
@@ -759,4 +756,11 @@ public class MAS {
         MAS.isBound = isBound;
     }
 
+    public static boolean isShouldUnbind() {
+        return shouldUnbind;
+    }
+
+    public static void setShouldUnbind(boolean shouldUnbind) {
+        MAS.shouldUnbind = shouldUnbind;
+    }
 }

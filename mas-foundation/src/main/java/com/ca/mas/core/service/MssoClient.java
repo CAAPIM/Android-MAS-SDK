@@ -69,25 +69,26 @@ public class MssoClient {
         intent.setAction(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
 
-        if(MAS.isBound()){
-            MAS.getService().handleWork(intent);
+        if(MssoServiceState.getInstance().isBound()){
+            MssoServiceState.getInstance().getMssoService().handleWork(intent);
         } else {
             final ServiceConnection conn = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder service) {
                     MssoService.MASBinder binder = (MssoService.MASBinder) service;
-                    MAS.setService(binder.getService());
-                    MAS.setIsBound(true);
-                    MAS.getService().handleWork(intent);
+                    MssoServiceState.getInstance().setMssoService(binder.getService());
+                    MssoServiceState.getInstance().setBound(true);
+                    MssoServiceState.getInstance().getMssoService().handleWork(intent);
                 }
 
                 @Override
                 public void onServiceDisconnected(ComponentName name) {
-                    MAS.setIsBound(false);
+                    MssoServiceState.getInstance().setBound(false);
+                    MssoServiceState.getInstance().setMssoService(null);
 
                 }
             };
-            MAS.setServiceConnection(conn);
+            MssoServiceState.getInstance().setServiceConnection(conn);
             appContext.bindService(intent, conn, Context.BIND_AUTO_CREATE);
         }
         return requestId;
@@ -137,24 +138,26 @@ public class MssoClient {
         }
 
         // MssoService.enqueueWork(appContext, intent);
-        if(MAS.isBound()){
-            MAS.getService().handleWork(intent);
+        if(MssoServiceState.getInstance().isBound()){
+            MssoServiceState.getInstance().getMssoService().handleWork(intent);
         } else {
             final ServiceConnection conn = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder service) {
                     MssoService.MASBinder binder = (MssoService.MASBinder) service;
-                    MAS.setService(binder.getService());
-                    MAS.setIsBound(true);
-                    MAS.getService().handleWork(intent);
+                    MssoServiceState.getInstance().setMssoService(binder.getService());
+                    MssoServiceState.getInstance().setBound(true);
+                    MssoServiceState.getInstance().getMssoService().handleWork(intent);
                 }
 
                 @Override
                 public void onServiceDisconnected(ComponentName name) {
-                    MAS.setIsBound(false);
+                    MssoServiceState.getInstance().setBound(false);
+                    MssoServiceState.getInstance().setMssoService(null);
+
                 }
             };
-            MAS.setServiceConnection(conn);
+            MssoServiceState.getInstance().setServiceConnection(conn);
             appContext.bindService(intent, conn, Context.BIND_AUTO_CREATE);
         }
     }
@@ -168,25 +171,26 @@ public class MssoClient {
         final Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, (long) -1);
         //MssoService.enqueueWork(appContext, intent);
-        if(MAS.isBound()){
-            MAS.getService().handleWork(intent);
+        if(MssoServiceState.getInstance().isBound()){
+            MssoServiceState.getInstance().getMssoService().handleWork(intent);
         } else {
             final ServiceConnection conn = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder service) {
                     MssoService.MASBinder binder = (MssoService.MASBinder) service;
-                    MAS.setService(binder.getService());
-                    MAS.setIsBound(true);
-                    MAS.getService().handleWork(intent);
+                    MssoServiceState.getInstance().setMssoService(binder.getService());
+                    MssoServiceState.getInstance().setBound(true);
+                    MssoServiceState.getInstance().getMssoService().handleWork(intent);
                 }
 
                 @Override
                 public void onServiceDisconnected(ComponentName name) {
-                    MAS.setIsBound(false);
+                    MssoServiceState.getInstance().setBound(false);
+                    MssoServiceState.getInstance().setMssoService(null);
 
                 }
             };
-            MAS.setServiceConnection(conn);
+            MssoServiceState.getInstance().setServiceConnection(conn);
             appContext.bindService(intent, conn, Context.BIND_AUTO_CREATE);
         }
     }

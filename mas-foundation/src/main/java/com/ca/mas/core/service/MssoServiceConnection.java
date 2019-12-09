@@ -16,18 +16,9 @@ import static com.ca.mas.foundation.MAS.TAG;
 
 public class MssoServiceConnection implements ServiceConnection {
     private static Intent intent;
-    private static MssoServiceConnection _instance;
 
-    private MssoServiceConnection(){
-
-    }
-
-    public static MssoServiceConnection getInstance(Intent mIntent){
+    public MssoServiceConnection(Intent mIntent){
         intent = mIntent;
-        if (_instance == null){
-             _instance = new MssoServiceConnection();
-        }
-        return _instance;
     }
 
     @Override
@@ -36,9 +27,9 @@ public class MssoServiceConnection implements ServiceConnection {
             Log.d(TAG, "onServiceConnected called");
         }
         MssoService.MASBinder binder = (MssoService.MASBinder) service;
-        MAS.setService(binder.getService());
-        MAS.setIsBound(true);
-        MAS.getService().handleWork(intent);
+        MssoServiceState.getInstance().setMssoService(binder.getService());
+        MssoServiceState.getInstance().setBound(true);
+        MssoServiceState.getInstance().getMssoService().handleWork(intent);
     }
 
     @Override
@@ -46,9 +37,7 @@ public class MssoServiceConnection implements ServiceConnection {
         if(MAS.DEBUG){
             Log.d(TAG, "onServiceDisconnected called");
         }
-        MAS.setIsBound(false);
-        MAS.setService(null);
-        _instance = null;
-
+        MssoServiceState.getInstance().setBound(true);
+        MssoServiceState.getInstance().setMssoService(null);
     }
 }

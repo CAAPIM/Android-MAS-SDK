@@ -335,7 +335,7 @@ public class MssoService extends Service {
             mServiceLooper.quit();
         }
 
-        MAS.setIsBound(false);
+        MssoServiceState.getInstance().setBound(false);
         super.onDestroy();
     }
 

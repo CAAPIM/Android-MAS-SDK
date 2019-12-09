@@ -11,14 +11,10 @@ package com.ca.mas.foundation;
 import android.app.Activity;
 import android.app.Application;
 import android.content.AsyncTaskLoader;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
@@ -32,7 +28,7 @@ import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.core.http.MAGHttpClient;
-import com.ca.mas.core.service.MssoService;
+import com.ca.mas.core.service.MssoServiceState;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.token.JWTValidatorFactory;
 import com.ca.mas.foundation.notify.Callback;
@@ -65,17 +61,11 @@ public class MAS {
     private static MASAuthenticationListener masAuthenticationListener;
     private static MASOtpMultiFactorAuthenticator otpMultiFactorAuthenticator = new MASOtpMultiFactorAuthenticator();
     private static int state;
-    private static long requestId;
 
     private static LinkedHashMap<Class, MASLifecycleListener> masLifecycleListener = new LinkedHashMap<>();
 
 
     private static boolean browserBasedAuthenticationEnabled = false;
-
-    public static MssoService mssoService;
-    public static boolean isBound;
-    private static boolean shouldUnbind;
-    private static ServiceConnection connection;
 
     private MAS() {
     }
@@ -113,7 +103,6 @@ public class MAS {
         if(lifecycleListener != null){
             masLifecycleListener.put(lifecycleListener.getClass(), lifecycleListener);
         }
-
 
     }
 
@@ -347,10 +336,6 @@ public class MAS {
                 }
             }
         });
-    }
-
-    public static void setServiceConnection(ServiceConnection conn) {
-        connection = conn;
     }
 
     public static class RequestCancelledException extends Exception {
@@ -614,12 +599,7 @@ public class MAS {
      * Stops the lifecycle of all MAS processes.
      */
     public static void stop() {
-        if(appContext != null && connection != null) {
-                appContext.unbindService(connection);
-                isBound = false;
-                connection = null;
-
-        }//https://developer.android.com/reference/android/app/Service.html
+        unbind();
         state = MASConstants.MAS_STATE_STOPPED;
         EventDispatcher.STOP.notifyObservers();
         MobileSsoFactory.reset();
@@ -627,7 +607,13 @@ public class MAS {
 
     }
 
-
+    private static void unbind() {
+        if (appContext != null && MssoServiceState.getInstance().getServiceConnection() != null) {
+            appContext.unbindService(MssoServiceState.getInstance().getServiceConnection());
+            MssoServiceState.getInstance().setBound(false);
+            MssoServiceState.getInstance().setServiceConnection(null);
+        }
+    }
 
 
     /**
@@ -707,14 +693,15 @@ public class MAS {
      * @param  callback           The {@link MASCallback}, required.
      * @throws MASException       If network call fails due to various reasons.
      * @throws MAGRuntimeException If multipart is null or file part and form fields, both are empty.
+     * @return requestId
      */
-    public static void postMultiPartForm(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException, MAGRuntimeException {
+    public static long postMultiPartForm(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException, MAGRuntimeException {
         if(multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormFields().isEmpty())){
             throw new MAGRuntimeException(MAGErrorCode.INVALID_REUEST, "Multipart body empty");
         }
         MASRequest masRequest = new MASRequest.MASRequestBuilder(request).post(MASRequestBody.multipartBody(multipart, progressListener)).
                 build();
-        MAS.invoke(masRequest, callback);
+        return MAS.invoke(masRequest, callback);
     }
 
     /**
@@ -740,27 +727,5 @@ public class MAS {
         MAS.invoke(downloadRequest, callback);
     }*/
 
-    public static MssoService getService() {
-        return mssoService;
-    }
 
-    public static void setService(MssoService mssoService) {
-        MAS.mssoService = mssoService;
-    }
-
-    public static boolean isBound() {
-        return isBound;
-    }
-
-    public static void setIsBound(boolean isBound) {
-        MAS.isBound = isBound;
-    }
-
-    public static boolean isShouldUnbind() {
-        return shouldUnbind;
-    }
-
-    public static void setShouldUnbind(boolean shouldUnbind) {
-        MAS.shouldUnbind = shouldUnbind;
-    }
 }

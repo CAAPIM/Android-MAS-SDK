@@ -19,6 +19,7 @@ import android.os.Parcelable;
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.MssoService;
 import com.ca.mas.core.service.MssoServiceConnection;
+import com.ca.mas.core.service.MssoServiceState;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -60,25 +61,26 @@ public class MASMultiFactorHandler implements Parcelable {
         intent.putExtra(MssoIntents.EXTRA_ADDITIONAL_HEADERS, (Serializable) previousAdditionalHeaders);
 
 
-        if(MAS.isBound()){
-            MAS.getService().handleWork(intent);
+        if(MssoServiceState.getInstance().isBound()){
+            MssoServiceState.getInstance().getMssoService().handleWork(intent);
         } else {
             final ServiceConnection conn = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder service) {
                     MssoService.MASBinder binder = (MssoService.MASBinder) service;
-                    MAS.setService(binder.getService());
-                    MAS.setIsBound(true);
-                    MAS.getService().handleWork(intent);
+                    MssoServiceState.getInstance().setMssoService(binder.getService());
+                    MssoServiceState.getInstance().setBound(true);
+                    MssoServiceState.getInstance().getMssoService().handleWork(intent);
                 }
 
                 @Override
                 public void onServiceDisconnected(ComponentName name) {
-                    MAS.setIsBound(false);
+                    MssoServiceState.getInstance().setBound(false);
+                    MssoServiceState.getInstance().setMssoService(null);
 
                 }
             };
-            MAS.setServiceConnection(conn);
+            MssoServiceState.getInstance().setServiceConnection(conn);
             context.bindService(intent, conn, Context.BIND_AUTO_CREATE);
         }
     }

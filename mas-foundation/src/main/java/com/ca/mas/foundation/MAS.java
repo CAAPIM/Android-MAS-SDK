@@ -83,7 +83,7 @@ public class MAS {
         });
     }
 
-    private static synchronized void init(@NonNull final Context context, MASLifecycleListener lifecycleListener) {
+    private static synchronized void init(@NonNull final Context context) {
         stop();
         // Initialize the MASConfiguration
         appContext = context.getApplicationContext();
@@ -99,11 +99,6 @@ public class MAS {
         registerMultiFactorAuthenticator(otpMultiFactorAuthenticator);
         if (isAlgoRS256() || isPreloadJWKSEnabled())
             addLifeCycleListener(new JWKPreLoadListener());
-
-        if(lifecycleListener != null){
-            masLifecycleListener.put(lifecycleListener.getClass(), lifecycleListener);
-        }
-
     }
 
     private static boolean isAlgoRS256() {
@@ -170,19 +165,7 @@ public class MAS {
      * it will load from the default JSON configuration file (msso_config.json).
      */
     public static void start(@NonNull Context context) {
-        init(context, null);
-        MobileSsoFactory.getInstance(context);
-        state = MASConstants.MAS_STATE_STARTED;
-        EventDispatcher.STARTED.notifyObservers();
-    }
-
-    /**
-     * Starts the lifecycle of the MAS processes.
-     * This will load the last used JSON configuration from storage. If there was none,
-     * it will load from the default JSON configuration file (msso_config.json).
-     */
-    public static void start(@NonNull Context context, MASLifecycleListener masLifecycleListener) {
-        init(context, masLifecycleListener);
+        init(context);
         MobileSsoFactory.getInstance(context);
         state = MASConstants.MAS_STATE_STARTED;
         EventDispatcher.STARTED.notifyObservers();
@@ -198,7 +181,7 @@ public class MAS {
      * @param shouldUseDefault Boolean: using default configuration rather than the one in storage.
      */
     public static void start(@NonNull Context context, boolean shouldUseDefault) {
-        init(context, null);
+        init(context);
         MobileSsoFactory.getInstance(context, shouldUseDefault);
         state = MASConstants.MAS_STATE_STARTED;
         EventDispatcher.STARTED.notifyObservers();
@@ -211,7 +194,7 @@ public class MAS {
      * @param jsonConfiguration JSON Configuration object.
      */
     public static void start(@NonNull Context context, JSONObject jsonConfiguration) {
-        init(context, null);
+        init(context);
         MobileSsoFactory.getInstance(context, jsonConfiguration);
         state = MASConstants.MAS_STATE_STARTED;
         EventDispatcher.STARTED.notifyObservers();
@@ -224,7 +207,7 @@ public class MAS {
      * @param url URL of the JSON configuration file path.
      */
     public static void start(@NonNull Context context, URL url) {
-        init(context, null);
+        init(context);
         MobileSsoFactory.getInstance(context, url);
         state = MASConstants.MAS_STATE_STARTED;
         EventDispatcher.STARTED.notifyObservers();
@@ -268,8 +251,6 @@ public class MAS {
             return;
         }
         new AsyncTask<Void, Void, Void>() {
-
-
             @Override
             protected Void doInBackground(Void... params) {
                 try {
@@ -313,11 +294,6 @@ public class MAS {
      */
     public static <T> long invoke(final MASRequest request, final MASCallback<MASResponse<T>> callback) {
 
-        return process(request, callback);
-
-    }
-
-    private static <T> long process(final MASRequest request, final MASCallback<MASResponse<T>> callback) {
         return MobileSsoFactory.getInstance().processRequest(request, new MAGResultReceiver<T>(Callback.getHandler(callback)) {
             @Override
             public void onSuccess(final MASResponse<T> response) {
@@ -599,20 +575,15 @@ public class MAS {
      * Stops the lifecycle of all MAS processes.
      */
     public static void stop() {
-        unbind();
-        state = MASConstants.MAS_STATE_STOPPED;
-        EventDispatcher.STOP.notifyObservers();
-        MobileSsoFactory.reset();
-        appContext = null;
-
-    }
-
-    private static void unbind() {
         if (appContext != null && MssoServiceState.getInstance().getServiceConnection() != null) {
             appContext.unbindService(MssoServiceState.getInstance().getServiceConnection());
             MssoServiceState.getInstance().setBound(false);
             MssoServiceState.getInstance().setServiceConnection(null);
         }
+        state = MASConstants.MAS_STATE_STOPPED;
+        EventDispatcher.STOP.notifyObservers();
+        MobileSsoFactory.reset();
+        appContext = null;
     }
 
 
@@ -693,15 +664,14 @@ public class MAS {
      * @param  callback           The {@link MASCallback}, required.
      * @throws MASException       If network call fails due to various reasons.
      * @throws MAGRuntimeException If multipart is null or file part and form fields, both are empty.
-     * @return requestId
      */
-    public static long postMultiPartForm(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException, MAGRuntimeException {
+    public static void postMultiPartForm(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException, MAGRuntimeException {
         if(multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormFields().isEmpty())){
             throw new MAGRuntimeException(MAGErrorCode.INVALID_REUEST, "Multipart body empty");
         }
         MASRequest masRequest = new MASRequest.MASRequestBuilder(request).post(MASRequestBody.multipartBody(multipart, progressListener)).
                 build();
-        return MAS.invoke(masRequest, callback);
+        MAS.invoke(masRequest, callback);
     }
 
     /**
@@ -718,14 +688,10 @@ public class MAS {
         if(request.getHeaders().get("request-type")== null){
             throw new MAGRuntimeException(MAGErrorCode.INVALID_INPUT,"'request-type' header missing", null);
         }
-
         MASRequest.MASRequestBuilder downloadRequestBuilder = new MASRequest.MASRequestBuilder(request);
         downloadRequestBuilder.setDownloadFile(filePath);
         downloadRequestBuilder.progressListener(progressListener);
-
         MASRequest downloadRequest = downloadRequestBuilder.build();
         MAS.invoke(downloadRequest, callback);
     }*/
-
-
 }

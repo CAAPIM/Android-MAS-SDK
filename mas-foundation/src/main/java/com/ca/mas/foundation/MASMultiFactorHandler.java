@@ -64,7 +64,7 @@ public class MASMultiFactorHandler implements Parcelable {
         if(MssoServiceState.getInstance().isBound()){
             MssoServiceState.getInstance().getMssoService().handleWork(intent);
         } else {
-            final ServiceConnection conn = new MssoServiceConnection(intent);
+            ServiceConnection conn = new MssoServiceConnection(intent);
             MssoServiceState.getInstance().setServiceConnection(conn);
             context.bindService(intent, conn, Context.BIND_AUTO_CREATE);
         }

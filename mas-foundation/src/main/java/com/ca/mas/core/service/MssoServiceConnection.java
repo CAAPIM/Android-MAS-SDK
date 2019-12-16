@@ -15,7 +15,7 @@ import static com.ca.mas.foundation.MAS.TAG;
  */
 
 public class MssoServiceConnection implements ServiceConnection {
-    private static Intent intent;
+    private Intent intent;
 
     public MssoServiceConnection(Intent mIntent){
         intent = mIntent;
@@ -37,7 +37,8 @@ public class MssoServiceConnection implements ServiceConnection {
         if(MAS.DEBUG){
             Log.d(TAG, "onServiceDisconnected called");
         }
-        MssoServiceState.getInstance().setBound(true);
+        MssoServiceState.getInstance().setBound(false);
         MssoServiceState.getInstance().setMssoService(null);
     }
+
 }

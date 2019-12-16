@@ -145,7 +145,7 @@ public class MssoClient {
     }
 
     private void connect(final Intent intent) {
-        final ServiceConnection conn = new MssoServiceConnection(intent);
+        ServiceConnection conn = new MssoServiceConnection(intent);
         MssoServiceState.getInstance().setServiceConnection(conn);
         appContext.bindService(intent, conn, Context.BIND_AUTO_CREATE);
     }

@@ -11,7 +11,9 @@ import com.ca.mas.foundation.MAS;
 import static com.ca.mas.foundation.MAS.TAG;
 
 /**
- * A ServiceConnection class used for binding to MssoService. This connection instance will be used to bind and unbind from MssoService.
+ * A ServiceConnection class used for binding to MssoService.
+ * This connection instance will be used to bind and unbind from MssoService.
+ * See {@link ServiceConnection} for more details.
  */
 
 public class MssoServiceConnection implements ServiceConnection {

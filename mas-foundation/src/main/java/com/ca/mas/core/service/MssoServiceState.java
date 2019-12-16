@@ -2,6 +2,11 @@ package com.ca.mas.core.service;
 
 import android.content.ServiceConnection;
 
+
+/**
+ * Represents state of the {@link MssoService}, if it is bound or not.
+ * Also maintains a {@link MssoService} instance and a {@link ServiceConnection} instance.
+ */
 public class MssoServiceState {
 
     private  static MssoServiceState _instance;

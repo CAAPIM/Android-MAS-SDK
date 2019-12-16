@@ -7,12 +7,10 @@
  */
 package com.ca.mas.core.service;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.ResultReceiver;
 
 import com.ca.mas.core.EventDispatcher;
@@ -24,7 +22,6 @@ import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.core.store.TokenStoreException;
 import com.ca.mas.core.util.Functions;
-import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
@@ -68,11 +65,10 @@ public class MssoClient {
         final Intent intent = new Intent(appContext, MssoService.class);
         intent.setAction(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
-
         if(MssoServiceState.getInstance().isBound()){
             MssoServiceState.getInstance().getMssoService().handleWork(intent);
         } else {
-            connect(intent);
+            bind(intent);
         }
         return requestId;
     }
@@ -120,11 +116,10 @@ public class MssoClient {
             }
         }
 
-        // MssoService.enqueueWork(appContext, intent);
         if(MssoServiceState.getInstance().isBound()){
             MssoServiceState.getInstance().getMssoService().handleWork(intent);
         } else {
-            connect(intent);
+            bind(intent);
         }
     }
 
@@ -136,15 +131,18 @@ public class MssoClient {
         // For the Log On activity, it should take care of signalling the MssoService when it should retry.
         final Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, (long) -1);
-        //MssoService.enqueueWork(appContext, intent);
+
         if(MssoServiceState.getInstance().isBound()){
             MssoServiceState.getInstance().getMssoService().handleWork(intent);
         } else {
-            connect(intent);
+            bind(intent);
         }
     }
 
-    private void connect(final Intent intent) {
+    /**
+     * Binds to a MssoService by creating a ServiceConnection object.
+     */
+    private void bind(final Intent intent) {
         ServiceConnection conn = new MssoServiceConnection(intent);
         MssoServiceState.getInstance().setServiceConnection(conn);
         appContext.bindService(intent, conn, Context.BIND_AUTO_CREATE);

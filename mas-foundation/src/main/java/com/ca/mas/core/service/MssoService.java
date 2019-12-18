@@ -49,31 +49,16 @@ import static com.ca.mas.foundation.MAS.TAG;
  */
 public class MssoService extends Service {
 
-    private static final int JOB_ID = 1000;
     private final IBinder binder = new MASBinder();
+    AtomicInteger threadNum = new AtomicInteger(1);
     private Looper mServiceLooper;
     private volatile ServiceHandler mServiceHandler;
-    AtomicInteger threadNum = new AtomicInteger(1);
-    private HandlerThread handlerThread;
-
-
-    private final class ServiceHandler extends Handler {
-        public ServiceHandler(Looper looper) {
-            super(looper);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-
-            onHandleWork((Intent)msg.obj);
-        }
-    }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        handlerThread = new HandlerThread("BoundService Thread[" + threadNum + "]");
+        HandlerThread handlerThread = new HandlerThread("BoundService Thread[" + threadNum + "]");
         handlerThread.start();
 
         mServiceLooper = handlerThread.getLooper();
@@ -81,27 +66,18 @@ public class MssoService extends Service {
 
     }
 
-
-
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG, "MssoService onBind");
+        if (DEBUG) Log.d(TAG, "MssoService onBind");
         return binder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
 
-        Log.d(TAG, "MssoService onUnBind");
+        if (DEBUG) Log.d(TAG, "MssoService onUnBind");
 
         return super.onUnbind(intent);
-    }
-
-    public class MASBinder extends Binder {
-        public MssoService getService() {
-            // Return this instance of MssoService so clients can call public methods
-            return MssoService.this;
-        }
     }
 
     public void handleWork(final Intent work) {
@@ -112,9 +88,9 @@ public class MssoService extends Service {
 
     }
 
-    public void onHandleWork(Intent intent){
+    public void onHandleWork(Intent intent) {
 
-        Log.d(TAG, "MssoService processRequest");
+        if (DEBUG) Log.d(TAG, "MssoService onHandleWork");
         String action = intent.getAction();
         if (action == null) {
             if (DEBUG) Log.w(TAG, "Intent did not contain an action");
@@ -152,8 +128,6 @@ public class MssoService extends Service {
             //The request is AuthenticateRequest
             MASAuthCredentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
             request.getMssoContext().setCredentials(creds);
-            //request.setExtra(extras);
-            // startThreadedRequest(extras, request);
             onCredentialsObtained(extras, request);
             stopSelf();
             return;
@@ -194,7 +168,7 @@ public class MssoService extends Service {
 
         Log.d(TAG, "In processAllRequests");
         final Collection<MssoRequest> requests = new ArrayList<>(MssoActiveQueue.getInstance().getAllRequest());
-        Log.d(TAG, "In processAllRequests requests = "+ requests.toString());
+        Log.d(TAG, "In processAllRequests requests = " + requests.toString());
         for (MssoRequest mssoRequest : requests) {
             if (!mssoRequest.isRunning()) {
                 startThreadedRequest(null, mssoRequest);
@@ -325,24 +299,33 @@ public class MssoService extends Service {
 
     @Override
     public void onDestroy() {
-        if(DEBUG)
+        if (DEBUG)
             Log.d(TAG, "MssoService onDestroy");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            //handlerThread.quitSafely();
             mServiceLooper.quitSafely();
         } else {
-            //handlerThread.quit();
             mServiceLooper.quit();
         }
-
         MssoServiceState.getInstance().setBound(false);
         super.onDestroy();
     }
 
-    @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
-        onDestroy();
-        Log.d(TAG, "onTaskRemoved");
+    private final class ServiceHandler extends Handler {
+        public ServiceHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            onHandleWork((Intent) msg.obj);
+        }
     }
+
+    public class MASBinder extends Binder {
+        public MssoService getService() {
+            return MssoService.this;
+        }
+    }
+
 }

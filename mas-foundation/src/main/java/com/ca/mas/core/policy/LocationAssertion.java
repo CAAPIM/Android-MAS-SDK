@@ -12,7 +12,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.core.conf.ConfigurationProvider;
@@ -22,7 +22,6 @@ import com.ca.mas.core.policy.exceptions.LocationInvalidException;
 import com.ca.mas.core.policy.exceptions.LocationRequiredException;
 import com.ca.mas.foundation.MASResponse;
 
-import java.net.HttpURLConnection;
 import java.util.Timer;
 import java.util.TimerTask;
 

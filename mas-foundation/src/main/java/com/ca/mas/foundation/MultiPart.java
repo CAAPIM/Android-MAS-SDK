@@ -1,6 +1,6 @@
 package com.ca.mas.foundation;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;

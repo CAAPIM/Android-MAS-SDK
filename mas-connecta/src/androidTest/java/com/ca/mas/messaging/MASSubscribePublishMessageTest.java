@@ -13,7 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
@@ -27,7 +27,6 @@ import com.ca.mas.messaging.topic.MASTopicBuilder;
 
 import junit.framework.Assert;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 

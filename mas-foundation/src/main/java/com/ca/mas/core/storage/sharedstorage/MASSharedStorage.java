@@ -8,7 +8,7 @@
 package com.ca.mas.core.storage.sharedstorage;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ca.mas.core.security.EncryptionProvider;
 import com.ca.mas.foundation.MAS;

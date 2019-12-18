@@ -8,7 +8,7 @@
 
 package com.ca.mas.foundation;
 
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.ca.mas.MASMockGatewayTestBase;
 

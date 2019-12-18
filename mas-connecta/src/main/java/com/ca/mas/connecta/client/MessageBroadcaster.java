@@ -9,7 +9,7 @@ package com.ca.mas.connecta.client;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.messaging.MASMessageException;

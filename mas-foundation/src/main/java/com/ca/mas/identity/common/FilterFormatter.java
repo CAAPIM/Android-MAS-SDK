@@ -8,7 +8,7 @@
 
 package com.ca.mas.identity.common;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.identity.util.IdentityConsts;

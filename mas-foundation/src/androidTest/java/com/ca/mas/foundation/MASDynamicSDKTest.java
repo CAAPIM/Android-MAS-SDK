@@ -9,7 +9,7 @@ package com.ca.mas.foundation;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
@@ -19,7 +19,6 @@ import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.conf.Server;
 import com.ca.mas.core.datasource.DataSource;
-import com.ca.mas.core.datasource.KeystoreDataSource;
 import com.ca.mas.core.security.KeyStoreAdapter;
 import com.ca.mas.core.store.ClientCredentialContainer;
 import com.ca.mas.core.store.OAuthTokenContainer;

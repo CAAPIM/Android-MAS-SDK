@@ -8,7 +8,7 @@
 
 package com.ca.mas.core.store;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.datasource.DataSource;

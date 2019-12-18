@@ -11,7 +11,7 @@ import android.content.Context;
 
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 import android.util.Log;
 
 import com.ca.mas.core.storage.MASSecureSharedStorage;

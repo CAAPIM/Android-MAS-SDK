@@ -9,13 +9,12 @@
 package com.ca.mas.foundation;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
 import android.util.Log;
 
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
-import com.ca.mas.MASMockGatewayTestBase;
 import com.ca.mas.MASStartTestBase;
 import com.ca.mas.ScenarioInfo;
 import com.ca.mas.ScenarioMasterInfo;

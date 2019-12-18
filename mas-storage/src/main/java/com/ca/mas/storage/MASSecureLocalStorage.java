@@ -10,7 +10,7 @@ package com.ca.mas.storage;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.datasource.DataSourceFactory;

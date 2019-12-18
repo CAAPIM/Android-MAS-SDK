@@ -7,7 +7,7 @@
 
 package com.ca.mas.connecta.client;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ca.mas.messaging.MASMessageException;
 import com.ca.mas.messaging.MASMessage;

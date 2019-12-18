@@ -8,7 +8,7 @@
 
 package com.ca.mas.identity.user;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ca.mas.foundation.FoundationConsts;
 import com.ca.mas.foundation.MASTransformable;

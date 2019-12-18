@@ -130,7 +130,7 @@ public class MssoClient {
         // Currently this should only be necessary when we have started the UNLOCK activity.
         // For the Log On activity, it should take care of signalling the MssoService when it should retry.
         final Intent intent = new Intent(appContext, MssoService.class);
-        intent.setAction(MssoIntents.ACTION_CREDENTIALS_OBTAINED);
+        intent.setAction(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, (long) -1);
 
         if(MssoServiceState.getInstance().isBound()){

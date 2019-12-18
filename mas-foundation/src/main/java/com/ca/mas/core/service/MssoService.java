@@ -94,29 +94,25 @@ public class MssoService extends Service {
         String action = intent.getAction();
         if (action == null) {
             if (DEBUG) Log.w(TAG, "Intent did not contain an action");
-            stopSelf();
             return;
         }
 
         Bundle extras = intent.getExtras();
         if (extras == null || !extras.containsKey(MssoIntents.EXTRA_REQUEST_ID)) {
             if (DEBUG) Log.w(TAG, "Intent did not contain extras that included a request ID");
-            stopSelf();
             return;
         }
 
         long requestId = extras.getLong(MssoIntents.EXTRA_REQUEST_ID);
         if (requestId == -1) {
             onProcessAllPendingRequests();
-            stopSelf();
             return;
         }
 
-        final MssoRequest request = takeActiveRequest(requestId);
+        MssoRequest request = takeActiveRequest(requestId);
         if (request == null) {
             if (DEBUG)
                 Log.d(TAG, "Request ID not found, assuming request is canceled or already processed");
-            stopSelf();
             return;
         }
 
@@ -126,10 +122,7 @@ public class MssoService extends Service {
             return;
         } else if (MssoIntents.ACTION_CREDENTIALS_OBTAINED.equals(action)) {
             //The request is AuthenticateRequest
-            MASAuthCredentials creds = extras.getParcelable(MssoIntents.EXTRA_CREDENTIALS);
-            request.getMssoContext().setCredentials(creds);
             onCredentialsObtained(extras, request);
-            stopSelf();
             return;
         }
 
@@ -166,9 +159,7 @@ public class MssoService extends Service {
 
     private void onProcessAllPendingRequests() {
 
-        Log.d(TAG, "In processAllRequests");
         final Collection<MssoRequest> requests = new ArrayList<>(MssoActiveQueue.getInstance().getAllRequest());
-        Log.d(TAG, "In processAllRequests requests = " + requests.toString());
         for (MssoRequest mssoRequest : requests) {
             if (!mssoRequest.isRunning()) {
                 startThreadedRequest(null, mssoRequest);
@@ -178,7 +169,6 @@ public class MssoService extends Service {
 
     private void onProcessRequest(final MssoRequest request) {
         //The request is in running state
-        Log.d(TAG, "In  onProcessRequest");
 
         request.setRunning(true);
         ResultReceiver receiver = request.getResultReceiver();

@@ -50,7 +50,6 @@ import static com.ca.mas.foundation.MAS.TAG;
 public class MssoService extends Service {
 
     private final IBinder binder = new MASBinder();
-    AtomicInteger threadNum = new AtomicInteger(1);
     private Looper mServiceLooper;
     private volatile ServiceHandler mServiceHandler;
 
@@ -58,7 +57,7 @@ public class MssoService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        HandlerThread handlerThread = new HandlerThread("BoundService Thread[" + threadNum + "]");
+        HandlerThread handlerThread = new HandlerThread("BoundService Thread");
         handlerThread.start();
 
         mServiceLooper = handlerThread.getLooper();

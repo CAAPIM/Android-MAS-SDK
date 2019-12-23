@@ -1,3 +1,11 @@
+# Version 2.1.00
+
+### Bug fixes
+- None
+
+### New features
+- Handling of Android's Doze Mode. [US632023]
+
 # Version 2.0.00
 
 ### Bug fixes

@@ -28,6 +28,7 @@ import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.MAGErrorCode;
 import com.ca.mas.core.error.MAGRuntimeException;
 import com.ca.mas.core.http.MAGHttpClient;
+import com.ca.mas.core.service.MssoServiceState;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.token.JWTValidatorFactory;
 import com.ca.mas.foundation.notify.Callback;
@@ -43,7 +44,7 @@ import java.util.LinkedHashMap;
 import java.util.Observable;
 import java.util.Observer;
 
-    /**
+/**
  * The top level MAS object represents the Mobile App Services SDK in its entirety.
  * It is where the framework lifecycle begins, and ends if necessary.
  * It is the front facing class where many of the configuration settings for the SDK as a whole
@@ -69,18 +70,18 @@ public class MAS {
     private MAS() {
     }
 
-     static {
-         EventDispatcher.STARTED.addObserver(new Observer() {
-             @Override
-             public void update(Observable o, Object arg) {
+    static {
+        EventDispatcher.STARTED.addObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
 
-                 if (!masLifecycleListener.isEmpty())
-                     for(MASLifecycleListener listner: masLifecycleListener.values()){
-                         listner.onStarted();
-                     }
-             }
-         });
-     }
+                if (!masLifecycleListener.isEmpty())
+                    for(MASLifecycleListener listner: masLifecycleListener.values()){
+                        listner.onStarted();
+                    }
+            }
+        });
+    }
 
     private static synchronized void init(@NonNull final Context context) {
         stop();
@@ -101,7 +102,7 @@ public class MAS {
     }
 
     private static boolean isAlgoRS256() {
-       return  JWTValidatorFactory.Algorithm.RS256.toString().equals(MASConfiguration.getCurrentConfiguration().getIdTokenSignAlg());
+        return  JWTValidatorFactory.Algorithm.RS256.toString().equals(MASConfiguration.getCurrentConfiguration().getIdTokenSignAlg());
     }
 
     private static void registerActivityLifecycleCallbacks(Application application) {
@@ -574,6 +575,11 @@ public class MAS {
      * Stops the lifecycle of all MAS processes.
      */
     public static void stop() {
+        if (appContext != null && MssoServiceState.getInstance().getServiceConnection() != null) {
+            appContext.unbindService(MssoServiceState.getInstance().getServiceConnection());
+            MssoServiceState.getInstance().setBound(false);
+            MssoServiceState.getInstance().setServiceConnection(null);
+        }
         state = MASConstants.MAS_STATE_STOPPED;
         EventDispatcher.STOP.notifyObservers();
         MobileSsoFactory.reset();
@@ -682,11 +688,9 @@ public class MAS {
         if(request.getHeaders().get("request-type")== null){
             throw new MAGRuntimeException(MAGErrorCode.INVALID_INPUT,"'request-type' header missing", null);
         }
-
         MASRequest.MASRequestBuilder downloadRequestBuilder = new MASRequest.MASRequestBuilder(request);
         downloadRequestBuilder.setDownloadFile(filePath);
         downloadRequestBuilder.progressListener(progressListener);
-
         MASRequest downloadRequest = downloadRequestBuilder.build();
         MAS.invoke(downloadRequest, callback);
     }*/

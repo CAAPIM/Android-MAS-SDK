@@ -36,11 +36,18 @@ import static com.ca.mas.foundation.MAS.TAG;
 
 public class MAGHttpClient {
 
+    private long requestId = -1;
+
     public <T> MASResponse<T> execute(MASRequest request, MASSecurityConfiguration securityConfiguration) throws IOException {
         return execute(request, SSLSocketFactoryProvider.getInstance().createSSLSocketFactory(securityConfiguration));
     }
 
+
     public <T> MASResponse<T> execute(MASRequest request) throws IOException {
+        return execute(request, SSLSocketFactoryProvider.getInstance().get(request.getURL()));
+    }
+    public <T> MASResponse<T> execute(MASRequest request, long mRequestId) throws IOException {
+        requestId = mRequestId;
         return execute(request, SSLSocketFactoryProvider.getInstance().get(request.getURL()));
     }
 
@@ -79,6 +86,10 @@ public class MAGHttpClient {
             //If not found in the MASSecurityConfiguration, the socket factory will be null
             if (urlConnection instanceof HttpsURLConnection) {
                 ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sslSocketFactory);
+            }
+
+            if(requestId != -1){
+                HttpConnectionQueue.getInstance().addUrlConnection(requestId, urlConnection);
             }
 
             if (ConfigurationManager.getInstance().getConnectionListener() != null) {
@@ -168,6 +179,8 @@ public class MAGHttpClient {
                 } else {
                     responseBody.read(urlConnection);
                 }*/
+
+
             } catch (SSLHandshakeException e) {
                 //Related to MCT-104 & MCT-323
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {

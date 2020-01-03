@@ -664,14 +664,15 @@ public class MAS {
      * @param  callback           The {@link MASCallback}, required.
      * @throws MASException       If network call fails due to various reasons.
      * @throws MAGRuntimeException If multipart is null or file part and form fields, both are empty.
+     * @return
      */
-    public static void postMultiPartForm(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException, MAGRuntimeException {
+    public static long postMultiPartForm(MASRequest request, MultiPart multipart, MASProgressListener progressListener, MASCallback callback) throws MASException, MAGRuntimeException {
         if(multipart == null || (multipart.getFilePart().isEmpty() && multipart.getFormFields().isEmpty())){
             throw new MAGRuntimeException(MAGErrorCode.INVALID_REUEST, "Multipart body empty");
         }
         MASRequest masRequest = new MASRequest.MASRequestBuilder(request).post(MASRequestBody.multipartBody(multipart, progressListener)).
                 build();
-        MAS.invoke(masRequest, callback);
+        return MAS.invoke(masRequest, callback);
     }
 
     /**

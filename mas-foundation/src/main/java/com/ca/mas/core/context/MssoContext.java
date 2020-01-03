@@ -31,6 +31,7 @@ import com.ca.mas.core.registration.RegistrationClient;
 import com.ca.mas.core.request.MAGInternalRequest;
 import com.ca.mas.core.request.internal.LocalRequest;
 import com.ca.mas.core.security.SecureLockException;
+import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.store.ClientCredentialContainer;
 import com.ca.mas.core.store.OAuthTokenContainer;
 import com.ca.mas.core.store.StorageProvider;
@@ -46,6 +47,7 @@ import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.util.Date;
 
 import static com.ca.mas.foundation.MAS.DEBUG;
@@ -388,6 +390,7 @@ public class MssoContext {
      */
     public MASResponse executeRequest(Bundle extra, MASRequest request) throws Exception {
         RequestInfo requestInfo = new RequestInfo(this, request, extra);
+        final Long requestId = extra != null?(Long) extra.get(MssoIntents.EXTRA_REQUEST_ID): -1;
         final MAGInternalRequest internalRequest = requestInfo.getRequest();
 
         Exception lastError = null;
@@ -395,7 +398,7 @@ public class MssoContext {
             try {
                 //Do not execute the policy if this request is targeting an unprotected endpoint.
                 if (request.isPublic()) {
-                    return getMAGHttpClient().execute(internalRequest);
+                    return getMAGHttpClient().execute(internalRequest, requestId);
                 }
 
                 return policyManager.execute(requestInfo, new PolicyManager.Route<MASResponse>() {
@@ -404,10 +407,13 @@ public class MssoContext {
                         if (internalRequest.isLocalRequest()) {
                             return ((LocalRequest) internalRequest.getRequest()).send(MssoContext.this);
                         } else {
-                            return getMAGHttpClient().execute(internalRequest);
+                            return getMAGHttpClient().execute(internalRequest, requestId);
                         }
                     }
                 });
+            }catch (SocketException e){
+                throw e;
+
             } catch (MAGServerException e) {
                 //This catch system endpoint error.
                 if (DEBUG)
@@ -425,7 +431,8 @@ public class MssoContext {
                 if (DEBUG) Log.d(TAG, "Attempting to retry request. " + e.getClass());
             } catch (Exception e) {
                 clearCredentials();
-                throw e;
+               // if(e instanceof SocketException))
+                    throw e;
             }
         }
         //All retries failed

@@ -26,6 +26,7 @@ import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGError;
 import com.ca.mas.core.error.MAGServerException;
+import com.ca.mas.core.http.HttpConnectionQueue;
 import com.ca.mas.core.oauth.OAuthClient;
 import com.ca.mas.core.oauth.OAuthException;
 import com.ca.mas.core.oauth.OAuthServerException;
@@ -33,9 +34,11 @@ import com.ca.mas.core.policy.exceptions.CredentialRequiredException;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASAuthCredentials;
+import com.ca.mas.foundation.MASException;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -227,6 +230,10 @@ public class MssoService extends Service {
 
     private void handleErrorResponse(MssoRequest request, Exception e) {
         if (DEBUG) Log.e(TAG, e.getMessage(), e);
+        if((e instanceof SocketException) && HttpConnectionQueue.getInstance().isCancled()) {
+            respondError(request.getResultReceiver(), new MAGError("Request Canceled", e));
+            return;
+        }
         if (requestFinished(request)) {
             respondError(request.getResultReceiver(), new MAGError(e));
         }
@@ -273,7 +280,13 @@ public class MssoService extends Service {
             Bundle resultData = new Bundle();
             resultData.putSerializable(MssoIntents.RESULT_ERROR, error);
             resultData.putString(MssoIntents.RESULT_ERROR_MESSAGE, error.getMessage());
-            receiver.send(MssoIntents.RESULT_CODE_ERR, resultData);
+            if(error.getMessage().contains("Socket closed")) {
+                resultData.putString(MssoIntents.RESULT_ERROR_MESSAGE, "Request Canceled");
+                receiver.send(MssoIntents.RESULT_CODE_ERR_CANCELED, resultData);
+            }
+            else {
+                receiver.send(MssoIntents.RESULT_CODE_ERR, resultData);
+            }
         }
     }
 

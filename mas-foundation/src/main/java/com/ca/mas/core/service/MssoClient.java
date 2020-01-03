@@ -17,6 +17,7 @@ import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MAGResultReceiver;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.datasource.DataSourceException;
+import com.ca.mas.core.http.HttpConnectionQueue;
 import com.ca.mas.core.request.internal.AuthenticateRequest;
 import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.core.store.TokenManager;
@@ -26,6 +27,8 @@ import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASUser;
+
+import java.net.HttpURLConnection;
 
 /**
  * Encapsulates use of the MssoService.
@@ -172,7 +175,13 @@ public class MssoClient {
     public void cancelRequest(long requestId, Bundle data) {
         MssoRequest request = null;
         MssoResponseQueue.getInstance().takeResponse(requestId);
+        HttpConnectionQueue.getInstance().setCancled(true);
         request = MssoRequestQueue.getInstance().takeRequest(requestId);
+        HttpURLConnection httpUrlConn = HttpConnectionQueue.getInstance().getUrlConnections().get(requestId);
+        if(httpUrlConn != null) {
+            httpUrlConn.disconnect();
+            HttpConnectionQueue.getInstance().getUrlConnections().remove(requestId);
+        }
         if (request == null) {
             request = MssoActiveQueue.getInstance().takeRequest(requestId);
         }

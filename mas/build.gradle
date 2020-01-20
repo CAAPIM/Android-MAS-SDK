@@ -31,7 +31,6 @@ dependencies {
     api project(':mas-foundation')
     api project(':mas-connecta')
     api project(':mas-storage')
-    api project(':mas-identity-management')
 
 }
 

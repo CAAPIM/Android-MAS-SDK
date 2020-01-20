@@ -60,14 +60,13 @@ import static com.ca.mas.foundation.MAS.TAG;
 import static com.ca.mas.foundation.MASFoundationStrings.SECURE_LOCK_FAILED_TO_DELETE_SECURE_ID_TOKEN;
 
 /**
- * <p>The <b>MASUser</b> interface is a core interface used to represent a user in the system,
- * as well as an Identity Management definition used in the interaction with SCIM.</p>
+ * <p>The <b>MASUser</b> interface is a core interface used to represent a user in the system.</p>
  * <p>The <b>MASUser</b> interface contains the common attribute <a href="https://tools.ietf.org/html/rfc7643#section-4.1">user</a>
  * which is the container for all of the other SCIM values, whether single or multi-valued.
  * SCIM provides a resource type for "User" resources.  The core schema for "User" is identified using the following schema URI:
  * "urn:ietf:params:scim:schemas:core:2.0:User". See the <a href="https://tools.ietf.org/html/rfc7643#section-8.2">Full User Representation</a> for the complete format.</p>
  */
-public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser {
+public abstract class MASUser implements MASUserIdentity, ScimUser {
     private static final String SESSION_LOCK_ALIAS = "com.ca.mas.SESSION_LOCK";
     private static MASUser current;
 
@@ -191,8 +190,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
         MASUser user = new User() {
             @MASExtension
-            private MASMessenger masMessenger;
-            @MASExtension
             private MASUserRepository userRepository;
 
             @Override
@@ -203,72 +200,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
             @Override
             public boolean isCurrentUser() {
                 return true;
-            }
-
-            @Override
-            public void sendMessage(final MASTopic topic, final MASMessage message, final MASCallback<Void> callback) {
-                execute(new Functions.NullaryVoid() {
-                    @Override
-                    public void call() {
-                        masMessenger.sendMessage(topic, message, callback);
-                    }
-                }, callback);
-            }
-
-            @Override
-            public void sendMessage(@NonNull final MASMessage message, final MASUser user, final MASCallback<Void> callback) {
-                String userId = user.getId();
-                sendMessage(message, user, userId, callback);
-            }
-
-            @Override
-            public void sendMessage(@NonNull final MASMessage message, final MASUser user, final String topic, final MASCallback<Void> callback) {
-                execute(new Functions.NullaryVoid() {
-                    @Override
-                    public void call() {
-                        masMessenger.sendMessage(message, user, topic, callback);
-                    }
-                }, callback);
-            }
-
-            @Override
-            public void sendMessage(@NonNull final MASMessage message, final MASGroup group, final MASCallback<Void> callback) {
-                execute(new Functions.NullaryVoid() {
-                    @Override
-                    public void call() {
-                        masMessenger.sendMessage(message, group, callback);
-                    }
-                }, callback);
-            }
-
-            @Override
-            public void sendMessage(@NonNull final MASMessage message, final MASGroup group, final String topic, final MASCallback<Void> callback) {
-                execute(new Functions.NullaryVoid() {
-                    @Override
-                    public void call() {
-                        masMessenger.sendMessage(message, group, topic, callback);
-                    }
-                }, callback);
-            }
-
-            @Override
-            public void startListeningToMyMessages(final MASCallback<Void> callback) {
-                execute(new Functions.NullaryVoid() {
-                    @Override
-                    public void call() {
-                        masMessenger.startListeningToMyMessages(callback);
-                    }
-                }, callback);
-            }
-
-            @Override
-            public void stopListeningToMyMessages(final MASCallback<Void> callback) {
-                execute(new Functions.NullaryVoid() {
-                    @Override
-                    public void call() {
-                        masMessenger.stopListeningToMyMessages(callback);
-                    }
-                }, callback);
             }
 
             private void execute(final Functions.NullaryVoid function, final MASCallback<Void> callback) {
@@ -305,7 +236,6 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
                 current = null;
                 logout(true, callback);
             }
-
 
             /**
              * To log out a currently-authenticated user using an asynchronous request.
@@ -756,18 +686,5 @@ public abstract class MASUser implements MASMessenger, MASUserIdentity, ScimUser
 
     public abstract void getUserMetaData(MASCallback<UserAttributes> callback);
 
-    public abstract void sendMessage(MASTopic topic, MASMessage message, MASCallback<Void> callback);
-
-    public abstract void sendMessage(MASMessage message, MASUser user, MASCallback<Void> callback);
-
-    public abstract void sendMessage(MASMessage message, MASUser user, String topic, MASCallback<Void> callback);
-
-    public abstract void sendMessage(MASMessage message, MASGroup group, MASCallback<Void> callback);
-
-    public abstract void sendMessage(MASMessage message, MASGroup group, String topic, MASCallback<Void> callback);
-
-    public abstract void startListeningToMyMessages(MASCallback<Void> callback);
-
-    public abstract void stopListeningToMyMessages(MASCallback<Void> callback);
 
 }

@@ -492,7 +492,7 @@ public class KeyUtilsSymmetric {
      * @param key       Key to use to generate a secret key for MAC operation, can be key alias
      * @return encrypted data as byte[]
      */
-    public static byte[] encrypt(byte[] data, SecretKey secretKey, String key) {
+    public synchronized static byte[] encrypt(byte[] data, SecretKey secretKey, String key) {
         if (data == null) {
             return null;
         }
@@ -543,7 +543,7 @@ public class KeyUtilsSymmetric {
      * @param key           Key to use to generate a secret key for MAC operation, can be key alias
      * @return byte[] of decrypted data
      */
-    public static byte[] decrypt(byte[] encryptedData, SecretKey secretKey, String key) {
+    public synchronized static byte[] decrypt(byte[] encryptedData, SecretKey secretKey, String key) {
         Cipher cipher;
         try {
             cipher = Cipher.getInstance(AES_GCM_NO_PADDING);

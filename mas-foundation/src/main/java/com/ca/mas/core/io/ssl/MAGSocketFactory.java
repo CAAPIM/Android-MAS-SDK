@@ -16,6 +16,7 @@ import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASSecurityConfiguration;
 
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
@@ -27,7 +28,7 @@ import javax.net.ssl.TrustManager;
 
 public class MAGSocketFactory {
 
-    private static final String SSL_TLS_PROTOCOL = "TLS";
+    private static final String SSL_TLS_PROTOCOL = "TLSv1.2";
 
     private static final SecureRandom secureRandom = new SecureRandom();
     private MASSecurityConfiguration securityConfiguration;
@@ -59,13 +60,19 @@ public class MAGSocketFactory {
 
     private SSLContext createSslContext() {
         try {
+            String[] supportedProtocols;
+            try {
+                supportedProtocols = SSLContext.getDefault().getSupportedSSLParameters().getProtocols();
+            } catch (NoSuchAlgorithmException e) {
+                supportedProtocols = new String[0];
+            }
             SSLContext sslContext = SSLContext.getInstance(SSL_TLS_PROTOCOL);
-//            TrustManager manager = new TrustedCertificateConfigurationTrustManager(securityConfiguration);
-//            TrustManager[] trustManagers = {manager};
-//            KeyManager[] keyManagers = clientCertPrivateKey == null || clientCertChain == null
-//                    ? new KeyManager[0]
-//                    : new KeyManager[]{new SingleKeyX509KeyManager(clientCertPrivateKey, clientCertChain)};
-//            sslContext.init(keyManagers, trustManagers, secureRandom);
+            TrustManager manager = new TrustedCertificateConfigurationTrustManager(securityConfiguration);
+            TrustManager[] trustManagers = {manager};
+            KeyManager[] keyManagers = clientCertPrivateKey == null || clientCertChain == null
+                    ? new KeyManager[0]
+                    : new KeyManager[]{new SingleKeyX509KeyManager(clientCertPrivateKey, clientCertChain)};
+            sslContext.init(keyManagers, trustManagers, secureRandom);
             return sslContext;
         } catch (Exception e) {
             throw new RuntimeException("Unable to create SSL Context: " + e.getMessage(), e);

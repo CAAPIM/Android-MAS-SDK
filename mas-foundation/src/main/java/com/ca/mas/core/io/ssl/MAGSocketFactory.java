@@ -35,6 +35,8 @@ public class MAGSocketFactory {
     private PrivateKey clientCertPrivateKey = null;
     private X509Certificate[] clientCertChain = null;
 
+    private static final String TLS_V11_PROTO = "TLSv1.1";
+    private static final String TLS_V12_PROTO = "TLSv1.2";
     /**
      * Create an SocketFactory factory that will create clients which trust the specified server certs
      * and use the specified client cert for client cert authentication.
@@ -55,7 +57,9 @@ public class MAGSocketFactory {
     }
 
     public SSLSocketFactory createTLSSocketFactory() {
-        return new TLSSocketFactory(createSslContext().getSocketFactory());
+        SSLSocketFactory factory = createSslContext().getSocketFactory();
+        new TLSSocketFactory(factory);
+        return factory;
     }
 
     private SSLContext createSslContext() {

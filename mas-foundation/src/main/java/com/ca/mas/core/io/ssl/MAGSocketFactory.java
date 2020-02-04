@@ -60,12 +60,12 @@ public class MAGSocketFactory {
     private SSLContext createSslContext() {
         try {
             SSLContext sslContext = SSLContext.getInstance(SSL_TLS_PROTOCOL);
-            TrustManager manager = new TrustedCertificateConfigurationTrustManager(securityConfiguration);
-            TrustManager[] trustManagers = {manager};
-            KeyManager[] keyManagers = clientCertPrivateKey == null || clientCertChain == null
-                    ? new KeyManager[0]
-                    : new KeyManager[]{new SingleKeyX509KeyManager(clientCertPrivateKey, clientCertChain)};
-            sslContext.init(keyManagers, trustManagers, secureRandom);
+//            TrustManager manager = new TrustedCertificateConfigurationTrustManager(securityConfiguration);
+//            TrustManager[] trustManagers = {manager};
+//            KeyManager[] keyManagers = clientCertPrivateKey == null || clientCertChain == null
+//                    ? new KeyManager[0]
+//                    : new KeyManager[]{new SingleKeyX509KeyManager(clientCertPrivateKey, clientCertChain)};
+//            sslContext.init(keyManagers, trustManagers, secureRandom);
             return sslContext;
         } catch (Exception e) {
             throw new RuntimeException("Unable to create SSL Context: " + e.getMessage(), e);

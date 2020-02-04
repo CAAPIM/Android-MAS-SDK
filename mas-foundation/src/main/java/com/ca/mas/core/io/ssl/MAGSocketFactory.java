@@ -16,7 +16,6 @@ import com.ca.mas.core.store.StorageProvider;
 import com.ca.mas.foundation.MASConfiguration;
 import com.ca.mas.foundation.MASSecurityConfiguration;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
@@ -28,15 +27,13 @@ import javax.net.ssl.TrustManager;
 
 public class MAGSocketFactory {
 
-    private static final String SSL_TLS_PROTOCOL = "TLSv1.2";
+    private static final String SSL_TLS_PROTOCOL = "TLS";
 
     private static final SecureRandom secureRandom = new SecureRandom();
     private MASSecurityConfiguration securityConfiguration;
     private PrivateKey clientCertPrivateKey = null;
     private X509Certificate[] clientCertChain = null;
 
-    private static final String TLS_V11_PROTO = "TLSv1.1";
-    private static final String TLS_V12_PROTO = "TLSv1.2";
     /**
      * Create an SocketFactory factory that will create clients which trust the specified server certs
      * and use the specified client cert for client cert authentication.
@@ -57,19 +54,11 @@ public class MAGSocketFactory {
     }
 
     public SSLSocketFactory createTLSSocketFactory() {
-        SSLSocketFactory factory = createSslContext().getSocketFactory();
-        new TLSSocketFactory(factory);
-        return factory;
+        return new TLSSocketFactory(createSslContext().getSocketFactory());
     }
 
     private SSLContext createSslContext() {
         try {
-            String[] supportedProtocols;
-            try {
-                supportedProtocols = SSLContext.getDefault().getSupportedSSLParameters().getProtocols();
-            } catch (NoSuchAlgorithmException e) {
-                supportedProtocols = new String[0];
-            }
             SSLContext sslContext = SSLContext.getInstance(SSL_TLS_PROTOCOL);
             TrustManager manager = new TrustedCertificateConfigurationTrustManager(securityConfiguration);
             TrustManager[] trustManagers = {manager};

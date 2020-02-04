@@ -10,12 +10,11 @@ package com.ca.mas.core.io.ssl;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.sql.SQLOutput;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-class TLSSocketFactory {
+class TLSSocketFactory extends SSLSocketFactory {
 
     private SSLSocketFactory sslSocketFactory;
     private static final String SSL_V3_PROTOCOL = "SSLv3";
@@ -28,45 +27,43 @@ class TLSSocketFactory {
         this.sslSocketFactory = sslSocketFactory;
     }
 
+    @Override
     public String[] getDefaultCipherSuites() {
         return sslSocketFactory.getDefaultCipherSuites();
     }
 
+    @Override
     public String[] getSupportedCipherSuites() {
         return sslSocketFactory.getSupportedCipherSuites();
     }
 
+    @Override
     public Socket createSocket() throws IOException {
         return enableTLS(sslSocketFactory.createSocket());
     }
 
+    @Override
     public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
-        int i=0;
-        System.out.println("i = "+i++);
         return enableTLS(sslSocketFactory.createSocket(s, host, port, autoClose));
     }
 
+    @Override
     public Socket createSocket(String host, int port) throws IOException {
-        int j=0;
-        System.out.println("j = "+j++);
         return enableTLS(sslSocketFactory.createSocket(host, port));
     }
 
+    @Override
     public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException {
-        int k=0;
-        System.out.println("k = "+k++);
         return enableTLS(sslSocketFactory.createSocket(host, port, localHost, localPort));
     }
 
+    @Override
     public Socket createSocket(InetAddress host, int port) throws IOException {
-        int l=0;
-        System.out.println("l = "+l++);
         return enableTLS(sslSocketFactory.createSocket(host, port));
     }
 
+    @Override
     public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
-        int m=0;
-        System.out.println("m = "+m++);
         return enableTLS(sslSocketFactory.createSocket(address, port, localAddress, localPort));
     }
 

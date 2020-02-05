@@ -54,7 +54,8 @@ public class MAGSocketFactory {
     }
 
     public SSLSocketFactory createTLSSocketFactory() {
-        return new TLSSocketFactory(createSslContext().getSocketFactory());
+        SSLSocketFactory sslSocketFactory = createSslContext().getSocketFactory();
+        return new TLSSocketFactory(sslSocketFactory);
     }
 
     private SSLContext createSslContext() {

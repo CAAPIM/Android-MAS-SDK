@@ -7,10 +7,16 @@
 
 package com.ca.mas.core.io.ssl;
 
+import com.ca.mas.foundation.MASConfiguration;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -67,9 +73,15 @@ class TLSSocketFactory extends SSLSocketFactory {
         return enableTLS(sslSocketFactory.createSocket(address, port, localAddress, localPort));
     }
 
-    private Socket enableTLS(Socket socket) {
+    private Socket enableTLS(Socket socket) throws SSLHandshakeException {
         if (socket != null && (socket instanceof SSLSocket)) {
             ((SSLSocket) socket).setEnabledProtocols(SUPPORTED_TLS);
+            final String str = MASConfiguration.getCurrentConfiguration().getGatewayHostName();
+            HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
+            SSLSession s = (SSLSession) ((SSLSocket) socket).getSession();
+            if (!hv.verify(str, s)) {
+                throw new SSLHandshakeException("Expected mail.google.com, found ");
+            }
         }
         return socket;
     }

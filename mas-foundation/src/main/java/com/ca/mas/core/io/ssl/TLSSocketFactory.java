@@ -9,6 +9,8 @@ package com.ca.mas.core.io.ssl;
 
 import com.ca.mas.foundation.MASConfiguration;
 
+import org.apache.http.conn.ssl.StrictHostnameVerifier;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -70,18 +72,32 @@ class TLSSocketFactory extends SSLSocketFactory {
 
     @Override
     public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
-        return enableTLS(sslSocketFactory.createSocket(address, port, localAddress, localPort));
+        SSLSocket  sslSocket = (SSLSocket) sslSocketFactory.createSocket(address, port, localAddress, localPort);
+        sslSocket.setEnabledProtocols(SUPPORTED_TLS);
+        final String str = MASConfiguration.getCurrentConfiguration().getGatewayHostName();
+        ((SSLSocket) sslSocket).startHandshake();
+        SSLSession session = sslSocket.getSession();
+        StrictHostnameVerifier verifier = new StrictHostnameVerifier();
+        if (!verifier.verify(session.getPeerHost(), session)) {
+            // throw some exception or do something similar.
+        }
+        return sslSocket;
     }
 
-    private Socket enableTLS(Socket socket) throws SSLHandshakeException {
+    private Socket enableTLS(Socket socket) throws IOException {
         if (socket != null && (socket instanceof SSLSocket)) {
             ((SSLSocket) socket).setEnabledProtocols(SUPPORTED_TLS);
-            final String str = MASConfiguration.getCurrentConfiguration().getGatewayHostName();
-            HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
-            SSLSession s = (SSLSession) ((SSLSocket) socket).getSession();
-            if (!hv.verify(str, s)) {
-                throw new SSLHandshakeException("Expected mail.google.com, found ");
-            }
+
+
+
+
+
+
+//            HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
+//            SSLSession s = (SSLSession) ((SSLSocket) socket).getSession();
+//            if (!hv.verify(str, s)) {
+//                throw new SSLHandshakeException("Expected mail.google.com, found ");
+//            }
         }
         return socket;
     }

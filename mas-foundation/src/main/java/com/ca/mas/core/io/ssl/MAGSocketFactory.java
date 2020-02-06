@@ -33,7 +33,7 @@ import javax.net.ssl.TrustManager;
 
 public class MAGSocketFactory {
 
-    private static final String SSL_TLS_PROTOCOL = "TLS";
+    public static final String SSL_TLS_PROTOCOL = "TLS";
 
     private static final SecureRandom secureRandom = new SecureRandom();
     private MASSecurityConfiguration securityConfiguration;
@@ -61,7 +61,7 @@ public class MAGSocketFactory {
 
     public SSLSocketFactory createTLSSocketFactory() {
         SSLSocketFactory sslSocketFactory = createSslContext().getSocketFactory();
-        return new TLSSocketFactory(sslSocketFactory);
+        return new TLSSocketFactory(securityConfiguration);
     }
 
     private SSLContext createSslContext() {
@@ -73,15 +73,14 @@ public class MAGSocketFactory {
                     ? new KeyManager[0]
                     : new KeyManager[]{new SingleKeyX509KeyManager(clientCertPrivateKey, clientCertChain)};
             sslContext.init(keyManagers, trustManagers, secureRandom);
-            HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
-            SSLSocket sslSocket  = (SSLSocket) sslContext.getSocketFactory().createSocket();
-            final String str = MASConfiguration.getCurrentConfiguration().getGatewayHostName();
-            SSLSession session = sslSocket.getSession();
-            if (!hv.verify(str, session)) {
-                throw new SSLHandshakeException("Expected echo.websocket.org, found " + session.getPeerPrincipal());
-            } else {
-                Log.i("Client", "Success");
-            }
+//            HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
+//            final String str = MASConfiguration.getCurrentConfiguration().getGatewayHostName();
+//            SSLSession session = sslSocket.getSession();
+//            if (!hv.verify(str, session)) {
+//                throw new SSLHandshakeException("Expected echo.websocket.org, found " + session.getPeerPrincipal());
+//            } else {
+//                Log.i("Client", "Success");
+//            }
             return sslContext;
         } catch (Exception e) {
             throw new RuntimeException("Unable to create SSL Context: " + e.getMessage(), e);

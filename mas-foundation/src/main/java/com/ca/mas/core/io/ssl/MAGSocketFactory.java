@@ -9,6 +9,7 @@
 package com.ca.mas.core.io.ssl;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.ca.mas.core.io.http.SingleKeyX509KeyManager;
 import com.ca.mas.core.io.http.TrustedCertificateConfigurationTrustManager;
@@ -20,8 +21,13 @@ import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
@@ -67,6 +73,15 @@ public class MAGSocketFactory {
                     ? new KeyManager[0]
                     : new KeyManager[]{new SingleKeyX509KeyManager(clientCertPrivateKey, clientCertChain)};
             sslContext.init(keyManagers, trustManagers, secureRandom);
+            HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
+            SSLSocket sslSocket  = (SSLSocket) sslContext.getSocketFactory().createSocket();
+            final String str = MASConfiguration.getCurrentConfiguration().getGatewayHostName();
+            SSLSession session = sslSocket.getSession();
+            if (!hv.verify(str, session)) {
+                throw new SSLHandshakeException("Expected echo.websocket.org, found " + session.getPeerPrincipal());
+            } else {
+                Log.i("Client", "Success");
+            }
             return sslContext;
         } catch (Exception e) {
             throw new RuntimeException("Unable to create SSL Context: " + e.getMessage(), e);

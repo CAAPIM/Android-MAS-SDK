@@ -69,20 +69,24 @@ class TLSSocketFactory extends SSLSocketFactory {
     public Socket createSocket(InetAddress host, int port) throws IOException {
         return enableTLS(sslSocketFactory.createSocket(host, port));
     }
-
     @Override
     public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
-        SSLSocket  sslSocket = (SSLSocket) sslSocketFactory.createSocket(address, port, localAddress, localPort);
-        sslSocket.setEnabledProtocols(SUPPORTED_TLS);
-        final String str = MASConfiguration.getCurrentConfiguration().getGatewayHostName();
-        ((SSLSocket) sslSocket).startHandshake();
-        SSLSession session = sslSocket.getSession();
-        StrictHostnameVerifier verifier = new StrictHostnameVerifier();
-        if (!verifier.verify(session.getPeerHost(), session)) {
-            // throw some exception or do something similar.
-        }
-        return sslSocket;
+        return enableTLS(sslSocketFactory.createSocket(address, port, localAddress, localPort));
     }
+//
+//    @Override
+//    public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
+//        SSLSocket  sslSocket = (SSLSocket) sslSocketFactory.createSocket(address, port, localAddress, localPort);
+//        sslSocket.setEnabledProtocols(SUPPORTED_TLS);
+//        final String str = MASConfiguration.getCurrentConfiguration().getGatewayHostName();
+//        ((SSLSocket) sslSocket).startHandshake();
+//        SSLSession session = sslSocket.getSession();
+//        StrictHostnameVerifier verifier = new StrictHostnameVerifier();
+//        if (!verifier.verify(session.getPeerHost(), session)) {
+//            // throw some exception or do something similar.
+//        }
+//        return sslSocket;
+//    }
 
     private Socket enableTLS(Socket socket) throws IOException {
         if (socket != null && (socket instanceof SSLSocket)) {

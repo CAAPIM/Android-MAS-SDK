@@ -157,10 +157,10 @@ public class MAGHttpClient {
                 }
 
                 responseMessage = urlConnection.getResponseMessage();
-                if (DEBUG) {
-                    Log.d(TAG, String.format("Response code: %d", responseCode));
-                    Log.d(TAG, String.format("Response message: %s", responseMessage));
-                }
+//                if (DEBUG) {
+//                    Log.d(TAG, String.format("Response code: %d", responseCode));
+//                    Log.d(TAG, String.format("Response message: %s", responseMessage));
+//                }
                 List<String> requestType = request.getHeaders().get("request-type");
                 responseBody.read(urlConnection);
                 /*if(requestType != null && "download".equals(requestType.get(0))) {

@@ -61,7 +61,7 @@ public class CertUtils {
         try {
             return (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(bytes));
         } catch (CertificateException e) {
-            if (DEBUG) Log.e(TAG, "Unable to decode public certificate, error: " + e + " for cert " + certificateText, e);
+            if (DEBUG) Log.e(TAG,  e + " for cert " + certificateText, e);
             throw new IOException(e);
         }
     }

@@ -9,7 +9,7 @@
 package com.ca.mas.identity.user;
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ca.mas.foundation.FoundationConsts;
 import com.ca.mas.foundation.MASCallback;
@@ -20,8 +20,6 @@ import com.ca.mas.foundation.MASUser;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.ca.mas.identity.util.IdentityUtil;
-import com.ca.mas.messaging.MASMessage;
-import com.ca.mas.messaging.topic.MASTopic;
 
 import org.json.JSONArray;
 import org.json.JSONException;

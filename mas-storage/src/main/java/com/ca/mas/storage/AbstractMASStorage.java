@@ -11,7 +11,7 @@ package com.ca.mas.storage;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Parcel;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ca.mas.foundation.Internal;
 

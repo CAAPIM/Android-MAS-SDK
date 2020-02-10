@@ -7,7 +7,7 @@
  */
 package com.ca.mas.foundation;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;

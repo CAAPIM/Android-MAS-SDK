@@ -8,7 +8,7 @@
 
 package com.ca.mas.storage;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -18,9 +18,6 @@ import com.ca.mas.foundation.MASTransformable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import static com.ca.mas.foundation.MAS.DEBUG;
-import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * <p><b>StorageItem</b> is a class that contains 3 components;

@@ -7,7 +7,7 @@
  */
 package com.ca.mas.core.registration;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
 

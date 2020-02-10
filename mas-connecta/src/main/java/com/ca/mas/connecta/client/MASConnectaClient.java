@@ -8,7 +8,7 @@
 
 package com.ca.mas.connecta.client;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.messaging.MASMessage;

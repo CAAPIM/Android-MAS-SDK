@@ -14,8 +14,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Parcel;
 import android.security.keystore.UserNotAuthenticatedException;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
@@ -42,9 +42,6 @@ import com.ca.mas.identity.user.User;
 import com.ca.mas.identity.user.UserAttributes;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.ca.mas.identity.util.IdentityUtil;
-import com.ca.mas.messaging.MASMessage;
-import com.ca.mas.messaging.MASMessenger;
-import com.ca.mas.messaging.topic.MASTopic;
 
 import org.json.JSONException;
 import org.json.JSONObject;

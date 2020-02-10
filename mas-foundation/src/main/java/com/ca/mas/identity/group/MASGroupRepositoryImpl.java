@@ -8,7 +8,7 @@
 package com.ca.mas.identity.group;
 
 import android.net.Uri;
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 import android.text.TextUtils;
 import android.util.Log;
 

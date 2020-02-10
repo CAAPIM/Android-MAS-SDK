@@ -9,10 +9,9 @@
 package com.ca.mas.connecta.client;
 
 import android.os.Handler;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
-import com.ca.mas.connecta.util.ConnectaConsts;
 import com.ca.mas.core.util.Functions;
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.foundation.MAS;

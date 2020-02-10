@@ -9,17 +9,9 @@ package com.ca.mas.core.security;
 
 import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 
-import com.ca.mas.foundation.MAS;
-
-import java.math.BigInteger;
-import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
-import java.util.Calendar;
-import java.util.Date;
-
-import javax.security.auth.x500.X500Principal;
 
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class AndroidKitKatKeyRepository extends AndroidJellyBeanMR2KeyRepository {

@@ -7,7 +7,7 @@
  */
 package com.ca.mas.core.storage.sharedstorage;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.List;
 

@@ -9,7 +9,7 @@
 package com.ca.mas.core.policy;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.policy.exceptions.TokenStoreUnavailableException;

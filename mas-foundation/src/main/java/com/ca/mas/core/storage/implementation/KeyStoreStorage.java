@@ -9,7 +9,7 @@
 package com.ca.mas.core.storage.implementation;
 
 import android.content.Context;
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 import android.util.Log;
 
 import com.ca.mas.core.security.KeyStore;

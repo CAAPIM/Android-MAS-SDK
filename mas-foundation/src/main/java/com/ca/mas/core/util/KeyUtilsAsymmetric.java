@@ -9,7 +9,7 @@
 package com.ca.mas.core.util;
 
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 
 import com.ca.mas.core.security.GenerateKeyAttribute;
 import com.ca.mas.core.security.KeyStoreException;

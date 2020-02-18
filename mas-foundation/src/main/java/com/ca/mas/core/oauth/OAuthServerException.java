@@ -8,7 +8,7 @@
 
 package com.ca.mas.core.oauth;
 
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 
 import com.ca.mas.core.error.MAGServerException;
 import com.ca.mas.foundation.MASResponse;

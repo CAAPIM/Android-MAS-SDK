@@ -9,7 +9,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     lintOptions {
@@ -35,8 +35,8 @@ dependencies {
     //For Android API 16 and 17
     api "org.bouncycastle:bcpkix-jdk15on:$rootProject.ext.bcpVersion"
 
-    api "com.android.support.test:runner:$rootProject.ext.testRunner"
-    api "com.android.support.test:rules:$rootProject.ext.testRules"
+    api 'androidx.test.ext:junit:1.1.1'
+    api 'androidx.test:rules:1.1.1'
 
 
     compileOnly project(':mas-foundation')

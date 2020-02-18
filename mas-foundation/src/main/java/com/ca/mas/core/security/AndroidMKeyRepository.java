@@ -10,13 +10,9 @@ package com.ca.mas.core.security;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 
 import java.math.BigInteger;
-import java.security.Key;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Calendar;
 import java.util.Date;

@@ -9,7 +9,7 @@
 package com.ca.mas;
 
 import android.net.Uri;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASConnectionListener;

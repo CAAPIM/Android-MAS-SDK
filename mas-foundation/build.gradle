@@ -32,7 +32,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     lintOptions {
@@ -62,8 +62,8 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     api "com.google.zxing:core:$rootProject.ext.zxingVersion"
-    implementation "com.android.support:support-annotations:$rootProject.ext.supportLibsVersion"
-    implementation "com.android.support:support-compat:$rootProject.ext.supportLibsVersion"
+    implementation 'androidx.annotation:annotation:1.0.0'
+    implementation 'androidx.core:core:1.0.0'
     api "com.nimbusds:nimbus-jose-jwt:$rootProject.ext.nimbusJoseVersion"
 
 

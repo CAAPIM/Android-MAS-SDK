@@ -8,7 +8,7 @@
 
 package com.ca.mas.foundation;
 
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 
 import com.ca.mas.core.error.MAGServerException;
 

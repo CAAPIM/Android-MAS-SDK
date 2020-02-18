@@ -8,7 +8,7 @@
 
 package com.ca.mas.core.oauth;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Pair;
 
 import com.ca.mas.core.MobileSsoConfig;

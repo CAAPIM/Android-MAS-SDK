@@ -189,10 +189,6 @@ public class MASMessage implements MASPayload, Parcelable {
             jobj.put(MessagingConsts.KEY_VERSION, ver);
 
             String id = getSenderId();
-            if (TextUtils.isEmpty(id)) {
-                MASUser masUser = MASUser.getCurrentUser();
-                id = masUser.getId();
-            }
             jobj.put(MessagingConsts.KEY_SENDER_ID, id);
 
             String senderType = getSenderType();

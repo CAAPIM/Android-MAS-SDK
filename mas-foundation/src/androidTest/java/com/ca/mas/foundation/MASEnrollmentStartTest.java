@@ -8,7 +8,7 @@
 package com.ca.mas.foundation;
 
 import android.net.Uri;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.platform.app.InstrumentationRegistry;
 import android.util.Base64;
 
 import com.ca.mas.MASCallbackFuture;
@@ -65,7 +65,7 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
 
         MAS.setConnectionListener(null);
 
-        MAS.start(InstrumentationRegistry.getTargetContext(), new URL(uri.toString()), callback);
+        MAS.start(InstrumentationRegistry.getInstrumentation().getTargetContext(), new URL(uri.toString()), callback);
         assertNull(callback.get());
     }
 
@@ -82,7 +82,7 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
                 .appendPath("config")
                 .build();
 
-        MAS.start(InstrumentationRegistry.getTargetContext(), new URL(uri.toString()), callback);
+        MAS.start(InstrumentationRegistry.getInstrumentation().getTargetContext(), new URL(uri.toString()), callback);
 
         try {
             callback.get();
@@ -95,7 +95,7 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
     @Test
     public void startWithNullUrl() throws Exception {
         MASCallbackFuture<Void> callback = new MASCallbackFuture<>();
-        MAS.start(InstrumentationRegistry.getTargetContext(), null, callback);
+        MAS.start(InstrumentationRegistry.getInstrumentation().getTargetContext(), null, callback);
         callback.get();
         Assert.assertEquals(MASConfiguration.getCurrentConfiguration().getGatewayHostName(), "localhost");
     }
@@ -115,7 +115,7 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
 
         MAS.setConnectionListener(null);
 
-        MAS.start(InstrumentationRegistry.getTargetContext(), new URL(uri.toString()), callback);
+        MAS.start(InstrumentationRegistry.getInstrumentation().getTargetContext(), new URL(uri.toString()), callback);
         try {
             callback.get();
             fail();
@@ -144,7 +144,7 @@ public class MASEnrollmentStartTest extends MASMockGatewayTestBase {
                 .appendQueryParameter("subjectKeyHash", toHash(key))
                 .build();
 
-        MAS.start(InstrumentationRegistry.getTargetContext(), new URL(uri.toString()), callback);
+        MAS.start(InstrumentationRegistry.getInstrumentation().getTargetContext(), new URL(uri.toString()), callback);
         try {
             callback.get();
             fail();

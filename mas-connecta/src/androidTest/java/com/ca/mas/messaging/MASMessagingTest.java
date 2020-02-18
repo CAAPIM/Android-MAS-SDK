@@ -8,7 +8,7 @@
 package com.ca.mas.messaging;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.platform.app.InstrumentationRegistry;
 import android.util.Base64;
 
 import com.ca.mas.MASLoginTestBase;
@@ -167,9 +167,14 @@ public class MASMessagingTest extends MASLoginTestBase {
             String jsonString = mMessage.createJSONStringFromMASMessage(getContext());
             JSONObject jsonObject = new JSONObject(jsonString);
             assertEquals(jsonObject.getString(MessagingConsts.KEY_VERSION), "1.0");
-            assertEquals(jsonObject.getString(MessagingConsts.KEY_SENDER_ID), mSenderId);
+            try {
+                assertEquals(jsonObject.getString(MessagingConsts.KEY_SENDER_ID), mSenderId);
+                assertEquals(jsonObject.getString(MessagingConsts.KEY_DISPLAY_NAME), mDisplayName);
+            } catch (JSONException e){
+                //Ignore if sender id is missing in jsonObject
+            }
             assertEquals(jsonObject.getString(MessagingConsts.KEY_SENDER_TYPE), mSenderType.toUpperCase());
-            assertEquals(jsonObject.getString(MessagingConsts.KEY_DISPLAY_NAME), mDisplayName);
+
             long sentTime = jsonObject.getLong(MessagingConsts.KEY_SENT_TIME);
             assertTrue(startTime <= sentTime && sentTime <= System.currentTimeMillis());
             assertEquals(jsonObject.getString(MessagingConsts.KEY_CONTENT_TYPE), MessagingConsts.DEFAULT_TEXT_PLAIN_CONTENT_TYPE);
@@ -195,9 +200,13 @@ public class MASMessagingTest extends MASLoginTestBase {
             String jsonString = mMessage.createJSONStringFromMASMessage(getContext());
             JSONObject jsonObject = new JSONObject(jsonString);
             assertEquals(jsonObject.getString(MessagingConsts.KEY_VERSION), "1.0");
-            assertEquals(jsonObject.getString(MessagingConsts.KEY_SENDER_ID), mSenderId);
+            try {
+                assertEquals(jsonObject.getString(MessagingConsts.KEY_SENDER_ID), mSenderId);
+                assertEquals(jsonObject.getString(MessagingConsts.KEY_DISPLAY_NAME), mDisplayName);
+            } catch (JSONException e){
+                //Ignore if sender id is missing in jsonObject
+            }
             assertEquals(jsonObject.getString(MessagingConsts.KEY_SENDER_TYPE), mSenderType.toUpperCase());
-            assertEquals(jsonObject.getString(MessagingConsts.KEY_DISPLAY_NAME), mDisplayName);
             long sentTime = jsonObject.getLong(MessagingConsts.KEY_SENT_TIME);
             assertTrue(startTime <= sentTime && sentTime <= System.currentTimeMillis());
             assertEquals(jsonObject.getString(MessagingConsts.KEY_CONTENT_TYPE), MessagingConsts.DEFAULT_TEXT_PLAIN_CONTENT_TYPE);

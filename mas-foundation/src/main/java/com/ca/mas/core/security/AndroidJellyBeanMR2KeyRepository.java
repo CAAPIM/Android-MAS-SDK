@@ -9,7 +9,7 @@ package com.ca.mas.core.security;
 
 import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 
 import com.ca.mas.foundation.MAS;
 

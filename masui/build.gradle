@@ -35,11 +35,11 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':mas-foundation')
-    api "com.android.support:support-annotations:$rootProject.ext.supportLibsVersion"
-    api "com.android.support:design:$rootProject.ext.supportLibsVersion"
-    api "com.android.support:gridlayout-v7:$rootProject.ext.supportLibsVersion"
+    api 'androidx.annotation:annotation:1.0.0'
+    api 'com.google.android.material:material:1.0.0'
+    api 'androidx.gridlayout:gridlayout:1.0.0'
     api "net.openid:appauth:$rootProject.ext.appAuthVersion"
-    api "com.android.support:customtabs:$rootProject.ext.supportLibsVersion"
+    api 'androidx.browser:browser:1.0.0'
 }
 
 //jcenter integration

@@ -6,7 +6,7 @@
 ### New features
 - Handling of Android's Doze Mode. [US632023]
 - Migration to AndroidX. [US646346]
-- Dependency libraries update [US469994]
+- Dependency libraries update
     - com.nimbusds:nimbus-jose-jwt to 8.6
     - com.google.zxing:core to 3.4.0
     - org.bouncycastle:bcpkix-jdk15on to 1.64

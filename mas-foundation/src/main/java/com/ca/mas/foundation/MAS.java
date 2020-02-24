@@ -194,6 +194,7 @@ public class MAS {
      * @param jsonConfiguration JSON Configuration object.
      */
     public static void start(@NonNull Context context, JSONObject jsonConfiguration) {
+        ConfigurationManager.getInstance().setJsonConfig(jsonConfiguration);
         init(context);
         MobileSsoFactory.getInstance(context, jsonConfiguration);
         state = MASConstants.MAS_STATE_STARTED;

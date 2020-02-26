@@ -30,7 +30,7 @@ dependencies {
 
     api 'com.squareup.okhttp3:mockwebserver:4.1.0'
     api 'org.skyscreamer:jsonassert:1.5.0'
-    api 'com.google.code.gson:gson:2.8.5'
+    api 'com.google.code.gson:gson:2.8.6'
 
     //For Android API 16 and 17
     api "org.bouncycastle:bcpkix-jdk15on:$rootProject.ext.bcpVersion"

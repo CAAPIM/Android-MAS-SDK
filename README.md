@@ -11,7 +11,7 @@ Check out our [documentation] for sample code and more.
 ## Android Mobile SDK Frameworks
 The Android Mobile SDK consists of these frameworks:
 
-- **MASConnecta** - pub/sub services.
+- **MASConnecta** - Pub/Sub messagin service.
 - **MASFoundation** - Core services to handle user authentication, device and app registration, requests and local storage of certificates, keys, and token credentials for accessing protected APIs.
 - **MASStorage** - Storage services for private local storage.
 - **MASUI** - Resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).

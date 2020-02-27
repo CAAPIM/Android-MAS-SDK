@@ -55,7 +55,7 @@ The compiled release binaries can be found here: [Releases][Releases]
 - [Sample-App-MAS-Android-Access-API-Geolocation-And-OTP](https://github.com/CAAPIM/Sample-App-MAS-Android-Access-API-Geolocation-And-OTP)
 - [Sample-App-MAS-Android-Fingerprint-Sessions-Lock](https://github.com/CAAPIM/Sample-App-MAS-Android-Fingerprint-Sessions-Lock)
 - [Sample-App-MAS-Android-Login-User-Authentication-And-Authorization](https://github.com/CAAPIM/Sample-App-MAS-Android-Login-User-Authentication-And-Authorization)
-- [Sample-App-MAS-Android-Secure-Cloud-And-Local-Storage](https://github.com/CAAPIM/Sample-App-MAS-Android-Secure-Cloud-And-Local-Storage)
+- [Sample-App-MAS-Android-Secure-Local-Storage](https://github.com/CAAPIM/Sample-App-MAS-Android-Secure-Local-Storage)
 
 ## Communication
 - *Have general questions or need help?*, use [Stack Overflow][StackOverflow]. (Tag 'massdk')

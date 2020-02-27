@@ -5,6 +5,16 @@
 
 ### New features
 - Handling of Android's Doze Mode. [US632023]
+- Migration to AndroidX. [US646346]
+- Dependency libraries update [US469994]
+    - com.nimbusds:nimbus-jose-jwt to 8.6
+    - com.google.zxing:core to 3.4.0
+    - org.bouncycastle:bcpkix-jdk15on to 1.64
+
+### Deprecated/Removed
+- Removed mas-identity module.
+- Removed user-to-user messaging related classes/interfaces from mas-connecta.
+- Cloud storage related classes/interfaces are removed.
 
 # Version 2.0.00
 
@@ -222,11 +232,8 @@
 
 - Deprecated some redundant methods in MASGroupIdentity, these methods are redundant with getGroupByFilter(). [MCT-503]
 
- [mag]: https://docops.ca.com/mag
- [mas.ca.com]: http://mas.ca.com/
- [docs]: http://mas.ca.com/docs/
- [blog]: http://mas.ca.com/blog/
-
+ [mag]: https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-api-gateway/4-2.html
+ [docs]: http://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-sdk-for-ca-mobile-api-gateway/2-1.html
  [releases]: ../../releases
  [contributing]: /CONTRIBUTING.md
  [license-link]: /LICENSE

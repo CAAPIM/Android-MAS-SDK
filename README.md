@@ -43,7 +43,7 @@ Edit your build.gradle file and add below dependency:
         implementation 'com.ca:mas-storage:2.1.00' // (Optional) Only required when using mas storage
         implementation 'com.ca:masui:2.1.00' // (Optional) Only required when using MASUI Template. The MAS UI library provides sample user interfaces for Login, OTP, Social Login, and Enterprise Browser.
 
-        implementation 'org.bouncycastle:bcpkix-jdk15on:1.59' // (Optional) Only required when you want to support Android 4.1.x
+        implementation 'org.bouncycastle:bcpkix-jdk15on:1.64' // (Optional) Only required when you want to support Android 4.1.x
     }
 ```
 ## SDK Releases

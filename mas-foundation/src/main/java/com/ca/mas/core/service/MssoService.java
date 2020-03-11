@@ -44,7 +44,7 @@ import static com.ca.mas.foundation.MAS.DEBUG;
 import static com.ca.mas.foundation.MAS.TAG;
 
 /**
- * An JobIntentService that receives outbound HTTP requests encoded into Intents and returns the eventual responses
+ * Service that receives outbound HTTP requests encoded into Intents and returns the eventual responses
  * via a ResultReceiver.
  */
 public class MssoService extends Service {

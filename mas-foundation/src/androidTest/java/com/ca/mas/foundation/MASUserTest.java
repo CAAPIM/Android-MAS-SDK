@@ -35,24 +35,5 @@ public class MASUserTest extends MASLoginTestBase {
         assertNotNull(masUser.getAccessToken());
     }
 
-    @Ignore("Remove mas-connecta from mas module to test")
-    @Test(expected = UnsupportedOperationException.class)
-    public void testUnsupportedMessagingModule() throws Exception {
-        MASUser.getCurrentUser().sendMessage((MASMessage)null, MASUser.getCurrentUser(), null);
-    }
-
-    @Ignore("Remove mas-identity-management from mas module to test")
-    @Test(expected = UnsupportedOperationException.class)
-    public void testUnsupportedIdentityModule() throws Exception {
-        MASUser.getCurrentUser().getUserById("test",null);
-    }
-
-    @Ignore("Remove mas-identity-management from mas module to test")
-    @Test(expected = UnsupportedOperationException.class)
-    public void testUnsupportedIdentyModuleForMASGroup() throws Exception {
-        MASGroup.newInstance().save(null);
-    }
-
-
 
 }

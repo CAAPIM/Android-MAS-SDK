@@ -35,11 +35,11 @@
             android:layout_marginBottom="20dp"
             android:src="@drawable/ca" />
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/activity_mas_login_edit_text_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -50,15 +50,15 @@
                 android:imeOptions="actionDone"
                 android:inputType="textNoSuggestions"
                 android:maxLines="1" />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             app:passwordToggleEnabled="false">
 
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/activity_mas_login_edit_text_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -69,9 +69,9 @@
                 android:imeOptions="actionDone"
                 android:inputType="textPassword"
                 android:maxLines="1" />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/activity_mas_login_button_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

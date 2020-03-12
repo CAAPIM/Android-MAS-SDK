@@ -8,7 +8,7 @@
 package com.ca.mas.identity.group;
 
 import android.net.Uri;
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -20,10 +20,8 @@ import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASRequestBody;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASResponseBody;
-import com.ca.mas.foundation.MASUser;
 import com.ca.mas.foundation.notify.Callback;
 import com.ca.mas.identity.common.MASFilteredRequest;
-import com.ca.mas.identity.common.MASFilteredRequestBuilder;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.ca.mas.identity.util.IdentityUtil;
 

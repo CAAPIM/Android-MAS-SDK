@@ -613,6 +613,7 @@ public class MASLoginTest extends MASStartTestBase {
 
         //invoke token with id token
         callback.reset();
+        authCredentials = new CustomMASAuthCredentials("admin", "7layer".toCharArray(), "custom_value");
         MASUser.login(authCredentials, callback);
         Assert.assertNotNull(callback.get());
 

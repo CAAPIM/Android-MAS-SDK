@@ -13,7 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
@@ -27,7 +27,6 @@ import com.ca.mas.messaging.topic.MASTopicBuilder;
 
 import junit.framework.Assert;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,53 +50,7 @@ public class MASSubscribePublishMessageTest extends MASLoginTestBase {
 
     }
 
-    @Test
-    public void testSubscribePublish() throws Exception {
-        final String EXPECT = "Test1";
-        BroadcastReceiver broadcastReceiver = null;
-        try {
-            final String[] messageReceived = new String[1];
-            final CountDownLatch countDownLatch = new CountDownLatch(1);
-            IntentFilter intentFilter = new IntentFilter();
-            intentFilter.addAction(MessagingConsts.MAS_CONNECTA_BROADCAST_MESSAGE_ARRIVED);
-            broadcastReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    MASMessage message = null;
-                    message = MASMessage.newInstance(intent);
-                    byte[] msg = message.getPayload();
-                    messageReceived[0] = new String(msg);
-                    countDownLatch.countDown();
-                }
-            };
 
-            LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver,
-                    intentFilter);
-
-            MASCallbackFuture<Void> listenCallbackFuture = new MASCallbackFuture<>();
-            MASUser.getCurrentUser().startListeningToMyMessages(listenCallbackFuture);
-            listenCallbackFuture.get();
-
-            MASMessage masMessage = MASMessage.newInstance();
-            masMessage.setContentType(MessagingConsts.DEFAULT_TEXT_PLAIN_CONTENT_TYPE);
-            masMessage.setPayload(EXPECT.getBytes());
-
-            MASCallbackFuture<Void> sendCallbackFuture = new MASCallbackFuture<>();
-            MASUser.getCurrentUser().sendMessage(masMessage, MASUser.getCurrentUser(), sendCallbackFuture);
-            sendCallbackFuture.get();
-
-            countDownLatch.await();
-            Assert.assertEquals(EXPECT, messageReceived[0]);
-
-            MASCallbackFuture<Void> stopCallbackFuture = new MASCallbackFuture<>();
-            MASUser.getCurrentUser().stopListeningToMyMessages(stopCallbackFuture);
-            stopCallbackFuture.get();
-
-
-        } finally {
-            LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(broadcastReceiver);
-        }
-    }
 
     @Test
     public void testSubscribePublishToPublicBroker() throws Exception {

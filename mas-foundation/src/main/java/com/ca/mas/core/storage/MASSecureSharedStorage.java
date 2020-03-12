@@ -1,6 +1,6 @@
 package com.ca.mas.core.storage;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Base64;
 
 import com.ca.mas.core.security.DefaultEncryptionProvider;

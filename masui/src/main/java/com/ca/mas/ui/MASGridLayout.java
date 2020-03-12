@@ -11,7 +11,9 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 
-public class MASGridLayout extends android.support.v7.widget.GridLayout {
+import androidx.gridlayout.widget.GridLayout;
+
+public class MASGridLayout extends GridLayout {
     View[] mChild = null;
 
     public MASGridLayout(Context context, AttributeSet attrs, int defStyle) {

@@ -10,7 +10,7 @@ package com.ca.mas.core.policy;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 

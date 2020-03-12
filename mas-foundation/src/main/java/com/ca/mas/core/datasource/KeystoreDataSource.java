@@ -10,7 +10,7 @@ package com.ca.mas.core.datasource;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 
 import com.ca.mas.core.storage.StorageException;
 import com.ca.mas.core.storage.StorageResult;

@@ -10,9 +10,6 @@ package com.ca.mas;
 
 import com.ca.mas.storage.MASSecureLocalStorageApplicationTest;
 import com.ca.mas.storage.MASSecureLocalStorageUserTest;
-import com.ca.mas.storage.MASSecureStorageAppTest;
-import com.ca.mas.storage.MASSecureStorageUserAppTest;
-import com.ca.mas.storage.MASSecureStorageUserTest;
 
 import org.junit.experimental.categories.Categories;
 import org.junit.runner.RunWith;
@@ -22,9 +19,6 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
         MASSecureLocalStorageUserTest.class,
         MASSecureLocalStorageApplicationTest.class,
-        MASSecureStorageUserTest.class,
-        MASSecureStorageAppTest.class,
-        MASSecureStorageUserAppTest.class,
 })
 
 public class MASStorageTestSuite {

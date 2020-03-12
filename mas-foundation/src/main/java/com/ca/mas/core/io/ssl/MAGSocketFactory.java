@@ -8,7 +8,7 @@
 
 package com.ca.mas.core.io.ssl;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ca.mas.core.io.http.SingleKeyX509KeyManager;
 import com.ca.mas.core.io.http.TrustedCertificateConfigurationTrustManager;

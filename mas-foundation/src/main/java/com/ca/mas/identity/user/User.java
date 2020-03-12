@@ -9,7 +9,7 @@
 package com.ca.mas.identity.user;
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ca.mas.foundation.FoundationConsts;
 import com.ca.mas.foundation.MASCallback;
@@ -20,8 +20,6 @@ import com.ca.mas.foundation.MASUser;
 import com.ca.mas.identity.common.MASFilteredRequest;
 import com.ca.mas.identity.util.IdentityConsts;
 import com.ca.mas.identity.util.IdentityUtil;
-import com.ca.mas.messaging.MASMessage;
-import com.ca.mas.messaging.topic.MASTopic;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -399,41 +397,6 @@ public class User extends MASUser {
     @Override
     public Bitmap getThumbnailImage() {
         return IdentityUtil.getThumbnail(getPhotoList());
-    }
-
-    @Override
-    public void sendMessage(MASTopic topic, MASMessage message, MASCallback<Void> callback) {
-        throw new UserNotAuthenticatedException();
-    }
-
-    @Override
-    public void sendMessage(MASMessage message, MASUser user, MASCallback<Void> callback) {
-        throw new UserNotAuthenticatedException();
-    }
-
-    @Override
-    public void sendMessage(MASMessage message, MASUser user, String topic, MASCallback<Void> callback) {
-        throw new UserNotAuthenticatedException();
-    }
-
-    @Override
-    public void sendMessage(MASMessage message, MASGroup group, MASCallback<Void> callback) {
-        throw new UserNotAuthenticatedException();
-    }
-
-    @Override
-    public void sendMessage(MASMessage message, MASGroup group, String topic, MASCallback<Void> callback) {
-        throw new UserNotAuthenticatedException();
-    }
-
-    @Override
-    public void startListeningToMyMessages(MASCallback<Void> callback) {
-        throw new UserNotAuthenticatedException();
-    }
-
-    @Override
-    public void stopListeningToMyMessages(MASCallback<Void> callback) {
-        throw new UserNotAuthenticatedException();
     }
 
     @Override

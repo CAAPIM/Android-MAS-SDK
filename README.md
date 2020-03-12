@@ -27,7 +27,6 @@ For more information about our mobile products see the [developer website](http:
 * **Enterprise Browser** - Extend the single sign-on session to web applications.
 * **Proximity Login** - Transfer the user session between devices and platforms.
 * **Fingerprint Sessions Lock** - Support phone unlocking using fingerprint recognition.
-* **Private Cloud Storage** - Store data in a private cloud and access it from all of your devices.
 * **Pub/Sub** - Create real-time, IoT-friendly apps using an MQTT-based Pub/Sub infrastructure.
 * **Adhoc Groups** - Create groups on-the-fly for collaborative apps.
 * **Local Storage** - Store data on devices with enterprise-grade encryption.

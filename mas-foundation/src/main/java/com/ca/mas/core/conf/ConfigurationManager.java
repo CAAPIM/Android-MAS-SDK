@@ -23,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,6 +48,7 @@ public class ConfigurationManager {
     private boolean enablePKCE = true;
     private boolean idTokenValidation = true;
     private boolean enableJwksPreload = false;
+    private JSONObject jsonConfiguration;
 
     private MASConnectionListener connectionListener;
     private MobileSsoListener mobileSsoListener;
@@ -152,7 +154,10 @@ public class ConfigurationManager {
             connectedGatewayConfigurationProvider = create(new JSONObject(jsonConfig.toString()));
         } catch (IOException | JSONException e) {
             //Unable to load the cached one.
-            activateDefault();
+            if(e instanceof FileNotFoundException && jsonConfiguration != null)
+                activate(jsonConfiguration);
+            else
+                activateDefault();
         }
     }
 
@@ -467,5 +472,9 @@ public class ConfigurationManager {
 
     public void enableJwksPreload(boolean enableJwksPreload) {
         this.enableJwksPreload = enableJwksPreload;
+    }
+
+    public void setJsonConfig(JSONObject jsonConfig) {
+        this.jsonConfiguration = jsonConfig;
     }
 }

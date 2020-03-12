@@ -8,7 +8,7 @@
 
 package com.ca.mas.identity.group;
 
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 
 import com.ca.mas.foundation.MASCallback;
 import com.ca.mas.foundation.MASGroup;

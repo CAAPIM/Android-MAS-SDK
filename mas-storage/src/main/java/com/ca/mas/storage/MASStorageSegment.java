@@ -8,7 +8,7 @@
 
 package com.ca.mas.storage;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import com.ca.mas.foundation.MASConstants;
 

@@ -8,7 +8,7 @@
 package com.ca.mas.core.store;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.ca.mas.core.conf.ConfigurationManager;

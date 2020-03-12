@@ -26,6 +26,7 @@ class UserInfoRepository implements UserRepository {
 
         final MASRequest request = new MASRequest.MASRequestBuilder(ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getUserInfoUri())
                 .password()
+                .notifyOnCancel()
                 .build();
 
         MAS.invoke(request, new MASCallback<MASResponse<JSONObject>>() {

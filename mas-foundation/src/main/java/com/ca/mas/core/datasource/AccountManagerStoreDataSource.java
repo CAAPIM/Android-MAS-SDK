@@ -9,7 +9,7 @@
 package com.ca.mas.core.datasource;
 
 import android.content.Context;
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 
 import com.ca.mas.core.security.KeyStoreRepository;
 import com.ca.mas.core.storage.StorageException;

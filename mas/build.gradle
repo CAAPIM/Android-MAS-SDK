@@ -11,7 +11,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     lintOptions {
@@ -31,7 +31,6 @@ dependencies {
     api project(':mas-foundation')
     api project(':mas-connecta')
     api project(':mas-storage')
-    api project(':mas-identity-management')
 
 }
 

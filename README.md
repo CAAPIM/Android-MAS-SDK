@@ -6,18 +6,17 @@ CA Mobile API Gateway (MAG) provides enterprises with a secure mobile backend th
 The CA Mobile API Gateway also provides powerful mobile backend services through SDKs and APIs for developers to help accelerate the app development process.
 
 ## Get Started
-Check out our [documentation][documentation] for sample code, video tutorials, and more.  
+Check out our [documentation] for sample code and more.
 
 ## Android Mobile SDK Frameworks
 The Android Mobile SDK consists of these frameworks:
 
-- **MASConnecta** - Messaging and pub/sub services allowing users to message and send data to each other.
+- **MASConnecta** - Pub/Sub messagin service.
 - **MASFoundation** - Core services to handle user authentication, device and app registration, requests and local storage of certificates, keys, and token credentials for accessing protected APIs.
-- **MASIdentityManagement** - Identity management services to securely access users and groups from enterprise identity providers.
-- **MASStorage** - Storage services for private local and cloud storage.
+- **MASStorage** - Storage services for private local storage.
 - **MASUI** - Resources to implement a user login dialog, Social Login, One-Time Password, and Proximity Login (QR code and BLE).
 
-For more information about our mobile products see the [developer website](http://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-sdk-for-ca-mobile-api-gateway/2-0.html).
+For more information about our mobile products see the [developer website](http://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-sdk-for-ca-mobile-api-gateway/2-1.html).
 
 ## Features
 
@@ -28,9 +27,6 @@ For more information about our mobile products see the [developer website](http:
 * **Enterprise Browser** - Extend the single sign-on session to web applications.
 * **Proximity Login** - Transfer the user session between devices and platforms.
 * **Fingerprint Sessions Lock** - Support phone unlocking using fingerprint recognition.
-* **Messaging** - Create collaborative apps with secure, reliable messaging.
-* **User Management** - Seamlessly integrate your app with an existing enterprise user directory.
-* **Private Cloud Storage** - Store data in a private cloud and access it from all of your devices.
 * **Pub/Sub** - Create real-time, IoT-friendly apps using an MQTT-based Pub/Sub infrastructure.
 * **Adhoc Groups** - Create groups on-the-fly for collaborative apps.
 * **Local Storage** - Store data on devices with enterprise-grade encryption.
@@ -40,14 +36,13 @@ For more information about our mobile products see the [developer website](http:
 Edit your build.gradle file and add below dependency:
 ```gradle
     dependencies {
-        implementation 'com.ca:mas-foundation:2.0.00'
+        implementation 'com.ca:mas-foundation:2.1.00'
 
-        implementation 'com.ca:mas-connecta:2.0.00' // (Optional) Only required when using mas connecta
-        implementation 'com.ca:mas-storage:2.0.00' // (Optional) Only required when using mas storage
-        implementation 'com.ca:mas-identity-management:2.0.00' // (Optional) Only required when using mas identity management
-        implementation 'com.ca:masui:2.0.00' // (Optional) Only required when using MASUI Template. The MAS UI library provides sample user interfaces for Login, OTP, Social Login, and Enterprise Browser.
+        implementation 'com.ca:mas-connecta:2.1.00' // (Optional) Only required when using mas connecta
+        implementation 'com.ca:mas-storage:2.1.00' // (Optional) Only required when using mas storage
+        implementation 'com.ca:masui:2.1.00' // (Optional) Only required when using MASUI Template. The MAS UI library provides sample user interfaces for Login, OTP, Social Login, and Enterprise Browser.
 
-        implementation 'org.bouncycastle:bcpkix-jdk15on:1.59' // (Optional) Only required when you want to support Android 4.1.x
+        implementation 'org.bouncycastle:bcpkix-jdk15on:1.64' // (Optional) Only required when you want to support Android 4.1.x
     }
 ```
 ## SDK Releases
@@ -59,9 +54,7 @@ The compiled release binaries can be found here: [Releases][Releases]
 - [Sample-App-MAS-Android-Access-API-Geolocation-And-OTP](https://github.com/CAAPIM/Sample-App-MAS-Android-Access-API-Geolocation-And-OTP)
 - [Sample-App-MAS-Android-Fingerprint-Sessions-Lock](https://github.com/CAAPIM/Sample-App-MAS-Android-Fingerprint-Sessions-Lock)
 - [Sample-App-MAS-Android-Login-User-Authentication-And-Authorization](https://github.com/CAAPIM/Sample-App-MAS-Android-Login-User-Authentication-And-Authorization)
-- [Sample-App-MAS-Android-Messaging](https://github.com/CAAPIM/Sample-App-MAS-Android-Messaging)
-- [Sample-App-MAS-Android-Secure-Cloud-And-Local-Storage](https://github.com/CAAPIM/Sample-App-MAS-Android-Secure-Cloud-And-Local-Storage)
-- [Sample-App-MAS-Android-User-Group-Management](https://github.com/CAAPIM/Sample-App-MAS-Android-User-Group-Management)
+- [Sample-App-MAS-Android-Secure-Local-Storage](https://github.com/CAAPIM/Sample-App-MAS-Android-Secure-Local-Storage)
 
 ## Communication
 - *Have general questions or need help?*, use [Stack Overflow][StackOverflow]. (Tag 'massdk')
@@ -81,10 +74,10 @@ The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 This software may be modified and distributed under the terms
 of the MIT license. See the [LICENSE][license-link] file for details.
 
-[docs]: http://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-sdk-for-ca-mobile-api-gateway/2-0.html
+[docs]: http://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-sdk-for-ca-mobile-api-gateway/2-1.html
 [StackOverflow]: http://stackoverflow.com/questions/tagged/massdk
 [issues]: https://github.com/CAAPIM/Android-MAS-SDK/issues
 [releases]: ../../releases
 [contributing]: /CONTRIBUTING.md
 [license-link]: /LICENSE
-[documentation]: http://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-sdk-for-ca-mobile-api-gateway/2-0.html
+[documentation]: http://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-sdk-for-ca-mobile-api-gateway/2-1.html

@@ -1,5 +1,7 @@
 package com.ca.mas.foundation;
 
+import android.net.Uri;
+
 import com.ca.mas.GatewayDefaultDispatcher;
 import com.ca.mas.MASCallbackFuture;
 import com.ca.mas.MASLoginTestBase;
@@ -115,13 +117,62 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
     }
 
     @Test
+    public void uploadFilePartOnlyAsBytesTest() throws Exception, MASException {
+        try {
+
+            MultiPart multiPart = new MultiPart();
+            MASFileObject filepart = new MASFileObject();
+            filepart.setFieldName("file");
+            filepart.setFileName("ca.png");
+            filepart.setFileBytes(getFileBytes("ca.png"));
+            filepart.setFileType("image/png");
+            multiPart.addFilePart(filepart);
+
+            final MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.UPLOAD)).build();
+
+            MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
+
+            MAS.postMultiPartForm(request, multiPart, null, callbackFuture);
+
+            Assert.assertTrue(callbackFuture.get().getResponseCode() == 200);
+
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
+
+    @Test
+    public void uploadFilePartOnlyAsUriTest() throws Exception, MASException {
+        try {
+
+            MultiPart multiPart = new MultiPart();
+            MASFileObject filepart = new MASFileObject();
+            filepart.setFieldName("file");
+            filepart.setFileName("ca.png");
+            filepart.setFileUri(getFileUri("ca.png"));
+            filepart.setFileType("image/png");
+            multiPart.addFilePart(filepart);
+
+            final MASRequest request = new MASRequest.MASRequestBuilder(new URI(GatewayDefaultDispatcher.UPLOAD)).build();
+
+            MASCallbackFuture<MASResponse> callbackFuture = new MASCallbackFuture();
+
+            MAS.postMultiPartForm(request, multiPart, null, callbackFuture);
+
+            Assert.assertTrue(callbackFuture.get().getResponseCode() == 200);
+
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
+
+    @Test
     public void uploadFilePartWithNoFileNameTest() throws Exception, MASException {
         try {
 
             MultiPart multiPart = new MultiPart();
             MASFileObject filepart = new MASFileObject();
             filepart.setFieldName("file");
-            //filepart.setFileName("cat.png");
             filepart.setFilePath(getFilePath("cat.png"));
             filepart.setFileType("image/png");
             multiPart.addFilePart(filepart);
@@ -195,6 +246,35 @@ public class MASMultiPartUploadTest extends MASLoginTestBase {
         outputStream.write(bytes);
         outputStream.close();
         return file.getAbsolutePath();
+
+    }
+
+    private byte[] getFileBytes(String fileName) throws IOException {
+        byte[] bytes = TestUtils.getBytes("/"+fileName);
+
+        String folder = getContext().getFilesDir().getAbsolutePath();
+        File file = new File(folder, "ca.png");
+
+        FileOutputStream outputStream = new FileOutputStream(file);
+
+        outputStream.write(bytes);
+        outputStream.close();
+        return bytes;
+
+    }
+
+    private Uri getFileUri(String fileName) throws IOException {
+        byte[] bytes = TestUtils.getBytes("/"+fileName);
+
+        String folder = getContext().getFilesDir().getAbsolutePath();
+        File file = new File(folder, "ca.png");
+
+        FileOutputStream outputStream = new FileOutputStream(file);
+
+        outputStream.write(bytes);
+        outputStream.close();
+        Uri contentUri = Uri.fromFile(file);
+        return contentUri;
 
     }
 }

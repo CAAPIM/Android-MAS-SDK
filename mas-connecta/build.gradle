@@ -19,7 +19,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
 
@@ -97,7 +97,7 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(':mas-foundation')
-    api "com.android.support:appcompat-v7:$rootProject.ext.supportLibsVersion"
+    api 'androidx.appcompat:appcompat:1.0.0'
 
     api 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
     api 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'

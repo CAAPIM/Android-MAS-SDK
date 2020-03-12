@@ -7,7 +7,7 @@
 
 package com.ca.mas.messaging;
 
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 
 import com.ca.mas.connecta.client.MASConnectaManager;
 import com.ca.mas.foundation.MASCallback;

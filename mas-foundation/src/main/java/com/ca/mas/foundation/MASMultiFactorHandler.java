@@ -9,12 +9,15 @@ package com.ca.mas.foundation;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.ca.mas.core.service.MssoIntents;
 import com.ca.mas.core.service.MssoService;
+import com.ca.mas.core.service.MssoServiceConnection;
+import com.ca.mas.core.service.MssoServiceState;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -45,7 +48,8 @@ public class MASMultiFactorHandler implements Parcelable {
      * @param additionalHeaders Additional headers that will inject to the original pending request.
      */
     public void proceed(Context context, Map<String, String> additionalHeaders) {
-        Intent intent = new Intent(MssoIntents.ACTION_PROCESS_REQUEST);
+        final Intent intent = new Intent(context, MssoService.class );
+        intent.setAction(MssoIntents.ACTION_PROCESS_REQUEST);
         intent.putExtra(MssoIntents.EXTRA_REQUEST_ID, requestId);
         if (previousAdditionalHeaders != null) {
             previousAdditionalHeaders.putAll(additionalHeaders);
@@ -53,7 +57,15 @@ public class MASMultiFactorHandler implements Parcelable {
             previousAdditionalHeaders = additionalHeaders;
         }
         intent.putExtra(MssoIntents.EXTRA_ADDITIONAL_HEADERS, (Serializable) previousAdditionalHeaders);
-        MssoService.enqueueWork(context,intent);
+
+
+        if(MssoServiceState.getInstance().isBound()){
+            MssoServiceState.getInstance().getMssoService().handleWork(intent);
+        } else {
+            ServiceConnection conn = new MssoServiceConnection(intent);
+            MssoServiceState.getInstance().setServiceConnection(conn);
+            context.bindService(intent, conn, Context.BIND_AUTO_CREATE);
+        }
     }
 
     /**

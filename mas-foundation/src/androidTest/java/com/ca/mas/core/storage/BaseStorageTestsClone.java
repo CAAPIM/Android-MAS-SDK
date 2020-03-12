@@ -8,12 +8,10 @@
 
 package com.ca.mas.core.storage;
 
-import android.os.Build;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import android.util.Log;
 
 import com.ca.mas.MASTestBase;
-import com.ca.mas.MaxTargetAPI;
 
 import org.junit.After;
 import org.junit.Test;

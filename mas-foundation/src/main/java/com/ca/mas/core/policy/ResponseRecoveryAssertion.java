@@ -9,12 +9,16 @@ package com.ca.mas.core.policy;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.policy.exceptions.CertificateExpiredException;
 import com.ca.mas.foundation.MASResponse;
+
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * An Assertion that handle common error return from server and determine if
@@ -42,6 +46,7 @@ class ResponseRecoveryAssertion implements MssoAssertion {
         String s = Integer.toString(errorCode);
 
         if (s.endsWith(CertificateExpiredException.CERTIFICATE_EXPIRED_SUFFIX)) {
+            if (DEBUG) Log.d(TAG, "CertificateExpiredException.CERTIFICATE_EXPIRED_SUFFIX ");
             throw new CertificateExpiredException();
         }
     }

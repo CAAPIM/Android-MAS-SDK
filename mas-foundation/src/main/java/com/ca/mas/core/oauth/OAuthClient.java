@@ -12,6 +12,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Base64;
+import android.util.Log;
 import android.util.Pair;
 
 import com.ca.mas.core.MobileSsoConfig;
@@ -43,6 +44,9 @@ import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Utility class that encapsulates talking to the token server into Java method calls.
@@ -159,17 +163,31 @@ public class OAuthClient extends ServerClient {
                     }
                 } else {
                     int errorCode = findErrorCode(response);
+                    if (DEBUG)
+                        Log.d(TAG,"INVALID_CLIENT_CREDENTIALS = "+errorCode);
+
                     if (errorCode == INVALID_CLIENT_CREDENTIALS) {
                         mssoContext.clearClientCredentials();
                     }
+                    if (DEBUG)
+                        Log.d(TAG,"ServerClient.createServerException = "+errorCode);
+
                     throw ServerClient.createServerException(response, OAuthServerException.class);
                 }
 
             } catch (IOException e) {
+                if (DEBUG)
+                    Log.d(TAG,"Unable to retrieve Social Login Providers: " + e.getMessage());
                 throw new OAuthException(MAGErrorCode.UNKNOWN, "Unable to retrieve Social Login Providers: " + e.getMessage(), e);
             } catch (JSONException e) {
+                if (DEBUG)
+                    Log.d(TAG,"response from " + b.toString() + " was not valid response: " + e.getMessage());
                 throw new OAuthException(MAGErrorCode.UNKNOWN, "response from " + b.toString() + " was not valid response: " + e.getMessage(), e);
             } catch (URISyntaxException e) {
+                if (DEBUG) {
+                    Log.d(TAG, "URISyntaxException " + e.getMessage());
+                    Log.d(TAG, "MAGErrorCode.UNKNOWN ");
+                }
                 throw new OAuthException(MAGErrorCode.UNKNOWN, e);
             }
         }
@@ -212,8 +230,12 @@ public class OAuthClient extends ServerClient {
         try {
             obtainServerResponseToPostedForm(request);
         } catch (MAGException e) {
+            if (DEBUG)
+                Log.d(TAG,"MAGErrorCode.UNKNOWN"+e.getMessage());
             throw new OAuthException(MAGErrorCode.UNKNOWN, e);
         } catch (OAuthServerException e) {
+            if (DEBUG)
+                Log.d(TAG,"INVALID_CLIENT_CREDENTIALS"+e.getMessage());
             if (e.getErrorCode() == INVALID_CLIENT_CREDENTIALS) {
                 mssoContext.clearClientCredentials();
             }

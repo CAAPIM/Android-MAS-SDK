@@ -149,7 +149,11 @@ public class MssoService extends JobIntentService {
             //Otherwise, the request was cancelled, so don't bother enqueuing a response.
 
         } catch (CredentialRequiredException e) {
-            if (DEBUG) Log.d(TAG, "Request for user credentials");
+            if (DEBUG) {
+                Log.d(TAG, "Request for user credentials");
+                Log.d(TAG, e.getMessage()+"");
+            }
+            e.printStackTrace();
             //Notify listener
             MobileSsoListener mobileSsoListener = ConfigurationManager.getInstance().getMobileSsoListener();
             AuthenticationProvider authProvider = null;
@@ -169,10 +173,15 @@ public class MssoService extends JobIntentService {
         } catch (TokenStoreUnavailableException e) {
             try {
                 mssoContext.getTokenManager().getTokenStore().unlock();
+                if (DEBUG)
+                    Log.d(TAG,"TokenStoreUnavailableException"+e.getMessage());
+
             } catch (Exception e1) {
                 handleErrorResponse(request, e1);
             }
         } catch (MAGServerException e) {
+            if (DEBUG)
+                Log.d(TAG,"MAGServerException"+e.getMessage());
             if (handleInterceptors(request.getId(), request.getRequest(), request.getExtra(), e.getResponse())) {
                 //The request is intercepted and keep in the pending queue.
                 return;

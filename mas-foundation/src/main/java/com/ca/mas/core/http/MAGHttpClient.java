@@ -59,6 +59,8 @@ public class MAGHttpClient {
         if (DEBUG) {
             Log.d(TAG, String.format("API Request Url: %s", request.getURL()));
             Log.d(TAG, String.format("API Request Method: %s", request.getMethod()));
+            if(request.getBody()!=null && request.getBody().getContentAsJsonValue()!=null)
+            Log.d(TAG, String.format("API Request Body: %s", request.getBody().getContentAsJsonValue()));
         }
 
         try {

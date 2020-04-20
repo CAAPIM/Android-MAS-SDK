@@ -81,6 +81,8 @@ class AccessTokenAssertion implements MssoAssertion {
         }
         String s = Integer.toString(errorCode);
         if (s.endsWith(TOKEN_EXPIRED_ERROR_CODE_SUFFIX)) {
+            if (DEBUG)
+            Log.d(TAG,"Access token rejected by server");
             throw new RetryRequestException("Access token rejected by server") {
                 @Override
                 public void recover(MssoContext context) {
@@ -188,7 +190,10 @@ class AccessTokenAssertion implements MssoAssertion {
     private static void checkCredentials(MssoContext mssoContext, MAGInternalRequest request) throws CredentialRequiredException {
         MASAuthCredentials creds = request.getGrantProvider().getCredentials(mssoContext);
         if (creds == null || !creds.isValid())
-            throw new CredentialRequiredException();
+            if (DEBUG) {
+                Log.d(TAG, "MASAuthCredentials is not valid");
+                throw new CredentialRequiredException();
+            }
     }
 
     private String obtainAccessTokenUsingIdToken(MssoContext mssoContext, IdToken idToken, MAGInternalRequest request) throws CredentialRequiredException, OAuthException, JWTValidationException, OAuthServerException {

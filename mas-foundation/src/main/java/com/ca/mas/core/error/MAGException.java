@@ -8,6 +8,10 @@
 
 package com.ca.mas.core.error;
 
+import android.util.Log;
+
+import static com.ca.mas.foundation.MAS.TAG;
+
 /**
  * The Base Exception class for MAG
  */
@@ -21,11 +25,13 @@ public class MAGException extends Exception{
 
     public MAGException(int errorCode, String detailMessage) {
         super(detailMessage);
+        Log.d(TAG,detailMessage+" = "+errorCode);
         this.errorCode = errorCode;
     }
 
     public MAGException(int errorCode, String detailMessage, Throwable throwable) {
         super(detailMessage, throwable);
+        Log.d(TAG,detailMessage+" = "+errorCode);
         this.errorCode = errorCode;
     }
 

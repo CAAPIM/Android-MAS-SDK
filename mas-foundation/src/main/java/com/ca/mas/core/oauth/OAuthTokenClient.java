@@ -9,6 +9,8 @@
 package com.ca.mas.core.oauth;
 
 import android.support.annotation.NonNull;
+
+import android.util.Log;
 import android.util.Pair;
 
 import com.ca.mas.core.MobileSsoConfig;
@@ -29,6 +31,9 @@ import org.json.JSONException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Utility class that encapsulates talking to the token server into Java method calls.
@@ -93,6 +98,8 @@ public class OAuthTokenClient extends ServerClient {
             validate(tokenResponse);
 
         } catch (JSONException | MAGException e) {
+            if (DEBUG)
+                Log.d(TAG,"MAGErrorCode.ACCESS_TOKEN_INVALID"+e.getMessage()+"\n"+e.getStackTrace());
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, e);
         }
 
@@ -142,11 +149,18 @@ public class OAuthTokenClient extends ServerClient {
    }
 
     private void validate(OAuthTokenResponse tokenResponse) throws OAuthException {
-        if (!tokenResponse.isBearer())
+        if (!tokenResponse.isBearer()) {
+            if (DEBUG)
+                Log.d(TAG,"MAGErrorCode.ACCESS_TOKEN_INVALID"+"request_token response was token_type other than bearer");
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, "request_token response was token_type other than bearer");
+        }
         final String accessToken = tokenResponse.getAccessToken();
-        if (accessToken == null || accessToken.length() < 1)
+        if (accessToken == null || accessToken.length() < 1) {
+            if (DEBUG)
+                Log.d(TAG,"MAGErrorCode.ACCESS_TOKEN_INVALID"+"request_token response did not include an access_token");
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, "request_token response did not include an access_token");
+        }
+
     }
 
     /**
@@ -184,8 +198,12 @@ public class OAuthTokenClient extends ServerClient {
             tokenResponse = new OAuthTokenResponse(obtainServerResponseToPostedForm(tokenRequest));
             validate(tokenResponse);
         } catch (JSONException | MAGException e) {
+            if (DEBUG)
+                Log.d(TAG,"MAGErrorCode.ACCESS_TOKEN_INVALID"+e.getMessage());
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, e);
         } catch (MAGServerException e) {
+            if (DEBUG)
+                Log.d(TAG,"OAuthServerException"+e.getMessage());
             throw new OAuthServerException(e);
         }
         return tokenResponse;

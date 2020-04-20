@@ -9,6 +9,7 @@
 package com.ca.mas.core.policy;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.conf.ConfigurationManager;
@@ -24,6 +25,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Keeps track of policies that can be applied to requests.
@@ -149,8 +152,14 @@ public class PolicyManager {
             activePolicy = defaultPolicy;
         }
 
+        if(requestInfo.getRequest().getURL()!=null){
+            Log.d(TAG,requestInfo.getRequest().getURL().toString());
+        }
         processRequest(requestInfo, activePolicy);
         MASResponse response = function.invoke();
+        if(response.getBody()!=null && response.getBody().getContent()!=null){
+            Log.d(TAG,response.getBody().getContent().toString());
+        }
         processResponse(requestInfo, response, activePolicy);
         return response;
     }

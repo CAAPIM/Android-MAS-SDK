@@ -70,6 +70,7 @@ public class ClientCredentialAssertion implements MssoAssertion {
                 mssoContext.setClientCredentials(result);
                 return;
             } catch (NullPointerException e) {
+                if (DEBUG) Log.d(TAG, "Please check your configurations: one or more configurations are wrong or incomplete");
                 throw new IllegalArgumentException("Please check your configurations: one or more configurations are wrong or incomplete");
             }
         }
@@ -85,6 +86,7 @@ public class ClientCredentialAssertion implements MssoAssertion {
         }
         String s = Integer.toString(errorCode);
         if (s.endsWith(InvalidClientCredentialException.INVALID_CLIENT_CREDENTIAL_SUFFIX)) {
+            if (DEBUG) Log.d(TAG, "Client is rejected by server");
             throw new InvalidClientCredentialException("Client is rejected by server");
         }
     }

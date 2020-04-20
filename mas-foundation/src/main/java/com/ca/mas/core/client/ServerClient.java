@@ -139,12 +139,15 @@ public abstract class ServerClient {
             throw new OAuthException(MAGErrorCode.UNKNOWN, "Unable to post to " + request.getURL() + ": " + e.getMessage(), e);
         }
 
-        if (DEBUG) Log.d(TAG,
-                String.format("%s response with status: %d",
-                        request.getURL(),
-                        response.getResponseCode()) );
-
-        try {
+        if (DEBUG) {
+            Log.d(TAG,
+                    String.format("%s response with status: %d",
+                            request.getURL(),
+                            response.getResponseCode()));
+            Log.d("Server Client URL", request.getURL().toString());
+            Log.d("Server Client", response.getBody().getContent());
+        }
+         try {
             final int statusCode = response.getResponseCode();
             if (statusCode != HttpURLConnection.HTTP_OK) {
                 throw ServerClient.createServerException(response, OAuthServerException.class);

@@ -508,6 +508,7 @@ public class MssoContext {
      * @throws MssoException if there is an error while accessing the storage .
      */
     public void destroyAllPersistentTokens() {
+        Log.d(TAG,"Escalation destroyAllPersistentTokens");
         if (tokenManager == null)
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
         clearCredentials();

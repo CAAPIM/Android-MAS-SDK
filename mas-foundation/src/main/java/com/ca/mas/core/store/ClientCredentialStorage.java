@@ -9,10 +9,13 @@
 package com.ca.mas.core.store;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.token.ClientCredentials;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 public class ClientCredentialStorage implements ClientCredentialContainer {
 
@@ -73,6 +76,7 @@ public class ClientCredentialStorage implements ClientCredentialContainer {
 
     @Override
     public void clearAll() {
+        Log.d(TAG,"Escalation ClientCredentialStorage clearAll");
         storage.removeAll(null);
     }
 

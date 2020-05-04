@@ -99,7 +99,7 @@ public class OAuthTokenClient extends ServerClient {
 
         } catch (JSONException | MAGException e) {
             if (DEBUG)
-                Log.d(TAG,"MAGErrorCode.ACCESS_TOKEN_INVALID"+e.getMessage()+"\n"+e.getStackTrace());
+                Log.d(TAG,"Escalation MAGErrorCode.ACCESS_TOKEN_INVALID"+e.getMessage()+"\n"+e.getStackTrace());
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, e);
         }
 
@@ -151,13 +151,13 @@ public class OAuthTokenClient extends ServerClient {
     private void validate(OAuthTokenResponse tokenResponse) throws OAuthException {
         if (!tokenResponse.isBearer()) {
             if (DEBUG)
-                Log.d(TAG,"MAGErrorCode.ACCESS_TOKEN_INVALID"+"request_token response was token_type other than bearer");
+                Log.d(TAG,"Escalation MAGErrorCode.ACCESS_TOKEN_INVALID"+"request_token response was token_type other than bearer");
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, "request_token response was token_type other than bearer");
         }
         final String accessToken = tokenResponse.getAccessToken();
         if (accessToken == null || accessToken.length() < 1) {
             if (DEBUG)
-                Log.d(TAG,"MAGErrorCode.ACCESS_TOKEN_INVALID"+"request_token response did not include an access_token");
+                Log.d(TAG,"Escalation MAGErrorCode.ACCESS_TOKEN_INVALID"+"request_token response did not include an access_token");
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, "request_token response did not include an access_token");
         }
 
@@ -199,11 +199,11 @@ public class OAuthTokenClient extends ServerClient {
             validate(tokenResponse);
         } catch (JSONException | MAGException e) {
             if (DEBUG)
-                Log.d(TAG,"MAGErrorCode.ACCESS_TOKEN_INVALID"+e.getMessage());
+                Log.d(TAG,"Escalation MAGErrorCode.ACCESS_TOKEN_INVALID"+e.getMessage());
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, e);
         } catch (MAGServerException e) {
             if (DEBUG)
-                Log.d(TAG,"OAuthServerException"+e.getMessage());
+                Log.d(TAG,"Escalation OAuthServerException"+e.getMessage());
             throw new OAuthServerException(e);
         }
         return tokenResponse;

@@ -153,12 +153,12 @@ public class PolicyManager {
         }
 
         if(requestInfo.getRequest().getURL()!=null){
-            Log.d(TAG,requestInfo.getRequest().getURL().toString());
+            Log.d(TAG,"Escalation "+requestInfo.getRequest().getURL().toString());
         }
         processRequest(requestInfo, activePolicy);
         MASResponse response = function.invoke();
         if(response.getBody()!=null && response.getBody().getContent()!=null){
-            Log.d(TAG,response.getBody().getContent().toString());
+            Log.d(TAG,"Escalation "+response.getBody().getContent().toString());
         }
         processResponse(requestInfo, response, activePolicy);
         return response;

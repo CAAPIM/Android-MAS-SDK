@@ -9,10 +9,13 @@
 package com.ca.mas.core.store;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.ca.mas.core.conf.ConfigurationManager;
 import com.ca.mas.core.datasource.DataSource;
 import com.ca.mas.core.datasource.DataSourceException;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 public class PrivateTokenStorage implements OAuthTokenContainer {
 
@@ -105,6 +108,7 @@ public class PrivateTokenStorage implements OAuthTokenContainer {
 
     @Override
     public void clearAll() {
+        Log.d(TAG,"Escalation PrivateTokenStorage clearAll");
         storage.removeAll(null);
     }
 

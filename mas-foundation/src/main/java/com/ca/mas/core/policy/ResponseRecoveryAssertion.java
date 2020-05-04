@@ -46,7 +46,7 @@ class ResponseRecoveryAssertion implements MssoAssertion {
         String s = Integer.toString(errorCode);
 
         if (s.endsWith(CertificateExpiredException.CERTIFICATE_EXPIRED_SUFFIX)) {
-            if (DEBUG) Log.d(TAG, "CertificateExpiredException.CERTIFICATE_EXPIRED_SUFFIX ");
+            if (DEBUG) Log.d(TAG, "Escalation CertificateExpiredException.CERTIFICATE_EXPIRED_SUFFIX ");
             throw new CertificateExpiredException();
         }
     }

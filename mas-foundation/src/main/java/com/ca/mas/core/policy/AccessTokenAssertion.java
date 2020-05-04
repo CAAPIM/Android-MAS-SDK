@@ -82,7 +82,7 @@ class AccessTokenAssertion implements MssoAssertion {
         String s = Integer.toString(errorCode);
         if (s.endsWith(TOKEN_EXPIRED_ERROR_CODE_SUFFIX)) {
             if (DEBUG)
-            Log.d(TAG,"Access token rejected by server");
+            Log.d(TAG,"Escalation Access token rejected by server");
             throw new RetryRequestException("Access token rejected by server") {
                 @Override
                 public void recover(MssoContext context) {
@@ -191,7 +191,7 @@ class AccessTokenAssertion implements MssoAssertion {
         MASAuthCredentials creds = request.getGrantProvider().getCredentials(mssoContext);
         if (creds == null || !creds.isValid())
             if (DEBUG) {
-                Log.d(TAG, "MASAuthCredentials is not valid");
+                Log.d(TAG, "Escalation MASAuthCredentials is not valid");
                 throw new CredentialRequiredException();
             }
     }

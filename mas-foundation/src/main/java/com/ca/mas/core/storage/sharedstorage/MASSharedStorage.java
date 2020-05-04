@@ -9,12 +9,15 @@ package com.ca.mas.core.storage.sharedstorage;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.ca.mas.core.security.EncryptionProvider;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASFoundationStrings;
 
 import java.util.List;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * MASSharedStorage is designed for developers to write, read, and delete String or byte[] data into
@@ -177,6 +180,7 @@ public class MASSharedStorage {
     }
 
     public void removeAll() {
+        Log.d(TAG,"Escalation MASSharedStorage removeAll");
         storageProvider.removeAll();
     }
 }

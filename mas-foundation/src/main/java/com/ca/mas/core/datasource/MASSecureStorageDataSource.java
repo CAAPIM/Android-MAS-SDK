@@ -128,6 +128,7 @@ public class MASSecureStorageDataSource<K, V> implements DataSource<K, V>  {
 
     @Override
     public void removeAll(Object filter) {
+        Log.d(TAG,"Escalation MASSecureStorageDataSource removeAll");
         storage.removeAll();
     }
 

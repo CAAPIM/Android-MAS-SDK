@@ -205,6 +205,7 @@ public class AccountManagerUtil implements StorageActions {
 
     @Override
     public void removeAll() {
+        Log.d(TAG,"Escalation AccountManagerUtil removeAll");
         List<String> keys = getKeys();
 
         for (String key:keys) {

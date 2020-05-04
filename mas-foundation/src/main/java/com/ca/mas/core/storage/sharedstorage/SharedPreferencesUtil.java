@@ -4,12 +4,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.util.Base64;
+import android.util.Log;
 
 import com.ca.mas.foundation.MAS;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 public class SharedPreferencesUtil implements StorageActions {
 
@@ -82,6 +85,7 @@ public class SharedPreferencesUtil implements StorageActions {
 
     @Override
     public void removeAll() {
+        Log.d(TAG,"Escalation SharedPreferencesUtil removeAll");
         List<String> keys = getKeys();
 
         for (String key:keys) {

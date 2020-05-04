@@ -65,11 +65,11 @@ class DeviceRegistrationAssertion implements MssoAssertion {
         this.tokenManager = mssoContext.getTokenManager();
         ctx = sysContext;
         if (tokenManager == null) {
-            if (DEBUG) Log.d(TAG, "NullPointerException mssoContext.tokenManager");
+            if (DEBUG) Log.d(TAG, "Escalation NullPointerException mssoContext.tokenManager");
             throw new NullPointerException("mssoContext.tokenManager");
         }
         if (mssoContext.getConfigurationProvider() == null) {
-            if (DEBUG) Log.d(TAG, "NullPointerException mssoContext.configurationProvider");
+            if (DEBUG) Log.d(TAG, "Escalation NullPointerException mssoContext.configurationProvider");
             throw new NullPointerException("mssoContext.configurationProvider");
         }
     }
@@ -120,7 +120,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
         try {
             tokenManager.clear();
         } catch (TokenStoreException e) {
-            if (DEBUG) Log.d(TAG, "TokenStoreUnavailableException = "+e.getMessage());
+            if (DEBUG) Log.d(TAG, "Escalation TokenStoreUnavailableException = "+e.getMessage());
             throw new TokenStoreUnavailableException(e);
         }
 
@@ -134,7 +134,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
             try {
                 privateKey = tokenManager.createPrivateKey(ctx, keyBits);
             } catch (KeyStoreException e) {
-                if (DEBUG) Log.d(TAG, "Failed to generate private key. = "+e.getMessage());
+                if (DEBUG) Log.d(TAG, "Escalation Failed to generate private key. = "+e.getMessage());
                 throw new RegistrationException(MAGErrorCode.DEVICE_NOT_REGISTERED, "Failed to generate private key.", e);
             }
         }
@@ -148,10 +148,10 @@ class DeviceRegistrationAssertion implements MssoAssertion {
             String organization = mssoContext.getConfigurationProvider().getProperty(ConfigurationProvider.PROP_ORGANIZATION);
             csrBytes = KeyStoreRepository.getKeyStoreRepository().generateCertificateSigningRequest(creds.getUsername(), deviceId, deviceName, organization, privateKey, publicKey);
         } catch (CertificateException e) {
-            if (DEBUG) Log.d(TAG, "MAGErrorCode.DEVICE_NOT_REGISTERED "+e.getMessage());
+            if (DEBUG) Log.d(TAG, "Escalation MAGErrorCode.DEVICE_NOT_REGISTERED "+e.getMessage());
             throw new RegistrationException(MAGErrorCode.DEVICE_NOT_REGISTERED, e);
         } catch (Exception e) {
-            if (DEBUG) Log.d(TAG, "MssoException "+e.getMessage());
+            if (DEBUG) Log.d(TAG, "Escalation MssoException "+e.getMessage());
             throw new MssoException(e);
         }
 
@@ -171,7 +171,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
             tokenManager.saveMagIdentifier(result.getMagIdentifier());
             // MssoContext will take care of persisting the ID token if SSO is enabled
         } catch (Exception e) {
-            if (DEBUG) Log.d(TAG, "TokenStoreUnavailableException "+e.getMessage());
+            if (DEBUG) Log.d(TAG, "Escalation TokenStoreUnavailableException "+e.getMessage());
             throw new TokenStoreUnavailableException(e);
         }
 
@@ -180,7 +180,7 @@ class DeviceRegistrationAssertion implements MssoAssertion {
             mssoContext.onIdTokenAvailable(idToken);
 
         if (RegistrationClient.DeviceStatus.REGISTERED.equals(result.getDeviceStatus())) {
-            if (DEBUG) Log.d(TAG, "DeviceRegistrationAwaitingActivationException RegistrationClient.DeviceStatus.REGISTERED");
+            if (DEBUG) Log.d(TAG, "Escalation DeviceRegistrationAwaitingActivationException RegistrationClient.DeviceStatus.REGISTERED");
             throw new DeviceRegistrationAwaitingActivationException();
         }
     }

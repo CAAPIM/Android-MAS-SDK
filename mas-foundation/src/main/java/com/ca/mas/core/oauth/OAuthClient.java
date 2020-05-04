@@ -164,29 +164,29 @@ public class OAuthClient extends ServerClient {
                 } else {
                     int errorCode = findErrorCode(response);
                     if (DEBUG)
-                        Log.d(TAG,"INVALID_CLIENT_CREDENTIALS = "+errorCode);
+                        Log.d(TAG,"Escalation INVALID_CLIENT_CREDENTIALS = "+errorCode);
 
                     if (errorCode == INVALID_CLIENT_CREDENTIALS) {
                         mssoContext.clearClientCredentials();
                     }
                     if (DEBUG)
-                        Log.d(TAG,"ServerClient.createServerException = "+errorCode);
+                        Log.d(TAG,"Escalation ServerClient.createServerException = "+errorCode);
 
                     throw ServerClient.createServerException(response, OAuthServerException.class);
                 }
 
             } catch (IOException e) {
                 if (DEBUG)
-                    Log.d(TAG,"Unable to retrieve Social Login Providers: " + e.getMessage());
+                    Log.d(TAG,"Escalation Unable to retrieve Social Login Providers: " + e.getMessage());
                 throw new OAuthException(MAGErrorCode.UNKNOWN, "Unable to retrieve Social Login Providers: " + e.getMessage(), e);
             } catch (JSONException e) {
                 if (DEBUG)
-                    Log.d(TAG,"response from " + b.toString() + " was not valid response: " + e.getMessage());
+                    Log.d(TAG,"Escalation response from " + b.toString() + " was not valid response: " + e.getMessage());
                 throw new OAuthException(MAGErrorCode.UNKNOWN, "response from " + b.toString() + " was not valid response: " + e.getMessage(), e);
             } catch (URISyntaxException e) {
                 if (DEBUG) {
-                    Log.d(TAG, "URISyntaxException " + e.getMessage());
-                    Log.d(TAG, "MAGErrorCode.UNKNOWN ");
+                    Log.d(TAG, "Escalation URISyntaxException " + e.getMessage());
+                    Log.d(TAG, "Escalation MAGErrorCode.UNKNOWN ");
                 }
                 throw new OAuthException(MAGErrorCode.UNKNOWN, e);
             }
@@ -231,11 +231,11 @@ public class OAuthClient extends ServerClient {
             obtainServerResponseToPostedForm(request);
         } catch (MAGException e) {
             if (DEBUG)
-                Log.d(TAG,"MAGErrorCode.UNKNOWN"+e.getMessage());
+                Log.d(TAG,"Escalation MAGErrorCode.UNKNOWN"+e.getMessage());
             throw new OAuthException(MAGErrorCode.UNKNOWN, e);
         } catch (OAuthServerException e) {
             if (DEBUG)
-                Log.d(TAG,"INVALID_CLIENT_CREDENTIALS"+e.getMessage());
+                Log.d(TAG,"Escalation INVALID_CLIENT_CREDENTIALS"+e.getMessage());
             if (e.getErrorCode() == INVALID_CLIENT_CREDENTIALS) {
                 mssoContext.clearClientCredentials();
             }

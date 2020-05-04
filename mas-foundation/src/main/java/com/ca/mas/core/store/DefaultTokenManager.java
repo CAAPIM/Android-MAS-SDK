@@ -114,6 +114,7 @@ class DefaultTokenManager implements TokenManager {
 
     @Override
     public void clearAll() {
+        Log.d(TAG,"Escalation DefaultTokenManager clearAll");
         storage.removeAll(null);
         KeyUtilsAsymmetric.deletePrivateKey(getKey(MSSO_CLIENT_PRIVATE_KEY));
         KeyUtilsAsymmetric.clearCertificateChain(getKey(MSSO_CLIENT_CERT_CHAIN_PREFIX));

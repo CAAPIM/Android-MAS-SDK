@@ -10,6 +10,7 @@ package com.ca.mas.core.datasource;
 
 import android.content.Context;
 import android.support.annotation.Keep;
+import android.util.Log;
 
 import com.ca.mas.core.security.KeyStoreRepository;
 import com.ca.mas.core.storage.StorageException;
@@ -21,6 +22,8 @@ import com.ca.mas.core.storage.implementation.MASStorageManager;
 import org.json.JSONObject;
 
 import java.util.List;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * SDK uses this utility wrapper class to use {@link com.ca.mas.core.storage.implementation.AccountManagerStorage}.
@@ -192,6 +195,7 @@ public class AccountManagerStoreDataSource<K, V> implements DataSource<K, V> {
     @Override
     public void removeAll(Object filter) {
         try {
+            Log.d(TAG,"Escalation AccountManagerStoreDataSource removeAll");
             StorageResult result = storage.deleteAll();
             if (result.getStatus() == StorageResult.StorageOperationStatus.FAILURE) {
                 if (((StorageException) result.getData()).getCode() != StorageException.READ_DATA_NOT_FOUND) {

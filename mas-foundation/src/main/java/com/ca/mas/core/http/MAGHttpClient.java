@@ -57,10 +57,10 @@ public class MAGHttpClient {
         final HttpURLConnection urlConnection = (HttpURLConnection) request.getURL().openConnection();
 
         if (DEBUG) {
-            Log.d(TAG, String.format("API Request Url: %s", request.getURL()));
-            Log.d(TAG, String.format("API Request Method: %s", request.getMethod()));
+            Log.d(TAG, "Escalation "+String.format("API Request Url: %s", request.getURL()));
+            Log.d(TAG, "Escalation "+String.format("API Request Method: %s", request.getMethod()));
             if(request.getBody()!=null && request.getBody().getContentAsJsonValue()!=null)
-            Log.d(TAG, String.format("API Request Body: %s", request.getBody().getContentAsJsonValue()));
+            Log.d(TAG, "Escalation "+String.format("API Request Body: %s", request.getBody().getContentAsJsonValue()));
         }
 
         try {

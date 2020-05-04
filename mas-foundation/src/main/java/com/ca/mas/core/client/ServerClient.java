@@ -144,8 +144,8 @@ public abstract class ServerClient {
                     String.format("%s response with status: %d",
                             request.getURL(),
                             response.getResponseCode()));
-            Log.d("Server Client URL", request.getURL().toString());
-            Log.d("Server Client", response.getBody().getContent());
+            Log.d(TAG,"Escalation Server Client URL  = "+ request.getURL().toString());
+            Log.d(TAG,"Escalation Server Client = "+ response.getBody().getContent());
         }
          try {
             final int statusCode = response.getResponseCode();

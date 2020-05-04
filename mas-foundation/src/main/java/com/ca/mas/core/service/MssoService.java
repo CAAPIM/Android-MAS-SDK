@@ -150,8 +150,8 @@ public class MssoService extends JobIntentService {
 
         } catch (CredentialRequiredException e) {
             if (DEBUG) {
-                Log.d(TAG, "Request for user credentials");
-                Log.d(TAG, e.getMessage()+"");
+                Log.d(TAG, "Escalation Request for user credentials");
+                Log.d(TAG, "Escalation "+e.getMessage()+"");
             }
             e.printStackTrace();
             //Notify listener
@@ -174,14 +174,14 @@ public class MssoService extends JobIntentService {
             try {
                 mssoContext.getTokenManager().getTokenStore().unlock();
                 if (DEBUG)
-                    Log.d(TAG,"TokenStoreUnavailableException"+e.getMessage());
+                    Log.d(TAG,"Escalation TokenStoreUnavailableException"+e.getMessage());
 
             } catch (Exception e1) {
                 handleErrorResponse(request, e1);
             }
         } catch (MAGServerException e) {
             if (DEBUG)
-                Log.d(TAG,"MAGServerException"+e.getMessage());
+                Log.d(TAG,"Escalation MAGServerException"+e.getMessage());
             if (handleInterceptors(request.getId(), request.getRequest(), request.getExtra(), e.getResponse())) {
                 //The request is intercepted and keep in the pending queue.
                 return;

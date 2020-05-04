@@ -25,13 +25,13 @@ public class MAGException extends Exception{
 
     public MAGException(int errorCode, String detailMessage) {
         super(detailMessage);
-        Log.d(TAG,detailMessage+" = "+errorCode);
+        Log.d(TAG,"Escalation "+detailMessage+" = "+errorCode);
         this.errorCode = errorCode;
     }
 
     public MAGException(int errorCode, String detailMessage, Throwable throwable) {
         super(detailMessage, throwable);
-        Log.d(TAG,detailMessage+" = "+errorCode);
+        Log.d(TAG,"Escalation "+detailMessage+" = "+errorCode);
         this.errorCode = errorCode;
     }
 

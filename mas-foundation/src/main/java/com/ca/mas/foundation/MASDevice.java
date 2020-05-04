@@ -8,6 +8,7 @@
 package com.ca.mas.foundation;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.ca.mas.core.MobileSso;
 import com.ca.mas.core.MobileSsoFactory;
@@ -18,6 +19,8 @@ import com.ca.mas.foundation.notify.Callback;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 
 /**
@@ -116,6 +119,8 @@ public abstract class MASDevice {
 
                 @Override
                 public void resetLocally() {
+                    Log.d(TAG,"Escalation Reset Locally");
+                    Log.d(TAG,"Escalation Empty Reset Locally");
                     MobileSsoFactory.getInstance().destroyAllPersistentTokens();
                 }
 

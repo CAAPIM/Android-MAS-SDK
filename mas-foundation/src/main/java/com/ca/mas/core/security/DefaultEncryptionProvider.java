@@ -54,6 +54,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
         byte[] encryptedData;
         try {
             SecretKey secretKey = ksp.getKey(getKeyAlias(), false);
+            Log.d(TAG,"Escalation encrypt Secretkey="+secretKey.getFormat());
             encryptedData = KeyUtilsSymmetric.encrypt(data, secretKey, getKeyAlias());
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "inside exception of encrypt function: ", e);
@@ -70,6 +71,7 @@ public class DefaultEncryptionProvider implements EncryptionProvider {
     public byte[] decrypt(byte[] encryptedData) {
         try {
             SecretKey secretKey = ksp.getKey(getKeyAlias(), false);
+            Log.d(TAG,"Escalation decrypt Secretkey="+secretKey.getFormat());
             return KeyUtilsSymmetric.decrypt(encryptedData, secretKey, getKeyAlias());
         } catch (Exception e) {
             if (DEBUG) Log.i(TAG, "Error while decrypting an cipher instance", e);

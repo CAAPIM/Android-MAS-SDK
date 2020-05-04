@@ -16,6 +16,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.util.Pair;
 
 import com.ca.mas.core.storage.StorageException;
@@ -25,6 +26,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 public class LocalStoreDataSource implements DataSource<LocalStoreKey, LocalStoreEntity> {
 
@@ -138,6 +141,7 @@ public class LocalStoreDataSource implements DataSource<LocalStoreKey, LocalStor
     public void removeAll(Object filter) {
         SQLiteDatabase myDatabase = null;
         try {
+            Log.d(TAG,"Escalation LocalStoreDataSource removeAll");
             myDatabase = mLocalStorageDbHelper.getDatabaseHandle();
             Pair<String, String[]> selection = getSelection((LocalStoreKey) filter);
             int val = myDatabase.delete(LocalStorageContract.LocalStorageEntry.TABLE_NAME, selection.first, selection.second);

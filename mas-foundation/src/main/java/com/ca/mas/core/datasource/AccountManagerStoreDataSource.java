@@ -161,6 +161,7 @@ public class AccountManagerStoreDataSource<K, V> implements DataSource<K, V> {
     @Override
     public void remove(K key) {
         try {
+            Log.d(TAG,"Escalation AccountManagerStoreDataSource remove key");
             StorageResult result = storage.deleteData((String) key);
             if (result.getStatus() == StorageResult.StorageOperationStatus.FAILURE) {
                 if (((StorageException) result.getData()).getCode() != StorageException.READ_DATA_NOT_FOUND) {
@@ -175,6 +176,7 @@ public class AccountManagerStoreDataSource<K, V> implements DataSource<K, V> {
     @Override
     public void remove(K key, final DataSourceCallback callback) {
         try {
+            Log.d(TAG,"Escalation AccountManagerStoreDataSource remove callback");
             storage.deleteData((String) key, new StorageResultReceiver(callback.getHandler()) {
                 @Override
                 public void onReceiveResult(StorageResult result) {

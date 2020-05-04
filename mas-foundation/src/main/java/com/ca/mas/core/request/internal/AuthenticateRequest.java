@@ -8,6 +8,8 @@
 
 package com.ca.mas.core.request.internal;
 
+import android.util.Log;
+
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
@@ -18,6 +20,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import static com.ca.mas.foundation.MAS.TAG;
+
 public class AuthenticateRequest extends MAGRequestProxy implements LocalRequest {
 
     public AuthenticateRequest() {
@@ -26,6 +30,7 @@ public class AuthenticateRequest extends MAGRequestProxy implements LocalRequest
 
     @Override
     public MASResponse send(MssoContext context) {
+        Log.d(TAG,"Escalation AuthenticateRequest send");
         context.clearCredentials();
         return new MASResponse() {
 

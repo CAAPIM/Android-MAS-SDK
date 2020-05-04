@@ -112,6 +112,7 @@ public class MASSecureStorageDataSource<K, V> implements DataSource<K, V>  {
 
     @Override
     public void remove(K key) {
+        Log.d(TAG,"Escalation MASSecureStorageDataSource remove key");
         if (isKeyString(key)) {
             return;
         }
@@ -123,6 +124,7 @@ public class MASSecureStorageDataSource<K, V> implements DataSource<K, V>  {
 
     @Override
     public void remove(K key, DataSourceCallback callback) {
+        Log.d(TAG,"Escalation MASSecureStorageDataSource remove callback");
         throw new UnsupportedOperationException();
     }
 
@@ -134,6 +136,7 @@ public class MASSecureStorageDataSource<K, V> implements DataSource<K, V>  {
 
     @Override
     public void removeAll(Object filter, DataSourceCallback callback) {
+        Log.d(TAG,"Escalation MASSecureStorageDataSource removeAll callback");
         throw new UnsupportedOperationException();
     }
 

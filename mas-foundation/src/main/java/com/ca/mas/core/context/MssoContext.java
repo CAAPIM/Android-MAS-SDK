@@ -192,6 +192,7 @@ public class MssoContext {
 
     public void clearUserProfile() {
         try {
+            Log.d(TAG,"Escalation MASContext clearUserProfile");
             tokenManager.deleteUserProfile();
         } catch (TokenStoreException e) {
             throw new MssoException("Failed to remove User Profile: " + e.getMessage(), e);
@@ -200,6 +201,7 @@ public class MssoContext {
 
     public void clearIdToken() {
         try {
+            Log.d(TAG,"Escalation MASContext clearIdToken");
             tokenManager.deleteIdToken();
         } catch (TokenStoreException e) {
             throw new MssoException("Failed to remove ID token: " + e.getMessage(), e);
@@ -231,6 +233,7 @@ public class MssoContext {
     }
 
     public void clearCredentials() {
+        Log.d(TAG,"Escalation MssoContext clearCredentials");
         MASAuthCredentials cred = getCredentials();
         if (cred != null)
             cred.clear();
@@ -257,6 +260,7 @@ public class MssoContext {
      * Use this if the trusted certificate or client cert configuration changes.
      */
     public void resetHttpClient() {
+        Log.d(TAG,"Escalation MSSOContext resetHttpClient");
         MASConfiguration.SECURITY_CONFIGURATION_RESET.notifyObservers();
     }
 
@@ -281,6 +285,7 @@ public class MssoContext {
      * @param idToken the ID token.  Required.
      */
     public void onIdTokenAvailable(IdToken idToken) throws JWTValidationException {
+        Log.d(TAG,"Escalation MSSoContext onIdTokenAvailable");
         clearCredentials();
         String deviceIdentifier = tokenManager.getMagIdentifier();
         String clientId = getClientId();
@@ -316,6 +321,7 @@ public class MssoContext {
      */
     public void onAccessTokenAvailable(String accessToken, String refreshToken, long expiresInSec, String grantedScope) {
         if (accessToken != null) {
+            Log.d(TAG,"Escalation MSSoContext onAccessTokenAvailable ="+accessToken+", refreshToken = "+refreshToken);
             clearCredentials();
         }
         privateTokens.saveAccessToken(accessToken, refreshToken, expiresInSec, grantedScope);
@@ -325,6 +331,7 @@ public class MssoContext {
      * Clear the access token, forcing the next request to obtain a new one.
      */
     public void clearAccessToken() {
+        Log.d(TAG,"Escalation MssoContext clearAcceessToken");
         privateTokens.clear();
     }
 
@@ -428,6 +435,7 @@ public class MssoContext {
                 throw e;
             }
         }
+        Log.d(TAG,"Escalation MSSoContext executeRequest");
         //All retries failed
         clearCredentials();
         if (lastError != null) {
@@ -443,6 +451,7 @@ public class MssoContext {
     private void rethrow(MAGServerException e) throws RetryRequestException, MAGServerException {
         //We cannot reuse the credential for retry
         if (getCredentials() != null && !getCredentials().isReusable()) {
+            Log.d(TAG,"Escalation MSSoContext rethrow getCredentials() != null  condition");
             clearCredentials();
         }
         int errorCode = e.getErrorCode();
@@ -457,6 +466,7 @@ public class MssoContext {
         if (s.endsWith(CertificateExpiredException.CERTIFICATE_EXPIRED_SUFFIX)) { //Invalid client Certificate - The given client certificate has expired
             throw new CertificateExpiredException(e);
         }
+        Log.d(TAG,"Escalation MSSoContext rethrow");
         //Remove credentials for exception which cannot be handled on SDK
         clearCredentials();
         throw e; //Cannot be handle on the client side, rethrow to caller
@@ -478,6 +488,7 @@ public class MssoContext {
      * @throws MssoException if there is an error while attempting to tell the token server to unregister this device.
      */
     public void removeDeviceRegistration() {
+        Log.d(TAG,"Escalation Mssocontext removeDeviceRegistration");
         EventDispatcher.BEFORE_DEREGISTER.notifyObservers();
         if (tokenManager == null) {
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
@@ -508,7 +519,7 @@ public class MssoContext {
      * @throws MssoException if there is an error while accessing the storage .
      */
     public void destroyAllPersistentTokens() {
-        Log.d(TAG,"Escalation destroyAllPersistentTokens");
+        Log.d(TAG,"Escalation MssoContext destroyAllPersistentTokens");
         if (tokenManager == null)
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
         clearCredentials();
@@ -535,6 +546,7 @@ public class MssoContext {
      * @throws MssoException if there is an error while accessing the storage .
      */
     public void destroyPersistentTokens() {
+        Log.d(TAG,"Escalation MssoContext royPersistentTokens");
         if (tokenManager == null)
             throw new IllegalStateException(MSSO_CONTEXT_NOT_INITIALIZED);
         try {
@@ -591,6 +603,7 @@ public class MssoContext {
     }
 
     public void clearClientCredentials() {
+        Log.d(TAG,"Escalation MSSOContext clearClientCredentials");
         clientCredentialTokens.clear();
     }
 

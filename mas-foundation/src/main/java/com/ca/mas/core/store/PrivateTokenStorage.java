@@ -101,6 +101,7 @@ public class PrivateTokenStorage implements OAuthTokenContainer {
 
     @Override
     public void clear() {
+        Log.d(TAG,"Escalation PrivateTokenStorage clear");
         for (KEY k : KEY.values()) {
             storage.remove(getKey(k.name()));
         }

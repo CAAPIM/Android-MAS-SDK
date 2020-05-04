@@ -206,6 +206,7 @@ public class KeystoreDataSource<K, V> implements DataSource<K, V> {
     @Override
     public void removeAll(Object filter, final DataSourceCallback callback) {
         try {
+            Log.d(TAG,"Escalation KeystoreDataSource removeAll callback");
             storage.deleteAll(new StorageResultReceiver(callback.getHandler()) {
                 @Override
                 public void onReceiveResult(StorageResult result) {

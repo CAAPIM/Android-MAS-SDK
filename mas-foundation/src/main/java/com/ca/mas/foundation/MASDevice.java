@@ -120,7 +120,6 @@ public abstract class MASDevice {
                 @Override
                 public void resetLocally() {
                     Log.d(TAG,"Escalation Reset Locally");
-                    Log.d(TAG,"Escalation Empty Reset Locally");
                     MobileSsoFactory.getInstance().destroyAllPersistentTokens();
                 }
 

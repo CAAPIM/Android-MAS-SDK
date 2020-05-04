@@ -123,6 +123,7 @@ public class KeyUtilsSymmetric {
                                         boolean inMemory, boolean userAuthenticationRequired,
                                         int userAuthenticationValiditySeconds,
                                         boolean invalidatedByBiometricEnrollment) {
+        Log.d(TAG,"Escalation KeyUtilsSymmetric generateKey()");
         SecretKey returnKey = null;
 
         if ((algorithm == null) || (algorithm.trim().length() == 0)) {
@@ -183,6 +184,7 @@ public class KeyUtilsSymmetric {
      */
     private static SecretKey generateKeyInMemory(String algorithm, int keyLength) {
         try {
+            Log.d(TAG,"Escalation KeyUtilsSymmetric generateKeyInMemory()");
             KeyGenerator kg = KeyGenerator.getInstance(algorithm);
             kg.init(keyLength);
             return kg.generateKey();
@@ -212,6 +214,7 @@ public class KeyUtilsSymmetric {
             int userAuthenticationValiditySeconds) {
 
         try {
+            Log.d(TAG,"Escalation KeyUtilsSymmetric generateKeyInAndroidKeyStoreAndroidM()");
             KeyGenerator keyGenerator = KeyGenerator.getInstance(
                     algorithm, ANDROID_KEY_STORE);
             KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(alias, PURPOSE_ENCRYPT | PURPOSE_DECRYPT)
@@ -259,6 +262,8 @@ public class KeyUtilsSymmetric {
                                                                   boolean invalidatedByBiometricEnrollment) {
 
         try {
+            Log.d(TAG,"Escalation KeyUtilsSymmetric generateKeyInAndroidKeyStoreAndroidN()");
+
             KeyGenerator keyGenerator = KeyGenerator.getInstance(
                     algorithm, ANDROID_KEY_STORE);
             KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(alias, PURPOSE_ENCRYPT | PURPOSE_DECRYPT)
@@ -294,6 +299,7 @@ public class KeyUtilsSymmetric {
      */
     public static SecretKey retrieveKey(String alias) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Log.d(TAG,"Escalation KeyUtilsSymmetric retrieveKey()");
             // get the key from the AndroidKeyStore
             return retrieveKeyAndroidM(alias);
         }
@@ -312,6 +318,8 @@ public class KeyUtilsSymmetric {
     @TargetApi(Build.VERSION_CODES.M)
     private static SecretKey retrieveKeyAndroidM(String alias) {
         KeyStore ks;
+        Log.d(TAG,"Escalation KeyUtilsSymmetric retrieveKeyAndroidM()");
+
         try {
             ks = KeyStore.getInstance(ANDROID_KEY_STORE);
         } catch (KeyStoreException e) {
@@ -356,6 +364,8 @@ public class KeyUtilsSymmetric {
                                            int userAuthenticationValiditySeconds) {
         KeyStore ks;
         try {
+            Log.d(TAG,"Escalation KeyUtilsSymmetric storeKeyAndroidM()");
+
             ks = KeyStore.getInstance(ANDROID_KEY_STORE);
             ks.load(null);
         } catch (KeyStoreException | java.security.cert.CertificateException | NoSuchAlgorithmException | IOException e) {
@@ -409,6 +419,8 @@ public class KeyUtilsSymmetric {
             boolean invalidatedByBiometricEnrollment) {
         KeyStore ks;
         try {
+            Log.d(TAG,"Escalation KeyUtilsSymmetric storeKeyAndroidN()");
+
             ks = KeyStore.getInstance(ANDROID_KEY_STORE);
             ks.load(null);
         } catch (KeyStoreException | java.security.cert.CertificateException | NoSuchAlgorithmException | IOException e) {
@@ -445,6 +457,8 @@ public class KeyUtilsSymmetric {
      */
     public static void deleteKey(String alias) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Log.d(TAG,"Escalation KeyUtilsSymmetric deleteKey()");
+
             // remove it from AndroidKeyStore
             deleteKeyAndroidM(alias);
         }
@@ -460,6 +474,8 @@ public class KeyUtilsSymmetric {
     private static void deleteKeyAndroidM(String alias) {
         KeyStore ks;
         try {
+            Log.d(TAG,"Escalation KeyUtilsSymmetric deleteKeyAndroidM()");
+
             ks = KeyStore.getInstance(ANDROID_KEY_STORE);
         } catch (KeyStoreException e) {
             if (DEBUG) Log.e(TAG, "Error instantiating Android keyStore");

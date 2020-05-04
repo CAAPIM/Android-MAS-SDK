@@ -9,6 +9,7 @@
 package com.ca.mas.foundation;
 
 import android.os.Parcel;
+import android.util.Log;
 import android.util.Pair;
 
 import com.ca.mas.core.io.IoUtils;
@@ -19,6 +20,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * MASAuthCredentials for Username &amp; Password Grant Type
@@ -56,6 +59,7 @@ public class MASAuthCredentialsPassword implements MASAuthCredentials {
      * Clear the password from memory.  Call this when the password is no longer needed.
      */
     private void clearPassword() {
+        Log.d(TAG,"Escalation MASAuthCredentialsPassword clearPassword");
         char[] p = password;
         this.password = null;
         if (p != null)
@@ -64,6 +68,7 @@ public class MASAuthCredentialsPassword implements MASAuthCredentials {
 
     @Override
     public void clear() {
+        Log.d(TAG,"Escalation MASAuthCredentialsPassword clear");
         clearPassword();
     }
 

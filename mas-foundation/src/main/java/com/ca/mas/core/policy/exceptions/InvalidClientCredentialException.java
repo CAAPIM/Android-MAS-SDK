@@ -8,7 +8,11 @@
 
 package com.ca.mas.core.policy.exceptions;
 
+import android.util.Log;
+
 import com.ca.mas.core.context.MssoContext;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 public class InvalidClientCredentialException extends RetryRequestException {
 
@@ -27,6 +31,7 @@ public class InvalidClientCredentialException extends RetryRequestException {
 
     @Override
     public void recover(MssoContext context) {
+        Log.d(TAG,"Escalation InvalidClientCredentialException recover");
         context.clearAccessToken();
         context.clearClientCredentials();
     }

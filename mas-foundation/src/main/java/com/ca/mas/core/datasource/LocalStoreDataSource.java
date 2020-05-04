@@ -120,6 +120,7 @@ public class LocalStoreDataSource implements DataSource<LocalStoreKey, LocalStor
     public void remove(@NonNull LocalStoreKey key) {
         SQLiteDatabase myDatabase = null;
         try {
+            Log.d(TAG,"Escalation LocalStoreDataSource remove key");
             get(key);//will throw exception if READ_DATA_NOT_FOUND
             myDatabase = mLocalStorageDbHelper.getDatabaseHandle();
             Pair<String, String[]> selection = getSelection(key);
@@ -134,6 +135,7 @@ public class LocalStoreDataSource implements DataSource<LocalStoreKey, LocalStor
 
     @Override
     public void remove(LocalStoreKey s, DataSourceCallback dataSourceCallback) {
+        Log.d(TAG,"Escalation LocalStoreDataSource remove dataSourceCallback");
         throw new DataSourceException("Not Implemented");
     }
 
@@ -155,6 +157,7 @@ public class LocalStoreDataSource implements DataSource<LocalStoreKey, LocalStor
 
     @Override
     public void removeAll(Object filter, DataSourceCallback dataSourceCallback) {
+        Log.d(TAG,"Escalation LocalStoreDataSource remove filter dataSourceCallback");
         throw new DataSourceException("Not Implemented");
     }
 

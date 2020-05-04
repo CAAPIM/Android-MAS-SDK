@@ -9,6 +9,7 @@ package com.ca.mas.core.policy;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.ca.mas.core.context.MssoContext;
 import com.ca.mas.core.oauth.OAuthClientUtil;
@@ -17,6 +18,8 @@ import com.ca.mas.core.store.TokenManager;
 import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 class SecureLockAssertion implements MssoAssertion {
     private TokenManager tokenManager;
@@ -44,6 +47,7 @@ class SecureLockAssertion implements MssoAssertion {
             if (revokeRequest != null) {
                 MAS.invoke(OAuthClientUtil.getRevokeRequest(), null);
             }
+            Log.d(TAG,"Escalation SecureLockAssertion processRequest");
             mssoContext.clearAccessToken();
             throw new SecureLockException("The session is currently locked.");
         }

@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MAGResultReceiver;
@@ -25,6 +26,8 @@ import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASResponse;
 import com.ca.mas.foundation.MASUser;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Encapsulates use of the MssoService.
@@ -145,6 +148,7 @@ public class MssoClient {
      * @param requestId the request ID to cancel.
      */
     public void cancelRequest(long requestId, Bundle data) {
+        Log.d(TAG,"Escalation MssoClient cancelRequest");
         MssoRequest request = null;
         MssoResponseQueue.getInstance().takeResponse(requestId);
         request = MssoRequestQueue.getInstance().takeRequest(requestId);
@@ -160,6 +164,7 @@ public class MssoClient {
      * Canceling any pending requests and responses that were created by this MssoClient.
      */
     public void cancelAll(Bundle data) {
+        Log.d(TAG,"Escalation MssoClient cancelAll");
         MssoRequestQueue.getInstance().removeMatching(new Functions.Unary<Boolean, MssoRequest>() {
             @Override
             public Boolean call(MssoRequest mssoRequest) {

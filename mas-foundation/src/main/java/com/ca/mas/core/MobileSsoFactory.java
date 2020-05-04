@@ -12,6 +12,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.ca.mas.core.auth.AuthResultReceiver;
 import com.ca.mas.core.conf.ConfigurationManager;
@@ -35,6 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 /**
  * Entry point for the Mobile SSO SDK.
@@ -222,12 +225,14 @@ public final class MobileSsoFactory {
 
             @Override
             public void destroyAllPersistentTokens() {
+                Log.d(TAG,"Escalation MobileSSOFfactory destroyAllPersistentTokens");
                 EventDispatcher.RESET_LOCALLY.notifyObservers();
                 mssoContext.destroyAllPersistentTokens();
             }
 
             @Override
             public void removeDeviceRegistration() {
+                Log.d(TAG,"Escalation MobileSSOFfactory removeDeviceRegistration");
                 mssoContext.removeDeviceRegistration();
                 mssoContext.destroyPersistentTokens();
             }

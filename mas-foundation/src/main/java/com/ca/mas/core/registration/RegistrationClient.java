@@ -264,6 +264,8 @@ public class RegistrationClient extends ServerClient {
      * @throws RegistrationException       if there is an error other than a valid error JSON response from the token server
      */
     public void removeDeviceRegistration() throws RegistrationException, RegistrationServerException {
+        Log.d(TAG,"Escalation RegistrationClient removeDeviceRegistration");
+
         MASRequest.MASRequestBuilder builder = new MASRequest.MASRequestBuilder(
                 conf.getTokenUri(MobileSsoConfig.PROP_TOKEN_URL_SUFFIX_REMOVE_DEVICE_X509))
                 .delete(null);

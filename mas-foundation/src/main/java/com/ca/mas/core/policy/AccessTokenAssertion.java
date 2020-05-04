@@ -86,6 +86,7 @@ class AccessTokenAssertion implements MssoAssertion {
             throw new RetryRequestException("Access token rejected by server") {
                 @Override
                 public void recover(MssoContext context) {
+                    Log.d(TAG,"Escalation RetryRequestException recover");
                     context.clearAccessToken();
                 }
             };
@@ -108,6 +109,7 @@ class AccessTokenAssertion implements MssoAssertion {
                         //The access token is granted by Client Credential if refresh token is null
                         //Please refer to https://tools.ietf.org/html/rfc6749#section-4.4.3 for detail
                         if (mssoContext.getRefreshToken() == null) {
+                            Log.d(TAG,"Escalation MssoContext findAccessToken getRefreshToken");
                             mssoContext.clearAccessToken();
                             accessToken = null;
                         } else {

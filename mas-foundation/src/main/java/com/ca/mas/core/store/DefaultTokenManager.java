@@ -253,6 +253,7 @@ class DefaultTokenManager implements TokenManager {
 
     private void deleteSecureItem(String name) throws TokenStoreException {
         try {
+            Log.d(TAG,"Escalation DefaultTokenManager deleteSecureItem "+name);
             storage.remove(getKey(name));
         } catch (Exception e) {
             throw new TokenStoreException(e);

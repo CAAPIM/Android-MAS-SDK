@@ -163,6 +163,7 @@ public class MAS {
      */
     public static void start(@NonNull Context context) {
         init(context);
+        Log.d(TAG,"Escalation MAS start  context");
         MobileSsoFactory.getInstance(context);
         state = MASConstants.MAS_STATE_STARTED;
         EventDispatcher.STARTED.notifyObservers();
@@ -179,6 +180,7 @@ public class MAS {
      */
     public static void start(@NonNull Context context, boolean shouldUseDefault) {
         init(context);
+        Log.d(TAG,"Escalation MAS start  context shouldUseDefault");
         MobileSsoFactory.getInstance(context, shouldUseDefault);
         state = MASConstants.MAS_STATE_STARTED;
         EventDispatcher.STARTED.notifyObservers();
@@ -192,6 +194,7 @@ public class MAS {
      */
     public static void start(@NonNull Context context, JSONObject jsonConfiguration) {
         init(context);
+        Log.d(TAG,"Escalation MAS start  context jsonConfiguration");
         MobileSsoFactory.getInstance(context, jsonConfiguration);
         state = MASConstants.MAS_STATE_STARTED;
         EventDispatcher.STARTED.notifyObservers();
@@ -205,6 +208,9 @@ public class MAS {
      */
     public static void start(@NonNull Context context, URL url) {
         init(context);
+        if(url!=null) {
+            Log.d(TAG, "Escalation MAS start  context url" + url.toString());
+        }
         MobileSsoFactory.getInstance(context, url);
         state = MASConstants.MAS_STATE_STARTED;
         EventDispatcher.STARTED.notifyObservers();
@@ -236,7 +242,9 @@ public class MAS {
             }
             return;
         }
-
+        if(url!=null) {
+            Log.d(TAG, "Escalation MAS start  context url callback" + url.toString());
+        }
         if (appContext == null) {
             appContext = context.getApplicationContext();
         }

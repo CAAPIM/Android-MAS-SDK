@@ -8,11 +8,14 @@
 package com.ca.mas.foundation;
 
 import android.os.Parcel;
+import android.util.Log;
 import android.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.ca.mas.foundation.MAS.TAG;
 
 public class CustomMASAuthCredentials extends MASAuthCredentialsPassword {
 
@@ -36,6 +39,7 @@ public class CustomMASAuthCredentials extends MASAuthCredentialsPassword {
 
     @Override
     public void clear() {
+        Log.d(TAG,"Escalation CustomMASAuthCredentials clear");
         super.clear();
     }
 

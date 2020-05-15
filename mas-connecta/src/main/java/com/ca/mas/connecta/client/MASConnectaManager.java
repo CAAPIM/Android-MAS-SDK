@@ -68,8 +68,6 @@ public class MASConnectaManager implements MASConnectaClient, Observer {
         if ((connectOptions == null) || (connectOptions.getServerURIs() == null)) {
             return new GatewayMqttConnecta();
         } else {
-            if (clientId == null)
-                throw new NullPointerException("clientId");
             return new PublicMqttConnecta((clientId));
         }
     }

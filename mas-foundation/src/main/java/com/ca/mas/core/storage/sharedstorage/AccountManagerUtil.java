@@ -57,7 +57,7 @@ public class AccountManagerUtil implements StorageActions {
                     String savedPassword = identifier.toString();
                     if (password != null && password.equals(savedPassword)) {
                         mAccount = account;
-                    }else {
+                    } else {
                         // - case migration from old AccountManagerStoreDataSource
                         mAccount = null;
                         identifier = new SharedStorageIdentifier();

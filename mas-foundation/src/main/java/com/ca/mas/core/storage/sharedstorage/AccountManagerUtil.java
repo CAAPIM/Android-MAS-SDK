@@ -52,10 +52,10 @@ public class AccountManagerUtil implements StorageActions {
             //Attempt to retrieve the account
             Account[] accounts = mAccountManager.getAccountsByType(accountType);
             for (Account account : accounts) {
-                if (accountName.equals(account.name)) {
+                if (accountName != null && accountName.equals(account.name)) {
                     String password = mAccountManager.getPassword(account);
                     String savedPassword = identifier.toString();
-                    if (password.equals(savedPassword)) {
+                    if (password != null && password.equals(savedPassword)) {
                         mAccount = account;
                     }else {
                         // - case migration from old AccountManagerStoreDataSource

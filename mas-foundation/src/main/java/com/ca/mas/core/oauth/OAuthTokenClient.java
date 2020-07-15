@@ -10,7 +10,6 @@ package com.ca.mas.core.oauth;
 
 import androidx.annotation.NonNull;
 import android.util.Pair;
-import android.util.Log;
 
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.client.ServerClient;
@@ -24,8 +23,7 @@ import com.ca.mas.core.token.IdToken;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASRequestBody;
 import com.ca.mas.foundation.MASResponseBody;
-import static com.ca.mas.foundation.MAS.DEBUG;
-import static com.ca.mas.foundation.MAS.TAG;
+
 
 import org.json.JSONException;
 

@@ -10,6 +10,7 @@ package com.ca.mas.core.oauth;
 
 import androidx.annotation.NonNull;
 import android.util.Pair;
+import android.util.Log;
 
 import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.client.ServerClient;
@@ -23,12 +24,15 @@ import com.ca.mas.core.token.IdToken;
 import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASRequestBody;
 import com.ca.mas.foundation.MASResponseBody;
+import static com.ca.mas.foundation.MAS.DEBUG;
+import static com.ca.mas.foundation.MAS.TAG;
 
 import org.json.JSONException;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * Utility class that encapsulates talking to the token server into Java method calls.
@@ -176,16 +180,18 @@ public class OAuthTokenClient extends ServerClient {
                 .build();
 
         OAuthTokenResponse tokenResponse = null;
-
-        //Remove refresh token once we get a proper response from the server, no matter success or not.
-        mssoContext.takeRefreshToken();
-
         try {
             tokenResponse = new OAuthTokenResponse(obtainServerResponseToPostedForm(tokenRequest));
+            if(tokenRequest != null){
+                //Remove refresh token once we get a proper response from the server
+                mssoContext.takeRefreshToken();
+            }
             validate(tokenResponse);
         } catch (JSONException | MAGException e) {
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, e);
         } catch (MAGServerException e) {
+            //Remove refresh token once we get any server exception
+            mssoContext.takeRefreshToken();
             throw new OAuthServerException(e);
         }
         return tokenResponse;

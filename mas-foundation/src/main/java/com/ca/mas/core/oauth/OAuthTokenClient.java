@@ -180,11 +180,9 @@ public class OAuthTokenClient extends ServerClient {
         OAuthTokenResponse tokenResponse = null;
         try {
             tokenResponse = new OAuthTokenResponse(obtainServerResponseToPostedForm(tokenRequest));
-            if(tokenRequest != null){
-                validate(tokenResponse);
-                //Remove refresh token once we get a proper response from the server
-                mssoContext.takeRefreshToken();
-            }
+            validate(tokenResponse);
+            //Remove refresh token once we get a proper response from the server
+            mssoContext.takeRefreshToken();
         } catch (JSONException | MAGException e) {
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, e);
         } catch (MAGServerException e) {

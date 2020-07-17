@@ -24,11 +24,13 @@ import com.ca.mas.foundation.MASRequest;
 import com.ca.mas.foundation.MASRequestBody;
 import com.ca.mas.foundation.MASResponseBody;
 
+
 import org.json.JSONException;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * Utility class that encapsulates talking to the token server into Java method calls.
@@ -176,16 +178,18 @@ public class OAuthTokenClient extends ServerClient {
                 .build();
 
         OAuthTokenResponse tokenResponse = null;
-
-        //Remove refresh token once we get a proper response from the server, no matter success or not.
-        mssoContext.takeRefreshToken();
-
         try {
             tokenResponse = new OAuthTokenResponse(obtainServerResponseToPostedForm(tokenRequest));
             validate(tokenResponse);
+            //Remove refresh token once we get a proper response from the server
+            mssoContext.takeRefreshToken();
         } catch (JSONException | MAGException e) {
             throw new OAuthException(MAGErrorCode.ACCESS_TOKEN_INVALID, e);
         } catch (MAGServerException e) {
+            if(e.getResponse()!= null){
+                //Remove refresh token once we get any server exception
+                mssoContext.takeRefreshToken();
+            }
             throw new OAuthServerException(e);
         }
         return tokenResponse;

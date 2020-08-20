@@ -113,7 +113,7 @@ public class IdentityUtil {
             sb.append(FoundationConsts.FSLASH);
             sb.append(entity);
         }
-        if (DEBUG) Log.d(TAG, "SCIM URL Path: " + sb.toString());
+       // if (DEBUG) Log.d(TAG, "SCIM URL Path: " + sb.toString());
         return sb.toString();
     }
 

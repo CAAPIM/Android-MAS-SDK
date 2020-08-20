@@ -80,38 +80,30 @@ public class MASUserRepositoryImpl implements MASUserRepository {
     public void getUserById(String id, final MASCallback<MASUser> callback) {
         Uri.Builder builder = new Uri.Builder();
         String path = IdentityUtil.getUserPath();
-        if (path.equals("/SCIM/MAS/v2/Users")) {
-            try {
-                throw new Exception("Bypassing SCIM call");
-            } catch (Exception e) {
-                Callback.onError(callback, e);
-            }
-        } else {
-            builder.appendEncodedPath(path.startsWith(IdentityConsts.FSLASH) ? path.substring(1) : path);
-            builder.appendPath(id);
-            MASRequest masRequest = new MASRequest.MASRequestBuilder(builder.build())
-                    .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
-                    .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
-                    .responseBody(MASResponseBody.jsonBody())
-                    .get()
-                    .build();
+        builder.appendEncodedPath(path.startsWith(IdentityConsts.FSLASH) ? path.substring(1) : path);
+        builder.appendPath(id);
+        MASRequest masRequest = new MASRequest.MASRequestBuilder(builder.build())
+                .header(IdentityConsts.HEADER_KEY_ACCEPT, IdentityConsts.HEADER_VALUE_ACCEPT)
+                .header(IdentityConsts.HEADER_KEY_CONTENT_TYPE, IdentityConsts.HEADER_VALUE_CONTENT_TYPE)
+                .responseBody(MASResponseBody.jsonBody())
+                .get()
+                .build();
 
-            MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
-                @Override
-                public void onSuccess(MASResponse<JSONObject> result) {
-                    try {
-                        Callback.onSuccess(callback, processUserById(result.getBody().getContent()));
-                    } catch (JSONException e) {
-                        Callback.onError(callback, e);
-                    }
-                }
-
-                @Override
-                public void onError(Throwable e) {
+        MAS.invoke(masRequest, new MASCallback<MASResponse<JSONObject>>() {
+            @Override
+            public void onSuccess(MASResponse<JSONObject> result) {
+                try {
+                    Callback.onSuccess(callback, processUserById(result.getBody().getContent()));
+                } catch (JSONException e) {
                     Callback.onError(callback, e);
                 }
-            });
-        }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Callback.onError(callback, e);
+            }
+        });
     }
 
     @Override

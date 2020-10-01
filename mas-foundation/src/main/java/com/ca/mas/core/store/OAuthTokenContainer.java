@@ -25,6 +25,8 @@ public interface OAuthTokenContainer {
      */
     long getExpiry();
 
+    void clearAccessToken();
+
     void clear();
 
     void clearAll();

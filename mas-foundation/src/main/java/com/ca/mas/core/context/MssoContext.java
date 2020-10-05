@@ -331,7 +331,9 @@ public class MssoContext {
     /**
      * Clears the access token and refresh token, leaving the ID token, if present.
      */
-    public void clearAccessAndRefreshTokens() { privateTokens.clear(); }
+    public void clearAccessAndRefreshTokens() { 
+        privateTokens.clear(); 
+    }
 
     /**
      * Get an access token, if one is presently available.

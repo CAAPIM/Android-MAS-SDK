@@ -1,12 +1,12 @@
 /*
- * Copyright 1998-2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright (c) 1998, 2010, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Sun designates this
+ * published by the Free Software Foundation.  Oracle designates this
  * particular file as subject to the "Classpath" exception as provided
- * by Sun in the LICENSE file that accompanied this code.
+ * by Oracle in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -18,16 +18,17 @@
  * 2 along with this work; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
- * CA 95054 USA or visit www.sun.com if you need additional information or
- * have any questions.
+ * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+ * or visit www.oracle.com if you need additional information or have any
+ * questions.
  */
 
 package sun.security.util;
 
 import java.math.BigInteger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.Locale;
 
 /**
  * A utility class for debuging.
@@ -43,17 +44,17 @@ public class Debug {
     static {
         args = java.security.AccessController.doPrivileged
                 (new sun.security.action.GetPropertyAction
-                ("java.security.debug"));
+                        ("java.security.debug"));
 
         String args2 = java.security.AccessController.doPrivileged
                 (new sun.security.action.GetPropertyAction
-                ("java.security.auth.debug"));
+                        ("java.security.auth.debug"));
 
         if (args == null) {
             args = args2;
         } else {
             if (args2 != null)
-               args = args + "," + args2;
+                args = args + "," + args2;
         }
 
         if (args != null) {
@@ -222,7 +223,7 @@ public class Debug {
             String keyReg = "[Pp][Ee][Rr][Mm][Ii][Ss][Ss][Ii][Oo][Nn]=";
             String keyStr = "permission=";
             String reg = keyReg +
-                "[a-zA-Z_$][a-zA-Z0-9_$]*([.][a-zA-Z_$][a-zA-Z0-9_$]*)*";
+                    "[a-zA-Z_$][a-zA-Z0-9_$]*([.][a-zA-Z_$][a-zA-Z0-9_$]*)*";
             Pattern pattern = Pattern.compile(reg);
             Matcher matcher = pattern.matcher(source);
             StringBuffer left = new StringBuffer();
@@ -262,7 +263,7 @@ public class Debug {
             source = left;
 
             // convert the rest to lower-case characters
-            target.append(source.toString().toLowerCase());
+            target.append(source.toString().toLowerCase(Locale.ENGLISH));
 
             return target.toString();
         }

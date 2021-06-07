@@ -23,14 +23,12 @@ public interface MASSecurityConfiguration {
     Uri getHost();
     boolean isPublic();
     boolean trustPublicPki();
-    boolean isSslPinningEnabled();
     List<Certificate> getCertificates();
     List<String> getPublicKeyHashes();
 
     class Builder {
 
         private boolean isPublic;
-        private boolean isSSLPinningEnabled = false;
         private boolean trustPublicPKI;
 
         private List<Certificate> certificates;
@@ -55,16 +53,6 @@ public interface MASSecurityConfiguration {
          */
         public Builder trustPublicPKI(boolean trust) {
             this.trustPublicPKI = trust;
-            return this;
-        }
-
-        /**
-         * Determines whether or not to enable ssl pinning to primary gateway.
-         * @param sslPinning to include or not
-         * @return the builder object
-         */
-        public Builder enableSSLPinning(boolean sslPinning) {
-            this.isSSLPinningEnabled = sslPinning;
             return this;
         }
 
@@ -116,7 +104,7 @@ public interface MASSecurityConfiguration {
             }
 
             // If trustPublicPKI is false and no pinning information is found, throw an exception.
-            if (isSSLPinningEnabled && !trustPublicPKI && publicKeyHashes == null && certificates == null) {
+            if (!trustPublicPKI && publicKeyHashes == null && certificates == null) {
                 throw new IllegalArgumentException("Missing pinning type, cannot establish SSL.");
             }
 
@@ -144,11 +132,6 @@ public interface MASSecurityConfiguration {
                 @Override
                 public boolean trustPublicPki() {
                     return trustPublicPKI;
-                }
-
-                @Override
-                public boolean isSslPinningEnabled() {
-                    return isSSLPinningEnabled;
                 }
             };
         }

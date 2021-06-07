@@ -247,13 +247,6 @@ public class MASConfiguration {
         return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.PROP_SSO_ENABLED);
     }
 
-//    /**
-//     * Determines if the client's SSO is enabled or not. This value is read from JSON configuration, if there is no value defined in keychain.
-//     */
-//    public boolean isSslPinningEnabled() {
-//        return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.PROP_SSL_PINNING_ENABLED);
-//    }
-
     /**
      * Retrieves an endpoint path fragment for a given endpoint key, the keys can be one of the following
      * <ul>

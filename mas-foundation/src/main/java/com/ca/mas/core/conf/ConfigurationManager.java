@@ -46,6 +46,7 @@ public class ConfigurationManager {
     private List<Config> appConfigs;
     private String configurationFileName = null;
     private boolean enablePKCE = true;
+    private boolean enableSslPinning = false;
     private boolean idTokenValidation = true;
     private boolean enableJwksPreload = false;
     private JSONObject jsonConfiguration;
@@ -78,6 +79,10 @@ public class ConfigurationManager {
         this.enablePKCE = enablePKCE;
     }
 
+    public void enableSslPinningEnabled(boolean enableSslPinning) {
+        this.enableSslPinning = enableSslPinning;
+    }
+
     public void enableIdTokenValidation(boolean enableValidation) {
         this.idTokenValidation = enableValidation;
     }
@@ -88,6 +93,10 @@ public class ConfigurationManager {
 
     public boolean isPKCEEnabled() {
         return enablePKCE;
+    }
+
+    public boolean isSslPinningEnabled() {
+        return enableSslPinning;
     }
 
     public void reset() {
@@ -258,6 +267,12 @@ public class ConfigurationManager {
                 conf.setAlsoTrustPublicPki((Boolean) getValue(Config.TRUSTED_PUBLIC_PKI, jsonObject, Boolean.FALSE));
                 continue;
             }
+
+            if (attr == Config.SSL_PINNING_ENABLED) {
+                conf.setAlsoTrustPublicPki((Boolean) getValue(Config.TRUSTED_PUBLIC_PKI, jsonObject, Boolean.FALSE));
+                continue;
+            }
+
             Object value = getValue(attr, jsonObject);
             if (value != null) {
                 conf.putProperty(attr.key, value);

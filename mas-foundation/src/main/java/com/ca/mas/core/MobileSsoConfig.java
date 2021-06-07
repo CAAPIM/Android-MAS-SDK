@@ -310,6 +310,7 @@ public interface MobileSsoConfig {
     String PROP_DEVICE_METADATA_PATH = "msso_device_metadata";
 
 
+    String PROP_SSL_PINNING_ENABLED = "ssl_pinning_enabled";
     // If you add any properties to this file, you must update MobileSsoFactory.createConfig()
     // or they will be ignored.
 

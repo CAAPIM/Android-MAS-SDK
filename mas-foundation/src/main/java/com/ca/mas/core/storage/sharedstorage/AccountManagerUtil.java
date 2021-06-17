@@ -61,10 +61,9 @@ public class AccountManagerUtil implements StorageActions {
                         // - case migration from old AccountManagerStoreDataSource
                         mAccount = null;
                         identifier = new SharedStorageIdentifier();
-                        new NullPointerException("Password is null");
                     }
                 } else {
-                    new NullPointerException("Account Name does not exist");
+                    throw new IllegalArgumentException("Invalid parameters, Account name cannot be null");
                 }
             }
 

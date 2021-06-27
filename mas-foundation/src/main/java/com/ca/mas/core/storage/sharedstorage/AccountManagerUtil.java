@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import static com.ca.mas.foundation.MAS.TAG;
 import static com.ca.mas.foundation.MAS.getContext;
@@ -39,6 +40,7 @@ public class AccountManagerUtil implements StorageActions {
 
         // Gets the account type from the manifest
         String accountType = getAccountType(context);
+        StringBuilder sb = new StringBuilder("Account Details::Account type from Manifest "+accountType);
         if (accountType == null || accountType.isEmpty()) {
             throw new IllegalArgumentException(MASFoundationStrings.SHARED_STORAGE_NULL_ACCOUNT_TYPE);
         }
@@ -51,6 +53,7 @@ public class AccountManagerUtil implements StorageActions {
             mAccountManager = AccountManager.get(MAS.getContext());
             //Attempt to retrieve the account
             Account[] accounts = mAccountManager.getAccountsByType(accountType);
+            sb.append("No of accounts:: "+accounts.length);
             for (Account account : accounts) {
                 if (accountName != null &&accountName.equals(account.name)) {
                     String password = mAccountManager.getPassword(account);
@@ -69,11 +72,16 @@ public class AccountManagerUtil implements StorageActions {
 
             //Create the account if it wasn't retrieved,
             if (mAccount == null) {
+                sb.append("Account Name:: "+accountName);
+                sb.append("Account Type:: "+accountName);
                 mAccount = new Account(accountName, accountType);
-                mAccountManager.addAccountExplicitly(mAccount, identifier.toString(), null);
+                boolean accountCreated = mAccountManager.addAccountExplicitly(mAccount, identifier.toString(), null);
+                sb.append("Added account status "+accountCreated);
             }
+            sb.append("Getting account details after addition:: Name:: "+mAccount.name+
+                    " Type::" +mAccount.type+" hashcode::  "+mAccount.hashCode());
         } catch (Exception e) {
-            throw new MASSharedStorageException(e.getMessage(), e);
+            throw new MASSharedStorageException(e.getMessage()+" "+sb, e);
         }
     }
 

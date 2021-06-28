@@ -39,10 +39,15 @@ public class AccountManagerUtil implements StorageActions {
     public AccountManagerUtil(Context context, String accountName, boolean sharedStorage){
 
         // Gets the account type from the manifest
-        String accountType = getAccountType(context);
-        StringBuilder sb = new StringBuilder("Account Details::Account type from Manifest "+accountType);
+        final String accountType = getAccountType(context);
+        final StringBuilder messageBuilder = new StringBuilder();
+
         if (accountType == null || accountType.isEmpty()) {
             throw new IllegalArgumentException(MASFoundationStrings.SHARED_STORAGE_NULL_ACCOUNT_TYPE);
+        }
+
+        if (accountName == null) {
+            throw new IllegalArgumentException(MASFoundationStrings.SHARED_STORAGE_NULL_ACCOUNT_NAME);
         }
 
         shared = sharedStorage;
@@ -53,9 +58,9 @@ public class AccountManagerUtil implements StorageActions {
             mAccountManager = AccountManager.get(MAS.getContext());
             //Attempt to retrieve the account
             Account[] accounts = mAccountManager.getAccountsByType(accountType);
-            sb.append("No of accounts:: "+accounts.length);
+            messageBuilder.append(" existing accounts (" + accountType + ")=" + accounts.length);
             for (Account account : accounts) {
-                if (accountName != null &&accountName.equals(account.name)) {
+                if (accountName.equals(account.name)) {
                     String password = mAccountManager.getPassword(account);
                     String savedPassword = identifier.toString();
                     if (password != null && password.equals(savedPassword)) {
@@ -65,23 +70,22 @@ public class AccountManagerUtil implements StorageActions {
                         mAccount = null;
                         identifier = new SharedStorageIdentifier();
                     }
-                } else {
-                    throw new IllegalArgumentException("Invalid parameters, Account name cannot be null");
                 }
             }
 
             //Create the account if it wasn't retrieved,
             if (mAccount == null) {
-                sb.append("Account Name:: "+accountName);
-                sb.append("Account Type:: "+accountType);
+                messageBuilder.append(" attempt to create an account explicitly name=" + accountName + ", accountType=" + accountType);
                 mAccount = new Account(accountName, accountType);
                 boolean accountCreated = mAccountManager.addAccountExplicitly(mAccount, identifier.toString(), null);
-                sb.append("Added account status "+accountCreated);
+                messageBuilder.append("created account status=" + accountCreated);
             }
-            sb.append("Getting account details after addition:: Name:: "+mAccount.name+
-                    " Type::" +mAccount.type+" hashcode::  "+mAccount.hashCode());
+
+            Log.e(TAG, "Retrieved account details name="+mAccount.name+
+                    " type=" +mAccount.type+" hashcode=" + mAccount.hashCode());
         } catch (Exception e) {
-            throw new MASSharedStorageException(e.getMessage()+" "+sb, e);
+            Log.e(TAG, "Failed to retrieve account, " + e.getMessage() + " - " + messageBuilder.toString());
+            throw new MASSharedStorageException(e.getMessage() +" - " + messageBuilder.toString(), e);
         }
     }
 

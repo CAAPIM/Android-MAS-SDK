@@ -73,7 +73,7 @@ public class AccountManagerUtil implements StorageActions {
             //Create the account if it wasn't retrieved,
             if (mAccount == null) {
                 sb.append("Account Name:: "+accountName);
-                sb.append("Account Type:: "+accountName);
+                sb.append("Account Type:: "+accountType);
                 mAccount = new Account(accountName, accountType);
                 boolean accountCreated = mAccountManager.addAccountExplicitly(mAccount, identifier.toString(), null);
                 sb.append("Added account status "+accountCreated);

@@ -60,6 +60,7 @@ public class AccountManagerUtil implements StorageActions {
             Account[] accounts = mAccountManager.getAccountsByType(accountType);
             messageBuilder.append(" existing accounts (" + accountType + ")=" + accounts.length);
             for (Account account : accounts) {
+                messageBuilder.append(" trying account:" + account.name);
                 if (accountName.equals(account.name)) {
                     String password = mAccountManager.getPassword(account);
                     String savedPassword = identifier.toString();

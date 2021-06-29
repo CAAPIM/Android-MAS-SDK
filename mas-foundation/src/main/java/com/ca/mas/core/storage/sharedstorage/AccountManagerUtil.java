@@ -69,6 +69,7 @@ public class AccountManagerUtil implements StorageActions {
                     }else {
                         // - case migration from old AccountManagerStoreDataSource
                         mAccount = null;
+                        messageBuilder.append(" password is null or password not equals to saved password:");
                         identifier = new SharedStorageIdentifier();
                     }
                 }
@@ -76,6 +77,7 @@ public class AccountManagerUtil implements StorageActions {
 
             //Create the account if it wasn't retrieved,
             if (mAccount == null) {
+                messageBuilder.append(" account identifier when mAccount is null:" +identifier);
                 messageBuilder.append(" attempt to create an account explicitly name=" + accountName + ", accountType=" + accountType);
                 mAccount = new Account(accountName, accountType);
                 boolean accountCreated = mAccountManager.addAccountExplicitly(mAccount, identifier.toString(), null);

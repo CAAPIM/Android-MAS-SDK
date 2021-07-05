@@ -46,7 +46,7 @@ public class ConfigurationManager {
     private List<Config> appConfigs;
     private String configurationFileName = null;
     private boolean enablePKCE = true;
-    private boolean enableSslPinning = false;
+    private boolean enableSslPinning = true;
     private boolean idTokenValidation = true;
     private boolean enableJwksPreload = false;
     private JSONObject jsonConfiguration;
@@ -269,7 +269,7 @@ public class ConfigurationManager {
             }
 
             if (attr == Config.SSL_PINNING_ENABLED) {
-                conf.setAlsoTrustPublicPki((Boolean) getValue(Config.TRUSTED_PUBLIC_PKI, jsonObject, Boolean.FALSE));
+                conf.setAllowSSLPinning((Boolean) getValue(Config.SSL_PINNING_ENABLED, jsonObject, Boolean.TRUE));
                 continue;
             }
 

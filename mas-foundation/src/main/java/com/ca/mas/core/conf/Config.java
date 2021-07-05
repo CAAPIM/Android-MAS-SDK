@@ -56,7 +56,7 @@ public class Config {
     public static final Config TRUSTED_CERT_PINNED_PUBLIC_KEY_HASHES = new Config(false, MobileSsoConfig.PROP_TRUSTED_CERT_PINNED_PUBLIC_KEY_HASHES, "mag.mobile_sdk.trusted_cert_pinned_public_key_hashes", List.class);
     public static final Config CLIENT_CERT_RSA_KEYBITS = new Config(false, MobileSsoConfig.PROP_CLIENT_CERT_RSA_KEYBITS, "mag.mobile_sdk.client_cert_rsa_keybits", Integer.class);
     public static final Config CLIENT_STORAGE = new Config(false, MobileSsoConfig.PROP_STORAGE, "mag.mobile_sdk.storage", String.class);
-    public static final Config SSL_PINNING_ENABLED = new Config(true, MobileSsoConfig.PROP_SSL_PINNING_ENABLED, "mag.mobile_sdk.ssl_pinning_enabled", Boolean.class);
+    public static final Config SSL_PINNING_ENABLED = new Config(false, MobileSsoConfig.PROP_SSL_PINNING_ENABLED, "mag.mobile_sdk.ssl_pinning_enabled", Boolean.class);
 
     //mag.ble
     public static final Config BLE_SERVICE_UUID = new Config(false, MobileSsoConfig.PROP_BLE_SERVICE_UUID, "mag.ble.msso_ble_service_uuid", String.class);

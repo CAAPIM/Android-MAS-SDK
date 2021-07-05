@@ -560,7 +560,7 @@ public class MAS {
     /**
      * Enables the SSL Pinning.
      */
-    public static void enableSslPinningEnabled(boolean enableSSLPinning) {
+    public static void enableSSLPinning(boolean enableSSLPinning) {
         ConfigurationManager.getInstance().enableSslPinningEnabled(enableSSLPinning);
     }
     /**
@@ -584,7 +584,7 @@ public class MAS {
      *
      * @return true if ssl pinning is enabled, false otherwise
      */
-    public static boolean isSslPinningEnabled() {
+    public static boolean isSSLPinningEnabled() {
         return ConfigurationManager.getInstance().isSslPinningEnabled();
     }
 

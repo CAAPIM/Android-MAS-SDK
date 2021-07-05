@@ -90,6 +90,13 @@ public interface ConfigurationProvider extends TrustedCertificateConfiguration, 
      */
     String getPrefix();
 
+    /**
+     * Based on the provided configuration the SDK, retrieve the ssl_pinning_enabled attribute.
+     *
+     * @return the ssl pinning enabled flag configured for the Gateway.
+     */
+    boolean isSSLPinningAllowed();
+
     // Configuration properties that are not currently documented as part of the public API.
 
     /**

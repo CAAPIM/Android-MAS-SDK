@@ -122,14 +122,15 @@ class AccessTokenAssertion implements MssoAssertion {
             } else {
                 accessToken = null;
             }
+        }
 
-            String refreshToken = mssoContext.getRefreshToken();
-            if (refreshToken != null) {
-                accessToken = obtainAccessTokenUsingRefreshToken(mssoContext, refreshToken);
-            }
+        String refreshToken = mssoContext.getRefreshToken();
+        if (refreshToken != null) {
+            accessToken = obtainAccessTokenUsingRefreshToken(mssoContext, refreshToken);
+        }
 
-            if (accessToken != null)
-                return accessToken;
+        if (accessToken != null) {
+            return accessToken;
         }
 
         // Obtain an access token from the token server.
@@ -258,7 +259,7 @@ class AccessTokenAssertion implements MssoAssertion {
 
             if(tse.getResponse()!= null){
                 //The access token and refresh token are no longer valid.
-                mssoContext.clearAccessToken(); 
+                mssoContext.clearAccessAndRefreshTokens();
             }
             accessToken = null;
             if (DEBUG) Log.w(TAG,

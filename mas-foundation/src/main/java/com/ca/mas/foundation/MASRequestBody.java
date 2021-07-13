@@ -375,7 +375,7 @@ public abstract class MASRequestBody {
 
                 @Override
                 public long getContentLength() {
-                    return content.length + multipart_separator.length();
+                    return content.length;
                 }
 
                 @Override
@@ -397,8 +397,6 @@ public abstract class MASRequestBody {
                             progressListener.onProgress("" + (int) ((progress * 100) / content.length)); // sending progress percent to publishProgress
                         }
                     }
-                    outputStream.write((multipart_separator).getBytes());
-                    outputStream.flush();
                     if (progressListener != null) {
                         progressListener.onComplete();
                     }

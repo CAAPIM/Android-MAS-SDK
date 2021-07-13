@@ -84,9 +84,6 @@ public class MASConfiguration {
      */
     static MASSecurityConfiguration createPrimaryConfiguration(Uri uri) {
         ConfigurationProvider configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
-//        MASSecurityConfiguration.Builder configBuilder = new MASSecurityConfiguration.Builder()
-//                .host(uri)
-//                .trustPublicPKI(configurationProvider.isAlsoTrustPublicPki());
 
         MASSecurityConfiguration.Builder configBuilder = new MASSecurityConfiguration.Builder()
                 .host(uri)

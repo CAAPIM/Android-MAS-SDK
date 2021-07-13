@@ -56,7 +56,7 @@ public class Config {
     public static final Config TRUSTED_CERT_PINNED_PUBLIC_KEY_HASHES = new Config(false, MobileSsoConfig.PROP_TRUSTED_CERT_PINNED_PUBLIC_KEY_HASHES, "mag.mobile_sdk.trusted_cert_pinned_public_key_hashes", List.class);
     public static final Config CLIENT_CERT_RSA_KEYBITS = new Config(false, MobileSsoConfig.PROP_CLIENT_CERT_RSA_KEYBITS, "mag.mobile_sdk.client_cert_rsa_keybits", Integer.class);
     public static final Config CLIENT_STORAGE = new Config(false, MobileSsoConfig.PROP_STORAGE, "mag.mobile_sdk.storage", String.class);
-    public static final Config SSL_PINNING_ENABLED = new Config(false, MobileSsoConfig.PROP_SSL_PINNING_ENABLED, "mag.mobile_sdk.ssl_pinning_enabled", Boolean.class);
+    public static final Config ALLOW_SSL_PINNING = new Config(false, MobileSsoConfig.PROP_ALLOW_SSL_PINNING, "mag.mobile_sdk.allow_ssl_pinning", Boolean.class);
 
     //mag.ble
     public static final Config BLE_SERVICE_UUID = new Config(false, MobileSsoConfig.PROP_BLE_SERVICE_UUID, "mag.ble.msso_ble_service_uuid", String.class);
@@ -67,7 +67,7 @@ public class Config {
             HOSTNAME, PORT, PREFIX, SERVER_CERTS, ORGANIZATION, CLIENT_KEY, CLIENT_SECRET, SCOPE, REDIRECT_URI, AUTHORIZE_PATH, REGISTER_TOKEN_PATH, REGISTER_TOKEN_PATH_SSO, LOGOUT_DEVICE_PATH, REVOKE_PATH,
             REMOVE_DEVICE_PATH, REGISTER_DEVICE_PATH, RENEW_DEVICE_PATH, REGISTER_DEVICE_PATH_CLIENT, CLIENT_CREDENTIAL_INIT_PATH, ENTERPRISE_APP_PATH, SSO_ENABLED, LOCATION_ENABLED, LOCATION_PROVIDER,
             MSISDN_ENABLED, TRUSTED_PUBLIC_PKI,DEVICE_METADATA_PATH, TRUSTED_CERT_PINNED_PUBLIC_KEY_HASHES, CLIENT_CERT_RSA_KEYBITS, CLIENT_STORAGE, BLE_SERVICE_UUID, BLE_USER_SESSION_CHARACTERISTIC_UUID,
-            BLE_RSSI, AUTHENTICATE_OTP_PATH, SSL_PINNING_ENABLED
+            BLE_RSSI, AUTHENTICATE_OTP_PATH, ALLOW_SSL_PINNING
     };
 
     public boolean mandatory;

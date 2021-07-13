@@ -560,8 +560,8 @@ public class MAS {
     /**
      * Enables the SSL Pinning.
      */
-    public static void enableSSLPinning(boolean enableSSLPinning) {
-        ConfigurationManager.getInstance().enableSslPinningEnabled(enableSSLPinning);
+    public static void setSSLPinningEnabled(boolean enable) {
+        ConfigurationManager.getInstance().setSSLPinningEnabled(enable);
     }
     /**
      *  Value of the boolean indicator which indicate if the id_token validation is active or not.

@@ -255,7 +255,7 @@ public interface MobileSsoConfig {
      *
      * True if MSISDN information should be included.  False if MSISDN information should not be included.
      */
-     String PROP_MSISDN_ENABLED = "msso.msisdn.enabled";
+    String PROP_MSISDN_ENABLED = "msso.msisdn.enabled";
 
     /**
      * String.  URL suffix for client credentials endpoint.
@@ -310,6 +310,7 @@ public interface MobileSsoConfig {
     String PROP_DEVICE_METADATA_PATH = "msso_device_metadata";
 
 
+    String PROP_ALLOW_SSL_PINNING = "allow_ssl_pinning";
     // If you add any properties to this file, you must update MobileSsoFactory.createConfig()
     // or they will be ignored.
 

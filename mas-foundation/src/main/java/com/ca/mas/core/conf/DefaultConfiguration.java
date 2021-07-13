@@ -64,6 +64,7 @@ public class DefaultConfiguration implements ConfigurationProvider {
 
     private List<X509Certificate> trustedCertificateAnchors = new ArrayList<X509Certificate>();
     private boolean alsoTrustPublicPki = true;
+    private boolean allowSSLPinning = true;
     private Set<PublicKeyHash> trustedCertificatePinnedPublicKeyHashes = new HashSet<PublicKeyHash>();
 
     /**
@@ -119,6 +120,10 @@ public class DefaultConfiguration implements ConfigurationProvider {
      */
     public void setAlsoTrustPublicPki(boolean alsoTrustPublicPki) {
         this.alsoTrustPublicPki = alsoTrustPublicPki;
+    }
+
+    public void setAllowSSLPinning(boolean allowSSLPinning) {
+        this.allowSSLPinning = allowSSLPinning;
     }
 
     /**
@@ -271,6 +276,9 @@ public class DefaultConfiguration implements ConfigurationProvider {
     public boolean isAlsoTrustPublicPki() {
         return alsoTrustPublicPki;
     }
+
+    @Override
+    public boolean isSSLPinningAllowed() { return allowSSLPinning; }
 
     @Override
     public Collection<PublicKeyHash> getTrustedCertificatePinnedPublicKeyHashes() {

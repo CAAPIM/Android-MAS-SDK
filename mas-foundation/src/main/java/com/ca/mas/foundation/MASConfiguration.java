@@ -84,9 +84,11 @@ public class MASConfiguration {
      */
     static MASSecurityConfiguration createPrimaryConfiguration(Uri uri) {
         ConfigurationProvider configurationProvider = ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider();
+
         MASSecurityConfiguration.Builder configBuilder = new MASSecurityConfiguration.Builder()
                 .host(uri)
-                .trustPublicPKI(configurationProvider.isAlsoTrustPublicPki());
+                .trustPublicPKI(configurationProvider.isAlsoTrustPublicPki())
+                .allowSSLPinning(configurationProvider.isSSLPinningAllowed());
 
         //Add certificates, if any exist
         Collection<X509Certificate> certificates = configurationProvider.getTrustedCertificateAnchors();
@@ -245,6 +247,13 @@ public class MASConfiguration {
      */
     public boolean isSsoEnabled() {
         return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.PROP_SSO_ENABLED);
+    }
+
+    /**
+     * Determines if the SDK will perform SSL Pinning for an authentication challenge. This read only value is within the JSON configuration file..
+     */
+    public boolean isSslPinningEnabled() {
+        return ConfigurationManager.getInstance().getConnectedGatewayConfigurationProvider().getProperty(MobileSsoConfig.PROP_ALLOW_SSL_PINNING);
     }
 
     /**

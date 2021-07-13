@@ -61,27 +61,32 @@ public class AccountManagerUtil implements StorageActions {
             messageBuilder.append(" existing accounts (" + accountType + ")=" + accounts.length);
             for (Account account : accounts) {
                 messageBuilder.append(" trying account:" + account.name);
-                if (accountName.equals(account.name)) {
-                    String password = mAccountManager.getPassword(account);
-                    String savedPassword = identifier.toString();
-                    if (password != null && password.equals(savedPassword)) {
-                        mAccount = account;
-                    }else {
-                        // - case migration from old AccountManagerStoreDataSource
-                        mAccount = null;
-                        messageBuilder.append(" password is null or password not equals to saved password:");
-                        identifier = new SharedStorageIdentifier();
+                synchronized (this) {
+                    if (accountName.equals(account.name)) {
+                        String password = mAccountManager.getPassword(account);
+                        String savedPassword = identifier.toString();
+                        if (password != null && password.equals(savedPassword)) {
+                            mAccount = account;
+                        }else {
+                            // - case migration from old AccountManagerStoreDataSource
+                            mAccount = null;
+                            messageBuilder.append(" password is null or password not equals to saved password:");
+                            identifier = new SharedStorageIdentifier();
+                        }
                     }
                 }
+
             }
 
             //Create the account if it wasn't retrieved,
-            if (mAccount == null) {
-                messageBuilder.append(" account identifier when mAccount is null:" +identifier);
-                messageBuilder.append(" attempt to create an account explicitly name=" + accountName + ", accountType=" + accountType);
-                mAccount = new Account(accountName, accountType);
-                boolean accountCreated = mAccountManager.addAccountExplicitly(mAccount, identifier.toString(), null);
-                messageBuilder.append("created account status=" + accountCreated);
+            synchronized (this) {
+                if (mAccount == null) {
+                    messageBuilder.append(" account identifier when mAccount is null:" +identifier);
+                    messageBuilder.append(" attempt to create an account explicitly name=" + accountName + ", accountType=" + accountType);
+                    mAccount = new Account(accountName, accountType);
+                    boolean accountCreated = mAccountManager.addAccountExplicitly(mAccount, identifier.toString(), null);
+                    messageBuilder.append("created account status=" + accountCreated);
+                }
             }
 
             Log.e(TAG, "Retrieved account details name="+mAccount.name+

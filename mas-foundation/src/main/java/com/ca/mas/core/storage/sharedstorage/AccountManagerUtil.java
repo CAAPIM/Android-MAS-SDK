@@ -56,12 +56,13 @@ public class AccountManagerUtil implements StorageActions {
             SharedStorageIdentifier identifier = new SharedStorageIdentifier();
 
             mAccountManager = AccountManager.get(MAS.getContext());
-            //Attempt to retrieve the account
-            Account[] accounts = mAccountManager.getAccountsByType(accountType);
-            messageBuilder.append(" existing accounts (" + accountType + ")=" + accounts.length);
-            for (Account account : accounts) {
-                messageBuilder.append(" trying account:" + account.name);
-                synchronized (this) {
+            synchronized (mutex) {
+                //Attempt to retrieve the account
+                Account[] accounts = mAccountManager.getAccountsByType(accountType);
+                messageBuilder.append(" existing accounts (" + accountType + ")=" + accounts.length);
+                for (Account account : accounts) {
+                    messageBuilder.append(" trying account:" + account.name);
+
                     if (accountName.equals(account.name)) {
                         String password = mAccountManager.getPassword(account);
                         String savedPassword = identifier.toString();
@@ -76,10 +77,7 @@ public class AccountManagerUtil implements StorageActions {
                     }
                 }
 
-            }
-
-            //Create the account if it wasn't retrieved,
-            synchronized (this) {
+                //Create the account if it wasn't retrieved,
                 if (mAccount == null) {
                     messageBuilder.append(" account identifier when mAccount is null:" +identifier);
                     messageBuilder.append(" attempt to create an account explicitly name=" + accountName + ", accountType=" + accountType);
@@ -88,7 +86,6 @@ public class AccountManagerUtil implements StorageActions {
                     messageBuilder.append("created account status=" + accountCreated);
                 }
             }
-
             Log.e(TAG, "Retrieved account details name="+mAccount.name+
                     " type=" +mAccount.type+" hashcode=" + mAccount.hashCode());
         } catch (Exception e) {

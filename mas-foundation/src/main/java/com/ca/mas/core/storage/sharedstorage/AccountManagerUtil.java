@@ -53,10 +53,11 @@ public class AccountManagerUtil implements StorageActions {
         shared = sharedStorage;
 
         try {
-            SharedStorageIdentifier identifier = new SharedStorageIdentifier();
-
-            mAccountManager = AccountManager.get(MAS.getContext());
             synchronized (mutex) {
+                SharedStorageIdentifier identifier = new SharedStorageIdentifier();
+
+                mAccountManager = AccountManager.get(MAS.getContext());
+
                 //Attempt to retrieve the account
                 Account[] accounts = mAccountManager.getAccountsByType(accountType);
                 messageBuilder.append(" existing accounts (" + accountType + ")=" + accounts.length);

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import static com.ca.mas.foundation.MAS.TAG;
 import static com.ca.mas.foundation.MAS.getContext;
@@ -38,40 +39,59 @@ public class AccountManagerUtil implements StorageActions {
     public AccountManagerUtil(Context context, String accountName, boolean sharedStorage){
 
         // Gets the account type from the manifest
-        String accountType = getAccountType(context);
+        final String accountType = getAccountType(context);
+        final StringBuilder messageBuilder = new StringBuilder();
+
         if (accountType == null || accountType.isEmpty()) {
             throw new IllegalArgumentException(MASFoundationStrings.SHARED_STORAGE_NULL_ACCOUNT_TYPE);
+        }
+
+        if (accountName == null) {
+            throw new IllegalArgumentException(MASFoundationStrings.SHARED_STORAGE_NULL_ACCOUNT_NAME);
         }
 
         shared = sharedStorage;
 
         try {
-            SharedStorageIdentifier identifier = new SharedStorageIdentifier();
+            synchronized (mutex) {
+                SharedStorageIdentifier identifier = new SharedStorageIdentifier();
 
-            mAccountManager = AccountManager.get(MAS.getContext());
-            //Attempt to retrieve the account
-            Account[] accounts = mAccountManager.getAccountsByType(accountType);
-            for (Account account : accounts) {
-                if (accountName.equals(account.name)) {
-                    String password = mAccountManager.getPassword(account);
-                    String savedPassword = identifier.toString();
-                    if (password.equals(savedPassword)) {
-                        mAccount = account;
-                    }else {
-                        // - case migration from old AccountManagerStoreDataSource
-                        mAccount = null;
-                        identifier = new SharedStorageIdentifier();
+                mAccountManager = AccountManager.get(MAS.getContext());
+
+                //Attempt to retrieve the account
+                Account[] accounts = mAccountManager.getAccountsByType(accountType);
+                messageBuilder.append(" existing accounts (" + accountType + ")=" + accounts.length);
+                for (Account account : accounts) {
+                    messageBuilder.append(" trying account:" + account.name);
+
+                    if (accountName.equals(account.name)) {
+                        String password = mAccountManager.getPassword(account);
+                        String savedPassword = identifier.toString();
+                        if (password != null && password.equals(savedPassword)) {
+                            mAccount = account;
+                        }else {
+                            // - case migration from old AccountManagerStoreDataSource
+                            mAccount = null;
+                            messageBuilder.append(" password is null or password not equals to saved password:");
+                            identifier = new SharedStorageIdentifier();
+                        }
                     }
                 }
-            }
 
-            //Create the account if it wasn't retrieved,
-            if (mAccount == null) {
-                mAccount = new Account(accountName, accountType);
-                mAccountManager.addAccountExplicitly(mAccount, identifier.toString(), null);
+                //Create the account if it wasn't retrieved,
+                if (mAccount == null) {
+                    messageBuilder.append(" account identifier when mAccount is null:" +identifier);
+                    messageBuilder.append(" attempt to create an account explicitly name=" + accountName + ", accountType=" + accountType);
+                    mAccount = new Account(accountName, accountType);
+                    boolean accountCreated = mAccountManager.addAccountExplicitly(mAccount, identifier.toString(), null);
+                    messageBuilder.append("created account status=" + accountCreated);
+                }
             }
+            Log.e(TAG, "Retrieved account details name="+mAccount.name+
+                    " type=" +mAccount.type+" hashcode=" + mAccount.hashCode());
         } catch (Exception e) {
-            throw new MASSharedStorageException(e.getMessage(), e);
+            Log.e(TAG, "Failed to retrieve account, " + e.getMessage() + " - " + messageBuilder.toString());
+            throw new MASSharedStorageException(e.getMessage() +" - " + messageBuilder.toString(), e);
         }
     }
 

@@ -9,6 +9,7 @@ package com.ca.mas.core.io.http;
 
 import com.ca.mas.core.cert.PublicKeyHash;
 import com.ca.mas.core.cert.TrustedCertificateConfiguration;
+import com.ca.mas.foundation.MAS;
 import com.ca.mas.foundation.MASSecurityConfiguration;
 
 import java.io.IOException;
@@ -116,6 +117,11 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
     public void checkServerTrusted(X509Certificate[] chain, String s) throws CertificateException {
         List<Certificate> certs = config.getCertificates();
         List<String> hashes = config.getPublicKeyHashes();
+
+        // Bypass the SSL Pinning if not enabled.
+        if (!MAS.isSSLPinningEnabled() || !config.allowSSLPinning()) {
+            return;
+        }
 
         //If we don't trust the public PKI, we fail the validation
         if (config.trustPublicPki()) {

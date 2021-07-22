@@ -8,17 +8,18 @@
 
 package com.ca.mas.core.oauth;
 
+import com.ca.mas.core.storage.sharedstorage.SharedPreferencesUtil;
+
 /**
  * Temporary cache to store code verifier
  */
 public class CodeVerifierCache {
 
     private static CodeVerifierCache instance = new CodeVerifierCache();
-
-    private String state;
-    private String codeVerifier;
+    private SharedPreferencesUtil prefUtil = null;
 
     private CodeVerifierCache() {
+        prefUtil = new SharedPreferencesUtil("codeverifier");
     }
 
     public static CodeVerifierCache getInstance() {
@@ -26,26 +27,26 @@ public class CodeVerifierCache {
     }
 
     public void store(String state, String codeVerifier) {
-        this.state = state;
-        this.codeVerifier = codeVerifier;
+        prefUtil.save("state", state);
+        prefUtil.save("code", codeVerifier);
     }
 
     public String take(String state) {
-        if (this.state == null && state != null
-                || this.state != null && !this.state.equals(state)) {
+        if (prefUtil.getString("state") == null && state != null
+                || prefUtil.getString("state")!= null && !prefUtil.getString("state").equals(state)) {
             throw new IllegalStateException("OAuth State Mismatch");
         }
-        String cv = this.codeVerifier;
-        this.state = null;
-        this.codeVerifier = null;
+        String cv = prefUtil.getString("code");
+        prefUtil.delete("state");
+        prefUtil.delete("code");
         return cv;
     }
 
     //Workaround for pre MAG 3.3, Defect reference DE256594
     public String take() {
-        String cv = this.codeVerifier;
-        this.state = null;
-        this.codeVerifier = null;
+        String cv = prefUtil.getString("code");
+        prefUtil.delete("state");
+        prefUtil.delete("code");
         return cv;
     }
 

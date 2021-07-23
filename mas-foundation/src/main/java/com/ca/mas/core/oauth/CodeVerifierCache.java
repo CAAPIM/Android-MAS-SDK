@@ -17,7 +17,7 @@ public class CodeVerifierCache {
 
     private static CodeVerifierCache instance = new CodeVerifierCache();
     private SharedPreferencesUtil prefUtil = null;
-    private String mState = "##default-state##";
+    private static final String mState = "##default-state##";
 
     private CodeVerifierCache() {
         prefUtil = new SharedPreferencesUtil("codeverifier");

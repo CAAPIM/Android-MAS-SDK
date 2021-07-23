@@ -17,7 +17,7 @@ public class CodeVerifierCache {
 
     private static CodeVerifierCache instance = new CodeVerifierCache();
     private SharedPreferencesUtil prefUtil = null;
-    private static final String mState = "##default-state##";
+    private static final String DEFAULT_STATE = "##default-state##";
 
     private CodeVerifierCache() {
         prefUtil = new SharedPreferencesUtil("codeverifier");
@@ -28,7 +28,7 @@ public class CodeVerifierCache {
     }
 
     public void store(String state, String codeVerifier) {
-        prefUtil.save(mState, codeVerifier);
+        prefUtil.save(DEFAULT_STATE, codeVerifier);
         if (state != null) {
             prefUtil.save(state, codeVerifier);
         }
@@ -36,11 +36,11 @@ public class CodeVerifierCache {
 
     //Workaround for pre MAG 3.3, Defect reference DE256594
     public String take() {
-        String cv = prefUtil.getString(mState);
+        String cv = prefUtil.getString(DEFAULT_STATE);
         if (cv == null) {
             throw new IllegalStateException("OAuth State Mismatch");
         }
-        prefUtil.delete(mState);
+        prefUtil.delete(DEFAULT_STATE);
         return cv;
     }
 

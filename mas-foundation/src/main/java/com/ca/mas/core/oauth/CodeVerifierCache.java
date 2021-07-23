@@ -11,12 +11,13 @@ package com.ca.mas.core.oauth;
 import com.ca.mas.core.storage.sharedstorage.SharedPreferencesUtil;
 
 /**
- * Temporary cache to store code verifier
+ *  Shared preference implementation to store code verifier
  */
 public class CodeVerifierCache {
 
     private static CodeVerifierCache instance = new CodeVerifierCache();
     private SharedPreferencesUtil prefUtil = null;
+    private String mState = "##default-state##";
 
     private CodeVerifierCache() {
         prefUtil = new SharedPreferencesUtil("codeverifier");
@@ -27,28 +28,31 @@ public class CodeVerifierCache {
     }
 
     public void store(String state, String codeVerifier) {
-        prefUtil.save("state", state);
-        prefUtil.save("code", codeVerifier);
-    }
-
-    public String take(String state) {
-        if (prefUtil.getString("state") == null && state != null
-                || prefUtil.getString("state")!= null && !prefUtil.getString("state").equals(state)) {
-            throw new IllegalStateException("OAuth State Mismatch");
+        prefUtil.save(mState, codeVerifier);
+        if (state != null) {
+            prefUtil.save(state, codeVerifier);
         }
-        String cv = prefUtil.getString("code");
-        prefUtil.delete("state");
-        prefUtil.delete("code");
-        return cv;
     }
 
     //Workaround for pre MAG 3.3, Defect reference DE256594
     public String take() {
-        String cv = prefUtil.getString("code");
-        prefUtil.delete("state");
-        prefUtil.delete("code");
+        String cv = prefUtil.getString(mState);
+        if (cv == null) {
+            throw new IllegalStateException("OAuth State Mismatch");
+        }
+        prefUtil.delete(mState);
         return cv;
     }
 
-
+    public String take(String state) {
+        if (state == null) {
+            return take();
+        }
+        String cv = prefUtil.getString(state);
+        if (cv == null) {
+            throw new IllegalStateException("OAuth State Mismatch");
+        }
+        prefUtil.delete(state);
+        return cv;
+    }
 }

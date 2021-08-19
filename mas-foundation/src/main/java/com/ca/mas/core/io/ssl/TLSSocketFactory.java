@@ -7,6 +7,8 @@
 
 package com.ca.mas.core.io.ssl;
 
+import android.os.Build;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -21,7 +23,9 @@ class TLSSocketFactory extends SSLSocketFactory {
     private static final String SSL_TLS_V1_PROTOCOL = "TLSv1";
     private static final String SSL_TLS_V1_1_PROTOCOL = "TLSv1.1";
     private static final String SSL_TLS_V1_2_PROTOCOL = "TLSv1.2";
-    private static final String[] SUPPORTED_TLS =  {SSL_V3_PROTOCOL, SSL_TLS_V1_PROTOCOL, SSL_TLS_V1_1_PROTOCOL, SSL_TLS_V1_2_PROTOCOL};
+    private static final String SSL_TLS_V1_3_PROTOCOL = "TLSv1.3";
+    private static final String[] SUPPORTED_TLS =  {SSL_V3_PROTOCOL, SSL_TLS_V1_PROTOCOL, SSL_TLS_V1_1_PROTOCOL, SSL_TLS_V1_2_PROTOCOL, SSL_TLS_V1_3_PROTOCOL};
+    private static final String[] SUPPORTED_TLS_Q =  {SSL_V3_PROTOCOL, SSL_TLS_V1_PROTOCOL, SSL_TLS_V1_1_PROTOCOL, SSL_TLS_V1_2_PROTOCOL, SSL_TLS_V1_3_PROTOCOL};
 
     TLSSocketFactory(SSLSocketFactory sslSocketFactory) {
         this.sslSocketFactory = sslSocketFactory;
@@ -68,8 +72,14 @@ class TLSSocketFactory extends SSLSocketFactory {
     }
 
     private Socket enableTLS(Socket socket) {
-        if (socket != null && (socket instanceof SSLSocket)) {
-            ((SSLSocket) socket).setEnabledProtocols(SUPPORTED_TLS);
+        if ((socket instanceof SSLSocket)) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                ((SSLSocket) socket).setEnabledProtocols(SUPPORTED_TLS);
+            }
+            else
+            {
+                ((SSLSocket) socket).setEnabledProtocols(SUPPORTED_TLS_Q);
+            }
         }
         return socket;
     }

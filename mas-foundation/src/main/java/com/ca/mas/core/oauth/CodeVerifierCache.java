@@ -8,17 +8,19 @@
 
 package com.ca.mas.core.oauth;
 
+import com.ca.mas.core.storage.sharedstorage.SharedPreferencesUtil;
+
 /**
- * Temporary cache to store code verifier
+ *  Shared preference implementation to store code verifier
  */
 public class CodeVerifierCache {
 
     private static CodeVerifierCache instance = new CodeVerifierCache();
-
-    private String state;
-    private String codeVerifier;
+    private SharedPreferencesUtil prefUtil = null;
+    private static final String DEFAULT_STATE = "##default-state##";
 
     private CodeVerifierCache() {
+        prefUtil = new SharedPreferencesUtil("codeverifier");
     }
 
     public static CodeVerifierCache getInstance() {
@@ -26,28 +28,31 @@ public class CodeVerifierCache {
     }
 
     public void store(String state, String codeVerifier) {
-        this.state = state;
-        this.codeVerifier = codeVerifier;
-    }
-
-    public String take(String state) {
-        if (this.state == null && state != null
-                || this.state != null && !this.state.equals(state)) {
-            throw new IllegalStateException("OAuth State Mismatch");
+        prefUtil.save(DEFAULT_STATE, codeVerifier);
+        if (state != null) {
+            prefUtil.save(state, codeVerifier);
         }
-        String cv = this.codeVerifier;
-        this.state = null;
-        this.codeVerifier = null;
-        return cv;
     }
 
     //Workaround for pre MAG 3.3, Defect reference DE256594
     public String take() {
-        String cv = this.codeVerifier;
-        this.state = null;
-        this.codeVerifier = null;
+        String cv = prefUtil.getString(DEFAULT_STATE);
+        if (cv == null) {
+            throw new IllegalStateException("OAuth State Mismatch");
+        }
+        prefUtil.delete(DEFAULT_STATE);
         return cv;
     }
 
-
+    public String take(String state) {
+        if (state == null) {
+            return take();
+        }
+        String cv = prefUtil.getString(state);
+        if (cv == null) {
+            throw new IllegalStateException("OAuth State Mismatch");
+        }
+        prefUtil.delete(state);
+        return cv;
+    }
 }

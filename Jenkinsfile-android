@@ -19,20 +19,22 @@ pipeline {
         stage("Checkout") {
             steps {  
                 echo "Checking out to appropriate branch ..."
-                sh 'ls'
-                sh 'git branch -r'
-                checkout([
-                    $class: 'GitSCM', 
-                    branches: [[name: '*/testJenkins']],
-                    extensions: [[$class: 'RelativeTargetDirectory',
-                       relativeTargetDir: 'MASUnit']],
-                    userRemoteConfigs: [[credentialsId:'GITHUB_CAAPIM_TOKEN',url: 'https://github.com/CAAPIM/Android-MAS-Unit.git']]
+                scripts {
+                    sh 'ls'
+                    sh 'git branch -r'
+                    checkout([
+                        $class: 'GitSCM', 
+                        branches: [[name: '*/testJenkins']],
+                        extensions: [[$class: 'RelativeTargetDirectory',
+                            relativeTargetDir: 'MASUnit']],
+                        userRemoteConfigs: [[credentialsId:'GITHUB_CAAPIM_TOKEN',url: 'https://github.com/CAAPIM/Android-MAS-Unit.git']]
                      ])
-                sh 'ls'
-                sh 'git branch -a'
-                sh 'cd MASUnit;ls'
-                sh 'cd MASUnit;git branch -a'
+                    sh 'ls'
+                    sh 'git branch -a'
+                    sh 'cd MASUnit;ls'
+                    sh 'cd MASUnit;git branch -a'
                 
+                }
             }
         }
     }

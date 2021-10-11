@@ -28,6 +28,10 @@ pipeline {
                       [$class: 'RelativeTargetDirectory', relativeTargetDir: MASUnit]],
                     userRemoteConfigs: [[credentialsId:'GITHUB_CAAPIM_TOKEN',url: 'https://github.com/CAAPIM/Android-MAS-Unit.git']]
                      ])
+                sh 'ls'
+                sh 'pwd'
+                sh 'git branch -r'
+                sh 'cd MASUnit;git branch -r'
                 
             }
         }

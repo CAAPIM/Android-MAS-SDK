@@ -20,7 +20,13 @@ pipeline {
             steps {  
                 echo "Checking out to appropriate branch ..."
                 script {
-                    sh 'git checkout develop'
+                    checkout([
+                        $class: 'GitSCM', 
+                        branches: [[name: '*/develop']],
+                        extensions: [[$class: 'RelativeTargetDirectory',
+                            relativeTargetDir: 'MASUnit']],
+                        userRemoteConfigs: [[credentialsId:'GITHUB_CAAPIM_TOKEN',url: 'https://github.com/CAAPIM/Android-MAS-SDK.git']]
+                     ])
                     sh 'ls'
                     sh 'git branch -a'
                     checkout([

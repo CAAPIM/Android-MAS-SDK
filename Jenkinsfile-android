@@ -22,7 +22,7 @@ pipeline {
                 script {
                     sh 'git branch'
                     sh 'ls'
-                    sh 'cd MASUnit; git checkout US339662-MAG_refactoring'
+                    sh 'cd MASUnit; git checkout msso_changes'
                 } 
             }
         }

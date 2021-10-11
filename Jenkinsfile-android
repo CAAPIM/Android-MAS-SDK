@@ -24,8 +24,6 @@ pipeline {
                 checkout([
                     $class: 'GitSCM', 
                     branches: [[name: '*/develop']],
-                    extensions: [
-                      [$class: 'RelativeTargetDirectory', relativeTargetDir: MASUnit]],
                     userRemoteConfigs: [[credentialsId:'GITHUB_CAAPIM_TOKEN',url: 'https://github.com/CAAPIM/Android-MAS-Unit.git']]
                      ])
                 sh 'ls'

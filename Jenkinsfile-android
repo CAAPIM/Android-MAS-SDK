@@ -20,9 +20,9 @@ pipeline {
             steps {  
                 echo "Checking out to appropriate branch ..."
                 script {
-                    sh 'git branch'
                     sh 'ls'
                     sh 'cd MASUnit; git branch -r'
+                    sh "cd MASUnit; git branch: 'msso_changes', credentialsId: 'GITHUB_CAAPIM_TOKEN', url: 'https://github.com/CAAPIM/Android-MAS-Unit.git'"
                 } 
             }
         }

@@ -22,7 +22,7 @@ pipeline {
                 script {
                     sh 'git branch'
                     sh 'ls'
-                    sh 'cd MASUnit; git clone  --single-branch --branch develop git@github.com:CAAPIM/Android-MAS-Unit.git'
+                    sh 'cd MASUnit; git checkout US339662-MAG_refactoring'
                 } 
             }
         }

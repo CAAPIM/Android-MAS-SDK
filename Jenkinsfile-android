@@ -19,7 +19,7 @@ pipeline {
         stage("Checkout") {
             steps {  
                 echo "Checking out to appropriate branch ..."
-                scripts {
+                script {
                     sh 'ls'
                     sh 'git branch -r'
                     checkout([

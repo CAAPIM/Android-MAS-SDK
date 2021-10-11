@@ -23,15 +23,15 @@ pipeline {
                 sh 'git branch -r'
                 checkout([
                     $class: 'GitSCM', 
-                    branches: [[name: '*/develop']],
+                    branches: [[name: '*/testJenkins']],
                     extensions: [[$class: 'RelativeTargetDirectory',
                        relativeTargetDir: 'MASUnit']],
                     userRemoteConfigs: [[credentialsId:'GITHUB_CAAPIM_TOKEN',url: 'https://github.com/CAAPIM/Android-MAS-Unit.git']]
                      ])
                 sh 'ls'
-                sh 'git branch'
+                sh 'git branch -a'
                 sh 'cd MASUnit;ls'
-                sh 'cd MASUnit;git branch'
+                sh 'cd MASUnit;git branch -a'
                 
             }
         }

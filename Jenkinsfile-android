@@ -25,6 +25,7 @@ pipeline {
                     $class: 'GitSCM', 
                     branches: [[name: '*/develop']], 
                     userRemoteConfigs: [[url: 'https://github.com/CAAPIM/Android-MAS-Unit.git']]
+                     ])
                 
             }
         }

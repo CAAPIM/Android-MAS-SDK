@@ -20,6 +20,8 @@ pipeline {
             steps {  
                 echo "Checking out to appropriate branch ..."
                 script {
+                    echo '${GIT_BRANCH}'
+                    sh 'git checkout ${GIT_BRANCH}'
                     checkout([
                         $class: 'GitSCM', 
                         branches: [[name: '*/develop']],

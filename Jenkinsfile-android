@@ -22,7 +22,7 @@ pipeline {
                 script {
                     sh 'ls'
                     sh 'cd MASUnit; git branch -r'
-                    sh "cd MASUnit; git branch: 'msso_changes', credentialsId: 'GITHUB_CAAPIM_TOKEN', url: 'https://github.com/CAAPIM/Android-MAS-Unit.git'"
+                    sh "cd MASUnit; git clone branch: 'msso_changes', credentialsId: 'GITHUB_CAAPIM_TOKEN', url: 'https://github.com/CAAPIM/Android-MAS-Unit.git'"
                 } 
             }
         }

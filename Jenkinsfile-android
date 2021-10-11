@@ -1,0 +1,37 @@
+@Library('apim-jenkins-lib@master') _
+
+pipeline {
+    agent { label 'ng2AgentStable' }
+    environment { 
+        ARTIFACTORY_CREDS = credentials('ARTIFACTORY_USERNAME_PASSWORD')
+        ARTIFACTORY_USER = "$ARTIFACTORY_CREDS_USR"
+        ARTIFACTORY_PASSWORD = "$ARTIFACTORY_CREDS_PSW"    
+
+    }
+    parameters {
+        string(name: 'VAR_Branch_Name', defaultValue: 'develop', description: 'Android-MAS-SDK Git repo branch name')
+        string(name: 'VAR_MASUNIT_Branch_Name', defaultValue: 'develop', description: 'Android-MAS-Unit Git repo branch name')
+        string(name: 'VAR_Emulator_Device_Name', defaultValue: 'device-api29', description: 'Emulator Device Name')
+        string(name: 'VAR_ADB', defaultValue: '/Users/qa/Library/Android/sdk/platform-tools/adb', description: 'adb path')
+       
+    }
+    stages {
+        stage("Checkout") {
+            steps {  
+                echo "Checking out to appropriate branch ..."
+                script {
+                    sh 'git branch'
+                    sh 'ls'
+                    sh 'git checkout ${VAR_Branch_Name}'
+                    sh 'cd MASUnit; 
+                } 
+            }
+        }
+    }
+
+    post {
+    always {
+      echo "end"
+    }
+  }
+}

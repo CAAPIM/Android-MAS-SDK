@@ -20,8 +20,9 @@ pipeline {
             steps {  
                 echo "Checking out to appropriate branch ..."
                 script {
+                    sh 'git checkout develop'
                     sh 'ls'
-                    sh 'git branch -r'
+                    sh 'git branch -a'
                     checkout([
                         $class: 'GitSCM', 
                         branches: [[name: '*/testJenkins']],

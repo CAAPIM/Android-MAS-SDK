@@ -22,8 +22,8 @@ pipeline {
                 script {
                     sh 'git branch'
                     sh 'ls'
-                    sh 'git checkout ${VAR_Branch_Name}'
-                    sh 'cd MASUnit; 
+                    #sh 'git checkout ${VAR_Branch_Name}'
+                    #sh 'cd MASUnit; 
                 } 
             }
         }

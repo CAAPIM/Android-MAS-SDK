@@ -22,7 +22,7 @@ pipeline {
                 echo "Checking out to appropriate branch ..."
                 script {
                     echo "${env.BRANCH_NAME}"
-                    sh 'git checkout ${env.BRANCH_NAME}'
+                    sh 'git checkout ${BRANCH_NAME}'
                     sh 'git branch -r'
                     checkout([
                         $class: 'GitSCM', 

@@ -6,8 +6,6 @@ pipeline {
         ARTIFACTORY_CREDS = credentials('ARTIFACTORY_USERNAME_PASSWORD')
         ARTIFACTORY_USER = "$ARTIFACTORY_CREDS_USR"
         ARTIFACTORY_PASSWORD = "$ARTIFACTORY_CREDS_PSW"  
-        GIT_BRANCH= "${params.VAR_Branch_Name}"
-
     }
     parameters {
         string(name: 'VAR_Branch_Name', defaultValue: 'develop', description: 'Android-MAS-SDK Git repo branch name')
@@ -23,7 +21,7 @@ pipeline {
                 script {
                     checkout([
                         $class: 'GitSCM', 
-                        branches: [[name: '*/${GIT_BRANCH}']],
+                        branches: [[name: '*/${VAR_Branch_Name}']],
                         userRemoteConfigs: [[credentialsId:'GITHUB_CAAPIM_TOKEN',url: 'https://github.com/CAAPIM/Android-MAS-SDK.git']]
                      ])
                     sh 'ls'

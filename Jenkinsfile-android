@@ -5,7 +5,8 @@ pipeline {
     environment { 
         ARTIFACTORY_CREDS = credentials('ARTIFACTORY_USERNAME_PASSWORD')
         ARTIFACTORY_USER = "$ARTIFACTORY_CREDS_USR"
-        ARTIFACTORY_PASSWORD = "$ARTIFACTORY_CREDS_PSW"    
+        ARTIFACTORY_PASSWORD = "$ARTIFACTORY_CREDS_PSW"  
+        BRANCH_NAME= 'develop'
 
     }
     parameters {
@@ -20,9 +21,8 @@ pipeline {
             steps {  
                 echo "Checking out to appropriate branch ..."
                 script {
-                    ${env.GIT_BRANCH}=${VAR_Branch_Name}
-                    echo '${GIT_BRANCH}'
-                    sh 'git checkout ${env.GIT_BRANCH}'
+                    echo "${env.BRANCH_NAME}"
+                    sh 'git checkout ${env.BRANCH_NAME}'
                     sh 'git branch -r'
                     checkout([
                         $class: 'GitSCM', 

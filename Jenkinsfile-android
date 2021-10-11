@@ -23,7 +23,7 @@ pipeline {
                 script {
                     checkout([
                         $class: 'GitSCM', 
-                        branches: [[name: '*/${params.VAR_Branch_Name}']],
+                        branches: [[name: '*/${GIT_BRANCH}']],
                         userRemoteConfigs: [[credentialsId:'GITHUB_CAAPIM_TOKEN',url: 'https://github.com/CAAPIM/Android-MAS-SDK.git']]
                      ])
                     sh 'ls'

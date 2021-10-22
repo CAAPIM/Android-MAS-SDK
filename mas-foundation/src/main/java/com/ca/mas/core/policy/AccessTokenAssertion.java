@@ -256,15 +256,15 @@ class AccessTokenAssertion implements MssoAssertion {
 
         } catch (OAuthServerException tse) {
 
+            rethrowOrIgnore(tse);
 
-            if(tse.getStatus() == 500 && mssoContext.getIdToken() != null)
+            if(!mssoContext.getSkipObtainAccessTokenUsingIdToken() && tse.getStatus() == 500 && mssoContext.getIdToken() != null)
             {
                 String deviceIdentifier = mssoContext.getTokenManager().getMagIdentifier();
                 if (JWTValidation.validateIdToken(mssoContext,mssoContext.getIdToken(), deviceIdentifier, clientId, clientSecret)) {
                     throwInternalServerException(tse);
                 }
             }
-            rethrowOrIgnore(tse);
 
             if(tse.getResponse()!= null){
                 //The access token and refresh token are no longer valid.

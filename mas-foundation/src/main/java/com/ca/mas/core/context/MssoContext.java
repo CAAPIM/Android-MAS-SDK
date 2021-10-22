@@ -81,6 +81,8 @@ public class MssoContext {
 
     private String deviceName;
 
+    private boolean skipIdtokenValidation;
+
     private volatile MAGHttpClient magHttpClient;
 
     private volatile MASAuthCredentials credentials;
@@ -602,6 +604,14 @@ public class MssoContext {
 
     public boolean isClientCredentialExpired(Long clientExpiration) {
         return clientExpiration != 0 && clientExpiration < new Date().getTime() / 1000;
+    }
+
+    public void setSkipObtainAccessTokenUsingIdToken(boolean skipToken) {
+        this.skipIdtokenValidation = skipToken;
+    }
+
+    public boolean getSkipObtainAccessTokenUsingIdToken(){
+        return skipIdtokenValidation;
     }
 
 }

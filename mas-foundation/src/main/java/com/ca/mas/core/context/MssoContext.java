@@ -81,7 +81,7 @@ public class MssoContext {
 
     private String deviceName;
 
-    private boolean skipIdtokenValidation;
+    private boolean skipTokenRenewal;
 
     private volatile MAGHttpClient magHttpClient;
 
@@ -606,12 +606,12 @@ public class MssoContext {
         return clientExpiration != 0 && clientExpiration < new Date().getTime() / 1000;
     }
 
-    public void setSkipObtainAccessTokenUsingIdToken(boolean skipToken) {
-        this.skipIdtokenValidation = skipToken;
+    public void setFailTokenRenewalOnServerErrors(boolean skipToken) {
+        this.skipTokenRenewal = skipToken;
     }
 
-    public boolean getSkipObtainAccessTokenUsingIdToken(){
-        return skipIdtokenValidation;
+    public boolean getFailTokenRenewalOnServerErrors(){
+        return skipTokenRenewal;
     }
 
 }

@@ -258,8 +258,7 @@ class AccessTokenAssertion implements MssoAssertion {
 
             rethrowOrIgnore(tse);
 
-            if(!mssoContext.getSkipObtainAccessTokenUsingIdToken() && tse.getStatus() == 500 && mssoContext.getIdToken() != null)
-            {
+            if(mssoContext.getFailTokenRenewalOnServerErrors() && tse.getStatus() == 500 && mssoContext.getIdToken() != null) {
                 String deviceIdentifier = mssoContext.getTokenManager().getMagIdentifier();
                 if (JWTValidation.validateIdToken(mssoContext,mssoContext.getIdToken(), deviceIdentifier, clientId, clientSecret)) {
                     throwInternalServerException(tse);

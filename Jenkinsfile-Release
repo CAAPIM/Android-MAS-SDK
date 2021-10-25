@@ -1,0 +1,62 @@
+@Library('apim-jenkins-lib@master') _
+
+pipeline {
+    agent { label 'ng2AgentStable' }
+    parameters {
+            string(name: 'sdk_version', defaultValue: '2.1.00', description: 'Android SDK Version')
+    }
+    environment {
+        ANDROID_HOME ='/Users/qa/Library/Android/sdk'
+        BUILD_PATH = '/Users/qa/Documents/iOSRepos/buildScript'
+        BUILD_HOST = 'localhost'
+        BUILD_USER = 'qa'
+        BUILD_PASSWORD = '7layer'
+        MODULE = 'all'
+        ZIP_NAME = 'MobileSDK'
+        JAVA_HOME = '/usr/java/jdk1.8.0_275'
+    }
+    stages {
+        stage('Clean Filer3 Folder and the local folder') {
+            steps {
+                script {
+                    sh '''#!/bin/bash
+                        #Delete and Re-create local SDK folder
+                        rm -rf $ZIP_NAME
+                        sudo mkdir $ZIP_NAME
+
+                        #Clear MobileSDK-Hotfix-Binaries folder on filer3
+                        chmod 777 ../../../../../../Volumes/wip/mag/MobileSDK-Hotfix-Binaries/
+                        cd ../../../../../../Volumes/wip/mag/MobileSDK-Hotfix-Binaries/
+                        [ -d $BUILD_BRANCH ] && echo "Directory Exists" || mkdir $BUILD_BRANCH
+                        chmod 777 $BUILD_BRANCH
+                        cd $BUILD_BRANCH/
+                        rm -rf *
+                    '''
+                }
+            }
+        }
+        stage('Build Android SDK - Gradle and copy to MobileSDK folder') {
+            steps {
+                script {
+                    sh '''#!/bin/bash
+                        cat /dev/null > settings.gradle
+                        printf "include ':mas', ':masui', ':mas-connecta', ':mas-storage',  ':mas-foundation', ':mas-test'" > settings.gradle
+                        ./gradlew build
+
+                        # Copy binaries to local folder MobileSDK
+                        cp mas-foundation/build/outputs/aar/mas-foundation-release.aar ../../$ZIP_NAME/mas-foundation-${params.sdk_version}-$BUILD_NUMBER.aar
+                        cp mas-connecta/build/outputs/aar/mas-connecta-release.aar ../../$ZIP_NAME/mas-connecta-${params.sdk_version}-$BUILD_NUMBER.aar
+                        cp mas-storage/build/outputs/aar/mas-storage-release.aar ../../$ZIP_NAME/mas-storage-${params.sdk_version}-$BUILD_NUMBER.aar
+                        cp masui/build/outputs/aar/masui-release.aar ../../$ZIP_NAME/masui-${params.sdk_version}-$BUILD_NUMBER.aar
+
+                        # Zip and Copy javadoc to folder MobileSDK
+                        cd docs
+                        zip -r mas_foundation_javadoc.zip mas_foundation_javadoc/
+                        zip -r mas_storage_javadoc.zip mas_storage_javadoc/
+                        zip -r mas_connecta_javadoc.zip mas_connecta_javadoc/
+
+                        sudo cp *.zip ../../../$ZIP_NAME/
+                    '''
+        }
+    }
+}

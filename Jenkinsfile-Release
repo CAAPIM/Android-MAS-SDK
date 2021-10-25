@@ -39,7 +39,9 @@ pipeline {
             steps {
                 script {
                     sh '''#!/bin/bash
+                        pwd
                         cd $WORKSPACE
+                        pwd
                         zip_name=$ZIP_NAME
                         build_number=$BUILD_NUMBER
                         cat /dev/null > settings.gradle

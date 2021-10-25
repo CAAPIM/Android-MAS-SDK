@@ -12,7 +12,11 @@ pipeline {
         string(name: 'MASUnit_Branch_Name', defaultValue: 'develop', description: 'Android-MAS-Unit Git repo branch name')
         string(name: 'Emulator_Device_Name', defaultValue: 'device-api29', description: 'Emulator Device Name')
         string(name: 'ADB', defaultValue: '/Users/qa/Library/Android/sdk/platform-tools/adb', description: 'adb path')
-       
+        string(name: 'Android_Home', defaultValue: '/Users/qa/Library/Android/sdk', description: 'Android Home Path')
+        string(name: 'New_Test_Rail_Report', defaultValue: 'true', description: 'New Test Rail Report Status')
+        string(name: 'Foundation', defaultValue: 'true', description: 'MAS Foundation')
+        string(name: 'Storage', defaultValue: 'true', description: 'MAS Storage')
+        string(name: 'Messaging', defaultValue: 'true', description: 'MAS Messaging')
     }
     stages {
         stage("Checkout") {
@@ -22,6 +26,8 @@ pipeline {
                     checkout([
                         $class: 'GitSCM', 
                         branches: [[name: '*/${SDK_Branch_Name}']],
+                        extensions: [[$class: 'RelativeTargetDirectory',
+                            relativeTargetDir: 'MASSDK']],
                         userRemoteConfigs: [[credentialsId:'GITHUB_CAAPIM_TOKEN',url: 'https://github.com/CAAPIM/Android-MAS-SDK.git']]
                      ])
                     echo "Checking out MASUnit Branch ..."
@@ -32,9 +38,176 @@ pipeline {
                             relativeTargetDir: 'MASUnit']],
                         userRemoteConfigs: [[credentialsId:'GITHUB_CAAPIM_TOKEN',url: 'https://github.com/CAAPIM/Android-MAS-Unit.git']]
                      ])
-                    
                 
                 }
+            echo "Copy configs and build gradle ..." 
+            script {
+            sh 'echo "pwd=$(pwd)"'
+            sh '"ls -l=$(ls -l)"'
+            sh 'echo "emulatore name ${Emulator_Device_Name}"
+            sh 'cd ${Android_Home}/emulator;emulator -no-snapshot -avd ${Emulator_Device_Name} & echo -ne '\n''
+            sh './gradlew assembleAndroidTest build'
+            sh '${ADB} shell input keyevent 82'
+            sh '${ADB} shell input text 1111'
+            sh '${ADB} shell input keyevent 66'
+            }
+            script {
+            //Check new report
+            //Give emulator a safety margin to start
+            //Input password giving emulator enough time to respond
+            echo "Launching emulator ${ADB}" 
+            sleep 180
+            sh' ${ADB} shell input keyevent 82'
+            sleep 5
+            sh '${ADB} shell input text 1'
+            sleep 5
+            sh '${ADB} shell input text 1'
+            sleep 5
+            sh '${ADB} shell input text 1'
+            sleep 5
+            sh '${ADB} shell input text 1'
+            sleep 5
+            sh '${ADB} shell input keyevent 66'
+            if (${New_Test_Rail_Report}=='true') {
+            echo "Uninstall MASUnit App"
+            sh '${ADB} uninstall com.ca.mas.masunit'
+            }
+
+
+            //Install MASUnit-debug.apk
+            if (! -f MASUnit/build/outputs/apk/debug/MASUnit-debug.apk) {
+            echo "MASUnit-debug.apk not found"
+            exit 1
+            }       
+
+            sh '${ADB} push MASUnit/build/outputs/apk/debug/MASUnit-debug.apk /data/local/tmp/com.ca.mas.masunit'
+            if ( ! $? -eq 0 ) {
+            echo "Failed to push MASUnit-debug.apk to device"
+            exit 1
+            }
+            sh '${ADB} shell pm install -r "/data/local/tmp/com.ca.mas.masunit"'
+            if ( ! $? -eq 0 ) {
+            echo "Failed to intall MASUnit-debug.apk to device"
+            exit 1
+            }
+
+            //Install MASUnit-debug-androidTest.apk
+
+            if ( ! -f MASUnit/build/outputs/apk/androidTest/debug/MASUnit-debug-androidTest.apk ) {
+            echo "MASUnit-debug-androidTest.apk not found"
+             exit 1
+            }
+
+            sh '${ADB} push MASUnit/build/outputs/apk/androidTest/debug/MASUnit-debug-androidTest.apk  /data/local/tmp/com.ca.mas.masunit.test'
+            if ( ! $? -eq 0 ) {
+            echo "Failed to push MASUnit-debug-androidTest.apk to device"
+            exit 1
+            }
+            sh '${ADB} shell pm install -r "/data/local/tmp/com.ca.mas.masunit.test"'
+            if ( ! $? -eq 0 ) {
+            echo "Failed to intall MASUnit-debug-androidTest.apk to device"
+            exit 1
+            }  
+
+
+           //Running foundation tests
+            echo "Running tests..."
+
+           if (${Foundation}=='true') {
+           sh '${ADB} shell am instrument -w -r -e debug false -e class com.ca.mas.masunit2.test.foundation.MASUnitFoundationTestSuite com.ca.mas.masunit.test/androidx.test.runner.AndroidJUnitRunner'
+           }
+
+          if (${Storage}=='true') {
+          sh '${ADB} shell am instrument -w -r -e debug false -e class com.ca.mas.masunit2.test.storage.MASUnitStorageTestSuite com.ca.mas.masunit.test/androidx.test.runner.AndroidJUnitRunner'
+          }
+
+         if (${Messaging}=='true') {
+         sh '${ADB} shell am instrument -w -r -e debug false -e class com.ca.mas.masunit2.test.connecta.MASUnitMessagingTestSuite com.ca.mas.masunit.test/androidx.test.runner.AndroidJUnitRunner'
+         }
+            
+        }
+        
+       script{
+       echo "Running tests on Android....."
+        //Check new report
+
+        // Give emulator a safety margin to start
+        //Input password giving emulator enough time to respond
+        sh 'echo "Launching emulator ${ADB}" '
+        sleep 180
+        sh '${ADB} shell input keyevent 82'
+        sleep 5
+        sh '${ADB} shell input text 1'
+        sleep 5
+        sh '${ADB} shell input text 1'
+        sleep 5
+        sh '${ADB} shell input text 1'
+        sleep 5
+        sh '${ADB} shell input text 1'
+        sleep 5
+        sh '${ADB} shell input keyevent 66'
+        if (${New_Test_Rail_Report}=='true') {
+            echo "Uninstall MASUnit App"
+            sh '${ADB} uninstall com.ca.mas.masunit'
+        }
+
+
+        // Install MASUnit-debug.apk
+        if (! -f MASUnit/build/outputs/apk/debug/MASUnit-debug.apk ) {
+        echo "MASUnit-debug.apk not found"
+        exit 1
+        }
+
+        sh '${ADB} push MASUnit/build/outputs/apk/debug/MASUnit-debug.apk /data/local/tmp/com.ca.mas.masunit'
+        if ( ! $? -eq 0 ) {
+           echo "Failed to push MASUnit-debug.apk to device"
+           exit 1
+        }
+        sh '${ADB} shell pm install -r "/data/local/tmp/com.ca.mas.masunit"'
+        if ( ! $? -eq 0 ) {
+            echo "Failed to intall MASUnit-debug.apk to device"
+             exit 1
+        }
+
+        //Install MASUnit-debug-androidTest.apk
+
+        if ( ! -f MASUnit/build/outputs/apk/androidTest/debug/MASUnit-debug-androidTest.apk ) {
+            echo "MASUnit-debug-androidTest.apk not found"
+            exit 1
+        }
+
+        sh '${ADB} push MASUnit/build/outputs/apk/androidTest/debug/MASUnit-debug-androidTest.apk  /data/local/tmp/com.ca.mas.masunit.test'
+        if ( ! $? -eq 0 ) {
+            echo "Failed to push MASUnit-debug-androidTest.apk to device"
+            exit 1
+        }
+        sh '${ADB} shell pm install -r "/data/local/tmp/com.ca.mas.masunit.test"'
+        if ( ! $? -eq 0 ) {
+            echo "Failed to intall MASUnit-debug-androidTest.apk to device"
+            exit 1
+        }
+
+
+        //Running foundation tests
+        echo "Running tests..."
+
+        if (${Foundation}=='true') {
+           sh '${ADB} shell am instrument -w -r -e debug false -e class com.ca.mas.masunit2.test.foundation.MASUnitFoundationTestSuite com.ca.mas.masunit.test/androidx.test.runner.AndroidJUnitRunner'
+        }
+
+        if (${Storage}=='true') {
+        sh '${ADB} shell am instrument -w -r -e debug false -e class com.ca.mas.masunit2.test.storage.MASUnitStorageTestSuite com.ca.mas.masunit.test/androidx.test.runner.AndroidJUnitRunner'
+        }
+
+        if (${Messaging}=='true') {
+         sh '${ADB} shell am instrument -w -r -e debug false -e class com.ca.mas.masunit2.test.connecta.MASUnitMessagingTestSuite com.ca.mas.masunit.test/androidx.test.runner.AndroidJUnitRunner'
+        }
+        }
+            
+        script {
+        echo "close emulator ...."
+        sh 'cd ${Android_Home}/platform-tools/adb; emu kill'
+        }
             }
         }
     }

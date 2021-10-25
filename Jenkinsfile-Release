@@ -38,7 +38,6 @@ pipeline {
         stage('Build Android SDK - Gradle and copy to MobileSDK folder') {
             steps {
                 script {
-                    echo ${params.sdk_version}
                     sh '''#!/bin/bash
                         cd $WORK_SPACE
                         zip_name=$ZIP_NAME

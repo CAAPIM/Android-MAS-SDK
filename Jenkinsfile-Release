@@ -21,6 +21,7 @@ pipeline {
                 script {
                     sh '''#!/bin/bash
                         #Delete and Re-create local SDK folder
+                        ls -ll
                         rm -rf $ZIP_NAME
                         sudo mkdir $ZIP_NAME
 

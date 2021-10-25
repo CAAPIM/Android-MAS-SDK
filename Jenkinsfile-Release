@@ -56,7 +56,8 @@ pipeline {
                         zip -r mas_connecta_javadoc.zip mas_connecta_javadoc/
 
                         sudo cp *.zip ../../../$ZIP_NAME/
-                }       '''
+                    '''
+                }
             }
         }
     }

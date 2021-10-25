@@ -39,13 +39,9 @@ pipeline {
             steps {
                 script {
                     sh '''#!/bin/bash
-                        cd $WORK_SPACE
-                        echo ${WORK_SPACE}
+                        cd $WORKSPACE
                         zip_name=$ZIP_NAME
-                        echo ${zip_name}
                         build_number=$BUILD_NUMBER
-                        echo ${build_number}
-                        echo ${sdk_version}
                         cat /dev/null > settings.gradle
                         printf "include ':mas', ':masui', ':mas-connecta', ':mas-storage',  ':mas-foundation', ':mas-test'" > settings.gradle
                         ./gradlew build

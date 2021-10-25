@@ -21,7 +21,6 @@ pipeline {
                 script {
                     sh '''#!/bin/bash
                         #Delete and Re-create local SDK folder
-                        ls -ll
                         rm -rf $ZIP_NAME
                         sudo mkdir $ZIP_NAME
 
@@ -30,8 +29,12 @@ pipeline {
                         cd ../../../../../../Volumes/wip/mag/MobileSDK-Hotfix-Binaries/
                         [ -d $BRANCH_NAME ] && echo "Directory Exists" || mkdir $BRANCH_NAME
                         chmod 777 $BRANCH_NAME
-                        cd $BRANCH_NAME/
-                        rm -rf *
+                        if [ -d $BRANCH_NAME ]
+                        then
+                           cd $BRANCH_NAME/
+                           rm -rf *
+                        fi
+
                     '''
                 }
             }
@@ -40,7 +43,6 @@ pipeline {
             steps {
                 script {
                     sh '''#!/bin/bash
-                        ls
                         zip_name=$ZIP_NAME
                         build_number=$BUILD_NUMBER
                         cat /dev/null > settings.gradle

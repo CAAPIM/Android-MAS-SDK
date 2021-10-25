@@ -39,15 +39,19 @@ pipeline {
             steps {
                 script {
                     sh '''#!/bin/bash
+                        cd $WORK_SPACE
+                        zip_name=$ZIP_NAME
+                        build_number=$BUILD_NUMBER
+                        sdk_version=${params.sdk_version}
                         cat /dev/null > settings.gradle
                         printf "include ':mas', ':masui', ':mas-connecta', ':mas-storage',  ':mas-foundation', ':mas-test'" > settings.gradle
                         ./gradlew build
 
                         # Copy binaries to local folder MobileSDK
-                        cp mas-foundation/build/outputs/aar/mas-foundation-release.aar ../../${ZIP_NAME}/mas-foundation-${params.sdk_version}-${BUILD_NUMBER}.aar
-                        cp mas-connecta/build/outputs/aar/mas-connecta-release.aar ../../${ZIP_NAME}/mas-connecta-${params.sdk_version}-${BUILD_NUMBER}.aar
-                        cp mas-storage/build/outputs/aar/mas-storage-release.aar ../../${ZIP_NAME}/mas-storage-${params.sdk_version}-${BUILD_NUMBER}.aar
-                        cp masui/build/outputs/aar/masui-release.aar ../../${ZIP_NAME}/masui-${params.sdk_version}-${BUILD_NUMBER}.aar
+                        cp mas-foundation/build/outputs/aar/mas-foundation-release.aar ../../${zip_name}/mas-foundation-${sdk_version}-${build_number}.aar
+                        cp mas-connecta/build/outputs/aar/mas-connecta-release.aar ../../${zip_name}/mas-connecta-${sdk_version}-${build_number}.aar
+                        cp mas-storage/build/outputs/aar/mas-storage-release.aar ../../${zip_name}/mas-storage-${sdk_version}-${build_number}.aar
+                        cp masui/build/outputs/aar/masui-release.aar ../../${zip_name}/masui-${sdk_version}-${build_number}.aar
 
                         # Zip and Copy javadoc to folder MobileSDK
                         cd docs
@@ -55,7 +59,7 @@ pipeline {
                         zip -r mas_storage_javadoc.zip mas_storage_javadoc/
                         zip -r mas_connecta_javadoc.zip mas_connecta_javadoc/
 
-                        sudo cp *.zip ../../../${ZIP_NAME}/
+                        sudo cp *.zip ../../../${zip_name}/
                     '''
                 }
             }

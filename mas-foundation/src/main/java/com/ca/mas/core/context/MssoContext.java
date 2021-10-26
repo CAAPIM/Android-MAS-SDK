@@ -606,11 +606,11 @@ public class MssoContext {
         return clientExpiration != 0 && clientExpiration < new Date().getTime() / 1000;
     }
 
-    public void setFailTokenRenewalOnServerErrors(boolean skipToken) {
+    public void setDonotLogoutTokenRenewalOnServerError(boolean skipToken) {
         this.skipTokenRenewal = skipToken;
     }
 
-    public boolean getFailTokenRenewalOnServerErrors(){
+    public boolean getDonotLogoutTokenRenewalOnServerErrors(){
         return skipTokenRenewal;
     }
 

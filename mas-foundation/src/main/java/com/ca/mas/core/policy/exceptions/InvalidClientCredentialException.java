@@ -27,7 +27,7 @@ public class InvalidClientCredentialException extends RetryRequestException {
 
     @Override
     public void recover(MssoContext context) {
-        context.clearAccessToken();
+        context.clearAccessAndRefreshTokens();
         context.clearClientCredentials();
     }
 }

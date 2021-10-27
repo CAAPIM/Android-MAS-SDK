@@ -44,7 +44,7 @@ class SecureLockAssertion implements MssoAssertion {
             if (revokeRequest != null) {
                 MAS.invoke(OAuthClientUtil.getRevokeRequest(), null);
             }
-            mssoContext.clearAccessToken();
+            mssoContext.clearAccessAndRefreshTokens();
             throw new SecureLockException("The session is currently locked.");
         }
     }

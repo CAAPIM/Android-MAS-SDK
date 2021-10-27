@@ -21,6 +21,7 @@ import android.util.Log;
 
 import com.ca.mas.core.EventDispatcher;
 import com.ca.mas.core.MAGResultReceiver;
+import com.ca.mas.core.MobileSsoConfig;
 import com.ca.mas.core.MobileSsoFactory;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationManager;
@@ -557,6 +558,12 @@ public class MAS {
     }
 
     /**
+     * Enables the SSL Pinning.
+     */
+    public static void setSSLPinningEnabled(boolean enable) {
+        ConfigurationManager.getInstance().setSSLPinningEnabled(enable);
+    }
+    /**
      *  Value of the boolean indicator which indicate if the id_token validation is active or not.
      */
     public static boolean isIdTokenValidationEnabled(){
@@ -570,6 +577,15 @@ public class MAS {
      */
     public static boolean isPKCEEnabled() {
         return ConfigurationManager.getInstance().isPKCEEnabled();
+    }
+
+    /**
+     * Determines whether PKCE extension is enabled.
+     *
+     * @return true if ssl pinning is enabled, false otherwise
+     */
+    public static boolean isSSLPinningEnabled() {
+        return ConfigurationManager.getInstance().isSslPinningEnabled();
     }
 
     /**

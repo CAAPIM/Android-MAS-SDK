@@ -22,12 +22,12 @@ pipeline {
                 script {
                         withCredentials([usernamePassword(credentialsId: 'ARTIFACTORY_GW_APIKEY', passwordVariable: 'APIKEY', usernameVariable: 'USERNAME')]) {
 							//Delete and Re-create local SDK folder
-							sh "rm -rf %env.zip_name%"
-                            sh "sudo mkdir %env.zip_name%"
+							sh "rm -rf ${env.zip_name}"
+                            sh "sudo mkdir ${env.zip_name}"
 
                             //Clear MobileSDK-Release-Binaries folder on filer4
-                            sh "cd ../../../../../../Volumes/wip/mag/MobileSDK-Release-Binaries/Android/[ -d %sdk_version% ] && echo "Directory Exists" || mkdir %sdk_version%"
-                            sh "cd %sdk_version%/"
+                            sh "cd ../../../../../../Volumes/wip/mag/MobileSDK-Release-Binaries/Android/[ -d ${sdk_version} ] && echo "Directory Exists" || mkdir ${sdk_version}"
+                            sh "cd ${sdk_version}/"
                             sh "rm -rf *"
                     }
                 }
@@ -44,17 +44,17 @@ pipeline {
                             sh "printf \"include ':mas', ':masui', ':mas-connecta', ':mas-storage',  ':mas-foundation', ':mas-test'\" > settings.gradle"
                             sh "./gradlew build"
                             //# Copy binaries to local folder MobileSDK
-                            sh "cp mas-foundation/build/outputs/aar/mas-foundation-release.aar ../../%env.zip_name%/mas-foundation-%sdk_version%.aar"
-                            sh "cp mas-connecta/build/outputs/aar/mas-connecta-release.aar ../../%env.zip_name%/mas-connecta-%sdk_version%.aar"
-                            sh "cp mas-storage/build/outputs/aar/mas-storage-release.aar ../../%env.zip_name%/mas-storage-%sdk_version%.aar"
-                            sh "cp masui/build/outputs/aar/masui-release.aar ../../%env.zip_name%/masui-%sdk_version%.aar"
+                            sh "cp mas-foundation/build/outputs/aar/mas-foundation-release.aar ../../${env.zip_name}/mas-foundation-${sdk_version}.aar"
+                            sh "cp mas-connecta/build/outputs/aar/mas-connecta-release.aar ../../${env.zip_name}/mas-connecta-${sdk_version}.aar"
+                            sh "cp mas-storage/build/outputs/aar/mas-storage-release.aar ../../${env.zip_name}/mas-storage-${sdk_version}.aar"
+                            sh "cp masui/build/outputs/aar/masui-release.aar ../../${env.zip_name}/masui-${sdk_version}.aar"
                             //Zip and Copy javadoc to folder MobileSDK
                             sh "cd docs"
                             sh "zip -r mas_foundation_javadoc.zip mas_foundation_javadoc/"
                             sh "zip -r mas_storage_javadoc.zip mas_storage_javadoc/"
                             sh "zip -r mas_connecta_javadoc.zip mas_connecta_javadoc/"
 
-                            sh "sudo cp *.zip ../../../%env.zip_name%/"
+                            sh "sudo cp *.zip ../../../${env.zip_name}/"
 							
                     }
                 }
@@ -67,8 +67,8 @@ pipeline {
             steps {
                     dir("build/libs") {
                         script {
-                            //Copy all the SDK binaries to filer3
-                            sh "sudo cp -R %env.zip_name%/* ../../../../../../Volumes/wip/mag/MobileSDK-Release-Binaries/Android/%sdk_version%/"                       
+                            //Copy all the SDK binaries to filer4
+                            sh "sudo cp -R ${env.zip_name}/* ../../../../../../Volumes/wip/mag/MobileSDK-Release-Binaries/Android/${sdk_version}/"                       
                         }
                     }
                 archiveArtifacts 'build/libs/*.*'

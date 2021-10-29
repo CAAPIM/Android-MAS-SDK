@@ -33,11 +33,11 @@ pipeline {
                 }
             }
         }
-        stages {
+        stage {
         //Build Android SDK - Gradle and copy to MobileSDK folder
-        stage('Build Android SDK - Gradle') {
-            steps {
-                script {
+            stage('Build Android SDK - Gradle') {
+                steps {
+                    script {
                         withCredentials([usernamePassword(credentialsId: 'ARTIFACTORY_GW_APIKEY', passwordVariable: 'APIKEY', usernameVariable: 'USERNAME')]) {
                             sh "cd Android/Android-MAS-SDK"
                             sh "cat /dev/null > settings.gradle"
@@ -55,7 +55,7 @@ pipeline {
                             sh "zip -r mas_connecta_javadoc.zip mas_connecta_javadoc/"
 
                             sh "sudo cp *.zip ../../../${env.zip_name}/"
-							
+						}
                     }
                 }
             }
@@ -99,5 +99,4 @@ pipeline {
             }
         }
     }
-  }
 }

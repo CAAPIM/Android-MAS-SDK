@@ -40,7 +40,6 @@ pipeline {
                 script {
                         withCredentials([usernamePassword(credentialsId: 'ARTIFACTORY_GW_APIKEY', passwordVariable: 'APIKEY', usernameVariable: 'USERNAME')]) {
                             sh "cd Android/Android-MAS-SDK"
-                            sh "git branch"
                             sh "cat /dev/null > settings.gradle"
                             sh "printf \"include ':mas', ':masui', ':mas-connecta', ':mas-storage',  ':mas-foundation', ':mas-test'\" > settings.gradle"
                             sh "./gradlew build"

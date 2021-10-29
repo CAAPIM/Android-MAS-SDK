@@ -16,6 +16,7 @@ import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoContext;
+import com.ca.mas.core.token.JWTValidation;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
@@ -242,7 +243,7 @@ class AccessTokenAssertion implements MssoAssertion {
         return accessToken;
     }
 
-    private String obtainAccessTokenUsingRefreshToken(MssoContext mssoContext, String refreshToken) throws OAuthException, OAuthServerException {
+    private String obtainAccessTokenUsingRefreshToken(MssoContext mssoContext, String refreshToken) throws OAuthException, OAuthServerException, JWTValidationException {
         if (DEBUG) Log.d(TAG, "Obtain Access Token using Refresh Token");
         String clientId = mssoContext.getClientId();
         String clientSecret = mssoContext.getClientSecret();
@@ -256,6 +257,13 @@ class AccessTokenAssertion implements MssoAssertion {
         } catch (OAuthServerException tse) {
 
             rethrowOrIgnore(tse);
+
+            if(mssoContext.getDonotLogoutTokenRenewalOnServerErrors() && tse.getStatus() == 500 && mssoContext.getIdToken() != null) {
+                String deviceIdentifier = mssoContext.getTokenManager().getMagIdentifier();
+                if (JWTValidation.validateIdToken(mssoContext,mssoContext.getIdToken(), deviceIdentifier, clientId, clientSecret)) {
+                    throw tse;
+                }
+            }
 
             if(tse.getResponse()!= null){
                 //The access token and refresh token are no longer valid.
@@ -285,4 +293,5 @@ class AccessTokenAssertion implements MssoAssertion {
                 //Ignore the Exception
         }
     }
+
 }

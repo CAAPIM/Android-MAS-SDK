@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -31,7 +34,7 @@ import javax.net.ssl.X509TrustManager;
 /**
  * Trust manager that works with a {@link TrustedCertificateConfiguration}.
  */
-public class TrustedCertificateConfigurationTrustManager implements X509TrustManager {
+public class TrustedCertificateConfigurationTrustManager implements X509TrustManager, HostnameVerifier {
 
     private final Collection<X509TrustManager> publicPkiDelegates;
     private final Collection<X509TrustManager> privateTrustStoreDelegates;
@@ -161,5 +164,23 @@ public class TrustedCertificateConfigurationTrustManager implements X509TrustMan
     @Override
     public X509Certificate[] getAcceptedIssuers() {
         return new X509Certificate[0];
+    }
+
+    @Override
+    public boolean verify(String hostname, SSLSession session) {
+        if (config.isHostnameVerifierEnabled()) {
+            if (session.getPeerHost() != null && config.getHost().getHost().equals(session.getPeerHost())) {
+                return true;
+            } else {
+                try {
+                    throw new SSLPeerUnverifiedException("Cannot verify hostname: " + hostname);
+                } catch (SSLPeerUnverifiedException e) {
+                    e.printStackTrace();
+                }
+                return false;
+            }
+        } else {
+            return true;
+        }
     }
 }

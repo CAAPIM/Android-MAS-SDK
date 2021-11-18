@@ -36,11 +36,11 @@ For more information about our mobile products see the [developer website](http:
 Edit your build.gradle file and add below dependency:
 ```gradle
     dependencies {
-        implementation 'com.ca:mas-foundation:2.1.00'
+        implementation 'com.ca:mas-foundation:2.2.00'
 
-        implementation 'com.ca:mas-connecta:2.1.00' // (Optional) Only required when using mas connecta
-        implementation 'com.ca:mas-storage:2.1.00' // (Optional) Only required when using mas storage
-        implementation 'com.ca:masui:2.1.00' // (Optional) Only required when using MASUI Template. The MAS UI library provides sample user interfaces for Login, OTP, Social Login, and Enterprise Browser.
+        implementation 'com.ca:mas-connecta:2.2.00' // (Optional) Only required when using mas connecta
+        implementation 'com.ca:mas-storage:2.2.00' // (Optional) Only required when using mas storage
+        implementation 'com.ca:masui:2.2.00' // (Optional) Only required when using MASUI Template. The MAS UI library provides sample user interfaces for Login, OTP, Social Login, and Enterprise Browser.
 
         implementation 'org.bouncycastle:bcpkix-jdk15on:1.64' // (Optional) Only required when you want to support Android 4.1.x
     }

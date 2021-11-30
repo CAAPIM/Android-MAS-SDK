@@ -1,3 +1,20 @@
+# Version 2.2.00
+
+### Bug fixes
+- Refresh token becomes null, when network is lost. [DE469630]
+- Exceptions in MAS library logs. [DE473035]
+- Android MAS SDK app crashes when authenticating via external app. [DE506139]
+- During token refresh, the user gets logged out if 500 error is returned from MAG Server. [DE509848]
+- Android 10 and newer android.security.KeyStoreException: Incompatible padding mode [DE508974] 
+- The sun.security classes included in MAS library failing to parse Ciphers if language is set to Turkish [DE492305]
+- MAS SDK creates double boundaries for Android [DE485106]
+
+
+### New features
+- Support for disabling SSL Pinning. [F109516]
+- Support for Android 12. [F114300]
+- RSA-PSS support and TLS 1.3 support in SDK [DE505739]
+
 # Version 2.1.00
 
 ### Bug fixes

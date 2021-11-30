@@ -1,3 +1,8 @@
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-no-red.svg)](https://bitbucket.org/lbesson/ansi-colors)
+
+⚠️ | Please note that this repo will be archived in the near future. Please do not submit any new changes as they are no longer being accepted. Please contact Broadcom support https://support.broadcom.com/ to report any defects or make a request for an update. Broadcom is continuing support for the SDK but will no longer maintain the public GitHub community.
+:---: | :---
+
 # Android™ Mobile SDK
 ## for CA Mobile API Gateway
 
@@ -55,6 +60,15 @@ The compiled release binaries can be found here: [Releases][Releases]
 - [Sample-App-MAS-Android-Fingerprint-Sessions-Lock](https://github.com/CAAPIM/Sample-App-MAS-Android-Fingerprint-Sessions-Lock)
 - [Sample-App-MAS-Android-Login-User-Authentication-And-Authorization](https://github.com/CAAPIM/Sample-App-MAS-Android-Login-User-Authentication-And-Authorization)
 - [Sample-App-MAS-Android-Secure-Local-Storage](https://github.com/CAAPIM/Sample-App-MAS-Android-Secure-Local-Storage)
+- [Sample-App-MAS-Android-MagTraining-BulkUpload](https://github.com/CAAPIM/SampleApp-MagTraining-BulkUpload)
+- [Sample-App-MAS-Android-MagTraining-SessionTransfer-BLE](https://github.com/CAAPIM/SampleApp-MagTraining-SessionTransfer-BLE)
+- [Sample-App-MAS-Android-MagTraining-UserAuthentication](https://github.com/CAAPIM/SampleApp-MagTraining-UserAuthentication)
+- [Sample-App-MAS-Android-MagTraining-UnProtectedLogin](https://github.com/CAAPIM/SampleApp-MagTraining-UnProtectedLogin)
+- [Sample-App-MAS-Android-MagTraining-ProtectedAPI](https://github.com/CAAPIM/SampleApp-MagTraining-ProtectedAPI)
+- [Sample-App-MAS-Android-MagTraining-Setup](https://github.com/CAAPIM/SampleApp-MagTraining-Setup)
+- [Sample-App-MAS-Android-UploadMultipartSampleApp](https://github.com/CAAPIM/UploadMultipartSampleApp)
+- [Sample-App-MAS-Android-MagTraining-SessionTransfer-QRCode](https://github.com/CAAPIM/SampleApp-MagTraining-SessionTransfer-QRCode)
+- [Sample-App-MAS-Android-MagTraining-InterAppSSO](https://github.com/CAAPIM/SampleApp-MAGTraining-InterAppSSO)
 
 ## Communication
 - *Have general questions or need help?*, use [Stack Overflow][StackOverflow]. (Tag 'massdk')
@@ -74,10 +88,10 @@ The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 This software may be modified and distributed under the terms
 of the MIT license. See the [LICENSE][license-link] file for details.
 
-[docs]: http://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-sdk-for-ca-mobile-api-gateway/2-1.html
+[docs]: http://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-sdk-for-ca-mobile-api-gateway/2-2.html
 [StackOverflow]: http://stackoverflow.com/questions/tagged/massdk
 [issues]: https://github.com/CAAPIM/Android-MAS-SDK/issues
 [releases]: ../../releases
 [contributing]: /CONTRIBUTING.md
 [license-link]: /LICENSE
-[documentation]: http://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-sdk-for-ca-mobile-api-gateway/2-1.html
+[documentation]: http://techdocs.broadcom.com/content/broadcom/techdocs/us/en/ca-enterprise-software/layer7-api-management/mobile-sdk-for-ca-mobile-api-gateway/2-2.html

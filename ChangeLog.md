@@ -1,13 +1,13 @@
 # Version 2.2.00
 
 ### Bug fixes
-- Refresh token becomes null, when network is lost. [DE469630]
-- Exceptions in MAS library logs. [DE473035]
-- Android MAS SDK app crashes when authenticating via external app. [DE506139]
-- During token refresh, the user gets logged out if 500 error is returned from MAG Server. [DE509848]
+- Resolved an issue where the refresh token becomes null when network is lost. [DE469630]
+- Resolved SCIM calls visibility issue. [DE473035]
+- Resolved an issue where the cache is cleared when using a third-party app for authentication. [DE506139]
+- Resolved an issue where the user gets logged out if 500 error is returned from MAG Server during token refresh. [DE509848]
 - Android 10 and newer android.security.KeyStoreException: Incompatible padding mode [DE508974] 
-- The sun.security classes included in MAS library failing to parse Ciphers if language is set to Turkish [DE492305]
-- MAS SDK creates double boundaries for Android [DE485106]
+- Resolved an issue where MAS library fails to parse Ciphers if language is set to Turkish. [DE492305]
+- Resolved an issue where multipart requests get corrupted and have two boundaries. [DE485106]
 
 
 ### New features

@@ -48,7 +48,7 @@ android {
             testCoverageEnabled rootProject.ext.coverageEnabled
         }
     }
-    
+
     productFlavors {
     }
 }
@@ -141,11 +141,11 @@ project.version = mas_version
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
+    archiveClassifier.set("sources")
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set("javadoc")
     from javadoc.destinationDir
 }
 artifacts {
@@ -158,11 +158,9 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                // The coordinates of the library, being set from variables that
-                // we'll set up later
-//                groupId PUBLISH_GROUP_ID
-//                artifactId PUBLISH_ARTIFACT_ID
-//                version PUBLISH_VERSION
+                groupId 'com.ca.mas'
+                artifactId 'mas-foundation'
+                version mas_version
 
                 // Two artifacts, the `aar` (or `jar`) and the sources
                 if (project.plugins.findPlugin("com.android.library")) {

@@ -8,7 +8,7 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
+apply plugin: 'signing'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -46,60 +46,10 @@ dependencies {
 group 'com.ca'
 
 project.version = mas_version
-bintray {
-    user = bintray_user
-    key = bintray_api_key
-
-    configurations = ['archives'] //When uploading configuration files
-    pkg {
-        repo = 'maven'
-        name = 'masui'
-        userOrg = 'caapim'
-        desc = 'MASUI is the core UI framework of the Android Mobile SDK, ' +
-                'which is part of CA Mobile API Gateway. It provides resources to implement a user login dialog, ' +
-                'Social Login, One-Time Password, and Proximity Login (QR code and BLE) saving developers the ' +
-                'time of building those UI as well as providing them with a fast way for prototyping apps.'
-        websiteUrl = siteUrl
-        issueTrackerUrl = issueUrl
-        vcsUrl = gitUrl
-        licenses = ['MIT']
-        labels = ['aar', 'android', 'oauth', 'security']
-        publicDownloadNumbers = true
-
-        version {
-            name = project.version
-            desc = 'CA Mobile App Services UI'
-        }
-    }
-}
-
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
-                name 'CA Mobile App Services UI'
-                url siteUrl
-                licenses {
-                    license {
-                        name 'MIT'
-                        url 'https://github.com/CAAPIM/Android-MAS-SDK/blob/develop/LICENSE'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-
-                }
-            }
-        }
-    }
-}
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
+    archiveClassifier.set("sources")
 }
 
 task javadoc(type: Javadoc) {
@@ -108,13 +58,91 @@ task javadoc(type: Javadoc) {
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set("javadoc")
     from javadoc.destinationDir
 }
 artifacts {
     archives javadocJar
     archives sourcesJar
 }
+
+afterEvaluate {
+    apply plugin: 'maven-publish'
+    publishing {
+        publications {
+            release(MavenPublication) {
+                groupId 'com.ca.mas'
+                artifactId 'masui'
+                version mas_version
+
+                // Two artifacts, the `aar` (or `jar`) and the sources
+                if (project.plugins.findPlugin("com.android.library")) {
+                    from components.release
+                } else {
+                    from components.java
+                }
+
+                artifact sourcesJar
+                artifact javadocJar
+
+                // Mostly self-explanatory metadata
+                pom {
+                    name = 'CA Mobile App Services'
+                    description = project.description
+                    url = siteUrl
+                    organization {
+                        name = 'CA API Management'
+                        url = 'https://github.com/CAAPIM'
+                    }
+                    licenses {
+                        license {
+                            name = 'MIT'
+                            url = 'https://github.com/CAAPIM/Android-MAS-SDK/blob/develop/LICENSE'
+                        }
+                    }
+
+                    scm {
+                        connection = gitUrl
+                        developerConnection = gitUrl
+                        url = siteUrl
+                    }
+                    issueManagement {
+                        system = 'github'
+                        url = issueUrl
+                    }
+                    developers {
+                        developer {
+                            id = 'apigatewayopensource'
+                            name = 'CA API Gateway Bot'
+                            email = 'API-Gateway-OpenSource@ca.com'
+                            organization = 'CA API Gateway'
+                            organizationUrl = 'https://github.com/CAAPIM'
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    publishing.repositories {
+        maven {
+            def releaseRepo = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepo = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotRepo : releaseRepo
+            credentials {
+                username = ossrhUsername
+                password = ossrhPassword
+            }
+        }
+    }
+
+    signing {
+        if (signJar == "true") {
+            sign publishing.publications
+        }
+    }
+}
+
 
 task findConventions doLast {
     println project.getConvention()

@@ -59,10 +59,10 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
 
     def mainSrc = "${project.projectDir}/src/main/java"
 
-    sourceDirectories = files([mainSrc])
-    classDirectories = files([debugTree])
+    sourceDirectories.from = files([mainSrc])
+    classDirectories.from = files([debugTree])
 
-    executionData = fileTree(dir: project.projectDir, includes:
+    executionData.from = fileTree(dir: project.projectDir, includes:
             ['**/*.exec', '**/*.ec'])
 
     project.gradle.taskGraph.whenReady {

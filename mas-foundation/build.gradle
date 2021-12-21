@@ -48,9 +48,7 @@ android {
             testCoverageEnabled rootProject.ext.coverageEnabled
         }
     }
-
-
-
+    
     productFlavors {
     }
 }

@@ -42,7 +42,16 @@ dependencies {
     api 'androidx.browser:browser:1.0.0'
 }
 
-//jcenter integration
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    println "Source: $source"
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    println "Classpath: $source"
+    destinationDir = file("../docs/masui_javadoc/")
+    failOnError false
+}
+
 group 'com.ca'
 
 project.version = mas_version
@@ -50,11 +59,6 @@ project.version = mas_version
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     archiveClassifier.set("sources")
-}
-
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

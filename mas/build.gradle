@@ -40,7 +40,6 @@ task javadoc(type: Javadoc) {
     println "Source: $source"
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
     println "Classpath: $source"
-    options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
     destinationDir = file("../docs/mas_javadoc/")
     failOnError false
 }

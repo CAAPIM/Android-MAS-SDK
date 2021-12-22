@@ -118,7 +118,7 @@ task javadoc(type: Javadoc) {
 
 group 'com.ca'
 
-project.version = mas_version
+project.version = masVersion
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
@@ -139,9 +139,9 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                groupId 'com.ca.mas'
+                groupId 'com.ca'
                 artifactId 'mas-connecta'
-                version mas_version
+                version masVersion
 
                 // Two artifacts, the `aar` (or `jar`) and the sources
                 if (project.plugins.findPlugin("com.android.library")) {

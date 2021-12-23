@@ -15,6 +15,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'jacoco'
 apply plugin: 'signing'
+apply plugin:'base'
 
 println '------> Executing mas library build.gradle'
 repositories {

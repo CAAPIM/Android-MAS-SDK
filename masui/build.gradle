@@ -9,6 +9,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'signing'
+apply plugin:'base'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion

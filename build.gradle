@@ -58,4 +58,5 @@ ext {
     testRules = '1.0.1'
     bcpVersion = '1.64'
     coverageEnabled = false
+    description = 'Android Mobile SDK Framework'
 }

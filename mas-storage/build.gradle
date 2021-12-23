@@ -124,7 +124,7 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                groupId 'com.ca'
+                groupId 'com.ca.apim'
                 artifactId 'mas-storage'
                 version masVersion
 

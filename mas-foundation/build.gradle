@@ -15,7 +15,6 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'jacoco'
 apply plugin: 'signing'
-apply plugin:'base'
 
 println '------> Executing mas library build.gradle'
 repositories {
@@ -159,7 +158,7 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                groupId 'com.ca'
+                groupId 'com.ca.apim'
                 artifactId 'mas-foundation'
                 version masVersion
 

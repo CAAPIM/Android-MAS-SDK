@@ -86,7 +86,7 @@ afterEvaluate {
                 // Mostly self-explanatory metadata
                 pom {
                     name = 'CA Mobile App Services'
-                    description = project.description
+                    description = 'Android Mobile SDK Framework'
                     url = siteUrl
                     organization {
                         name = 'CA API Management'

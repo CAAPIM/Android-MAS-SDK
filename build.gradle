@@ -21,11 +21,13 @@ buildscript {
         classpath 'com.google.gms:google-services:3.1.1'
     }
 }
-
-buildScan {
-    termsOfServiceUrl = "https://gradle.com/terms-of-service"
-    termsOfServiceAgree = "yes"
+gradleEnterprise {
+    buildScan {
+        termsOfServiceUrl = "https://gradle.com/terms-of-service"
+        termsOfServiceAgree = "yes"
+    }
 }
+
 
 allprojects {
     repositories {

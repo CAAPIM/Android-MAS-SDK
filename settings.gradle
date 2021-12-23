@@ -11,8 +11,8 @@ plugins {
 }
 
 gradleEnterprise {
-    server = 'https://gradle.com/terms-of-service'
-    allowUntrustedServer = 'yes'
+//    server = 'https://gradle.com/terms-of-service'
+//    allowUntrustedServer = 'yes'
 //    buildScan {
 //        termsOfServiceUrl = "https://gradle.com/terms-of-service"
 //        termsOfServiceAgree = "yes"

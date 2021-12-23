@@ -8,7 +8,6 @@
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
-description = 'Android Mobile SDK Framework'
 buildscript {
     repositories {
         jcenter()
@@ -22,6 +21,7 @@ buildscript {
     }
 }
 
+description = 'Android Mobile SDK Framework'
 
 allprojects {
     repositories {
@@ -29,6 +29,7 @@ allprojects {
         google()
     }
 }
+
 
 
 ext {

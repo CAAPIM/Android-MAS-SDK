@@ -22,12 +22,24 @@ buildscript {
     }
 }
 
+//apply plugin: 'com.gradle.build-scan'
+
+//plugins {
+//    id "com.gradle.build-scan" version "3.8"
+//}
+
 allprojects {
     repositories {
         jcenter()
         google()
     }
 }
+
+
+//gradleEnterprise.buildScan {
+//    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
+//    licenseAgree = 'yes'
+//}
 
 
 ext {

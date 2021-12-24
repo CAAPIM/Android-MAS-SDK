@@ -16,6 +16,7 @@ import com.ca.mas.core.auth.AuthenticationException;
 import com.ca.mas.core.client.ServerClient;
 import com.ca.mas.core.conf.ConfigurationProvider;
 import com.ca.mas.core.context.MssoContext;
+import com.ca.mas.core.token.JWTValidation;
 import com.ca.mas.foundation.MASAuthCredentials;
 import com.ca.mas.core.error.MAGException;
 import com.ca.mas.core.error.MAGServerException;
@@ -122,14 +123,15 @@ class AccessTokenAssertion implements MssoAssertion {
             } else {
                 accessToken = null;
             }
+        }
 
-            String refreshToken = mssoContext.getRefreshToken();
-            if (refreshToken != null) {
-                accessToken = obtainAccessTokenUsingRefreshToken(mssoContext, refreshToken);
-            }
+        String refreshToken = mssoContext.getRefreshToken();
+        if (refreshToken != null) {
+            accessToken = obtainAccessTokenUsingRefreshToken(mssoContext, refreshToken);
+        }
 
-            if (accessToken != null)
-                return accessToken;
+        if (accessToken != null) {
+            return accessToken;
         }
 
         // Obtain an access token from the token server.
@@ -241,7 +243,7 @@ class AccessTokenAssertion implements MssoAssertion {
         return accessToken;
     }
 
-    private String obtainAccessTokenUsingRefreshToken(MssoContext mssoContext, String refreshToken) throws OAuthException, OAuthServerException {
+    private String obtainAccessTokenUsingRefreshToken(MssoContext mssoContext, String refreshToken) throws OAuthException, OAuthServerException, JWTValidationException {
         if (DEBUG) Log.d(TAG, "Obtain Access Token using Refresh Token");
         String clientId = mssoContext.getClientId();
         String clientSecret = mssoContext.getClientSecret();
@@ -256,8 +258,17 @@ class AccessTokenAssertion implements MssoAssertion {
 
             rethrowOrIgnore(tse);
 
-            //The access token and refresh token are no longer valid.
-            mssoContext.clearAccessToken();
+            if(mssoContext.getDonotLogoutTokenRenewalOnServerErrors() && tse.getStatus() == 500 && mssoContext.getIdToken() != null) {
+                String deviceIdentifier = mssoContext.getTokenManager().getMagIdentifier();
+                if (JWTValidation.validateIdToken(mssoContext,mssoContext.getIdToken(), deviceIdentifier, clientId, clientSecret)) {
+                    throw tse;
+                }
+            }
+
+            if(tse.getResponse()!= null){
+                //The access token and refresh token are no longer valid.
+                mssoContext.clearAccessAndRefreshTokens();
+            }
             accessToken = null;
             if (DEBUG) Log.w(TAG,
                     "Refresh token failed, will fall back to ID token or password: " + tse.getMessage(), tse);
@@ -282,4 +293,5 @@ class AccessTokenAssertion implements MssoAssertion {
                 //Ignore the Exception
         }
     }
+
 }

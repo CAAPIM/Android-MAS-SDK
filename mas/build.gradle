@@ -1,6 +1,8 @@
+
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.android.library'
+apply plugin: 'signing'
+apply plugin:'base'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -39,81 +41,106 @@ task javadoc(type: Javadoc) {
     println "Source: $source"
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
     println "Classpath: $source"
-    options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
     destinationDir = file("../docs/mas_javadoc/")
     failOnError false
 }
 
-//jcenter integration
 group 'com.ca'
 
-project.version = mas_version
-bintray {
-    user = bintray_user
-    key = bintray_api_key
+project.version = masVersion
 
-    configurations = ['archives'] //When uploading configuration files
-    pkg {
-        repo = 'maven'
-        name = 'mas'
-        userOrg = 'caapim'
-
-        desc = 'CA Mobile API Gateway provides enterprises with a secure mobile backend that integrates systems ' +
-                'and allows control over which users, devices, and applications can access your APIs. ' +
-                'The gateway enables developers to leverage standards for API security such as ' +
-                '(OAuth2, OpenID Connect, PKI) through client SDKs. The Android Mobile SDK is an extension of CA Mobile API Gateway ' +
-                'that provides powerful features through SDKs and APIs for developers to help accelerate the app development process.'
-        websiteUrl = siteUrl
-        issueTrackerUrl = issueUrl
-        vcsUrl = gitUrl
-        licenses = ['MIT']
-        labels = ['aar', 'android', 'oauth', 'security']
-        publicDownloadNumbers = true
-
-        version {
-            name = project.version
-            desc = 'CA Mobile App Services'
-        }
-    }
-}
-
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
-                name 'CA Mobile App Services'
-                url siteUrl
-                licenses {
-                    license {
-                        name 'MIT'
-                        url 'https://github.com/CAAPIM/Android-MAS-SDK/blob/develop/LICENSE'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-
-                }
-            }
-        }
-    }
-}
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
+    archiveClassifier.set("sources")
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set("javadoc")
     from javadoc.destinationDir
 }
 artifacts {
     archives javadocJar
     archives sourcesJar
 }
+
+afterEvaluate {
+    apply plugin: 'maven-publish'
+    publishing {
+        publications {
+            release(MavenPublication) {
+                groupId 'com.ca.apim'
+                artifactId 'mas'
+                version masVersion
+
+                // Two artifacts, the `aar` (or `jar`) and the sources
+                if (project.plugins.findPlugin("com.android.library")) {
+                    from components.release
+                } else {
+                    from components.java
+                }
+
+                artifact sourcesJar
+                artifact javadocJar
+
+                // Mostly self-explanatory metadata
+                pom {
+                    name = 'CA Mobile App Services'
+                    description = 'Android Mobile SDK Framework'
+                    url = siteUrl
+                    organization {
+                        name = 'CA API Management'
+                        url = 'https://github.com/CAAPIM'
+                    }
+                    licenses {
+                        license {
+                            name = 'MIT'
+                            url = 'https://github.com/CAAPIM/Android-MAS-SDK/blob/develop/LICENSE'
+                        }
+                    }
+
+                    scm {
+                        connection = gitUrl
+                        developerConnection = gitUrl
+                        url = siteUrl
+                    }
+                    issueManagement {
+                        system = 'github'
+                        url = issueUrl
+                    }
+                    developers {
+                        developer {
+                            id = 'apigatewayopensource'
+                            name = 'CA API Gateway Bot'
+                            email = 'API-Gateway-OpenSource@ca.com'
+                            organization = 'CA API Gateway'
+                            organizationUrl = 'https://github.com/CAAPIM'
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    publishing.repositories {
+        maven {
+            def releaseRepo = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepo = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotRepo : releaseRepo
+            credentials {
+                username = ossrhUsername
+                password = ossrhPassword
+            }
+        }
+    }
+
+    signing {
+        if (signJar == "true") {
+            sign publishing.publications
+        }
+    }
+}
+
 
 task findConventions doLast {
     println project.getConvention()

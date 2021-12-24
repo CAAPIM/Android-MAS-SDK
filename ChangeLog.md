@@ -1,3 +1,20 @@
+# Version 2.2.00
+
+### Bug fixes
+- Resolved an issue where the refresh token becomes null when network is lost. [DE469630]
+- Resolved SCIM calls visibility issue. [DE473035]
+- Resolved an issue where the cache is cleared when using a third-party app for authentication. [DE506139]
+- Resolved an issue where the user gets logged out if 500 error is returned from MAG Server during token refresh. [DE509848]
+- Android 10 and newer android.security.KeyStoreException: Incompatible padding mode [DE508974] 
+- Resolved an issue where MAS library fails to parse Ciphers if language is set to Turkish. [DE492305]
+- Resolved an issue where multipart requests get corrupted and have two boundaries. [DE485106]
+
+
+### New features
+- Support for disabling SSL Pinning. [F109516]
+- Support for Android 12. [F114300]
+- RSA-PSS support and TLS 1.3 support in SDK [DE505739]
+
 # Version 2.1.00
 
 ### Bug fixes

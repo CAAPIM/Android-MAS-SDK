@@ -97,6 +97,12 @@ public class PrivateTokenStorage implements OAuthTokenContainer {
     }
 
     @Override
+    public void clearAccessToken() {
+        storage.remove(getKey(KEY.PREF_ACCESS_TOKEN.name()));
+        storage.remove(getKey(KEY.PREF_EXPIRY_UNIXTIME.name()));
+    }
+
+    @Override
     public void clear() {
         for (KEY k : KEY.values()) {
             storage.remove(getKey(k.name()));

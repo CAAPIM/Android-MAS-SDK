@@ -1,12 +1,12 @@
 /*
- * Copyright 1996-2006 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright (c) 1996, 2010, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Sun designates this
+ * published by the Free Software Foundation.  Oracle designates this
  * particular file as subject to the "Classpath" exception as provided
- * by Sun in the LICENSE file that accompanied this code.
+ * by Oracle in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -18,29 +18,18 @@
  * 2 along with this work; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
- * CA 95054 USA or visit www.sun.com if you need additional information or
- * have any questions.
+ * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+ * or visit www.oracle.com if you need additional information or have any
+ * questions.
  */
 
 package sun.security.x509;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.security.AlgorithmParameters;
-import java.security.NoSuchAlgorithmException;
-import java.security.Provider;
-import java.security.Security;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
+import java.security.*;
 
-import sun.security.util.DerEncoder;
-import sun.security.util.DerInputStream;
-import sun.security.util.DerOutputStream;
-import sun.security.util.DerValue;
-import sun.security.util.ObjectIdentifier;
+import sun.security.util.*;
 
 
 /**
@@ -136,7 +125,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
                 // keys even if the provider is not registered.
                 // This code can go away once we have EC in the SUN provider.
                 algParams = AlgorithmParameters.getInstance(algidString,
-                                sun.security.ec.ECKeyFactory.ecInternalProvider);
+                        sun.security.ec.ECKeyFactory.ecInternalProvider);
             } catch (NoSuchAlgorithmException ee) {
                 /*
                  * This algorithm parameter type is not supported, so we cannot
@@ -283,7 +272,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
      */
     public boolean equals(AlgorithmId other) {
         boolean paramsEqual =
-          (params == null ? other.params == null : params.equals(other.params));
+                (params == null ? other.params == null : params.equals(other.params));
         return (algid.equals(other.algid) && paramsEqual);
     }
 
@@ -420,12 +409,12 @@ public class AlgorithmId implements Serializable, DerEncoder {
             oid = algOID(algname);
         } catch (IOException ioe) {
             throw new NoSuchAlgorithmException
-                ("Invalid ObjectIdentifier " + algname);
+                    ("Invalid ObjectIdentifier " + algname);
         }
 
         if (oid == null) {
             throw new NoSuchAlgorithmException
-                ("unrecognized algorithm name: " + algname);
+                    ("unrecognized algorithm name: " + algname);
         }
         return new AlgorithmId(oid);
     }
@@ -445,11 +434,11 @@ public class AlgorithmId implements Serializable, DerEncoder {
             oid = algOID(algname);
         } catch (IOException ioe) {
             throw new NoSuchAlgorithmException
-                ("Invalid ObjectIdentifier " + algname);
+                    ("Invalid ObjectIdentifier " + algname);
         }
         if (oid == null) {
             throw new NoSuchAlgorithmException
-                ("unrecognized algorithm name: " + algname);
+                    ("unrecognized algorithm name: " + algname);
         }
         return new AlgorithmId(oid, algparams);
     }
@@ -484,19 +473,19 @@ public class AlgorithmId implements Serializable, DerEncoder {
             return AlgorithmId.MD2_oid;
         }
         if (name.equalsIgnoreCase("SHA") || name.equalsIgnoreCase("SHA1")
-            || name.equalsIgnoreCase("SHA-1")) {
+                || name.equalsIgnoreCase("SHA-1")) {
             return AlgorithmId.SHA_oid;
         }
         if (name.equalsIgnoreCase("SHA-256") ||
-            name.equalsIgnoreCase("SHA256")) {
+                name.equalsIgnoreCase("SHA256")) {
             return AlgorithmId.SHA256_oid;
         }
         if (name.equalsIgnoreCase("SHA-384") ||
-            name.equalsIgnoreCase("SHA384")) {
+                name.equalsIgnoreCase("SHA384")) {
             return AlgorithmId.SHA384_oid;
         }
         if (name.equalsIgnoreCase("SHA-512") ||
-            name.equalsIgnoreCase("SHA512")) {
+                name.equalsIgnoreCase("SHA512")) {
             return AlgorithmId.SHA512_oid;
         }
 
@@ -506,7 +495,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
             return AlgorithmId.RSAEncryption_oid;
         }
         if (name.equalsIgnoreCase("Diffie-Hellman")
-            || name.equalsIgnoreCase("DH")) {
+                || name.equalsIgnoreCase("DH")) {
             return AlgorithmId.DH_oid;
         }
         if (name.equalsIgnoreCase("DSA")) {
@@ -518,29 +507,41 @@ public class AlgorithmId implements Serializable, DerEncoder {
 
         // Common signature types
         if (name.equalsIgnoreCase("MD5withRSA")
-            || name.equalsIgnoreCase("MD5/RSA")) {
+                || name.equalsIgnoreCase("MD5/RSA")) {
             return AlgorithmId.md5WithRSAEncryption_oid;
         }
         if (name.equalsIgnoreCase("MD2withRSA")
-            || name.equalsIgnoreCase("MD2/RSA")) {
+                || name.equalsIgnoreCase("MD2/RSA")) {
             return AlgorithmId.md2WithRSAEncryption_oid;
         }
         if (name.equalsIgnoreCase("SHAwithDSA")
-            || name.equalsIgnoreCase("SHA1withDSA")
-            || name.equalsIgnoreCase("SHA/DSA")
-            || name.equalsIgnoreCase("SHA1/DSA")
-            || name.equalsIgnoreCase("DSAWithSHA1")
-            || name.equalsIgnoreCase("DSS")
-            || name.equalsIgnoreCase("SHA-1/DSA")) {
+                || name.equalsIgnoreCase("SHA1withDSA")
+                || name.equalsIgnoreCase("SHA/DSA")
+                || name.equalsIgnoreCase("SHA1/DSA")
+                || name.equalsIgnoreCase("DSAWithSHA1")
+                || name.equalsIgnoreCase("DSS")
+                || name.equalsIgnoreCase("SHA-1/DSA")) {
             return AlgorithmId.sha1WithDSA_oid;
         }
         if (name.equalsIgnoreCase("SHA1WithRSA")
-            || name.equalsIgnoreCase("SHA1/RSA")) {
+                || name.equalsIgnoreCase("SHA1/RSA")) {
             return AlgorithmId.sha1WithRSAEncryption_oid;
         }
         if (name.equalsIgnoreCase("SHA1withECDSA")
                 || name.equalsIgnoreCase("ECDSA")) {
             return AlgorithmId.sha1WithECDSA_oid;
+        }
+        if (name.equalsIgnoreCase("SHA224withECDSA")) {
+            return AlgorithmId.sha224WithECDSA_oid;
+        }
+        if (name.equalsIgnoreCase("SHA256withECDSA")) {
+            return AlgorithmId.sha256WithECDSA_oid;
+        }
+        if (name.equalsIgnoreCase("SHA384withECDSA")) {
+            return AlgorithmId.sha384WithECDSA_oid;
+        }
+        if (name.equalsIgnoreCase("SHA512withECDSA")) {
+            return AlgorithmId.sha512WithECDSA_oid;
         }
 
         // See if any of the installed providers supply a mapping from
@@ -552,9 +553,10 @@ public class AlgorithmId implements Serializable, DerEncoder {
                 for (Enumeration<Object> enum_ = provs[i].keys();
                      enum_.hasMoreElements(); ) {
                     String alias = (String)enum_.nextElement();
+                    String upperCaseAlias = alias.toUpperCase(Locale.ENGLISH);
                     int index;
-                    if (alias.toUpperCase().startsWith("ALG.ALIAS") &&
-                        (index=alias.toUpperCase().indexOf("OID.", 0)) != -1) {
+                    if (upperCaseAlias.startsWith("ALG.ALIAS") &&
+                            (index=upperCaseAlias.indexOf("OID.", 0)) != -1) {
                         index += "OID.".length();
                         if (index == alias.length()) {
                             // invalid alias entry
@@ -564,19 +566,26 @@ public class AlgorithmId implements Serializable, DerEncoder {
                             oidTable = new HashMap<String,ObjectIdentifier>();
                         }
                         oidString = alias.substring(index);
-                        String stdAlgName
-                            = provs[i].getProperty(alias).toUpperCase();
-                        if (oidTable.get(stdAlgName) == null) {
+                        String stdAlgName = provs[i].getProperty(alias);
+                        if (stdAlgName != null) {
+                            stdAlgName = stdAlgName.toUpperCase(Locale.ENGLISH);
+                        }
+                        if (stdAlgName != null &&
+                                oidTable.get(stdAlgName) == null) {
                             oidTable.put(stdAlgName,
-                                         new ObjectIdentifier(oidString));
+                                    new ObjectIdentifier(oidString));
                         }
                     }
                 }
             }
+
+            if (oidTable == null) {
+                oidTable = new HashMap<String,ObjectIdentifier>(1);
+            }
             initOidTable = true;
         }
 
-        return oidTable.get(name.toUpperCase());
+        return oidTable.get(name.toUpperCase(Locale.ENGLISH));
     }
 
     private static ObjectIdentifier oid(int ... values) {
@@ -598,14 +607,14 @@ public class AlgorithmId implements Serializable, DerEncoder {
      * OID = 1.2.840.113549.2.2
      */
     public static final ObjectIdentifier MD2_oid =
-    ObjectIdentifier.newInternal(new int[] {1, 2, 840, 113549, 2, 2});
+            ObjectIdentifier.newInternal(new int[] {1, 2, 840, 113549, 2, 2});
 
     /**
      * Algorithm ID for the MD5 Message Digest Algorthm, from RFC 1321.
      * OID = 1.2.840.113549.2.5
      */
     public static final ObjectIdentifier MD5_oid =
-    ObjectIdentifier.newInternal(new int[] {1, 2, 840, 113549, 2, 5});
+            ObjectIdentifier.newInternal(new int[] {1, 2, 840, 113549, 2, 5});
 
     /**
      * Algorithm ID for the SHA1 Message Digest Algorithm, from FIPS 180-1.
@@ -614,16 +623,16 @@ public class AlgorithmId implements Serializable, DerEncoder {
      * OID = 1.3.14.3.2.26. Old SHA-0 OID: 1.3.14.3.2.18.
      */
     public static final ObjectIdentifier SHA_oid =
-    ObjectIdentifier.newInternal(new int[] {1, 3, 14, 3, 2, 26});
+            ObjectIdentifier.newInternal(new int[] {1, 3, 14, 3, 2, 26});
 
     public static final ObjectIdentifier SHA256_oid =
-    ObjectIdentifier.newInternal(new int[] {2, 16, 840, 1, 101, 3, 4, 2, 1});
+            ObjectIdentifier.newInternal(new int[] {2, 16, 840, 1, 101, 3, 4, 2, 1});
 
     public static final ObjectIdentifier SHA384_oid =
-    ObjectIdentifier.newInternal(new int[] {2, 16, 840, 1, 101, 3, 4, 2, 2});
+            ObjectIdentifier.newInternal(new int[] {2, 16, 840, 1, 101, 3, 4, 2, 2});
 
     public static final ObjectIdentifier SHA512_oid =
-    ObjectIdentifier.newInternal(new int[] {2, 16, 840, 1, 101, 3, 4, 2, 3});
+            ObjectIdentifier.newInternal(new int[] {2, 16, 840, 1, 101, 3, 4, 2, 3});
 
     /*
      * COMMON PUBLIC KEY TYPES
@@ -632,9 +641,9 @@ public class AlgorithmId implements Serializable, DerEncoder {
     private static final int DH_PKIX_data[] = { 1, 2, 840, 10046, 2, 1 };
     private static final int DSA_OIW_data[] = { 1, 3, 14, 3, 2, 12 };
     private static final int DSA_PKIX_data[] = { 1, 2, 840, 10040, 4, 1 };
-    private static final int RSA_data[] = { 1, 2, 5, 8, 1, 1 };
+    private static final int RSA_data[] = { 2, 5, 8, 1, 1 };
     private static final int RSAEncryption_data[] =
-                                 { 1, 2, 840, 113549, 1, 1, 1 };
+            { 1, 2, 840, 113549, 1, 1, 1 };
 
     public static final ObjectIdentifier DH_oid;
     public static final ObjectIdentifier DH_PKIX_oid;
@@ -648,25 +657,25 @@ public class AlgorithmId implements Serializable, DerEncoder {
      * COMMON SIGNATURE ALGORITHMS
      */
     private static final int md2WithRSAEncryption_data[] =
-                                       { 1, 2, 840, 113549, 1, 1, 2 };
+            { 1, 2, 840, 113549, 1, 1, 2 };
     private static final int md5WithRSAEncryption_data[] =
-                                       { 1, 2, 840, 113549, 1, 1, 4 };
+            { 1, 2, 840, 113549, 1, 1, 4 };
     private static final int sha1WithRSAEncryption_data[] =
-                                       { 1, 2, 840, 113549, 1, 1, 5 };
+            { 1, 2, 840, 113549, 1, 1, 5 };
     private static final int sha1WithRSAEncryption_OIW_data[] =
-                                       { 1, 3, 14, 3, 2, 29 };
+            { 1, 3, 14, 3, 2, 29 };
     private static final int sha256WithRSAEncryption_data[] =
-                                       { 1, 2, 840, 113549, 1, 1, 11 };
+            { 1, 2, 840, 113549, 1, 1, 11 };
     private static final int sha384WithRSAEncryption_data[] =
-                                       { 1, 2, 840, 113549, 1, 1, 12 };
+            { 1, 2, 840, 113549, 1, 1, 12 };
     private static final int sha512WithRSAEncryption_data[] =
-                                       { 1, 2, 840, 113549, 1, 1, 13 };
+            { 1, 2, 840, 113549, 1, 1, 13 };
     private static final int shaWithDSA_OIW_data[] =
-                                       { 1, 3, 14, 3, 2, 13 };
+            { 1, 3, 14, 3, 2, 13 };
     private static final int sha1WithDSA_OIW_data[] =
-                                       { 1, 3, 14, 3, 2, 27 };
+            { 1, 3, 14, 3, 2, 27 };
     private static final int dsaWithSHA1_PKIX_data[] =
-                                       { 1, 2, 840, 10040, 4, 3 };
+            { 1, 2, 840, 10040, 4, 3 };
 
     public static final ObjectIdentifier md2WithRSAEncryption_oid;
     public static final ObjectIdentifier md5WithRSAEncryption_oid;
@@ -680,170 +689,170 @@ public class AlgorithmId implements Serializable, DerEncoder {
     public static final ObjectIdentifier sha1WithDSA_oid;
 
     public static final ObjectIdentifier sha1WithECDSA_oid =
-                                            oid(1, 2, 840, 10045, 4, 1);
+            oid(1, 2, 840, 10045, 4, 1);
     public static final ObjectIdentifier sha224WithECDSA_oid =
-                                            oid(1, 2, 840, 10045, 4, 3, 1);
+            oid(1, 2, 840, 10045, 4, 3, 1);
     public static final ObjectIdentifier sha256WithECDSA_oid =
-                                            oid(1, 2, 840, 10045, 4, 3, 2);
+            oid(1, 2, 840, 10045, 4, 3, 2);
     public static final ObjectIdentifier sha384WithECDSA_oid =
-                                            oid(1, 2, 840, 10045, 4, 3, 3);
+            oid(1, 2, 840, 10045, 4, 3, 3);
     public static final ObjectIdentifier sha512WithECDSA_oid =
-                                            oid(1, 2, 840, 10045, 4, 3, 4);
+            oid(1, 2, 840, 10045, 4, 3, 4);
     public static final ObjectIdentifier specifiedWithECDSA_oid =
-                                            oid(1, 2, 840, 10045, 4, 3);
+            oid(1, 2, 840, 10045, 4, 3);
 
     /**
      * Algorithm ID for the PBE encryption algorithms from PKCS#5 and
      * PKCS#12.
      */
     public static final ObjectIdentifier pbeWithMD5AndDES_oid =
-        ObjectIdentifier.newInternal(new int[]{1, 2, 840, 113549, 1, 5, 3});
+            ObjectIdentifier.newInternal(new int[]{1, 2, 840, 113549, 1, 5, 3});
     public static final ObjectIdentifier pbeWithMD5AndRC2_oid =
-        ObjectIdentifier.newInternal(new int[] {1, 2, 840, 113549, 1, 5, 6});
+            ObjectIdentifier.newInternal(new int[] {1, 2, 840, 113549, 1, 5, 6});
     public static final ObjectIdentifier pbeWithSHA1AndDES_oid =
-        ObjectIdentifier.newInternal(new int[] {1, 2, 840, 113549, 1, 5, 10});
+            ObjectIdentifier.newInternal(new int[] {1, 2, 840, 113549, 1, 5, 10});
     public static final ObjectIdentifier pbeWithSHA1AndRC2_oid =
-        ObjectIdentifier.newInternal(new int[] {1, 2, 840, 113549, 1, 5, 11});
+            ObjectIdentifier.newInternal(new int[] {1, 2, 840, 113549, 1, 5, 11});
     public static ObjectIdentifier pbeWithSHA1AndDESede_oid =
-        ObjectIdentifier.newInternal(new int[] {1, 2, 840, 113549, 1, 12, 1, 3});
+            ObjectIdentifier.newInternal(new int[] {1, 2, 840, 113549, 1, 12, 1, 3});
     public static ObjectIdentifier pbeWithSHA1AndRC2_40_oid =
-        ObjectIdentifier.newInternal(new int[] {1, 2, 840, 113549, 1, 12, 1, 6});
+            ObjectIdentifier.newInternal(new int[] {1, 2, 840, 113549, 1, 12, 1, 6});
 
 
     static {
-    /*
-     * Note the preferred OIDs are named simply with no "OIW" or
-     * "PKIX" in them, even though they may point to data from these
-     * specs; e.g. SHA_oid, DH_oid, DSA_oid, SHA1WithDSA_oid...
-     */
-    /**
-     * Algorithm ID for Diffie Hellman Key agreement, from PKCS #3.
-     * Parameters include public values P and G, and may optionally specify
-     * the length of the private key X.  Alternatively, algorithm parameters
-     * may be derived from another source such as a Certificate Authority's
-     * certificate.
-     * OID = 1.2.840.113549.1.3.1
-     */
+        /*
+         * Note the preferred OIDs are named simply with no "OIW" or
+         * "PKIX" in them, even though they may point to data from these
+         * specs; e.g. SHA_oid, DH_oid, DSA_oid, SHA1WithDSA_oid...
+         */
+        /**
+         * Algorithm ID for Diffie Hellman Key agreement, from PKCS #3.
+         * Parameters include public values P and G, and may optionally specify
+         * the length of the private key X.  Alternatively, algorithm parameters
+         * may be derived from another source such as a Certificate Authority's
+         * certificate.
+         * OID = 1.2.840.113549.1.3.1
+         */
         DH_oid = ObjectIdentifier.newInternal(DH_data);
 
-    /**
-     * Algorithm ID for the Diffie Hellman Key Agreement (DH), from RFC 3279.
-     * Parameters may include public values P and G.
-     * OID = 1.2.840.10046.2.1
-     */
+        /**
+         * Algorithm ID for the Diffie Hellman Key Agreement (DH), from RFC 3279.
+         * Parameters may include public values P and G.
+         * OID = 1.2.840.10046.2.1
+         */
         DH_PKIX_oid = ObjectIdentifier.newInternal(DH_PKIX_data);
 
-    /**
-     * Algorithm ID for the Digital Signing Algorithm (DSA), from the
-     * NIST OIW Stable Agreements part 12.
-     * Parameters may include public values P, Q, and G; or these may be
-     * derived from
-     * another source such as a Certificate Authority's certificate.
-     * OID = 1.3.14.3.2.12
-     */
+        /**
+         * Algorithm ID for the Digital Signing Algorithm (DSA), from the
+         * NIST OIW Stable Agreements part 12.
+         * Parameters may include public values P, Q, and G; or these may be
+         * derived from
+         * another source such as a Certificate Authority's certificate.
+         * OID = 1.3.14.3.2.12
+         */
         DSA_OIW_oid = ObjectIdentifier.newInternal(DSA_OIW_data);
 
-    /**
-     * Algorithm ID for the Digital Signing Algorithm (DSA), from RFC 3279.
-     * Parameters may include public values P, Q, and G; or these may be
-     * derived from another source such as a Certificate Authority's
-     * certificate.
-     * OID = 1.2.840.10040.4.1
-     */
+        /**
+         * Algorithm ID for the Digital Signing Algorithm (DSA), from RFC 3279.
+         * Parameters may include public values P, Q, and G; or these may be
+         * derived from another source such as a Certificate Authority's
+         * certificate.
+         * OID = 1.2.840.10040.4.1
+         */
         DSA_oid = ObjectIdentifier.newInternal(DSA_PKIX_data);
 
-    /**
-     * Algorithm ID for RSA keys used for any purpose, as defined in X.509.
-     * The algorithm parameter is a single value, the number of bits in the
-     * public modulus.
-     * OID = 1.2.5.8.1.1
-     */
+        /**
+         * Algorithm ID for RSA keys used for any purpose, as defined in X.509.
+         * The algorithm parameter is a single value, the number of bits in the
+         * public modulus.
+         * OID = 2.5.8.1.1
+         */
         RSA_oid = ObjectIdentifier.newInternal(RSA_data);
 
-    /**
-     * Algorithm ID for RSA keys used with RSA encryption, as defined
-     * in PKCS #1.  There are no parameters associated with this algorithm.
-     * OID = 1.2.840.113549.1.1.1
-     */
+        /**
+         * Algorithm ID for RSA keys used with RSA encryption, as defined
+         * in PKCS #1.  There are no parameters associated with this algorithm.
+         * OID = 1.2.840.113549.1.1.1
+         */
         RSAEncryption_oid = ObjectIdentifier.newInternal(RSAEncryption_data);
 
-    /**
-     * Identifies a signing algorithm where an MD2 digest is encrypted
-     * using an RSA private key; defined in PKCS #1.  Use of this
-     * signing algorithm is discouraged due to MD2 vulnerabilities.
-     * OID = 1.2.840.113549.1.1.2
-     */
+        /**
+         * Identifies a signing algorithm where an MD2 digest is encrypted
+         * using an RSA private key; defined in PKCS #1.  Use of this
+         * signing algorithm is discouraged due to MD2 vulnerabilities.
+         * OID = 1.2.840.113549.1.1.2
+         */
         md2WithRSAEncryption_oid =
-            ObjectIdentifier.newInternal(md2WithRSAEncryption_data);
+                ObjectIdentifier.newInternal(md2WithRSAEncryption_data);
 
-    /**
-     * Identifies a signing algorithm where an MD5 digest is
-     * encrypted using an RSA private key; defined in PKCS #1.
-     * OID = 1.2.840.113549.1.1.4
-     */
+        /**
+         * Identifies a signing algorithm where an MD5 digest is
+         * encrypted using an RSA private key; defined in PKCS #1.
+         * OID = 1.2.840.113549.1.1.4
+         */
         md5WithRSAEncryption_oid =
-            ObjectIdentifier.newInternal(md5WithRSAEncryption_data);
+                ObjectIdentifier.newInternal(md5WithRSAEncryption_data);
 
-    /**
-     * Identifies a signing algorithm where a SHA1 digest is
-     * encrypted using an RSA private key; defined by RSA DSI.
-     * OID = 1.2.840.113549.1.1.5
-     */
+        /**
+         * Identifies a signing algorithm where a SHA1 digest is
+         * encrypted using an RSA private key; defined by RSA DSI.
+         * OID = 1.2.840.113549.1.1.5
+         */
         sha1WithRSAEncryption_oid =
-            ObjectIdentifier.newInternal(sha1WithRSAEncryption_data);
+                ObjectIdentifier.newInternal(sha1WithRSAEncryption_data);
 
-    /**
-     * Identifies a signing algorithm where a SHA1 digest is
-     * encrypted using an RSA private key; defined in NIST OIW.
-     * OID = 1.3.14.3.2.29
-     */
+        /**
+         * Identifies a signing algorithm where a SHA1 digest is
+         * encrypted using an RSA private key; defined in NIST OIW.
+         * OID = 1.3.14.3.2.29
+         */
         sha1WithRSAEncryption_OIW_oid =
-            ObjectIdentifier.newInternal(sha1WithRSAEncryption_OIW_data);
+                ObjectIdentifier.newInternal(sha1WithRSAEncryption_OIW_data);
 
-    /**
-     * Identifies a signing algorithm where a SHA256 digest is
-     * encrypted using an RSA private key; defined by PKCS #1.
-     * OID = 1.2.840.113549.1.1.11
-     */
+        /**
+         * Identifies a signing algorithm where a SHA256 digest is
+         * encrypted using an RSA private key; defined by PKCS #1.
+         * OID = 1.2.840.113549.1.1.11
+         */
         sha256WithRSAEncryption_oid =
-            ObjectIdentifier.newInternal(sha256WithRSAEncryption_data);
+                ObjectIdentifier.newInternal(sha256WithRSAEncryption_data);
 
-    /**
-     * Identifies a signing algorithm where a SHA384 digest is
-     * encrypted using an RSA private key; defined by PKCS #1.
-     * OID = 1.2.840.113549.1.1.12
-     */
+        /**
+         * Identifies a signing algorithm where a SHA384 digest is
+         * encrypted using an RSA private key; defined by PKCS #1.
+         * OID = 1.2.840.113549.1.1.12
+         */
         sha384WithRSAEncryption_oid =
-            ObjectIdentifier.newInternal(sha384WithRSAEncryption_data);
+                ObjectIdentifier.newInternal(sha384WithRSAEncryption_data);
 
-    /**
-     * Identifies a signing algorithm where a SHA512 digest is
-     * encrypted using an RSA private key; defined by PKCS #1.
-     * OID = 1.2.840.113549.1.1.13
-     */
+        /**
+         * Identifies a signing algorithm where a SHA512 digest is
+         * encrypted using an RSA private key; defined by PKCS #1.
+         * OID = 1.2.840.113549.1.1.13
+         */
         sha512WithRSAEncryption_oid =
-            ObjectIdentifier.newInternal(sha512WithRSAEncryption_data);
+                ObjectIdentifier.newInternal(sha512WithRSAEncryption_data);
 
-    /**
-     * Identifies the FIPS 186 "Digital Signature Standard" (DSS), where a
-     * SHA digest is signed using the Digital Signing Algorithm (DSA).
-     * This should not be used.
-     * OID = 1.3.14.3.2.13
-     */
+        /**
+         * Identifies the FIPS 186 "Digital Signature Standard" (DSS), where a
+         * SHA digest is signed using the Digital Signing Algorithm (DSA).
+         * This should not be used.
+         * OID = 1.3.14.3.2.13
+         */
         shaWithDSA_OIW_oid = ObjectIdentifier.newInternal(shaWithDSA_OIW_data);
 
-    /**
-     * Identifies the FIPS 186 "Digital Signature Standard" (DSS), where a
-     * SHA1 digest is signed using the Digital Signing Algorithm (DSA).
-     * OID = 1.3.14.3.2.27
-     */
+        /**
+         * Identifies the FIPS 186 "Digital Signature Standard" (DSS), where a
+         * SHA1 digest is signed using the Digital Signing Algorithm (DSA).
+         * OID = 1.3.14.3.2.27
+         */
         sha1WithDSA_OIW_oid = ObjectIdentifier.newInternal(sha1WithDSA_OIW_data);
 
-    /**
-     * Identifies the FIPS 186 "Digital Signature Standard" (DSS), where a
-     * SHA1 digest is signed using the Digital Signing Algorithm (DSA).
-     * OID = 1.2.840.10040.4.3
-     */
+        /**
+         * Identifies the FIPS 186 "Digital Signature Standard" (DSS), where a
+         * SHA1 digest is signed using the Digital Signing Algorithm (DSA).
+         * OID = 1.2.840.10040.4.3
+         */
         sha1WithDSA_oid = ObjectIdentifier.newInternal(dsaWithSHA1_PKIX_data);
 
         nameTable = new HashMap<ObjectIdentifier,String>();
@@ -881,5 +890,54 @@ public class AlgorithmId implements Serializable, DerEncoder {
         nameTable.put(pbeWithSHA1AndRC2_oid, "PBEWithSHA1AndRC2");
         nameTable.put(pbeWithSHA1AndDESede_oid, "PBEWithSHA1AndDESede");
         nameTable.put(pbeWithSHA1AndRC2_40_oid, "PBEWithSHA1AndRC2_40");
+    }
+
+    /**
+     * Creates a signature algorithm name from a digest algorithm
+     * name and a encryption algorithm name.
+     */
+    public static String makeSigAlg(String digAlg, String encAlg) {
+        digAlg = digAlg.replace("-", "").toUpperCase(Locale.ENGLISH);
+        if (digAlg.equalsIgnoreCase("SHA")) digAlg = "SHA1";
+
+        encAlg = encAlg.toUpperCase(Locale.ENGLISH);
+        if (encAlg.equals("EC")) encAlg = "ECDSA";
+
+        return digAlg + "with" + encAlg;
+    }
+
+    /**
+     * Extracts the encryption algorithm name from a signature
+     * algorithm name.
+     */
+    public static String getEncAlgFromSigAlg(String signatureAlgorithm) {
+        signatureAlgorithm = signatureAlgorithm.toUpperCase(Locale.ENGLISH);
+        int with = signatureAlgorithm.indexOf("WITH");
+        String keyAlgorithm = null;
+        if (with > 0) {
+            int and = signatureAlgorithm.indexOf("AND", with + 4);
+            if (and > 0) {
+                keyAlgorithm = signatureAlgorithm.substring(with + 4, and);
+            } else {
+                keyAlgorithm = signatureAlgorithm.substring(with + 4);
+            }
+            if (keyAlgorithm.equalsIgnoreCase("ECDSA")) {
+                keyAlgorithm = "EC";
+            }
+        }
+        return keyAlgorithm;
+    }
+
+    /**
+     * Extracts the digest algorithm name from a signature
+     * algorithm name.
+     */
+    public static String getDigAlgFromSigAlg(String signatureAlgorithm) {
+        signatureAlgorithm = signatureAlgorithm.toUpperCase(Locale.ENGLISH);
+        int with = signatureAlgorithm.indexOf("WITH");
+        if (with > 0) {
+            return signatureAlgorithm.substring(0, with);
+        }
+        return null;
     }
 }

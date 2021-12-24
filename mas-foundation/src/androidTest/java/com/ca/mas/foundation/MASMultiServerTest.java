@@ -145,7 +145,6 @@ public class MASMultiServerTest extends MASLoginTestBase {
         assertEquals(head, customCharset.toString());
     }
 
-
     @Test
     public void testMultiServerCertificatePinningWithCertChain() throws Exception {
         URL url = new URL("https://swapi.co:443");
@@ -591,6 +590,51 @@ public class MASMultiServerTest extends MASLoginTestBase {
         Assert.assertNotNull(result);
         String expectedResult = result.getJSONObject("query").getJSONArray("normalized").getJSONObject(0).getString("to");
         Assert.assertEquals(expectedResult, "CA Technologies");
+    }
+
+    @Test
+    public void testMultiServerEnableSSLPinning() throws Exception {
+        MAS.setSSLPinningEnabled(false);
+        MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
+                .host(new Uri.Builder().encodedAuthority(HOST).build())
+                .add("ZHVtbXk=") //Dummy
+                .build();
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
+
+        MASRequest request = new MASRequest.MASRequestBuilder(
+                new Uri.Builder().encodedAuthority(HOST)
+                        .scheme("https")
+                        .path("test")
+                        .build())
+                .build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        // Should pass as enableSSLPinning is false.
+        Assert.assertEquals(expectResponse.toString(), callback.get().getBody().getContent().toString());
+    }
+
+    @Test
+    public void testMultiServerAllowSSLPinning() throws Exception {
+        MAS.setSSLPinningEnabled(true);
+        MASSecurityConfiguration configuration = new MASSecurityConfiguration.Builder()
+                .host(new Uri.Builder().encodedAuthority(HOST).build())
+                .add("ZHVtbXk=") //Dummy
+                .allowSSLPinning(false)
+                .build();
+        MASConfiguration.getCurrentConfiguration().addSecurityConfiguration(configuration);
+
+        MASRequest request = new MASRequest.MASRequestBuilder(
+                new Uri.Builder().encodedAuthority(HOST)
+                        .scheme("https")
+                        .path("test")
+                        .build())
+                .build();
+        MASCallbackFuture<MASResponse<JSONObject>> callback = new MASCallbackFuture<>();
+        MAS.invoke(request, callback);
+
+        // Should pass as allowSSLPinning is set to False
+        Assert.assertEquals(expectResponse.toString(), callback.get().getBody().getContent().toString());
     }
 
     private Certificate[] getCert(URL url) throws Exception {

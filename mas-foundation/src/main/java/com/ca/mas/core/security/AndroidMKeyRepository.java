@@ -29,6 +29,7 @@ import static android.security.keystore.KeyProperties.DIGEST_SHA1;
 import static android.security.keystore.KeyProperties.DIGEST_SHA256;
 import static android.security.keystore.KeyProperties.DIGEST_SHA384;
 import static android.security.keystore.KeyProperties.DIGEST_SHA512;
+import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE;
 import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_PKCS7;
 import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_RSA_OAEP;
 import static android.security.keystore.KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1;
@@ -59,7 +60,7 @@ public class AndroidMKeyRepository extends AndroidKeyStoreRepository {
                 .setRandomizedEncryptionRequired(false)
                 .setBlockModes(BLOCK_MODE_CBC, BLOCK_MODE_CTR, BLOCK_MODE_ECB, BLOCK_MODE_GCM)
                 .setDigests(DIGEST_NONE, DIGEST_MD5, DIGEST_SHA1, DIGEST_SHA256, DIGEST_SHA384, DIGEST_SHA512)
-                .setEncryptionPaddings(ENCRYPTION_PADDING_PKCS7, ENCRYPTION_PADDING_RSA_OAEP, ENCRYPTION_PADDING_RSA_PKCS1)
+                .setEncryptionPaddings(ENCRYPTION_PADDING_PKCS7, ENCRYPTION_PADDING_RSA_OAEP, ENCRYPTION_PADDING_RSA_PKCS1, ENCRYPTION_PADDING_NONE)
                 .setSignaturePaddings(SIGNATURE_PADDING_RSA_PSS, SIGNATURE_PADDING_RSA_PKCS1);
     }
 

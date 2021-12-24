@@ -14,12 +14,14 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:4.0.1'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.2'
         classpath 'com.google.gms:google-services:3.1.1'
     }
 }
+
+description = 'Android Mobile SDK Framework'
 
 allprojects {
     repositories {
@@ -27,6 +29,8 @@ allprojects {
         google()
     }
 }
+
+
 
 ext {
     supportLibsVersion = '28.0.0'

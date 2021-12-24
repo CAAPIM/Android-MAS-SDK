@@ -6,6 +6,20 @@
  *
  */
 
+//plugins {
+//    id "com.gradle.enterprise" version "3.8"
+//}
+//
+//gradleEnterprise {
+////    server = 'https://gradle.com/terms-of-service'
+////    allowUntrustedServer = 'yes'
+//    buildScan {
+//        publishOnFailureIf(true)
+//        termsOfServiceUrl = "https://gradle.com/terms-of-service"
+//        termsOfServiceAgree = "yes"
+//    }
+//}
+
 include ':mas', ':masui', ':mas-connecta', ':mas-storage',  ':mas-foundation', ':mas-test'
 
 //MASUnit

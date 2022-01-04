@@ -7,7 +7,7 @@ pipeline {
     }
     environment {
         ANDROID_HOME ='/Users/MacMiniAdmin/Library/Android/sdk'
-        BUILD_PATH = '/Users/qa/Documents/iOSRepos/buildScript'
+        BUILD_PATH = '/Users/MacMiniAdmin/Documents/iOSRepos/buildScript'
         BUILD_HOST = 'localhost'
         BUILD_USER = 'qa'
         BUILD_PASSWORD = '7layer'

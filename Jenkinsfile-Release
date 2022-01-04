@@ -1,7 +1,7 @@
 @Library('apim-jenkins-lib@master') _
 
 pipeline {
-    agent { label 'ng2AgentStable' }
+    agent { label 'apim-macmini-colo-01.lvn.broadcom.net' }
     parameters {
             string(name: 'sdk_version', defaultValue: '2.1.00', description: 'Android SDK Version')
     }

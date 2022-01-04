@@ -13,7 +13,7 @@ pipeline {
         BUILD_PASSWORD = '7layer'
         MODULE = 'all'
         ZIP_NAME = 'MobileSDK'
-        JAVA_HOME = '/Library/Java/JavaVirtualMachines/temurin-8.jdk/Contents/Home'
+        JAVA_HOME = '/Library/Java/JavaVirtualMachines/jdk1.8.0_281.jdk/Contents/Home'
     }
     stages {
         stage('Clean Filer3 Folder and the local folder') {

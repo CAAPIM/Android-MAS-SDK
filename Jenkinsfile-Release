@@ -6,7 +6,7 @@ pipeline {
             string(name: 'sdk_version', defaultValue: '2.1.00', description: 'Android SDK Version')
     }
     environment {
-        ANDROID_HOME ='/Users/qa/Library/Android/sdk'
+        ANDROID_HOME ='/Users/MacMiniAdmin/Library/Android/sdk'
         BUILD_PATH = '/Users/qa/Documents/iOSRepos/buildScript'
         BUILD_HOST = 'localhost'
         BUILD_USER = 'qa'

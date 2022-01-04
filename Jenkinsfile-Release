@@ -50,10 +50,10 @@ pipeline {
                         ./gradlew build
 
                         # Copy binaries to local folder MobileSDK
-                        cp mas-foundation/build/outputs/aar/mas-foundation-release.aar ../../${zip_name}/mas-foundation-${sdk_version}-${build_number}.aar
-                        cp mas-connecta/build/outputs/aar/mas-connecta-release.aar ../../${zip_name}/mas-connecta-${sdk_version}-${build_number}.aar
-                        cp mas-storage/build/outputs/aar/mas-storage-release.aar ../../${zip_name}/mas-storage-${sdk_version}-${build_number}.aar
-                        cp masui/build/outputs/aar/masui-release.aar ../../${zip_name}/masui-${sdk_version}-${build_number}.aar
+                        cp mas-foundation/build/outputs/aar/mas-foundation-release.aar ${zip_name}/mas-foundation-${sdk_version}-${build_number}.aar
+                        cp mas-connecta/build/outputs/aar/mas-connecta-release.aar ${zip_name}/mas-connecta-${sdk_version}-${build_number}.aar
+                        cp mas-storage/build/outputs/aar/mas-storage-release.aar ${zip_name}/mas-storage-${sdk_version}-${build_number}.aar
+                        cp masui/build/outputs/aar/masui-release.aar ${zip_name}/masui-${sdk_version}-${build_number}.aar
 
                         # Zip and Copy javadoc to folder MobileSDK
                         cd docs

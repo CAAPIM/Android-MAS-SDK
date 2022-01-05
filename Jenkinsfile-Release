@@ -23,6 +23,7 @@ pipeline {
                         #Delete and Re-create local SDK folder
                         rm -rf $ZIP_NAME
                         sudo mkdir $ZIP_NAME
+                        chmod +x  $ZIP_NAME
 
                         #Clear MobileSDK-Hotfix-Binaries folder on filer3
                         chmod 777 ../../../../../../Volumes/wip/mag/MobileSDK-Hotfix-Binaries/

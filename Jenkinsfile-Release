@@ -1,0 +1,72 @@
+@Library('apim-jenkins-lib@master') _
+
+pipeline {
+    agent { label 'apim-macmini-colo-01.lvn.broadcom.net' }
+    parameters {
+            string(name: 'sdk_version', defaultValue: '2.1.00', description: 'Android SDK Version')
+    }
+    environment {
+        ANDROID_HOME ='/Users/MacMiniAdmin/Library/Android/sdk'
+        BUILD_PATH = '/Users/MacMiniAdmin/Documents/iOSRepos/buildScript'
+        BUILD_HOST = 'localhost'
+        BUILD_USER = 'qa'
+        BUILD_PASSWORD = '7layer'
+        MODULE = 'all'
+        ZIP_NAME = 'MobileSDK'
+        JAVA_HOME = '/Library/Java/JavaVirtualMachines/jdk1.8.0_281.jdk/Contents/Home'
+    }
+    stages {
+        stage('Clean Filer3 Folder and the local folder') {
+            steps {
+                script {
+                    sh '''#!/bin/bash
+                        #Delete and Re-create local SDK folder
+                        rm -rf $ZIP_NAME
+                        sudo mkdir $ZIP_NAME
+                        chmod -R 777 $ZIP_NAME
+
+                        #Clear MobileSDK-Hotfix-Binaries folder on filer3
+                        chmod 777 ../../../../../../Volumes/wip/mag/MobileSDK-Hotfix-Binaries/
+                        cd ../../../../../../Volumes/wip/mag/MobileSDK-Hotfix-Binaries/
+                        [ -d $BRANCH_NAME ] && echo "Directory Exists" || mkdir $BRANCH_NAME
+                        chmod 777 $BRANCH_NAME
+                        if [ -d $BRANCH_NAME ]
+                        then
+                           cd $BRANCH_NAME/
+                           rm -rf *
+                        fi
+
+                    '''
+                }
+            }
+        }
+        stage('Build Android SDK - Gradle and copy to MobileSDK folder') {
+            steps {
+                script {
+                    sh '''#!/bin/bash
+                        zip_name=$ZIP_NAME
+                        chmod -R 777 ${zip_name}
+                        build_number=$BUILD_NUMBER
+                        cat /dev/null > settings.gradle
+                        printf "include ':mas', ':masui', ':mas-connecta', ':mas-storage',  ':mas-foundation', ':mas-test'" > settings.gradle
+                        ./gradlew build
+
+                        # Copy binaries to local folder MobileSDK
+                        cp mas-foundation/build/outputs/aar/mas-foundation-release.aar ${zip_name}/mas-foundation-${sdk_version}-${build_number}.aar
+                        cp mas-connecta/build/outputs/aar/mas-connecta-release.aar ${zip_name}/mas-connecta-${sdk_version}-${build_number}.aar
+                        cp mas-storage/build/outputs/aar/mas-storage-release.aar ${zip_name}/mas-storage-${sdk_version}-${build_number}.aar
+                        cp masui/build/outputs/aar/masui-release.aar ${zip_name}/masui-${sdk_version}-${build_number}.aar
+
+                        # Zip and Copy javadoc to folder MobileSDK
+                        cd docs
+                        zip -r mas_foundation_javadoc.zip mas_foundation_javadoc/
+                        zip -r mas_storage_javadoc.zip mas_storage_javadoc/
+                        zip -r mas_connecta_javadoc.zip mas_connecta_javadoc/
+
+                        sudo cp *.zip ../../../${zip_name}/
+                    '''
+                }
+            }
+        }
+    }
+}

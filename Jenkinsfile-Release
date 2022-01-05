@@ -23,13 +23,13 @@ pipeline {
                         #Delete and Re-create local SDK folder
                         rm -rf $ZIP_NAME
                         sudo mkdir $ZIP_NAME
-                        chmod +x  $ZIP_NAME
+                        chmod -R 777 $ZIP_NAME
 
                         #Clear MobileSDK-Hotfix-Binaries folder on filer3
                         chmod 777 ../../../../../../Volumes/wip/mag/MobileSDK-Hotfix-Binaries/
                         cd ../../../../../../Volumes/wip/mag/MobileSDK-Hotfix-Binaries/
                         [ -d $BRANCH_NAME ] && echo "Directory Exists" || mkdir $BRANCH_NAME
-                        chmod +x $BRANCH_NAME
+                        chmod 777 $BRANCH_NAME
                         if [ -d $BRANCH_NAME ]
                         then
                            cd $BRANCH_NAME/
@@ -45,6 +45,7 @@ pipeline {
                 script {
                     sh '''#!/bin/bash
                         zip_name=$ZIP_NAME
+                        chmod -R 777 ${zip_name}
                         build_number=$BUILD_NUMBER
                         cat /dev/null > settings.gradle
                         printf "include ':mas', ':masui', ':mas-connecta', ':mas-storage',  ':mas-foundation', ':mas-test'" > settings.gradle

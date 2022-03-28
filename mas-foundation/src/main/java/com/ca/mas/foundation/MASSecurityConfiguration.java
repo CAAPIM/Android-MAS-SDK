@@ -24,6 +24,7 @@ public interface MASSecurityConfiguration {
     boolean isPublic();
     boolean trustPublicPki();
     boolean allowSSLPinning();
+    boolean isHostnameVerifierEnabled();
     List<Certificate> getCertificates();
     List<String> getPublicKeyHashes();
 
@@ -32,6 +33,7 @@ public interface MASSecurityConfiguration {
         private boolean isPublic;
         private boolean allowSSLPinning = true;
         private boolean trustPublicPKI;
+        private boolean isHostVerifyEnable;
 
         private List<Certificate> certificates;
         private List<String> publicKeyHashes;
@@ -65,6 +67,16 @@ public interface MASSecurityConfiguration {
          */
         public Builder allowSSLPinning(boolean sslPinning) {
             this.allowSSLPinning = sslPinning;
+            return this;
+        }
+
+        /**
+         * Determines whether or not to include sensitive credentials from primary gateway in the network communication with the target host.
+         * @param enable to include or not
+         * @return the builder object
+         */
+        public Builder enableHostnameVerifier(boolean enable) {
+            this.isHostVerifyEnable = enable;
             return this;
         }
 
@@ -149,6 +161,11 @@ public interface MASSecurityConfiguration {
                 @Override
                 public boolean allowSSLPinning() {
                     return allowSSLPinning;
+                }
+
+                @Override
+                public boolean isHostnameVerifierEnabled() {
+                    return isHostVerifyEnable;
                 }
             };
         }
